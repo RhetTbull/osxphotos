@@ -1,13 +1,13 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.queryoptions - osxphotos 0.50.13 documentation</title>
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>osxphotos.queryoptions - osxphotos 0.56.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.50.13 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.56.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.13 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -179,7 +179,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -194,21 +195,29 @@
         </div>
         <article role="main">
           <h1>Source code for osxphotos.queryoptions</h1><div class="highlight"><pre>
-<span></span><span class="sd">""" QueryOptions class for PhotosDB.query """</span>
+<span></span><span class="sd">&quot;&quot;&quot; QueryOptions class for PhotosDB.query &quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">bitmath</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"QueryOptions"</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;QueryOptions&quot;</span><span class="p">,</span> <span class="s2">&quot;query_options_from_kwargs&quot;</span><span class="p">,</span> <span class="s2">&quot;IncompatibleQueryOptions&quot;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">IncompatibleQueryOptions</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Incompatible query options&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span>
 
 
 <div class="viewcode-block" id="QueryOptions"><a class="viewcode-back" href="../../reference.html#osxphotos.QueryOptions">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">QueryOptions</span><span class="p">:</span>
 
-    <span class="sd">"""QueryOptions class for PhotosDB.query</span>
+    <span class="sd">&quot;&quot;&quot;QueryOptions class for PhotosDB.query</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        added_after: search for photos added after a given date</span>
@@ -257,6 +266,7 @@
 <span class="sd">        no_title: search for photos with no title</span>
 <span class="sd">        not_burst: search for non-burst photos</span>
 <span class="sd">        not_cloudasset: search for photos that are not managed by iCloud</span>
+<span class="sd">        not_edited: search for photos that have not been edited</span>
 <span class="sd">        not_favorite: search for non-favorite photos</span>
 <span class="sd">        not_hdr: search for non-HDR photos</span>
 <span class="sd">        not_hidden: search for non-hidden photos</span>
@@ -290,7 +300,7 @@
 <span class="sd">        uti: list of UTIs to search for</span>
 <span class="sd">        uuid: list of uuids to search for</span>
 <span class="sd">        year: search for photos taken in a given year</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">added_after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">added_before</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -339,6 +349,7 @@
     <span class="n">no_title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_burst</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_cloudasset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_edited</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_favorite</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_hdr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_hidden</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -376,6 +387,131 @@
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">query_options_from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QueryOptions</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Validate query options and create a QueryOptions instance&quot;&quot;&quot;</span>
+    <span class="c1"># sanity check input args</span>
+    <span class="n">nonexclusive</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;added_after&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;added_before&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;added_in_last&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;album&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;duplicate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exif&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;external_edit&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;folder&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;from_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;from_time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;has_raw&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;keyword&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max_size&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;min_size&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;person&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;query_eval&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;query_function&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;regex&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;selected&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;to_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;to_time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;uti&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;uuid_from_file&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;year&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">exclusive</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;burst&quot;</span><span class="p">,</span> <span class="s2">&quot;not_burst&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;cloudasset&quot;</span><span class="p">,</span> <span class="s2">&quot;not_cloudasset&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;edited&quot;</span><span class="p">,</span> <span class="s2">&quot;not_edited&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;favorite&quot;</span><span class="p">,</span> <span class="s2">&quot;not_favorite&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;has_comment&quot;</span><span class="p">,</span> <span class="s2">&quot;no_comment&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;has_likes&quot;</span><span class="p">,</span> <span class="s2">&quot;no_likes&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;hdr&quot;</span><span class="p">,</span> <span class="s2">&quot;not_hdr&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;hidden&quot;</span><span class="p">,</span> <span class="s2">&quot;not_hidden&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;in_album&quot;</span><span class="p">,</span> <span class="s2">&quot;not_in_album&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;incloud&quot;</span><span class="p">,</span> <span class="s2">&quot;not_incloud&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;is_reference&quot;</span><span class="p">,</span> <span class="s2">&quot;not_reference&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;keyword&quot;</span><span class="p">,</span> <span class="s2">&quot;no_keyword&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;live&quot;</span><span class="p">,</span> <span class="s2">&quot;not_live&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="s2">&quot;no_location&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;missing&quot;</span><span class="p">,</span> <span class="s2">&quot;not_missing&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;only_photos&quot;</span><span class="p">,</span> <span class="s2">&quot;only_movies&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;panorama&quot;</span><span class="p">,</span> <span class="s2">&quot;not_panorama&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;portrait&quot;</span><span class="p">,</span> <span class="s2">&quot;not_portrait&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;screenshot&quot;</span><span class="p">,</span> <span class="s2">&quot;not_screenshot&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;selfie&quot;</span><span class="p">,</span> <span class="s2">&quot;not_selfie&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shared&quot;</span><span class="p">,</span> <span class="s2">&quot;not_shared&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;slow_mo&quot;</span><span class="p">,</span> <span class="s2">&quot;not_slow_mo&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;time_lapse&quot;</span><span class="p">,</span> <span class="s2">&quot;not_time_lapse&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;deleted&quot;</span><span class="p">,</span> <span class="s2">&quot;not_deleted&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="c1"># TODO: add option to validate requiring at least one query arg</span>
+    <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">not_arg</span> <span class="ow">in</span> <span class="n">exclusive</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">not_arg</span><span class="p">):</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="n">not_arg</span> <span class="o">=</span> <span class="n">not_arg</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">IncompatibleQueryOptions</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2"> and --</span><span class="si">{</span><span class="n">not_arg</span><span class="si">}</span><span class="s2"> are mutually exclusive&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># some options like title can be specified multiple times</span>
+    <span class="c1"># check if any of them are specified along with their no_ counterpart</span>
+    <span class="n">exclusive_multi_options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;place&quot;</span><span class="p">,</span> <span class="s2">&quot;keyword&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">exclusive_multi_options</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="p">)</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;no_</span><span class="si">{option}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">IncompatibleQueryOptions</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s2"> and --no-</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s2"> are mutually exclusive&quot;</span>
+            <span class="p">)</span>
+
+    <span class="n">include_photos</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">include_movies</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># default searches for everything</span>
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;only_movies&quot;</span><span class="p">):</span>
+        <span class="n">include_photos</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;only_photos&quot;</span><span class="p">):</span>
+        <span class="n">include_movies</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># load UUIDs if necessary and append to any uuids passed with --uuid</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">uuid_from_file</span> <span class="o">:=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;uuid_from_file&quot;</span><span class="p">):</span>
+        <span class="n">uuid_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span> <span class="p">[]))</span>  <span class="c1"># Click option is a tuple</span>
+        <span class="n">uuid_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">load_uuid_from_file</span><span class="p">(</span><span class="n">uuid_from_file</span><span class="p">))</span>
+        <span class="n">uuid</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">uuid_list</span><span class="p">)</span>
+
+    <span class="n">query_fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">QueryOptions</span><span class="p">)]</span>
+    <span class="n">query_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">query_fields</span><span class="p">}</span>
+    <span class="n">query_dict</span><span class="p">[</span><span class="s2">&quot;photos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">include_photos</span>
+    <span class="n">query_dict</span><span class="p">[</span><span class="s2">&quot;movies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">include_movies</span>
+    <span class="n">query_dict</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uuid</span>
+    <span class="k">return</span> <span class="n">QueryOptions</span><span class="p">(</span><span class="o">**</span><span class="n">query_dict</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">load_uuid_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load UUIDs from file.  Does not validate UUIDs.</span>
+<span class="sd">        Format is 1 UUID per line, any line beginning with # is ignored.</span>
+<span class="sd">        Whitespace is stripped.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        filename: file name of the file containing UUIDs</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of UUIDs or empty list of no UUIDs in file</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError if file does not exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">uuid</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">uuid_file</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">uuid_file</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+                <span class="n">uuid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">uuid</span>
 </pre></div>
         </article>
       </div>
@@ -413,7 +549,9 @@
 </div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
