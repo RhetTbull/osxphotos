@@ -26,7 +26,13 @@ from osxphotos.utils import pluralize
 
 from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
-from .common import DB_OPTION, QUERY_OPTIONS, THEME_OPTION
+from .common import (
+    DB_OPTION,
+    QUERY_OPTIONS,
+    THEME_OPTION,
+    TIMESTAMP_OPTION,
+    VERBOSE_OPTION,
+)
 from .param_types import TemplateString
 from .report_writer import sync_report_writer_factory
 from .rich_progress import rich_progress
@@ -287,7 +293,9 @@ def import_metadata(
     elif import_type == "export":
         import_db = open_metadata_db(import_path)
     else:
-        echo_error(f"Unable to determine type of import file: [filepath]{import_path}[/]")
+        echo_error(
+            f"Unable to determine type of import file: [filepath]{import_path}[/]"
+        )
         raise click.Abort()
 
     results = SyncResults()
@@ -364,7 +372,7 @@ def _update_albums_for_photo(
     before = sorted(photo.albums)
     albums_to_add = set(value) - set(before)
     if not albums_to_add:
-        verbose(f"\tNothing to do for albums")
+        verbose(f"\tNothing to do for albums", level=2)
         results.add_result(
             photo.uuid,
             photo.original_filename,
@@ -422,7 +430,7 @@ def _set_metadata_for_photo(
             if not dry_run:
                 set_photo_property(photo_, field, value)
         else:
-            verbose(f"\tNothing to do for {field}")
+            verbose(f"\tNothing to do for {field}", level=2)
 
         results.add_result(
             photo.uuid,
@@ -460,7 +468,7 @@ def _merge_metadata_for_photo(
             before = sorted(before)
 
         if value == before:
-            verbose(f"\tNothing to do for {field}")
+            verbose(f"\tNothing to do for {field}", level=2)
             results.add_result(
                 photo.uuid,
                 photo.original_filename,
@@ -494,7 +502,7 @@ def _merge_metadata_for_photo(
         else:
             # Merge'd value might still be the same as original value
             # (e.g. if value is str and has previously been merged)
-            verbose(f"\tNothing to do for {field}")
+            verbose(f"\tNothing to do for {field}", level=2)
 
         results.add_result(
             photo.uuid,
@@ -630,10 +638,8 @@ def print_import_summary(results: SyncResults):
     is_flag=True,
     help="Dry run; " "when used with --import, don't actually update metadata.",
 )
-@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
-@click.option(
-    "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output."
-)
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @QUERY_OPTIONS
 @DB_OPTION
 @THEME_OPTION
@@ -653,7 +659,7 @@ def sync(
     theme,
     timestamp,
     unmatched,
-    verbose_,
+    verbose_flag,
     **kwargs,  # query options
 ):
     """Sync metadata and albums between Photos libraries.
@@ -708,7 +714,7 @@ def sync(
 
     """
 
-    verbose = verbose_print(verbose=verbose_, timestamp=timestamp, theme=theme)
+    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     if (set_ or merge) and not import_path:
         echo_error("--set and --merge can only be used with --import")
