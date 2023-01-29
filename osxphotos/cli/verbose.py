@@ -56,21 +56,22 @@ def noop(*args, **kwargs):
     pass
 
 
-def verbose(*args, level: int = 1, **kwargs):
+def verbose(*args, level: int = 1):
     """Print verbose output
 
     Args:
         *args: arguments to pass to verbose function for printing
         level: verbose level; if level > get_verbose_level(), output is suppressed
-
-    Notes:
-        Normally you should use verbose_print() to get the verbose function instead of calling this directly
-
     """
+
+    # Notes:
+    #     Normally you should use verbose_print() to get the verbose function instead of calling this directly
+    #     This is here so that verbose can be directly imported and used in other modules without calling verbose_print()
+    #     Use of verbose_print() will set the verbose function so that calling verbose() will work as expected
     global __verbose_function
     if __verbose_function is None:
         return
-    __verbose_function(*args, level=level, **kwargs)
+    __verbose_function(*args, level=level)
 
 
 def set_verbose_level(level: int):

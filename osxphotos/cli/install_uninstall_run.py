@@ -58,6 +58,12 @@ def uninstall(packages, yes):
 def run(python_file, help, args):
     """Run a python file using same environment as osxphotos.
     Any args are made available to the python file."""
-    # drop first two arguments, which are the osxphotos script and run command
-    sys.argv = sys.argv[2:]
+
+    # Need to drop all the args from sys.argv up to and including the run command
+    # For example, command could be one of the following:
+    # osxphotos run example.py --help
+    # osxphotos --debug run example.py --verbose --db /path/to/photos.db
+    # etc.
+    if index := sys.argv.index("run"):
+        sys.argv = sys.argv[index + 1 :]
     run_path(python_file, run_name="__main__")

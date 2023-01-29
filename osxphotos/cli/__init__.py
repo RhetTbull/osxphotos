@@ -47,6 +47,7 @@ from .about import about
 from .add_locations import add_locations
 from .albums import albums
 from .cli import cli_main
+from .cli_commands import abort, echo, echo_error, logger, query_command, verbose
 from .common import get_photos_db
 from .debug_dump import debug_dump
 from .dump import dump
@@ -73,6 +74,7 @@ from .uuid import uuid
 install_traceback()
 
 __all__ = [
+    "abort",
     "about",
     "add_locations",
     "albums",
@@ -80,6 +82,8 @@ __all__ = [
     "debug_dump",
     "diff",
     "dump",
+    "echo",
+    "echo_error",
     "exiftool_cli",
     "export",
     "exportdb",
@@ -91,15 +95,18 @@ __all__ = [
     "labels",
     "list_libraries",
     "list_libraries",
+    "logger",
     "orphans",
     "persons",
     "photo_inspect",
     "places",
     "query",
+    "query_command",
     "repl",
     "run",
     "set_debug",
     "snap",
     "tutorial",
     "uuid",
+    "verbose",
 ]
