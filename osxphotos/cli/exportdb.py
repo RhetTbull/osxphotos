@@ -34,6 +34,7 @@ from .click_rich_echo import (
     set_rich_theme,
 )
 from .color_themes import get_theme
+from .common import TIMESTAMP_OPTION, VERBOSE_OPTION
 from .export import render_and_validate_report
 from .param_types import TemplateString
 from .report_writer import export_report_writer_factory
@@ -150,7 +151,8 @@ from .verbose import get_verbose_console, verbose_print
     help="If used with --report, add data to existing report file instead of overwriting it. "
     "See also --report.",
 )
-@click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.option(
     "--dry-run",
     is_flag=True,
@@ -171,6 +173,7 @@ def exportdb(
     report,
     save_config,
     sql,
+    timestamp,
     touch_file,
     update_signatures,
     uuid_files,
@@ -178,17 +181,11 @@ def exportdb(
     delete_uuid,
     delete_file,
     vacuum,
-    verbose,
+    verbose_flag,
     version,
 ):
     """Utilities for working with the osxphotos export database"""
-    color_theme = get_theme()
-    verbose_ = verbose_print(
-        verbose, timestamp=False, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console(theme=color_theme))
-    set_rich_theme(color_theme)
+    verbose = verbose_print(verbose_flag, timestamp=timestamp)
 
     # validate options and args
     if append and not report:
@@ -264,7 +261,7 @@ def exportdb(
     if update_signatures:
         try:
             updated, skipped = export_db_update_signatures(
-                export_db, export_dir, verbose_, dry_run
+                export_db, export_dir, verbose, dry_run
             )
         except Exception as e:
             rich_echo(f"[error]Error: {e}[/error]")
@@ -299,7 +296,7 @@ def exportdb(
     if check_signatures:
         try:
             matched, notmatched, skipped = export_db_check_signatures(
-                export_db, export_dir, verbose_=verbose_
+                export_db, export_dir, verbose_=verbose
             )
         except Exception as e:
             rich_echo(f"[error]Error: {e}[/error]")
@@ -314,7 +311,7 @@ def exportdb(
     if touch_file:
         try:
             touched, not_touched, skipped = export_db_touch_files(
-                export_db, export_dir, verbose_=verbose_, dry_run=dry_run
+                export_db, export_dir, verbose_=verbose, dry_run=dry_run
             )
         except Exception as e:
             rich_echo(f"[error]Error: {e}[/error]")

@@ -2,6 +2,8 @@
 
 import pytest
 
+from osxphotos.queryoptions import load_uuid_from_file
+
 UUID_FILE = "tests/uuid_from_file.txt"
 MISSING_UUID_FILE = "tests/uuid_not_found.txt"
 
@@ -13,8 +15,7 @@ UUID_EXPECTED_FROM_FILE = [
 
 
 def test_load_uuid_from_file():
-    """Test load_uuid_from_file function """
-    from osxphotos.cli import load_uuid_from_file
+    """Test load_uuid_from_file function"""
 
     uuid_got = load_uuid_from_file(UUID_FILE)
     assert uuid_got == UUID_EXPECTED_FROM_FILE
@@ -22,7 +23,6 @@ def test_load_uuid_from_file():
 
 def test_load_uuid_from_file_filenotfound():
     """Test load_uuid_from_file function raises error if file not found"""
-    from osxphotos.cli import load_uuid_from_file
 
     with pytest.raises(FileNotFoundError) as err:
         uuid_got = load_uuid_from_file(MISSING_UUID_FILE)

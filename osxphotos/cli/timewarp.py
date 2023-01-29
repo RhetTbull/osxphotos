@@ -25,16 +25,10 @@ from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.utils import noop, pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo,
-    rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
-)
+from .click_rich_echo import rich_click_echo as echo
+from .click_rich_echo import rich_echo_error as echo_error
 from .color_themes import get_theme
-from .common import THEME_OPTION
+from .common import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .darkmode import is_dark_mode
 from .help import HELP_WIDTH, rich_text
 from .param_types import (
@@ -310,7 +304,8 @@ command which can be used to change the time zone of photos after import.
     help="When used with --compare-exif, adds any photos with date/time/timezone differences "
     "between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.",
 )
-@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Show verbose output.")
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.option(
     "--library",
     "-L",
@@ -325,19 +320,6 @@ command which can be used to change the time zone of photos after import.
     "-e",
     type=click.Path(exists=True),
     help="Optional path to exiftool executable (will look in $PATH if not specified) for those options which require exiftool.",
-)
-@click.option(
-    "--output-file",
-    "-o",
-    type=click.File(mode="w", lazy=False),
-    help="Output file. If not specified, output is written to stdout.",
-)
-@click.option(
-    "--terminal-width",
-    "-w",
-    type=int,
-    help="Terminal width in characters.",
-    hidden=True,
 )
 @click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
 @THEME_OPTION
@@ -366,13 +348,11 @@ def timewarp(
     use_file_time,
     add_to_album,
     exiftool_path,
-    verbose_,
+    verbose_flag,
     library,
     theme,
     parse_date,
     plain,
-    output_file,
-    terminal_width,
     timestamp,
     force,
 ):
@@ -419,33 +399,7 @@ def timewarp(
     if add_to_album and not compare_exif:
         raise click.UsageError("--add-to-album must be used with --compare-exif.")
 
-    # configure colored rich output
-    # TODO: this is all a little hacky, find a better way to do this
-    color_theme = get_theme(theme)
-    verbose = verbose_print(
-        verbose_,
-        timestamp,
-        rich=True,
-        theme=color_theme,
-        highlight=False,
-        file=output_file,
-    )
-    # set console for rich_echo to be same as for verbose_
-    terminal_width = terminal_width or (1000 if output_file else None)
-    if output_file:
-        set_rich_console(Console(file=output_file, width=terminal_width))
-    elif terminal_width:
-        set_rich_console(
-            Console(
-                file=sys.stdout,
-                theme=color_theme,
-                force_terminal=True,
-                width=terminal_width,
-            )
-        )
-    else:
-        set_rich_console(get_verbose_console(theme=color_theme))
-    set_rich_theme(color_theme)
+    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     if any([compare_exif, push_exif, pull_exif]):
         exiftool_path = exiftool_path or get_exiftool_path()
@@ -454,19 +408,19 @@ def timewarp(
     try:
         photos = PhotosLibrary().selection
         if not photos:
-            rich_echo_error("[warning]No photos selected[/]")
+            echo_error("[warning]No photos selected[/]")
             sys.exit(0)
     except Exception as e:
         # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
         if "(-1728)" in str(e):
-            rich_echo_error(
+            echo_error(
                 "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
                 "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
                 f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
                 "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
             )
         else:
-            rich_echo_error(
+            echo_error(
                 f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
             )
         sys.exit(1)
@@ -535,7 +489,7 @@ def timewarp(
     if inspect:
         tzinfo = PhotoTimeZone(library_path=library)
         if photos:
-            rich_echo(
+            echo(
                 "[filename]filename[/filename], [uuid]uuid[/uuid], "
                 "[time]photo time (local)[/time], "
                 "[time]photo time[/time], "
@@ -545,7 +499,7 @@ def timewarp(
             tz_seconds, tz_str, tz_name = tzinfo.get_timezone(photo)
             photo_date_local = datetime_naive_to_local(photo.date)
             photo_date_tz = datetime_to_new_tz(photo_date_local, tz_seconds)
-            rich_echo(
+            echo(
                 f"[filename]{photo.filename}[/filename], [uuid]{photo.uuid}[/uuid], "
                 f"[time]{photo_date_local.strftime(DATETIME_FORMAT)}[/time], "
                 f"[time]{photo_date_tz.strftime(DATETIME_FORMAT)}[/time], "
@@ -563,7 +517,7 @@ def timewarp(
                 exiftool_path=exiftool_path,
             )
             if not album:
-                rich_echo(
+                echo(
                     "filename, uuid, photo time (Photos), photo time (EXIF), timezone offset (Photos), timezone offset (EXIF)"
                 )
         for photo in photos:
@@ -592,13 +546,13 @@ def timewarp(
                 else:
                     verbose(f"Photo {filename} ({uuid}) has same date/time/timezone")
             else:
-                rich_echo(
+                echo(
                     f"{filename}, {uuid}, "
                     f"{diff_results.photos_date} {diff_results.photos_time}, {diff_results.exif_date} {diff_results.exif_time}, "
                     f"{diff_results.photos_tz}, {diff_results.exif_tz}"
                 )
         if album:
-            rich_echo(
+            echo(
                 f"Compared {len(photos)} photos, found {different_photos} "
                 f"that {pluralize(different_photos, 'is', 'are')} different and "
                 f"added {pluralize(different_photos, 'it', 'them')} to album '{album.name}'."
@@ -649,12 +603,10 @@ def timewarp(
                 # before exiftool is run
                 exif_warn, exif_error = exif_updater.update_exif_from_photos(p)
                 if exif_warn:
-                    rich_echo_error(
-                        f"[warning]Warning running exiftool: {exif_warn}[/]"
-                    )
+                    echo_error(f"[warning]Warning running exiftool: {exif_warn}[/]")
                 if exif_error:
-                    rich_echo_error(f"[error]Error running exiftool: {exif_error}[/]")
+                    echo_error(f"[error]Error running exiftool: {exif_error}[/]")
 
             progress.advance(task)
 
-    rich_echo("Done.")
+    echo("Done.")

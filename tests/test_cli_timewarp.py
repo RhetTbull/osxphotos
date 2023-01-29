@@ -73,18 +73,18 @@ def test_select_pears(photoslib, suspend_capture):
 
 
 @pytest.mark.timewarp
-def test_inspect(photoslib, suspend_capture, output_file):
+def test_inspect(photoslib, suspend_capture):
     """Test --inspect. NOTE: this test requires user interaction"""
     from osxphotos.cli.timewarp import timewarp
 
     runner = CliRunner()
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
-    values = parse_inspect_output(output_file)
+    values = parse_inspect_output(result.output)
     assert TEST_DATA["inspect"]["expected"] == values
 
 
@@ -111,7 +111,7 @@ def test_date(photoslib, suspend_capture):
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("input_value,expected", TEST_DATA["date_delta"]["parameters"])
-def test_date_delta(photoslib, suspend_capture, input_value, expected, output_file):
+def test_date_delta(photoslib, suspend_capture, input_value, expected):
     """Test --date-delta"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -129,16 +129,16 @@ def test_date_delta(photoslib, suspend_capture, input_value, expected, output_fi
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("input_value,expected", TEST_DATA["time"]["parameters"])
-def test_time(photoslib, suspend_capture, input_value, expected, output_file):
+def test_time(photoslib, suspend_capture, input_value, expected):
     """Test --time"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -158,16 +158,16 @@ def test_time(photoslib, suspend_capture, input_value, expected, output_file):
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("input_value,expected", TEST_DATA["time_delta"]["parameters"])
-def test_time_delta(photoslib, suspend_capture, input_value, expected, output_file):
+def test_time_delta(photoslib, suspend_capture, input_value, expected):
     """Test --time-delta"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -185,10 +185,10 @@ def test_time_delta(photoslib, suspend_capture, input_value, expected, output_fi
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
@@ -216,34 +216,28 @@ def test_time_zone(
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected_date
     assert output_values[0].tz_offset == expected_tz
 
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("expected", TEST_DATA["compare_exif"]["expected"])
-def test_compare_exif(photoslib, suspend_capture, expected, output_file):
+def test_compare_exif(photoslib, suspend_capture, expected):
     """Test --compare-exif"""
     from osxphotos.cli.timewarp import timewarp
 
     runner = CliRunner()
     result = runner.invoke(
         timewarp,
-        [
-            "--compare-exif",
-            "--plain",
-            "--force",
-            "-o",
-            output_file,
-        ],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == expected
 
 
@@ -281,24 +275,24 @@ def test_select_sunflowers(photoslib, suspend_capture):
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("expected", TEST_DATA["compare_exif_3"]["expected"])
-def test_compare_exif_3(photoslib, suspend_capture, expected, output_file):
+def test_compare_exif_3(photoslib, suspend_capture, expected):
     """Test --compare-exif"""
     from osxphotos.cli.timewarp import timewarp
 
     runner = CliRunner()
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == expected
 
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("input_value,expected", TEST_DATA["match"]["parameters"])
-def test_match(photoslib, suspend_capture, input_value, expected, output_file):
+def test_match(photoslib, suspend_capture, input_value, expected):
     """Test --timezone --match"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -317,10 +311,10 @@ def test_match(photoslib, suspend_capture, input_value, expected, output_file):
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
@@ -380,10 +374,10 @@ def test_push_exif_1(
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected_date
 
     photo = photoslib.selection[0]
@@ -402,7 +396,7 @@ def test_select_pears_2(photoslib, suspend_capture):
 
 
 @pytest.mark.timewarp
-def test_push_exif_2(photoslib, suspend_capture, output_file):
+def test_push_exif_2(photoslib, suspend_capture):
     """Test --push-exif"""
     pre_test = TEST_DATA["push_exif"]["pre"]
     post_test = TEST_DATA["push_exif"]["post"]
@@ -413,10 +407,10 @@ def test_push_exif_2(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
 
     result = runner.invoke(
@@ -433,15 +427,15 @@ def test_push_exif_2(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == post_test
 
 
 @pytest.mark.timewarp
-def test_pull_exif_1(photoslib, suspend_capture, output_file):
+def test_pull_exif_1(photoslib, suspend_capture):
     """Test --pull-exif"""
     pre_test = TEST_DATA["pull_exif_1"]["pre"]
     post_test = TEST_DATA["pull_exif_1"]["post"]
@@ -460,10 +454,10 @@ def test_pull_exif_1(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
 
     result = runner.invoke(
@@ -480,10 +474,10 @@ def test_pull_exif_1(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == post_test
 
 
@@ -494,7 +488,7 @@ def test_select_apple_tree(photoslib, suspend_capture):
 
 
 @pytest.mark.timewarp
-def test_pull_exif_no_time(photoslib, suspend_capture, output_file):
+def test_pull_exif_no_time(photoslib, suspend_capture):
     """Test --pull-exif when photo has invalid date/time in EXIF"""
     pre_test = TEST_DATA["pull_exif_no_time"]["pre"]
     post_test = TEST_DATA["pull_exif_no_time"]["post"]
@@ -505,10 +499,10 @@ def test_pull_exif_no_time(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
 
     result = runner.invoke(
@@ -525,10 +519,10 @@ def test_pull_exif_no_time(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == post_test
 
 
@@ -539,7 +533,7 @@ def test_select_marigolds(photoslib, suspend_capture):
 
 
 @pytest.mark.timewarp
-def test_pull_exif_no_offset(photoslib, suspend_capture, output_file):
+def test_pull_exif_no_offset(photoslib, suspend_capture):
     """Test --pull-exif when photo has no offset in EXIF"""
     pre_test = TEST_DATA["pull_exif_no_offset"]["pre"]
     post_test = TEST_DATA["pull_exif_no_offset"]["post"]
@@ -550,10 +544,10 @@ def test_pull_exif_no_offset(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
 
     result = runner.invoke(
@@ -570,10 +564,10 @@ def test_pull_exif_no_offset(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == post_test
 
 
@@ -586,7 +580,7 @@ def test_select_zinnias(photoslib, suspend_capture):
 
 
 @pytest.mark.timewarp
-def test_pull_exif_no_data(photoslib, suspend_capture, output_file):
+def test_pull_exif_no_data(photoslib, suspend_capture):
     """Test --pull-exif when photo has no data in EXIF"""
     pre_test = TEST_DATA["pull_exif_no_data"]["pre"]
     post_test = TEST_DATA["pull_exif_no_data"]["post"]
@@ -597,10 +591,10 @@ def test_pull_exif_no_data(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
 
     result = runner.invoke(
@@ -618,15 +612,15 @@ def test_pull_exif_no_data(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == post_test
 
 
 @pytest.mark.timewarp
-def test_pull_exif_no_data_use_file_time(photoslib, suspend_capture, output_file):
+def test_pull_exif_no_data_use_file_time(photoslib, suspend_capture):
     """Test --pull-exif when photo has no data in EXIF with --use-file-time"""
     pre_test = TEST_DATA["pull_exif_no_data_use_file_time"]["pre"]
     post_test = TEST_DATA["pull_exif_no_data_use_file_time"]["post"]
@@ -637,10 +631,10 @@ def test_pull_exif_no_data_use_file_time(photoslib, suspend_capture, output_file
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
 
     result = runner.invoke(
@@ -659,10 +653,10 @@ def test_pull_exif_no_data_use_file_time(photoslib, suspend_capture, output_file
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == post_test
 
 
@@ -674,7 +668,7 @@ def test_select_sunset_video(photoslib, suspend_capture):
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("expected", TEST_DATA["compare_video_1"]["expected"])
-def test_video_compare_exif(photoslib, suspend_capture, expected, output_file):
+def test_video_compare_exif(photoslib, suspend_capture, expected):
     """Test --compare-exif with video"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -685,13 +679,11 @@ def test_video_compare_exif(photoslib, suspend_capture, expected, output_file):
             "--compare-exif",
             "--plain",
             "--force",
-            "-o",
-            output_file,
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == expected
 
 
@@ -708,22 +700,17 @@ def test_video_date_delta(
     runner = CliRunner()
     result = runner.invoke(
         timewarp,
-        [
-            "--date-delta",
-            input_value,
-            "--plain",
-            "--force",
-        ],
+        ["--date-delta", input_value, "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
 
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
@@ -751,16 +738,16 @@ def test_video_time_delta(
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("input_value,expected", TEST_DATA["video_date"]["parameters"])
-def test_video_date(photoslib, suspend_capture, input_value, expected, output_file):
+def test_video_date(photoslib, suspend_capture, input_value, expected):
     """Test --date with video"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -780,16 +767,16 @@ def test_video_date(photoslib, suspend_capture, input_value, expected, output_fi
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("input_value,expected", TEST_DATA["video_time"]["parameters"])
-def test_video_time(photoslib, suspend_capture, input_value, expected, output_file):
+def test_video_time(photoslib, suspend_capture, input_value, expected):
     """Test --time with video"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -809,10 +796,10 @@ def test_video_time(photoslib, suspend_capture, input_value, expected, output_fi
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
@@ -840,17 +827,17 @@ def test_video_time_zone(
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected_date
     assert output_values[0].tz_offset == expected_tz
 
 
 @pytest.mark.timewarp
 @pytest.mark.parametrize("input_value,expected", TEST_DATA["video_match"]["parameters"])
-def test_video_match(photoslib, suspend_capture, input_value, expected, output_file):
+def test_video_match(photoslib, suspend_capture, input_value, expected):
     """Test --timezone --match with video"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -869,15 +856,15 @@ def test_video_match(photoslib, suspend_capture, input_value, expected, output_f
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 
 
 @pytest.mark.timewarp
-def test_video_push_exif(photoslib, suspend_capture, output_file):
+def test_video_push_exif(photoslib, suspend_capture):
     """Test --push-exif with video"""
     pre_test = TEST_DATA["video_push_exif"]["pre"]
     post_test = TEST_DATA["video_push_exif"]["post"]
@@ -888,10 +875,10 @@ def test_video_push_exif(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
 
     result = runner.invoke(
@@ -908,15 +895,15 @@ def test_video_push_exif(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == post_test
 
 
 @pytest.mark.timewarp
-def test_video_pull_exif(photoslib, suspend_capture, output_file):
+def test_video_pull_exif(photoslib, suspend_capture):
     """Test --pull-exif with video"""
     pre_test = TEST_DATA["video_pull_exif"]["pre"]
     post_test = TEST_DATA["video_pull_exif"]["post"]
@@ -946,10 +933,10 @@ def test_video_pull_exif(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
 
     result = runner.invoke(
@@ -966,10 +953,10 @@ def test_video_pull_exif(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "--force", "-o", output_file],
+        ["--compare-exif", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_compare_exif(output_file)
+    output_values = parse_compare_exif(result.output)
     assert output_values[0] == post_test
 
 
@@ -980,7 +967,7 @@ def test_select_pears_3(photoslib, suspend_capture):
 
 
 @pytest.mark.timewarp
-def test_function(photoslib, suspend_capture, output_file):
+def test_function(photoslib, suspend_capture):
     """Test timewarp function"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -999,10 +986,10 @@ def test_function(photoslib, suspend_capture, output_file):
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0] == expected
 
 
@@ -1013,8 +1000,7 @@ def test_select_palm_tree_1(photoslib, suspend_capture):
 
 
 @pytest.mark.timewarp
-@pytest.mark.skipif(get_os_version()[0] != "13", reason="test requires macOS 13")
-def test_parse_date(photoslib, suspend_capture, output_file):
+def test_parse_date(photoslib, suspend_capture):
     """Test --parse-date"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -1033,18 +1019,17 @@ def test_parse_date(photoslib, suspend_capture, output_file):
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_local == expected.date_local
     assert output_values[0].date_tz == expected.date_tz
     assert output_values[0].tz_offset == expected.tz_offset
 
 
 @pytest.mark.timewarp
-@pytest.mark.skipif(get_os_version()[0] != "13", reason="test requires macOS 13")
-def test_parse_date_tz(photoslib, suspend_capture, output_file):
+def test_parse_date_tz(photoslib, suspend_capture):
     """Test --parse-date with a timezone"""
     from osxphotos.cli.timewarp import timewarp
 
@@ -1063,10 +1048,10 @@ def test_parse_date_tz(photoslib, suspend_capture, output_file):
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "--force", "-o", output_file],
+        ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
-    output_values = parse_inspect_output(output_file)
+    output_values = parse_inspect_output(result.output)
     assert output_values[0].date_local == expected.date_local
     assert output_values[0].date_tz == expected.date_tz
     assert output_values[0].tz_offset == expected.tz_offset

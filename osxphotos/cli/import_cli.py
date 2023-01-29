@@ -27,7 +27,7 @@ from strpdatetime import strpdatetime
 
 from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos._version import __version__
-from osxphotos.cli.common import get_data_dir
+from osxphotos.cli.common import TIMESTAMP_OPTION, VERBOSE_OPTION, get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.cli.param_types import FunctionCall, StrpDateTimePattern, TemplateString
 from osxphotos.datetime_utils import (
@@ -44,14 +44,7 @@ from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
-)
-from .color_themes import get_theme
+from .click_rich_echo import rich_click_echo, rich_echo_error
 from .common import THEME_OPTION
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
@@ -1362,10 +1355,8 @@ class ImportCommand(click.Command):
     help="If used with --report, add data to existing report file instead of overwriting it. "
     "See also --report.",
 )
-@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
-@click.option(
-    "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output"
-)
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.option(
     "--no-progress", is_flag=True, help="Do not display progress bar during import."
 )
@@ -1419,19 +1410,12 @@ def import_cli(
     theme,
     timestamp,
     title,
-    verbose_,
+    verbose_flag,
     walk,
 ):
     """Import photos and videos into Photos."""
 
-    color_theme = get_theme(theme)
-    verbose = verbose_print(
-        verbose_, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     if not files:
         echo("Nothing to import", err=True)

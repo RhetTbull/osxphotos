@@ -12,7 +12,13 @@ from rich.syntax import Syntax
 
 import osxphotos
 
-from .common import DB_OPTION, OSXPHOTOS_SNAPSHOT_DIR, get_photos_db
+from .common import (
+    DB_OPTION,
+    OSXPHOTOS_SNAPSHOT_DIR,
+    TIMESTAMP_OPTION,
+    VERBOSE_OPTION,
+    get_photos_db,
+)
 from .verbose import verbose_print
 
 
@@ -80,8 +86,9 @@ def snap(ctx, cli_obj, db):
     "Default is 'monokai'.",
 )
 @click.argument("db2", nargs=-1, type=click.Path(exists=True))
-@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
-def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
+def diff(ctx, cli_obj, db, raw_output, style, db2, verbose_flag, timestamp):
     """Compare two Photos databases and print out differences
 
     To use the diff command, you'll need to install sqldiff via homebrew:
@@ -110,7 +117,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
     Works only on Photos library versions since Catalina (10.15) or newer.
     """
 
-    verbose_ = verbose_print(verbose, rich=True)
+    verbose = verbose_print(verbose_flag, timestamp=timestamp)
 
     sqldiff = shutil.which("sqldiff")
     if not sqldiff:
@@ -118,7 +125,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
             "sqldiff not found; install via homebrew (https://brew.sh/): `brew install sqldiff`"
         )
         ctx.exit(2)
-    verbose_(f"sqldiff found at '{sqldiff}'")
+    verbose(f"sqldiff found at '{sqldiff}'")
 
     db = get_photos_db(db, cli_obj.db)
     db_path = pathlib.Path(db)
@@ -133,7 +140,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
     else:
         # get most recent snapshot
         db_folder = os.environ.get("OSXPHOTOS_SNAPSHOT", OSXPHOTOS_SNAPSHOT_DIR)
-        verbose_(f"Using snapshot folder: '{db_folder}'")
+        verbose(f"Using snapshot folder: '{db_folder}'")
         folders = sorted([f for f in pathlib.Path(db_folder).glob("*") if f.is_dir()])
         folder_2 = folders[-1]
         db_2 = folder_2 / "Photos.sqlite"
@@ -143,7 +150,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
     if not db_2.exists():
         print(f"database file {db_2} missing")
 
-    verbose_(f"Comparing databases {db_1} and {db_2}")
+    verbose(f"Comparing databases {db_1} and {db_2}")
 
     diff_proc = subprocess.Popen([sqldiff, db_2, db_1], stdout=subprocess.PIPE)
     console = Console()

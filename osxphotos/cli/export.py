@@ -2,6 +2,7 @@
 
 import os
 import pathlib
+import platform
 import shlex
 import subprocess
 import sys
@@ -54,19 +55,16 @@ from osxphotos.photokit import (
 )
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
-from osxphotos.queryoptions import QueryOptions
+from osxphotos.queryoptions import QueryOptions, load_uuid_from_file
 from osxphotos.uti import get_preferred_uti_extension
-from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path, pluralize
-
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo,
-    rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
+from osxphotos.utils import (
+    get_macos_version,
+    format_sec_to_hhmmss,
+    normalize_fs_path,
+    pluralize,
 )
-from .color_themes import get_theme
+
+from .click_rich_echo import rich_click_echo, rich_echo, rich_echo_error
 from .common import (
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
@@ -78,8 +76,9 @@ from .common import (
     OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
     THEME_OPTION,
+    TIMESTAMP_OPTION,
+    VERBOSE_OPTION,
     get_photos_db,
-    load_uuid_from_file,
     noop,
 )
 from .help import ExportCommand, get_help_msg
@@ -87,13 +86,13 @@ from .list import _list_libraries
 from .param_types import ExportDBType, FunctionCall, TemplateString
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
-from .verbose import get_verbose_console, time_stamp, verbose_print
+from .verbose import get_verbose_console, verbose_print
 
 
 @click.command(cls=ExportCommand)
 @DB_OPTION
-@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
-@click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.option(
     "--no-progress", is_flag=True, help="Do not display progress bar during export."
 )
@@ -875,7 +874,7 @@ def export(
     uti,
     uuid,
     uuid_from_file,
-    verbose,
+    verbose_flag,
     xattr_template,
     year,
     # debug,  # debug, watch, breakpoint handled in cli/__init__.py
@@ -908,6 +907,10 @@ def export(
     locals_ = locals()
     set_crash_data("locals", locals_)
 
+    # config expects --verbose to be named "verbose" not "verbose_flag"
+    locals_["verbose"] = verbose_flag
+    del locals_["verbose_flag"]
+
     # NOTE: because of the way ConfigOptions works, Click options must not
     # set defaults which are not None or False. If defaults need to be set
     # do so below after load_config and save_config are handled.
@@ -917,14 +920,7 @@ def export(
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
-    color_theme = get_theme(theme)
-    verbose_ = verbose_print(
-        verbose, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     if load_config:
         try:
@@ -1095,23 +1091,20 @@ def export(
         uti = cfg.uti
         uuid = cfg.uuid
         uuid_from_file = cfg.uuid_from_file
-        verbose = cfg.verbose
+        # this is the one option that is named differently in the config file than the variable passed by --verbose (verbose_flag)
+        verbose_flag = cfg.verbose
         xattr_template = cfg.xattr_template
         year = cfg.year
         # config file might have changed verbose
-        color_theme = get_theme(theme)
-        verbose_ = verbose_print(
-            verbose, timestamp, rich=True, theme=color_theme, highlight=False
-        )
-        # set console for rich_echo to be same as for verbose_
-        set_rich_console(get_verbose_console())
-        set_rich_timestamp(timestamp)
-
-        verbose_(f"Loaded options from file [filepath]{load_config}")
+        verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
+        verbose(f"Loaded options from file [filepath]{load_config}")
 
         set_crash_data("cfg", cfg.asdict())
 
-    verbose_(f"osxphotos version {__version__}")
+    verbose(f"osxphotos version: {__version__}")
+    verbose(f"Python version: {sys.version}")
+    verbose(f"Platform: {platform.platform()}, {'.'.join(get_macos_version())}")
+    verbose(f"Verbose level: {verbose_flag}")
 
     # validate options
     exclusive_options = [
@@ -1195,7 +1188,7 @@ def export(
                 sys.exit(1)
 
     if save_config:
-        verbose_(f"Saving options to config file '[filepath]{save_config}'")
+        verbose(f"Saving options to config file '[filepath]{save_config}'")
         cfg.write_to_file(save_config)
         if config_only:
             rich_echo(f"Saved config file to '[filepath]{save_config}'")
@@ -1260,7 +1253,7 @@ def export(
             ctx.exit(1)
 
     if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]):
-        verbose_(f"exiftool path: [filepath]{exiftool_path}")
+        verbose(f"exiftool path: [filepath]{exiftool_path}")
 
     # default searches for everything
     photos = True
@@ -1331,14 +1324,14 @@ def export(
         )
         fileutil = FileUtilShUtil if alt_copy else FileUtil
 
-    if verbose_:
+    if verbose:
         if export_db.was_created:
-            verbose_(f"Created export database [filepath]{export_db_path}")
+            verbose(f"Created export database [filepath]{export_db_path}")
         else:
-            verbose_(f"Using export database [filepath]{export_db_path}")
+            verbose(f"Using export database [filepath]{export_db_path}")
         upgraded = export_db.was_upgraded
         if upgraded:
-            verbose_(
+            verbose(
                 f"Upgraded export database [filepath]{export_db_path}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
             )
 
@@ -1346,7 +1339,7 @@ def export(
     export_db.set_config(cfg.write_to_str())
 
     photosdb = osxphotos.PhotosDB(
-        dbfile=db, verbose=verbose_, exiftool=exiftool_path, rich=True
+        dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=True
     )
 
     # enable beta features if requested
@@ -1401,7 +1394,7 @@ def export(
         no_title=no_title,
         not_burst=not_burst,
         not_cloudasset=not_cloudasset,
-        not_edited = not_edited,
+        not_edited=not_edited,
         not_favorite=not_favorite,
         not_hdr=not_hdr,
         not_hidden=not_hidden,
@@ -1478,17 +1471,17 @@ def export(
 
         # set up for --add-export-to-album if needed
         album_export = (
-            PhotosAlbum(add_exported_to_album, verbose=verbose_)
+            PhotosAlbum(add_exported_to_album, verbose=verbose)
             if add_exported_to_album
             else None
         )
         album_skipped = (
-            PhotosAlbum(add_skipped_to_album, verbose=verbose_)
+            PhotosAlbum(add_skipped_to_album, verbose=verbose)
             if add_skipped_to_album
             else None
         )
         album_missing = (
-            PhotosAlbum(add_missing_to_album, verbose=verbose_)
+            PhotosAlbum(add_missing_to_album, verbose=verbose)
             if add_missing_to_album
             else None
         )
@@ -1552,17 +1545,17 @@ def export(
                     update_errors=update_errors,
                     use_photokit=use_photokit,
                     use_photos_export=use_photos_export,
-                    verbose_=verbose_,
+                    verbose=verbose,
                     tmpdir=tmpdir,
                 )
 
                 if post_function:
                     for function in post_function:
                         # post function is tuple of (function, filename.py::function_name)
-                        verbose_(f"Calling post-function [bold]{function[1]}")
+                        verbose(f"Calling post-function [bold]{function[1]}")
                         if not dry_run:
                             try:
-                                function[0](p, export_results, verbose_)
+                                function[0](p, export_results, verbose)
                             except Exception as e:
                                 rich_echo_error(
                                     f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
@@ -1576,7 +1569,7 @@ def export(
                     dry_run=dry_run,
                     exiftool_path=exiftool_path,
                     export_db=export_db,
-                    verbose_=verbose_,
+                    verbose=verbose,
                 )
 
                 if album_export and export_results.exported:
@@ -1646,7 +1639,7 @@ def export(
                         finder_tag_template=finder_tag_template,
                         strip=strip,
                         export_dir=dest,
-                        verbose_=verbose_,
+                        verbose=verbose,
                     )
                     export_results.xattr_written.extend(tags_written)
                     export_results.xattr_skipped.extend(tags_skipped)
@@ -1660,7 +1653,7 @@ def export(
                         xattr_template,
                         strip=strip,
                         export_dir=dest,
-                        verbose_=verbose_,
+                        verbose=verbose,
                     )
                     export_results.xattr_written.extend(xattr_written)
                     export_results.xattr_skipped.extend(xattr_skipped)
@@ -1758,7 +1751,7 @@ def export(
             all_files += files_to_keep
         rich_echo(f"Cleaning up [filepath]{dest}")
         cleaned_files, cleaned_dirs = cleanup_files(
-            dest, all_files, dirs_to_keep, fileutil, verbose_=verbose_
+            dest, all_files, dirs_to_keep, fileutil, verbose=verbose
         )
         file_str = "files" if len(cleaned_files) != 1 else "file"
         dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
@@ -1775,12 +1768,12 @@ def export(
     export_db.set_export_results(results)
 
     if report:
-        verbose_(f"Wrote export report to [filepath]{report}")
+        verbose(f"Wrote export report to [filepath]{report}")
         report_writer.close()
 
     # close export_db and write changes if needed
     if ramdb and not dry_run:
-        verbose_(f"Writing export database changes back to [filepath]{export_db.path}")
+        verbose(f"Writing export database changes back to [filepath]{export_db.path}")
         export_db.write_to_disk()
     export_db.close()
 
@@ -1788,7 +1781,7 @@ def export(
 def export_photo(
     photo=None,
     dest=None,
-    verbose_=None,
+    verbose=None,
     export_by_date=None,
     sidecar=None,
     sidecar_drop_ext=False,
@@ -1885,7 +1878,7 @@ def export_photo(
         update: bool, only export updated photos
         update_errors: bool, attempt to re-export photos that previously produced errors even if they otherwise would not be exported
         use_photos_export: bool; if True forces the use of AppleScript to export even if photo not missing
-        verbose_: callable for verbose output
+        verbose: callable for verbose output
         tmpdir: optional str; temporary directory to use for export
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -1908,7 +1901,7 @@ def export_photo(
             # requested edited version but it's missing, download original
             export_original = True
             export_edited = False
-            verbose_(
+            verbose(
                 f"Edited file for [filename]{photo.original_filename}[/] is missing, exporting original"
             )
 
@@ -2004,7 +1997,7 @@ def export_photo(
             )
             original_filename = str(original_filename)
 
-            verbose_(
+            verbose(
                 f"Exporting [filename]{photo.original_filename}[/] ([filename]{photo.filename}[/]) ([count]{photo_num}/{num_photos}[/])"
             )
 
@@ -2052,7 +2045,7 @@ def export_photo(
                 update_errors=update_errors,
                 use_photos_export=use_photos_export,
                 use_photokit=use_photokit,
-                verbose_=verbose_,
+                verbose=verbose,
                 tmpdir=tmpdir,
             )
 
@@ -2120,7 +2113,7 @@ def export_photo(
                     f"{edited_filename.stem}{rendered_edited_suffix}{edited_ext}"
                 )
 
-                verbose_(
+                verbose(
                     f"Exporting edited version of [filename]{photo.original_filename}[/filename] ([filename]{photo.filename}[/filename])"
                 )
 
@@ -2168,7 +2161,7 @@ def export_photo(
                     update_errors=update_errors,
                     use_photos_export=use_photos_export,
                     use_photokit=use_photokit,
-                    verbose_=verbose_,
+                    verbose=verbose,
                     tmpdir=tmpdir,
                 )
 
@@ -2255,7 +2248,7 @@ def export_photo_to_directory(
     update_errors,
     use_photos_export,
     use_photokit,
-    verbose_,
+    verbose,
     tmpdir,
 ):
     """Export photo to directory dest_path"""
@@ -2267,7 +2260,7 @@ def export_photo_to_directory(
     if photo.intrash and not photo_path and not preview_if_missing:
         # skip deleted files if they're missing
         # as AppleScript/PhotoKit cannot export deleted photos
-        verbose_(
+        verbose(
             f"Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
         )
         results.missing.append(str(pathlib.Path(dest_path) / filename))
@@ -2276,7 +2269,7 @@ def export_photo_to_directory(
     render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
 
     if not export_original and not edited:
-        verbose_(f"Skipping original version of [filename]{photo.original_filename}")
+        verbose(f"Skipping original version of [filename]{photo.original_filename}")
         return results
 
     tries = 0
@@ -2322,14 +2315,14 @@ def export_photo_to_directory(
                 use_persons_as_keywords=person_keyword,
                 use_photokit=use_photokit,
                 use_photos_export=use_photos_export,
-                verbose=verbose_,
+                verbose=verbose,
             )
             exporter = PhotoExporter(photo)
             export_results = exporter.export(
                 dest=dest_path, filename=filename, options=export_options
             )
             for warning_ in export_results.exiftool_warning:
-                verbose_(
+                verbose(
                     f"[warning]exiftool warning for file {warning_[0]}: {warning_[1]}"
                 )
             for error_ in export_results.exiftool_error:
@@ -2364,19 +2357,19 @@ def export_photo_to_directory(
                     f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])"
                 )
 
-    if verbose_:
+    if verbose:
         if update or force_update:
             for new in results.new:
-                verbose_(f"Exported new file [filepath]{new}")
+                verbose(f"Exported new file [filepath]{new}")
             for updated in results.updated:
-                verbose_(f"Exported updated file [filepath]{updated}")
+                verbose(f"Exported updated file [filepath]{updated}")
             for skipped in results.skipped:
-                verbose_(f"Skipped up to date file [filepath]{skipped}")
+                verbose(f"Skipped up to date file [filepath]{skipped}")
         else:
             for exported in results.exported:
-                verbose_(f"Exported [filepath]{exported}")
+                verbose(f"Exported [filepath]{exported}")
         for touched in results.touched:
-            verbose_(f"Touched date on file [filepath]{touched}")
+            verbose(f"Touched date on file [filepath]{touched}")
 
     return results
 
@@ -2572,7 +2565,7 @@ def collect_files_to_keep(
     return files_to_keep, dirs_to_keep
 
 
-def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose_):
+def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose):
     """cleanup dest_path by deleting and files and empty directories
         not in files_to_keep
 
@@ -2581,7 +2574,7 @@ def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose_):
         files_to_keep: list of full file paths to keep (not delete)
         dirs_to_keep: list of full dir paths to keep (not delete if they are empty)
         fileutil: FileUtil object
-        verbose_: verbose callable for printing verbose output
+        verbose: verbose callable for printing verbose output
 
     Returns:
         tuple of (list of files deleted, list of directories deleted)
@@ -2593,7 +2586,7 @@ def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose_):
     deleted_files = []
     for p in pathlib.Path(dest_path).rglob("*"):
         if p.is_file() and normalize_fs_path(str(p).lower()) not in keepers:
-            verbose_(f"Deleting [filepath]{p}")
+            verbose(f"Deleting [filepath]{p}")
             fileutil.unlink(p)
             deleted_files.append(str(p))
 
@@ -2605,7 +2598,7 @@ def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose_):
             continue
         if not list(pathlib.Path(dirpath).glob("*")):
             # directory and directory is empty
-            verbose_(f"Deleting empty directory {dirpath}")
+            verbose(f"Deleting empty directory {dirpath}")
             fileutil.rmdir(dirpath)
             deleted_dirs.append(str(dirpath))
 
@@ -2623,7 +2616,7 @@ def write_finder_tags(
     finder_tag_template=None,
     strip=False,
     export_dir=None,
-    verbose_=noop,
+    verbose=noop,
 ):
     """Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
 
@@ -2637,7 +2630,7 @@ def write_finder_tags(
         exiftool_merge_keywords: if True, include any keywords in the exif data of the source image as keywords
         finder_tag_template: list of templates to evaluate for determining Finder tags
         export_dir: value to use for {export_dir} template
-        verbose_: function to call to print verbose messages
+        verbose: function to call to print verbose messages
 
     Returns:
         (list of file paths that were updated with new Finder tags, list of file paths skipped because Finder tags didn't need updating)
@@ -2697,11 +2690,11 @@ def write_finder_tags(
     for f in files:
         md = OSXMetaData(f)
         if sorted(md.tags) != sorted(tags):
-            verbose_(f"Writing Finder tags to {f}")
+            verbose(f"Writing Finder tags to {f}")
             md.tags = tags
             written.append(f)
         else:
-            verbose_(f"Skipping Finder tags for {f}: nothing to do")
+            verbose(f"Skipping Finder tags for {f}: nothing to do")
             skipped.append(f)
 
     return (written, skipped)
@@ -2713,14 +2706,17 @@ def write_extended_attributes(
     xattr_template,
     strip=False,
     export_dir=None,
-    verbose_=noop,
+    verbose=noop,
 ):
     """Writes extended attributes to exported files
 
     Args:
         photo: a PhotoInfo object
+        files: list of file paths to write extended attributes to
+        xattr_template: list of tuples: (attribute name, attribute template)
         strip:   xattr_template: list of tuples: (attribute name, attribute template)
         export_dir: value to use for {export_dir} template
+        verbose: function to call to print verbose messages
 
     Returns:
         tuple(list of file paths that were updated with new attributes, list of file paths skipped because attributes didn't need updating)
@@ -2770,10 +2766,10 @@ def write_extended_attributes(
             if (not file_value and not value) or file_value == value:
                 # if both not set or both equal, nothing to do
                 # get returns None if not set and value will be [] if not set so can't directly compare
-                verbose_(f"Skipping extended attribute {attr} for {f}: nothing to do")
+                verbose(f"Skipping extended attribute {attr} for {f}: nothing to do")
                 skipped.add(f)
             else:
-                verbose_(f"Writing extended attribute {attr} to {f}")
+                verbose(f"Writing extended attribute {attr} to {f}")
                 md.set(attr, value)
                 written.add(f)
 
@@ -2788,7 +2784,7 @@ def run_post_command(
     dry_run,
     exiftool_path,
     export_db,
-    verbose_,
+    verbose,
 ):
     # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
     # todo: need a shell_quote template type:
@@ -2805,7 +2801,7 @@ def run_post_command(
             command, _ = template.render(command_template, options=render_options)
             command = command[0] if command else None
             if command:
-                verbose_(f'Running command: "{command}"')
+                verbose(f'Running command: "{command}"')
                 if not dry_run:
                     args = shlex.split(command)
                     cwd = pathlib.Path(f).parent

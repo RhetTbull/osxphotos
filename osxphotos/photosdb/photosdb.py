@@ -53,7 +53,6 @@ from .._constants import (
 from .._version import __version__
 from ..albuminfo import AlbumInfo, FolderInfo, ImportInfo, ProjectInfo
 from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
-from ..debug import is_debug
 from ..fileutil import FileUtil
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
@@ -63,12 +62,14 @@ from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from ..utils import (
     _check_file_exists,
-    _get_os_version,
+    get_macos_version,
     get_last_library_path,
     noop,
     normalize_unicode,
 )
 from .photosdb_utils import get_db_model_version, get_db_version
+
+logger = logging.getLogger("osxphotos")
 
 __all__ = ["PhotosDB"]
 
@@ -117,7 +118,7 @@ class PhotosDB:
 
         # Check OS version
         system = platform.system()
-        (ver, major, _) = _get_os_version()
+        (ver, major, _) = get_macos_version()
         if system != "Darwin" or ((ver, major) not in _TESTED_OS_VERSIONS):
             logging.warning(
                 f"WARNING: This module has only been tested with macOS versions "
@@ -283,8 +284,7 @@ class PhotosDB:
         # key is Z_PK of ZMOMENT table and values are the moment info
         self._db_moment_pk = {}
 
-        if is_debug():
-            logging.debug(f"dbfile = {dbfile}")
+        logger.debug(f"dbfile = {dbfile}")
 
         if dbfile is None:
             dbfile = get_last_library_path()
@@ -300,8 +300,7 @@ class PhotosDB:
         if not _check_file_exists(dbfile):
             raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
 
-        if is_debug():
-            logging.debug(f"dbfile = {dbfile}")
+        logger.debug(f"dbfile = {dbfile}")
 
         # init database names
         # _tmp_db is the file that will processed by _process_database4/5
@@ -352,10 +351,9 @@ class PhotosDB:
             # set the photos version to actual value based on Photos.sqlite
             self._photos_ver = get_db_model_version(self._tmp_db)
 
-            if is_debug():
-                logging.debug(
-                    f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
-                )
+            logger.debug(
+                f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
+            )
 
         library_path = os.path.dirname(os.path.abspath(dbfile))
         (library_path, _) = os.path.split(library_path)  # drop /database from path
@@ -367,8 +365,7 @@ class PhotosDB:
             masters_path = os.path.join(library_path, "originals")
             self._masters_path = masters_path
 
-        if is_debug():
-            logging.debug(f"library = {library_path}, masters = {masters_path}")
+        logger.debug(f"library = {library_path}, masters = {masters_path}")
 
         if int(self._db_version) <= int(_PHOTOS_4_VERSION):
             self._process_database4()
@@ -628,37 +625,9 @@ class PhotosDB:
             print(f"Error copying{fname} to {dest_path}", file=sys.stderr)
             raise Exception
 
-        if is_debug():
-            logging.debug(dest_path)
+        logger.debug(dest_path)
 
         return dest_path
-
-    # NOTE: This method seems to cause problems with applescript
-    # Bummer...would'be been nice to avoid copying the DB
-    # def _link_db_file(self, fname):
-    #     """ links the sqlite database file to a temp file """
-    #     """ returns the name of the temp file """
-    #     """ If sqlite shared memory and write-ahead log files exist, those are copied too """
-    #     # required because python's sqlite3 implementation can't read a locked file
-    #     # _, suffix = os.path.splitext(fname)
-    #     dest_name = dest_path = ""
-    #     try:
-    #         dest_name = pathlib.Path(fname).name
-    #         dest_path = os.path.join(self._tempdir_name, dest_name)
-    #         FileUtil.hardlink(fname, dest_path)
-    #         # link write-ahead log and shared memory files (-wal and -shm) files if they exist
-    #         if os.path.exists(f"{fname}-wal"):
-    #             FileUtil.hardlink(f"{fname}-wal", f"{dest_path}-wal")
-    #         if os.path.exists(f"{fname}-shm"):
-    #             FileUtil.hardlink(f"{fname}-shm", f"{dest_path}-shm")
-    #     except:
-    #         print("Error linking " + fname + " to " + dest_path, file=sys.stderr)
-    #         raise Exception
-
-    #     if is_debug():
-    #         logging.debug(dest_path)
-
-    #     return dest_path
 
     def _process_database4(self):
         """process the Photos database to extract info
@@ -741,7 +710,7 @@ class PhotosDB:
                 self._dbpersons_pk[pk]["photo_uuid"] = person[2]
                 self._dbpersons_pk[pk]["keyface_uuid"] = person[3]
             except KeyError:
-                logging.debug(f"Unexpected KeyError _dbpersons_pk[{pk}]")
+                logger.debug(f"Unexpected KeyError _dbpersons_pk[{pk}]")
 
         # get information on detected faces
         verbose("Processing detected faces in photos.")
@@ -1118,8 +1087,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["type"] = _MOVIE_TYPE
             else:
                 # unknown
-                if is_debug():
-                    logging.debug(f"WARNING: {uuid} found unknown type {row[21]}")
+                logger.debug(f"WARNING: {uuid} found unknown type {row[21]}")
                 self._dbphotos[uuid]["type"] = None
 
             self._dbphotos[uuid]["UTI"] = row[22]
@@ -1352,21 +1320,19 @@ class PhotosDB:
                         if resource_type == 4:
                             # photo
                             if "edit_resource_id_photo" in self._dbphotos[uuid]:
-                                if is_debug():
-                                    logging.debug(
-                                        f"WARNING: found more than one edit_resource_id_photo for "
-                                        f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
-                                    )
+                                logger.debug(
+                                    f"WARNING: found more than one edit_resource_id_photo for "
+                                    f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
+                                )
                             self._dbphotos[uuid]["edit_resource_id_photo"] = row[2]
                             self._dbphotos[uuid]["UTI_edited_photo"] = row[4]
                         elif resource_type == 8:
                             # video
                             if "edit_resource_id_video" in self._dbphotos[uuid]:
-                                if is_debug():
-                                    logging.debug(
-                                        f"WARNING: found more than one edit_resource_id_video for "
-                                        f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
-                                    )
+                                logger.debug(
+                                    f"WARNING: found more than one edit_resource_id_video for "
+                                    f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
+                                )
                             self._dbphotos[uuid]["edit_resource_id_video"] = row[2]
                             self._dbphotos[uuid]["UTI_edited_video"] = row[4]
 
@@ -1655,8 +1621,7 @@ class PhotosDB:
         but it works so don't touch it.
         """
 
-        if is_debug():
-            logging.debug(f"_process_database5")
+        logger.debug(f"_process_database5")
         verbose = self._verbose
         verbose(f"Processing database.")
         (conn, c) = sqlite_open_ro(self._tmp_db)
@@ -1679,8 +1644,7 @@ class PhotosDB:
         hdr_type_column = _DB_TABLE_NAMES[photos_ver]["HDR_TYPE"]
 
         # Look for all combinations of persons and pictures
-        if is_debug():
-            logging.debug(f"Getting information about persons")
+        logger.debug(f"Getting information about persons")
 
         # get info to associate persons with photos
         # then get detected faces in each photo and link to persons
@@ -1757,7 +1721,7 @@ class PhotosDB:
                 self._dbpersons_pk[pk]["photo_uuid"] = person[2]
                 self._dbpersons_pk[pk]["keyface_uuid"] = person[3]
             except KeyError:
-                logging.debug(f"Unexpected KeyError _dbpersons_pk[{pk}]")
+                logger.debug(f"Unexpected KeyError _dbpersons_pk[{pk}]")
 
         # get information on detected faces
         verbose("Processing detected faces in photos.")
@@ -2095,8 +2059,7 @@ class PhotosDB:
             elif row[17] == 1:
                 info["type"] = _MOVIE_TYPE
             else:
-                if is_debug():
-                    logging.debug(f"WARNING: {uuid} found unknown type {row[17]}")
+                logger.debug(f"WARNING: {uuid} found unknown type {row[17]}")
                 info["type"] = None
 
             info["UTI"] = row[18]
@@ -2283,7 +2246,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["fok_import_session"] = row[2]
                 self._dbphotos[uuid]["import_uuid"] = row[3]
             except KeyError:
-                logging.debug(f"No info record for uuid {uuid} for import session")
+                logger.debug(f"No info record for uuid {uuid} for import session")
 
         # Get extended description
         verbose("Processing additional photo details.")
@@ -2300,10 +2263,9 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["extendedDescription"] = normalize_unicode(row[1])
             else:
-                if is_debug():
-                    logging.debug(
-                        f"WARNING: found description {row[1]} but no photo for {uuid}"
-                    )
+                logger.debug(
+                    f"WARNING: found description {row[1]} but no photo for {uuid}"
+                )
 
         # get information about adjusted/edited photos
         c.execute(
@@ -2319,10 +2281,9 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["adjustmentFormatID"] = row[2]
             else:
-                if is_debug():
-                    logging.debug(
-                        f"WARNING: found adjustmentformatidentifier {row[2]} but no photo for uuid {row[0]}"
-                    )
+                logger.debug(
+                    f"WARNING: found adjustmentformatidentifier {row[2]} but no photo for uuid {row[0]}"
+                )
 
         # Find missing photos
         # TODO: this code is very kludgy and I had to make lots of assumptions
@@ -2696,7 +2657,7 @@ class PhotosDB:
         try:
             folders = self._dbalbum_folders[album_uuid]
         except KeyError:
-            logging.debug(f"Caught _dbalbum_folders KeyError for album: {album_uuid}")
+            logger.debug(f"Caught _dbalbum_folders KeyError for album: {album_uuid}")
             return []
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):
@@ -2733,7 +2694,7 @@ class PhotosDB:
         try:
             folders = self._dbalbum_folders[album_uuid]
         except KeyError:
-            logging.debug(f"Caught _dbalbum_folders KeyError for album: {album_uuid}")
+            logger.debug(f"Caught _dbalbum_folders KeyError for album: {album_uuid}")
             return []
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):

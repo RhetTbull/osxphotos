@@ -1,5 +1,7 @@
 """Utilities for debugging"""
 
+from __future__ import annotations
+
 import logging
 import sys
 import time
@@ -9,21 +11,33 @@ from typing import Dict, List
 import wrapt
 from rich import print
 
+__all__ = [
+    "debug_breakpoint",
+    "debug_watch",
+    "get_debug_flags",
+    "get_debug_options",
+    "is_debug",
+    "set_debug",
+    "wrap_function",
+]
+
+
 # global variable to control debug output
 # set via --debug
-DEBUG = False
+__osxphotos_debug = False
 
 
 def set_debug(debug: bool):
     """set debug flag"""
-    global DEBUG
-    DEBUG = debug
+    global __osxphotos_debug
+    __osxphotos_debug = debug
     logging.disable(logging.NOTSET if debug else logging.DEBUG)
 
 
 def is_debug():
     """return debug flag"""
-    return DEBUG
+    global __osxphotos_debug
+    return __osxphotos_debug
 
 
 def debug_watch(wrapped, instance, args, kwargs):

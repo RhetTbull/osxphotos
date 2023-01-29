@@ -26,7 +26,7 @@ import tempfile
 import CoreServices
 import objc
 
-from .utils import _get_os_version
+from .utils import get_macos_version
 
 __all__ = ["get_preferred_uti_extension", "get_uti_for_extension"]
 
@@ -522,7 +522,7 @@ def _load_uti_dict():
 _load_uti_dict()
 
 # OS version for determining which methods can be used
-OS_VER, OS_MAJOR, _ = (int(x) for x in _get_os_version())
+OS_VER, OS_MAJOR, _ = (int(x) for x in get_macos_version())
 
 
 def _get_uti_from_mdls(extension):

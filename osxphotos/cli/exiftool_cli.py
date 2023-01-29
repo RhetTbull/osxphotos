@@ -17,15 +17,14 @@ from osxphotos.fileutil import FileUtil, FileUtilNoOp
 from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
 from osxphotos.utils import pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
+from .click_rich_echo import rich_click_echo, rich_echo_error
+from .common import (
+    DB_OPTION,
+    THEME_OPTION,
+    TIMESTAMP_OPTION,
+    VERBOSE_OPTION,
+    get_photos_db,
 )
-from .color_themes import get_theme
-from .common import DB_OPTION, THEME_OPTION, get_photos_db
 from .export import export, render_and_validate_report
 from .param_types import ExportDBType, TemplateString
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
@@ -166,8 +165,8 @@ from .verbose import get_verbose_console, verbose_print
     help="If used with --report, add data to existing report file instead of overwriting it. "
     "See also --report.",
 )
-@click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
-@click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.option(
     "--dry-run",
     is_flag=True,
@@ -203,7 +202,7 @@ def exiftool(
     save_config,
     theme,
     timestamp,
-    verbose,
+    verbose_flag,
 ):
     """Run exiftool on previously exported files to update metadata.
 
@@ -235,6 +234,7 @@ def exiftool(
 
     # need to ensure --exiftool is true in the config options
     locals_["exiftool"] = True
+    locals_["verbose"] = verbose_flag
     config = ConfigOptions(
         "export",
         locals_,
@@ -249,14 +249,7 @@ def exiftool(
             "save_config",
         ],
     )
-    color_theme = get_theme(theme)
-    verbose_ = verbose_print(
-        verbose, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+    verbose = verbose_print(verbose_flag, timestamp, theme=theme)
 
     # load config options from either file or export database
     # values already set in config will take precedence over any values
@@ -269,26 +262,16 @@ def exiftool(
                 f"[error]Error parsing {load_config} config file: {e.message}", err=True
             )
             sys.exit(1)
-        verbose_(f"Loaded options from file [filepath]{load_config}")
+        verbose(f"Loaded options from file [filepath]{load_config}")
     elif db_config:
         config = export_db_get_config(exportdb, config)
-        verbose_("Loaded options from export database")
+        verbose("Loaded options from export database")
 
     # from here on out, use config.param_name instead of using the params passed into the function
     # as the values may have been updated from config file or database
     if load_config or db_config:
         # config file might have changed verbose
-        color_theme = get_theme(config.theme)
-        verbose_ = verbose_print(
-            config.verbose,
-            config.timestamp,
-            rich=True,
-            theme=color_theme,
-            highlight=False,
-        )
-        # set console for rich_echo to be same as for verbose_
-        set_rich_console(get_verbose_console())
-        set_rich_timestamp(config.timestamp)
+        verbose = verbose_print(config.verbose, config.timestamp, theme=theme)
 
     # validate options
     if append and not report:
@@ -298,14 +281,14 @@ def exiftool(
     config.db = get_photos_db(config.db)
 
     if save_config:
-        verbose_(f"Saving options to config file '[filepath]{save_config}'")
+        verbose(f"Saving options to config file '[filepath]{save_config}'")
         config.write_to_file(save_config)
 
-    process_files(exportdb, export_dir, verbose=verbose_, options=config)
+    process_files(exportdb, export_dir, verbose=verbose, options=config)
 
 
 def process_files(
-    exportdb: str, export_dir: str, verbose: Callable, options: ConfigOptions
+    exportdb: str, export_dir: str, verbose: Callable[..., None], options: ConfigOptions
 ):
     """Process files in the export database.
 
@@ -362,6 +345,12 @@ def process_files(
                 hardlink_ok = True
             verbose(f"Processing file [filepath]{file}[/] ([num]{count}/{total}[/num])")
             photo = photosdb.get_photo(uuid)
+            if not photo:
+                verbose(
+                    f"Could not find photo for [filepath]{file}[/] ([uuid]{uuid}[/])"
+                )
+                report_writer.write(ExportResults(missing=[file]))
+                continue
             export_options = ExportOptions(
                 description_template=options.description_template,
                 dry_run=options.dry_run,

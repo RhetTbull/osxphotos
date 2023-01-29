@@ -47,7 +47,7 @@ from .about import about
 from .add_locations import add_locations
 from .albums import albums
 from .cli import cli_main
-from .common import get_photos_db, load_uuid_from_file
+from .common import get_photos_db
 from .debug_dump import debug_dump
 from .dump import dump
 from .exiftool_cli import exiftool
@@ -91,7 +91,6 @@ __all__ = [
     "labels",
     "list_libraries",
     "list_libraries",
-    "load_uuid_from_file",
     "orphans",
     "persons",
     "photo_inspect",

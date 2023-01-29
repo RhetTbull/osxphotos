@@ -24,10 +24,8 @@ CompareValues = namedtuple(
 
 def parse_inspect_output(output: str) -> List[InspectValues]:
     """Parse output of --inspect and return list of InspectValues named tuple"""
-    
-    with open(output, "r") as f:
-        lines = f.readlines()
-    lines = [line for line in lines if line.strip()]
+
+    lines = [line for line in output.split("\n") if line.strip()]
     # remove header
     lines.pop(0)
     values = []
@@ -40,9 +38,7 @@ def parse_inspect_output(output: str) -> List[InspectValues]:
 
 def parse_compare_exif(output: str) -> List[CompareValues]:
     """Parse output of --compare-exif and return list of CompareValues named tuple"""
-    with open(output, "r") as f:
-        lines = f.readlines()
-    lines = [line for line in lines if line.strip()]
+    lines = [line for line in output.split("\n") if line.strip()]
     # remove header
     lines.pop(0)
     values = []

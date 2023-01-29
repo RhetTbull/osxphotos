@@ -1,12 +1,20 @@
 """ QueryOptions class for PhotosDB.query """
 
+import dataclasses
 import datetime
+import pathlib
 from dataclasses import asdict, dataclass
 from typing import Iterable, List, Optional, Tuple
 
 import bitmath
 
-__all__ = ["QueryOptions"]
+__all__ = ["QueryOptions", "query_options_from_kwargs", "IncompatibleQueryOptions"]
+
+
+class IncompatibleQueryOptions(Exception):
+    """Incompatible query options"""
+
+    pass
 
 
 @dataclass
@@ -182,3 +190,128 @@ class QueryOptions:
 
     def asdict(self):
         return asdict(self)
+
+
+def query_options_from_kwargs(**kwargs) -> QueryOptions:
+    """Validate query options and create a QueryOptions instance"""
+    # sanity check input args
+    nonexclusive = [
+        "added_after",
+        "added_before",
+        "added_in_last",
+        "album",
+        "duplicate",
+        "exif",
+        "external_edit",
+        "folder",
+        "from_date",
+        "from_time",
+        "has_raw",
+        "keyword",
+        "label",
+        "max_size",
+        "min_size",
+        "name",
+        "person",
+        "query_eval",
+        "query_function",
+        "regex",
+        "selected",
+        "to_date",
+        "to_time",
+        "uti",
+        "uuid",
+        "uuid_from_file",
+        "year",
+    ]
+    exclusive = [
+        ("burst", "not_burst"),
+        ("cloudasset", "not_cloudasset"),
+        ("edited", "not_edited"),
+        ("favorite", "not_favorite"),
+        ("has_comment", "no_comment"),
+        ("has_likes", "no_likes"),
+        ("hdr", "not_hdr"),
+        ("hidden", "not_hidden"),
+        ("in_album", "not_in_album"),
+        ("incloud", "not_incloud"),
+        ("is_reference", "not_reference"),
+        ("keyword", "no_keyword"),
+        ("live", "not_live"),
+        ("location", "no_location"),
+        ("missing", "not_missing"),
+        ("only_photos", "only_movies"),
+        ("panorama", "not_panorama"),
+        ("portrait", "not_portrait"),
+        ("screenshot", "not_screenshot"),
+        ("selfie", "not_selfie"),
+        ("shared", "not_shared"),
+        ("slow_mo", "not_slow_mo"),
+        ("time_lapse", "not_time_lapse"),
+        ("deleted", "not_deleted"),
+    ]
+    # TODO: add option to validate requiring at least one query arg
+    for arg, not_arg in exclusive:
+        if kwargs.get(arg) and kwargs.get(not_arg):
+            arg = arg.replace("_", "-")
+            not_arg = not_arg.replace("_", "-")
+            raise IncompatibleQueryOptions(
+                f"--{arg} and --{not_arg} are mutually exclusive"
+            )
+
+    # some options like title can be specified multiple times
+    # check if any of them are specified along with their no_ counterpart
+    exclusive_multi_options = ["title", "description", "place", "keyword"]
+    for option in exclusive_multi_options:
+        if kwargs.get(option) and kwargs.get("no_{option}"):
+            raise IncompatibleQueryOptions(
+                f"--{option} and --no-{option} are mutually exclusive"
+            )
+
+    include_photos = True
+    include_movies = True  # default searches for everything
+    if kwargs.get("only_movies"):
+        include_photos = False
+    if kwargs.get("only_photos"):
+        include_movies = False
+
+    # load UUIDs if necessary and append to any uuids passed with --uuid
+    uuid = None
+    if uuid_from_file := kwargs.get("uuid_from_file"):
+        uuid_list = list(kwargs.get("uuid", []))  # Click option is a tuple
+        uuid_list.extend(load_uuid_from_file(uuid_from_file))
+        uuid = tuple(uuid_list)
+
+    query_fields = [field.name for field in dataclasses.fields(QueryOptions)]
+    query_dict = {field: kwargs.get(field) for field in query_fields}
+    query_dict["photos"] = include_photos
+    query_dict["movies"] = include_movies
+    query_dict["uuid"] = uuid
+    return QueryOptions(**query_dict)
+
+
+def load_uuid_from_file(filename):
+    """Load UUIDs from file.  Does not validate UUIDs.
+        Format is 1 UUID per line, any line beginning with # is ignored.
+        Whitespace is stripped.
+
+    Arguments:
+        filename: file name of the file containing UUIDs
+
+    Returns:
+        list of UUIDs or empty list of no UUIDs in file
+
+    Raises:
+        FileNotFoundError if file does not exist
+    """
+
+    if not pathlib.Path(filename).is_file():
+        raise FileNotFoundError(f"Could not find file {filename}")
+
+    uuid = []
+    with open(filename, "r") as uuid_file:
+        for line in uuid_file:
+            line = line.strip()
+            if len(line) and line[0] != "#":
+                uuid.append(line)
+    return uuid
