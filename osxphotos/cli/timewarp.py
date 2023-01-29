@@ -28,7 +28,7 @@ from osxphotos.utils import noop, pluralize
 from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
 from .color_themes import get_theme
-from .common import THEME_OPTION
+from .common import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .darkmode import is_dark_mode
 from .help import HELP_WIDTH, rich_text
 from .param_types import (
@@ -304,7 +304,8 @@ command which can be used to change the time zone of photos after import.
     help="When used with --compare-exif, adds any photos with date/time/timezone differences "
     "between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.",
 )
-@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Show verbose output.")
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.option(
     "--library",
     "-L",
@@ -347,7 +348,7 @@ def timewarp(
     use_file_time,
     add_to_album,
     exiftool_path,
-    verbose_,
+    verbose_flag,
     library,
     theme,
     parse_date,
@@ -398,7 +399,7 @@ def timewarp(
     if add_to_album and not compare_exif:
         raise click.UsageError("--add-to-album must be used with --compare-exif.")
 
-    verbose = verbose_print(verbose=verbose_, timestamp=timestamp, theme=theme)
+    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     if any([compare_exif, push_exif, pull_exif]):
         exiftool_path = exiftool_path or get_exiftool_path()
