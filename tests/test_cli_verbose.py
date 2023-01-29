@@ -1,15 +1,15 @@
 """Test verbose functions"""
 
 import re
-import sys
 from io import StringIO
 
-import pytest
 
 from osxphotos.cli.verbose import (
     get_verbose_level,
     set_verbose_level,
+    verbose,
     verbose_print,
+    _reset_verbose_globals,
 )
 
 
@@ -90,3 +90,27 @@ def test_verbose_print_noop(capsys):
     verbose("test")
     captured = capsys.readouterr()
     assert captured.out.strip() == ""
+
+
+def test_verbose(capsys):
+    """ "Test verbose()"""
+    # reset verbose module globals for testing
+    _reset_verbose_globals()
+    set_verbose_level(0)
+    verbose("test")
+    captured = capsys.readouterr()
+    assert captured.out.strip() == ""
+
+    set_verbose_level(1)
+    verbose("test")
+    captured = capsys.readouterr()
+    assert captured.out.strip() == "test"
+
+    verbose("test2", level=2)
+    captured = capsys.readouterr()
+    assert captured.out.strip() == ""
+
+    set_verbose_level(2)
+    verbose("test2", level=2)
+    captured = capsys.readouterr()
+    assert captured.out.strip() == "test2"

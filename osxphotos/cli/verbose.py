@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import os
-import typing as t
 from datetime import datetime
+from typing import IO, Any, Callable, Optional
 
 import click
 from rich.console import Console
@@ -28,18 +28,63 @@ ERROR_EMOJI = True
 # global to store verbose level
 __verbose_level = 1
 
+# global verbose function
+__verbose_function: Callable[..., None] | None = None
+
+
 __all__ = [
     "get_verbose_console",
     "get_verbose_level",
     "set_verbose_level",
     "verbose_print",
+    "verbose",
 ]
+
+
+def _reset_verbose_globals():
+    """Reset globals for testing"""
+    global __verbose_level
+    global __verbose_function
+    global _console
+    __verbose_level = 1
+    __verbose_function = None
+    _console = _Console()
+
+
+def noop(*args, **kwargs):
+    """no-op function"""
+    pass
+
+
+def verbose(*args, level: int = 1, **kwargs):
+    """Print verbose output
+
+    Args:
+        *args: arguments to pass to verbose function for printing
+        level: verbose level; if level > get_verbose_level(), output is suppressed
+
+    Notes:
+        Normally you should use verbose_print() to get the verbose function instead of calling this directly
+
+    """
+    global __verbose_function
+    if __verbose_function is None:
+        return
+    __verbose_function(*args, level=level, **kwargs)
 
 
 def set_verbose_level(level: int):
     """Set verbose level"""
     global __verbose_level
+    global __verbose_function
     __verbose_level = level
+    if level > 0 and __verbose_function is None:
+        # if verbose level set but verbose function not set, set it to default
+        # verbose_print sets the global __verbose_function
+        __verbose_function = _verbose_print_function(level)
+    elif level == 0 and __verbose_function is not None:
+        # if verbose level set to 0 but verbose function is set, set it to no-op
+        __verbose_function = noop
 
 
 def get_verbose_level() -> int:
@@ -52,7 +97,7 @@ class _Console:
     """Store console object for verbose output"""
 
     def __init__(self):
-        self._console: t.Optional[Console] = None
+        self._console: Optional[Console] = None
 
     @property
     def console(self):
@@ -66,12 +111,7 @@ class _Console:
 _console = _Console()
 
 
-def noop(*args, **kwargs):
-    """no-op function"""
-    pass
-
-
-def get_verbose_console(theme: t.Optional[Theme] = None) -> Console:
+def get_verbose_console(theme: Optional[Theme] = None) -> Console:
     """Get console object or create one if not already created
 
     Args:
@@ -92,9 +132,9 @@ def verbose_print(
     rich: bool = True,
     theme: str | None = None,
     highlight: bool = False,
-    file: t.Optional[t.IO] = None,
-    **kwargs: t.Any,
-) -> t.Callable[..., None]:
+    file: Optional[IO] = None,
+    **kwargs: Any,
+) -> Callable[..., None]:
     """Configure verbose printing and create verbose function to print output
 
     Args:
@@ -112,6 +152,7 @@ def verbose_print(
     Note: sets the console for rich_echo to be the same as the console used for verbose output
     """
 
+    set_verbose_level(verbose)
     color_theme = get_theme(theme)
     verbose_function = _verbose_print_function(
         verbose=verbose,
@@ -128,6 +169,10 @@ def verbose_print(
     set_rich_theme(color_theme)
     set_rich_timestamp(timestamp)
 
+    # set global verbose function to match
+    global __verbose_function
+    __verbose_function = verbose_function
+
     return verbose_function
 
 
@@ -136,10 +181,10 @@ def _verbose_print_function(
     timestamp: bool = False,
     rich: bool = False,
     highlight: bool = False,
-    theme: t.Optional[Theme] = None,
-    file: t.Optional[t.IO] = None,
-    **kwargs: t.Any,
-) -> t.Callable[..., None]:
+    theme: Optional[Theme] = None,
+    file: Optional[IO] = None,
+    **kwargs: Any,
+) -> Callable[..., None]:
     """Create verbose function to print output
 
     Args:
@@ -156,8 +201,6 @@ def _verbose_print_function(
     """
     if not verbose:
         return noop
-
-    set_verbose_level(verbose)
 
     global _console
     if file:
