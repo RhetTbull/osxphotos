@@ -483,6 +483,16 @@
         "ideas",
         "userTesting"
       ]
+    },
+    {
+      "login": "pweaver",
+      "name": "Pweaver",
+      "avatar_url": "https://avatars.githubusercontent.com/u/611620?v=4",
+      "profile": "https://github.com/pweaver",
+      "contributions": [
+        "bug",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
