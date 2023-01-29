@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.56.6 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.56.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.56.6 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.56.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.6 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -275,13 +275,13 @@ See <cite>osxphotos help timewarp</cite> for more information.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-V">
 <span id="cmdoption-osxphotos-add-locations-v"></span><span id="cmdoption-osxphotos-add-locations-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Print verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-T">
-<span id="cmdoption-osxphotos-add-locations-t"></span><span id="cmdoption-osxphotos-add-locations-timestamp"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-T" title="Permalink to this definition">#</a></dt>
-<dd><p>Add time stamp to verbose output.</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-timestamp">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-timestamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
 <dl class="std option">
@@ -402,6 +402,12 @@ See <cite>osxphotos help timewarp</cite> for more information.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-edited">
 <span class="sig-name descname"><span class="pre">--edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-edited" title="Permalink to this definition">#</a></dt>
 <dd><p>Search for photos that have been edited.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-edited">
+<span class="sig-name descname"><span class="pre">--not-edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-edited" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that have not been edited.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -755,7 +761,7 @@ See <cite>osxphotos help timewarp</cite> for more information.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-theme" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dark | light | mono | plain</p>
@@ -838,7 +844,13 @@ library specified by –db to the database specified by DB2</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-diff-V">
 <span id="cmdoption-osxphotos-diff-v"></span><span id="cmdoption-osxphotos-diff-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Print verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-timestamp">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-timestamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
 <p class="rubric">Arguments</p>
@@ -1021,7 +1033,7 @@ with <cite>osxphotos export</cite> in the future will work correctly and not unn
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-exiftool-V">
 <span id="cmdoption-osxphotos-exiftool-v"></span><span id="cmdoption-osxphotos-exiftool-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exiftool-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Print verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1039,7 +1051,7 @@ with <cite>osxphotos export</cite> in the future will work correctly and not unn
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-exiftool-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exiftool-theme" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dark | light | mono | plain</p>
@@ -1091,7 +1103,7 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-V">
 <span id="cmdoption-osxphotos-export-v"></span><span id="cmdoption-osxphotos-export-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Print verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1224,6 +1236,12 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-edited">
 <span class="sig-name descname"><span class="pre">--edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-edited" title="Permalink to this definition">#</a></dt>
 <dd><p>Search for photos that have been edited.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-edited">
+<span class="sig-name descname"><span class="pre">--not-edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-edited" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that have not been edited.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2009,7 +2027,7 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-theme" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dark | light | mono | plain</p>
@@ -2155,7 +2173,13 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-V">
 <span id="cmdoption-osxphotos-exportdb-v"></span><span id="cmdoption-osxphotos-exportdb-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Print verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-timestamp">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-timestamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2316,12 +2340,12 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-V">
 <span id="cmdoption-osxphotos-import-v"></span><span id="cmdoption-osxphotos-import-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Print verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-import-T">
-<span id="cmdoption-osxphotos-import-timestamp"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-T" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-timestamp">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-timestamp" title="Permalink to this definition">#</a></dt>
 <dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
@@ -2346,7 +2370,7 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-theme" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dark | light | mono | plain</p>
@@ -2415,7 +2439,7 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-inspect-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-inspect-theme" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dark | light | mono | plain</p>
@@ -2541,7 +2565,7 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-orphans-V">
 <span id="cmdoption-osxphotos-orphans-v"></span><span id="cmdoption-osxphotos-orphans-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-orphans-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Print verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2553,7 +2577,7 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-orphans-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-orphans-theme" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dark | light | mono | plain</p>
@@ -2760,6 +2784,12 @@ If the same query option is provided multiple times, they are treated as
 <dt class="sig sig-object std" id="cmdoption-osxphotos-query-edited">
 <span class="sig-name descname"><span class="pre">--edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-edited" title="Permalink to this definition">#</a></dt>
 <dd><p>Search for photos that have been edited.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-edited">
+<span class="sig-name descname"><span class="pre">--not-edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-edited" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that have not been edited.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -3294,6 +3324,12 @@ If the same query option is provided multiple times, they are treated as
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-edited">
+<span class="sig-name descname"><span class="pre">--not-edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-edited" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that have not been edited.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-repl-external-edit">
 <span class="sig-name descname"><span class="pre">--external-edit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-external-edit" title="Permalink to this definition">#</a></dt>
 <dd><p>Search for photos edited in external editor.</p>
@@ -3794,13 +3830,13 @@ two different computers, you can export the metadata to a shared folder.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-sync-V">
 <span id="cmdoption-osxphotos-sync-v"></span><span id="cmdoption-osxphotos-sync-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Print verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-sync-T">
-<span id="cmdoption-osxphotos-sync-t"></span><span id="cmdoption-osxphotos-sync-timestamp"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-T" title="Permalink to this definition">#</a></dt>
-<dd><p>Add time stamp to verbose output.</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-sync-timestamp">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-timestamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
 <dl class="std option">
@@ -3921,6 +3957,12 @@ two different computers, you can export the metadata to a shared folder.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-sync-edited">
 <span class="sig-name descname"><span class="pre">--edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-edited" title="Permalink to this definition">#</a></dt>
 <dd><p>Search for photos that have been edited.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-sync-not-edited">
+<span class="sig-name descname"><span class="pre">--not-edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-not-edited" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that have not been edited.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -4280,7 +4322,7 @@ two different computers, you can export the metadata to a shared folder.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-sync-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-sync-theme" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dark | light | mono | plain</p>
@@ -4437,7 +4479,13 @@ See Timewarp Overview below for additional information.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-V">
 <span id="cmdoption-osxphotos-timewarp-v"></span><span id="cmdoption-osxphotos-timewarp-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-V" title="Permalink to this definition">#</a></dt>
-<dd><p>Show verbose output.</p>
+<dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-timestamp">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-timestamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
 <dl class="std option">
@@ -4453,21 +4501,15 @@ See Timewarp Overview below for additional information.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-o">
-<span id="cmdoption-osxphotos-timewarp-output-file"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output-file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-o" title="Permalink to this definition">#</a></dt>
-<dd><p>Output file. If not specified, output is written to stdout.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-timestamp">
-<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-timestamp" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-2">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-2" title="Permalink to this definition">#</a></dt>
 <dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-theme" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dark | light | mono | plain</p>

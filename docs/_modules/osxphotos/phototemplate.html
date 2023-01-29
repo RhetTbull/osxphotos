@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
-        <title>osxphotos.phototemplate - osxphotos 0.55.4 documentation</title>
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>osxphotos.phototemplate - osxphotos 0.56.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.55.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.56.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +146,10 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.55.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -210,6 +210,8 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">textx</span> <span class="kn">import</span> <span class="n">TextXSyntaxError</span><span class="p">,</span> <span class="n">metamodel_from_file</span>
+
+<span class="kn">import</span> <span class="nn">osxphotos.template_counter</span> <span class="k">as</span> <span class="nn">counter</span>
 
 <span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="n">_UNKNOWN_PERSON</span><span class="p">,</span> <span class="n">TEXT_DETECTION_CONFIDENCE_THRESHOLD</span>
 <span class="kn">from</span> <span class="nn">._version</span> <span class="kn">import</span> <span class="n">__version__</span>
@@ -348,6 +350,24 @@
     <span class="o">+</span> <span class="s2">&quot;May be formatted using a python string format code. &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;For example, to format as a 5-digit integer and pad with zeros, use &#39;</span><span class="si">{id:05d}</span><span class="s2">&#39; which results in &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;00001, 00002, 00003...etc. &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{counter}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;A sequential counter, starting at 0, that increments each time it is evaluated.&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;To start counting at a value other than 0, append append &#39;(starting_value)&#39; to the field name.&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;For example, to start counting at 1 instead of 0: &#39;{counter(1)}&#39;.&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;May be formatted using a python string format code.&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;For example, to format as a 5-digit integer and pad with zeros, use &#39;{counter:05d(1)}&#39;&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;which results in 00001, 00002, 00003...etc.&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;You may also specify a stop value which causes the counter to reset to the starting value&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;when the stop value is reached and a step size which causes the counter to increment by&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;the specified value instead of 1. Use the format &#39;{counter(start,stop,step)}&#39; where start,&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;stop, and step are integers. For example, to count from 1 to 10 by 2, use &#39;{counter(1,11,2)}&#39;.&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;Note that the counter stops counting when the stop value is reached and does not return the&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;stop value. Start, stop, and step are optional and may be omitted. For example, to count&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;from 0 by 2s, use &#39;{counter(,,2)}&#39;.&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;You may create an arbitrary number of counters by appending a unique name to the field name&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;preceded by a period: &#39;</span><span class="si">{counter.a}</span><span class="s2">&#39;, &#39;</span><span class="si">{counter.b}</span><span class="s2">&#39;, etc. Each counter will have its own state&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;and will start at 0 and increment by 1 unless otherwise specified.&quot;</span>
+    <span class="o">+</span> <span class="s2">&quot; Note: </span><span class="si">{counter}</span><span class="s2"> is not suitable for use with &#39;export&#39; and &#39;--update&#39; &quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;as the counter associated with a photo may change between export sessions. See also </span><span class="si">{id}</span><span class="s2">.&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{album_seq}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;An integer, starting at 0, indicating the photo&#39;s index (sequence) in the containing album. &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;Only valid when used in a &#39;--filename&#39; template and only when &#39;</span><span class="si">{album}</span><span class="s2">&#39; or &#39;</span><span class="si">{folder_album}</span><span class="s2">&#39; is used in the &#39;--directory&#39; template. &quot;</span>
     <span class="o">+</span> <span class="s1">&#39;For example </span><span class="se">\&#39;</span><span class="s1">--directory &quot;</span><span class="si">{folder_album}</span><span class="s1">&quot; --filename &quot;</span><span class="si">{album_seq}</span><span class="s1">_</span><span class="si">{original_name}</span><span class="s1">&quot;</span><span class="se">\&#39;</span><span class="s1">. &#39;</span>
@@ -497,6 +517,9 @@
 <span class="c1"># default values for string manipulation template options</span>
 <span class="n">INPLACE_DEFAULT</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span>
 <span class="n">PATH_SEP_DEFAULT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span>
+
+<span class="c1"># globals for tracking {seq} substitutions</span>
+<span class="n">_global_seq_count</span> <span class="o">=</span> <span class="mi">0</span>
 
 <span class="n">PUNCTUATION</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;comma&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span>
@@ -1116,6 +1139,8 @@
                 <span class="n">start_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">field_arg</span><span class="p">)</span> <span class="k">if</span> <span class="n">field_arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="n">start_id</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">format_str_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">subfield</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;counter&quot;</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="n">get_counter_value</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">field_arg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># if here, didn&#39;t get a match</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unhandled template value: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1912,7 +1937,9 @@
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              
+            </div>
           </div>
         </div>
         

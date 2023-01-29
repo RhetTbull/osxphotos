@@ -322,6 +322,8 @@ Template Substitutions
      - A shorter representation of photo's internal universally unique identifier (UUID) for the photo, a 22-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'
    * - {id}
      - A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in 00001, 00002, 00003...etc.
+   * - {counter}
+     - A sequential counter, starting at 0, that increments each time it is evaluated.To start counting at a value other than 0, append append '(starting_value)' to the field name.For example, to start counting at 1 instead of 0: '{counter(1)}'.May be formatted using a python string format code.For example, to format as a 5-digit integer and pad with zeros, use '{counter:05d(1)}'which results in 00001, 00002, 00003...etc.You may also specify a stop value which causes the counter to reset to the starting valuewhen the stop value is reached and a step size which causes the counter to increment bythe specified value instead of 1. Use the format '{counter(start,stop,step)}' where start,stop, and step are integers. For example, to count from 1 to 10 by 2, use '{counter(1,11,2)}'.Note that the counter stops counting when the stop value is reached and does not return thestop value. Start, stop, and step are optional and may be omitted. For example, to countfrom 0 by 2s, use '{counter(,,2)}'.You may create an arbitrary number of counters by appending a unique name to the field namepreceded by a period: '{counter.a}', '{counter.b}', etc. Each counter will have its own stateand will start at 0 and increment by 1 unless otherwise specified. Note: {counter} is not suitable for use with 'export' and '--update' as the counter associated with a photo may change between export sessions. See also {id}.
    * - {album_seq}
      - An integer, starting at 0, indicating the photo's index (sequence) in the containing album. Only valid when used in a '--filename' template and only when '{album}' or '{folder_album}' is used in the '--directory' template. For example '--directory "{folder_album}" --filename "{album\ *seq}*\ {original_name}"'. To start counting at a value other than 0, append append '(starting_value)' to the field name.  For example, to start counting at 1 instead of 0: '{album_seq(1)}'. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{album_seq:05d}' which results in 00000, 00001, 00002...etc. To format while also using a starting value: '{album_seq:05d(1)}' which results in 0001, 00002...etc.This may result in incorrect sequences if you have duplicate albums with the same name; see also '{folder_album_seq}'.
    * - {folder_album_seq}
@@ -357,7 +359,7 @@ Template Substitutions
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.56.6'
+     - The osxphotos version, e.g. '0.56.7'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}

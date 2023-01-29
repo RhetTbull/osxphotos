@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.debug - osxphotos 0.56.4 documentation</title>
+        <title>osxphotos.debug - osxphotos 0.56.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.56.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.56.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -197,6 +197,8 @@
           <h1>Source code for osxphotos.debug</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Utilities for debugging&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
@@ -206,21 +208,33 @@
 <span class="kn">import</span> <span class="nn">wrapt</span>
 <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="nb">print</span>
 
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;debug_breakpoint&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;debug_watch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_debug_flags&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_debug_options&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_debug&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;set_debug&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wrap_function&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
 <span class="c1"># global variable to control debug output</span>
 <span class="c1"># set via --debug</span>
-<span class="n">DEBUG</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">__osxphotos_debug</span> <span class="o">=</span> <span class="kc">False</span>
 
 
 <div class="viewcode-block" id="set_debug"><a class="viewcode-back" href="../../reference.html#osxphotos.set_debug">[docs]</a><span class="k">def</span> <span class="nf">set_debug</span><span class="p">(</span><span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;set debug flag&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">DEBUG</span>
-    <span class="n">DEBUG</span> <span class="o">=</span> <span class="n">debug</span>
+    <span class="k">global</span> <span class="n">__osxphotos_debug</span>
+    <span class="n">__osxphotos_debug</span> <span class="o">=</span> <span class="n">debug</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span> <span class="k">if</span> <span class="n">debug</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="is_debug"><a class="viewcode-back" href="../../reference.html#osxphotos.is_debug">[docs]</a><span class="k">def</span> <span class="nf">is_debug</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;return debug flag&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">DEBUG</span></div>
+    <span class="k">global</span> <span class="n">__osxphotos_debug</span>
+    <span class="k">return</span> <span class="n">__osxphotos_debug</span></div>
 
 
 <span class="k">def</span> <span class="nf">debug_watch</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>

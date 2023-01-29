@@ -153,7 +153,22 @@ TEMPLATE_SUBSTITUTIONS = {
     + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in "
     + "00001, 00002, 00003...etc. ",
-    "{counter}": counter.DESCRIPTION
+    "{counter}": "A sequential counter, starting at 0, that increments each time it is evaluated."
+    + "To start counting at a value other than 0, append append '(starting_value)' to the field name."
+    + "For example, to start counting at 1 instead of 0: '{counter(1)}'."
+    + "May be formatted using a python string format code."
+    + "For example, to format as a 5-digit integer and pad with zeros, use '{counter:05d(1)}'"
+    + "which results in 00001, 00002, 00003...etc."
+    + "You may also specify a stop value which causes the counter to reset to the starting value"
+    + "when the stop value is reached and a step size which causes the counter to increment by"
+    + "the specified value instead of 1. Use the format '{counter(start,stop,step)}' where start,"
+    + "stop, and step are integers. For example, to count from 1 to 10 by 2, use '{counter(1,11,2)}'."
+    + "Note that the counter stops counting when the stop value is reached and does not return the"
+    + "stop value. Start, stop, and step are optional and may be omitted. For example, to count"
+    + "from 0 by 2s, use '{counter(,,2)}'."
+    + "You may create an arbitrary number of counters by appending a unique name to the field name"
+    + "preceded by a period: '{counter.a}', '{counter.b}', etc. Each counter will have its own state"
+    + "and will start at 0 and increment by 1 unless otherwise specified."
     + " Note: {counter} is not suitable for use with 'export' and '--update' "
     + "as the counter associated with a photo may change between export sessions. See also {id}.",
     "{album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album. "

@@ -693,7 +693,8 @@ Options:
                                   use in the following order: 1. last opened
                                   library, 2. system library, 3.
                                   ~/Pictures/Photos Library.photoslibrary
-  -V, --verbose                   Print verbose output.
+  -V, --verbose                   Print verbose output; may be specified
+                                  multiple times for more verbose output.
   --timestamp                     Add time stamp to verbose output
   --no-progress                   Do not display progress bar during export.
   --keyword KEYWORD               Search for photos with keyword KEYWORD. If
@@ -741,6 +742,7 @@ Options:
   -i, --ignore-case               Case insensitive search for title,
                                   description, place, keyword, person, or album.
   --edited                        Search for photos that have been edited.
+  --not-edited                    Search for photos that have not been edited.
   --external-edit                 Search for photos edited in external editor.
   --favorite                      Search for photos marked favorite.
   --not-favorite                  Search for photos not marked favorite.
@@ -1398,10 +1400,10 @@ Options:
                                   will be printed after the photo is exported or
                                   skipped. May be repeated to print multiple
                                   template strings.
-  --theme THEME                   Specify the color theme to use for --verbose
-                                  output. Valid themes are 'dark', 'light',
-                                  'mono', and 'plain'. Defaults to 'dark' or
-                                  'light' depending on system dark mode setting.
+  --theme THEME                   Specify the color theme to use for output.
+                                  Valid themes are 'dark', 'light', 'mono', and
+                                  'plain'. Defaults to 'dark' or 'light'
+                                  depending on system dark mode setting.
   -h, --help                      Show this message and exit.
 
                                     Export                                    
@@ -1993,6 +1995,41 @@ Substitution                    Description
                                 as a 5-digit integer and pad with zeros, use
                                 '{id:05d}' which results in 00001, 00002,
                                 00003...etc.
+{counter}                       A sequential counter, starting at 0, that
+                                increments each time it is evaluated.To
+                                start counting at a value other than 0,
+                                append append '(starting_value)' to the
+                                field name.For example, to start counting at
+                                1 instead of 0: '{counter(1)}'.May be
+                                formatted using a python string format
+                                code.For example, to format as a 5-digit
+                                integer and pad with zeros, use
+                                '{counter:05d(1)}'which results in 00001,
+                                00002, 00003...etc.You may also specify a
+                                stop value which causes the counter to reset
+                                to the starting valuewhen the stop value is
+                                reached and a step size which causes the
+                                counter to increment bythe specified value
+                                instead of 1. Use the format
+                                '{counter(start,stop,step)}' where
+                                start,stop, and step are integers. For
+                                example, to count from 1 to 10 by 2, use
+                                '{counter(1,11,2)}'.Note that the counter
+                                stops counting when the stop value is
+                                reached and does not return thestop value.
+                                Start, stop, and step are optional and may
+                                be omitted. For example, to countfrom 0 by
+                                2s, use '{counter(,,2)}'.You may create an
+                                arbitrary number of counters by appending a
+                                unique name to the field namepreceded by a
+                                period: '{counter.a}', '{counter.b}', etc.
+                                Each counter will have its own stateand will
+                                start at 0 and increment by 1 unless
+                                otherwise specified. Note: {counter} is not
+                                suitable for use with 'export' and '--
+                                update' as the counter associated with a
+                                photo may change between export sessions.
+                                See also {id}.
 {album_seq}                     An integer, starting at 0, indicating the
                                 photo's index (sequence) in the containing
                                 album. Only valid when used in a '--
@@ -2053,7 +2090,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.56.6'
+{osxphotos_version}             The osxphotos version, e.g. '0.56.7'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2520,6 +2557,7 @@ The following template field substitutions are availabe for use the templating s
 |{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
 |{shortuuid}|A shorter representation of photo's internal universally unique identifier (UUID) for the photo, a 22-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'|
 |{id}|A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in 00001, 00002, 00003...etc. |
+|{counter}|A sequential counter, starting at 0, that increments each time it is evaluated.To start counting at a value other than 0, append append '(starting_value)' to the field name.For example, to start counting at 1 instead of 0: '{counter(1)}'.May be formatted using a python string format code.For example, to format as a 5-digit integer and pad with zeros, use '{counter:05d(1)}'which results in 00001, 00002, 00003...etc.You may also specify a stop value which causes the counter to reset to the starting valuewhen the stop value is reached and a step size which causes the counter to increment bythe specified value instead of 1. Use the format '{counter(start,stop,step)}' where start,stop, and step are integers. For example, to count from 1 to 10 by 2, use '{counter(1,11,2)}'.Note that the counter stops counting when the stop value is reached and does not return thestop value. Start, stop, and step are optional and may be omitted. For example, to countfrom 0 by 2s, use '{counter(,,2)}'.You may create an arbitrary number of counters by appending a unique name to the field namepreceded by a period: '{counter.a}', '{counter.b}', etc. Each counter will have its own stateand will start at 0 and increment by 1 unless otherwise specified. Note: {counter} is not suitable for use with 'export' and '--update' as the counter associated with a photo may change between export sessions. See also {id}.|
 |{album_seq}|An integer, starting at 0, indicating the photo's index (sequence) in the containing album. Only valid when used in a '--filename' template and only when '{album}' or '{folder_album}' is used in the '--directory' template. For example '--directory "{folder_album}" --filename "{album_seq}_{original_name}"'. To start counting at a value other than 0, append append '(starting_value)' to the field name.  For example, to start counting at 1 instead of 0: '{album_seq(1)}'. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{album_seq:05d}' which results in 00000, 00001, 00002...etc. To format while also using a starting value: '{album_seq:05d(1)}' which results in 0001, 00002...etc.This may result in incorrect sequences if you have duplicate albums with the same name; see also '{folder_album_seq}'.|
 |{folder_album_seq}|An integer, starting at 0, indicating the photo's index (sequence) in the containing album and folder path. Only valid when used in a '--filename' template and only when '{folder_album}' is used in the '--directory' template. For example '--directory "{folder_album}" --filename "{folder_album_seq}_{original_name}"'. To start counting at a value other than 0, append '(starting_value)' to the field name. For example, to start counting at 1 instead of 0: '{folder_album_seq(1)}' May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{folder_album_seq:05d}' which results in 00000, 00001, 00002...etc. To format while also using a starting value: '{folder_album_seq:05d(1)}' which results in 0001, 00002...etc.This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'. |
 |{comma}|A comma: ','|
@@ -2537,7 +2575,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.56.6'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.56.7'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
