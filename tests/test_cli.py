@@ -6774,6 +6774,29 @@ def test_export_ramdb():
         assert "exported: 0" in result.output
 
 
+def test_export_finder_tag_keywords_dry_run():
+    """test --finder-tag-keywords with --dry-run, #958"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_FINDER_TAGS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-keywords",
+                    "--uuid",
+                    f"{uuid}",
+                    "--dry-run",
+                ],
+            )
+            assert result.exit_code == 0
+
+
 def test_export_finder_tag_keywords():
     """test --finder-tag-keywords"""
 
@@ -7017,6 +7040,41 @@ def test_export_finder_tag_template_multi_field():
             descr = CLI_FINDER_TAGS[uuid]["XMP:Description"] or ""
             expected = [Tag(f"{title};{descr}", 0)]
             assert sorted(md.tags) == sorted(expected)
+
+
+def test_export_xattr_template_dry_run():
+    """test --xattr template with --dry-run, #958"""
+
+    # Note: this test does not actually test that the metadata attributes get correctly
+    # written by osxmetadata as osxmetadata doesn't work reliably when run by pytest
+    # (but does appear to work correctly in practice)
+    # Reference: https://github.com/RhetTbull/osxmetadata/issues/68
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        test_dir = os.getcwd()
+        for uuid in CLI_FINDER_TAGS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--xattr-template",
+                    "copyright",
+                    "osxphotos 2022",
+                    "--xattr-template",
+                    "comment",
+                    "{title};{descr}",
+                    "--uuid",
+                    f"{uuid}",
+                    "--dry-run",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Writing extended attribute" in result.output
 
 
 def test_export_xattr_template():
