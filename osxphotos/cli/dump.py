@@ -56,7 +56,11 @@ def dump(
     photos_library,
     print_template,
 ):
-    """Print list of all photos & associated info from the Photos library."""
+    """Print list of all photos & associated info from the Photos library.
+    
+    NOTE: dump is DEPRECATED and will be removed in a future release. 
+    Use `osxphotos query` instead.
+    """
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None

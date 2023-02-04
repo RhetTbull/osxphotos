@@ -4242,7 +4242,9 @@ def test_places():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(places, [os.path.join(cwd, PLACES_PHOTOS_DB), "--json"])
+        result = runner.invoke(
+            places, ["--db", os.path.join(cwd, PLACES_PHOTOS_DB), "--json"]
+        )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
         assert json_got == json.loads(CLI_PLACES_JSON)
@@ -4257,7 +4259,13 @@ def test_place_13():
     with runner.isolated_filesystem():
         result = runner.invoke(
             query,
-            [os.path.join(cwd, PLACES_PHOTOS_DB_13), "--json", "--place", "Adelaide"],
+            [
+                "--db",
+                os.path.join(cwd, PLACES_PHOTOS_DB_13),
+                "--json",
+                "--place",
+                "Adelaide",
+            ],
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -4274,7 +4282,8 @@ def test_no_place_13():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            query, [os.path.join(cwd, PLACES_PHOTOS_DB_13), "--json", "--no-place"]
+            query,
+            ["--db", os.path.join(cwd, PLACES_PHOTOS_DB_13), "--json", "--no-place"],
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -4292,7 +4301,13 @@ def test_place_15_1():
     with runner.isolated_filesystem():
         result = runner.invoke(
             query,
-            [os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--place", "Washington"],
+            [
+                "--db",
+                os.path.join(cwd, PLACES_PHOTOS_DB),
+                "--json",
+                "--place",
+                "Washington",
+            ],
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -4310,7 +4325,13 @@ def test_place_15_2():
     with runner.isolated_filesystem():
         result = runner.invoke(
             query,
-            [os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--place", "United States"],
+            [
+                "--db",
+                os.path.join(cwd, PLACES_PHOTOS_DB),
+                "--json",
+                "--place",
+                "United States",
+            ],
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -4329,7 +4350,7 @@ def test_no_place_15():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            query, [os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--no-place"]
+            query, ["--db", os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--no-place"]
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -4346,7 +4367,14 @@ def test_no_folder_1_15():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            query, [os.path.join(cwd, PHOTOS_DB_15_7), "--json", "--folder", "Folder1"]
+            query,
+            [
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--json",
+                "--folder",
+                "Folder1",
+            ],
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -4381,6 +4409,7 @@ def test_no_folder_2_15():
         result = runner.invoke(
             query,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 "--json",
                 "--folder",
@@ -4408,7 +4437,14 @@ def test_no_folder_1_14():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            query, [os.path.join(cwd, PHOTOS_DB_14_6), "--json", "--folder", "Folder1"]
+            query,
+            [
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_14_6),
+                "--json",
+                "--folder",
+                "Folder1",
+            ],
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -5725,6 +5761,7 @@ def test_keywords():
 
     json_got = json.loads(result.output)
     assert json_got == KEYWORDS_JSON
+
 
 def test_albums_json():
     """Test osxphotos albums json output"""
@@ -7907,6 +7944,7 @@ def test_query_function():
         result = runner.invoke(
             query,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 "--query-function",
                 f"{tmpdir}/query1.py::query",
@@ -7928,6 +7966,7 @@ def test_query_added_after():
     results = runner.invoke(
         query,
         [
+            "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--json",
             "--added-after",
@@ -7948,6 +7987,7 @@ def test_query_added_before():
     results = runner.invoke(
         query,
         [
+            "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--json",
             "--added-before",

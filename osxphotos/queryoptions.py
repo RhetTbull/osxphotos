@@ -250,6 +250,8 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         ("slow_mo", "not_slow_mo"),
         ("time_lapse", "not_time_lapse"),
         ("deleted", "not_deleted"),
+        ("deleted", "deleted_only"),
+        ("deleted_only", "not_deleted"),
     ]
     # TODO: add option to validate requiring at least one query arg
     for arg, not_arg in exclusive:
@@ -257,7 +259,7 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
             arg = arg.replace("_", "-")
             not_arg = not_arg.replace("_", "-")
             raise IncompatibleQueryOptions(
-                f"--{arg} and --{not_arg} are mutually exclusive"
+                f"Incompatible query options: --{arg} and --{not_arg} are mutually exclusive"
             )
 
     # some options like title can be specified multiple times
@@ -277,17 +279,18 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         include_movies = False
 
     # load UUIDs if necessary and append to any uuids passed with --uuid
-    uuid = None
+    uuids = list(kwargs.get("uuid", []))  # Click option is a tuple
     if uuid_from_file := kwargs.get("uuid_from_file"):
-        uuid_list = list(kwargs.get("uuid", []))  # Click option is a tuple
-        uuid_list.extend(load_uuid_from_file(uuid_from_file))
-        uuid = tuple(uuid_list)
+        uuids.extend(load_uuid_from_file(uuid_from_file))
+        uuids = tuple(uuids)
 
     query_fields = [field.name for field in dataclasses.fields(QueryOptions)]
     query_dict = {field: kwargs.get(field) for field in query_fields}
     query_dict["photos"] = include_photos
     query_dict["movies"] = include_movies
-    query_dict["uuid"] = uuid
+    query_dict["uuid"] = uuids
+    query_dict["function"] = kwargs.get("query_function")
+
     return QueryOptions(**query_dict)
 
 

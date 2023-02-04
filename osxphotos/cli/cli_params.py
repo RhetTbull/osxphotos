@@ -79,7 +79,16 @@ _DB_PARAMETER = click.Option(
 
 DB_OPTION = make_click_option_decorator(_DB_PARAMETER)
 
-DB_ARGUMENT = click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+DB_ARGUMENT = click.argument(
+    "photos_library",
+    nargs=-1,
+    type=DeprecatedPath(
+        exists=True,
+        deprecation_warning="The PHOTOS_LIBRARY argument is deprecated and "
+        "will be removed in a future version of osxphotos. "
+        "Use --library instead to specify the Photos Library path.",
+    ),
+)
 
 _JSON_PARAMETER = click.Option(
     ["--json", "json_"],
