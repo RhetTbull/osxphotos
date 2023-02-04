@@ -13,9 +13,10 @@ from osxphotos._version import __version__
 from .about import about
 from .add_locations import add_locations
 from .albums import albums
-from .common import DB_OPTION, JSON_OPTION, OSXPHOTOS_HIDDEN
+from .cli_params import DB_OPTION, DEBUG_OPTIONS, JSON_OPTION
+from .common import OSXPHOTOS_HIDDEN
 from .debug_dump import debug_dump
-from .docs import docs
+from .docs import docs_command
 from .dump import dump
 from .exiftool_cli import exiftool
 from .export import export
@@ -41,7 +42,6 @@ from .timewarp import timewarp
 from .tutorial import tutorial
 from .uuid import uuid
 from .version import version
-from .common import DEBUG_OPTIONS
 
 
 # Click CLI object & context settings
@@ -110,7 +110,7 @@ for command in [
     albums,
     debug_dump,
     diff,
-    docs,
+    docs_command,
     dump,
     exiftool,
     export,

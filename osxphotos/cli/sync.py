@@ -24,15 +24,15 @@ from osxphotos.queryoptions import (
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
-from .click_rich_echo import rich_click_echo as echo
-from .click_rich_echo import rich_echo_error as echo_error
-from .common import (
+from .cli_params import (
     DB_OPTION,
     QUERY_OPTIONS,
     THEME_OPTION,
     TIMESTAMP_OPTION,
     VERBOSE_OPTION,
 )
+from .click_rich_echo import rich_click_echo as echo
+from .click_rich_echo import rich_echo_error as echo_error
 from .param_types import TemplateString
 from .report_writer import sync_report_writer_factory
 from .rich_progress import rich_progress
@@ -640,7 +640,7 @@ def print_import_summary(results: SyncResults):
 )
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
-@QUERY_OPTIONS
+@QUERY_OPTIONS(exclude=["--shared", "--not-shared"])
 @DB_OPTION
 @THEME_OPTION
 @click.pass_obj
@@ -721,14 +721,6 @@ def sync(
         ctx.exit(1)
 
     # filter out photos in shared albums as these cannot be updated
-    # Not elegant but works for now without completely refactoring QUERY_OPTIONS
-    if kwargs.get("shared"):
-        echo_error(
-            "[warning]--shared cannot be used with --import/--export "
-            "as photos in shared iCloud albums cannot be updated; "
-            "--shared will be ignored[/]"
-        )
-        kwargs["shared"] = False
     kwargs["not_shared"] = True
 
     set_ = parse_set_merge(set_)

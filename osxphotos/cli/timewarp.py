@@ -25,10 +25,10 @@ from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.utils import noop, pluralize
 
+from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
 from .color_themes import get_theme
-from .common import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .darkmode import is_dark_mode
 from .help import HELP_WIDTH, rich_text
 from .param_types import (

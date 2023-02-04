@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass
 from typing import Iterable, List, Optional, Tuple
 
 import bitmath
+import click
 
 __all__ = ["QueryOptions", "query_options_from_kwargs", "IncompatibleQueryOptions"]
 

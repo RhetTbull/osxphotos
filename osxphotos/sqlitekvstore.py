@@ -176,6 +176,17 @@ class SQLiteKVStore:
         )
         conn.commit()
 
+    @property
+    def path(self) -> str:
+        """Return path to the database"""
+        return self._dbpath
+
+    def wipe(self):
+        """Wipe the database"""
+        self.connection().execute("DELETE FROM data;")
+        self.connection().commit()
+        self.vacuum()
+
     def vacuum(self):
         """Vacuum the database, ref: https://www.sqlite.org/matrix/lang_vacuum.html"""
         self.connection().execute("VACUUM;")

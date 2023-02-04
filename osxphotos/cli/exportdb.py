@@ -34,7 +34,7 @@ from .click_rich_echo import (
     set_rich_theme,
 )
 from .color_themes import get_theme
-from .common import TIMESTAMP_OPTION, VERBOSE_OPTION
+from .cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
 from .export import render_and_validate_report
 from .param_types import TemplateString
 from .report_writer import export_report_writer_factory

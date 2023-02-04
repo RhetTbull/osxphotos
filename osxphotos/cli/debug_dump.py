@@ -9,15 +9,14 @@ from rich import print
 import osxphotos
 from osxphotos._constants import _PHOTOS_4_VERSION, _UNKNOWN_PLACE
 
-from .common import (
+from .cli_params import (
     DB_ARGUMENT,
     DB_OPTION,
     JSON_OPTION,
-    OSXPHOTOS_HIDDEN,
     TIMESTAMP_OPTION,
     VERBOSE_OPTION,
-    get_photos_db,
 )
+from .common import OSXPHOTOS_HIDDEN, get_photos_db
 from .list import _list_libraries
 from .verbose import verbose_print
 
@@ -47,7 +46,7 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose_flag, times
     """Print out debug info"""
 
     verbose = verbose_print(verbose_flag, timestamp)
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+    db = get_photos_db(*photos_library, db, cli_obj.db if cli_obj else None)
     if db is None:
         click.echo(ctx.obj.group.commands["debug-dump"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)

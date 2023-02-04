@@ -26,8 +26,9 @@ from osxphotos.rich_utils import add_rich_markup_tag
 from osxphotos.text_detection import detect_text as detect_text_in_photo
 from osxphotos.utils import dd_to_dms_str
 
+from .cli_params import DB_OPTION, THEME_OPTION
 from .color_themes import get_theme
-from .common import DB_OPTION, THEME_OPTION, get_photos_db
+from .common import get_photos_db
 
 # global that tracks UUID being inspected
 CURRENT_UUID = None

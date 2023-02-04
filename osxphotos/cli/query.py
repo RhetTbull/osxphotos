@@ -13,19 +13,16 @@ from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.queryoptions import QueryOptions, load_uuid_from_file
 
-from .color_themes import get_default_theme
-from .common import (
-    CLI_COLOR_ERROR,
-    CLI_COLOR_WARNING,
+from .cli_params import (
     DB_ARGUMENT,
     DB_OPTION,
     DELETED_OPTIONS,
     FIELD_OPTION,
     JSON_OPTION,
-    OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
-    get_photos_db,
 )
+from .color_themes import get_default_theme
+from .common import CLI_COLOR_ERROR, CLI_COLOR_WARNING, OSXPHOTOS_HIDDEN, get_photos_db
 from .list import _list_libraries
 from .print_photo_info import print_photo_fields, print_photo_info
 from .verbose import get_verbose_console
@@ -36,7 +33,6 @@ from .verbose import get_verbose_console
 @JSON_OPTION
 @QUERY_OPTIONS
 @DELETED_OPTIONS
-
 @click.option(
     "--add-to-album",
     metavar="ALBUM",

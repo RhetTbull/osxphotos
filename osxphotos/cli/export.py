@@ -58,26 +58,28 @@ from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.queryoptions import QueryOptions, load_uuid_from_file
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
-    get_macos_version,
     format_sec_to_hhmmss,
+    get_macos_version,
     normalize_fs_path,
     pluralize,
 )
 
-from .click_rich_echo import rich_click_echo, rich_echo, rich_echo_error
-from .common import (
-    CLI_COLOR_ERROR,
-    CLI_COLOR_WARNING,
+from .cli_params import (
     DB_ARGUMENT,
     DB_OPTION,
     DELETED_OPTIONS,
     JSON_OPTION,
-    OSXPHOTOS_CRASH_LOG,
-    OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
     THEME_OPTION,
     TIMESTAMP_OPTION,
     VERBOSE_OPTION,
+)
+from .click_rich_echo import rich_click_echo, rich_echo, rich_echo_error
+from .common import (
+    CLI_COLOR_ERROR,
+    CLI_COLOR_WARNING,
+    OSXPHOTOS_CRASH_LOG,
+    OSXPHOTOS_HIDDEN,
     get_photos_db,
     noop,
 )

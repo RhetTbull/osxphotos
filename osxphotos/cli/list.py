@@ -6,7 +6,7 @@ import click
 
 import osxphotos
 
-from .common import JSON_OPTION
+from .cli_params import JSON_OPTION
 
 
 @click.command(name="list")

@@ -5726,20 +5726,6 @@ def test_keywords():
     json_got = json.loads(result.output)
     assert json_got == KEYWORDS_JSON
 
-
-# TODO: this fails with result.exit_code == 1 but I think this has to
-# do with how pytest is invoking the command
-# def test_albums_str():
-#     """Test osxphotos albums string output """
-
-#     runner = CliRunner()
-#     cwd = os.getcwd()
-#     result = runner.invoke(albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_7), ])
-#     assert result.exit_code == 0
-
-#     assert result.output == ALBUMS_STR
-
-
 def test_albums_json():
     """Test osxphotos albums json output"""
 

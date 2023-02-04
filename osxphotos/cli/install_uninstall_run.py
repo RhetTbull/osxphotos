@@ -1,5 +1,7 @@
 """install/uninstall/run commands for osxphotos CLI"""
 
+
+import contextlib
 import sys
 from runpy import run_module, run_path
 
@@ -50,8 +52,6 @@ def uninstall(packages, yes):
 
 
 @click.command(name="run", cls=RunCommand)
-# help command passed just to keep click from intercepting help
-# and allowing --help to be passed to the script being run
 @click.option("--help", "-h", is_flag=True, help="Show this message and exit")
 @click.argument("python_file", nargs=1, type=click.Path(exists=True))
 @click.argument("args", metavar="ARGS", nargs=-1)
@@ -64,6 +64,7 @@ def run(python_file, help, args):
     # osxphotos run example.py --help
     # osxphotos --debug run example.py --verbose --db /path/to/photos.db
     # etc.
-    if index := sys.argv.index("run"):
+    with contextlib.suppress(ValueError):
+        index = sys.argv.index("run")
         sys.argv = sys.argv[index + 1 :]
     run_path(python_file, run_name="__main__")

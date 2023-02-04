@@ -47,18 +47,30 @@ from .about import about
 from .add_locations import add_locations
 from .albums import albums
 from .cli import cli_main
-from .cli_commands import abort, echo, echo_error, logger, query_command, verbose
-from .common import get_photos_db
+from .cli_commands import (
+    abort,
+    echo,
+    echo_error,
+    logger,
+    query_command,
+    selection_command,
+    verbose,
+)
+from .cli_params import DB_OPTION, DEBUG_OPTIONS, JSON_OPTION
+from .common import OSXPHOTOS_HIDDEN, get_photos_db
 from .debug_dump import debug_dump
+from .docs import docs_command
 from .dump import dump
 from .exiftool_cli import exiftool
 from .export import export
 from .exportdb import exportdb
 from .grep import grep
 from .help import help
+from .import_cli import import_cli
 from .info import info
 from .install_uninstall_run import install, run, uninstall
 from .keywords import keywords
+from .kvstore import kvstore
 from .labels import labels
 from .list import _list_libraries, list_libraries
 from .orphans import orphans
@@ -68,8 +80,12 @@ from .places import places
 from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
+from .sync import sync
+from .theme import theme
+from .timewarp import timewarp
 from .tutorial import tutorial
 from .uuid import uuid
+from .version import version
 
 install_traceback()
 
@@ -81,6 +97,7 @@ __all__ = [
     "cli_main",
     "debug_dump",
     "diff",
+    "docs_command",
     "dump",
     "echo",
     "echo_error",
@@ -89,9 +106,11 @@ __all__ = [
     "exportdb",
     "grep",
     "help",
+    "import_cli",
     "info",
     "install",
     "keywords",
+    "kvstore",
     "labels",
     "list_libraries",
     "list_libraries",
@@ -104,6 +123,7 @@ __all__ = [
     "query_command",
     "repl",
     "run",
+    "selection_command",
     "set_debug",
     "snap",
     "tutorial",
