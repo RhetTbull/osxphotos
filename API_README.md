@@ -7,6 +7,7 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
 * [Example uses of the Python package](#example-uses-of-the-python-package)
 * [Package Interface](#package-interface)
   * [PhotosDB](#photosdb)
+  * [QueryOptions](#queryoptions)
   * [PhotoInfo](#photoinfo)
   * [ExifInfo](#exifinfo)
   * [AlbumInfo](#albuminfo)
@@ -32,124 +33,348 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
 
 ## Example uses of the Python package
 
+### Print filename, date created, title, and keywords for all photos in a library
+
 ```python
-""" Simple usage of the package """
-import os.path
+"""print filename, date created, title, and keywords for all photos in Photos library"""
 
 import osxphotos
 
-def main():
-    db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
-    photosdb = osxphotos.PhotosDB(db)
-    print(photosdb.keywords)
-    print(photosdb.persons)
-    print(photosdb.album_names)
-
-    print(photosdb.keywords_as_dict)
-    print(photosdb.persons_as_dict)
-    print(photosdb.albums_as_dict)
-
-    # find all photos with Keyword = Foo and containing John Smith
-    photos = photosdb.photos(keywords=["Foo"],persons=["John Smith"])
-
-    # find all photos that include Alice Smith but do not contain the keyword Bar
-    photos = [p for p in photosdb.photos(persons=["Alice Smith"]) 
-                if p not in photosdb.photos(keywords=["Bar"]) ]
-    for p in photos:
-        print(
-            p.uuid,
-            p.filename,
-            p.original_filename,
-            p.date,
-            p.description,
-            p.title,
-            p.keywords,
-            p.albums,
-            p.persons,
-            p.path,
-        )
-
 if __name__ == "__main__":
-    main()
+    photosdb = osxphotos.PhotosDB()
+    for photo in photosdb.photos():
+        print(photo.original_filename, photo.date, photo.title, photo.keywords)
+
 ```
 
-```python
-""" Export all photos to specified directory using album names as folders
-    If file has been edited, also export the edited version, 
-    otherwise, export the original version 
-    This will result in duplicate photos if photo is in more than album """
+The primary interface to the Photos library is the [PhotosDB](#photosdb) object.  The [PhotosDB](#photosdb) object provides access to the photos in the library via the [photos](#photosdbphotos) method and the [query](#photosdbquery).  These methods returns a list of [PhotoInfo](#photoinfo) objects, one for each photo in the library.  The [PhotoInfo](#photoinfo) object provides access to the metadata for each photo.
 
-import os.path
-import pathlib
-import sys
+### Building simple command line tools
+
+osxphotos provides several useful helper functions to make it easy to build simple command line tools.  For example, the following code will print information about all photos in a library or a subset of photos filtered by one or more query options.  This mirrors the `osxphotos query` command line tool. Tools built using these helper functions can be easily distributed as a single file and run via `osxphotos run script.py` so the user doesn't need to install python, any dependencies, or create a virtual environment.
+
+Here's a simple example showing how to use the `query_command` decorator to implement a simple command line tool. The `query_command` decorator turns your function into a full-fledged [Click](https://palletsprojects.com/p/click/) command line app that can be run via `osxphotos run example.py` or `python example.py` if you have pip installed osxphotos.  Your command will include all the query options available in `osxphotos query` as command line options as well as `--verbose` and other convenient options.
+
+<!--[[[cog
+cog.out("```python\n")
+with open("examples/cli_example_1.py", "r") as f:
+    cog.out(f.read())
+cog.out("```\n")
+]]]-->
+```python
+"""Sample query command for osxphotos
+
+This shows how simple it is to create a command line tool using osxphotos to process your photos.
+
+Using the @query_command decorator turns your function to a full-fledged command line app that
+can be run via `osxphotos run cli_example_1.py` or `python cli_example_1.py` if you have pip installed osxphotos.
+
+Using this decorator makes it very easy to create a quick command line tool that can operate on
+a subset of your photos. Additionally, writing a command in this way makes it easy to later
+incorporate the command into osxphotos as a full-fledged command.
+
+The decorator will add all the query options available in `osxphotos query` as command line options
+as well as the following options:
+--verbose
+--timestamp
+--theme
+--db
+--debug (hidden, won't show in help)
+
+The decorated function will perform the query and pass the list of filtered PhotoInfo objects
+to your function.  You can then do whatever you want with the photos.
+
+For example, to run the command on only selected photos:
+
+    osxphotos run cli_example_1.py --selected
+
+To run the command on all photos with the keyword "foo":
+
+    osxphotos run cli_example_1.py --keyword foo
+
+For more advanced example, see `cli_example_2.py`
+"""
+
+from __future__ import annotations
+
+import osxphotos
+from osxphotos.cli import query_command, verbose
+
+
+@query_command
+def example(photos: list[osxphotos.PhotoInfo], **kwargs):
+    """Sample query command for osxphotos. Prints out the filename and date of each photo.
+
+    Whatever text you put in the function's docstring here, will be used as the command's
+    help text when run via `osxphotos run cli_example_1.py --help` or `python cli_example_1.py --help`
+    """
+
+    # verbose() will print to stdout if --verbose option is set
+    # you can optionally provide a level (default is 1) to print only if --verbose is set to that level
+    # for example: -VV or --verbose --verbose == level 2
+    verbose(f"Found {len(photos)} photo(s)")
+    verbose("This message will only be printed if verbose level 2 is set", level=2)
+
+    # do something with photos here
+    for photo in photos:
+        # photos is a list of PhotoInfo objects
+        # see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo
+        verbose(f"Processing {photo.original_filename}")
+        print(f"{photo.original_filename} {photo.date}")
+        ...
+
+
+if __name__ == "__main__":
+    # call your function here
+    # you do not need to pass any arguments to the function
+    # as the decorator will handle parsing the command line arguments
+    example()
+```
+<!--[[[end]]]-->
+
+Here is a more advanced example that shows how to implement a script with a "dry run" and "resume" capability that preserves state between runs. Using the built-in helpers allows you to implement complex behavior in just a few lines of code.
+
+<!--[[[cog
+cog.out("```python\n")
+with open("examples/cli_example_2.py", "r") as f:
+    cog.out(f.read())
+cog.out("```\n")
+]]]-->
+```python
+"""Sample query command for osxphotos
+
+This shows how simple it is to create a command line tool using osxphotos to process your photos.
+
+Using the @query_command decorator turns your function to a full-fledged command line app that
+can be run via `osxphotos run cli_example_2.py` or `python cli_example_2.py` if you have pip installed osxphotos.
+
+Using this decorator makes it very easy to create a quick command line tool that can operate on
+a subset of your photos. Additionally, writing a command in this way makes it easy to later
+incorporate the command into osxphotos as a full-fledged command.
+
+The decorator will add all the query options available in `osxphotos query` as command line options
+as well as the following options:
+--verbose
+--timestamp
+--theme
+--db
+--debug (hidden, won't show in help)
+
+The decorated function will perform the query and pass the list of filtered PhotoInfo objects
+to your function.  You can then do whatever you want with the photos.
+
+For example, to run the command on only selected photos:
+
+    osxphotos run cli_example_2.py --selected
+
+To run the command on all photos with the keyword "foo":
+
+    osxphotos run cli_example_2.py --keyword foo
+
+The following helper functions may be useful and can be imported from osxphotos.cli:
+
+    abort(message: str, exit_code: int = 1)
+        Abort with error message and exit code
+    echo(message: str)
+        Print message to stdout using rich formatting
+    echo_error(message: str)
+        Print message to stderr using rich formatting
+    logger: logging.Logger
+        Python logger for osxphotos; for example, logger.debug("debug message")
+    verbose(*args, level: int = 1)
+        Print args to stdout if --verbose option is set
+    query_command: decorator to create an osxphotos query command
+    kvstore(name: str) -> SQLiteKVStore useful for storing state between runs
+
+The verbose, echo, and echo_error functions use rich formatting to print messages to stdout and stderr.
+See https://github.com/Textualize/rich for more information on rich formatting.
+
+In addition to standard rich formatting styles, the following styles will be defined
+(and can be changed using --theme):
+
+    [change]: something change
+    [no_change]: indicate no change
+    [count]: a count
+    [error]: an error
+    [filename]: a filename
+    [filepath]: a filepath
+    [num]: a number
+    [time]: a time or date
+    [tz]: a timezone
+    [warning]: a warning
+    [uuid]: a uuid
+
+The tags should be closed with [/] to end the style.  For example:
+
+    echo("[filename]foo[/] [time]bar[/]")
+
+For simpler examples, see `cli_example_1.py`
+"""
+
+from __future__ import annotations
+
+import datetime
 
 import click
-from pathvalidate import is_valid_filepath, sanitize_filepath
 
 import osxphotos
+from osxphotos.cli import (
+    abort,
+    echo,
+    echo_error,
+    kvstore,
+    logger,
+    query_command,
+    verbose,
+)
 
 
-@click.command()
-@click.argument("export_path", type=click.Path(exists=True))
+@query_command()
 @click.option(
-    "--default-album",
-    help="Default folder for photos with no album. Defaults to 'unfiled'",
-    default="unfiled",
+    "--resume",
+    is_flag=True,
+    help="Resume processing from last run, do not reprocess photos",
 )
 @click.option(
-    "--library-path",
-    help="Path to Photos library, default to last used library",
-    default=None,
+    "--dry-run", is_flag=True, help="Do a dry run, don't actually do anything"
 )
-def export(export_path, default_album, library_path):
-    export_path = os.path.expanduser(export_path)
-    library_path = os.path.expanduser(library_path) if library_path else None
+def example(resume, dry_run, photos: list[osxphotos.PhotoInfo], **kwargs):
+    """Sample query command for osxphotos. Prints out the filename and date of each photo.
 
-    if library_path is not None:
-        photosdb = osxphotos.PhotosDB(library_path)
-    else:
-        photosdb = osxphotos.PhotosDB()
+    Whatever text you put in the function's docstring here, will be used as the command's
+    help text when run via `osxphotos run cli_example_2.py --help` or `python cli_example_2.py --help`
 
-    photos = photosdb.photos()
+    The @query_command decorator returns a click.command so you can add additional options
+    using standard click decorators.  For example, the --resume and --dry-run options.
+    For more information on click, see https://palletsprojects.com/p/click/.
+    """
 
-    for p in photos:
-        if not p.ismissing:
-            albums = p.albums
-            if not albums:
-                albums = [default_album]
-            for album in albums:
-                click.echo(f"exporting {p.filename} in album {album}")
+    # abort will print the message to stderr and exit with the given exit code
+    if not photos:
+        abort("Nothing to do!", 1)
 
-                # make sure no invalid characters in destination path (could be in album name)
-                album_name = sanitize_filepath(album, platform="auto")
+    # verbose() will print to stdout if --verbose option is set
+    # you can optionally provide a level (default is 1) to print only if --verbose is set to that level
+    # for example: -VV or --verbose --verbose == level 2
+    verbose(f"Found [count]{len(photos)}[/] photos")
+    verbose("This message will only be printed if verbose level 2 is set", level=2)
 
-                # create destination folder, if necessary, based on album name
-                dest_dir = os.path.join(export_path, album_name)
+    # the logger is a python logging.Logger object
+    # debug messages will only be printed if --debug option is set
+    logger.debug(f"{kwargs=}")
 
-                # verify path is a valid path
-                if not is_valid_filepath(dest_dir, platform="auto"):
-                    sys.exit(f"Invalid filepath {dest_dir}")
+    # kvstore() returns a SQLiteKVStore object for storing state between runs
+    # this is basically a persistent dictionary that can be used to store state
+    # see https://github.com/RhetTbull/sqlitekvstore for more information
+    kv = kvstore("cli_example_2")
+    verbose(f"Using key-value cache: {kv.path}")
 
-                # create destination dir if needed
-                if not os.path.isdir(dest_dir):
-                    os.makedirs(dest_dir)
+    # do something with photos here
+    for photo in photos:
+        # photos is a list of PhotoInfo objects
+        # see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo
+        if resume and photo.uuid in kv:
+            echo(
+                f"Skipping processed photo [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
+            )
+            continue
 
-                # export the photo
-                if p.hasadjustments:
-                    # export edited version
-                    exported = p.export(dest_dir, edited=True)
-                    edited_name = pathlib.Path(p.path_edited).name
-                    click.echo(f"Exported {edited_name} to {exported}")
-                # export unedited version
-                exported = p.export(dest_dir)
-                click.echo(f"Exported {p.filename} to {exported}")
-        else:
-            click.echo(f"Skipping missing photo: {p.filename}")
+        # store the uuid and current time in the kvstore
+        # the key and value must be a type supported by SQLite: int, float, str, bytes, bool, None
+        # if you need to store other values, you should serialize them to a string or bytes first
+        # for example, using json.dumps() or pickle.dumps()
+        kv[photo.uuid] = datetime.datetime.now().isoformat()
+        echo(f"Processing [filename]{photo.original_filename}[/] [time]{photo.date}[/]")
+        if not dry_run:
+            # do something with the photo here
+            echo(f"Doing something with [filename]{photo.original_filename}[/]")
+
+    # echo_error will print to stderr
+    # if you add [warning] or [error], it will be formatted accordingly
+    # and include an emoji to make the message stand out
+    echo_error("[warning]This is a warning message!")
+    echo_error("[error]This is an error message!")
 
 
 if __name__ == "__main__":
-    export()  # pylint: disable=no-value-for-parameter
+    # call your function here
+    # you do not need to pass any arguments to the function
+    # as the decorator will handle parsing the command line arguments
+    example()
 ```
+<!--[[[end]]]-->
+
+In addition to the `query_command` decorator, you can also use the `selection_command` decorator to implement a command that operates on the current selection in Photos.
+
+<!--[[[cog
+cog.out("```python\n")
+with open("examples/cli_example_3.py", "r") as f:
+    cog.out(f.read())
+cog.out("```\n")
+]]]-->
+```python
+"""Sample query command for osxphotos
+
+This shows how simple it is to create a command line tool using osxphotos to process your photos.
+
+Using the @selection_command decorator turns your function to a full-fledged command line app that
+can be run via `osxphotos run cli_example_1.py` or `python cli_example_1.py` if you have pip installed osxphotos.
+
+Using this decorator makes it very easy to create a quick command line tool that can operate on
+a subset of your photos. Additionally, writing a command in this way makes it easy to later
+incorporate the command into osxphotos as a full-fledged command.
+
+The decorator will add the following options to your command:
+--verbose
+--timestamp
+--theme
+--db
+--debug (hidden, won't show in help)
+
+The decorated function will get the selected photos and pass the list of PhotoInfo objects
+to your function.  You can then do whatever you want with the photos.
+"""
+
+from __future__ import annotations
+
+import osxphotos
+from osxphotos.cli import (
+    selection_command,
+    verbose,
+)
+
+
+@selection_command
+def example(photos: list[osxphotos.PhotoInfo], **kwargs):
+    """Sample command for osxphotos. Prints out the filename and date of each photo
+    currently selected in Photos.app.
+
+    Whatever text you put in the function's docstring here, will be used as the command's
+    help text when run via `osxphotos run cli_example_1.py --help` or `python cli_example_1.py --help`
+    """
+
+    # verbose() will print to stdout if --verbose option is set
+    # you can optionally provide a level (default is 1) to print only if --verbose is set to that level
+    # for example: -VV or --verbose --verbose == level 2
+    verbose(f"Found {len(photos)} photo(s)")
+    verbose("This message will only be printed if verbose level 2 is set", level=2)
+
+    # do something with photos here
+    for photo in photos:
+        # photos is a list of PhotoInfo objects
+        # see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo
+        verbose(f"Processing {photo.original_filename}")
+        print(f"{photo.original_filename} {photo.date}")
+        ...
+
+
+if __name__ == "__main__":
+    # call your function here
+    # you do not need to pass any arguments to the function
+    # as the decorator will handle parsing the command line arguments
+    example()
+```
+<!--[[[end]]]-->
 
 ## Package Interface
 
@@ -221,6 +446,132 @@ Pass the fully qualified path to the Photos library or the actual database file 
 Returns a PhotosDB object.
 
 **Note**: If you have a large library (e.g. many thousdands of photos), creating the PhotosDB object can take a long time (10s of seconds).  See [Implementation Notes](#implementation-notes) for additional details.
+
+#### <A name="photosdbphotos">`photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)`</a>
+
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]],[from_date=datetime.datetime],[to_date=datetime.datetime])
+```
+
+Returns a list of [PhotoInfo](#photoinfo) objects.  Each PhotoInfo object represents a photo in the Photos Libary.
+
+If called with no parameters, returns a list of every photo in the Photos library.
+
+May be called with one or more of the following parameters to filter the list of photos returned:
+
+```python
+photos = photosdb.photos(
+    keywords = [],
+    uuid = [],
+    persons = [],
+    albums = [],
+    images = bool,
+    movies = bool,
+    from_date = datetime.datetime,
+    to_date = datetime.datetime,
+    intrash = bool,
+)
+```
+
+* ```keywords```: list of one or more keywords.  Returns only photos containing the keyword(s).  If more than one keyword is provided finds photos matching any of the keywords (e.g. treated as "or")
+* ```uuid```: list of one or more uuids.  Returns only photos whos UUID matches.  **Note**: The UUID is the universally unique identifier that the Photos database uses to identify each photo.  You shouldn't normally need to use this but it is a way to access a specific photo if you know the UUID.  If more than more uuid is provided, returns photos that match any of the uuids (e.g. treated as "or")
+* ```persons```: list of one or more persons. Returns only photos containing the person(s).  If more than one person provided, returns photos that match any of the persons (e.g. treated as "or")
+* ```albums```: list of one or more album names.  Returns only photos contained in the album(s). If more than one album name is provided, returns photos contained in any of the albums (.e.g. treated as "or")
+* ```images```: bool; if True, returns photos/images; default is True
+* ```movies```: bool; if True, returns movies/videos; default is True
+* ```from_date```: datetime.datetime; if provided, finds photos where creation date >= from_date; default is None
+* ```to_date```: datetime.datetime; if provided, finds photos where creation date <= to_date; default is None
+* ```intrash```: if True, finds only photos in the "Recently Deleted" or trash folder, if False does not find any photos in the trash; default is False
+
+See also [get_photo()](#getphoto) which is much faster for retrieving a single photo and [query](#photosdbquery) which provides much more flexibility in querying the database.
+
+If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as "and" criteria. E.g.
+
+Finds all photos with (keyword = "wedding" or "birthday") and (persons = "Juan Rodriguez")
+
+```python
+photos=photosdb.photos(keywords=["wedding","birthday"],persons=["Juan Rodriguez"])
+```
+
+Find all photos tagged with keyword "wedding":
+
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photos = photosdb.photos(keywords=["wedding"])
+ ```
+
+Find all photos of Maria Smith
+
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photos=photosdb.photos(persons=["Maria Smith"])
+```
+
+Find all photos in album "Summer Vacation" or album "Ski Trip"
+
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photos=photosdb.photos(albums=["Summer Vacation", "Ski Trip"])
+```
+
+Find the single photo with uuid = "osMNIO5sQFGZTbj9WrydRB"
+
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photos=photosdb.photos(uuid=["osMNIO5sQFGZTbj9WrydRB"])
+```
+
+If you need to do more complicated searches, you can do this programmaticaly.  For example, find photos with keyword = "Kids" but not in album "Vacation 2019"
+
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photos1 = photosdb.photos(albums=["Vacation 2019"])
+photos2 = photosdb.photos(keywords=["Kids"])
+photos3 = [p for p in photos2 if p not in photos1]
+```
+
+To get only movies:
+
+```python
+movies = photosdb.photos(images=False, movies=True)
+```
+
+**Note** PhotosDB.photos() may return a different number of photos than Photos.app reports in the GUI. This is because photos() returns [hidden](#hidden) photos, [shared](#shared) photos, and for [burst](#burst) photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you "finalize" the burst by selecting key photos and deleting the others using the "Make a selection" option.
+
+For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, PhotosDB.photos() reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (*Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.
+
+```pycon
+>>> import osxphotos
+>>> photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
+>>> photos = photosdb.photos()
+>>> len(photos)
+25002
+>>> shared = [p for p in photos if p.shared]
+>>> len(shared)
+5609
+>>> not_shared = [p for p in photos if not p.shared]
+>>> len(not_shared)
+19393
+>>> hidden = [p for p in photos if p.hidden]
+>>> len(hidden)
+7
+>>> movies = photosdb.photos(movies=True, images=False)
+>>> len(movies)
+625
+>>> shared_movies = [m for m in movies if m.shared]
+>>> len(shared_movies)
+151
+>>>
+```
+
+#### <a name="getphoto">`get_photo(uuid)`</A>
+
+Returns a single PhotoInfo instance for photo with UUID matching `uuid` or None if no photo is found matching `uuid`.  If you know the UUID of a photo, `get_photo()` is much faster than `photos`.  See also [photos()](#photos).
+
+#### <A name="photosdbquery">`query(options: QueryOptions) -> List[PhotoInfo]:`</a>
+
+Returns a list of [PhotoInfo](#photoinfo) objects matching the query options. This is preferred method of querying the photos database. See [QueryOptions](#queryoptions) for details on the options available.
 
 #### `keywords`
 
@@ -430,131 +781,109 @@ for row in results:
 conn.close()
 ```
 
-#### <A name="photos">`photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)`</a>
-
-```python
-# assumes photosdb is a PhotosDB object (see above)
-photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]],[from_date=datetime.datetime],[to_date=datetime.datetime])
-```
-
-Returns a list of [PhotoInfo](#photoinfo) objects.  Each PhotoInfo object represents a photo in the Photos Libary.
-
-If called with no parameters, returns a list of every photo in the Photos library.
-
-May be called with one or more of the following parameters:
-
-```python
-photos = photosdb.photos(
-    keywords = [],
-    uuid = [],
-    persons = [],
-    albums = [],
-    images = bool,
-    movies = bool,
-    from_date = datetime.datetime,
-    to_date = datetime.datetime,
-    intrash = bool,
-)
-```
-
-* ```keywords```: list of one or more keywords.  Returns only photos containing the keyword(s).  If more than one keyword is provided finds photos matching any of the keywords (e.g. treated as "or")
-* ```uuid```: list of one or more uuids.  Returns only photos whos UUID matches.  **Note**: The UUID is the universally unique identifier that the Photos database uses to identify each photo.  You shouldn't normally need to use this but it is a way to access a specific photo if you know the UUID.  If more than more uuid is provided, returns photos that match any of the uuids (e.g. treated as "or")
-* ```persons```: list of one or more persons. Returns only photos containing the person(s).  If more than one person provided, returns photos that match any of the persons (e.g. treated as "or")
-* ```albums```: list of one or more album names.  Returns only photos contained in the album(s). If more than one album name is provided, returns photos contained in any of the albums (.e.g. treated as "or")
-* ```images```: bool; if True, returns photos/images; default is True
-* ```movies```: bool; if True, returns movies/videos; default is True
-* ```from_date```: datetime.datetime; if provided, finds photos where creation date >= from_date; default is None
-* ```to_date```: datetime.datetime; if provided, finds photos where creation date <= to_date; default is None
-* ```intrash```: if True, finds only photos in the "Recently Deleted" or trash folder, if False does not find any photos in the trash; default is False
-
-See also [get_photo()](#getphoto) which is much faster for retrieving a single photo.
-
-If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as "and" criteria. E.g.
-
-Finds all photos with (keyword = "wedding" or "birthday") and (persons = "Juan Rodriguez")
-
-```python
-photos=photosdb.photos(keywords=["wedding","birthday"],persons=["Juan Rodriguez"])
-```
-
-Find all photos tagged with keyword "wedding":
-
-```python
-# assumes photosdb is a PhotosDB object (see above)
-photos = photosdb.photos(keywords=["wedding"])
- ```
-
-Find all photos of Maria Smith
-
-```python
-# assumes photosdb is a PhotosDB object (see above)
-photos=photosdb.photos(persons=["Maria Smith"])
-```
-
-Find all photos in album "Summer Vacation" or album "Ski Trip"
-
-```python
-# assumes photosdb is a PhotosDB object (see above)
-photos=photosdb.photos(albums=["Summer Vacation", "Ski Trip"])
-```
-
-Find the single photo with uuid = "osMNIO5sQFGZTbj9WrydRB"
-
-```python
-# assumes photosdb is a PhotosDB object (see above)
-photos=photosdb.photos(uuid=["osMNIO5sQFGZTbj9WrydRB"])
-```
-
-If you need to do more complicated searches, you can do this programmaticaly.  For example, find photos with keyword = "Kids" but not in album "Vacation 2019"
-
-```python
-# assumes photosdb is a PhotosDB object (see above)
-photos1 = photosdb.photos(albums=["Vacation 2019"])
-photos2 = photosdb.photos(keywords=["Kids"])
-photos3 = [p for p in photos2 if p not in photos1]
-```
-
-To get only movies:
-
-```python
-movies = photosdb.photos(images=False, movies=True)
-```
-
-**Note** PhotosDB.photos() may return a different number of photos than Photos.app reports in the GUI. This is because photos() returns [hidden](#hidden) photos, [shared](#shared) photos, and for [burst](#burst) photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you "finalize" the burst by selecting key photos and deleting the others using the "Make a selection" option.
-
-For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, PhotosDB.photos() reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (*Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.
-
-```pycon
->>> import osxphotos
->>> photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
->>> photos = photosdb.photos()
->>> len(photos)
-25002
->>> shared = [p for p in photos if p.shared]
->>> len(shared)
-5609
->>> not_shared = [p for p in photos if not p.shared]
->>> len(not_shared)
-19393
->>> hidden = [p for p in photos if p.hidden]
->>> len(hidden)
-7
->>> movies = photosdb.photos(movies=True, images=False)
->>> len(movies)
-625
->>> shared_movies = [m for m in movies if m.shared]
->>> len(shared_movies)
-151
->>>
-```
-
-#### <a name="getphoto">`get_photo(uuid)`</A>
-
-Returns a single PhotoInfo instance for photo with UUID matching `uuid` or None if no photo is found matching `uuid`.  If you know the UUID of a photo, `get_photo()` is much faster than `photos`.  See also [photos()](#photos).
-
 #### `execute(sql)`
 
 Execute sql statement against the Photos database and return a sqlite cursor with the results.
+
+### QueryOptions
+
+QueryOptions class for [PhotosDB.query()](#photosdbquery)
+
+#### Attributes
+
+See [queryoptions.py](https://github.com/RhetTbull/osxphotos/blob/master/osxphotos/queryoptions.py) for typing information.
+
+* `added_after`: search for photos added after a given date
+* `added_before`: search for photos added before a given date
+* `added_in_last`: search for photos added in last X datetime.timedelta
+* `album`: list of album names to search for
+* `burst_photos`: search for burst photos
+* `burst`: search for burst photos
+* `cloudasset`: search for photos that are managed by iCloud
+* `deleted_only`: search only for deleted photos
+* `deleted`: also include deleted photos
+* `description`: list of descriptions to search for
+* `duplicate`: search for duplicate photos
+* `edited`: search for edited photos
+* `exif`: search for photos with EXIF tags that matches the given data
+* `external_edit`: search for photos edited in external apps
+* `favorite`: search for favorite photos
+* `folder`: list of folder names to search for
+* `from_date`: search for photos taken on or after this date
+* `function`: list of query functions to evaluate
+* `has_comment`: search for photos with comments
+* `has_likes`: search for shared photos with likes
+* `has_raw`: search for photos with associated raw files
+* `hdr`: search for HDR photos
+* `hidden`: search for hidden photos
+* `ignore_case`: ignore case when searching
+* `in_album`: search for photos in an album
+* `incloud`: search for cloud assets that are synched to iCloud
+* `is_reference`: search for photos stored by reference (that is, they are not managed by Photos)
+* `keyword`: list of keywords to search for
+* `label`: list of labels to search for
+* `live`: search for live photos
+* `location`: search for photos with a location
+* `max_size`: maximum size of photos to search for
+* `min_size`: minimum size of photos to search for
+* `missing_bursts`: for burst photos, also include burst photos that are missing
+* `missing`: search for missing photos
+* `movies`: search for movies
+* `name`: list of names to search for
+* `no_comment`: search for photos with no comments
+* `no_description`: search for photos with no description
+* `no_likes`: search for shared photos with no likes
+* `no_location`: search for photos with no location
+* `no_keyword`: search for photos with no keywords
+* `no_place`: search for photos with no place
+* `no_title`: search for photos with no title
+* `not_burst`: search for non-burst photos
+* `not_cloudasset`: search for photos that are not managed by iCloud
+* `not_edited`: search for photos that have not been edited
+* `not_favorite`: search for non-favorite photos
+* `not_hdr`: search for non-HDR photos
+* `not_hidden`: search for non-hidden photos
+* `not_in_album`: search for photos not in an album
+* `not_incloud`: search for cloud asset photos that are not yet synched to iCloud
+* `not_live`: search for non-live photos
+* `not_missing`: search for non-missing photos
+* `not_panorama`: search for non-panorama photos
+* `not_portrait`: search for non-portrait photos
+* `not_reference`: search for photos not stored by reference (that is, they are managed by Photos)
+* `not_screenshot`: search for non-screenshot photos
+* `not_selfie`: search for non-selfie photos
+* `not_shared`: search for non-shared photos
+* `not_slow_mo`: search for non-slow-mo photos
+* `not_time_lapse`: search for non-time-lapse photos
+* `panorama`: search for panorama photos
+* `person`: list of person names to search for
+* `photos`: search for photos
+* `place`: list of place names to search for
+* `portrait`: search for portrait photos
+* `query_eval`: list of query expressions to evaluate
+* `regex`: list of regular expressions to search for
+* `screenshot`: search for screenshot photos
+* `selected`: search for selected photos
+* `selfie`: search for selfie photos
+* `shared`: search for shared photos
+* `slow_mo`: search for slow-mo photos
+* `time_lapse`: search for time-lapse photos
+* `title`: list of titles to search for
+* `to_date`: search for photos taken on or before this date
+* `uti`: list of UTIs to search for
+* `uuid`: list of uuids to search for
+* `year`: search for photos taken in a given year
+
+```python
+"""Find all screenshots taken in 2019"""
+import osxphotos
+
+if __name__ == "__main__":
+    photosdb = osxphotos.PhotosDB()
+    results = photosdb.query(osxphotos.QueryOptions(screenshot=True, year=[2019]))
+    for photo in results:
+        print(photo.original_filename, photo.date)
+```
 
 ### PhotoInfo
 
