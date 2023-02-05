@@ -3616,7 +3616,7 @@ def test_export_sidecar_invalid():
             ],
         )
         assert result.exit_code != 0
-        assert "Cannot use --sidecar json with --sidecar exiftool" in result.output
+        assert "cannot use --sidecar json with --sidecar exiftool" in result.output
 
 
 def test_export_live():
@@ -6671,6 +6671,57 @@ def test_config_only():
         assert "config.toml" in files
 
 
+def test_config_command_line_precedence():
+    """Test that command line options take precedence over config file"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+
+    with runner.isolated_filesystem():
+        # create a config file
+        with open("config.toml", "w") as fd:
+            fd.write("[export]\n")
+            fd.write(
+                "uuid = ["
+                + ", ".join(f'"{u}"' for u in UUID_EXPECTED_FROM_FILE)
+                + "]\n"
+            )
+
+        result = runner.invoke(
+            export,
+            [
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--load-config",
+                "config.toml",
+            ],
+        )
+        assert result.exit_code == 0
+        for uuid in UUID_EXPECTED_FROM_FILE:
+            assert uuid in result.output
+
+        # now run with a command line option that should override the config file
+        result = runner.invoke(
+            export,
+            [
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_NOT_FROM_FILE,
+                "--load-config",
+                "config.toml",
+            ],
+        )
+        assert result.exit_code == 0
+        assert UUID_NOT_FROM_FILE in result.output
+        for uuid in UUID_EXPECTED_FROM_FILE:
+            assert uuid not in result.output
+
+
 def test_export_exportdb():
     """test --exportdb"""
 
@@ -6680,7 +6731,14 @@ def test_export_exportdb():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--exportdb", "export.db"],
+            [
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--exportdb",
+                "export.db",
+            ],
         )
         assert result.exit_code == 0
         assert re.search(r"Created export database.*export\.db", result.output)
