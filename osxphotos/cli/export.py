@@ -1,5 +1,6 @@
 """export command for osxphotos CLI"""
 
+import inspect
 import os
 import pathlib
 import platform
@@ -1412,59 +1413,16 @@ def export(
             )
             for p in photos:
                 photo_num += 1
-                export_results = export_photo(
-                    photo=p,
-                    dest=dest,
-                    album_keyword=album_keyword,
-                    convert_to_jpeg=convert_to_jpeg,
-                    description_template=description_template,
-                    directory=directory,
-                    download_missing=download_missing,
-                    dry_run=dry_run,
-                    edited_suffix=edited_suffix,
-                    exiftool_merge_keywords=exiftool_merge_keywords,
-                    exiftool_merge_persons=exiftool_merge_persons,
-                    exiftool_option=exiftool_option,
-                    exiftool=exiftool,
-                    export_as_hardlink=export_as_hardlink,
-                    export_by_date=export_by_date,
-                    export_db=export_db,
-                    export_dir=dest,
-                    export_edited=export_edited,
-                    export_live=export_live,
-                    export_preview=preview,
-                    export_raw=export_raw,
-                    favorite_rating=favorite_rating,
-                    filename_template=filename_template,
-                    fileutil=fileutil,
-                    force_update=force_update,
-                    ignore_date_modified=ignore_date_modified,
-                    ignore_signature=ignore_signature,
-                    jpeg_ext=jpeg_ext,
-                    jpeg_quality=jpeg_quality,
-                    keyword_template=keyword_template,
-                    num_photos=num_photos,
-                    original_name=original_name,
-                    original_suffix=original_suffix,
-                    overwrite=overwrite,
-                    person_keyword=person_keyword,
-                    photo_num=photo_num,
-                    preview_if_missing=preview_if_missing,
-                    preview_suffix=preview_suffix,
-                    replace_keywords=replace_keywords,
-                    retry=retry,
-                    sidecar_drop_ext=sidecar_drop_ext,
-                    sidecar=sidecar,
-                    skip_original_if_edited=skip_original_if_edited,
-                    strip=strip,
-                    touch_file=touch_file,
-                    update=update,
-                    update_errors=update_errors,
-                    use_photokit=use_photokit,
-                    use_photos_export=use_photos_export,
-                    verbose=verbose,
-                    tmpdir=tmpdir,
-                )
+                # hack to avoid passing all the options to export_photo
+                kwargs = {
+                    k: v
+                    for k, v in locals().items()
+                    if k in inspect.getfullargspec(export_photo).args
+                }
+                kwargs["photo"] = p
+                kwargs["export_dir"] = dest
+                kwargs["export_preview"] = preview
+                export_results = export_photo(**kwargs)
 
                 if post_function:
                     for function in post_function:
@@ -1813,7 +1771,7 @@ def export_photo(
     Raises:
         ValueError on invalid filename_template
     """
-
+    print(locals())
     export_original = not (skip_original_if_edited and photo.hasadjustments)
 
     # can't export edited if photo doesn't have edited versions
