@@ -1771,7 +1771,6 @@ def export_photo(
     Raises:
         ValueError on invalid filename_template
     """
-    print(locals())
     export_original = not (skip_original_if_edited and photo.hasadjustments)
 
     # can't export edited if photo doesn't have edited versions
