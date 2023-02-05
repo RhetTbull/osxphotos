@@ -11,9 +11,9 @@ import osxphotos
 from osxphotos.queryoptions import IncompatibleQueryOptions, query_options_from_kwargs
 from osxphotos.utils import pluralize
 
+from .cli_params import QUERY_OPTIONS, THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
-from .common import QUERY_OPTIONS, THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .param_types import TimeOffset
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print

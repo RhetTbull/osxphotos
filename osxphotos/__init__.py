@@ -25,13 +25,12 @@ from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 
+# configure logging; every module in osxphotos should use this logger
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
 )
-
 logger: logging.Logger = logging.getLogger("osxphotos")
-
 if not is_debug():
     logging.disable(logging.DEBUG)
 

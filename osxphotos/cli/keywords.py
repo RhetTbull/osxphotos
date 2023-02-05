@@ -7,7 +7,8 @@ import yaml
 
 import osxphotos
 
-from .common import DB_ARGUMENT, DB_OPTION, JSON_OPTION, get_photos_db
+from .cli_params import DB_ARGUMENT, DB_OPTION, JSON_OPTION
+from .common import get_photos_db
 from .list import _list_libraries
 
 

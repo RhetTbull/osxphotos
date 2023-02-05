@@ -18,14 +18,9 @@ from osxphotos._constants import _PHOTOS_4_VERSION
 from osxphotos.fileutil import FileUtil
 from osxphotos.utils import increment_filename, pluralize
 
+from .cli_params import DB_OPTION, THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .click_rich_echo import rich_click_echo as echo
-from .common import (
-    DB_OPTION,
-    THEME_OPTION,
-    TIMESTAMP_OPTION,
-    VERBOSE_OPTION,
-    get_photos_db,
-)
+from .common import get_photos_db
 from .help import get_help_msg
 from .list import _list_libraries
 from .verbose import verbose_print

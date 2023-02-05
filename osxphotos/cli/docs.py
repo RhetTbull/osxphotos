@@ -13,10 +13,10 @@ from osxphotos._version import __version__
 from .common import get_config_dir, get_data_dir
 
 
-@click.command()
+@click.command(name="docs")
 @click.pass_obj
 @click.pass_context
-def docs(ctx, cli_obj):
+def docs_command(ctx, cli_obj):
     """Open osxphotos documentation in your browser."""
 
     # first check if docs installed in old location in confir dir and if so, delete them

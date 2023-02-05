@@ -8,7 +8,8 @@ from rich import print
 from osxphotos.photosdb.photosdb_utils import get_photos_library_version
 from osxphotos.sqlgrep import sqlgrep
 
-from .common import DB_OPTION, OSXPHOTOS_HIDDEN, get_photos_db
+from .cli_params import DB_OPTION, OSXPHOTOS_HIDDEN
+from .common import get_photos_db
 
 
 @click.command(name="grep", hidden=OSXPHOTOS_HIDDEN)

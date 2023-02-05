@@ -20,6 +20,7 @@ __all__ = [
     "BitMathSize",
     "DateOffset",
     "DateTimeISO8601",
+    "DeprecatedPath",
     "ExportDBType",
     "FunctionCall",
     "StrpDateTimePattern",
@@ -29,6 +30,26 @@ __all__ = [
     "TimeString",
     "UTCOffset",
 ]
+
+
+class DeprecatedPath(click.Path):
+    """A click.Path that prints a deprecation warning when used."""
+
+    name = "DEPRECATED_PATH"
+
+    def __init__(self, *args, **kwargs):
+        if "deprecation_warning" in kwargs:
+            self.deprecation_warning = kwargs.pop("deprecation_warning")
+        else:
+            self.deprecation_warning = "This option is deprecated and will be removed in a future version of osxphotos."
+        super().__init__(*args, **kwargs)
+
+    def convert(self, value, param, ctx):
+        click.echo(
+            f"WARNING: {param.name} is deprecated. {self.deprecation_warning}",
+            err=True,
+        )
+        return super().convert(value, param, ctx)
 
 
 class DateTimeISO8601(click.ParamType):

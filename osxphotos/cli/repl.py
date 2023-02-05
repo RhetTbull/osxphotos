@@ -23,13 +23,8 @@ from osxphotos.queryoptions import (
     query_options_from_kwargs,
 )
 
-from .common import (
-    DB_ARGUMENT,
-    DB_OPTION,
-    DELETED_OPTIONS,
-    QUERY_OPTIONS,
-    get_photos_db,
-)
+from .cli_params import DB_ARGUMENT, DB_OPTION, DELETED_OPTIONS, QUERY_OPTIONS
+from .common import get_photos_db
 
 
 @click.command(name="repl")

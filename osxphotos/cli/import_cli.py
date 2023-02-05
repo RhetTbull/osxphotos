@@ -27,7 +27,8 @@ from strpdatetime import strpdatetime
 
 from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos._version import __version__
-from osxphotos.cli.common import TIMESTAMP_OPTION, VERBOSE_OPTION, get_data_dir
+from osxphotos.cli.cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
+from osxphotos.cli.common import get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.cli.param_types import FunctionCall, StrpDateTimePattern, TemplateString
 from osxphotos.datetime_utils import (
@@ -44,8 +45,8 @@ from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
+from .cli_params import THEME_OPTION
 from .click_rich_echo import rich_click_echo, rich_echo_error
-from .common import THEME_OPTION
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 

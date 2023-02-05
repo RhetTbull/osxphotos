@@ -6,11 +6,11 @@ import click
 import yaml
 
 import osxphotos
-
-from .common import DB_ARGUMENT, DB_OPTION, JSON_OPTION, get_photos_db
-from .list import _list_libraries
-
 from osxphotos._constants import _PHOTOS_4_VERSION
+
+from .cli_params import DB_ARGUMENT, DB_OPTION, JSON_OPTION
+from .common import get_photos_db
+from .list import _list_libraries
 
 
 @click.command()
@@ -36,7 +36,8 @@ def albums(ctx, cli_obj, db, json_, photos_library):
     if photosdb.db_version > _PHOTOS_4_VERSION:
         albums["shared albums"] = photosdb.albums_shared_as_dict
 
-    if json_ or cli_obj.json:
+    # cli_obj will be None if called from pytest
+    if json_ or (cli_obj and cli_obj.json):
         click.echo(json.dumps(albums, ensure_ascii=False))
     else:
         click.echo(yaml.dump(albums, sort_keys=False, allow_unicode=True))

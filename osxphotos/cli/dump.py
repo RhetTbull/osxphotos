@@ -11,15 +11,15 @@ from osxphotos.cli.click_rich_echo import (
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.queryoptions import QueryOptions
 
-from .color_themes import get_default_theme
-from .common import (
+from .cli_params import (
     DB_ARGUMENT,
     DB_OPTION,
     DELETED_OPTIONS,
     FIELD_OPTION,
     JSON_OPTION,
-    get_photos_db,
 )
+from .color_themes import get_default_theme
+from .common import get_photos_db
 from .list import _list_libraries
 from .print_photo_info import print_photo_fields, print_photo_info
 from .verbose import get_verbose_console
@@ -56,7 +56,11 @@ def dump(
     photos_library,
     print_template,
 ):
-    """Print list of all photos & associated info from the Photos library."""
+    """Print list of all photos & associated info from the Photos library.
+    
+    NOTE: dump is DEPRECATED and will be removed in a future release. 
+    Use `osxphotos query` instead.
+    """
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None

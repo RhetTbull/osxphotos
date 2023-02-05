@@ -12,13 +12,8 @@ from rich.syntax import Syntax
 
 import osxphotos
 
-from .common import (
-    DB_OPTION,
-    OSXPHOTOS_SNAPSHOT_DIR,
-    TIMESTAMP_OPTION,
-    VERBOSE_OPTION,
-    get_photos_db,
-)
+from .cli_params import DB_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
+from .common import OSXPHOTOS_SNAPSHOT_DIR, get_photos_db
 from .verbose import verbose_print
 
 
@@ -36,7 +31,7 @@ def snap(ctx, cli_obj, db):
     Works only on Photos library versions since Catalina (10.15) or newer.
     """
 
-    db = get_photos_db(db, cli_obj.db)
+    db = get_photos_db(db, cli_obj.db if cli_obj else None)
     db_path = pathlib.Path(db)
     if db_path.is_file():
         # assume it's the sqlite file
@@ -127,7 +122,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose_flag, timestamp):
         ctx.exit(2)
     verbose(f"sqldiff found at '{sqldiff}'")
 
-    db = get_photos_db(db, cli_obj.db)
+    db = get_photos_db(db, cli_obj.db if cli_obj else None)
     db_path = pathlib.Path(db)
     if db_path.is_file():
         # assume it's the sqlite file
