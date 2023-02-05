@@ -55,7 +55,7 @@ from osxphotos.photokit import (
 )
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
-from osxphotos.queryoptions import QueryOptions, load_uuid_from_file
+from osxphotos.queryoptions import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
     format_sec_to_hhmmss,
@@ -942,7 +942,8 @@ def export(
 
         # re-set the local vars to the corresponding config value
         # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
-
+        # the query options appear to be unaccessed but they are used below by query_options_from_kwargs
+        # which accesses them via locals() to avoid a long list of parameters
         add_exported_to_album = cfg.add_exported_to_album
         add_missing_to_album = cfg.add_missing_to_album
         add_skipped_to_album = cfg.add_skipped_to_album
@@ -1167,14 +1168,14 @@ def export(
 
     if config_only and not save_config:
         rich_click_echo(
-            "[error]--config-only must be used with --save-config",
+            "[error]Incompatible export options: --config-only must be used with --save-config",
             err=True,
         )
         sys.exit(1)
 
     if all(x in [s.lower() for s in sidecar] for x in ["json", "exiftool"]):
         rich_click_echo(
-            "[error]Cannot use --sidecar json with --sidecar exiftool due to name collisions",
+            "[error]Incompatible export options:: cannot use --sidecar json with --sidecar exiftool due to name collisions",
             err=True,
         )
         sys.exit(1)
@@ -1265,12 +1266,6 @@ def export(
     if only_photos:
         movies = False
 
-    # load UUIDs if necessary and append to any uuids passed with --uuid
-    if uuid_from_file:
-        uuid_list = list(uuid)  # Click option is a tuple
-        uuid_list.extend(load_uuid_from_file(uuid_from_file))
-        uuid = tuple(uuid_list)
-
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
     db = get_photos_db(*photos_library, db, cli_db)
@@ -1347,92 +1342,12 @@ def export(
     # enable beta features if requested
     photosdb._beta = beta
 
-    query_options = QueryOptions(
-        added_after=added_after,
-        added_before=added_before,
-        added_in_last=added_in_last,
-        album=album,
-        burst_photos=export_bursts,
-        burst=burst,
-        cloudasset=cloudasset,
-        deleted_only=deleted_only,
-        deleted=deleted,
-        description=description,
-        duplicate=duplicate,
-        edited=edited,
-        exif=exif,
-        external_edit=external_edit,
-        favorite=favorite,
-        folder=folder,
-        from_date=from_date,
-        from_time=from_time,
-        function=query_function,
-        has_comment=has_comment,
-        has_likes=has_likes,
-        has_raw=has_raw,
-        hdr=hdr,
-        hidden=hidden,
-        ignore_case=ignore_case,
-        in_album=in_album,
-        incloud=incloud,
-        is_reference=is_reference,
-        keyword=keyword,
-        label=label,
-        live=live,
-        location=location,
-        max_size=max_size,
-        min_size=min_size,
-        # skip missing bursts if using --download-missing by itself as AppleScript otherwise causes errors
-        missing_bursts=(download_missing and use_photokit) or not download_missing,
-        missing=missing,
-        movies=movies,
-        name=name,
-        no_comment=no_comment,
-        no_description=no_description,
-        no_likes=no_likes,
-        no_location=no_location,
-        no_keyword=no_keyword,
-        no_place=no_place,
-        no_title=no_title,
-        not_burst=not_burst,
-        not_cloudasset=not_cloudasset,
-        not_edited=not_edited,
-        not_favorite=not_favorite,
-        not_hdr=not_hdr,
-        not_hidden=not_hidden,
-        not_in_album=not_in_album,
-        not_incloud=not_incloud,
-        not_live=not_live,
-        not_missing=not_missing,
-        not_panorama=not_panorama,
-        not_portrait=not_portrait,
-        not_reference=not_reference,
-        not_screenshot=not_screenshot,
-        not_selfie=not_selfie,
-        not_shared=not_shared,
-        not_slow_mo=not_slow_mo,
-        not_time_lapse=not_time_lapse,
-        panorama=panorama,
-        person=person,
-        photos=photos,
-        place=place,
-        portrait=portrait,
-        query_eval=query_eval,
-        regex=regex,
-        screenshot=screenshot,
-        selected=selected,
-        selfie=selfie,
-        shared=shared,
-        slow_mo=slow_mo,
-        time_lapse=time_lapse,
-        title=title,
-        to_date=to_date,
-        to_time=to_time,
-        uti=uti,
-        uuid=uuid,
-        year=year,
+    query_kwargs = locals()
+    # skip missing bursts if using --download-missing by itself as AppleScript otherwise causes errors
+    query_kwargs["missing_bursts"] = (
+        (download_missing and use_photokit) or not download_missing,
     )
-
+    query_options = query_options_from_kwargs(**query_kwargs)
     try:
         photos = photosdb.query(query_options)
     except ValueError as e:
