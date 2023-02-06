@@ -1348,6 +1348,7 @@ def export(
     query_kwargs["missing_bursts"] = (
         (download_missing and use_photokit) or not download_missing,
     )
+    query_kwargs["burst_photos"] = export_bursts
     query_options = query_options_from_kwargs(**query_kwargs)
     try:
         photos = photosdb.query(query_options)
@@ -1423,7 +1424,6 @@ def export(
                 kwargs["export_dir"] = dest
                 kwargs["export_preview"] = preview
                 export_results = export_photo(**kwargs)
-
                 if post_function:
                     for function in post_function:
                         # post function is tuple of (function, filename.py::function_name)

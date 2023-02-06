@@ -797,7 +797,7 @@ See [queryoptions.py](https://github.com/RhetTbull/osxphotos/blob/master/osxphot
 * `added_before`: search for photos added before a given date
 * `added_in_last`: search for photos added in last X datetime.timedelta
 * `album`: list of album names to search for
-* `burst_photos`: search for burst photos
+* `burst_photos`: include all associated burst photos for photos in query results
 * `burst`: search for burst photos
 * `cloudasset`: search for photos that are managed by iCloud
 * `deleted_only`: search only for deleted photos

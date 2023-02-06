@@ -52,35 +52,7 @@ PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
 PHOTOS_DB_MOVIES = "tests/Test-Movie-5_0.photoslibrary"
 
 # my personal library which some tests require
-PHOTOS_DB_RHET = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
-UUID_BURST_ALBUM = {
-    "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F": [
-        "TestBurst/IMG_9812.JPG",  # in my personal library, IMG_9812.JPG == "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F"
-        "TestBurst/IMG_9813.JPG",
-        "TestBurst/IMG_9814.JPG",
-        "TestBurst/IMG_9815.JPG",
-        "TestBurst/IMG_9816.JPG",
-        "TestBurst2/IMG_9814.JPG",
-        "osxphotos/IMG_9812.JPG",  # in my personal library, IMG_9812.JPG == "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F"
-        "osxphotos/IMG_9813.JPG",
-        "osxphotos/IMG_9814.JPG",
-        "osxphotos/IMG_9815.JPG",
-        "osxphotos/IMG_9816.JPG",
-    ],
-    "75154738-83AA-4DCD-A913-632D5D1C0FEE": [
-        "TestBurst/IMG_9812.JPG",
-        "TestBurst/IMG_9813.JPG",
-        "TestBurst/IMG_9814.JPG",  # in my personal library, "75154738-83AA-4DCD-A913-632D5D1C0FEE"
-        "TestBurst/IMG_9815.JPG",
-        "TestBurst/IMG_9816.JPG",
-        "TestBurst2/IMG_9814.JPG",
-        "osxphotos/IMG_9812.JPG",  # in my personal library, IMG_9812.JPG == "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F"
-        "osxphotos/IMG_9813.JPG",
-        "osxphotos/IMG_9814.JPG",
-        "osxphotos/IMG_9815.JPG",
-        "osxphotos/IMG_9816.JPG",
-    ],
-}
+LOCAL_PHOTOSDB = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 UUID_SKIP_LIVE_PHOTOKIT = {
     "54A01B04-16D7-4FDE-8860-19F2A641E433": ["IMG_3203_edited.jpeg"],
@@ -1030,6 +1002,14 @@ FILE_NOT_FAVORITE = "Pumpkins3.jpg"
 
 # number of photos in test library with Make=Canon
 EXIF_MAKE_CANON = 7
+
+
+@pytest.fixture(scope="module")
+def local_photosdb():
+    """Return a PhotosDB object for the local Photos library"""
+    if "OSXPHOTOS_TEST_EXPORT_V2" not in os.environ:
+        pytest.skip("OSXPHOTOS_TEST_EXPORT_V2 not set")
+    return osxphotos.PhotosDB(dbfile=LOCAL_PHOTOSDB)
 
 
 def modify_file(filename):
@@ -4794,7 +4774,7 @@ def test_export_live_edited():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_RHET),
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
                 "-V",
                 "--uuid",
@@ -7418,70 +7398,79 @@ def test_export_jpeg_ext_convert_to_jpeg_movie():
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    "OSXPHOTOS_TEST_EXPORT_V2" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
-def test_export_burst_folder_album():
+def test_export_burst_folder_album(local_photosdb):
     """test non-selected burst photos are exported with the album their key photo is in, issue #401"""
 
     runner = CliRunner()
     cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    for uuid in UUID_BURST_ALBUM:
+    photos = local_photosdb.query(
+        osxphotos.QueryOptions(description=["osxphotos:test_export_burst_folder_album"])
+    )
+    for photo in photos:
         with runner.isolated_filesystem():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_RHET),
+                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     ".",
                     "-V",
                     "--directory",
                     "{folder_album}",
                     "--uuid",
-                    uuid,
+                    photo.uuid,
                     "--download-missing",
                     "--use-photokit",
                 ],
             )
             assert result.exit_code == 0
             files = [str(p) for p in pathlib.Path(".").glob("**/*.JPG")]
-            assert sorted(files) == sorted(UUID_BURST_ALBUM[uuid])
+            expected = []
+            for p in [photo, *photo.burst_photos]:
+                paths, _ = p.render_template("{folder_album}/{photo.original_filename}")
+                expected.extend(paths)
+            assert sorted(files) == sorted(expected)
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    "OSXPHOTOS_TEST_EXPORT_V2" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
-def test_export_burst_uuid():
+def test_export_burst_uuid(local_photosdb: osxphotos.PhotosDB):
     """test non-selected burst photos are exported when image is specified by --uuid, #640"""
 
     runner = CliRunner()
     cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    for uuid in UUID_BURST_ALBUM:
+    photos = local_photosdb.query(
+        osxphotos.QueryOptions(description=["osxphotos:test_export_burst_uuid"])
+    )
+    for photo in photos:
         with runner.isolated_filesystem():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_RHET),
+                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     ".",
                     "-V",
                     "--uuid",
-                    uuid,
+                    photo.uuid,
                 ],
             )
             assert result.exit_code == 0
-            assert f"exported: 5" in result.output
+            expected = len(photo.burst_photos) + 1
+            assert f"exported: {expected}" in result.output
 
             # export again with --skip-bursts
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_RHET),
+                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     ".",
                     "-V",
                     "--uuid",
-                    uuid,
+                    photo.uuid,
                     "--skip-bursts",
                 ],
             )
@@ -7504,7 +7493,7 @@ def test_export_download_missing_file_exists():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_RHET),
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
                 "-V",
                 "--uuid",
@@ -7519,7 +7508,7 @@ def test_export_download_missing_file_exists():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_RHET),
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
                 "-V",
                 "--uuid",
@@ -7548,7 +7537,7 @@ def test_export_download_missing_preview():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_RHET),
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
                 "-V",
                 "--uuid",
@@ -7578,7 +7567,7 @@ def test_export_download_missing_preview_applescript():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_RHET),
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
                 "-V",
                 "--uuid",
@@ -7607,7 +7596,7 @@ def test_export_skip_live_photokit():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_RHET),
+                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     ".",
                     "-V",
                     "--uuid",
