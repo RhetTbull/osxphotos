@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.56.7 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.57.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.56.7 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.57.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.57.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -212,9 +212,9 @@
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-library">
+<span id="cmdoption-osxphotos-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -778,9 +778,9 @@ See <cite>osxphotos help timewarp</cite> for more information.</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-albums-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-albums-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-albums-library">
+<span id="cmdoption-osxphotos-albums-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-albums-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -824,9 +824,9 @@ library specified by –db to the database specified by DB2</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-diff-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-library">
+<span id="cmdoption-osxphotos-diff-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-diff-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -871,14 +871,16 @@ library specified by –db to the database specified by DB2</p>
 <section id="osxphotos-dump">
 <h3>dump<a class="headerlink" href="#osxphotos-dump" title="Permalink to this heading">#</a></h3>
 <p>Print list of all photos &amp; associated info from the Photos library.</p>
+<p>NOTE: dump is DEPRECATED and will be removed in a future release.
+Use <cite>osxphotos query</cite> instead.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos dump <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
 </pre></div>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-dump-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-library">
+<span id="cmdoption-osxphotos-dump-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-dump-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -888,15 +890,15 @@ library specified by –db to the database specified by DB2</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-deleted">
-<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dump-deleted" title="Permalink to this definition">#</a></dt>
-<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
-</dd></dl>
-
-<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-dump-deleted-only">
 <span class="sig-name descname"><span class="pre">--deleted-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dump-deleted-only" title="Permalink to this definition">#</a></dt>
 <dd><p>Include only photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-deleted">
+<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dump-deleted" title="Permalink to this definition">#</a></dt>
+<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1060,9 +1062,9 @@ with <cite>osxphotos export</cite> in the future will work correctly and not unn
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-exiftool-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exiftool-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exiftool-library">
+<span id="cmdoption-osxphotos-exiftool-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exiftool-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <p class="rubric">Arguments</p>
@@ -1095,9 +1097,9 @@ to modify this behavior.</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-export-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-library">
+<span id="cmdoption-osxphotos-export-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1593,15 +1595,15 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-export-deleted">
-<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-deleted" title="Permalink to this definition">#</a></dt>
-<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
-</dd></dl>
-
-<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-deleted-only">
 <span class="sig-name descname"><span class="pre">--deleted-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-deleted-only" title="Permalink to this definition">#</a></dt>
 <dd><p>Include only photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-deleted">
+<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-deleted" title="Permalink to this definition">#</a></dt>
+<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2394,9 +2396,9 @@ to modify this behavior.</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-info-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-info-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-info-library">
+<span id="cmdoption-osxphotos-info-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-info-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2448,9 +2450,9 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-inspect-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-inspect-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-inspect-library">
+<span id="cmdoption-osxphotos-inspect-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-inspect-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 </section>
@@ -2483,9 +2485,9 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-keywords-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-keywords-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-keywords-library">
+<span id="cmdoption-osxphotos-keywords-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-keywords-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2510,9 +2512,9 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-labels-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-labels-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-labels-library">
+<span id="cmdoption-osxphotos-labels-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-labels-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2557,9 +2559,9 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-orphans-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-orphans-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-orphans-library">
+<span id="cmdoption-osxphotos-orphans-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-orphans-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2594,9 +2596,9 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-persons-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-persons-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-persons-library">
+<span id="cmdoption-osxphotos-persons-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-persons-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2621,9 +2623,9 @@ Works best with a modern terminal like iTerm2 or Kitty.</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-places-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-places-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-places-library">
+<span id="cmdoption-osxphotos-places-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-places-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2650,14 +2652,15 @@ If the same query option is provided multiple times, they are treated as
 <p>For example:</p>
 <p>osxphotos query –person “John Doe” –person “Jane Doe” –keyword “vacation”</p>
 <p>will return all photos with either person of (“John Doe” OR “Jane Doe”) AND keyword of “vacation”</p>
+<p>If not query options are provided, all photos in the library will be returned.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos query <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
 </pre></div>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-query-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-library">
+<span id="cmdoption-osxphotos-query-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -3141,15 +3144,15 @@ If the same query option is provided multiple times, they are treated as
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-query-deleted">
-<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-deleted" title="Permalink to this definition">#</a></dt>
-<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
-</dd></dl>
-
-<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-query-deleted-only">
 <span class="sig-name descname"><span class="pre">--deleted-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-deleted-only" title="Permalink to this definition">#</a></dt>
 <dd><p>Include only photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-deleted">
+<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-deleted" title="Permalink to this definition">#</a></dt>
+<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -3192,9 +3195,9 @@ If the same query option is provided multiple times, they are treated as
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-library">
+<span id="cmdoption-osxphotos-repl-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
@@ -3678,15 +3681,15 @@ If the same query option is provided multiple times, they are treated as
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-deleted">
-<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-deleted" title="Permalink to this definition">#</a></dt>
-<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
-</dd></dl>
-
-<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-repl-deleted-only">
 <span class="sig-name descname"><span class="pre">--deleted-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-deleted-only" title="Permalink to this definition">#</a></dt>
 <dd><p>Include only photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-deleted">
+<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-deleted" title="Permalink to this definition">#</a></dt>
+<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
 </dd></dl>
 
 </section>
@@ -3730,9 +3733,9 @@ uses ‘/private/tmp/osxphotos_snapshots’</p>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-snap-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-snap-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-snap-library">
+<span id="cmdoption-osxphotos-snap-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-snap-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 </section>
@@ -3993,18 +3996,6 @@ two different computers, you can export the metadata to a shared folder.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-sync-not-hidden">
 <span class="sig-name descname"><span class="pre">--not-hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-not-hidden" title="Permalink to this definition">#</a></dt>
 <dd><p>Search for photos not marked hidden.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-sync-shared">
-<span class="sig-name descname"><span class="pre">--shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-shared" title="Permalink to this definition">#</a></dt>
-<dd><p>Search for photos in shared iCloud album (Photos 5+ only).</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-sync-not-shared">
-<span class="sig-name descname"><span class="pre">--not-shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-not-shared" title="Permalink to this definition">#</a></dt>
-<dd><p>Search for photos not in shared iCloud album (Photos 5+ only).</p>
 </dd></dl>
 
 <dl class="std option">
@@ -4314,9 +4305,9 @@ two different computers, you can export the metadata to a shared folder.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-sync-db">
-<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-sync-db" title="Permalink to this definition">#</a></dt>
-<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-sync-library">
+<span id="cmdoption-osxphotos-sync-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-sync-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
 </dd></dl>
 
 <dl class="std option">
