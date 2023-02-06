@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.57.0](https://github.com/RhetTbull/osxphotos/compare/v0.56.7...v0.57.0)
+
+### 5 February 2023
+
+### Bug Fix and Refactoring
+
+This release included a lot of refactoring of the command line code to make it easier to maintain.
+No new features were added. Because a lot of the code changed, it's more likely than usual that
+some bugs got introduced (or reintroduced) this time so if you encounter any, let me know by
+opening an [issue](https://github.com/RhetTbull/osxphotos/issues).
+
+#### Fixed
+
+- Fixed regression for exporting associated burst images (#640)
+
+#### Changed
+
+- Refactored much of the CLI code to make it more maintainable, specifically those commands that used QUERY_OPTIONS. (#602)
+- Deprecated `osxphotos dump` (will be removed in a future release); added dump functionality to `osxphotos query` (#793)
+- Deprecated use of the Photos database argument in favor of the `--db/--library` option. Will be removed in a future release.
+- Added query options to `osxphotos debug-dump` (#966)
+- Refactored --verbose to accept multiple counts. For example, `-VV` or `--verbose --verbose` will increase verbose level. (#931)
+- QUERY_OPTIONS can exclude options (#930)
+
+#### Added
+
+- Added new [query_command and selection_command decorators](https://github.com/RhetTbull/osxphotos/blob/master/API_README.md#building-simple-command-line-tools)
+for building simple command line tools.
+
+#### Contributors
+
+- @RhetTbull 
+
 ## [v0.56.7](https://github.com/RhetTbull/osxphotos/compare/v0.56.6...v0.56.7)
 
 ### 28 January 2023
