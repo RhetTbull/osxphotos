@@ -128,16 +128,15 @@ Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
   osxphotos: the multi-tool for your Photos library
 
 Options:
-  -v, --version             Show the version and exit.
-  --db PHOTOS_LIBRARY_PATH  Specify Photos database path. Path to Photos
-                            library/database can be specified using either --db
-                            or directly as PHOTOS_LIBRARY positional argument.
-                            If neither --db or PHOTOS_LIBRARY provided, will
-                            attempt to find the library to use in the following
-                            order: 1. last opened library, 2. system library, 3.
-                            ~/Pictures/Photos Library.photoslibrary
-  --json                    Print output in JSON format.
-  -h, --help                Show this message and exit.
+  -v, --version                   Show the version and exit.
+  --library, --db PHOTOS_LIBRARY_PATH
+                                  Specify path to Photos library. If not
+                                  provided, will attempt to find the library to
+                                  use in the following order: 1. last opened
+                                  library, 2. system library, 3.
+                                  ~/Pictures/Photos Library.photoslibrary
+  --json                          Print output in JSON format.
+  -h, --help                      Show this message and exit.
 
 Commands:
   about          Print information about osxphotos including license.
@@ -685,10 +684,8 @@ Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
   this behavior.
 
 Options:
-  --db PHOTOS_LIBRARY_PATH        Specify Photos database path. Path to Photos
-                                  library/database can be specified using either
-                                  --db or directly as PHOTOS_LIBRARY positional
-                                  argument. If neither --db or PHOTOS_LIBRARY
+  --library, --db PHOTOS_LIBRARY_PATH
+                                  Specify path to Photos library. If not
                                   provided, will attempt to find the library to
                                   use in the following order: 1. last opened
                                   library, 2. system library, 3.
@@ -912,10 +909,10 @@ Options:
                                   evaluated. See https://github.com/RhetTbull/os
                                   xphotos/blob/master/examples/query_function.py
                                   for example of how to use this option.
-  --deleted                       Include photos from the 'Recently Deleted'
-                                  folder.
   --deleted-only                  Include only photos from the 'Recently
                                   Deleted' folder.
+  --deleted                       Include photos from the 'Recently Deleted'
+                                  folder.
   --update                        Only export new or updated files. See also
                                   --force-update and notes below on export and
                                   --update.
@@ -2090,7 +2087,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.56.7'
+{osxphotos_version}             The osxphotos version, e.g. '0.57.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2575,7 +2572,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.56.7'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.57.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
