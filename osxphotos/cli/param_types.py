@@ -23,6 +23,7 @@ __all__ = [
     "DeprecatedPath",
     "ExportDBType",
     "FunctionCall",
+    "PathOrStdin",
     "StrpDateTimePattern",
     "TemplateString",
     "TimeISO8601",
@@ -50,6 +51,18 @@ class DeprecatedPath(click.Path):
             err=True,
         )
         return super().convert(value, param, ctx)
+
+
+class PathOrStdin(click.Path):
+    """A click.Path or "-" to represent STDIN."""
+
+    name = "PATH_OR_STDIN"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def convert(self, value, param, ctx):
+        return value if value == "-" else super().convert(value, param, ctx)
 
 
 class DateTimeISO8601(click.ParamType):

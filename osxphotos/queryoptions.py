@@ -2,12 +2,14 @@
 
 import dataclasses
 import datetime
+import io
 import pathlib
+import re
+import sys
 from dataclasses import asdict, dataclass
 from typing import Iterable, List, Optional, Tuple
 
 import bitmath
-import click
 
 __all__ = ["QueryOptions", "query_options_from_kwargs", "IncompatibleQueryOptions"]
 
@@ -294,10 +296,12 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
     return QueryOptions(**query_dict)
 
 
-def load_uuid_from_file(filename):
-    """Load UUIDs from file.  Does not validate UUIDs.
-        Format is 1 UUID per line, any line beginning with # is ignored.
-        Whitespace is stripped.
+def load_uuid_from_file(filename: str) ->list[str]:
+    """
+    Load UUIDs from file. 
+    Does not validate UUIDs but does validate that the UUIDs are in the correct format.
+    Format is 1 UUID per line, any line beginning with # is ignored.
+    Whitespace is stripped.
 
     Arguments:
         filename: file name of the file containing UUIDs
@@ -307,15 +311,44 @@ def load_uuid_from_file(filename):
 
     Raises:
         FileNotFoundError if file does not exist
+        ValueError if UUID is not in correct format
     """
+
+    if filename == "-":
+        return _load_uuid_from_stream(sys.stdin)
 
     if not pathlib.Path(filename).is_file():
         raise FileNotFoundError(f"Could not find file {filename}")
 
+    with open(filename, "r") as f:
+        return _load_uuid_from_stream(f)
+
+def _load_uuid_from_stream(stream: io.IOBase) -> list[str]:
+    """
+    Load UUIDs from stream.
+    Does not validate UUIDs but does validate that the UUIDs are in the correct format.
+    Format is 1 UUID per line, any line beginning with # is ignored.
+    Whitespace is stripped.
+
+    Arguments:
+        filename: file name of the file containing UUIDs
+
+    Returns:
+        list of UUIDs or empty list of no UUIDs in file
+
+    Raises:
+        ValueError if UUID is not in correct format
+    """
+
     uuid = []
-    with open(filename, "r") as uuid_file:
-        for line in uuid_file:
-            line = line.strip()
-            if len(line) and line[0] != "#":
-                uuid.append(line)
+    for line in stream:
+        line = line.strip()
+        if len(line) and line[0] != "#":
+            if not re.match(
+                r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                line,
+            ):
+                raise ValueError(f"Invalid UUID: {line}")
+            line = line.upper()
+            uuid.append(line)
     return uuid

@@ -1176,6 +1176,25 @@ def test_query_uuid_from_file_1():
     assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
 
 
+def test_query_uuid_from_file_stdin():
+    """Test query with --uuid-from-file reading from stdin"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    input_text = open(UUID_FILE, "r").read()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--uuid-from-file", "-"],
+        input=input_text,
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
+
+
 def test_query_has_comment():
     """Test query with --has-comment"""
 

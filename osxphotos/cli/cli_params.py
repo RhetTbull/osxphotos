@@ -196,8 +196,9 @@ _QUERY_PARAMETERS_DICT = {
         default=None,
         multiple=False,
         help="Search for photos with UUID(s) loaded from FILE. "
-        "Format is a single UUID per line.  Lines preceded with # are ignored.",
-        type=click.Path(exists=True),
+        "Format is a single UUID per line. Lines preceded with # are ignored. "
+        "If FILE is '-', read UUIDs from stdin.",
+        type=PathOrStdin(exists=True),
     ),
     "--title": click.Option(
         ["--title"],
