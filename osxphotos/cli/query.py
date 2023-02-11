@@ -102,11 +102,12 @@ def query(
         _list_libraries()
         return
 
-    photosdb = osxphotos.PhotosDB(dbfile=db)
     try:
         query_options = query_options_from_kwargs(**kwargs)
     except Exception as e:
         raise click.BadOptionUsage("query", str(e)) from e
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
 
     try:
         photos = photosdb.query(query_options)

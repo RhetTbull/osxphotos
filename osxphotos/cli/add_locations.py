@@ -135,8 +135,6 @@ def add_locations(
 
     verbose("Searching for photos with missing location data...")
 
-    # load photos database
-    photosdb = osxphotos.PhotosDB(verbose=verbose)
     try:
         query_options = query_options_from_kwargs(**kwargs)
     except IncompatibleQueryOptions as e:
@@ -144,6 +142,7 @@ def add_locations(
         echo_error(ctx.obj.group.commands["repl"].get_help(ctx))
         ctx.exit(1)
 
+    photosdb = osxphotos.PhotosDB(verbose=verbose)
     photos = photosdb.query(query_options)
 
     # sort photos by date
