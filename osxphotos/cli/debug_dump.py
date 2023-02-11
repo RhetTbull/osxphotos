@@ -57,6 +57,8 @@ def debug_dump(
         _list_libraries()
         return
 
+    query_options = query_options_from_kwargs(**kwargs)
+
     start_t = time.perf_counter()
     print(f"Opening database: {db}")
     photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose)
@@ -90,7 +92,6 @@ def debug_dump(
             print("_dbpersons_fullname:")
             pprint.pprint(photosdb._dbpersons_fullname)
         elif attr == "photos":
-            query_options = query_options_from_kwargs(**kwargs)
             photos = photosdb.query(options=query_options)
             uuid = [photo.uuid for photo in photos]
             for uuid_ in uuid:

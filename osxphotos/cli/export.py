@@ -1336,13 +1336,6 @@ def export(
     # save config to export_db
     export_db.set_config(cfg.write_to_str())
 
-    photosdb = osxphotos.PhotosDB(
-        dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=True
-    )
-
-    # enable beta features if requested
-    photosdb._beta = beta
-
     query_kwargs = locals()
     # skip missing bursts if using --download-missing by itself as AppleScript otherwise causes errors
     query_kwargs["missing_bursts"] = (
@@ -1350,6 +1343,14 @@ def export(
     )
     query_kwargs["burst_photos"] = export_bursts
     query_options = query_options_from_kwargs(**query_kwargs)
+
+    photosdb = osxphotos.PhotosDB(
+        dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=True
+    )
+
+    # enable beta features if requested
+    photosdb._beta = beta
+
     try:
         photos = photosdb.query(query_options)
     except ValueError as e:

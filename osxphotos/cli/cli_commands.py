@@ -59,9 +59,9 @@ def config_verbose_callback(ctx: click.Context, param: click.Parameter, value: t
 
 def get_photos_for_query(ctx: click.Context):
     """Return list of PhotoInfo objects for the photos matching the query options in ctx.params"""
+    options = query_options_from_kwargs(**ctx.params)
     db = ctx.params.get("db")
     photosdb = PhotosDB(dbfile=db, verbose=verbose)
-    options = query_options_from_kwargs(**ctx.params)
     return photosdb.query(options=options)
 
 

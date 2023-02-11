@@ -196,7 +196,12 @@ class QueryOptions:
 
 
 def query_options_from_kwargs(**kwargs) -> QueryOptions:
-    """Validate query options and create a QueryOptions instance"""
+    """ Validate query options and create a QueryOptions instance. 
+        Note: this will block on stdin if uuid_from_file is set to "-"
+        so it is best to call function before creating the PhotosDB instance
+        so that the validation of query options can happen before the database
+        is loaded. 
+   """
     # sanity check input args
     nonexclusive = [
         "added_after",
