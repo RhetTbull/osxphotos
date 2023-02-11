@@ -2689,7 +2689,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="http://eecue.com/"><img src="https://avatars.githubusercontent.com/u/532536?v=4?s=75" width="75px;" alt="Dave Bullock"/><br /><sub><b>Dave Bullock</b></sub></a><br /><a href="#ideas-eecue" title="Ideas, Planning, & Feedback">🤔</a> <a href="#userTesting-eecue" title="User Testing">📓</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/pweaver"><img src="https://avatars.githubusercontent.com/u/611620?v=4?s=75" width="75px;" alt="Pweaver"/><br /><sub><b>Pweaver</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Apweaver" title="Bug reports">🐛</a> <a href="#ideas-pweaver" title="Ideas, Planning, & Feedback">🤔</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aa599"><img src="https://avatars.githubusercontent.com/u/37746269?v=4?s=75" width="75px;" alt="aa599"/><br /><sub><b>aa599</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aaa599" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aa599"><img src="https://avatars.githubusercontent.com/u/37746269?v=4?s=75" width="75px;" alt="aa599"/><br /><sub><b>aa599</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aaa599" title="Bug reports">🐛</a> <a href="#ideas-aa599" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
