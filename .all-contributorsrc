@@ -493,6 +493,15 @@
         "bug",
         "ideas"
       ]
+    },
+    {
+      "login": "aa599",
+      "name": "aa599",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37746269?v=4",
+      "profile": "https://github.com/aa599",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
