@@ -11,7 +11,9 @@ from photoscript import PhotosLibrary
 from rich.console import Console
 
 from osxphotos._constants import APP_NAME
+from osxphotos._version import __version__
 from osxphotos.compare_exif import PhotoCompare
+from osxphotos.crash_reporter import crash_reporter, set_crash_data
 from osxphotos.datetime_utils import datetime_naive_to_local, datetime_to_new_tz
 from osxphotos.exif_datetime_updater import ExifDateTimeUpdater
 from osxphotos.exiftool import get_exiftool_path
@@ -29,6 +31,7 @@ from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
 from .color_themes import get_theme
+from .common import OSXPHOTOS_CRASH_LOG
 from .darkmode import is_dark_mode
 from .help import HELP_WIDTH, rich_text
 from .param_types import (
@@ -333,6 +336,13 @@ command which can be used to change the time zone of photos after import.
     is_flag=True,
     help="Bypass confirmation prompt.  Use with caution.",
 )
+@crash_reporter(
+    OSXPHOTOS_CRASH_LOG,
+    "[red]Something went wrong and osxphotos encountered an error:[/red]",
+    "osxphotos crash log",
+    "Please file a bug report at https://github.com/RhetTbull/osxphotos/issues with the crash log attached.",
+    f"osxphotos version: {__version__}",
+)
 def timewarp(
     date,
     date_delta,
@@ -363,6 +373,8 @@ def timewarp(
     select photos in a regular album or in the 'All Photos' view.
     See Timewarp Overview below for additional information.
     """
+
+    set_crash_data("locals", locals())
 
     # check constraints
     if not any(
@@ -496,6 +508,7 @@ def timewarp(
                 "[tz]timezone offset[/tz], [tz]timezone name[/tz]"
             )
         for photo in photos:
+            set_crash_data("photo", f"{photo.uuid} {photo.filename}")
             tz_seconds, tz_str, tz_name = tzinfo.get_timezone(photo)
             photo_date_local = datetime_naive_to_local(photo.date)
             photo_date_tz = datetime_to_new_tz(photo_date_local, tz_seconds)
@@ -521,6 +534,7 @@ def timewarp(
                     "filename, uuid, photo time (Photos), photo time (EXIF), timezone offset (Photos), timezone offset (EXIF)"
                 )
         for photo in photos:
+            set_crash_data("photo", f"{photo.uuid} {photo.filename}")
             diff_results = (
                 photocomp.compare_exif_no_markup(photo)
                 if plain
@@ -579,29 +593,30 @@ def timewarp(
             f"Processing [num]{num_photos}[/] {pluralize(len(photos), 'photo', 'photos')}",
             total=num_photos,
         )
-        for p in photos:
+        for photo in photos:
+            set_crash_data("photo", f"{photo.uuid} {photo.filename}")
             if parse_date:
-                set_photo_date_from_filename_(p, p.filename, parse_date)
+                set_photo_date_from_filename_(photo, photo.filename, parse_date)
             if pull_exif:
                 exif_updater.update_photos_from_exif(
-                    p, use_file_modify_date=use_file_time
+                    photo, use_file_modify_date=use_file_time
                 )
             if any([date, time, date_delta, time_delta]):
-                update_photo_date_time_(p)
+                update_photo_date_time_(photo)
             if match_time:
                 # need to adjust time before the timezone is updated
                 # or the old timezone will be overwritten in the database
-                update_photo_time_for_new_timezone_(photo=p, new_timezone=timezone)
+                update_photo_time_for_new_timezone_(photo=photo, new_timezone=timezone)
             if timezone:
-                tz_updater.update_photo(p)
+                tz_updater.update_photo(photo)
             if function:
                 verbose(f"Calling function [bold]{function[1]}")
-                photo_path = exif_updater.get_photo_path(p)
-                update_photo_from_function_(photo=p, path=photo_path)
+                photo_path = exif_updater.get_photo_path(photo)
+                update_photo_from_function_(photo=photo, path=photo_path)
             if push_exif:
                 # this should be the last step in the if chain to ensure all Photos data is updated
                 # before exiftool is run
-                exif_warn, exif_error = exif_updater.update_exif_from_photos(p)
+                exif_warn, exif_error = exif_updater.update_exif_from_photos(photo)
                 if exif_warn:
                     echo_error(f"[warning]Warning running exiftool: {exif_warn}[/]")
                 if exif_error:
