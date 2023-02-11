@@ -763,7 +763,7 @@ def sync(
         print_import_summary(results)
 
     if export_path:
-        photosdb = PhotosDB(dbfile=db, verbose=verbose)
         query_options = query_options_from_kwargs(**kwargs)
+        photosdb = PhotosDB(dbfile=db, verbose=verbose)
         photos = photosdb.query(query_options)
         export_metadata(photos, export_path, verbose)
