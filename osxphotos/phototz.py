@@ -67,6 +67,7 @@ class PhotoTimeZone:
             c.execute(sql)
             results = c.fetchone()
         tz, tzname = (results[0], results[1])
+        tz = tz or 0  # it's possible for tz to be None, #976
         tz_str = tz_to_str(tz)
         return tz, tz_str, tzname
 

@@ -44,7 +44,7 @@ def crash_reporter(filename, message, title, postamble, *extra_args):
                     f.write(f"Platform: {platform.platform()}\n")
                     f.write(f"Python version: {sys.version}\n")
                     f.write(f"sys.argv: {sys.argv}\n")
-                    f.write("CRASH_DATA: \\n")
+                    f.write("CRASH_DATA:\n")
                     for k, v in CRASH_DATA.items():
                         f.write(f"{k}: {v}\n")
                     for arg in extra_args:
