@@ -9,8 +9,8 @@ import os.path
 import pathlib
 import re
 import shutil
-import subprocess
 import sqlite3
+import subprocess
 import tempfile
 import time
 from tempfile import TemporaryDirectory
@@ -498,10 +498,9 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_KEYWORD_PATHSEP = [
 ]
 
 CLI_EXPORTED_FILENAME_TEMPLATE_LONG_DESCRIPTION = [
-    "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. "
-    "Aenean commodo ligula eget dolor. Aenean massa. "
-    "Cum sociis natoque penatibus et magnis dis parturient montes, "
-    "nascetur ridiculus mus. Donec quam felis, ultricies nec, "
+    "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo"
+    " ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis "
+    "dis parturient montes, nascetu. Donec quam felis, ultricies nec, "
     "pellentesque eu, pretium q.tif"
 ]
 
@@ -4008,6 +4007,7 @@ def test_export_filename_template_long_description():
             ],
         )
         assert result.exit_code == 0
+        files = glob.glob("*.*")
         for fname in CLI_EXPORTED_FILENAME_TEMPLATE_LONG_DESCRIPTION:
             assert pathlib.Path(fname).is_file()
 

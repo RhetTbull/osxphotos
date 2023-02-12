@@ -180,6 +180,9 @@ _MAX_IPTC_KEYWORD_LEN = 64
 # If anyone has a keyword matching this, then too bad...
 _OSXPHOTOS_NONE_SENTINEL = "OSXPhotosXYZZY42_Sentinel$"
 
+# Lock file extension for reserving filenames when exporting
+_OSXPHOTOS_LOCK_EXTENSION = ".osxphotos.lock"
+
 
 class SearchCategory:
     """SearchInfo categories for Photos 5+; corresponds to categories in database/search/psi.sqlite:groups.category
@@ -351,7 +354,7 @@ def search_category_factory(version: int) -> SearchCategory:
 
 
 # Max filename length on MacOS
-MAX_FILENAME_LEN = 255
+MAX_FILENAME_LEN = 255 - len(_OSXPHOTOS_LOCK_EXTENSION)
 
 # Max directory name length on MacOS
 MAX_DIRNAME_LEN = 255

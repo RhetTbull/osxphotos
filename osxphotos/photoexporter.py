@@ -50,6 +50,8 @@ from .utils import (
     increment_filename_with_count,
     lineno,
     list_directory,
+    lock_filename,
+    unlock_filename,
 )
 
 __all__ = [
@@ -490,6 +492,7 @@ class PhotoExporter:
                 f"Skipping missing {'edited' if options.edited else 'original'} photo {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
             )
             all_results.missing.append(dest)
+            unlock_filename(dest)
 
         # copy live photo associated .mov if requested
         if export_original and options.live_photo and self.photo.live_photo:
@@ -565,7 +568,9 @@ class PhotoExporter:
                 preview_name = (
                     preview_name
                     if any([options.overwrite, options.update, options.force_update])
-                    else pathlib.Path(increment_filename(preview_name))
+                    else pathlib.Path(
+                        increment_filename(preview_name, lock=not options.dry_run)
+                    )
                 )
                 all_results += self._export_photo(
                     preview_path,
@@ -625,11 +630,10 @@ class PhotoExporter:
         if self.photo.path_edited:
             ext = pathlib.Path(self.photo.path_edited).suffix
         else:
-            uti = self.photo.uti_edited if self.photo.uti_edited else self.photo.uti
+            uti = self.photo.uti_edited or self.photo.uti
             ext = get_preferred_uti_extension(uti)
-            ext = "." + ext
-        edited_filename = original_filename.stem + "_edited" + ext
-        return edited_filename
+            ext = f".{ext}"
+        return f"{original_filename.stem}_edited{ext}"
 
     def _get_dest_path(
         self, dest: pathlib.Path, options: ExportOptions
@@ -644,6 +648,14 @@ class PhotoExporter:
             new dest path (pathlib.Path)
         """
 
+        # lock files are used to minimize chance of name collision when in parallel mode
+        # don't create lock files if in dry_run mode
+        lock = not options.dry_run
+
+        def _lock_filename(filename):
+            """Lock filename if not in dry_run mode"""
+            return lock_filename(filename) if lock else filename
+
         # if overwrite==False and #increment==False, export should fail if file exists
         if dest.exists() and not any(
             [options.increment, options.update, options.force_update, options.overwrite]
@@ -653,7 +665,7 @@ class PhotoExporter:
             )
 
         # if overwrite, we don't care if the file exists or not
-        if options.overwrite:
+        if options.overwrite and _lock_filename(dest):
             return dest
 
         # if not update or overwrite, check to see if file exists and if so, add (1), (2), etc
@@ -665,19 +677,21 @@ class PhotoExporter:
         if options.increment and not any(
             [options.update, options.force_update, options.overwrite]
         ):
-            return pathlib.Path(increment_filename(dest))
+            return pathlib.Path(increment_filename(dest, lock=lock))
 
         # if update and file exists, need to check to see if it's the right file by checking export db
         if options.update or options.force_update:
             export_db = options.export_db
             dest_uuid = export_db.get_uuid_for_file(dest)
-            if dest_uuid is None and not dest.exists():
+            if dest_uuid is None and not dest.exists() and _lock_filename(dest):
                 # destination doesn't exist in export db and doesn't exist on disk
                 # so we can just use it
                 return dest
 
             if dest_uuid == self.photo.uuid:
                 # destination is the right file
+                # will use it even if locked so don't check return value of _lock_filename
+                _lock_filename(dest)
                 return dest
 
             # either dest_uuid is wrong or file exists and there's no associated UUID, so find a name that matches
@@ -686,18 +700,20 @@ class PhotoExporter:
             # first, find all matching files in export db and see if there's a match
             if dest_target := export_db.get_target_for_file(self.photo.uuid, dest):
                 # there's a match so use that
+                _lock_filename(dest_target)
                 return pathlib.Path(dest_target)
 
             # no match so need to create a new name
             # increment the destination file until we find one that doesn't exist and doesn't match another uuid in the database
             count = 0
-            dest, count = increment_filename_with_count(dest, count)
+            dest, count = increment_filename_with_count(dest, count, lock=lock)
             count += 1
             while export_db.get_uuid_for_file(dest) is not None:
-                dest, count = increment_filename_with_count(dest, count)
+                dest, count = increment_filename_with_count(dest, count, lock=lock)
             return pathlib.Path(dest)
 
         # fail safe...I can't think of a case that gets here
+        _lock_filename(dest)
         return dest
 
     def _should_update_photo(
@@ -1215,6 +1231,9 @@ class PhotoExporter:
                     "exiftool_error": exif_results.exiftool_error,
                     "exiftool_warning": exif_results.exiftool_warning,
                 }
+
+        # clean up lock file
+        unlock_filename(dest_str)
 
         return results
 
