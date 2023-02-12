@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoexporter - osxphotos 0.56.7 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.57.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.56.7 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.57.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.57.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -247,6 +247,8 @@
     <span class="n">increment_filename_with_count</span><span class="p">,</span>
     <span class="n">lineno</span><span class="p">,</span>
     <span class="n">list_directory</span><span class="p">,</span>
+    <span class="n">lock_filename</span><span class="p">,</span>
+    <span class="n">unlock_filename</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -687,6 +689,7 @@
                 <span class="sa">f</span><span class="s2">&quot;Skipping missing </span><span class="si">{</span><span class="s1">&#39;edited&#39;</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="k">else</span> <span class="s1">&#39;original&#39;</span><span class="si">}</span><span class="s2"> photo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="p">)</span>
             <span class="n">all_results</span><span class="o">.</span><span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+            <span class="n">unlock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
 
         <span class="c1"># copy live photo associated .mov if requested</span>
         <span class="k">if</span> <span class="n">export_original</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">live_photo</span><span class="p">:</span>
@@ -762,7 +765,9 @@
                 <span class="n">preview_name</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">preview_name</span>
                     <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">])</span>
-                    <span class="k">else</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">preview_name</span><span class="p">))</span>
+                    <span class="k">else</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
+                        <span class="n">increment_filename</span><span class="p">(</span><span class="n">preview_name</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">)</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">all_results</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
                     <span class="n">preview_path</span><span class="p">,</span>
@@ -822,11 +827,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path_edited</span><span class="p">:</span>
             <span class="n">ext</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path_edited</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti</span>
+            <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti_edited</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti</span>
             <span class="n">ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">uti</span><span class="p">)</span>
-            <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">ext</span>
-        <span class="n">edited_filename</span> <span class="o">=</span> <span class="n">original_filename</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;_edited&quot;</span> <span class="o">+</span> <span class="n">ext</span>
-        <span class="k">return</span> <span class="n">edited_filename</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">original_filename</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_edited</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">_get_dest_path</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
@@ -841,6 +845,14 @@
 <span class="sd">            new dest path (pathlib.Path)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="c1"># lock files are used to minimize chance of name collision when in parallel mode</span>
+        <span class="c1"># don&#39;t create lock files if in dry_run mode</span>
+        <span class="n">lock</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span>
+
+        <span class="k">def</span> <span class="nf">_lock_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Lock filename if not in dry_run mode&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">lock_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">if</span> <span class="n">lock</span> <span class="k">else</span> <span class="n">filename</span>
+
         <span class="c1"># if overwrite==False and #increment==False, export should fail if file exists</span>
         <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
             <span class="p">[</span><span class="n">options</span><span class="o">.</span><span class="n">increment</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">]</span>
@@ -850,7 +862,7 @@
             <span class="p">)</span>
 
         <span class="c1"># if overwrite, we don&#39;t care if the file exists or not</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span> <span class="ow">and</span> <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">dest</span>
 
         <span class="c1"># if not update or overwrite, check to see if file exists and if so, add (1), (2), etc</span>
@@ -862,19 +874,21 @@
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
             <span class="p">[</span><span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="n">lock</span><span class="p">))</span>
 
         <span class="c1"># if update and file exists, need to check to see if it&#39;s the right file by checking export db</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>
             <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
             <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
                 <span class="c1"># destination doesn&#39;t exist in export db and doesn&#39;t exist on disk</span>
                 <span class="c1"># so we can just use it</span>
                 <span class="k">return</span> <span class="n">dest</span>
 
             <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
                 <span class="c1"># destination is the right file</span>
+                <span class="c1"># will use it even if locked so don&#39;t check return value of _lock_filename</span>
+                <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">dest</span>
 
             <span class="c1"># either dest_uuid is wrong or file exists and there&#39;s no associated UUID, so find a name that matches</span>
@@ -883,18 +897,20 @@
             <span class="c1"># first, find all matching files in export db and see if there&#39;s a match</span>
             <span class="k">if</span> <span class="n">dest_target</span> <span class="o">:=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_target_for_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
                 <span class="c1"># there&#39;s a match so use that</span>
+                <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest_target</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest_target</span><span class="p">)</span>
 
             <span class="c1"># no match so need to create a new name</span>
             <span class="c1"># increment the destination file until we find one that doesn&#39;t exist and doesn&#39;t match another uuid in the database</span>
             <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+            <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="n">lock</span><span class="p">)</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">while</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+                <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="n">lock</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
 
         <span class="c1"># fail safe...I can&#39;t think of a case that gets here</span>
+        <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dest</span>
 
     <span class="k">def</span> <span class="nf">_should_update_photo</span><span class="p">(</span>
@@ -1412,6 +1428,9 @@
                     <span class="s2">&quot;exiftool_error&quot;</span><span class="p">:</span> <span class="n">exif_results</span><span class="o">.</span><span class="n">exiftool_error</span><span class="p">,</span>
                     <span class="s2">&quot;exiftool_warning&quot;</span><span class="p">:</span> <span class="n">exif_results</span><span class="o">.</span><span class="n">exiftool_warning</span><span class="p">,</span>
                 <span class="p">}</span>
+
+        <span class="c1"># clean up lock file</span>
+        <span class="n">unlock_filename</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">results</span>
 

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos._constants - osxphotos 0.56.4 documentation</title>
+        <title>osxphotos._constants - osxphotos 0.57.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.56.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.57.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.57.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -377,6 +377,9 @@
 <span class="c1"># If anyone has a keyword matching this, then too bad...</span>
 <span class="n">_OSXPHOTOS_NONE_SENTINEL</span> <span class="o">=</span> <span class="s2">&quot;OSXPhotosXYZZY42_Sentinel$&quot;</span>
 
+<span class="c1"># Lock file extension for reserving filenames when exporting</span>
+<span class="n">_OSXPHOTOS_LOCK_EXTENSION</span> <span class="o">=</span> <span class="s2">&quot;.osxphotos.lock&quot;</span>
+
 
 <span class="k">class</span> <span class="nc">SearchCategory</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;SearchInfo categories for Photos 5+; corresponds to categories in database/search/psi.sqlite:groups.category</span>
@@ -548,7 +551,7 @@
 
 
 <span class="c1"># Max filename length on MacOS</span>
-<span class="n">MAX_FILENAME_LEN</span> <span class="o">=</span> <span class="mi">255</span>
+<span class="n">MAX_FILENAME_LEN</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">_OSXPHOTOS_LOCK_EXTENSION</span><span class="p">)</span>
 
 <span class="c1"># Max directory name length on MacOS</span>
 <span class="n">MAX_DIRNAME_LEN</span> <span class="o">=</span> <span class="mi">255</span>
@@ -653,6 +656,10 @@
     <span class="s2">&quot;time&quot;</span><span class="p">,</span>
     <span class="s2">&quot;tottime&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
+<span class="n">UUID_PATTERN</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;[0-9a-fA-F]</span><span class="si">{8}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{12}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
 </pre></div>
         </article>
       </div>
