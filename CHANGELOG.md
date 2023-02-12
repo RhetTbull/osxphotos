@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.57.1](https://github.com/RhetTbull/osxphotos/compare/v0.57.0...v0.57.1)
+
+### 12 February 2023
+### Added show command, bug fix, refactoring
+
+A bug fix and some refactoring to prepare for adding a parallel export mode. Also added `osxphotos show` command.
+
+#### Added
+
+- Implemented show command: `osxphotos show UUID_OR_NAME` finds the photo/album/folder in Photos and spotlights it in the Photos app (#964)
+- `--uuid-from-file` can now read from stdin if the filename is `-` (#965)
+
+#### Changed
+
+- Added lock files to export to minimize name collisions. This will help with implementing a parallel/multi-process export mode later.
+
+#### Fixed
+
+- Fixed `osxphotos timewarp` bug if timezone was null in database (#976)
+
+#### Contributors To This Release
+
+- [@RhetTbull](https://github.com/RhetTbull)
+- [@aa599](https://github.com/aa599) for reporting the timezone bug and suggesting change to `--uuid-from-file`
+
+
 ## [v0.57.0](https://github.com/RhetTbull/osxphotos/compare/v0.56.7...v0.57.0)
 
 ### 5 February 2023
