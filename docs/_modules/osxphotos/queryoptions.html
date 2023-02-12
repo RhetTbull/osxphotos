@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.queryoptions - osxphotos 0.56.7 documentation</title>
+        <title>osxphotos.queryoptions - osxphotos 0.57.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.56.7 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.57.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.57.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -199,12 +199,16 @@
 
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">bitmath</span>
-<span class="kn">import</span> <span class="nn">click</span>
+
+<span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="n">UUID_PATTERN</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;QueryOptions&quot;</span><span class="p">,</span> <span class="s2">&quot;query_options_from_kwargs&quot;</span><span class="p">,</span> <span class="s2">&quot;IncompatibleQueryOptions&quot;</span><span class="p">]</span>
 
@@ -391,7 +395,12 @@
 
 
 <span class="k">def</span> <span class="nf">query_options_from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QueryOptions</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Validate query options and create a QueryOptions instance&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Validate query options and create a QueryOptions instance.</span>
+<span class="sd">    Note: this will block on stdin if uuid_from_file is set to &quot;-&quot;</span>
+<span class="sd">    so it is best to call function before creating the PhotosDB instance</span>
+<span class="sd">    so that the validation of query options can happen before the database</span>
+<span class="sd">    is loaded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># sanity check input args</span>
     <span class="n">nonexclusive</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;added_after&quot;</span><span class="p">,</span>
@@ -491,10 +500,12 @@
     <span class="k">return</span> <span class="n">QueryOptions</span><span class="p">(</span><span class="o">**</span><span class="n">query_dict</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">load_uuid_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load UUIDs from file.  Does not validate UUIDs.</span>
-<span class="sd">        Format is 1 UUID per line, any line beginning with # is ignored.</span>
-<span class="sd">        Whitespace is stripped.</span>
+<span class="k">def</span> <span class="nf">load_uuid_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load UUIDs from file.</span>
+<span class="sd">    Does not validate UUIDs but does validate that the UUIDs are in the correct format.</span>
+<span class="sd">    Format is 1 UUID per line, any line beginning with # is ignored.</span>
+<span class="sd">    Whitespace is stripped.</span>
 
 <span class="sd">    Arguments:</span>
 <span class="sd">        filename: file name of the file containing UUIDs</span>
@@ -504,17 +515,44 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        FileNotFoundError if file does not exist</span>
+<span class="sd">        ValueError if UUID is not in correct format</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_load_uuid_from_stream</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_load_uuid_from_stream</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_load_uuid_from_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load UUIDs from stream.</span>
+<span class="sd">    Does not validate UUIDs but does validate that the UUIDs are in the correct format.</span>
+<span class="sd">    Format is 1 UUID per line, any line beginning with # is ignored.</span>
+<span class="sd">    Whitespace is stripped.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        filename: file name of the file containing UUIDs</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of UUIDs or empty list of no UUIDs in file</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError if UUID is not in correct format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">uuid</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">uuid_file</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">uuid_file</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
-                <span class="n">uuid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;^</span><span class="si">{</span><span class="n">UUID_PATTERN</span><span class="si">}</span><span class="s2">$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid UUID: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">uuid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">uuid</span>
 </pre></div>
         </article>

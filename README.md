@@ -162,6 +162,7 @@ Commands:
   query          Query the Photos database using 1 or more search options;...
   repl           Run interactive osxphotos REPL shell (useful for...
   run            Run a python file using same environment as osxphotos.
+  show           Show photo, album, or folder in Photos from UUID_OR_NAME
   snap           Create snapshot of Photos database to use with diff command
   sync           Sync metadata and albums between Photos libraries.
   theme          Manage osxphotos color themes.
@@ -716,8 +717,9 @@ Options:
   --uuid UUID                     Search for photos with UUID(s). May be
                                   repeated to include multiple UUIDs.
   --uuid-from-file FILE           Search for photos with UUID(s) loaded from
-                                  FILE. Format is a single UUID per line.  Lines
-                                  preceded with # are ignored.
+                                  FILE. Format is a single UUID per line. Lines
+                                  preceded with # are ignored. If FILE is '-',
+                                  read UUIDs from stdin.
   --title TITLE                   Search for TITLE in title of photo.
   --no-title                      Search for photos with no title.
   --description DESC              Search for DESC in description of photo.
@@ -2087,7 +2089,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.57.0'
+{osxphotos_version}             The osxphotos version, e.g. '0.57.1'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2572,7 +2574,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.57.0'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.57.1'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

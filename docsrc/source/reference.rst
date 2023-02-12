@@ -1,5 +1,5 @@
-OSXPhotos python API 
-====================
+OSXPhotos Python Reference
+==========================
 
 .. automodule:: osxphotos
    :members:

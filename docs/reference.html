@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python API" href="API_README.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos python API - osxphotos 0.57.0 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.57.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.57.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.57.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.57.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.57.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -161,7 +161,8 @@
 <li class="toctree-l1"><a class="reference internal" href="cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">OSXPhotos python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_README.html">OSXPhotos Python API</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">OSXPhotos Python Reference</a></li>
 </ul>
 
 </div>
@@ -197,7 +198,7 @@
         </div>
         <article role="main">
           <section id="module-osxphotos">
-<span id="osxphotos-python-api"></span><h1>OSXPhotos python API<a class="headerlink" href="#module-osxphotos" title="Permalink to this heading">#</a></h1>
+<span id="osxphotos-python-reference"></span><h1>OSXPhotos Python Reference<a class="headerlink" href="#module-osxphotos" title="Permalink to this heading">#</a></h1>
 <p>__init__.py for osxphotos</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.AlbumInfo">
@@ -256,7 +257,7 @@ returns empty list if album is not in any folders</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.AlbumSortOrder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">AlbumSortOrder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/_constants.html#AlbumSortOrder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.AlbumSortOrder" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">AlbumSortOrder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/_constants.html#AlbumSortOrder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.AlbumSortOrder" title="Permalink to this definition">#</a></dt>
 <dd><p>Album Sort Order</p>
 </dd></dl>
 
@@ -2333,7 +2334,7 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sql</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlite3.Cursor</span></span></span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.execute" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sql</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Cursor</span></span></span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.execute" title="Permalink to this definition">#</a></dt>
 <dd><p>Execute sql statement and return cursor</p>
 </dd></dl>
 
@@ -3606,14 +3607,14 @@ Projects are cards, calendars, slideshows, etc.</p>
         
         <div class="related-pages">
           
-          <a class="prev-page" href="package_overview.html">
+          <a class="prev-page" href="API_README.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">OSXPhotos Python Package Overview</div>
+                <div class="title">OSXPhotos Python API</div>
                 
               </div>
             </a>
@@ -3649,7 +3650,7 @@ Projects are cards, calendars, slideshows, etc.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">OSXPhotos python API</a><ul>
+<li><a class="reference internal" href="#">OSXPhotos Python Reference</a><ul>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo"><code class="docutils literal notranslate"><span class="pre">AlbumInfo</span></code></a><ul>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.folder_list"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.folder_list</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.folder_names"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.folder_names</span></code></a></li>
