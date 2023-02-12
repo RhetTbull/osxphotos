@@ -19,6 +19,7 @@ from photoscript import Photo
 from pytest import MonkeyPatch, approx
 
 from osxphotos import PhotosDB, QueryOptions
+from osxphotos._constants import UUID_PATTERN
 from osxphotos.cli.import_cli import import_cli
 from osxphotos.datetime_utils import datetime_remove_tz
 from osxphotos.exiftool import get_exiftool_path
@@ -101,9 +102,7 @@ def parse_import_output(output: str) -> Dict[str, str]:
 
     results = {}
     for line in output.split("\n"):
-        pattern = re.compile(
-            r"Imported ([\w\.]+)\s.*UUID\s([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})"
-        )
+        pattern = re.compile(r"Imported ([\w\.]+)\s.*UUID\s(" + UUID_PATTERN + r")")
         if match := re.match(pattern, line):
             file = match[1]
             uuid = match[2]

@@ -35,6 +35,7 @@ from .photo_inspect import photo_inspect
 from .places import places
 from .query import query
 from .repl import repl
+from .show_command import show
 from .snap_diff import diff, snap
 from .sync import sync
 from .theme import theme
@@ -130,6 +131,7 @@ for command in [
     query,
     repl,
     run,
+    show,
     snap,
     sync,
     theme,

@@ -1,5 +1,7 @@
 """ utility functions used by PhotosDB """
 
+from __future__ import annotations
+
 import logging
 import pathlib
 import plistlib
@@ -63,7 +65,8 @@ def get_db_version(db_file):
     if version not in _TESTED_DB_VERSIONS:
         print(
             f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
-            + f" You have database version={version} which has not been tested", file=sys.stderr
+            + f" You have database version={version} which has not been tested",
+            file=sys.stderr,
         )
 
     return version
@@ -115,11 +118,18 @@ def get_db_model_version(db_file: str) -> int:
         return 8
 
 
-def get_photos_library_version(library_path):
-    """Return int indicating which Photos version a library was created with"""
+def get_photos_library_version(library_path: str | pathlib.Path) -> int:
+    """Return int indicating which Photos version a library was created with
+
+    Args:
+        library_path: path to Photos library; may be path to the root of the library or the photos.db file
+
+    Returns: int of major Photos version number (e.g. 5, 6, ...)
+    """
     library_path = pathlib.Path(library_path)
-    db_ver = get_db_version(str(library_path / "database" / "photos.db"))
-    db_ver = int(db_ver)
+    if library_path.is_dir():
+        library_path = library_path / "database" / "photos.db"
+    db_ver = int(get_db_version(str(library_path)))
     if db_ver == int(_PHOTOS_2_VERSION):
         return 2
     if db_ver == int(_PHOTOS_3_VERSION):
@@ -128,7 +138,8 @@ def get_photos_library_version(library_path):
         return 4
 
     # assume it's a Photos 5+ library, get the model version to determine which version
-    model_ver = get_model_version(str(library_path / "database" / "Photos.sqlite"))
+    library_path = library_path.parent / "Photos.sqlite"
+    model_ver = get_model_version(str(library_path))
     model_ver = int(model_ver)
     if _PHOTOS_5_MODEL_VERSION[0] <= model_ver <= _PHOTOS_5_MODEL_VERSION[1]:
         return 5
@@ -142,3 +153,23 @@ def get_photos_library_version(library_path):
         f"Unknown db / model version: db_ver={db_ver}, model_ver={model_ver}; assuming Photos 8"
     )
     return 8
+
+
+def get_db_path_for_library(photos_library: str | pathlib.Path) -> pathlib.Path:
+    """Returns path to Photos database file for Photos library
+
+    Args:
+        photos_library: path to Photos library; may be path to the root of the library or the photos.db file
+
+    Returns: pathlib.Path to Photos database file
+    """
+    photos_library = pathlib.Path(photos_library)
+    if photos_library.is_file():
+        return photos_library
+    photos_version = get_photos_library_version(photos_library)
+    if photos_version < 5:
+        if photos_library.is_dir():
+            photos_library = photos_library / "database" / "photos.db"
+    elif photos_library.is_dir():
+        photos_library = photos_library / "database" / "Photos.sqlite"
+    return photos_library
