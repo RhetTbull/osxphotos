@@ -27,9 +27,14 @@ from .cli_params import (
 )
 from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
+from .click_rich_echo import set_rich_theme
+from .color_themes import get_theme
 from .verbose import verbose, verbose_print
 
 logger = logging.getLogger("osxphotos")
+
+# ensure echo, echo_error are configured with correct theme
+set_rich_theme(get_theme())
 
 __all__ = [
     "abort",

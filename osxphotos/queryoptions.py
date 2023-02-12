@@ -11,6 +11,8 @@ from typing import Iterable, List, Optional, Tuple
 
 import bitmath
 
+from ._constants import UUID_PATTERN
+
 __all__ = ["QueryOptions", "query_options_from_kwargs", "IncompatibleQueryOptions"]
 
 
@@ -196,12 +198,12 @@ class QueryOptions:
 
 
 def query_options_from_kwargs(**kwargs) -> QueryOptions:
-    """ Validate query options and create a QueryOptions instance. 
-        Note: this will block on stdin if uuid_from_file is set to "-"
-        so it is best to call function before creating the PhotosDB instance
-        so that the validation of query options can happen before the database
-        is loaded. 
-   """
+    """Validate query options and create a QueryOptions instance.
+    Note: this will block on stdin if uuid_from_file is set to "-"
+    so it is best to call function before creating the PhotosDB instance
+    so that the validation of query options can happen before the database
+    is loaded.
+    """
     # sanity check input args
     nonexclusive = [
         "added_after",
@@ -301,9 +303,9 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
     return QueryOptions(**query_dict)
 
 
-def load_uuid_from_file(filename: str) ->list[str]:
+def load_uuid_from_file(filename: str) -> list[str]:
     """
-    Load UUIDs from file. 
+    Load UUIDs from file.
     Does not validate UUIDs but does validate that the UUIDs are in the correct format.
     Format is 1 UUID per line, any line beginning with # is ignored.
     Whitespace is stripped.
@@ -328,6 +330,7 @@ def load_uuid_from_file(filename: str) ->list[str]:
     with open(filename, "r") as f:
         return _load_uuid_from_stream(f)
 
+
 def _load_uuid_from_stream(stream: io.IOBase) -> list[str]:
     """
     Load UUIDs from stream.
@@ -349,10 +352,7 @@ def _load_uuid_from_stream(stream: io.IOBase) -> list[str]:
     for line in stream:
         line = line.strip()
         if len(line) and line[0] != "#":
-            if not re.match(
-                r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                line,
-            ):
+            if not re.match(f"^{UUID_PATTERN}$", line):
                 raise ValueError(f"Invalid UUID: {line}")
             line = line.upper()
             uuid.append(line)

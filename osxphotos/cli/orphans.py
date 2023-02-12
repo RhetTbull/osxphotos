@@ -14,7 +14,7 @@ from typing import Dict
 import click
 
 from osxphotos import PhotosDB
-from osxphotos._constants import _PHOTOS_4_VERSION
+from osxphotos._constants import _PHOTOS_4_VERSION, UUID_PATTERN
 from osxphotos.fileutil import FileUtil
 from osxphotos.utils import increment_filename, pluralize
 
@@ -131,8 +131,7 @@ def scan_for_files(directory: str, uuid_dict: Dict):
 
     Note: modifies uuid_dict
     """
-    uuid_pattern = r"([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})"
-    uuid_regex = re.compile(uuid_pattern)
+    uuid_regex = re.compile(UUID_PATTERN)
     for dirpath, dirname, filenames in os.walk(directory):
         for filename in filenames:
             if match := uuid_regex.match(filename):
