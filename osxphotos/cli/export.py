@@ -1,5 +1,6 @@
 """export command for osxphotos CLI"""
 
+import atexit
 import inspect
 import os
 import pathlib
@@ -63,8 +64,10 @@ from osxphotos.utils import (
     get_macos_version,
     normalize_fs_path,
     pluralize,
+    under_test,
 )
 
+from .cli_commands import logger
 from .cli_params import (
     DB_ARGUMENT,
     DB_OPTION,
@@ -1405,6 +1408,20 @@ def export(
             if add_missing_to_album
             else None
         )
+
+        def cleanup_lock_files():
+            """Cleanup lock files"""
+            if not under_test():
+                verbose("Cleaning up lock files")
+            if dry_run:
+                return
+            for lock_file in pathlib.Path(dest).rglob("*.osxphotos.lock"):
+                try:
+                    lock_file.unlink()
+                except Exception as e:
+                    logger.debug(f"Error removing lock file {lock_file}: {e}")
+
+        atexit.register(cleanup_lock_files)
 
         photo_num = 0
         num_exported = 0

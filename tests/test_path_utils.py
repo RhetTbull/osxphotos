@@ -1,8 +1,10 @@
 """ Test path_utils.py """
 
+from osxphotos._constants import _OSXPHOTOS_LOCK_EXTENSION, MAX_FILENAME_LEN
+from osxphotos.path_utils import sanitize_filename
+
+
 def test_sanitize_filename():
-    from osxphotos.path_utils import sanitize_filename
-    from osxphotos._constants import MAX_FILENAME_LEN
 
     # basic sanitize
     filenames = {
@@ -30,30 +32,33 @@ def test_sanitize_filename():
     filename = "foo" + "x" * 512
     new_filename = sanitize_filename(filename)
     assert len(new_filename) == MAX_FILENAME_LEN
-    assert new_filename == "foo" + "x" * 252
+    assert new_filename == "foo" + "x" * (252 - len(_OSXPHOTOS_LOCK_EXTENSION))
 
     # filename too long with extension
     filename = "x" * 512 + ".jpeg"
     new_filename = sanitize_filename(filename)
     assert len(new_filename) == MAX_FILENAME_LEN
-    assert new_filename == "x" * 250 + ".jpeg"
+    assert new_filename == "x" * (250 - len(_OSXPHOTOS_LOCK_EXTENSION)) + ".jpeg"
 
     # more than one extension
     filename = "foo.bar" + "x" * 255 + ".foo.bar.jpeg"
     new_filename = sanitize_filename(filename)
     assert len(new_filename) == MAX_FILENAME_LEN
-    assert new_filename == "foo.bar" + "x" * 243 + ".jpeg"
+    assert (
+        new_filename
+        == "foo.bar" + "x" * (243 - len(_OSXPHOTOS_LOCK_EXTENSION)) + ".jpeg"
+    )
 
     # shorter than drop count
     filename = "foo." + "x" * 256
     new_filename = sanitize_filename(filename)
     assert len(new_filename) == MAX_FILENAME_LEN
-    assert new_filename == "foo." + "x" * 251
+    assert new_filename == "foo." + "x" * (251 - len(_OSXPHOTOS_LOCK_EXTENSION))
 
 
 def test_sanitize_dirname():
-    from osxphotos.path_utils import sanitize_dirname
     from osxphotos._constants import MAX_DIRNAME_LEN
+    from osxphotos.path_utils import sanitize_dirname
 
     # basic sanitize
     dirnames = {
@@ -83,9 +88,10 @@ def test_sanitize_dirname():
     assert len(new_dirname) == MAX_DIRNAME_LEN
     assert new_dirname == "foo" + "x" * 252
 
+
 def test_sanitize_pathpart():
-    from osxphotos.path_utils import sanitize_pathpart
     from osxphotos._constants import MAX_DIRNAME_LEN
+    from osxphotos.path_utils import sanitize_pathpart
 
     # basic sanitize
     dirnames = {
@@ -114,4 +120,3 @@ def test_sanitize_pathpart():
     new_dirname = sanitize_pathpart(dirname)
     assert len(new_dirname) == MAX_DIRNAME_LEN
     assert new_dirname == "foo" + "x" * 252
-
