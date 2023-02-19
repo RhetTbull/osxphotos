@@ -2489,8 +2489,12 @@ def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose):
     for p in pathlib.Path(dest_path).rglob("*"):
         if p.is_file() and normalize_fs_path(str(p).lower()) not in keepers:
             verbose(f"Deleting [filepath]{p}")
-            fileutil.unlink(p)
-            deleted_files.append(str(p))
+            try:
+                fileutil.unlink(p)
+                deleted_files.append(str(p))
+            except OSError as e:
+                # ignore errors deleting files, #987
+                verbose(f"Error deleting file {p}: {e}")
 
     # delete empty directories
     deleted_dirs = []
@@ -2501,8 +2505,12 @@ def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose):
         if not list(pathlib.Path(dirpath).glob("*")):
             # directory and directory is empty
             verbose(f"Deleting empty directory {dirpath}")
-            fileutil.rmdir(dirpath)
-            deleted_dirs.append(str(dirpath))
+            try:
+                fileutil.rmdir(dirpath)
+                deleted_dirs.append(str(dirpath))
+            except OSError as e:
+                # ignore errors deleting directories, #987
+                verbose(f"Error deleting directory {dirpath}: {e}")
 
     return (deleted_files, deleted_dirs)
 
