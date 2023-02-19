@@ -1152,12 +1152,13 @@ class PhotosDB:
             self._dbphotos[uuid]["momentID"] = row[28]
 
             # Init cloud details that will be filled in later if cloud asset
-            self._dbphotos[uuid]["cloudAssetGUID"] = None  # Photos 5
-            self._dbphotos[uuid]["cloudLocalState"] = None  # Photos 5
+            self._dbphotos[uuid]["cloudAssetGUID"] = None  # Photos 5+
+            self._dbphotos[uuid]["cloudLocalState"] = None  # Photos 5+
             self._dbphotos[uuid]["cloudLibraryState"] = None
             self._dbphotos[uuid]["cloudStatus"] = None
             self._dbphotos[uuid]["cloudAvailable"] = None
             self._dbphotos[uuid]["incloud"] = None
+            self._dbphotos[uuid]["cloudMasterGUID"] = None  # Photos 5+
 
             # associated RAW image info
             self._dbphotos[uuid]["has_raw"] = True if row[25] == 7 else False
@@ -2120,6 +2121,7 @@ class PhotosDB:
             info["cloudLibraryState"] = None  # Photos 4
             info["cloudStatus"] = None  # Photos 4
             info["cloudAvailable"] = None  # Photos 4
+            info["cloudMasterGUID"] = None
 
             # reverse geolocation info
             info["reverse_geolocation"] = row[25]
@@ -2366,7 +2368,8 @@ class PhotosDB:
         c.execute(
             f""" SELECT
                 {asset_table}.ZUUID,
-                ZCLOUDMASTER.ZCLOUDLOCALSTATE
+                ZCLOUDMASTER.ZCLOUDLOCALSTATE,
+                ZCLOUDMASTER.ZCLOUDMASTERGUID
                 FROM ZCLOUDMASTER, {asset_table}
                 WHERE {asset_table}.ZMASTER = ZCLOUDMASTER.Z_PK """
         )
@@ -2375,6 +2378,7 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["cloudLocalState"] = row[1]
                 self._dbphotos[uuid]["incloud"] = True if row[1] == 3 else False
+                self._dbphotos[uuid]["cloudMasterGUID"] = row[2]
 
         # get information about associted RAW images
         # RAW images have ZDATASTORESUBTYPE = 17

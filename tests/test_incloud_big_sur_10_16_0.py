@@ -10,6 +10,7 @@ UUID_DICT = {
     "incloud": "FC638F58-84BE-4083-B5DE-F85BDC729062",
     "shared": "2094984A-21DC-4A6E-88A6-7344F648B92E",
     "cloudasset": "FC638F58-84BE-4083-B5DE-F85BDC729062",
+    "cloud_guid": "FC638F58-84BE-4083-B5DE-F85BDC729062",
 }
 
 
@@ -31,3 +32,8 @@ def test_cloudasset_1(photosdb):
 def test_path_derivatives(photosdb):
     photo = photosdb.get_photo(UUID_DICT["shared"])
     assert photo.path_derivatives
+
+
+def test_cloud_guid(photosdb):
+    photo = photosdb.get_photo(UUID_DICT["cloud_guid"])
+    assert photo.cloud_guid == "AV6qPsEIU88bFVPKfEUjoyspg+d+"

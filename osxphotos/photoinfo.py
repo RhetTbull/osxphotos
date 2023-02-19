@@ -70,6 +70,7 @@ __all__ = ["PhotoInfo", "PhotoInfoNone"]
 
 logger = logging.getLogger("osxphotos")
 
+
 class PhotoInfo:
     """
     Info about a specific photo, contains all the details about the photo
@@ -1451,6 +1452,11 @@ class PhotoInfo:
             with contextlib.suppress(Exception):
                 metadata = plistlib.loads(results[0])
         return metadata
+
+    @cached_property
+    def cloud_guid(self) -> str:
+        """Returns the GUID of the photo in iCloud (Photos 5+ only)"""
+        return self._info["cloudMasterGUID"]
 
     @cached_property
     def fingerprint(self) -> str:
