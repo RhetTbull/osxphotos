@@ -293,3 +293,11 @@ def export_db_touch_files(
             rec.dest_sig = (dest_mode, dest_size, ts)
 
     return (touched, not_touched, skipped)
+
+
+def exportdb_migrate_photos_library(
+    dbfile: Union[str, pathlib.Path],
+    photos_library: Union[str, pathlib.Path],
+    verbose: Callable = noop,
+    dry_run: bool = False):
+    verbose(locals())

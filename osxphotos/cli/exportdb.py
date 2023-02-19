@@ -23,9 +23,11 @@ from osxphotos.export_db_utils import (
     export_db_touch_files,
     export_db_update_signatures,
     export_db_vacuum,
+    exportdb_migrate_photos_library,
 )
 from osxphotos.utils import pluralize
 
+from .cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
 from .click_rich_echo import (
     rich_click_echo,
     rich_echo,
@@ -34,7 +36,6 @@ from .click_rich_echo import (
     set_rich_theme,
 )
 from .color_themes import get_theme
-from .cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
 from .export import render_and_validate_report
 from .param_types import TemplateString
 from .report_writer import export_report_writer_factory
@@ -141,6 +142,15 @@ from .verbose import get_verbose_console, verbose_print
     help="Execute SQL_STATEMENT against export database and print results.",
 )
 @click.option(
+    "--migrate-photos-library",
+    metavar="PHOTOS_LIBRARY",
+    help="Migrate the export database to use the specified Photos library. "
+    "Use this if you have moved your Photos library to a new location or computer and "
+    "want to keep using the same export database. "
+    "This will update the UUIDs in the export database to match the new Photos library.",
+    type=click.Path(exists=True, file_okay=True, dir_okay=True),
+)
+@click.option(
     "--export-dir",
     help="Optional path to export directory (if not parent of export database).",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
@@ -170,6 +180,7 @@ def exportdb(
     last_errors,
     last_run,
     migrate,
+    migrate_photos_library,
     report,
     save_config,
     sql,
@@ -469,3 +480,9 @@ def exportdb(
             for row in results:
                 print(row)
             sys.exit(0)
+
+    if migrate_photos_library:
+        # migrate Photos library to new library and update UUIDs in export database
+        exportdb_migrate_photos_library(
+            export_db, migrate_photos_library, verbose, dry_run
+        )
