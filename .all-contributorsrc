@@ -503,6 +503,15 @@
         "bug",
         "ideas"
       ]
+    },
+    {
+      "login": "swduncan",
+      "name": "Steve Duncan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2053195?v=4",
+      "profile": "https://github.com/swduncan",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
