@@ -1848,6 +1848,8 @@ class PhotoInfo:
             "comments": comments,
             "likes": likes,
             "search_info": search_info,
+            "fingerprint": self.fingerprint,
+            "cloud_guid": self.cloud_guid,
         }
 
     def json(self):
