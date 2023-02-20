@@ -1312,7 +1312,8 @@ def export(
         )
         for other_db in other_db_files:
             rich_click_echo(f"{other_db}")
-        click.confirm("Do you want to continue?", abort=True)
+        if not click.confirm("Do you want to continue?"):
+            sys.exit(1)
 
     if dry_run:
         export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
