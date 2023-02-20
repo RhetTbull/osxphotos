@@ -1,10 +1,12 @@
 """osxphotos show command"""
 
+import pathlib
 import re
 
 import click
 
 from osxphotos._constants import UUID_PATTERN
+from osxphotos.export_db_utils import get_uuid_for_filepath
 from osxphotos.photoscript_utils import (
     photoscript_object_from_name,
     photoscript_object_from_uuid,
@@ -33,6 +35,15 @@ def show(ctx, db, uuid_or_name):
     osxphotos show "My Folder"
 
     osxphotos show IMG_1234.JPG
+
+    show can also be used to show a photo exported with `osxphotos export`:
+
+    osxphotos show /path/to/exported/photo.jpg
+
+    In this case, the UUID_OR_NAME is the path to the exported photo and osxphotos
+    will attempt to find the export database to match the photo to the original in
+    Photos. If your export database is not in the default location in the root of the
+    export directory, this will not work.
 
     Notes:
 
@@ -63,6 +74,16 @@ def show(ctx, db, uuid_or_name):
             obj_type = obj.__class__.__name__
             echo(
                 f"Found [filename]{obj_type}[/] with name: [filepath]{uuid_or_name}[/]"
+            )
+            obj.spotlight()
+        elif uuid := get_uuid_for_filepath(pathlib.Path(uuid_or_name).resolve()):
+            if not (obj := photoscript_object_from_uuid(uuid, db)):
+                raise ValueError(
+                    f"could not find asset with UUID [uuid]{uuid}[/] for file [filepath]{uuid_or_name}[/]"
+                )
+            obj_type = obj.__class__.__name__
+            echo(
+                f"Found [filename]{obj_type}[/] from export database: [filepath]{uuid_or_name}[/]"
             )
             obj.spotlight()
         else:
