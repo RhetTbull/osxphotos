@@ -808,10 +808,10 @@ class PhotosDB:
                 "cloudlibrarystate": album[2],
                 "cloudidentifier": album[3],
                 "intrash": False if album[4] == 0 else True,
-                "cloudlocalstate": None,  # Photos 5
-                "cloudownerfirstname": None,  # Photos 5
-                "cloudownderlastname": None,  # Photos 5
-                "cloudownerhashedpersonid": None,  # Photos 5
+                "cloudlocalstate": None,  # Photos 5+
+                "cloudownerfirstname": None,  # Photos 5+
+                "cloudownderlastname": None,  # Photos 5+
+                "cloudownerhashedpersonid": None,  # Photos 5+
                 "folderUuid": album[5],
                 "albumType": album[6],
                 "albumSubclass": album[7],

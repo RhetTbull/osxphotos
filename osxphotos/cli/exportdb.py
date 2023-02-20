@@ -3,6 +3,7 @@
 import json
 import pathlib
 import sys
+from textwrap import dedent
 
 import click
 from rich import print
@@ -15,6 +16,7 @@ from osxphotos.export_db import (
     ExportDB,
 )
 from osxphotos.export_db_utils import (
+    export_db_backup,
     export_db_check_signatures,
     export_db_get_errors,
     export_db_get_last_run,
@@ -23,11 +25,12 @@ from osxphotos.export_db_utils import (
     export_db_touch_files,
     export_db_update_signatures,
     export_db_vacuum,
-    exportdb_migrate_photos_library,
+    export_db_migrate_photos_library,
+    export_db_get_last_library,
 )
 from osxphotos.utils import pluralize
 
-from .cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
+from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .click_rich_echo import (
     rich_click_echo,
     rich_echo,
@@ -163,10 +166,11 @@ from .verbose import get_verbose_console, verbose_print
 )
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
+@THEME_OPTION
 @click.option(
     "--dry-run",
     is_flag=True,
-    help="Run in dry-run mode (don't actually update files), e.g. for use with --update-signatures.",
+    help="Run in dry-run mode (don't actually update files); for example, use with --update-signatures or --migrate-photos-library.",
 )
 @click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path(exists=True))
 def exportdb(
@@ -184,6 +188,7 @@ def exportdb(
     report,
     save_config,
     sql,
+    theme,
     timestamp,
     touch_file,
     update_signatures,
@@ -196,12 +201,12 @@ def exportdb(
     version,
 ):
     """Utilities for working with the osxphotos export database"""
-    verbose = verbose_print(verbose_flag, timestamp=timestamp)
+    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     # validate options and args
     if append and not report:
-        rich_echo(
-            "[error]Error: --append requires --report; ee --help for more information.[/]",
+        rich_echo_error(
+            "[error]Error: --append requires --report; see --help for more information.[/]",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -211,7 +216,7 @@ def exportdb(
         # assume it's the export folder
         export_db = export_db / OSXPHOTOS_EXPORT_DB
         if not export_db.is_file():
-            rich_echo(
+            rich_echo_error(
                 f"[error]Error: {OSXPHOTOS_EXPORT_DB} missing from {export_db.parent}[/error]"
             )
             sys.exit(1)
@@ -237,7 +242,9 @@ def exportdb(
         ]
     ]
     if sum(sub_commands) > 1:
-        rich_echo("[error]Only a single sub-command may be specified at a time[/error]")
+        rich_echo_error(
+            "[error]Only a single sub-command may be specified at a time[/error]"
+        )
         sys.exit(1)
 
     # process sub-commands
@@ -246,7 +253,7 @@ def exportdb(
         try:
             osxphotos_ver, export_db_ver = export_db_get_version(export_db)
         except Exception as e:
-            rich_echo(
+            rich_echo_error(
                 f"[error]Error: could not read version from {export_db}: {e}[/error]"
             )
             sys.exit(1)
@@ -261,7 +268,7 @@ def exportdb(
             start_size = pathlib.Path(export_db).stat().st_size
             export_db_vacuum(export_db)
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             rich_echo(
@@ -275,7 +282,7 @@ def exportdb(
                 export_db, export_dir, verbose, dry_run
             )
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             rich_echo(
@@ -287,7 +294,7 @@ def exportdb(
         try:
             last_run_info = export_db_get_last_run(export_db)
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             rich_echo(f"last run at [time]{last_run_info[0]}:")
@@ -298,7 +305,7 @@ def exportdb(
         try:
             export_db_save_config_to_file(export_db, save_config)
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             rich_echo(f"Saved configuration to [filepath]{save_config}")
@@ -310,7 +317,7 @@ def exportdb(
                 export_db, export_dir, verbose_=verbose
             )
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             rich_echo(
@@ -325,7 +332,7 @@ def exportdb(
                 export_db, export_dir, verbose_=verbose, dry_run=dry_run
             )
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             rich_echo(
@@ -339,7 +346,7 @@ def exportdb(
         try:
             info_rec = exportdb.get_file_record(info)
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             if info_rec:
@@ -354,7 +361,7 @@ def exportdb(
         try:
             error_list = export_db_get_errors(export_db)
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             if error_list:
@@ -386,7 +393,7 @@ def exportdb(
         try:
             info_rec = exportdb.get_photoinfo_for_uuid(uuid_info)
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             if info_rec:
@@ -404,7 +411,7 @@ def exportdb(
         try:
             file_list = exportdb.get_files_for_uuid(uuid_files)
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             if file_list:
@@ -444,12 +451,14 @@ def exportdb(
         report_filename = render_and_validate_report(report_template, "", export_dir)
         export_results = exportdb.get_export_results(run_id)
         if not export_results:
-            rich_echo(f"[error]No report results found for run ID {run_id}[/error]")
+            rich_echo_error(
+                f"[error]No report results found for run ID {run_id}[/error]"
+            )
             sys.exit(1)
         try:
             report_writer = export_report_writer_factory(report_filename, append=append)
         except ValueError as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         report_writer.write(export_results)
         report_writer.close()
@@ -474,7 +483,7 @@ def exportdb(
             c = exportdb._conn.cursor()
             results = c.execute(sql)
         except Exception as e:
-            rich_echo(f"[error]Error: {e}[/error]")
+            rich_echo_error(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             for row in results:
@@ -483,6 +492,30 @@ def exportdb(
 
     if migrate_photos_library:
         # migrate Photos library to new library and update UUIDs in export database
-        exportdb_migrate_photos_library(
+        last_library = export_db_get_last_library(export_db)
+        rich_echo(
+            dedent(
+                f"""
+        [warning]:warning-emoji:  This command will update your export database ([filepath]{export_db}[/]) 
+        to use [filepath]{migrate_photos_library}[/] as the new source library.
+        The last library used was [filepath]{last_library}[/].
+        This will allow you to use the export database with the new library but it will
+        no longer work correctly with the old library unless you run the `--migrate-photos-library`
+        command again to update the export database to use the previous library.
+
+        A backup of the export database will be created in the same directory as the export database.
+        """
+            )
+        )
+        if not click.confirm("Do you want to continue?"):
+            sys.exit(0)
+        if not dry_run:
+            backup_file = export_db_backup(export_db)
+            verbose(f"Backed up export database to [filepath]{backup_file}[/]")
+        migrated, notmigrated = export_db_migrate_photos_library(
             export_db, migrate_photos_library, verbose, dry_run
+        )
+        rich_echo(
+            f"Migrated [num]{migrated}[/] {pluralize(migrated, 'photo', 'photos')}, "
+            f"[num]{notmigrated}[/] not migrated."
         )

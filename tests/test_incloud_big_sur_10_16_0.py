@@ -37,3 +37,11 @@ def test_path_derivatives(photosdb):
 def test_cloud_guid(photosdb):
     photo = photosdb.get_photo(UUID_DICT["cloud_guid"])
     assert photo.cloud_guid == "AV6qPsEIU88bFVPKfEUjoyspg+d+"
+
+
+def test_cloud_owner_hashed_id(photosdb):
+    photo = photosdb.get_photo(UUID_DICT["shared"])
+    assert (
+        photo.cloud_owner_hashed_id
+        == "01cac7cde8a8767251a2cdd183b8ed490fc6e87825f4a495389e824a41a01ba7"
+    )
