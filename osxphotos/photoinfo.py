@@ -70,6 +70,7 @@ __all__ = ["PhotoInfo", "PhotoInfoNone"]
 
 logger = logging.getLogger("osxphotos")
 
+
 class PhotoInfo:
     """
     Info about a specific photo, contains all the details about the photo
@@ -1453,6 +1454,16 @@ class PhotoInfo:
         return metadata
 
     @cached_property
+    def cloud_guid(self) -> str:
+        """Returns the GUID of the photo in iCloud (Photos 5+ only)"""
+        return self._info["cloudMasterGUID"]
+
+    @cached_property
+    def cloud_owner_hashed_id(self) -> str:
+        """Returns the hashed iCloud ID of the owner of the shared photo (Photos 5+ only)"""
+        return self._info["cloudownerhashedpersonid"]
+
+    @cached_property
     def fingerprint(self) -> str:
         """Returns fingerprint of original photo as a string"""
         return self._info["masterFingerprint"]
@@ -1842,6 +1853,9 @@ class PhotoInfo:
             "comments": comments,
             "likes": likes,
             "search_info": search_info,
+            "fingerprint": self.fingerprint,
+            "cloud_guid": self.cloud_guid,
+            "cloud_owner_hashed_id": self.cloud_owner_hashed_id,
         }
 
     def json(self):

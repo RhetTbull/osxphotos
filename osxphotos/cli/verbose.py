@@ -200,14 +200,16 @@ def _verbose_print_function(
     Returns:
         function to print output
     """
-    if not verbose:
-        return noop
 
+    # configure console even if verbose is False so that rich_echo will work correctly
     global _console
     if file:
         _console.console = Console(theme=theme, file=file)
     else:
         _console.console = Console(theme=theme, width=10_000)
+
+    if not verbose:
+        return noop
 
     # closure to capture timestamp
     def verbose_(*args, level: int = 1):

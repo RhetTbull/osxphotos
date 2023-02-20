@@ -1,14 +1,20 @@
 """ Utility functions for working with export_db """
 
 
+from __future__ import annotations
+
+import contextlib
 import datetime
+import json
 import os
 import pathlib
 import sqlite3
-from typing import Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Tuple, Union
 
 import toml
 from rich import print
+
+from osxphotos.photoinfo import PhotoInfo
 
 from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
@@ -16,13 +22,16 @@ from .configoptions import ConfigOptions
 from .export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDB
 from .fileutil import FileUtil
 from .photosdb import PhotosDB
-from .utils import noop
+from .utils import hexdigest, noop
 
 __all__ = [
+    "export_db_backup",
     "export_db_check_signatures",
     "export_db_get_errors",
+    "export_db_get_last_library",
     "export_db_get_last_run",
     "export_db_get_version",
+    "export_db_migrate_photos_library",
     "export_db_save_config_to_file",
     "export_db_touch_files",
     "export_db_update_signatures",
@@ -293,3 +302,238 @@ def export_db_touch_files(
             rec.dest_sig = (dest_mode, dest_size, ts)
 
     return (touched, not_touched, skipped)
+
+
+def export_db_migrate_photos_library(
+    dbfile: Union[str, pathlib.Path],
+    photos_library: Union[str, pathlib.Path],
+    verbose: Callable = noop,
+    dry_run: bool = False,
+):
+    """
+    Migrate export database to new Photos library
+    This will attempt to match photos in the new library to photos in the old library
+    and update the UUIDs in the export database
+    """
+    verbose(f"Loading data from export database {dbfile}")
+    conn = sqlite3.connect(str(dbfile))
+    c = conn.cursor()
+    results = c.execute("SELECT uuid, photoinfo FROM photoinfo;").fetchall()
+    exportdb_uuids = {}
+    for row in results:
+        uuid = row[0]
+        photoinfo = json.loads(row[1])
+        exportdb_uuids[uuid] = photoinfo
+
+    verbose(f"Loading data from Photos library {photos_library}")
+    photosdb = PhotosDB(dbfile=photos_library, verbose=verbose)
+    photosdb_fingerprint = {}
+    photosdb_cloud_guid = {}
+    photosdb_shared = {}
+    for photo in photosdb.photos():
+        photosdb_fingerprint[
+            f"{photo.original_filename}:{photo.fingerprint}"
+        ] = photo.uuid
+        photosdb_cloud_guid[
+            f"{photo.original_filename}:{photo.cloud_guid}"
+        ] = photo.uuid
+        if photo.shared:
+            photosdb_shared[_shared_photo_key(photo)] = photo.uuid
+    verbose("Matching photos in export database to photos in Photos library")
+    matched = 0
+    notmatched = 0
+    for uuid, photoinfo in exportdb_uuids.items():
+        if photoinfo.get("shared"):
+            key = _shared_photo_key(photoinfo)
+            if key in photosdb_shared:
+                new_uuid = photosdb_shared[key]
+                verbose(
+                    f"[green]Matched by shared info[/green]: [uuid]{uuid}[/] -> [uuid]{new_uuid}[/]"
+                )
+                _export_db_update_uuid_info(
+                    conn, uuid, new_uuid, photoinfo, photosdb, dry_run
+                )
+                matched += 1
+                continue
+        if cloud_guid := photoinfo.get("cloud_guid", None):
+            key = f"{photoinfo['original_filename']}:{cloud_guid}"
+            if key in photosdb_cloud_guid:
+                new_uuid = photosdb_cloud_guid[key]
+                verbose(
+                    f"[green]Matched by cloud_guid[/green]: [uuid]{uuid}[/] -> [uuid]{new_uuid}[/]"
+                )
+                _export_db_update_uuid_info(
+                    conn, uuid, new_uuid, photoinfo, photosdb, dry_run
+                )
+                matched += 1
+                continue
+        if fingerprint := photoinfo.get("fingerprint", None):
+            key = f"{photoinfo['original_filename']}:{fingerprint}"
+            if key in photosdb_fingerprint:
+                new_uuid = photosdb_fingerprint[key]
+                verbose(
+                    f"[green]Matched by fingerprint[/green]: [uuid]{uuid}[/] -> [uuid]{new_uuid}[/]"
+                )
+                _export_db_update_uuid_info(
+                    conn, uuid, new_uuid, photoinfo, photosdb, dry_run
+                )
+                matched += 1
+                continue
+        else:
+            verbose(
+                f"[dark_orange]No match found for photo[/dark_orange]: [uuid]{uuid}[/], [filename]{photoinfo.get('original_filename')}[/]"
+            )
+            notmatched += 1
+
+    if not dry_run:
+        conn.execute("VACUUM;")
+    conn.close()
+    return (matched, notmatched)
+
+
+def _shared_photo_key(photo: PhotoInfo | dict[str, Any]) -> str:
+    """return a key for matching a shared photo between libraries"""
+    photoinfo = photo.asdict() if isinstance(photo, PhotoInfo) else photo
+    date = photoinfo.get("date")
+    if isinstance(date, datetime.datetime):
+        date = date.isoformat()
+    return (
+        f"{photoinfo.get('cloud_owner_hashed_id')}:"
+        f"{photoinfo.get('original_height')}:"
+        f"{photoinfo.get('original_width')}:"
+        f"{photoinfo.get('isphoto')}:"
+        f"{photoinfo.get('ismovie')}:"
+        f"{date}"
+    )
+
+
+def _export_db_update_uuid_info(
+    conn: sqlite3.Connection,
+    uuid: str,
+    new_uuid: str,
+    photoinfo: dict[str, Any],
+    photosdb: PhotosDB,
+    dry_run: bool = False,
+):
+    """
+    Update the UUID and digest in the export database to match a new UUID
+
+    Args:
+        conn (sqlite3.Connection): connection to export database
+        uuid (str): old UUID
+        new_uuid (str): new UUID
+        photoinfo (dict): photoinfo for old UUID
+        photosdb (PhotosDB): PhotosDB instance for new library
+        dry_run (bool): if True, don't update the database
+    """
+    if dry_run:
+        return
+    new_digest = compute_photoinfo_digest(photoinfo, photosdb.get_photo(new_uuid))
+    export_db_update_uuid(conn, uuid, new_uuid)
+    export_db_update_digest_for_uuid(conn, new_uuid, new_digest)
+
+
+def export_db_update_uuid(
+    conn: sqlite3.Connection, uuid: str, new_uuid: str
+) -> Tuple[bool, str]:
+    """Update the UUID in the export database
+
+    Args:
+        conn (sqlite3.Connection): connection to export database
+        uuid (str): old UUID
+        new_uuid (str): new UUID
+
+    Returns:
+        (bool, str): (success, error)
+    """
+    c = conn.cursor()
+    try:
+        c.execute(
+            "UPDATE photoinfo SET uuid=? WHERE uuid=?;",
+            (new_uuid, uuid),
+        )
+        c.execute(
+            "UPDATE export_data SET uuid=? WHERE uuid=?;",
+            (new_uuid, uuid),
+        )
+        conn.commit()
+        return (True, "")
+    except Exception as e:
+        return (False, str(e))
+
+
+def export_db_backup(dbpath: Union[str, pathlib.Path]) -> str:
+    """Backup export database, returns name of backup file"""
+    dbpath = pathlib.Path(dbpath)
+    # create backup with .bak extension and datestamp in YYYYMMDDHHMMSS format
+    source_file = dbpath.parent / dbpath.name
+    datestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    # first try to copy .db-shm and .db-wal files if they exist
+    for suffix in (".db-shm", ".db-wal"):
+        backup_file = f"{source_file.with_suffix(suffix)}.{datestamp}.bak"
+        with contextlib.suppress(FileNotFoundError):
+            FileUtil.copy(source_file, backup_file)
+    backup_file = f"{source_file}.{datestamp}.bak"
+    FileUtil.copy(source_file, backup_file)
+    return backup_file
+
+
+def export_db_get_last_library(dbpath: Union[str, pathlib.Path]) -> str:
+    """Return the last library used to export from
+
+    This isn't stored separately in the database but can be extracted from the
+    stored JSON in the photoinfo table. Use the most recent export_data entry
+    to get the UUID of the last exported photo and then use that to get the
+    library name from the photoinfo table.
+
+    Args:
+        dbpath (Union[str, pathlib.Path]): path to export database
+
+    Returns:
+        str: name of library used to export from or "" if not found
+    """
+    dbpath = pathlib.Path(dbpath)
+    conn = sqlite3.connect(str(dbpath))
+    c = conn.cursor()
+    if results := c.execute(
+        """
+            SELECT json_extract(photoinfo.photoinfo, '$.library')
+            FROM photoinfo
+            WHERE photoinfo.uuid = (
+                SELECT export_data.uuid 
+                FROM export_data 
+                WHERE export_data.timestamp = (
+                    SELECT MAX(export_data.timestamp) 
+                    FROM export_data))
+    """
+    ).fetchone():
+        return results[0]
+    return ""
+
+
+def export_db_update_digest_for_uuid(
+    conn: sqlite3.Connection, uuid: str, digest: str
+) -> None:
+    """Update the export_data.digest column for the given UUID"""
+    c = conn.cursor()
+    c.execute(
+        "UPDATE export_data SET digest=? WHERE uuid=?;",
+        (digest, uuid),
+    )
+    conn.commit()
+
+
+def compute_photoinfo_digest(photoinfo: dict[str, Any], photo: PhotoInfo) -> str:
+    """Compute a new digest for a photoinfo dictionary using the UUID and library from photo
+
+    Args:
+        photoinfo (dict[str, Any]): photoinfo dictionary
+        photo (PhotoInfo): PhotoInfo object for the new photo
+
+    Returns:
+        str: new digest
+    """
+    new_dict = photoinfo.copy()
+    new_dict["uuid"] = photo.uuid
+    new_dict["library"] = photo._db._library_path
+    return hexdigest(json.dumps(new_dict, sort_keys=True))

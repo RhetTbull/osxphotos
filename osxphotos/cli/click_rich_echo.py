@@ -119,7 +119,7 @@ def rich_echo(
         # if not outputting to terminal, use a huge width to avoid wrapping
         # otherwise tests fail
         width = 10_000
-    console = get_rich_console() or Console(theme=theme, width=width)
+    console = get_rich_console() or Console(theme or get_rich_theme(), width=width)
     if markdown:
         message = Markdown(message)
         # Markdown always adds a new line so disable unless explicitly specified
