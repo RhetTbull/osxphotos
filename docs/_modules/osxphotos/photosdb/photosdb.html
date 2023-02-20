@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.56.7 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.57.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.56.7 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.57.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.57.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -160,7 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">OSXPhotos python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
 </div>
@@ -1005,10 +1005,10 @@
                 <span class="s2">&quot;cloudlibrarystate&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
                 <span class="s2">&quot;cloudidentifier&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
                 <span class="s2">&quot;intrash&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">album</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="s2">&quot;cloudlocalstate&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5</span>
-                <span class="s2">&quot;cloudownerfirstname&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5</span>
-                <span class="s2">&quot;cloudownderlastname&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5</span>
-                <span class="s2">&quot;cloudownerhashedpersonid&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5</span>
+                <span class="s2">&quot;cloudlocalstate&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+</span>
+                <span class="s2">&quot;cloudownerfirstname&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+</span>
+                <span class="s2">&quot;cloudownderlastname&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+</span>
+                <span class="s2">&quot;cloudownerhashedpersonid&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+</span>
                 <span class="s2">&quot;folderUuid&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span>
                 <span class="s2">&quot;albumType&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span>
                 <span class="s2">&quot;albumSubclass&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
@@ -1349,12 +1349,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;momentID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">28</span><span class="p">]</span>
 
             <span class="c1"># Init cloud details that will be filled in later if cloud asset</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudAssetGUID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 5</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudLocalState&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudAssetGUID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 5+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudLocalState&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 5+</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudLibraryState&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudStatus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudAvailable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;incloud&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudMasterGUID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 5+</span>
 
             <span class="c1"># associated RAW image info</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;has_raw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span> <span class="o">==</span> <span class="mi">7</span> <span class="k">else</span> <span class="kc">False</span>
@@ -2317,6 +2318,7 @@
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;cloudLibraryState&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 4</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;cloudStatus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 4</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;cloudAvailable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 4</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;cloudMasterGUID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="c1"># reverse geolocation info</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;reverse_geolocation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span>
@@ -2563,7 +2565,8 @@
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;&quot;&quot; SELECT</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID,</span>
-<span class="s2">                ZCLOUDMASTER.ZCLOUDLOCALSTATE</span>
+<span class="s2">                ZCLOUDMASTER.ZCLOUDLOCALSTATE,</span>
+<span class="s2">                ZCLOUDMASTER.ZCLOUDMASTERGUID</span>
 <span class="s2">                FROM ZCLOUDMASTER, </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                WHERE </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMASTER = ZCLOUDMASTER.Z_PK &quot;&quot;&quot;</span>
         <span class="p">)</span>
@@ -2572,6 +2575,7 @@
             <span class="k">if</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudLocalState&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;incloud&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudMasterGUID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="c1"># get information about associted RAW images</span>
         <span class="c1"># RAW images have ZDATASTORESUBTYPE = 17</span>
