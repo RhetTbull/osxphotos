@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.57.3](https://github.com/RhetTbull/osxphotos/compare/v0.57.2...v0.57.3)
+
+### 20 February 2023
+
+### Added `osxphotos show FILEPATH`
+
+#### Added
+
+- `osxphotos show FILEPATH` to show a photo in Photos from the filepath to an exported photo, exported with `osxphotos export`
+
+#### Internal
+
+- Fixed a bug in `echo_error()` that occurred only in certain circumstances.
+
+#### Contributors To This Release
+
+- [@RhetTbull](https://github.com/RhetTbull) for code changes.
+
 ## [v0.57.2](https://github.com/RhetTbull/osxphotos/compare/v0.57.1...v0.57.2)
 
 ### 20 February 2023
