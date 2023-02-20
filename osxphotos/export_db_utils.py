@@ -537,3 +537,25 @@ def compute_photoinfo_digest(photoinfo: dict[str, Any], photo: PhotoInfo) -> str
     new_dict["uuid"] = photo.uuid
     new_dict["library"] = photo._db._library_path
     return hexdigest(json.dumps(new_dict, sort_keys=True))
+
+
+def find_export_db_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
+    """Walk up a directory tree looking for an export database
+
+    Args:
+        filepath (Union[str, pathlib.Path]): path to file or directory
+
+    Returns:
+        str: path to export database or "" if not found
+    """
+    filepath = pathlib.Path(filepath)
+
+    if filepath.is_dir():
+        return find_export_db_for_filepath(filepath / OSXPHOTOS_EXPORT_DB)
+
+    for root in filepath.parents:
+        filenames = root.glob("*")
+        for fname in filenames:
+            if fname.is_file() and fname.name == OSXPHOTOS_EXPORT_DB:
+                return str(fname)
+    return ""

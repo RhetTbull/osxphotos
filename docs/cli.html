@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.57.1 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.57.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.57.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.57.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.57.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.57.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -161,7 +161,7 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
 </div>
@@ -2161,6 +2161,12 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-migrate-photos-library">
+<span class="sig-name descname"><span class="pre">--migrate-photos-library</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-migrate-photos-library" title="Permalink to this definition">#</a></dt>
+<dd><p>Migrate the export database to use the specified Photos library. Use this if you have moved your Photos library to a new location or computer and want to keep using the same export database. This will update the UUIDs in the export database to match the new Photos library.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-export-dir">
 <span class="sig-name descname"><span class="pre">--export-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;export_dir&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-export-dir" title="Permalink to this definition">#</a></dt>
 <dd><p>Optional path to export directory (if not parent of export database).</p>
@@ -2185,9 +2191,20 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-theme">
+<span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-theme" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify the color theme to use for output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dark | light | mono | plain</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-dry-run">
 <span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-dry-run" title="Permalink to this definition">#</a></dt>
-<dd><p>Run in dry-run mode (don’t actually update files), e.g. for use with –update-signatures.</p>
+<dd><p>Run in dry-run mode (don’t actually update files); for example, use with –update-signatures or –migrate-photos-library.</p>
 </dd></dl>
 
 <p class="rubric">Arguments</p>

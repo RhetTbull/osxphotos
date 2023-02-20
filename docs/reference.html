@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python API" href="API_README.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Python Reference - osxphotos 0.57.1 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.57.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.57.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.57.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.57.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.57.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -161,7 +161,6 @@
 <li class="toctree-l1"><a class="reference internal" href="cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">OSXPhotos Python Reference</a></li>
 </ul>
 
@@ -1512,9 +1511,21 @@ self is not included in the returned list</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.cloud_guid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cloud_guid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.cloud_guid" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the GUID of the photo in iCloud (Photos 5+ only)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.cloud_metadata">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cloud_metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.cloud_metadata" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.cloud_owner_hashed_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cloud_owner_hashed_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.cloud_owner_hashed_id" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the hashed iCloud ID of the owner of the shared photo (Photos 5+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -3607,14 +3618,14 @@ Projects are cards, calendars, slideshows, etc.</p>
         
         <div class="related-pages">
           
-          <a class="prev-page" href="API_README.html">
+          <a class="prev-page" href="package_overview.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">OSXPhotos Python API</div>
+                <div class="title">OSXPhotos Python Package Overview</div>
                 
               </div>
             </a>
@@ -3817,7 +3828,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_key"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_key</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_photos"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_photos</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_selected"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_selected</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotoInfo.cloud_guid"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.cloud_guid</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.cloud_metadata"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.cloud_metadata</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotoInfo.cloud_owner_hashed_id"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.cloud_owner_hashed_id</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.comments"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.comments</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.date"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.date</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.date_added"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.date_added</span></code></a></li>
