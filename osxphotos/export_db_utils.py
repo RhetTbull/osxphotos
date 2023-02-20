@@ -564,7 +564,14 @@ def find_export_db_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
 
 
 def get_uuid_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
-    """Find the UUID for a given filepath, traversing the directory tree to find the export database"""
+    """Find the UUID for a given filepath, traversing the directory tree to find the export database.
+
+    Args:
+        filepath (Union[str, pathlib.Path]): path to file or directory
+
+    Returns:
+        str: UUID for file or "" if not found
+    """
     filepath = pathlib.Path(filepath)
     if export_db_path := find_export_db_for_filepath(filepath):
         export_root = pathlib.Path(export_db_path).parent
