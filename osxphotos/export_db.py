@@ -103,7 +103,7 @@ class ExportDB:
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_file_record(self, filename: Union[pathlib.Path, str]) -> "ExportRecord":
-        """get info for filename and uuid
+        """get info for filename
 
         Returns: an ExportRecord object or None if filename not found
         """

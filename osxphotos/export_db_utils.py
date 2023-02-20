@@ -36,6 +36,8 @@ __all__ = [
     "export_db_touch_files",
     "export_db_update_signatures",
     "export_db_vacuum",
+    "find_export_db_for_filepath",
+    "get_uuid_for_filepath",
 ]
 
 
@@ -558,4 +560,14 @@ def find_export_db_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
         for fname in filenames:
             if fname.is_file() and fname.name == OSXPHOTOS_EXPORT_DB:
                 return str(fname)
+    return ""
+
+
+def get_uuid_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
+    """Find the UUID for a given filepath, traversing the directory tree to find the export database"""
+    filepath = pathlib.Path(filepath)
+    if export_db_path := find_export_db_for_filepath(filepath):
+        export_root = pathlib.Path(export_db_path).parent
+        exportdb = ExportDB(export_db_path, export_root)
+        return record.uuid if (record := exportdb.get_file_record(filepath)) else ""
     return ""
