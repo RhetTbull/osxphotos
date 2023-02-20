@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.57.2](https://github.com/RhetTbull/osxphotos/compare/v0.57.1...v0.57.2)
+
+### 20 February 2023
+
+### Updated exportdb to add migrate library feature
+
+#### Added
+
+ - `--migrate-photos-library` option added to `osxphotos exportdb` to migrate the export database from one Photos library to another. This is useful when moving to a new computer but maintaining the existing osxphotos export.  Thanks to @swduncan for the idea. (#990)
+
+#### Fixed
+
+ - Fixed a bug in `osxphotos export --cleanup` to handle files which could not be deleted. Thanks to @oPromessa for finding this and suggesting the fix. (#987)
+
+#### Internal
+
+ - Fixed a bug that caused `rich_echo()` to not display rich text if `--verbose` wasn't specified.
+
+#### Contributors To This Release
+
+- [@RhetTbull](https://github.com/RhetTbull) for code changes.
+- [@Promessa](https://github.com/promessa) who found the cleanup bug and suggested a code fix.
+- [@swduncan](https://github.com/swduncan) who suggested the library migrate use case.
+
+
 ## [v0.57.1](https://github.com/RhetTbull/osxphotos/compare/v0.57.0...v0.57.1)
 
 ### 12 February 2023
