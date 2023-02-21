@@ -17,7 +17,7 @@ from osxphotos.cli.param_types import TemplateString
 from osxphotos.phototemplate import RenderOptions
 
 
-@selection_command
+@selection_command(name="batch-edit")
 @click.option(
     "--title",
     metavar="TITLE_TEMPLATE",
