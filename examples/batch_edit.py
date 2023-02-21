@@ -14,6 +14,7 @@ import photoscript
 import osxphotos
 from osxphotos.cli import echo, echo_error, selection_command, verbose
 from osxphotos.cli.param_types import TemplateString
+from osxphotos.phototemplate import RenderOptions
 
 
 @selection_command
@@ -72,11 +73,13 @@ def batch_edit(
     echo(f"Processing [num]{len(photos)}[/] photos...")
     for photo in photos:
         ps_photo = photoscript.Photo(photo.uuid)
+        # don't render None values
+        render_options = RenderOptions(none_str="")
         verbose(
             f"Processing [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
         )
         if title:
-            title_string, _ = photo.render_template(title)
+            title_string, _ = photo.render_template(title, render_options)
             if len(title_string) > 1:
                 echo_error(
                     f"[error] Title template must return a single string: {title_string}"
@@ -87,7 +90,7 @@ def batch_edit(
                 if not dry_run:
                     ps_photo.title = title_string[0]
         if description:
-            description_string, _ = photo.render_template(description)
+            description_string, _ = photo.render_template(description, render_options)
             if len(description_string) > 1:
                 echo_error(
                     f"[error] Description template must return a single string: {description_string}"
@@ -98,12 +101,12 @@ def batch_edit(
                 if not dry_run:
                     ps_photo.description = description_string[0]
         if keyword:
-            keywords = []
+            keywords = set()
             for kw in keyword:
-                kw_string, _ = photo.render_template(kw)
+                kw_string, _ = photo.render_template(kw, render_options)
                 if kw_string:
-                    keywords.extend(kw_string)
-            keywords = list(set(keywords))
+                    # filter out empty strings
+                    keywords.update([k for k in kw_string if k])
             verbose(
                 f"Setting keywords to {', '.join(f'[bold]{kw}[/]' for kw in keywords)}"
             )
