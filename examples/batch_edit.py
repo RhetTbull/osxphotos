@@ -1,5 +1,5 @@
 """
-Batch edit photo metadata using osxphotos.
+Batch edit currently selected photo metadata using osxphotos.
 
 Run this with `osxphotos run batch_edit.py` or `osxphotos run batch_edit.py --help` for more information.
 """
@@ -42,6 +42,21 @@ def batch_edit(
 ):
     """
     Batch edit photo metadata such as title, description, keywords, etc.
+    Operates on currently selected photos.
+
+    Select one or more photos in Photos then run this command to edit the metadata.
+
+    For example:
+
+    osxphotos run batch_edit.py \
+    --verbose \
+    --title "California vacation 2023 {created.year}-{created.dd}-{created.mm} {counter:03d}" \
+    --description "{place.name}" \
+    --keyword "Family" --keyword "Travel" --keyword "{keyword}"
+
+    This will set the title to "California vacation 2023 2023-02-20 001", and so on,
+    the description to the reverse geolocation place name, 
+    and the keywords to "Family", "Travel", and any existing keywords of the photo.
     """
 
     if not title and not description and not keyword:
