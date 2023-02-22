@@ -18,6 +18,38 @@ from osxphotos.cli.param_types import TemplateString
 from osxphotos.phototemplate import RenderOptions
 
 
+class Latitude(click.ParamType):
+
+    name = "Latitude"
+
+    def convert(self, value, param, ctx):
+        try:
+            latitude = float(value)
+            if latitude < -90 or latitude > 90:
+                raise ValueError
+            return latitude
+        except Exception:
+            self.fail(
+                f"Invalid latitude {value}. Must be a floating point number between -90 and 90."
+            )
+
+
+class Longitude(click.ParamType):
+
+    name = "Longitude"
+
+    def convert(self, value, param, ctx):
+        try:
+            longitude = float(value)
+            if longitude < -180 or longitude > 180:
+                raise ValueError
+            return longitude
+        except Exception:
+            self.fail(
+                f"Invalid longitude {value}. Must be a floating point number between -180 and 180."
+            )
+
+
 @selection_command(name="batch-edit")
 @click.option(
     "--title",
@@ -38,9 +70,22 @@ from osxphotos.phototemplate import RenderOptions
     multiple=True,
     help="Set keywords of photo. May be specified multiple times.",
 )
+@click.option(
+    "--location",
+    metavar="LATITUDE LONGITUDE",
+    type=click.Tuple([Latitude(), Longitude()]),
+    help="Set location of photo. "
+    "Must be specified as a pair of numbers with latitude in the range -90 to 90 and longitude in the range -180 to 180.",
+)
 @click.option("--dry-run", is_flag=True, help="Don't actually change anything.")
 def batch_edit(
-    photos: list[osxphotos.PhotoInfo], title, description, keyword, dry_run, **kwargs
+    photos: list[osxphotos.PhotoInfo],
+    title,
+    description,
+    keyword,
+    location,
+    dry_run,
+    **kwargs,
 ):
     """
     Batch edit photo metadata such as title, description, keywords, etc.
@@ -86,6 +131,16 @@ def batch_edit(
         set_photo_title_from_template(photo, title, dry_run)
         set_photo_description_from_template(photo, description, dry_run)
         set_photo_keywords_from_template(photo, keyword, dry_run)
+        set_photo_location(photo, location, dry_run)
+
+
+# cache photoscript Photo object to avoid re-creating it for each photo
+# maxsize=1 as this function is called repeatedly for each photo then
+# the next photo is processed
+@functools.lru_cache(maxsize=1)
+def photoscript_photo(photo: osxphotos.PhotoInfo) -> photoscript.Photo:
+    """Return photoscript Photo object for photo"""
+    return photoscript.Photo(photo.uuid)
 
 
 def set_photo_title_from_template(
@@ -179,13 +234,20 @@ def set_photo_keywords_from_template(
         ps_photo.keywords = list(keywords)
 
 
-# cache photoscript Photo object to avoid re-creating it for each photo
-# maxsize=1 as this function is called repeatedly for each photo then
-# the next photo is processed
-@functools.lru_cache(maxsize=1)
-def photoscript_photo(photo: osxphotos.PhotoInfo) -> photoscript.Photo:
-    """Return photoscript Photo object for photo"""
-    return photoscript.Photo(photo.uuid)
+def set_photo_location(
+    photo: osxphotos.PhotoInfo, location: tuple[float, float], dry_run: bool
+):
+    """Set photo location"""
+    if not location or location[0] is None or location[1] is None:
+        return
+
+    latitude, longitude = location
+    verbose(
+        f"Setting [i]location[/] to [num]{latitude:.6f}[/], [num]{longitude:.6f}[/]"
+    )
+    if not dry_run:
+        ps_photo = photoscript_photo(photo)
+        ps_photo.location = (latitude, longitude)
 
 
 if __name__ == "__main__":
