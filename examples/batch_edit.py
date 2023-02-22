@@ -6,6 +6,7 @@ Run this with `osxphotos run batch_edit.py` or `osxphotos run batch_edit.py --he
 
 from __future__ import annotations
 
+import functools
 import sys
 
 import click
@@ -76,47 +77,89 @@ def batch_edit(
         sys.exit(1)
 
     echo(f"Processing [num]{len(photos)}[/] photos...")
+    # sort photos by date so that {counter} order is correct
+    photos.sort(key=lambda p: p.date)
     for photo in photos:
-        ps_photo = photoscript.Photo(photo.uuid)
-        # don't render None values
-        render_options = RenderOptions(none_str="")
         verbose(
             f"Processing [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
         )
-        if title:
-            title_string, _ = photo.render_template(title, render_options)
-            if len(title_string) > 1:
-                echo_error(
-                    f"[error] Title template must return a single string: {title_string}"
-                )
-                sys.exit(1)
-            if title_string:
-                verbose(f"Setting title to [bold]{title_string[0]}")
-                if not dry_run:
-                    ps_photo.title = title_string[0]
-        if description:
-            description_string, _ = photo.render_template(description, render_options)
-            if len(description_string) > 1:
-                echo_error(
-                    f"[error] Description template must return a single string: {description_string}"
-                )
-                sys.exit(1)
-            if description_string:
-                verbose(f"Setting description to [bold]{description_string[0]}")
-                if not dry_run:
-                    ps_photo.description = description_string[0]
-        if keyword:
-            keywords = set()
-            for kw in keyword:
-                kw_string, _ = photo.render_template(kw, render_options)
-                if kw_string:
-                    # filter out empty strings
-                    keywords.update([k for k in kw_string if k])
-            verbose(
-                f"Setting keywords to {', '.join(f'[bold]{kw}[/]' for kw in keywords)}"
-            )
-            if not dry_run:
-                ps_photo.keywords = keywords
+        set_photo_title_from_template(photo, title, dry_run)
+        set_photo_description_from_template(photo, description, dry_run)
+        set_photo_keywords_from_template(photo, keyword, dry_run)
+
+
+def set_photo_title_from_template(
+    photo: osxphotos.PhotoInfo, title_template: str, dry_run: bool
+):
+    """Set photo title from template"""
+    if not title_template:
+        return
+
+    # don't render None values
+    render_options = RenderOptions(none_str="")
+
+    title_string, _ = photo.render_template(title_template, render_options)
+    if len(title_string) > 1:
+        echo_error(
+            f"[error] Title template must return a single string: {title_string}"
+        )
+        sys.exit(1)
+    if title_string:
+        verbose(f"Setting title to [bold]{title_string[0]}")
+        if not dry_run:
+            ps_photo = photoscript_photo(photo)
+            ps_photo.title = title_string[0]
+
+
+def set_photo_description_from_template(
+    photo: osxphotos.PhotoInfo, description_template: str, dry_run: bool
+):
+    """Set photo description from template"""
+    if not description_template:
+        return
+
+    # don't render None values
+    render_options = RenderOptions(none_str="")
+
+    description_string, _ = photo.render_template(description_template, render_options)
+    if len(description_string) > 1:
+        echo_error(
+            f"[error] Description template must return a single string: {description_string}"
+        )
+        sys.exit(1)
+    if description_string:
+        verbose(f"Setting description to [bold]{description_string[0]}")
+        if not dry_run:
+            ps_photo = photoscript_photo(photo)
+            ps_photo.description = description_string[0]
+
+
+def set_photo_keywords_from_template(
+    photo: osxphotos.PhotoInfo, keyword_template: list[str], dry_run: bool
+):
+    """Set photo keywords from template"""
+    if not keyword_template:
+        return
+
+    # don't render None values
+    render_options = RenderOptions(none_str="")
+
+    keywords = set()
+    for kw in keyword_template:
+        kw_string, _ = photo.render_template(kw, render_options)
+        if kw_string:
+            # filter out empty strings
+            keywords.update([k for k in kw_string if k])
+    verbose(f"Setting keywords to {', '.join(f'[bold]{kw}[/]' for kw in keywords)}")
+    if not dry_run:
+        ps_photo = photoscript_photo(photo)
+        ps_photo.keywords = list(keywords)
+
+
+@functools.lru_cache(maxsize=128)
+def photoscript_photo(photo: osxphotos.PhotoInfo) -> photoscript.Photo:
+    """Return photoscript Photo object for photo"""
+    return photoscript.Photo(photo.uuid)
 
 
 if __name__ == "__main__":
