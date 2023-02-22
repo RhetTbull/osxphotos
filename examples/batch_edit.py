@@ -113,7 +113,8 @@ def batch_edit(
 
     if not title and not description and not keyword:
         echo_error(
-            "[error] Must specify at least one of --title, --description, or --keyword"
+            "[error] Must specify at least one of --title, --description, or --keyword. "
+            "Use --help for more information."
         )
         sys.exit(1)
 
