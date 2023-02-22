@@ -179,7 +179,10 @@ def set_photo_keywords_from_template(
         ps_photo.keywords = list(keywords)
 
 
-@functools.lru_cache(maxsize=128)
+# cache photoscript Photo object to avoid re-creating it for each photo
+# maxsize=1 as this function is called repeatedly for each photo then
+# the next photo is processed
+@functools.lru_cache(maxsize=1)
 def photoscript_photo(photo: osxphotos.PhotoInfo) -> photoscript.Photo:
     """Return photoscript Photo object for photo"""
     return photoscript.Photo(photo.uuid)
