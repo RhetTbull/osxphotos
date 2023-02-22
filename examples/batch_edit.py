@@ -99,16 +99,23 @@ def set_photo_title_from_template(
     render_options = RenderOptions(none_str="")
 
     title_string, _ = photo.render_template(title_template, render_options)
+    title_string = [ts for ts in title_string if ts]
+    if not title_string:
+        verbose(
+            f"No title returned from template, nothing to do: [bold]{title_template}"
+        )
+        return
+
     if len(title_string) > 1:
         echo_error(
-            f"[error] Title template must return a single string: {title_string}"
+            f"[error] Title template must return a single string: [bold]{title_string}"
         )
         sys.exit(1)
-    if title_string:
-        verbose(f"Setting title to [bold]{title_string[0]}")
-        if not dry_run:
-            ps_photo = photoscript_photo(photo)
-            ps_photo.title = title_string[0]
+
+    verbose(f"Setting [i]title[/i] to [bold]{title_string[0]}")
+    if not dry_run:
+        ps_photo = photoscript_photo(photo)
+        ps_photo.title = title_string[0]
 
 
 def set_photo_description_from_template(
@@ -122,16 +129,23 @@ def set_photo_description_from_template(
     render_options = RenderOptions(none_str="")
 
     description_string, _ = photo.render_template(description_template, render_options)
+    description_string = [ds for ds in description_string if ds]
+    if not description_string:
+        verbose(
+            f"No description returned from template, nothing to do: [bold]{description_template}"
+        )
+        return
+
     if len(description_string) > 1:
         echo_error(
-            f"[error] Description template must return a single string: {description_string}"
+            f"[error] Description template must return a single string: [bold]{description_string}"
         )
         sys.exit(1)
-    if description_string:
-        verbose(f"Setting description to [bold]{description_string[0]}")
-        if not dry_run:
-            ps_photo = photoscript_photo(photo)
-            ps_photo.description = description_string[0]
+
+    verbose(f"Setting [i]description[/] to [bold]{description_string[0]}")
+    if not dry_run:
+        ps_photo = photoscript_photo(photo)
+        ps_photo.description = description_string[0]
 
 
 def set_photo_keywords_from_template(
@@ -150,7 +164,16 @@ def set_photo_keywords_from_template(
         if kw_string:
             # filter out empty strings
             keywords.update([k for k in kw_string if k])
-    verbose(f"Setting keywords to {', '.join(f'[bold]{kw}[/]' for kw in keywords)}")
+
+    if not keywords:
+        verbose(
+            f"No keywords returned from template, nothing to do: [bold]{keyword_template}"
+        )
+        return
+
+    verbose(
+        f"Setting [i]keywords[/] to {', '.join(f'[bold]{kw}[/]' for kw in keywords)}"
+    )
     if not dry_run:
         ps_photo = photoscript_photo(photo)
         ps_photo.keywords = list(keywords)
