@@ -7,15 +7,17 @@ Run this with `osxphotos run batch_edit.py` or `osxphotos run batch_edit.py --he
 from __future__ import annotations
 
 import functools
+import json
 import sys
 
 import click
 import photoscript
 
 import osxphotos
-from osxphotos.cli import echo, echo_error, selection_command, verbose
+from osxphotos.cli import echo, echo_error, kvstore, selection_command, verbose
 from osxphotos.cli.param_types import TemplateString
 from osxphotos.phototemplate import RenderOptions
+from osxphotos.sqlitekvstore import SQLiteKVStore
 
 
 class Latitude(click.ParamType):
@@ -78,6 +80,12 @@ class Longitude(click.ParamType):
     "Must be specified as a pair of numbers with latitude in the range -90 to 90 and longitude in the range -180 to 180.",
 )
 @click.option("--dry-run", is_flag=True, help="Don't actually change anything.")
+@click.option(
+    "--undo",
+    is_flag=True,
+    help="Restores photo metadata to what it was prior to the last batch edit. "
+    "May be combined with --dry-run.",
+)
 def batch_edit(
     photos: list[osxphotos.PhotoInfo],
     title,
@@ -85,6 +93,7 @@ def batch_edit(
     keyword,
     location,
     dry_run,
+    undo,
     **kwargs,
 ):
     """
@@ -111,9 +120,17 @@ def batch_edit(
     on the osxphotos template system.
     """
 
-    if not title and not description and not keyword:
+    if not title and not description and not keyword and not location and not undo:
         echo_error(
-            "[error] Must specify at least one of --title, --description, or --keyword. "
+            "[error] Must specify at least one of: "
+            " --title, --description, --keyword, --location, --undo. "
+            "Use --help for more information."
+        )
+        sys.exit(1)
+
+    if undo and (title or description or keyword or location):
+        echo_error(
+            "[error] Cannot specify --undo and any options other than --dry-run. "
             "Use --help for more information."
         )
         sys.exit(1)
@@ -122,13 +139,21 @@ def batch_edit(
         echo_error("[error] No photos selected")
         sys.exit(1)
 
-    echo(f"Processing [num]{len(photos)}[/] photos...")
     # sort photos by date so that {counter} order is correct
     photos.sort(key=lambda p: p.date)
+
+    undo_store = kvstore("batch_edit")
+    verbose(f"Undo database stored in [filepath]{undo_store.path}", level=2)
+
+    echo(f"Processing [num]{len(photos)}[/] photos...")
     for photo in photos:
         verbose(
             f"Processing [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
         )
+        if undo:
+            undo_photo_edits(photo, undo_store, dry_run)
+            continue
+        save_photo_undo_info(undo_store, photo)
         set_photo_title_from_template(photo, title, dry_run)
         set_photo_description_from_template(photo, description, dry_run)
         set_photo_keywords_from_template(photo, keyword, dry_run)
@@ -142,6 +167,53 @@ def batch_edit(
 def photoscript_photo(photo: osxphotos.PhotoInfo) -> photoscript.Photo:
     """Return photoscript Photo object for photo"""
     return photoscript.Photo(photo.uuid)
+
+
+def save_photo_undo_info(undo_store: SQLiteKVStore, photo: osxphotos.PhotoInfo):
+    """Save undo information to undo store"""
+    undo_store[photo.uuid] = photo.json()
+
+
+def undo_photo_edits(
+    photo: osxphotos.PhotoInfo, undo_store: SQLiteKVStore, dry_run: bool
+):
+    """Undo edits for photo"""
+    if not (undo_info := undo_store.get(photo.uuid)):
+        verbose(
+            f"[warning] No undo information for photo [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
+        )
+        return
+    undo_info = json.loads(undo_info)
+    ps_photo = photoscript_photo(photo)
+    exiting_title, exiting_description, exiting_keywords, exiting_location = (
+        photo.title,
+        photo.description,
+        sorted(photo.keywords),
+        photo.location,
+    )
+    previous_title, previous_description, previous_keywords, previous_location = (
+        undo_info.get("title"),
+        undo_info.get("description"),
+        sorted(undo_info.get("keywords")),
+        (undo_info.get("latitude"), undo_info.get("longitude")),
+    )
+    verbose(
+        f"Undoing edits for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
+    )
+    for name, existing, previous in (
+        ("title", exiting_title, previous_title),
+        ("description", exiting_description, previous_description),
+        ("keywords", exiting_keywords, previous_keywords),
+        ("location", exiting_location, previous_location),
+    ):
+        if existing != previous:
+            verbose(
+                f"  [i]{name}[/]: [change]{existing}[/] -> [no_change]{previous}[/]"
+            )
+            if not dry_run:
+                setattr(ps_photo, name, previous)
+        else:
+            verbose(f"  [i]{name} (no change)[/]: [no_change]{existing}[/]", level=2)
 
 
 def set_photo_title_from_template(
