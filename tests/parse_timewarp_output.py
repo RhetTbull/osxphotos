@@ -6,7 +6,27 @@ from typing import List
 # filename, uuid, photo time (local), photo time, timezone offset, timezone name
 InspectValues = namedtuple(
     "InspectValues",
-    ["filename", "uuid", "date_local", "date_tz", "tz_offset", "tz_name"],
+    [
+        "filename",
+        "uuid",
+        "date_local",
+        "date_tz",
+        "tz_offset",
+        "tz_name",
+    ],
+)
+
+InspectValuesDateAdded = namedtuple(
+    "InspectValues",
+    [
+        "filename",
+        "uuid",
+        "date_local",
+        "date_tz",
+        "tz_offset",
+        "tz_name",
+        "date_added",
+    ],
 )
 
 CompareValues = namedtuple(
@@ -22,7 +42,9 @@ CompareValues = namedtuple(
 )
 
 
-def parse_inspect_output(output: str) -> List[InspectValues]:
+def parse_inspect_output(
+    output: str, date_added: bool = False
+) -> List[InspectValues] | List[InspectValuesDateAdded]:
     """Parse output of --inspect and return list of InspectValues named tuple"""
 
     lines = [line for line in output.split("\n") if line.strip()]
@@ -32,7 +54,12 @@ def parse_inspect_output(output: str) -> List[InspectValues]:
     for line in lines:
         parts = line.split(",")
         parts = [part.strip() for part in parts]
-        values.append(InspectValues(*parts))
+        if not date_added:
+            # remove date added
+            parts.pop()
+            values.append(InspectValues(*parts))
+        else:
+            values.append(InspectValuesDateAdded(*parts))
     return values
 
 

@@ -18,6 +18,8 @@ from osxphotos.datetime_utils import datetime_naive_to_local, datetime_to_new_tz
 from osxphotos.exif_datetime_updater import ExifDateTimeUpdater
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.photodates import (
+    get_photo_date_added,
+    set_photo_date_added,
     set_photo_date_from_filename,
     update_photo_date_time,
     update_photo_from_function,
@@ -211,6 +213,14 @@ command which can be used to change the time zone of photos after import.
     "See also --match-time. ",
 )
 @click.option(
+    "--date-added",
+    metavar="DATE",
+    type=DateTimeISO8601(),
+    help="Set date/time added for selected photos. "
+    "Format is 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'. "
+    "If time is not included, midnight is assumed.",
+)
+@click.option(
     "--inspect",
     "-i",
     is_flag=True,
@@ -349,6 +359,7 @@ def timewarp(
     time,
     time_delta,
     timezone,
+    date_added,
     inspect,
     compare_exif,
     push_exif,
@@ -379,23 +390,24 @@ def timewarp(
     # check constraints
     if not any(
         [
-            date,
-            date_delta,
-            time,
-            time_delta,
-            timezone,
-            inspect,
             compare_exif,
-            parse_date,
-            push_exif,
-            pull_exif,
+            date_added,
+            date_delta,
+            date,
             function,
+            inspect,
+            parse_date,
+            pull_exif,
+            push_exif,
+            time_delta,
+            time,
+            timezone,
         ]
     ):
         raise click.UsageError(
             "At least one of --date, --date-delta, --time, --time-delta, "
             "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif, "
-            "--parse-date, --function "
+            "--parse-date, --function, --date-added "
             "must be specified."
         )
 
@@ -488,6 +500,18 @@ def timewarp(
         verbose=verbose,
     )
 
+    set_photo_date_added_ = partial(
+        set_photo_date_added,
+        library_path=library,
+        verbose=verbose,
+        date_added=date_added,
+    )
+
+    get_photo_date_added_ = partial(
+        get_photo_date_added,
+        library_path=library,
+    )
+
     if function:
         update_photo_from_function_ = partial(
             update_photo_from_function,
@@ -505,18 +529,21 @@ def timewarp(
                 "[filename]filename[/filename], [uuid]uuid[/uuid], "
                 "[time]photo time (local)[/time], "
                 "[time]photo time[/time], "
-                "[tz]timezone offset[/tz], [tz]timezone name[/tz]"
+                "[tz]timezone offset[/tz], [tz]timezone name[/tz], "
+                "[time]date added (local)[/time]"
             )
         for photo in photos:
             set_crash_data("photo", f"{photo.uuid} {photo.filename}")
             tz_seconds, tz_str, tz_name = tzinfo.get_timezone(photo)
             photo_date_local = datetime_naive_to_local(photo.date)
             photo_date_tz = datetime_to_new_tz(photo_date_local, tz_seconds)
+            date_added = datetime_naive_to_local(get_photo_date_added_(photo))
             echo(
                 f"[filename]{photo.filename}[/filename], [uuid]{photo.uuid}[/uuid], "
                 f"[time]{photo_date_local.strftime(DATETIME_FORMAT)}[/time], "
                 f"[time]{photo_date_tz.strftime(DATETIME_FORMAT)}[/time], "
-                f"[tz]{tz_str}[/tz], [tz]{tz_name}[/tz]"
+                f"[tz]{tz_str}[/tz], [tz]{tz_name}[/tz], "
+                f"[time]{date_added.strftime(DATETIME_FORMAT)}[/time]"
             )
         sys.exit(0)
 
@@ -609,6 +636,8 @@ def timewarp(
                 update_photo_time_for_new_timezone_(photo=photo, new_timezone=timezone)
             if timezone:
                 tz_updater.update_photo(photo)
+            if date_added:
+                set_photo_date_added_(photo)
             if function:
                 verbose(f"Calling function [bold]{function[1]}")
                 photo_path = exif_updater.get_photo_path(photo)
