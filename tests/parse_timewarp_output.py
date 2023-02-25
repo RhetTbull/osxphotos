@@ -1,5 +1,7 @@
 """ Parse --inspect and --compare-exif output for testing"""
 
+from __future__ import annotations
+
 from collections import namedtuple
 from typing import List
 
