@@ -17,39 +17,7 @@ from osxphotos.sqlitekvstore import SQLiteKVStore
 
 from .cli_commands import echo, echo_error, selection_command, verbose
 from .kvstore import kvstore
-from .param_types import TemplateString
-
-
-class Latitude(click.ParamType):
-
-    name = "Latitude"
-
-    def convert(self, value, param, ctx):
-        try:
-            latitude = float(value)
-            if latitude < -90 or latitude > 90:
-                raise ValueError
-            return latitude
-        except Exception:
-            self.fail(
-                f"Invalid latitude {value}. Must be a floating point number between -90 and 90."
-            )
-
-
-class Longitude(click.ParamType):
-
-    name = "Longitude"
-
-    def convert(self, value, param, ctx):
-        try:
-            longitude = float(value)
-            if longitude < -180 or longitude > 180:
-                raise ValueError
-            return longitude
-        except Exception:
-            self.fail(
-                f"Invalid longitude {value}. Must be a floating point number between -180 and 180."
-            )
+from .param_types import Latitude, Longitude, TemplateString
 
 
 @selection_command(name="batch-edit")
