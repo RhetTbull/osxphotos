@@ -26,6 +26,9 @@ A couple of tests require interaction with Photos and configuring a specific tes
 --addalbum: test --add-to-album options
 --timewarp: test `osxphotos timewarp`
 --test-import: test `osxphotos import`
+--test-sync: test `osxphotos sync`
+--test-add-locations: test `osxphotos add-locations`
+--test-batch-edit: test `osxphotos batch-edit`
 
 ## Test Photo Libraries
 **Important**: The test code uses several test photo libraries created on various version of MacOS.  If you need to inspect one of these or modify one for a test, make a copy of the library (for example, copy it to your ~/Pictures folder) then open the copy in Photos.  Once done, copy the revised library back to the tests/ folder.  If you do not do this, the Photos background process photoanalysisd will forever try to process the library resulting in updates to the database which will cause git to see changes to the file you didn't intend.  I'm not aware of any way to disassociate photoanalysisd from the library once you've opened it in Photos.

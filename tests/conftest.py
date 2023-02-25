@@ -26,6 +26,9 @@ TEST_SYNC = False
 # run add-locations tests (configured with --test-add-locations)
 TEST_ADD_LOCATIONS = False
 
+# run batch-edit tests (configured with --test-batch-edit)
+TEST_BATCH_EDIT = False
+
 # don't clean up crash logs (configured with --no-cleanup)
 NO_CLEANUP = False
 
@@ -124,6 +127,7 @@ def pytest_addoption(parser):
         default=False,
         help="run `osxphotos import` tests",
     )
+    parser.addoption("--test-batch-edit", action="store_true", default=False)
     parser.addoption(
         "--test-sync",
         action="store_true",
@@ -153,12 +157,14 @@ def pytest_configure(config):
                 config.getoption("--timewarp"),
                 config.getoption("--test-import"),
                 config.getoption("--test-sync"),
+                config.getoption("--test-batch-edit"),
+                0,
             ]
         )
         > 1
     ):
         pytest.exit(
-            "--addalbum, --timewarp, --test-import, --test-sync are mutually exclusive"
+            "--addalbum, --timewarp, --test-import, --test-sync, --test-batch-edit are mutually exclusive"
         )
 
     config.addinivalue_line(
@@ -176,6 +182,9 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers",
         "test_add_locations: mark test as requiring --test-add-locations to run",
+    )
+    config.addinivalue_line(
+        "markers", "test_batch_edit: mark test as requiring --test-batch-edit to run"
     )
 
     # this is hacky but I can't figure out how to check config options in other fixtures
@@ -199,39 +208,43 @@ def pytest_configure(config):
         global NO_CLEANUP
         NO_CLEANUP = True
 
+    if config.getoption("--test-batch-edit"):
+        global TEST_BATCH_EDIT
+        TEST_BATCH_EDIT = True
+
 
 def pytest_collection_modifyitems(config, items):
     if not (config.getoption("--addalbum") and TEST_LIBRARY is not None):
-        skip_addalbum = pytest.mark.skip(
-            reason="need --addalbum option and MacOS Catalina to run"
-        )
+        skip_addalbum = pytest.mark.skip(reason="need --addalbum option to run")
         for item in items:
             if "addalbum" in item.keywords:
                 item.add_marker(skip_addalbum)
 
     if not (config.getoption("--timewarp") and TEST_LIBRARY_TIMEWARP is not None):
-        skip_timewarp = pytest.mark.skip(
-            reason="need --timewarp option and MacOS Catalina to run"
-        )
+        skip_timewarp = pytest.mark.skip(reason="need --timewarp option to run")
         for item in items:
             if "timewarp" in item.keywords:
                 item.add_marker(skip_timewarp)
 
     if not (config.getoption("--test-import") and TEST_LIBRARY_IMPORT is not None):
-        skip_test_import = pytest.mark.skip(
-            reason="need --test-import option and MacOS Catalina or Ventura to run"
-        )
+        skip_test_import = pytest.mark.skip(reason="need --test-import option to run")
         for item in items:
             if "test_import" in item.keywords:
                 item.add_marker(skip_test_import)
 
     if not (config.getoption("--test-sync") and TEST_LIBRARY_SYNC is not None):
-        skip_test_sync = pytest.mark.skip(
-            reason="need --test-sync option and MacOS Catalina to run"
-        )
+        skip_test_sync = pytest.mark.skip(reason="need --test-sync option to run")
         for item in items:
             if "test_sync" in item.keywords:
                 item.add_marker(skip_test_sync)
+
+    if not (config.getoption("--test-batch-edit")):
+        skip_test_batch_edit = pytest.mark.skip(
+            reason="need --test-batch-edit option to run"
+        )
+        for item in items:
+            if "test_batch_edit" in item.keywords:
+                item.add_marker(skip_test_batch_edit)
 
     if not (
         config.getoption("--test-add-locations")
