@@ -142,6 +142,7 @@ Commands:
   about          Print information about osxphotos including license.
   add-locations  Add missing location data to photos in Photos.app using...
   albums         Print out albums found in the Photos library.
+  batch-edit     Batch edit photo metadata such as title, description,...
   diff           Compare two Photos databases and print out differences
   docs           Open osxphotos documentation in your browser.
   dump           Print list of all photos & associated info from the Photos...
@@ -2089,7 +2090,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.57.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.58.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2574,7 +2575,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.57.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.58.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
