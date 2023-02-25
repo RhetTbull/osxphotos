@@ -46,6 +46,7 @@ if args.get("--debug", False):
 from .about import about
 from .add_locations import add_locations
 from .albums import albums
+from .batch_edit import batch_edit
 from .cli import cli_main
 from .cli_commands import (
     abort,
@@ -95,6 +96,7 @@ __all__ = [
     "about",
     "add_locations",
     "albums",
+    "batch_edit",
     "cli_main",
     "debug_dump",
     "diff",
