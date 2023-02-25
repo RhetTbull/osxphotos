@@ -18,6 +18,7 @@ from io import StringIO
 from sqlite3 import Error
 from tempfile import TemporaryDirectory
 from typing import Any, List, Optional, Tuple, Union
+import logging
 
 from tenacity import retry, retry_if_not_exception_type, stop_after_attempt
 
@@ -40,6 +41,16 @@ MAX_RETRY_ATTEMPTS = 3
 
 # maximum number of export results rows to save
 MAX_EXPORT_RESULTS_DATA_ROWS = 10
+
+
+logger = logging.getLogger("osxphotos")
+
+
+def retry_log_error_no_raise(retry_state):
+    """Log error for retry but don't raise exception"""
+    logger.debug(
+        f"Error {retry_state.outcome} for {retry_state.fn.__name__}({retry_state.args}, {retry_state.kwargs}); retrying...",
+    )
 
 
 def pickle_and_zip(data: Any) -> bytes:
@@ -845,7 +856,10 @@ class ExportDBInMemory(ExportDB):
         conn_on_disk.commit()
         conn_on_disk.close()
 
-    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    @retry(
+        stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),
+        retry_error_callback=retry_log_error_no_raise, # #999
+    )
     def close(self):
         """close the database connection"""
         if self._conn:
