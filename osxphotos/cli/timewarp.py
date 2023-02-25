@@ -113,6 +113,14 @@ For this to work, you'll need to install the third-party exiftool (https://exift
 
 *Note on timezones and times*: In Photos, when you change the timezone, Photos assumes the time itself was correct for the previous timezone and adjusts the time accordingly to the new timezone.  E.g. if the photo's time is `13:00` and the timezone is `GMT -07:00` and you adjust the timezone one hour east to `GMT -06:00`, Photos will change the time of the photo to `14:00`.  osxphotos timewarp follows this behavior.  Using `--match-time` allows you to adjust the timezone but keep the same time without adjustment. For example, if your camera clock was correct but lacked timezone information and you took photos in one timezone but imported them to photos in another, Photos will add the timezone of the computer at time of import.  You can use osxphotos timewarp to adjust the timezone but keep the time using `--match-time`.
 
+**Update the date the photos were added to Photos**
+
+`osxphotos timewarp --date-added 2021-09-10`
+
+**Update the date the photos were added to Photos to match the date of the photo**
+
+`osxphotos timewarp --date-added-from-photo`
+
 **Compare the date/time/timezone of selected photos with the date/time/timezone in the photos' original EXIF metadata**
 
 `osxphotos timewarp --compare-exif`
@@ -217,8 +225,19 @@ command which can be used to change the time zone of photos after import.
     metavar="DATE",
     type=DateTimeISO8601(),
     help="Set date/time added for selected photos. "
+    "This changes the date added or imported date in Photos but "
+    "does not change the date/time/timezone of the photo itself. "
+    "This is useful for removing photos from the Recents album, "
+    "for example if you have imported old scanned photos. "
     "Format is 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'. "
     "If time is not included, midnight is assumed.",
+)
+@click.option(
+    "--date-added-from-photo",
+    is_flag=True,
+    help="Set date/time added for selected photos to the date/time the photo was taken. "
+    "This changes the date added or imported date in Photos but "
+    "does not change the date/time/timezone of the photo itself. ",
 )
 @click.option(
     "--inspect",
@@ -360,6 +379,7 @@ def timewarp(
     time_delta,
     timezone,
     date_added,
+    date_added_from_photo,
     inspect,
     compare_exif,
     push_exif,
@@ -391,6 +411,7 @@ def timewarp(
     if not any(
         [
             compare_exif,
+            date_added_from_photo,
             date_added,
             date_delta,
             date,
@@ -407,7 +428,7 @@ def timewarp(
         raise click.UsageError(
             "At least one of --date, --date-delta, --time, --time-delta, "
             "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif, "
-            "--parse-date, --function, --date-added "
+            "--parse-date, --function, --date-added, or --date-added-from-photo "
             "must be specified."
         )
 
@@ -453,15 +474,17 @@ def timewarp(
     if (
         any(
             [
-                date,
+                date_added_from_photo,
+                date_added,
                 date_delta,
-                time,
-                time_delta,
-                timezone,
-                push_exif,
-                pull_exif,
+                date,
                 function,
                 parse_date,
+                pull_exif,
+                push_exif,
+                time_delta,
+                time,
+                timezone,
             ]
         )
         and not force
@@ -505,6 +528,12 @@ def timewarp(
         library_path=library,
         verbose=verbose,
         date_added=date_added,
+    )
+
+    set_photo_date_added_from_photo_ = partial(
+        set_photo_date_added,
+        library_path=library,
+        verbose=verbose,
     )
 
     get_photo_date_added_ = partial(
@@ -638,6 +667,8 @@ def timewarp(
                 tz_updater.update_photo(photo)
             if date_added:
                 set_photo_date_added_(photo)
+            if date_added_from_photo:
+                set_photo_date_added_from_photo_(photo, date_added=photo.date)
             if function:
                 verbose(f"Calling function [bold]{function[1]}")
                 photo_path = exif_updater.get_photo_path(photo)

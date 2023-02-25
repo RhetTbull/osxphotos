@@ -435,4 +435,17 @@ CATALINA_PHOTOS_5 = {
             ),
         ],
     },
+    "date_added_from_photo": {
+        # 20230120_010203-0400.jpg
+        "uuid": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+        "expected": InspectValuesDateAdded(
+            "20230120_010203-0400.jpg",
+            "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+            "2023-01-20 01:02:03-0400",
+            "-0400",
+            "GMT-0400",
+            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+        ),
+    },
 }

@@ -1092,3 +1092,29 @@ def test_date_added(
     )
     output_values = parse_inspect_output(result.output, date_added=True)
     assert output_values[0].date_added == expected.date_added
+
+
+@pytest.mark.timewarp
+def test_date_added_from_photo(photoslib, suspend_capture):
+    """Test --date-added-from-photo"""
+    from osxphotos.cli.timewarp import timewarp
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        [
+            "--date-added-from-photo",
+            "--force",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output, date_added=True)
+    expected = TEST_DATA["date_added_from_photo"]["expected"]
+    assert output_values[0].date_added == expected.date_added
