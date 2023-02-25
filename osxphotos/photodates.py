@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import datetime
 import pathlib
+import sqlite3
 from typing import Callable
 
 import photoscript
 from strpdatetime import strpdatetime
+from tenacity import retry, stop_after_attempt, wait_exponential
 
+from ._constants import _DB_TABLE_NAMES
 from .datetime_utils import (
     datetime_has_tz,
     datetime_remove_tz,
@@ -16,9 +19,13 @@ from .datetime_utils import (
     datetime_utc_to_local,
     utc_offset_seconds,
 )
+from .photosdb.photosdb_utils import get_photos_library_version
 from .phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from .timeutils import update_datetime
 from .timezones import Timezone
+from .utils import get_last_library_path, get_system_library_path
+
+MACOS_TIME_EPOCH = datetime.datetime(2001, 1, 1, 0, 0, 0)
 
 
 def update_photo_date_time(
@@ -179,3 +186,94 @@ def set_photo_date_from_filename(
             tz_updater.update_photo(photo)
 
     return date
+
+
+def set_photo_date_added(
+    photo: photoscript.Photo,
+    date_added: datetime.datetime,
+    verbose: Callable[..., None],
+    library_path: str | None = None,
+) -> datetime.datetime | None:
+    """Modify the ADDEDDATE of a photo"""
+
+    if not (library_path := _get_photos_library_path(library_path)):
+        raise ValueError("Could not determine Photos library path")
+    verbose(
+        f"Setting date added for photo [filename]{photo.filename}[/] to [time]{date_added}[/]"
+    )
+    _set_date_added(library_path, photo.uuid, date_added)
+
+    photo.date = photo.date + datetime.timedelta(seconds=1)
+    photo.date = photo.date - datetime.timedelta(seconds=1)
+
+
+@retry(
+    wait=wait_exponential(multiplier=1, min=0.100, max=5),
+    stop=stop_after_attempt(10),
+)
+def _set_date_added(library_path: str, uuid: str, date_added: datetime.datetime):
+    """Set the ADDEDDATE of a photo"""
+    # Use retry decorator to retry if database is locked
+    photos_version = get_photos_library_version(library_path)
+    db_path = str(pathlib.Path(library_path) / "database/Photos.sqlite")
+    asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
+
+    timestamp = datetime_to_photos_timestamp(date_added)
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute(
+        f"UPDATE {asset_table} SET ZADDEDDATE=? WHERE ZUUID=?",
+        (timestamp, uuid),
+    )
+    conn.commit()
+    conn.close()
+
+
+def _get_photos_library_path(library_path: str | None = None) -> str:
+    """Return path to the Photos library or None if not found"""
+    # get_last_library_path() returns the path to the last Photos library
+    # opened but sometimes (rarely) fails on some systems
+    try:
+        library_path = (
+            library_path or get_last_library_path() or get_system_library_path()
+        )
+    except Exception:
+        library_path = None
+    return library_path
+
+
+def datetime_to_photos_timestamp(dt: datetime.datetime) -> int:
+    """Convert datetime to Photos timestamp (seconds since 2001-01-01)"""
+    return int((dt - MACOS_TIME_EPOCH).total_seconds())
+
+
+def photos_timestamp_to_datetime(ts: int) -> datetime.datetime:
+    """Convert Photos timestamp (seconds since 2001-01-01) to datetime"""
+    return MACOS_TIME_EPOCH + datetime.timedelta(seconds=ts)
+
+
+@retry(
+    wait=wait_exponential(multiplier=1, min=0.100, max=5),
+    stop=stop_after_attempt(5),
+)
+def get_photo_date_added(
+    photo: photoscript.Photo,
+    library_path: str | None = None,
+) -> datetime.datetime | None:
+    """Get the ADDEDDATE of a photo"""
+
+    if not (library_path := _get_photos_library_path(library_path)):
+        raise ValueError("Could not determine Photos library path")
+
+    photos_version = get_photos_library_version(library_path)
+    db_path = str(pathlib.Path(library_path) / "database/Photos.sqlite")
+    asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute(
+        f"SELECT ZADDEDDATE FROM {asset_table} WHERE ZUUID=?",
+        (photo.uuid,),
+    )
+    row = c.fetchone()
+    conn.close()
+    return photos_timestamp_to_datetime(row[0])

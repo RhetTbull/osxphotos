@@ -1,5 +1,6 @@
 """ Tests which require user interaction to run for osxphotos timewarp command """
 
+import datetime
 import os
 import time
 
@@ -9,7 +10,11 @@ from click.testing import CliRunner
 from osxphotos import PhotosDB
 from osxphotos.exiftool import ExifTool
 from tests.conftest import get_os_version
-from tests.parse_timewarp_output import parse_compare_exif, parse_inspect_output
+from tests.parse_timewarp_output import (
+    InspectValuesDateAdded,
+    parse_compare_exif,
+    parse_inspect_output,
+)
 
 # set timezone to avoid issues with comparing dates
 os.environ["TZ"] = "US/Pacific"
@@ -1055,3 +1060,61 @@ def test_parse_date_tz(photoslib, suspend_capture):
     assert output_values[0].date_local == expected.date_local
     assert output_values[0].date_tz == expected.date_tz
     assert output_values[0].tz_offset == expected.tz_offset
+
+
+@pytest.mark.timewarp
+@pytest.mark.parametrize(
+    "date_added,expected",
+    TEST_DATA["date_added"]["data"],
+)
+def test_date_added(
+    photoslib, suspend_capture, date_added: str, expected: InspectValuesDateAdded
+):
+    """Test --date-added"""
+    from osxphotos.cli.timewarp import timewarp
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        [
+            "--date-added",
+            date_added,
+            "--force",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output, date_added=True)
+    assert output_values[0].date_added == expected.date_added
+
+
+@pytest.mark.timewarp
+def test_date_added_from_photo(photoslib, suspend_capture):
+    """Test --date-added-from-photo"""
+    from osxphotos.cli.timewarp import timewarp
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        [
+            "--date-added-from-photo",
+            "--force",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output, date_added=True)
+    expected = TEST_DATA["date_added_from_photo"]["expected"]
+    assert output_values[0].date_added == expected.date_added

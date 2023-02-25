@@ -51,8 +51,13 @@ class PhotoTimeZone:
         self.db_path = db_path
         self.ASSET_TABLE = _DB_TABLE_NAMES[photos_version]["ASSET"]
 
+    @retry(
+        wait=wait_exponential(multiplier=1, min=0.100, max=5),
+        stop=stop_after_attempt(10),
+    )
     def get_timezone(self, photo: Photo) -> Tuple[int, str, str]:
         """Return (timezone_seconds, timezone_str, timezone_name) of photo"""
+        # Use retry decorator to retry if database is locked
         uuid = photo.uuid
         sql = f"""  SELECT 
                     ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, 
@@ -119,6 +124,7 @@ class PhotoTimeZoneUpdater:
         stop=stop_after_attempt(10),
     )
     def _update_photo(self, photo: Photo):
+        # Use retry decorator to retry if database is locked
         try:
             uuid = photo.uuid
             sql = f"""  SELECT 

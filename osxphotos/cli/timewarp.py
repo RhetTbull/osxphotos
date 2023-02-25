@@ -18,6 +18,8 @@ from osxphotos.datetime_utils import datetime_naive_to_local, datetime_to_new_tz
 from osxphotos.exif_datetime_updater import ExifDateTimeUpdater
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.photodates import (
+    get_photo_date_added,
+    set_photo_date_added,
     set_photo_date_from_filename,
     update_photo_date_time,
     update_photo_from_function,
@@ -110,6 +112,14 @@ For this to work, you'll need to install the third-party exiftool (https://exift
 `osxphotos timewarp --timezone 0300 --match-time`
 
 *Note on timezones and times*: In Photos, when you change the timezone, Photos assumes the time itself was correct for the previous timezone and adjusts the time accordingly to the new timezone.  E.g. if the photo's time is `13:00` and the timezone is `GMT -07:00` and you adjust the timezone one hour east to `GMT -06:00`, Photos will change the time of the photo to `14:00`.  osxphotos timewarp follows this behavior.  Using `--match-time` allows you to adjust the timezone but keep the same time without adjustment. For example, if your camera clock was correct but lacked timezone information and you took photos in one timezone but imported them to photos in another, Photos will add the timezone of the computer at time of import.  You can use osxphotos timewarp to adjust the timezone but keep the time using `--match-time`.
+
+**Update the date the photos were added to Photos**
+
+`osxphotos timewarp --date-added 2021-09-10`
+
+**Update the date the photos were added to Photos to match the date of the photo**
+
+`osxphotos timewarp --date-added-from-photo`
 
 **Compare the date/time/timezone of selected photos with the date/time/timezone in the photos' original EXIF metadata**
 
@@ -209,6 +219,25 @@ command which can be used to change the time zone of photos after import.
     "which is equivalent to the old time of 12:00+01:00. "
     "This is the same behavior exhibited by Photos when manually adjusting timezone in the Get Info window. "
     "See also --match-time. ",
+)
+@click.option(
+    "--date-added",
+    metavar="DATE",
+    type=DateTimeISO8601(),
+    help="Set date/time added for selected photos. "
+    "This changes the date added or imported date in Photos but "
+    "does not change the date/time/timezone of the photo itself. "
+    "This is useful for removing photos from the Recents album, "
+    "for example if you have imported old scanned photos. "
+    "Format is 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'. "
+    "If time is not included, midnight is assumed.",
+)
+@click.option(
+    "--date-added-from-photo",
+    is_flag=True,
+    help="Set date/time added for selected photos to the date/time the photo was taken. "
+    "This changes the date added or imported date in Photos but "
+    "does not change the date/time/timezone of the photo itself. ",
 )
 @click.option(
     "--inspect",
@@ -349,6 +378,8 @@ def timewarp(
     time,
     time_delta,
     timezone,
+    date_added,
+    date_added_from_photo,
     inspect,
     compare_exif,
     push_exif,
@@ -379,23 +410,25 @@ def timewarp(
     # check constraints
     if not any(
         [
-            date,
-            date_delta,
-            time,
-            time_delta,
-            timezone,
-            inspect,
             compare_exif,
-            parse_date,
-            push_exif,
-            pull_exif,
+            date_added_from_photo,
+            date_added,
+            date_delta,
+            date,
             function,
+            inspect,
+            parse_date,
+            pull_exif,
+            push_exif,
+            time_delta,
+            time,
+            timezone,
         ]
     ):
         raise click.UsageError(
             "At least one of --date, --date-delta, --time, --time-delta, "
             "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif, "
-            "--parse-date, --function "
+            "--parse-date, --function, --date-added, or --date-added-from-photo "
             "must be specified."
         )
 
@@ -441,15 +474,17 @@ def timewarp(
     if (
         any(
             [
-                date,
+                date_added_from_photo,
+                date_added,
                 date_delta,
-                time,
-                time_delta,
-                timezone,
-                push_exif,
-                pull_exif,
+                date,
                 function,
                 parse_date,
+                pull_exif,
+                push_exif,
+                time_delta,
+                time,
+                timezone,
             ]
         )
         and not force
@@ -488,6 +523,24 @@ def timewarp(
         verbose=verbose,
     )
 
+    set_photo_date_added_ = partial(
+        set_photo_date_added,
+        library_path=library,
+        verbose=verbose,
+        date_added=date_added,
+    )
+
+    set_photo_date_added_from_photo_ = partial(
+        set_photo_date_added,
+        library_path=library,
+        verbose=verbose,
+    )
+
+    get_photo_date_added_ = partial(
+        get_photo_date_added,
+        library_path=library,
+    )
+
     if function:
         update_photo_from_function_ = partial(
             update_photo_from_function,
@@ -505,18 +558,21 @@ def timewarp(
                 "[filename]filename[/filename], [uuid]uuid[/uuid], "
                 "[time]photo time (local)[/time], "
                 "[time]photo time[/time], "
-                "[tz]timezone offset[/tz], [tz]timezone name[/tz]"
+                "[tz]timezone offset[/tz], [tz]timezone name[/tz], "
+                "[time]date added (local)[/time]"
             )
         for photo in photos:
             set_crash_data("photo", f"{photo.uuid} {photo.filename}")
             tz_seconds, tz_str, tz_name = tzinfo.get_timezone(photo)
             photo_date_local = datetime_naive_to_local(photo.date)
             photo_date_tz = datetime_to_new_tz(photo_date_local, tz_seconds)
+            date_added = datetime_naive_to_local(get_photo_date_added_(photo))
             echo(
                 f"[filename]{photo.filename}[/filename], [uuid]{photo.uuid}[/uuid], "
                 f"[time]{photo_date_local.strftime(DATETIME_FORMAT)}[/time], "
                 f"[time]{photo_date_tz.strftime(DATETIME_FORMAT)}[/time], "
-                f"[tz]{tz_str}[/tz], [tz]{tz_name}[/tz]"
+                f"[tz]{tz_str}[/tz], [tz]{tz_name}[/tz], "
+                f"[time]{date_added.strftime(DATETIME_FORMAT)}[/time]"
             )
         sys.exit(0)
 
@@ -609,6 +665,10 @@ def timewarp(
                 update_photo_time_for_new_timezone_(photo=photo, new_timezone=timezone)
             if timezone:
                 tz_updater.update_photo(photo)
+            if date_added:
+                set_photo_date_added_(photo)
+            if date_added_from_photo:
+                set_photo_date_added_from_photo_(photo, date_added=photo.date)
             if function:
                 verbose(f"Calling function [bold]{function[1]}")
                 photo_path = exif_updater.get_photo_path(photo)

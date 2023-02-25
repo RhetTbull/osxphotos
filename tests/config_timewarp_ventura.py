@@ -7,7 +7,11 @@ import datetime
 import pathlib
 import time
 
-from tests.parse_timewarp_output import CompareValues, InspectValues
+from tests.parse_timewarp_output import (
+    CompareValues,
+    InspectValues,
+    InspectValuesDateAdded,
+)
 
 TEST_LIBRARY_TIMEWARP = "tests/TestTimeWarp-13.1.0.photoslibrary"
 
@@ -394,6 +398,57 @@ VENTURA_PHOTOS_5 = {
             "2023-01-20 01:02:03-0400",
             "-0400",
             "GMT-0400",
+        ),
+    },
+    "date_added": {
+        # 20230120_010203-0400.jpg
+        "uuid": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+        "data": [
+            (
+                "2022-01-01",
+                InspectValuesDateAdded(
+                    "20230120_010203-0400.jpg",
+                    "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+                    "2023-01-19 21:02:03-0800"
+                    if not is_dst()
+                    else "2023-01-19 20:02:03-0700",
+                    "2023-01-20 01:02:03-0400",
+                    "-0400",
+                    "GMT-0400",
+                    "2022-01-01 00:00:00-0800"
+                    if not is_dst()
+                    else "2022-01-01 00:00:00-0700",
+                ),
+            ),
+            (
+                "2022-01-01 01:02:03",
+                InspectValuesDateAdded(
+                    "20230120_010203-0400.jpg",
+                    "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+                    "2023-01-19 21:02:03-0800"
+                    if not is_dst()
+                    else "2023-01-19 20:02:03-0700",
+                    "2023-01-20 01:02:03-0400",
+                    "-0400",
+                    "GMT-0400",
+                    "2022-01-01 01:02:03-0800"
+                    if not is_dst()
+                    else "2022-01-01 01:02:03-0700",
+                ),
+            ),
+        ],
+    },
+    "date_added_from_photo": {
+        # 20230120_010203-0400.jpg
+        "uuid": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+        "expected": InspectValuesDateAdded(
+            "20230120_010203-0400.jpg",
+            "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+            "2023-01-20 01:02:03-0400",
+            "-0400",
+            "GMT-0400",
+            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
         ),
     },
 }
