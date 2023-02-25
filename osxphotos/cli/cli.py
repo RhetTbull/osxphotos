@@ -13,6 +13,7 @@ from osxphotos._version import __version__
 from .about import about
 from .add_locations import add_locations
 from .albums import albums
+from .batch_edit import batch_edit
 from .cli_params import DB_OPTION, DEBUG_OPTIONS, JSON_OPTION
 from .common import OSXPHOTOS_HIDDEN
 from .debug_dump import debug_dump
@@ -109,6 +110,7 @@ for command in [
     about,
     add_locations,
     albums,
+    batch_edit,
     debug_dump,
     diff,
     docs_command,
