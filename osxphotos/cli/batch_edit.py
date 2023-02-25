@@ -73,7 +73,7 @@ def batch_edit(
     For example:
 
     \b
-        osxphotos run batch_edit.py \\
+        osxphotos batch-edit \\
         --verbose \\
         --title "California vacation 2023 {created.year}-{created.dd}-{created.mm} {counter:03d}" \\
         --description "{place.name}" \\ 
