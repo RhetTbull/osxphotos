@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.58.0](https://github.com/RhetTbull/osxphotos/compare/v0.57.3...v0.58.0)
+
+### 25 February 2023
+
+#### Added
+
+- Added `osxphotos batch-edit` command to batch edit metadata (title, description, keywords, location) on selected photos. See `osxphotos help batch-edit` for more information. (#949)
+- Added `--date-added` and `--date-added-from-photo` to `osxphotos timewarp` command to adjust the date added for selected photos. This is useful for removing photos from the Recents folder, for example. (#998)
+
+#### Fixed
+
+- Bug fix for export when retry failed to close export database. Thanks to [@eecue](https://github.com/eecue) for reporting this. (#999)
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code changes.
+- [@eecue](https://github.com/eecue) for finding export database bug.
+
 ## [v0.57.3](https://github.com/RhetTbull/osxphotos/compare/v0.57.2...v0.57.3)
 
 ### 20 February 2023
