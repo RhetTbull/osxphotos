@@ -14,7 +14,7 @@ from .about import about
 from .add_locations import add_locations
 from .albums import albums
 from .batch_edit import batch_edit
-from .cli_params import DB_OPTION, DEBUG_OPTIONS, JSON_OPTION
+from .cli_params import DB_OPTION, DEBUG_OPTIONS, JSON_OPTION, VERSION_OPTION
 from .common import OSXPHOTOS_HIDDEN
 from .debug_dump import debug_dump
 from .docs import docs_command
@@ -58,7 +58,7 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @click.group(context_settings=CTX_SETTINGS)
-@click.version_option(__version__, "--version", "-v")
+@VERSION_OPTION
 @DB_OPTION
 @JSON_OPTION
 @DEBUG_OPTIONS
