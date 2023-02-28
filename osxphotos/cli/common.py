@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 import pathlib
+import platform
+import sys
 from datetime import datetime
 
 import click
@@ -13,7 +15,7 @@ from xdg import xdg_config_home, xdg_data_home
 import osxphotos
 from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
-from osxphotos.utils import get_latest_version
+from osxphotos.utils import get_latest_version, get_macos_version
 
 # used to show/hide hidden commands
 OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
@@ -106,3 +108,13 @@ def check_version():
             "to suppress this message and prevent osxphotos from checking for latest version.",
             err=True,
         )
+
+
+def print_version(ctx, param, value):
+    """Print version, this is a callback for the --version option"""
+    if not value:
+        return
+    click.echo(f"osxphotos, version {__version__}")
+    click.echo(f"Python {sys.version}")
+    click.echo(f"macOS {'.'.join(get_macos_version())}, {platform.machine()}")
+    ctx.exit()

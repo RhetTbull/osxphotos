@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 import click
 
-from .common import OSXPHOTOS_HIDDEN
+from .common import OSXPHOTOS_HIDDEN, print_version
 from .param_types import *
 
 __all__ = [
@@ -19,8 +19,9 @@ __all__ = [
     "JSON_OPTION",
     "QUERY_OPTIONS",
     "THEME_OPTION",
-    "VERBOSE_OPTION",
     "TIMESTAMP_OPTION",
+    "VERBOSE_OPTION",
+    "VERSION_OPTION",
 ]
 
 
@@ -676,3 +677,12 @@ _TIMESTAMP_PARAMETER = click.Option(
     ["--timestamp"], is_flag=True, help="Add time stamp to verbose output"
 )
 TIMESTAMP_OPTION = make_click_option_decorator(_TIMESTAMP_PARAMETER)
+
+_VERSION_PARAMETER = click.Option(
+    ["--version", "-v", "_version_flag"],
+    is_flag=True,
+    help="Show the version and exit.",
+    callback=print_version,
+)
+
+VERSION_OPTION = make_click_option_decorator(_VERSION_PARAMETER)
