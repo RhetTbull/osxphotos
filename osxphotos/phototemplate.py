@@ -285,6 +285,8 @@ FILTER_VALUES = {
     + "e.g. join(): ['a', 'b', 'c'] => 'abc'.",
     "append(x)": "Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].",
     "prepend(x)": "Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].",
+    "appends(x)": "Append s[tring] Append x to each value of list of values, e.g. appends(d): ['a', 'b', 'c'] => ['ad', 'bd', 'cd'].",
+    "prepends(x)": "Prepend s[tring] x to each value of list of values, e.g. prepends(d): ['a', 'b', 'c'] => ['da', 'db', 'dc'].",
     "remove(x)": "Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].",
     "slice(start:stop:step)": "Slice list using same semantics as Python's list slicing, "
     + "e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; "
@@ -1007,15 +1009,17 @@ class PhotoTemplate:
             raise SyntaxError(f"Unknown filter: {filter_}")
 
         if filter_ in [
-            "split",
-            "chop",
-            "chomp",
             "append",
+            "appends",
+            "chomp",
+            "chop",
+            "filter",
             "prepend",
+            "prepends",
             "remove",
             "slice",
+            "split",
             "sslice",
-            "filter",
         ] and (args is None or not len(args)):
             raise SyntaxError(f"{filter_} requires arguments")
 
@@ -1032,15 +1036,13 @@ class PhotoTemplate:
         elif filter_ == "braces":
             value = ["{" + v + "}" for v in values]
         elif filter_ == "parens":
-            value = ["(" + v + ")" for v in values]
+            value = [f"({v})" for v in values]
         elif filter_ == "brackets":
-            value = ["[" + v + "]" for v in values]
+            value = [f"[{v}]" for v in values]
         elif filter_ == "shell_quote":
             value = [shlex.quote(v) for v in values]
         elif filter_ == "split":
-            # split on delimiter
-            delim = args
-            if delim:
+            if delim := args:
                 new_values = []
                 for v in values:
                     new_values.extend(v.split(delim))
@@ -1051,15 +1053,15 @@ class PhotoTemplate:
             # chop off characters from the end
             try:
                 chop = int(args)
-            except ValueError:
-                raise SyntaxError(f"Invalid value for chop: {args}")
+            except ValueError as e:
+                raise SyntaxError(f"Invalid value for chop: {args}") from e
             value = [v[:-chop] for v in values] if chop else values
         elif filter_ == "chomp":
             # chop off characters from the beginning
             try:
                 chomp = int(args)
-            except ValueError:
-                raise SyntaxError(f"Invalid value for chomp: {args}")
+            except ValueError as e:
+                raise SyntaxError(f"Invalid value for chomp: {args}") from e
             value = [v[chomp:] for v in values] if chomp else values
         elif filter_ == "autosplit":
             # try to split keyword strings automatically
@@ -1094,6 +1096,12 @@ class PhotoTemplate:
         elif filter_ == "prepend":
             # prepend value to list
             value = [args] + values
+        elif filter_ == "appends":
+            # append value to each item in list
+            value = [f"{v}{args}" for v in values]
+        elif filter_ == "prepends":
+            # prepend value to each item in list
+            value = [f"{args}{v}" for v in values]
         elif filter_ == "remove":
             # remove value from list
             value = [v for v in values if v != args]

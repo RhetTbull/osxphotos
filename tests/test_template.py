@@ -78,11 +78,15 @@ TEMPLATE_VALUES_MULTI_KEYWORDS = {
     "{; +keyword}": ["flowers; wedding"],
     "{; +keyword|titlecase}": ["Flowers; Wedding"],
     "{; +keyword|titlecase|parens}": ["(Flowers; Wedding)"],
+    "{keyword|appends(:keyword)}": ["flowers:keyword", "wedding:keyword"],
+    "{keyword|prepends(keyword:)}": ["keyword:flowers", "keyword:wedding"],
 }
 
 UUID_TITLE = "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"
 TEMPLATE_VALUES_TITLE = {
     "{title}": ["Tulips tied together at a flower shop"],
+    "{title|appends(:title)}": ["Tulips tied together at a flower shop:title"],
+    "{title|prepends(title:)}": ["title:Tulips tied together at a flower shop"],
     "{title|titlecase}": ["Tulips Tied Together At A Flower Shop"],
     "{title|upper}": ["TULIPS TIED TOGETHER AT A FLOWER SHOP"],
     "{title|titlecase|lower|upper}": ["TULIPS TIED TOGETHER AT A FLOWER SHOP"],
