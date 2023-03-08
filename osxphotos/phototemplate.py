@@ -545,6 +545,8 @@ class PhotoTemplate:
             # process field arguments
             if ts.template.fieldarg is not None:
                 field_arg = ts.template.fieldarg.value
+            else:
+                field_arg = None
 
             # process delim
             if ts.template.delim is not None:
