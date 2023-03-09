@@ -513,6 +513,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "ianmmoir",
+      "name": "Ian Moir",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15144745?v=4",
+      "profile": "http://www.projany.com",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
