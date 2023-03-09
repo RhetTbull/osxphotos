@@ -1042,9 +1042,8 @@ class PhotosDB:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
                     row[4] + TIME_DELTA
                 )
-            except ValueError:
-                self._dbphotos[uuid]["lastmodifieddate"] = None
-            except TypeError:
+            except (ValueError, TypeError):
+                # sometimes the date is invalid or null
                 self._dbphotos[uuid]["lastmodifieddate"] = None
 
             self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
@@ -1056,8 +1055,8 @@ class PhotosDB:
                 delta = timedelta(seconds=seconds)
                 tz = timezone(delta)
                 self._dbphotos[uuid]["imageDate"] = imagedate.astimezone(tz=tz)
-            except ValueError:
-                # sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date
+            except (ValueError, TypeError):
+                # sometimes imageDate is invalid so use 1 Jan 1970 as image date
                 imagedate = datetime(1970, 1, 1)
                 tz = timezone(timedelta(0))
                 self._dbphotos[uuid]["imageDate"] = imagedate.astimezone(tz=tz)
@@ -2019,8 +2018,8 @@ class PhotosDB:
                 delta = timedelta(seconds=seconds)
                 tz = timezone(delta)
                 info["imageDate"] = imagedate.astimezone(tz=tz)
-            except ValueError:
-                # sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date
+            except (ValueError, TypeError):
+                # sometimes imageDate is invalid or null so use 1 Jan 1970 in UTC as image date (#1014)
                 imagedate = datetime(1970, 1, 1)
                 tz = timezone(timedelta(0))
                 info["imageDate"] = imagedate.astimezone(tz=tz)
@@ -2602,8 +2601,8 @@ class PhotosDB:
                     # save raw time stamp valu
                     moment_info[date_name + "_timestamp"] = moment_info[date_name]
                     moment_info[date_name] = moment_date.astimezone(tz=tz)
-                except ValueError:
-                    # sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date
+                except (ValueError, TypeError):
+                    # sometimes imageDate is invalid or null so use 1 Jan 1970 in UTC as image date
                     moment_date = datetime(1970, 1, 1)
                     tz = timezone(timedelta(0))
                     moment_info[date_name + "_timestamp"] = date_stamp
