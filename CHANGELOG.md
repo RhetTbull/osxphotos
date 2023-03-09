@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.58.1](https://github.com/RhetTbull/osxphotos/compare/v0.58.0...v0.58.1)
+
+### 09 March 2023
+
+#### Fixed
+
+- Null times in Photos database (#1014)
+
+#### Added
+
+- Added appends, prepends filter to template system (#1015)
+- Added python and macOS versions to --version output (#1008)
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code changes.
+- [@ianmmoir](https://github.com/ianmmoir) for finding null times bug
+
 ## [v0.58.0](https://github.com/RhetTbull/osxphotos/compare/v0.57.3...v0.58.0)
 
 ### 25 February 2023
