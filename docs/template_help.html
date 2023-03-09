@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Package Overview" href="package_overview.html" /><link rel="prev" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Template System - osxphotos 0.58.0 documentation</title>
+        <title>OSXPhotos Template System - osxphotos 0.58.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.58.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.58.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.58.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.58.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -240,6 +240,8 @@
 <li><p><cite>join(x)</cite>: Join list of values with delimiter x, e.g. join(,): [‘a’, ‘b’, ‘c’] =&gt; ‘a,b,c’; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.May optionally be used without an argument, that is ‘join()’ which joins values together with no delimiter. e.g. join(): [‘a’, ‘b’, ‘c’] =&gt; ‘abc’.</p></li>
 <li><p><cite>append(x)</cite>: Append x to list of values, e.g. append(d): [‘a’, ‘b’, ‘c’] =&gt; [‘a’, ‘b’, ‘c’, ‘d’].</p></li>
 <li><p><cite>prepend(x)</cite>: Prepend x to list of values, e.g. prepend(d): [‘a’, ‘b’, ‘c’] =&gt; [‘d’, ‘a’, ‘b’, ‘c’].</p></li>
+<li><p><cite>appends(x)</cite>: Append s[tring] Append x to each value of list of values, e.g. appends(d): [‘a’, ‘b’, ‘c’] =&gt; [‘ad’, ‘bd’, ‘cd’].</p></li>
+<li><p><cite>prepends(x)</cite>: Prepend s[tring] x to each value of list of values, e.g. prepends(d): [‘a’, ‘b’, ‘c’] =&gt; [‘da’, ‘db’, ‘dc’].</p></li>
 <li><p><cite>remove(x)</cite>: Remove x from list of values, e.g. remove(b): [‘a’, ‘b’, ‘c’] =&gt; [‘a’, ‘c’].</p></li>
 <li><p><cite>slice(start:stop:step)</cite>: Slice list using same semantics as Python’s list slicing, e.g. slice(1:3): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘c’]; slice(1:4:2): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘d’]; slice(1:): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘c’, ‘d’]; slice(:-1): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘a’, ‘b’, ‘c’]; slice(::-1): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘d’, ‘c’, ‘b’, ‘a’]. See also sslice().</p></li>
 <li><p><cite>sslice(start:stop:step)</cite>: [s(tring) slice] Slice values in a list using same semantics as Python’s string slicing, e.g. sslice(1:3):’abcd =&gt; ‘bc’; sslice(1:4:2): ‘abcd’ =&gt; ‘bd’, etc. See also slice().</p></li>
@@ -611,7 +613,7 @@
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.58.0’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.58.1’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>

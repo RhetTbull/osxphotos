@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.phototemplate - osxphotos 0.57.1 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.58.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.57.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.58.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.57.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.58.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -160,7 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
 </div>
@@ -482,6 +482,8 @@
     <span class="o">+</span> <span class="s2">&quot;e.g. join(): [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;] =&gt; &#39;abc&#39;.&quot;</span><span class="p">,</span>
     <span class="s2">&quot;append(x)&quot;</span><span class="p">:</span> <span class="s2">&quot;Append x to list of values, e.g. append(d): [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;] =&gt; [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;].&quot;</span><span class="p">,</span>
     <span class="s2">&quot;prepend(x)&quot;</span><span class="p">:</span> <span class="s2">&quot;Prepend x to list of values, e.g. prepend(d): [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;] =&gt; [&#39;d&#39;, &#39;a&#39;, &#39;b&#39;, &#39;c&#39;].&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;appends(x)&quot;</span><span class="p">:</span> <span class="s2">&quot;Append s[tring] Append x to each value of list of values, e.g. appends(d): [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;] =&gt; [&#39;ad&#39;, &#39;bd&#39;, &#39;cd&#39;].&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prepends(x)&quot;</span><span class="p">:</span> <span class="s2">&quot;Prepend s[tring] x to each value of list of values, e.g. prepends(d): [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;] =&gt; [&#39;da&#39;, &#39;db&#39;, &#39;dc&#39;].&quot;</span><span class="p">,</span>
     <span class="s2">&quot;remove(x)&quot;</span><span class="p">:</span> <span class="s2">&quot;Remove x from list of values, e.g. remove(b): [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;] =&gt; [&#39;a&#39;, &#39;c&#39;].&quot;</span><span class="p">,</span>
     <span class="s2">&quot;slice(start:stop:step)&quot;</span><span class="p">:</span> <span class="s2">&quot;Slice list using same semantics as Python&#39;s list slicing, &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;e.g. slice(1:3): [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;] =&gt; [&#39;b&#39;, &#39;c&#39;]; slice(1:4:2): [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;] =&gt; [&#39;b&#39;, &#39;d&#39;]; &quot;</span>
@@ -740,6 +742,8 @@
             <span class="c1"># process field arguments</span>
             <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">fieldarg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">field_arg</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">fieldarg</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">field_arg</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="c1"># process delim</span>
             <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">delim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1204,15 +1208,17 @@
             <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown filter: </span><span class="si">{</span><span class="n">filter_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">filter_</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;split&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;chop&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;chomp&quot;</span><span class="p">,</span>
             <span class="s2">&quot;append&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;appends&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chomp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chop&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;filter&quot;</span><span class="p">,</span>
             <span class="s2">&quot;prepend&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;prepends&quot;</span><span class="p">,</span>
             <span class="s2">&quot;remove&quot;</span><span class="p">,</span>
             <span class="s2">&quot;slice&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;split&quot;</span><span class="p">,</span>
             <span class="s2">&quot;sslice&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;filter&quot;</span><span class="p">,</span>
         <span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filter_</span><span class="si">}</span><span class="s2"> requires arguments&quot;</span><span class="p">)</span>
 
@@ -1229,15 +1235,13 @@
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;braces&quot;</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;parens&quot;</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;brackets&quot;</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;shell_quote&quot;</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;split&quot;</span><span class="p">:</span>
-            <span class="c1"># split on delimiter</span>
-            <span class="n">delim</span> <span class="o">=</span> <span class="n">args</span>
-            <span class="k">if</span> <span class="n">delim</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">delim</span> <span class="o">:=</span> <span class="n">args</span><span class="p">:</span>
                 <span class="n">new_values</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
                     <span class="n">new_values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delim</span><span class="p">))</span>
@@ -1248,15 +1252,15 @@
             <span class="c1"># chop off characters from the end</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">chop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid value for chop: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid value for chop: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[:</span><span class="o">-</span><span class="n">chop</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span> <span class="k">if</span> <span class="n">chop</span> <span class="k">else</span> <span class="n">values</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;chomp&quot;</span><span class="p">:</span>
             <span class="c1"># chop off characters from the beginning</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">chomp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid value for chomp: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid value for chomp: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="n">chomp</span><span class="p">:]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span> <span class="k">if</span> <span class="n">chomp</span> <span class="k">else</span> <span class="n">values</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;autosplit&quot;</span><span class="p">:</span>
             <span class="c1"># try to split keyword strings automatically</span>
@@ -1291,6 +1295,12 @@
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;prepend&quot;</span><span class="p">:</span>
             <span class="c1"># prepend value to list</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span> <span class="o">+</span> <span class="n">values</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;appends&quot;</span><span class="p">:</span>
+            <span class="c1"># append value to each item in list</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;prepends&quot;</span><span class="p">:</span>
+            <span class="c1"># prepend value to each item in list</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="si">}{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;remove&quot;</span><span class="p">:</span>
             <span class="c1"># remove value from list</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">args</span><span class="p">]</span>

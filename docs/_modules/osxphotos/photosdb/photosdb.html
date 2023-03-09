@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.57.2 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.58.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.57.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.58.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.57.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.58.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1239,9 +1239,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;lastmodifieddate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
                     <span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">TIME_DELTA</span>
                 <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;lastmodifieddate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="c1"># sometimes the date is invalid or null</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;lastmodifieddate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageTimeZoneOffsetSeconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
@@ -1253,8 +1252,8 @@
                 <span class="n">delta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
                 <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imagedate</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="c1"># sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="c1"># sometimes imageDate is invalid so use 1 Jan 1970 as image date</span>
                 <span class="n">imagedate</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imagedate</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
@@ -2216,8 +2215,8 @@
                 <span class="n">delta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
                 <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
                 <span class="n">info</span><span class="p">[</span><span class="s2">&quot;imageDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imagedate</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="c1"># sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="c1"># sometimes imageDate is invalid or null so use 1 Jan 1970 in UTC as image date (#1014)</span>
                 <span class="n">imagedate</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
                 <span class="n">info</span><span class="p">[</span><span class="s2">&quot;imageDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imagedate</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
@@ -2799,8 +2798,8 @@
                     <span class="c1"># save raw time stamp valu</span>
                     <span class="n">moment_info</span><span class="p">[</span><span class="n">date_name</span> <span class="o">+</span> <span class="s2">&quot;_timestamp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">moment_info</span><span class="p">[</span><span class="n">date_name</span><span class="p">]</span>
                     <span class="n">moment_info</span><span class="p">[</span><span class="n">date_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">moment_date</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="c1"># sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                    <span class="c1"># sometimes imageDate is invalid or null so use 1 Jan 1970 in UTC as image date</span>
                     <span class="n">moment_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
                     <span class="n">moment_info</span><span class="p">[</span><span class="n">date_name</span> <span class="o">+</span> <span class="s2">&quot;_timestamp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date_stamp</span>

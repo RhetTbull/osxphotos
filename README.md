@@ -1599,6 +1599,10 @@ Valid filters are:
    ['a', 'b', 'c', 'd'].                                                      
  • prepend(x): Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c']  
    => ['d', 'a', 'b', 'c'].                                                   
+ • appends(x): Append s[tring] Append x to each value of list of values, e.g. 
+   appends(d): ['a', 'b', 'c'] => ['ad', 'bd', 'cd'].                         
+ • prepends(x): Prepend s[tring] x to each value of list of values, e.g.      
+   prepends(d): ['a', 'b', 'c'] => ['da', 'db', 'dc'].                        
  • remove(x): Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] =>
    ['a', 'c'].                                                                
  • slice(start:stop:step): Slice list using same semantics as Python's list   
@@ -2090,7 +2094,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.58.0'
+{osxphotos_version}             The osxphotos version, e.g. '0.58.1'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2377,6 +2381,8 @@ Valid filters are:
 - `join(x)`: Join list of values with delimiter x, e.g. join(,): ['a', 'b', 'c'] => 'a,b,c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.May optionally be used without an argument, that is 'join()' which joins values together with no delimiter. e.g. join(): ['a', 'b', 'c'] => 'abc'.
 - `append(x)`: Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].
 - `prepend(x)`: Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].
+- `appends(x)`: Append s[tring] Append x to each value of list of values, e.g. appends(d): ['a', 'b', 'c'] => ['ad', 'bd', 'cd'].
+- `prepends(x)`: Prepend s[tring] x to each value of list of values, e.g. prepends(d): ['a', 'b', 'c'] => ['da', 'db', 'dc'].
 - `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
 - `slice(start:stop:step)`: Slice list using same semantics as Python's list slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().
 - `sslice(start:stop:step)`: [s(tring) slice] Slice values in a list using same semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().
@@ -2575,7 +2581,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.58.0'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.58.1'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
