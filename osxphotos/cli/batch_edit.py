@@ -88,7 +88,7 @@ def batch_edit(
 
     This will set the title to "California vacation 2023 2023-02-20 001", and so on,
     the description to the reverse geolocation place name, 
-    and add the keywords to "Family", "Travel".
+    and add the keywords "Family" and "Travel".
 
     --title, --description, and --keyword may be any valid template string.
     See https://rhettbull.github.io/osxphotos/template_help.html 
