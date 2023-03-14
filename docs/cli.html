@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.58.1 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.58.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.58.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.58.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.58.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.58.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -808,11 +808,11 @@ Operates on currently selected photos.</p>
 <div class="line">–verbose </div>
 <div class="line">–title “California vacation 2023 {created.year}-{created.dd}-{created.mm} {counter:03d}” </div>
 <div class="line">–description “{place.name}” </div>
-<div class="line">–keyword “Family” –keyword “Travel” –keyword “{keyword}”</div>
+<div class="line">–keyword “Family” –keyword “Travel”</div>
 </div>
 <p>This will set the title to “California vacation 2023 2023-02-20 001”, and so on,
 the description to the reverse geolocation place name,
-and the keywords to “Family”, “Travel”, and any existing keywords of the photo.</p>
+and add the keywords to “Family”, “Travel”.</p>
 <p>–title, –description, and –keyword may be any valid template string.
 See <a class="reference external" href="https://rhettbull.github.io/osxphotos/template_help.html">https://rhettbull.github.io/osxphotos/template_help.html</a>
 or <cite>osxphotos docs</cite> for more information on the osxphotos template system.</p>
@@ -835,7 +835,13 @@ or <cite>osxphotos docs</cite> for more information on the osxphotos template sy
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-batch-edit-keyword">
 <span class="sig-name descname"><span class="pre">--keyword</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;KEYWORD_TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-batch-edit-keyword" title="Permalink to this definition">#</a></dt>
-<dd><p>Set keywords of photo. May be specified multiple times.</p>
+<dd><p>Add keywords to photo. May be specified multiple times.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-batch-edit-replace-keywords">
+<span class="sig-name descname"><span class="pre">--replace-keywords</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-batch-edit-replace-keywords" title="Permalink to this definition">#</a></dt>
+<dd><p>When specified with –keyword, replace existing keywords. Default is to add to existing keywords.</p>
 </dd></dl>
 
 <dl class="std option">
