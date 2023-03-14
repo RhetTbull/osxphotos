@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.58.2](https://github.com/RhetTbull/osxphotos/compare/v0.58.1...v0.58.2)
+
+### 14 March 2023
+
+#### Changed
+
+- batch-edit no longer overwrites keywords but instead merges new keywords with existing keywords
+
+#### Added
+
+- added --replace-keywords flag to `osxphotos batch-edit` to force replacement of keywords
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code changes.
+- [@pekingduck](https://github.com/pekingduck) for pointing out the deisgn flaw in `batch-edit --keywords` logic
+
 ## [v0.58.1](https://github.com/RhetTbull/osxphotos/compare/v0.58.0...v0.58.1)
 
 ### 09 March 2023
