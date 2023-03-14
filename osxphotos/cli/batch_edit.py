@@ -38,7 +38,13 @@ from .param_types import Latitude, Longitude, TemplateString
     metavar="KEYWORD_TEMPLATE",
     type=TemplateString(),
     multiple=True,
-    help="Set keywords of photo. May be specified multiple times.",
+    help="Add keywords to photo. May be specified multiple times.",
+)
+@click.option(
+    "--replace-keywords",
+    is_flag=True,
+    help="When specified with --keyword, replace existing keywords. "
+    "Default is to add to existing keywords.",
 )
 @click.option(
     "--location",
@@ -59,6 +65,7 @@ def batch_edit(
     title,
     description,
     keyword,
+    replace_keywords,
     location,
     dry_run,
     undo,
@@ -77,11 +84,11 @@ def batch_edit(
         --verbose \\
         --title "California vacation 2023 {created.year}-{created.dd}-{created.mm} {counter:03d}" \\
         --description "{place.name}" \\ 
-        --keyword "Family" --keyword "Travel" --keyword "{keyword}"
+        --keyword "Family" --keyword "Travel"
 
     This will set the title to "California vacation 2023 2023-02-20 001", and so on,
     the description to the reverse geolocation place name, 
-    and the keywords to "Family", "Travel", and any existing keywords of the photo.
+    and add the keywords to "Family", "Travel".
 
     --title, --description, and --keyword may be any valid template string.
     See https://rhettbull.github.io/osxphotos/template_help.html 
@@ -99,6 +106,13 @@ def batch_edit(
     if undo and (title or description or keyword or location):
         echo_error(
             "[error] Cannot specify --undo and any options other than --dry-run. "
+            "Use --help for more information."
+        )
+        sys.exit(1)
+
+    if replace_keywords and not keyword:
+        echo_error(
+            "[error] Cannot specify --replace-keywords without --keyword. "
             "Use --help for more information."
         )
         sys.exit(1)
@@ -124,7 +138,7 @@ def batch_edit(
         save_photo_undo_info(undo_store, photo)
         set_photo_title_from_template(photo, title, dry_run)
         set_photo_description_from_template(photo, description, dry_run)
-        set_photo_keywords_from_template(photo, keyword, dry_run)
+        set_photo_keywords_from_template(photo, keyword, replace_keywords, dry_run)
         set_photo_location(photo, location, dry_run)
 
 
@@ -245,7 +259,10 @@ def set_photo_description_from_template(
 
 
 def set_photo_keywords_from_template(
-    photo: osxphotos.PhotoInfo, keyword_template: list[str], dry_run: bool
+    photo: osxphotos.PhotoInfo,
+    keyword_template: list[str],
+    replace_keywords: bool,
+    dry_run: bool,
 ):
     """Set photo keywords from template"""
     if not keyword_template:
@@ -266,6 +283,9 @@ def set_photo_keywords_from_template(
             f"No keywords returned from template, nothing to do: [bold]{keyword_template}"
         )
         return
+
+    if not replace_keywords:
+        keywords.update(photo.keywords)
 
     verbose(
         f"Setting [i]keywords[/] to {', '.join(f'[bold]{kw}[/]' for kw in keywords)}"

@@ -131,6 +131,7 @@ def test_batch_edit_undo(photoslib):
                 "Test",
                 "--keyword",
                 "test",
+                "--replace-keywords",
                 "--location",
                 "34.052235",
                 "-118.243683",
@@ -164,3 +165,56 @@ def test_batch_edit_undo(photoslib):
         assert photo.description == "Pumpkin Farm"
         assert photo.keywords == ["kids"]
         assert photo.location == (41.256566, -95.940257)
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_replace_keywords(photoslib):
+    """Test batch-edit command with --replace-keywords"""
+    photo = photoslib.selection[0]
+    assert photo.uuid == TEST_DATA_BATCH_EDIT["uuid"]
+    photo.title = "Pumpkin Farm"
+    photo.description = "Pumpkin Farm"
+    photo.keywords = ["kids"]
+
+    with CliRunner().isolated_filesystem():
+        # First test that omitting --replace-keywords adds keywords
+        result = CliRunner().invoke(
+            batch_edit,
+            [
+                "--keyword",
+                "test",
+            ],
+        )
+        assert result.exit_code == 0
+        photo = osxphotos.PhotosDB().get_photo(TEST_DATA_BATCH_EDIT["uuid"])
+        assert sorted(photo.keywords) == ["kids", "test"]
+
+        result = CliRunner().invoke(
+            batch_edit,
+            [
+                "--keyword",
+                "test2",
+                "--replace-keywords",
+            ],
+        )
+        assert result.exit_code == 0
+        photo = osxphotos.PhotosDB().get_photo(TEST_DATA_BATCH_EDIT["uuid"])
+        assert photo.keywords == ["test2"]
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_replace_keywords_error(photoslib):
+    """Test batch-edit command with --replace-keywords when no keywords specified"""
+    photo = photoslib.selection[0]
+    assert photo.uuid == TEST_DATA_BATCH_EDIT["uuid"]
+
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            batch_edit,
+            [
+                "--title",
+                "test",
+                "--replace-keywords",
+            ],
+        )
+        assert result.exit_code != 0
