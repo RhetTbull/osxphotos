@@ -8,14 +8,16 @@ import contextlib
 import dataclasses
 import datetime
 import json
+import logging
 import os
 import os.path
 import pathlib
 import plistlib
+import re
 from datetime import timedelta, timezone
 from functools import cached_property
+from types import SimpleNamespace
 from typing import Any, Dict, Optional
-import logging
 
 import yaml
 from osxmetadata import OSXMetaData
@@ -66,7 +68,7 @@ from .text_detection import detect_text
 from .uti import get_preferred_uti_extension, get_uti_for_extension
 from .utils import _get_resource_loc, hexdigest, list_directory
 
-__all__ = ["PhotoInfo", "PhotoInfoNone"]
+__all__ = ["PhotoInfo", "PhotoInfoNone", "frozen_photoinfo_factory"]
 
 logger = logging.getLogger("osxphotos")
 
@@ -388,6 +390,8 @@ class PhotoInfo:
         """return path_edited_live_photo for Photos <= 4"""
         if self._db._db_version > _PHOTOS_4_VERSION:
             raise RuntimeError("Wrong database format!")
+        if not self.live_photo:
+            return None
         photopath = self._get_predicted_path_edited_live_photo_4()
         if photopath is not None and not os.path.isfile(photopath):
             # the heuristic failed, so try to find the file
@@ -400,10 +404,6 @@ class PhotoInfo:
                     if filename in filelist
                 ),
                 None,
-            )
-        if photopath is None:
-            logger.debug(
-                f"MISSING PATH: edited live photo file for UUID {self._uuid} does not appear to exist"
             )
         return photopath
 
@@ -1198,7 +1198,6 @@ class PhotoInfo:
         """
 
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            logger.debug(f"score not implemented for this database version")
             return None
 
         try:
@@ -1344,7 +1343,6 @@ class PhotoInfo:
         """
 
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            logger.debug(f"exif_info not implemented for this database version")
             return None
 
         try:
@@ -1427,11 +1425,14 @@ class PhotoInfo:
     def hexdigest(self):
         """Returns a unique digest of the photo's properties and metadata;
         useful for detecting changes in any property/metadata of the photo"""
-        return hexdigest(self.json())
+        return hexdigest(self._json_hexdigest())
 
     @cached_property
-    def cloud_metadata(self) -> Dict:
-        """Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict"""
+    def cloud_metadata(self) -> dict[Any, Any]:
+        """Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict; Photos 5+ only"""
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return {}
+
         # This is a large blob of data so don't load it unless requested
         asset_table = _DB_TABLE_NAMES[self._db._photos_ver]["ASSET"]
         sql_cloud_metadata = f"""
@@ -1441,10 +1442,6 @@ class PhotoInfo:
             JOIN {asset_table} on  {asset_table}.ZMASTER = ZCLOUDMASTER.Z_PK
             WHERE {asset_table}.ZUUID = ?
         """
-
-        if self._db._db_version <= _PHOTOS_4_VERSION:
-            logger.debug(f"cloud_metadata not implemented for this database version")
-            return {}
 
         _, cursor = self._db.get_db_connection()
         metadata = {}
@@ -1782,80 +1779,112 @@ class PhotoInfo:
     def asdict(self):
         """return dict representation"""
 
-        folders = {album.title: album.folder_names for album in self.album_info}
-        exif = dataclasses.asdict(self.exif_info) if self.exif_info else {}
-        place = self.place.asdict() if self.place else {}
-        score = dataclasses.asdict(self.score) if self.score else {}
+        adjustments = self.adjustments.asdict() if self.adjustments else {}
+        album_info = [album.asdict() for album in self.album_info]
+        burst_album_info = [a.asdict() for a in self.burst_album_info]
+        burst_photos = [p.uuid for p in self.burst_photos]
         comments = [comment.asdict() for comment in self.comments]
+        exif_info = dataclasses.asdict(self.exif_info) if self.exif_info else {}
+        face_info = [face.asdict() for face in self.face_info]
+        folders = {album.title: album.folder_names for album in self.album_info}
+        import_info = self.import_info.asdict() if self.import_info else {}
         likes = [like.asdict() for like in self.likes]
-        faces = [face.asdict() for face in self.face_info]
+        person_info = [p.asdict() for p in self.person_info]
+        place = self.place.asdict() if self.place else {}
+        project_info = [p.asdict() for p in self.project_info]
+        score = dataclasses.asdict(self.score) if self.score else {}
         search_info = self.search_info.asdict() if self.search_info else {}
+        search_info_normalized = (
+            self.search_info_normalized.asdict() if self.search_info_normalized else {}
+        )
 
         return {
-            "library": self._db._library_path,
-            "uuid": self.uuid,
-            "filename": self.filename,
-            "original_filename": self.original_filename,
+            "adjustments": adjustments,
+            "album_info": album_info,
+            "albums": self.albums,
+            "burst_album_info": burst_album_info,
+            "burst_albums": self.burst_albums,
+            "burst_default_pick": self.burst_default_pick,
+            "burst_key": self.burst_key,
+            "burst_photos": burst_photos,
+            "burst_selected": self.burst_selected,
+            "burst": self.burst,
+            "cloud_guid": self.cloud_guid,
+            "cloud_metadata": self.cloud_metadata,
+            "cloud_owner_hashed_id": self.cloud_owner_hashed_id,
+            "comments": comments,
+            "date_added": self.date_added,
+            "date_modified": self.date_modified,
+            "date_trashed": self.date_trashed,
             "date": self.date,
             "description": self.description,
-            "title": self.title,
-            "keywords": self.keywords,
-            "labels": self.labels,
-            "keywords": self.keywords,
-            "albums": self.albums,
-            "folders": folders,
-            "persons": self.persons,
-            "faces": faces,
-            "path": self.path,
-            "ismissing": self.ismissing,
-            "hasadjustments": self.hasadjustments,
+            "exif_info": exif_info,
             "external_edit": self.external_edit,
+            "face_info": face_info,
             "favorite": self.favorite,
+            "filename": self.filename,
+            "fingerprint": self.fingerprint,
+            "folders": folders,
+            "has_raw": self.has_raw,
+            "hasadjustments": self.hasadjustments,
+            "hdr": self.hdr,
+            "height": self.height,
             "hidden": self.hidden,
-            "latitude": self._latitude,
-            "longitude": self._longitude,
-            "path_edited": self.path_edited,
-            "shared": self.shared,
-            "isphoto": self.isphoto,
-            "ismovie": self.ismovie,
-            "uti": self.uti,
-            "uti_original": self.uti_original,
-            "burst": self.burst,
-            "live_photo": self.live_photo,
-            "path_live_photo": self.path_live_photo,
-            "iscloudasset": self.iscloudasset,
+            "import_info": import_info,
             "incloud": self.incloud,
+            "intrash": self.intrash,
+            "iscloudasset": self.iscloudasset,
+            "ismissing": self.ismissing,
+            "ismovie": self.ismovie,
+            "isphoto": self.isphoto,
+            "israw": self.israw,
             "isreference": self.isreference,
-            "date_modified": self.date_modified,
+            "keywords": self.keywords,
+            "labels_normalized": self.labels_normalized,
+            "labels": self.labels,
+            "latitude": self._latitude,
+            "library": self._db._library_path,
+            "likes": likes,
+            "live_photo": self.live_photo,
+            "location": self.location,
+            "longitude": self._longitude,
+            "orientation": self.orientation,
+            "original_filename": self.original_filename,
+            "original_filesize": self.original_filesize,
+            "original_height": self.original_height,
+            "original_orientation": self.original_orientation,
+            "original_width": self.original_width,
+            "owner": self.owner,
+            "panorama": self.panorama,
+            "path_derivatives": self.path_derivatives,
+            "path_edited_live_photo": self.path_edited_live_photo,
+            "path_edited": self.path_edited,
+            "path_live_photo": self.path_live_photo,
+            "path_raw": self.path_raw,
+            "path": self.path,
+            "person_info": person_info,
+            "persons": self.persons,
+            "place": place,
             "portrait": self.portrait,
+            "project_info": project_info,
+            "raw_original": self.raw_original,
+            "score": score,
             "screenshot": self.screenshot,
+            "search_info_normalized": search_info_normalized,
+            "search_info": search_info,
+            "selfie": self.selfie,
+            "shared": self.shared,
             "slow_mo": self.slow_mo,
             "time_lapse": self.time_lapse,
-            "hdr": self.hdr,
-            "selfie": self.selfie,
-            "panorama": self.panorama,
-            "has_raw": self.has_raw,
-            "israw": self.israw,
-            "raw_original": self.raw_original,
+            "title": self.title,
+            "tzoffset": self.tzoffset,
+            "uti_edited": self.uti_edited,
+            "uti_original": self.uti_original,
             "uti_raw": self.uti_raw,
-            "path_raw": self.path_raw,
-            "place": place,
-            "exif": exif,
-            "score": score,
-            "intrash": self.intrash,
-            "height": self.height,
+            "uti": self.uti,
+            "uuid": self.uuid,
+            "visible": self.visible,
             "width": self.width,
-            "orientation": self.orientation,
-            "original_height": self.original_height,
-            "original_width": self.original_width,
-            "original_orientation": self.original_orientation,
-            "original_filesize": self.original_filesize,
-            "comments": comments,
-            "likes": likes,
-            "search_info": search_info,
-            "fingerprint": self.fingerprint,
-            "cloud_guid": self.cloud_guid,
-            "cloud_owner_hashed_id": self.cloud_owner_hashed_id,
         }
 
     def json(self):
@@ -1867,8 +1896,38 @@ class PhotoInfo:
 
         dict_data = self.asdict()
         for k, v in dict_data.items():
+            # sort lists such as keywords so JSON is consistent
+            # but do not sort certain items like location
+            if k in ["location"]:
+                continue
             if v and isinstance(v, (list, tuple)) and not isinstance(v[0], dict):
-                dict_data[k] = sorted(v)
+                dict_data[k] = sorted(v, key=lambda v: v if v is not None else "")
+        return json.dumps(dict_data, sort_keys=True, default=default)
+
+    def _json_hexdigest(self):
+        """JSON for use by hexdigest()"""
+
+        # This differs from json() because hexdigest must not change if metadata changed
+        # With json(), sort order of lists of dicts is not consistent but these aren't needed
+        # for computing hexdigest so we can ignore them
+        # also don't use visible because it changes based on Photos UI state
+
+        def default(o):
+            if isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+
+        dict_data = self.asdict()
+
+        for k in ["album_info", "burst_album_info", "face_info", "person_info", "visible"]:
+            del dict_data[k]
+
+        for k, v in dict_data.items():
+            # sort lists such as keywords so JSON is consistent
+            # but do not sort certain items like location
+            if k in ["location"]:
+                continue
+            if v and isinstance(v, (list, tuple)) and not isinstance(v[0], dict):
+                dict_data[k] = sorted(v, key=lambda v: v if v is not None else "")
         return json.dumps(dict_data, sort_keys=True, default=default)
 
     def __eq__(self, other):
@@ -1893,10 +1952,111 @@ class PhotoInfo:
 
 
 class PhotoInfoNone:
-    """mock class that returns None for all attributes"""
+    """Mock class that returns None for all attributes"""
 
     def __init__(self):
         pass
 
     def __getattribute__(self, name):
         return None
+
+
+def frozen_photoinfo_factory(photo: PhotoInfo) -> SimpleNamespace:
+    """Return a frozen SimpleNamespace object for a PhotoInfo object"""
+    photo_json = photo.json()
+
+    def _object_hook(d: dict[Any, Any]):
+        if not d:
+            return d
+
+        # if d key matches a ISO 8601 datetime ('2023-03-24T06:46:57.690786', '2019-07-04T16:24:01-07:00', '2019-07-04T16:24:01+07:00'), convert to datetime
+        # fromisoformat will also handle dates with timezone offset in form +0700, etc.
+        for k, v in d.items():
+            if isinstance(v, str) and re.match(
+                r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[.]?\d*[+-]?\d{2}[:]?\d{2}?", v
+            ):
+                d[k] = datetime.datetime.fromisoformat(v)
+        return SimpleNamespace(**d)
+
+    frozen = json.loads(photo_json, object_hook=lambda d: _object_hook(d))
+
+    # add on json() method to frozen object
+    def _json(*args):
+        return photo_json
+
+    frozen.json = _json
+
+    # add hexdigest property to frozen object
+    frozen.hexdigest = photo.hexdigest
+
+    def detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
+        """Detects text in photo and returns lists of results as (detected text, confidence)
+
+        confidence_threshold: float between 0.0 and 1.0. If text detection confidence is below this threshold,
+        text will not be returned. Default is TEXT_DETECTION_CONFIDENCE_THRESHOLD
+
+        If photo is edited, uses the edited photo, otherwise the original; falls back to the preview image if neither edited or original is available
+
+        Returns: list of (detected text, confidence) tuples
+        """
+
+        try:
+            return frozen._detected_text_cache[confidence_threshold]
+        except (AttributeError, KeyError) as e:
+            if isinstance(e, AttributeError):
+                frozen._detected_text_cache = {}
+
+            try:
+                detected_text = frozen._detected_text()
+            except Exception as e:
+                logging.warning(f"Error detecting text in photo {frozen.uuid}: {e}")
+                detected_text = []
+
+            frozen._detected_text_cache[confidence_threshold] = [
+                (text, confidence)
+                for text, confidence in detected_text
+                if confidence >= confidence_threshold
+            ]
+            return frozen._detected_text_cache[confidence_threshold]
+
+    def _detected_text():
+        """detect text in photo, either from cached extended attribute or by attempting text detection"""
+        path = (
+            frozen.path_edited
+            if frozen.hasadjustments and frozen.path_edited
+            else frozen.path
+        )
+        path = path or frozen.path_derivatives[0] if frozen.path_derivatives else None
+        if not path:
+            return []
+
+        md = OSXMetaData(path)
+        try:
+
+            def decoder(val):
+                """Decode value from JSON"""
+                return json.loads(val.decode("utf-8"))
+
+            detected_text = md.get_xattr(
+                "osxphotos.metadata:detected_text", decode=decoder
+            )
+        except KeyError:
+            detected_text = None
+        if detected_text is None:
+            orientation = frozen.orientation or None
+            detected_text = detect_text(path, orientation)
+
+            def encoder(obj):
+                """Encode value as JSON"""
+                val = json.dumps(obj)
+                return val.encode("utf-8")
+
+            md.set_xattr(
+                "osxphotos.metadata:detected_text", detected_text, encode=encoder
+            )
+        return detected_text
+
+    frozen.detected_text = detected_text
+    frozen._detected_text = _detected_text
+
+    return frozen

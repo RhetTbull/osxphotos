@@ -284,6 +284,9 @@ class PhotosDB:
         # key is Z_PK of ZMOMENT table and values are the moment info
         self._db_moment_pk = {}
 
+        # Dict to hold data on imports for Photos <= 4
+        self._db_import_group = {}
+
         logger.debug(f"dbfile = {dbfile}")
 
         if dbfile is None:

@@ -416,7 +416,7 @@ class ExportDB:
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def _get_db_connection(self, dbfile):
         """return db connection to dbname"""
-        return sqlite3.connect(dbfile)
+        return sqlite3.connect(dbfile, check_same_thread=False)
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def _get_database_version(self, conn):
@@ -858,7 +858,7 @@ class ExportDBInMemory(ExportDB):
 
     @retry(
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),
-        retry_error_callback=retry_log_error_no_raise, # #999
+        retry_error_callback=retry_log_error_no_raise,  # #999
     )
     def close(self):
         """close the database connection"""

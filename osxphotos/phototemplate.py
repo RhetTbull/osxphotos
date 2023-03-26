@@ -1352,7 +1352,7 @@ class PhotoTemplate:
         subfield = subfield.lower()
         if subfield in exifdict:
             values = exifdict[subfield]
-            values = [values] if not isinstance(values, list) else values
+            values = values if isinstance(values, list) else [values]
             values = [str(v) for v in values]
 
             # sanitize directory names if needed

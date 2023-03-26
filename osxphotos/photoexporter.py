@@ -12,6 +12,7 @@ from collections import namedtuple  # pylint: disable=syntax-error
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
+from types import SimpleNamespace
 
 import photoscript
 from mako.template import Template
@@ -31,9 +32,10 @@ from ._constants import (
 )
 from ._version import __version__
 from .datetime_utils import datetime_tz_to_utc
-from .exiftool import ExifTool, exiftool_can_write
+from .exiftool import ExifTool, ExifToolCaching, exiftool_can_write, get_exiftool_path
 from .export_db import ExportDB, ExportDBTemp
 from .fileutil import FileUtil
+from .frozen_photoinfo import frozen_photoinfo_factory
 from .photokit import (
     PHOTOS_VERSION_CURRENT,
     PHOTOS_VERSION_ORIGINAL,
@@ -67,6 +69,7 @@ if t.TYPE_CHECKING:
 
 # retry if download_missing/use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
+
 
 # return values for _should_update_photo
 class ShouldUpdate(Enum):
@@ -309,7 +312,6 @@ class ExportResults:
         xattr_skipped=None,
         xattr_written=None,
     ):
-
         local_vars = locals()
         self._datetime = datetime.now().isoformat()
         for attr in self.attributes:
@@ -372,9 +374,9 @@ class PhotoExporter:
     """Export a photo"""
 
     def __init__(self, photo: "PhotoInfo", tmpdir: t.Optional[str] = None):
-        self.photo = photo
+        self.photo = frozen_photoinfo_factory(photo)
         self._render_options = RenderOptions()
-        self._verbose = self.photo._verbose
+        self._verbose = photo._verbose
 
         # define functions for adding markup
         self._filepath = add_rich_markup_tag("filepath", rich=False)
@@ -950,7 +952,8 @@ class PhotoExporter:
         """Stage a photo for export with AppleScript to a temporary directory
 
         Note: If exporting an edited live photo, the associated live video will not be exported.
-        This is a limitation of the Photos AppleScript interface and Photos behaves the same way."""
+        This is a limitation of the Photos AppleScript interface and Photos behaves the same way.
+        """
 
         if options.edited and not self.photo.hasadjustments:
             raise ValueError("Edited version requested but photo has no adjustments")
@@ -1564,7 +1567,7 @@ class PhotoExporter:
         with ExifTool(
             filepath,
             flags=options.exiftool_flags,
-            exiftool=self.photo._db._exiftool_path,
+            exiftool=self.photo._exiftool_path,
         ) as exiftool:
             for exiftag, val in exif_info.items():
                 if type(val) == list:
@@ -1744,7 +1747,6 @@ class PhotoExporter:
                 elif self.photo.ismovie:
                     exif["Keys:GPSCoordinates"] = f"{lat} {lon}"
                     exif["UserData:GPSCoordinates"] = f"{lat} {lon}"
-
         # process date/time and timezone offset
         # Photos exports the following fields and sets modify date to creation date
         # [EXIF]    Modify Date             : 2020:10:30 00:00:00
@@ -1854,7 +1856,7 @@ class PhotoExporter:
     def _get_exif_keywords(self):
         """returns list of keywords found in the file's exif metadata"""
         keywords = []
-        exif = self.photo.exiftool
+        exif = exiftool_caching(self.photo)
         if exif:
             exifdict = exif.asdict()
             for field in ["IPTC:Keywords", "XMP:TagsList", "XMP:Subject"]:
@@ -1871,7 +1873,7 @@ class PhotoExporter:
     def _get_exif_persons(self):
         """returns list of persons found in the file's exif metadata"""
         persons = []
-        exif = self.photo.exiftool
+        exif = exiftool_caching(self.photo)
         if exif:
             exifdict = exif.asdict()
             try:
@@ -2142,3 +2144,32 @@ def rename_jpeg_files(files, jpeg_ext, fileutil):
         else:
             new_files.append(file)
     return new_files
+
+
+def exiftool_caching(photo: SimpleNamespace) -> ExifToolCaching:
+    """Return ExifToolCaching object for photo
+
+    Args:
+        photo: SimpleNamespace object with photo info
+
+    Returns:
+        ExifToolCaching object
+    """
+    try:
+        return photo._exiftool_caching
+    except AttributeError:
+        try:
+            exiftool_path = photo._exiftool_path or get_exiftool_path()
+            if photo.path is not None and os.path.isfile(photo.path):
+                exiftool = ExifToolCaching(photo.path, exiftool=exiftool_path)
+            else:
+                exiftool = None
+        except FileNotFoundError:
+            # get_exiftool_path raises FileNotFoundError if exiftool not found
+            exiftool = None
+            logging.warning(
+                "exiftool not in path; download and install from https://exiftool.org/"
+            )
+
+        photo._exiftool_caching = exiftool
+        return photo._exiftool_caching
