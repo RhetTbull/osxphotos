@@ -8,7 +8,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: pip install --user ruff
-    - run: ruff --format=github --line-length=7228 --target-version=py37
+    - run: ruff --format=github --line-length=7228 --target-version=py39
                 --ignore=E402,E712,E721,E722,E741,F401,F403,F405,F541,F601,F811,F821,F822,F841 .
   build:
     runs-on: ${{ matrix.os }}
