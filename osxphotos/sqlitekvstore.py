@@ -9,6 +9,8 @@ from typing import Callable, Dict, Generator, Iterable, Optional, Tuple, TypeVar
 # keep mypy happy, keys/values can be any type supported by SQLite
 T = TypeVar("T")
 
+__version__ = "0.3.0"
+
 __all__ = ["SQLiteKVStore"]
 
 
@@ -41,7 +43,7 @@ class SQLiteKVStore:
         self._serialize_func = serialize
         self._deserialize_func = deserialize
         self._conn = (
-            sqlite3.Connection(dbpath)
+            sqlite3.connect(dbpath)
             if os.path.exists(dbpath)
             else self._create_database(dbpath)
         )
@@ -53,7 +55,7 @@ class SQLiteKVStore:
 
     def _create_database(self, dbpath: str):
         """Create the key-value database"""
-        conn = sqlite3.Connection(dbpath)
+        conn = sqlite3.connect(dbpath)
         cursor = conn.cursor()
         cursor.execute(
             """CREATE TABLE IF NOT EXISTS _about (

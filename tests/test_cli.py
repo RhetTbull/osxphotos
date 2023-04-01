@@ -4631,7 +4631,7 @@ def test_export_force_update():
             conn = sqlite3.connect(dbpath)
             c = conn.cursor()
         except sqlite3.Error as e:
-            pytest.exit(f"An error occurred opening sqlite file")
+            pytest.exit("An error occurred opening sqlite file")
 
         # photo is IMG_4547.jpg
         c.execute(

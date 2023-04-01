@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 import os.path
+import sqlite3
 from datetime import datetime
 from enum import Enum
+
+logger: logging.Logger = logging.getLogger("osxphotos")
 
 APP_NAME = "osxphotos"
 
@@ -464,3 +468,12 @@ PROFILE_SORT_KEYS = [
 UUID_PATTERN = (
     r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
 )
+# Reference: https://docs.python.org/3/library/sqlite3.html?highlight=sqlite3%20threadsafety#sqlite3.threadsafety
+# and https://docs.python.org/3/library/sqlite3.html?highlight=sqlite3%20threadsafety#sqlite3.connect
+# 3: serialized mode; Threads may share the module, connections and cursors
+# 3 is the default in the python.org python 3.11 distribution
+# earlier versions of python.org python 3.x default to 1 which means threads may not share
+# sqlite3 connections and thus PhotoInfo.export() cannot be used in a multithreaded environment
+# pass SQLITE_CHECK_SAME_THREAD to sqlite3.connect() to enable multithreaded access on systems that support it
+SQLITE_CHECK_SAME_THREAD = not sqlite3.threadsafety == 3
+logger.debug(f"{SQLITE_CHECK_SAME_THREAD=}, {sqlite3.threadsafety=}")

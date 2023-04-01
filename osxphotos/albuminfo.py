@@ -18,6 +18,7 @@ from ._constants import (
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_FOLDER_KIND,
+    _PHOTOS_5_VERSION,
     TIME_DELTA,
     AlbumSortOrder,
 )
@@ -61,7 +62,7 @@ class AlbumInfoBaseClass:
     including folders, photos, etc.
     """
 
-    def __init__(self, db=None, uuid=None):
+    def __init__(self, db, uuid):
         self._uuid = uuid
         self._db = db
         self._title = self._db._dbalbum_details[uuid]["title"]
@@ -121,7 +122,8 @@ class AlbumInfoBaseClass:
     @property
     def end_date(self):
         """For Albums, return end date (most recent image) of album or None for albums with no images
-        For Import Sessions, return end date of import sessions (when import was completed)"""
+        For Import Sessions, return end date of import sessions (when import was completed)
+        """
         try:
             return self._end_date
         except AttributeError:
@@ -163,6 +165,17 @@ class AlbumInfoBaseClass:
                 self._owner = None
             return self._owner
 
+    def asdict(self):
+        """Return album info as a dict"""
+        return {
+            "uuid": self.uuid,
+            "creation_date": self.creation_date,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "owner": self.owner,
+            "photos": [p.uuid for p in self.photos],
+        }
+
     def __len__(self):
         """return number of photos contained in album"""
         return len(self.photos)
@@ -173,6 +186,10 @@ class AlbumInfo(AlbumInfoBaseClass):
     Info about a specific Album, contains all the details about the album
     including folders, photos, etc.
     """
+
+    def __init__(self, db, uuid):
+        super().__init__(db=db, uuid=uuid)
+        self._title = self._db._dbalbum_details[uuid]["title"]
 
     @property
     def title(self):
@@ -205,10 +222,11 @@ class AlbumInfo(AlbumInfoBaseClass):
 
     @property
     def folder_names(self):
-        """return hierarchical list of folders the album is contained in
+        """Return hierarchical list of folders the album is contained in
         the folder list is in form:
         ["Top level folder", "sub folder 1", "sub folder 2", ...]
-        returns empty list if album is not in any folders"""
+        or empty list if album is not in any folders
+        """
 
         try:
             return self._folder_names
@@ -218,10 +236,9 @@ class AlbumInfo(AlbumInfoBaseClass):
 
     @property
     def folder_list(self):
-        """return hierarchical list of folders the album is contained in
-        as list of FolderInfo objects in form
-        ["Top level folder", "sub folder 1", "sub folder 2", ...]
-        returns empty list if album is not in any folders"""
+        """Returns list of FolderInfo objects for each folder the album is contained in
+        or empty list if album is not in any folders
+        """
 
         try:
             return self._folders
@@ -246,7 +263,7 @@ class AlbumInfo(AlbumInfoBaseClass):
                 parent_pk = self._db._dbalbum_details[self._uuid]["parentfolder"]
                 self._parent = (
                     FolderInfo(db=self._db, uuid=self._db._dbalbums_pk[parent_pk])
-                    if parent_pk != self._db._folder_root_pk
+                    if parent_pk is not None and parent_pk != self._db._folder_root_pk
                     else None
                 )
             return self._parent
@@ -281,9 +298,43 @@ class AlbumInfo(AlbumInfoBaseClass):
             f"Photo with uuid {photo.uuid} does not appear to be in this album"
         )
 
+    def asdict(self):
+        """Return album info as a dict"""
+        dict_data = super().asdict()
+        dict_data["title"] = self.title
+        dict_data["folder_names"] = self.folder_names
+        dict_data["folder_list"] = [f.uuid for f in self.folder_list]
+        dict_data["sort_order"] = self.sort_order
+        dict_data["parent"] = self.parent.uuid if self.parent else None
+        return dict_data
+
 
 class ImportInfo(AlbumInfoBaseClass):
     """Information about import sessions"""
+
+    def __init__(self, db, uuid):
+        self._uuid = uuid
+        self._db = db
+
+        if self._db._db_version >= _PHOTOS_5_VERSION:
+            return super().__init__(db=db, uuid=uuid)
+
+        import_session = self._db._db_import_group[self._uuid]
+        try:
+            self._creation_date_timestamp = import_session[3]
+        except (ValueError, TypeError, KeyError):
+            self._creation_date_timestamp = datetime(1970, 1, 1)
+        self._start_date_timestamp = self._creation_date_timestamp
+        self._end_date_timestamp = self._creation_date_timestamp
+        self._title = import_session[2]
+        self._local_tz = get_local_tz(
+            datetime.fromtimestamp(self._creation_date_timestamp + TIME_DELTA)
+        )
+
+    @property
+    def title(self):
+        """return title / name of import session"""
+        return self._title
 
     @property
     def photos(self):
@@ -291,16 +342,35 @@ class ImportInfo(AlbumInfoBaseClass):
         try:
             return self._photos
         except AttributeError:
-            uuid_list, sort_order = zip(
-                *[
-                    (uuid, self._db._dbphotos[uuid]["fok_import_session"])
-                    for uuid in self._db._dbphotos
-                    if self._db._dbphotos[uuid]["import_uuid"] == self.uuid
+            if self._db._db_version >= _PHOTOS_5_VERSION:
+                uuid_list, sort_order = zip(
+                    *[
+                        (uuid, self._db._dbphotos[uuid]["fok_import_session"])
+                        for uuid in self._db._dbphotos
+                        if self._db._dbphotos[uuid]["import_uuid"] == self.uuid
+                    ]
+                )
+                sorted_uuid = sort_list_by_keys(uuid_list, sort_order)
+                self._photos = self._db.photos_by_uuid(sorted_uuid)
+            else:
+                import_photo_uuids = [
+                    u
+                    for u in self._db._dbphotos
+                    if self._db._dbphotos[u]["import_uuid"] == self.uuid
                 ]
-            )
-            sorted_uuid = sort_list_by_keys(uuid_list, sort_order)
-            self._photos = self._db.photos_by_uuid(sorted_uuid)
+                self._photos = self._db.photos_by_uuid(import_photo_uuids)
             return self._photos
+
+    def asdict(self):
+        """Return import info as a dict"""
+        return {
+            "uuid": self.uuid,
+            "creation_date": self.creation_date,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "title": self.title,
+            "photos": [p.uuid for p in self.photos],
+        }
 
     def __bool__(self):
         """Always returns True
@@ -308,6 +378,7 @@ class ImportInfo(AlbumInfoBaseClass):
         thus if import_info is not None, it must be a valid import_info object (#820)
         """
         return True
+
 
 class ProjectInfo(AlbumInfo):
     """
@@ -386,7 +457,7 @@ class FolderInfo:
                 parent_pk = self._db._dbalbum_details[self._uuid]["parentfolder"]
                 self._parent = (
                     FolderInfo(db=self._db, uuid=self._db._dbalbums_pk[parent_pk])
-                    if parent_pk != self._db._folder_root_pk
+                    if parent_pk is not None and parent_pk != self._db._folder_root_pk
                     else None
                 )
             return self._parent
@@ -415,6 +486,16 @@ class FolderInfo:
                 ]
             self._folders = folders
             return self._folders
+
+    def asdict(self):
+        """Return folder info as a dict"""
+        return {
+            "title": self.title,
+            "uuid": self.uuid,
+            "parent": self.parent.uuid if self.parent is not None else None,
+            "subfolders": [f.uuid for f in self.subfolders],
+            "albums": [a.uuid for a in self.album_info],
+        }
 
     def __len__(self):
         """returns count of folders + albums contained in the folder"""

@@ -11,7 +11,7 @@ import photoscript
 from strpdatetime import strpdatetime
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from ._constants import _DB_TABLE_NAMES
+from ._constants import _DB_TABLE_NAMES, SQLITE_CHECK_SAME_THREAD
 from .datetime_utils import (
     datetime_has_tz,
     datetime_remove_tz,
@@ -219,7 +219,7 @@ def _set_date_added(library_path: str, uuid: str, date_added: datetime.datetime)
     asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
 
     timestamp = datetime_to_photos_timestamp(date_added)
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     c.execute(
         f"UPDATE {asset_table} SET ZADDEDDATE=? WHERE ZUUID=?",
@@ -268,7 +268,7 @@ def get_photo_date_added(
     photos_version = get_photos_library_version(library_path)
     db_path = str(pathlib.Path(library_path) / "database/Photos.sqlite")
     asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     c.execute(
         f"SELECT ZADDEDDATE FROM {asset_table} WHERE ZUUID=?",
