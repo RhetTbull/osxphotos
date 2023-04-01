@@ -28,7 +28,9 @@ from osxphotos.cli import echo, query_command, verbose
     type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True),
 )
 def export(workers, export_dir, photos: list[osxphotos.PhotoInfo], **kwargs):
-    """Export photos"""
+    """Export photos to EXPORT_DIR using concurrent export.
+    Use --workers to specify the number of worker threads to use.
+    """
     workers = workers or os.cpu_count() * 5
     echo(f"Exporting {len(photos)} photos to {export_dir} using {workers} workers")
     start_t = time.perf_counter()
