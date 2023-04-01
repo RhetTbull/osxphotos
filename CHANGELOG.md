@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.59.0](https://github.com/RhetTbull/osxphotos/compare/v0.58.2...v0.59.0)
+
+### 1 April 2023
+
+#### Added
+
+- `PhotoInfo.export()` and `PhotoExporter.export()` now support exporting in concurrent threads on Python 3.11+. This applies only to the API. The `osxphotos export` CLI does not yet support concurrent export. See #999.
+
+See example code in [concurrent_export.py](https://github.com/RhetTbull/osxphotos/blob/main/examples/concurrent_export.py).
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code changes.
+- [@eecue](https://github.com/eecue) for testing and helping pinpoint the issues.
+
 ## [v0.58.2](https://github.com/RhetTbull/osxphotos/compare/v0.58.1...v0.58.2)
 
 ### 14 March 2023
