@@ -21,6 +21,7 @@ from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
+from .photoinfo import PhotoInfo
 from .text_detection import detect_text
 from .utils import expand_and_validate_filepath, load_function, uuid_to_shortuuid
 
@@ -1153,7 +1154,7 @@ class PhotoTemplate:
                 )
             except ValueError as e:
                 raise SyntaxError(
-                    f"comparison operators may only be used with values that can be converted to numbers: {vals} {conditional_value}"
+                    f"comparison operators may only be used with values that can be converted to numbers: {value} {conditional_value}"
                 ) from e
 
         predicate_is_true = False
