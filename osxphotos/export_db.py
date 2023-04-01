@@ -188,7 +188,7 @@ class ExportDB:
                 (filename, filename_normalized, uuid),
             )
             conn.commit()
-            return ExportRecord(conn, self.lock, filename_normalized)
+        return ExportRecord(conn, self.lock, filename_normalized)
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_uuid_for_file(self, filename: str) -> str | None:
@@ -991,6 +991,11 @@ class ExportDBTemp(ExportDBInMemory):
 class ExportRecord:
     """ExportRecord class"""
 
+    # Implementation note:all properties and setters must be aware of whether or not running
+    # as a context manager. If running as a context manager, the lock is not acquired by the
+    # getter/setter as the lock is acquired by the context manager.  If not running as a
+    # context manager, the lock is acquired by the getter/setter.
+
     __slots__ = [
         "_conn",
         "_context_manager",
@@ -1014,18 +1019,24 @@ class ExportRecord:
     @property
     def filepath(self) -> str:
         """return filepath"""
+        if self._context_manager:
+            return self._filepath()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            if row := c.execute(
-                "SELECT filepath FROM export_data WHERE filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone():
-                return row[0]
+            return self._filepath()
 
-            raise ValueError(
-                f"No filepath found in database for {self._filepath_normalized}"
-            )
+    def _filepath(self) -> str:
+        """return filepath"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT filepath FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            return row[0]
+
+        raise ValueError(
+            f"No filepath found in database for {self._filepath_normalized}"
+        )
 
     @property
     def filepath_normalized(self) -> str:
@@ -1035,209 +1046,315 @@ class ExportRecord:
     @property
     def uuid(self) -> str:
         """return uuid"""
+        if self._context_manager:
+            return self._uuid()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            if row := c.execute(
-                "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone():
-                return row[0]
+            return self._uuid()
+
+    def _uuid(self) -> str:
+        """return uuid"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            return row[0]
 
         raise ValueError(f"No uuid found in database for {self._filepath_normalized}")
 
     @property
     def digest(self) -> str:
         """returns the digest value"""
+        if self._context_manager:
+            return self._digest()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            if row := c.execute(
-                "SELECT digest FROM export_data WHERE filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone():
-                return row[0]
-
-        raise ValueError(f"No digest found in database for {self._filepath_normalized}")
+            return self._digest()
 
     @digest.setter
     def digest(self, value: str):
         """set digest value"""
-        with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            c.execute(
-                "UPDATE export_data SET digest = ? WHERE filepath_normalized = ?;",
-                (value, self._filepath_normalized),
-            )
-            if not self._context_manager:
-                conn.commit()
+        if self._context_manager:
+            self._digest_setter(value)
+        else:
+            with self.lock:
+                self._digest_setter(value)
+
+    def _digest(self) -> str:
+        """returns the digest value"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT digest FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            return row[0]
+
+        raise ValueError(f"No digest found in database for {self._filepath_normalized}")
+
+    def _digest_setter(self, value: str):
+        """set digest value"""
+        conn = self.connection
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET digest = ? WHERE filepath_normalized = ?;",
+            (value, self._filepath_normalized),
+        )
+        if not self._context_manager:
+            conn.commit()
 
     @property
     def exifdata(self) -> str:
         """returns exifdata value for record"""
+        if self._context_manager:
+            return self._exifdata()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            if row := c.execute(
-                "SELECT exifdata FROM export_data WHERE filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone():
-                return row[0]
+            return self._exifdata()
+
+    @exifdata.setter
+    def exifdata(self, value: str):
+        """set exifdata value"""
+        if self._context_manager:
+            self._exifdata_setter(value)
+        else:
+            with self.lock:
+                self._exifdata_setter(value)
+
+    def _exifdata(self) -> str:
+        """returns exifdata value for record"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT exifdata FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            return row[0]
 
         raise ValueError(
             f"No exifdata found in database for {self._filepath_normalized}"
         )
 
-    @exifdata.setter
-    def exifdata(self, value: str):
+    def _exifdata_setter(self, value: str):
         """set exifdata value"""
-        with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            c.execute(
-                "UPDATE export_data SET exifdata = ? WHERE filepath_normalized = ?;",
-                (
-                    value,
-                    self._filepath_normalized,
-                ),
-            )
-            if not self._context_manager:
-                conn.commit()
+        conn = self.connection
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET exifdata = ? WHERE filepath_normalized = ?;",
+            (
+                value,
+                self._filepath_normalized,
+            ),
+        )
+        if not self._context_manager:
+            conn.commit()
 
     @property
     def src_sig(self) -> tuple[int, int, int | None]:
         """return source file signature value"""
+        if self._context_manager:
+            return self._src_sig()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            if row := c.execute(
-                "SELECT src_mode, src_size, src_mtime FROM export_data WHERE filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone():
-                mtime = int(row[2]) if row[2] is not None else None
-                return (row[0], row[1], mtime)
+            return self._src_sig()
+
+    @src_sig.setter
+    def src_sig(self, value: tuple[int, int, int | None]):
+        """set source file signature value"""
+        if self._context_manager:
+            self._src_sig_setter(value)
+        else:
+            with self.lock:
+                self._src_sig_setter(value)
+
+    def _src_sig(self) -> tuple[int, int, int | None]:
+        """return source file signature value"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT src_mode, src_size, src_mtime FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            mtime = int(row[2]) if row[2] is not None else None
+            return (row[0], row[1], mtime)
 
         raise ValueError(
             f"No src_sig found in database for {self._filepath_normalized}"
         )
 
-    @src_sig.setter
-    def src_sig(self, value: tuple[int, int, int | None]):
+    def _src_sig_setter(self, value: tuple[int, int, int | None]):
         """set source file signature value"""
-        with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            c.execute(
-                "UPDATE export_data SET src_mode = ?, src_size = ?, src_mtime = ? WHERE filepath_normalized = ?;",
-                (
-                    value[0],
-                    value[1],
-                    value[2],
-                    self._filepath_normalized,
-                ),
-            )
-            if not self._context_manager:
-                conn.commit()
+        conn = self.connection
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET src_mode = ?, src_size = ?, src_mtime = ? WHERE filepath_normalized = ?;",
+            (
+                value[0],
+                value[1],
+                value[2],
+                self._filepath_normalized,
+            ),
+        )
+        if not self._context_manager:
+            conn.commit()
 
     @property
     def dest_sig(self) -> tuple[int, int, int | None]:
         """return destination file signature"""
+        if self._context_manager:
+            return self._dest_sig()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            if row := c.execute(
-                "SELECT dest_mode, dest_size, dest_mtime FROM export_data WHERE filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone():
-                mtime = int(row[2]) if row[2] is not None else None
-                return (row[0], row[1], mtime)
+            return self._dest_sig()
+
+    @dest_sig.setter
+    def dest_sig(self, value: tuple[int, int, int | None]):
+        """set destination file signature"""
+        if self._context_manager:
+            self._dest_sig_setter(value)
+        else:
+            with self.lock:
+                self._dest_sig_setter(value)
+
+    def _dest_sig(self) -> tuple[int, int, int | None]:
+        """return destination file signature"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT dest_mode, dest_size, dest_mtime FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            mtime = int(row[2]) if row[2] is not None else None
+            return (row[0], row[1], mtime)
 
         raise ValueError(
             f"No dest_sig found in database for {self._filepath_normalized}"
         )
 
-    @dest_sig.setter
-    def dest_sig(self, value: tuple[int, int, int | None]):
+    def _dest_sig_setter(self, value: tuple[int, int, int | None]):
         """set destination file signature"""
-        with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            c.execute(
-                "UPDATE export_data SET dest_mode = ?, dest_size = ?, dest_mtime = ? WHERE filepath_normalized = ?;",
-                (
-                    value[0],
-                    value[1],
-                    value[2],
-                    self._filepath_normalized,
-                ),
-            )
-            if not self._context_manager:
-                conn.commit()
+        conn = self.connection
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET dest_mode = ?, dest_size = ?, dest_mtime = ? WHERE filepath_normalized = ?;",
+            (
+                value[0],
+                value[1],
+                value[2],
+                self._filepath_normalized,
+            ),
+        )
+        if not self._context_manager:
+            conn.commit()
 
     @property
     def photoinfo(self) -> str:
         """Returns info value"""
-        uuid = self.uuid
+        if self._context_manager:
+            return self._photoinfo()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            row = c.execute(
-                "SELECT photoinfo from photoinfo where uuid = ?;",
-                (uuid,),
-            ).fetchone()
-            return row[0] if row else None
+            return self._photoinfo()
 
     @photoinfo.setter
     def photoinfo(self, value: str):
         """Sets info value"""
-        uuid = self.uuid
-        with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            c.execute(
-                "INSERT OR REPLACE INTO photoinfo (uuid, photoinfo) VALUES (?, ?);",
-                (uuid, value),
+        if self._context_manager:
+            self._photoinfo_setter(value)
+        else:
+            with self.lock:
+                self._photoinfo_setter(value)
+
+    def _photoinfo(self) -> str:
+        """Returns info value"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            uuid = row[0]
+        else:
+            raise ValueError(
+                f"No uuid found in database for {self._filepath_normalized}"
             )
-            if not self._context_manager:
-                conn.commit()
+        row = c.execute(
+            "SELECT photoinfo from photoinfo where uuid = ?;",
+            (uuid,),
+        ).fetchone()
+        return row[0] if row else None
+
+    def _photoinfo_setter(self, value: str):
+        """Sets info value"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            uuid = row[0]
+        else:
+            raise ValueError(
+                f"No uuid found in database for {self._filepath_normalized}"
+            )
+        c.execute(
+            "INSERT OR REPLACE INTO photoinfo (uuid, photoinfo) VALUES (?, ?);",
+            (uuid, value),
+        )
+        if not self._context_manager:
+            conn.commit()
 
     @property
     def export_options(self) -> str:
         """Get export_options value"""
+        if self._context_manager:
+            return self._export_options()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            row = c.execute(
-                "SELECT export_options from export_data where filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone()
-            return row[0] if row else None
+            return self._export_options()
 
     @export_options.setter
     def export_options(self, value: str):
         """Set export_options value"""
-        with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            c.execute(
-                "UPDATE export_data SET export_options = ? WHERE filepath_normalized = ?;",
-                (value, self._filepath_normalized),
-            )
-            if not self._context_manager:
-                conn.commit()
+        if self._context_manager:
+            self._export_options_setter(value)
+        else:
+            with self.lock:
+                self._export_options_setter(value)
+
+    def _export_options(self) -> str:
+        """Get export_options value"""
+        conn = self.connection
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT export_options from export_data where filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone()
+        return row[0] if row else None
+
+    def _export_options_setter(self, value: str):
+        """Set export_options value"""
+        conn = self.connection
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET export_options = ? WHERE filepath_normalized = ?;",
+            (value, self._filepath_normalized),
+        )
+        if not self._context_manager:
+            conn.commit()
 
     @property
     def timestamp(self) -> str:
         """returns the timestamp value"""
+        if self._context_manager:
+            return self._timestamp()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            if row := c.execute(
-                "SELECT timestamp FROM export_data WHERE filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone():
-                return row[0]
+            return self._timestamp()
+
+    def _timestamp(self) -> str:
+        """returns the timestamp value"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT timestamp FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            return row[0]
 
         raise ValueError(
             f"No timestamp found in database for {self._filepath_normalized}"
@@ -1246,32 +1363,45 @@ class ExportRecord:
     @property
     def error(self) -> dict[str, Any] | None:
         """Return error value"""
+        if self._context_manager:
+            return self._error()
         with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            if row := c.execute(
-                "SELECT error FROM export_data WHERE filepath_normalized = ?;",
-                (self._filepath_normalized,),
-            ).fetchone():
-                return json.loads(row[0]) if row[0] else None
-
-        raise ValueError(f"No error found in database for {self._filepath_normalized}")
+            return self._error()
 
     @error.setter
     def error(self, value: dict[str, str] | None):
         """Set error value"""
+        if self._context_manager:
+            self._error_setter(value)
+        else:
+            with self.lock:
+                self._error_setter(value)
+
+    def _error(self) -> dict[str, Any] | None:
+        """Return error value"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT error FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            return json.loads(row[0]) if row[0] else None
+
+        raise ValueError(f"No error found in database for {self._filepath_normalized}")
+
+    def _error_setter(self, value: dict[str, str] | None):
+        """Set error value"""
         value = value or {}
-        with self.lock:
-            conn = self.connection
-            c = conn.cursor()
-            # use default=str because some of the values are Path objects
-            error = json.dumps(value, default=str)
-            c.execute(
-                "UPDATE export_data SET error = ? WHERE filepath_normalized = ?;",
-                (error, self._filepath_normalized),
-            )
-            if not self._context_manager:
-                conn.commit()
+        conn = self.connection
+        c = conn.cursor()
+        # use default=str because some of the values are Path objects
+        error = json.dumps(value, default=str)
+        c.execute(
+            "UPDATE export_data SET error = ? WHERE filepath_normalized = ?;",
+            (error, self._filepath_normalized),
+        )
+        if not self._context_manager:
+            conn.commit()
 
     def asdict(self) -> dict[str, Any]:
         """Return dict of self"""
@@ -1297,11 +1427,13 @@ class ExportRecord:
 
     def __enter__(self):
         self._context_manager = True
+        self.lock.acquire()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type:
+        if exc_type and self._conn.in_transaction:
             self._conn.rollback()
-        else:
+        elif self._conn.in_transaction:
             self._conn.commit()
         self._context_manager = False
+        self.lock.release()

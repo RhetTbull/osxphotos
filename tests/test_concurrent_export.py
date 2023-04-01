@@ -22,7 +22,7 @@ def test_concurrent_export(count):
     photos = [p for p in photosdb.photos() if not p.ismissing]
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             futures = [
                 executor.submit(p.export, tmpdir, f"{p.uuid}_{p.original_filename}")
                 for p in photos
@@ -44,7 +44,7 @@ def test_concurrent_export_with_exportdb(count):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         exportdb = osxphotos.ExportDB(pathlib.Path(tmpdir) / "export.db", tmpdir)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             futures = []
             for p in photos:
                 options = osxphotos.ExportOptions()
