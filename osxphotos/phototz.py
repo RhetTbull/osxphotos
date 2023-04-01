@@ -11,7 +11,7 @@ from typing import Callable, Optional, Tuple
 from photoscript import Photo
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from ._constants import _DB_TABLE_NAMES
+from ._constants import _DB_TABLE_NAMES, SQLITE_CHECK_SAME_THREAD
 from .photosdb.photosdb_utils import get_photos_library_version
 from .timezones import Timezone
 from .utils import get_last_library_path, get_system_library_path, noop
@@ -67,7 +67,9 @@ class PhotoTimeZone:
                     ON ZADDITIONALASSETATTRIBUTES.ZASSET = {self.ASSET_TABLE}.Z_PK
                     WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}' 
             """
-        with sqlite3.connect(self.db_path) as conn:
+        with sqlite3.connect(
+            self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
+        ) as conn:
             c = conn.cursor()
             c.execute(sql)
             results = c.fetchone()
@@ -137,7 +139,9 @@ class PhotoTimeZoneUpdater:
                         ON ZADDITIONALASSETATTRIBUTES.ZASSET = {self.ASSET_TABLE}.Z_PK
                         WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}' 
                 """
-            with sqlite3.connect(self.db_path) as conn:
+            with sqlite3.connect(
+                self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
+            ) as conn:
                 c = conn.cursor()
                 c.execute(sql)
                 results = c.fetchone()
@@ -151,7 +155,9 @@ class PhotoTimeZoneUpdater:
                                 ZTIMEZONENAME='{self.tz_name}' 
                                 WHERE Z_PK={z_pk};
                         """
-            with sqlite3.connect(self.db_path) as conn:
+            with sqlite3.connect(
+                self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
+            ) as conn:
                 c = conn.cursor()
                 c.execute(sql_update)
                 conn.commit()

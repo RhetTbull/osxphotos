@@ -25,7 +25,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 from strpdatetime import strpdatetime
 
-from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
+from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL, SQLITE_CHECK_SAME_THREAD
 from osxphotos._version import __version__
 from osxphotos.cli.cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
 from osxphotos.cli.common import get_data_dir
@@ -77,7 +77,8 @@ def echo(message, emoji=True, **kwargs):
 class PhotoInfoFromFile:
     """Mock PhotoInfo class for a file to be imported
 
-    Returns None for most attributes but allows some templates like exiftool and created to work correctly"""
+    Returns None for most attributes but allows some templates like exiftool and created to work correctly
+    """
 
     def __init__(self, filepath: Union[str, Path], exiftool: Optional[str] = None):
         self._path = str(filepath)
@@ -745,7 +746,7 @@ def write_sqlite_report(
 
     file_exists = os.path.isfile(report_file)
 
-    conn = sqlite3.connect(report_file)
+    conn = sqlite3.connect(report_file, check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
 
     if not append or not file_exists:

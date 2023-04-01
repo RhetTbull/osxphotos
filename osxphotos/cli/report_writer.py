@@ -12,6 +12,7 @@ from abc import ABC, abstractmethod
 from contextlib import suppress
 from typing import Dict, Union
 
+from osxphotos._constants import SQLITE_CHECK_SAME_THREAD
 from osxphotos.export_db import OSXPHOTOS_ABOUT_STRING
 from osxphotos.photoexporter import ExportResults
 from osxphotos.sqlite_utils import sqlite_columns
@@ -181,7 +182,7 @@ class ExportReportWriterSQLite(ReportWriterABC):
             with suppress(FileNotFoundError):
                 os.unlink(self.output_file)
 
-        self._conn = sqlite3.connect(self.output_file)
+        self._conn = sqlite3.connect(self.output_file, check_same_thread=SQLITE_CHECK_SAME_THREAD)
         self._create_tables()
         self.report_id = self._generate_report_id()
 
@@ -533,7 +534,7 @@ class SyncReportWriterSQLite(ReportWriterABC):
             with suppress(FileNotFoundError):
                 os.unlink(self.output_file)
 
-        self._conn = sqlite3.connect(self.output_file)
+        self._conn = sqlite3.connect(self.output_file, check_same_thread=SQLITE_CHECK_SAME_THREAD)
         self._create_tables()
         self.report_id = self._generate_report_id()
 

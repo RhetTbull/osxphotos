@@ -16,7 +16,7 @@ from rich import print
 
 from osxphotos.photoinfo import PhotoInfo
 
-from ._constants import OSXPHOTOS_EXPORT_DB
+from ._constants import OSXPHOTOS_EXPORT_DB, SQLITE_CHECK_SAME_THREAD
 from ._version import __version__
 from .configoptions import ConfigOptions
 from .export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDB
@@ -50,7 +50,7 @@ def export_db_get_version(
     dbfile: Union[str, pathlib.Path]
 ) -> Tuple[Optional[int], Optional[int]]:
     """returns version from export database as tuple of (osxphotos version, export_db version)"""
-    conn = sqlite3.connect(str(dbfile))
+    conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     if row := c.execute(
         "SELECT osxphotos, exportdb FROM version ORDER BY id DESC LIMIT 1;"
@@ -61,7 +61,7 @@ def export_db_get_version(
 
 def export_db_vacuum(dbfile: Union[str, pathlib.Path]) -> None:
     """Vacuum export database"""
-    conn = sqlite3.connect(str(dbfile))
+    conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     c.execute("VACUUM;")
     conn.commit()
@@ -79,7 +79,7 @@ def export_db_update_signatures(
     """
     export_dir = pathlib.Path(export_dir)
     fileutil = FileUtil
-    conn = sqlite3.connect(str(dbfile))
+    conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     c.execute("SELECT filepath_normalized, filepath FROM export_data;")
     rows = c.fetchall()
@@ -114,7 +114,7 @@ def export_db_get_last_run(
     export_db: Union[str, pathlib.Path]
 ) -> Tuple[Optional[str], Optional[str]]:
     """Get last run from export database"""
-    conn = sqlite3.connect(str(export_db))
+    conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     if row := c.execute(
         "SELECT datetime, args FROM runs ORDER BY id DESC LIMIT 1;"
@@ -127,7 +127,7 @@ def export_db_get_errors(
     export_db: Union[str, pathlib.Path]
 ) -> Tuple[Optional[str], Optional[str]]:
     """Get errors from export database"""
-    conn = sqlite3.connect(str(export_db))
+    conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     results = c.execute(
         "SELECT filepath, uuid, timestamp, error FROM export_data WHERE error is not null ORDER BY timestamp DESC;"
@@ -145,7 +145,7 @@ def export_db_save_config_to_file(
     """Save export_db last run config to file"""
     export_db = pathlib.Path(export_db)
     config_file = pathlib.Path(config_file)
-    conn = sqlite3.connect(str(export_db))
+    conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     row = c.execute("SELECT config FROM config ORDER BY id DESC LIMIT 1;").fetchone()
     if not row:
@@ -163,7 +163,7 @@ def export_db_get_config(
         export_db: path to export database
         override: if True, any loaded config values will overwrite existing values in config
     """
-    conn = sqlite3.connect(str(export_db))
+    conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     row = c.execute("SELECT config FROM config ORDER BY id DESC LIMIT 1;").fetchone()
     return (
@@ -184,7 +184,7 @@ def export_db_check_signatures(
     """
     export_dir = pathlib.Path(export_dir)
     fileutil = FileUtil
-    conn = sqlite3.connect(str(dbfile))
+    conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     c.execute("SELECT filepath_normalized, filepath FROM export_data;")
     rows = c.fetchall()
@@ -236,7 +236,7 @@ def export_db_touch_files(
         )
     exportdb.close()
 
-    conn = sqlite3.connect(str(dbfile))
+    conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     if row := c.execute(
         "SELECT config FROM config ORDER BY id DESC LIMIT 1;"
@@ -318,7 +318,7 @@ def export_db_migrate_photos_library(
     and update the UUIDs in the export database
     """
     verbose(f"Loading data from export database {dbfile}")
-    conn = sqlite3.connect(str(dbfile))
+    conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     results = c.execute("SELECT uuid, photoinfo FROM photoinfo;").fetchall()
     exportdb_uuids = {}
@@ -495,7 +495,7 @@ def export_db_get_last_library(dbpath: Union[str, pathlib.Path]) -> str:
         str: name of library used to export from or "" if not found
     """
     dbpath = pathlib.Path(dbpath)
-    conn = sqlite3.connect(str(dbpath))
+    conn = sqlite3.connect(str(dbpath), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     if results := c.execute(
         """

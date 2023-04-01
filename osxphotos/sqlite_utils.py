@@ -5,14 +5,22 @@ import pathlib
 import sqlite3
 from typing import List, Tuple
 
+from ._constants import SQLITE_CHECK_SAME_THREAD
+
 logger = logging.getLogger("osxphotos")
+
 
 def sqlite_open_ro(dbname: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
     """opens sqlite file dbname in read-only mode
     returns tuple of (connection, cursor)"""
     try:
         dbpath = pathlib.Path(dbname).resolve()
-        conn = sqlite3.connect(f"{dbpath.as_uri()}?mode=ro", timeout=1, uri=True)
+        conn = sqlite3.connect(
+            f"{dbpath.as_uri()}?mode=ro",
+            timeout=1,
+            uri=True,
+            check_same_thread=SQLITE_CHECK_SAME_THREAD,
+        )
         c = conn.cursor()
     except sqlite3.Error as e:
         raise sqlite3.Error(

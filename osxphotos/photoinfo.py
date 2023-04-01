@@ -83,6 +83,7 @@ class PhotoInfo:
         self._uuid: str = uuid
         self._info: dict[str, Any] = info
         self._db: "osxphotos.PhotosDB" = db
+        self._exiftool_path = self._db._exiftool_path
         self._verbose = self._db._verbose
 
     @property
@@ -1918,7 +1919,13 @@ class PhotoInfo:
 
         dict_data = self.asdict()
 
-        for k in ["album_info", "burst_album_info", "face_info", "person_info", "visible"]:
+        for k in [
+            "album_info",
+            "burst_album_info",
+            "face_info",
+            "person_info",
+            "visible",
+        ]:
             del dict_data[k]
 
         for k, v in dict_data.items():

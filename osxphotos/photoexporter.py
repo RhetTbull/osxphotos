@@ -35,7 +35,6 @@ from .datetime_utils import datetime_tz_to_utc
 from .exiftool import ExifTool, ExifToolCaching, exiftool_can_write, get_exiftool_path
 from .export_db import ExportDB, ExportDBTemp
 from .fileutil import FileUtil
-from .frozen_photoinfo import frozen_photoinfo_factory
 from .photokit import (
     PHOTOS_VERSION_CURRENT,
     PHOTOS_VERSION_ORIGINAL,
@@ -374,7 +373,7 @@ class PhotoExporter:
     """Export a photo"""
 
     def __init__(self, photo: "PhotoInfo", tmpdir: t.Optional[str] = None):
-        self.photo = frozen_photoinfo_factory(photo)
+        self.photo = photo
         self._render_options = RenderOptions()
         self._verbose = photo._verbose
 
