@@ -30,15 +30,15 @@ from osxphotos.cli import echo, query_command, verbose
 def export(workers, export_dir, photos: list[osxphotos.PhotoInfo], **kwargs):
     """Export photos to EXPORT_DIR using concurrent export.
     Use --workers to specify the number of worker threads to use.
+
+    This simple example exports only the original photo and does not export
+    edited versions, live photos, etc.
     """
     workers = workers or os.cpu_count() * 5
     echo(f"Exporting {len(photos)} photos to {export_dir} using {workers} workers")
     start_t = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = [
-            executor.submit(p.export, export_dir, f"{p.uuid}_{p.original_filename}")
-            for p in photos
-        ]
+        futures = [executor.submit(p.export, export_dir) for p in photos]
         exported = []
         for future in concurrent.futures.as_completed(futures):
             exported.extend(future.result())
