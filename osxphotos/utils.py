@@ -16,10 +16,9 @@ import sys
 import unicodedata
 import urllib.parse
 from plistlib import load as plistload
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
 
-import CoreFoundation
 import requests
 import shortuuid
 
@@ -28,6 +27,8 @@ from ._constants import UNICODE_FORMAT
 logger = logging.getLogger("osxphotos")
 
 __all__ = [
+    "is_macos",
+    "assert_macos",
     "dd_to_dms_str",
     "expand_and_validate_filepath",
     "get_last_library_path",
@@ -53,6 +54,16 @@ __all__ = [
 VERSION_INFO_URL = "https://pypi.org/pypi/osxphotos/json"
 
 
+is_macos = sys.platform == "darwin"
+
+def assert_macos():
+    assert is_macos, "This feature only runs on macOS"
+
+
+if is_macos:
+    import CoreFoundation
+
+
 def noop(*args, **kwargs):
     """do nothing (no operation)"""
     pass
@@ -67,6 +78,7 @@ def lineno(filename):
 
 
 def get_macos_version():
+    assert_macos()
     # returns tuple of str containing OS version
     # e.g. 10.13.6 = ("10", "13", "6")
     version = platform.mac_ver()[0].split(".")
@@ -166,6 +178,8 @@ def get_system_library_path():
     """return the path to the system Photos library as string"""
     """ only works on MacOS 10.15 """
     """ on earlier versions, returns None """
+    if not is_macos:
+        return None
     _, major, _ = get_macos_version()
     if int(major) < 15:
         logger.debug(
@@ -241,6 +255,8 @@ def get_last_library_path():
 def list_photo_libraries():
     """returns list of Photos libraries found on the system"""
     """ on MacOS < 10.15, this may omit some libraries """
+    if not is_macos:
+        return []
 
     # On 10.15, mdfind appears to find all libraries
     # On older MacOS versions, mdfind appears to ignore some libraries
@@ -263,11 +279,13 @@ def list_photo_libraries():
     return lib_list
 
 
-def normalize_fs_path(path: str) -> str:
+T = TypeVar("T", bound=Union[str, pathlib.Path])
+def normalize_fs_path(path: T) -> T:
     """Normalize filesystem paths with unicode in them"""
-    # macOS HFS+ uses NFD, APFS doesn't normalize but stick with NFD
-    # ref: https://eclecticlight.co/2021/05/08/explainer-unicode-normalization-and-apfs/
-    return unicodedata.normalize("NFD", path)
+    if isinstance(path, pathlib.Path):
+        return pathlib.Path(unicodedata.normalize("NFC", str(path)))
+    else:
+        return unicodedata.normalize("NFC", path)
 
 
 # def findfiles(pattern, path):
@@ -356,7 +374,7 @@ def list_directory(
     return files
 
 
-def normalize_unicode(value):
+def normalize_unicode(value) -> Any:
     """normalize unicode data"""
     if value is None:
         return None

@@ -9,7 +9,6 @@ import pathlib
 from typing import Any, Callable, Literal
 
 import click
-import photoscript
 
 from osxphotos import PhotoInfo, PhotosDB, __version__
 from osxphotos.photoinfo import PhotoInfoNone
@@ -22,7 +21,11 @@ from osxphotos.queryoptions import (
     query_options_from_kwargs,
 )
 from osxphotos.sqlitekvstore import SQLiteKVStore
-from osxphotos.utils import pluralize
+from osxphotos.utils import assert_macos, pluralize
+
+assert_macos()
+
+import photoscript
 
 from .cli_params import (
     DB_OPTION,

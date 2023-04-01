@@ -1,7 +1,5 @@
 """ get UTI for a given file extension and the preferred extension for a given UTI
 
-Implementation note: runs only on macOS
-
     On macOS <= 11 (Big Sur), uses objective C CoreServices methods 
     UTTypeCopyPreferredTagWithClass and UTTypeCreatePreferredIdentifierForTag to retrieve the 
     UTI and the extension.  These are deprecated in 10.15 (Catalina) and no longer supported on Monterey.
@@ -13,6 +11,8 @@ Implementation note: runs only on macOS
     works for the extension -> UTI lookup. On Monterey, if there is no cached value for UTI -> extension lookup, 
     returns None.
 
+    Outside of macOS uses only the hardcoded list of UTIs.
+
     It's a bit hacky but best I can think of to make this robust on different versions of macOS.  PRs welcome.
 """
 
@@ -21,12 +21,14 @@ from __future__ import annotations
 import csv
 import re
 import subprocess
+import sys
 import tempfile
 
-import CoreServices
-import objc
+from .utils import assert_macos, is_macos, get_macos_version
 
-from .utils import get_macos_version
+if is_macos:
+    import CoreServices
+    import objc
 
 __all__ = ["get_preferred_uti_extension", "get_uti_for_extension"]
 
@@ -518,11 +520,10 @@ def _load_uti_dict():
         EXT_UTI_DICT[row["extension"]] = row["UTI"]
         UTI_EXT_DICT[row["UTI"]] = row["preferred_extension"]
 
-
 _load_uti_dict()
 
 # OS version for determining which methods can be used
-OS_VER, OS_MAJOR, _ = (int(x) for x in get_macos_version())
+OS_VER, OS_MAJOR, _ = (int(x) for x in get_macos_version()) if is_macos else (None, None, None)
 
 
 def _get_uti_from_mdls(extension):
@@ -531,6 +532,9 @@ def _get_uti_from_mdls(extension):
 
     # mdls -name kMDItemContentType foo.3fr
     # kMDItemContentType = "com.hasselblad.3fr-raw-image"
+
+    if not is_macos:
+        return None
 
     try:
         with tempfile.NamedTemporaryFile(suffix="." + extension) as temp:
@@ -573,7 +577,7 @@ def get_preferred_uti_extension(uti: str) -> str | None:
     uti: UTI str, e.g. 'public.jpeg'
     returns: preferred extension as str or None if cannot be determined"""
 
-    if (OS_VER, OS_MAJOR) <= (10, 16):
+    if is_macos and (OS_VER, OS_MAJOR) <= (10, 16):
         # reference: https://developer.apple.com/documentation/coreservices/1442744-uttypecopypreferredtagwithclass?language=objc
         # deprecated in Catalina+, likely won't work at all on macOS 12
         with objc.autorelease_pool():
@@ -602,7 +606,7 @@ def get_uti_for_extension(extension):
     if extension[0] == ".":
         extension = extension[1:]
 
-    if (OS_VER, OS_MAJOR) <= (10, 16):
+    if is_macos and (OS_VER, OS_MAJOR) <= (10, 16):
         # https://developer.apple.com/documentation/coreservices/1448939-uttypecreatepreferredidentifierf
         with objc.autorelease_pool():
             uti = CoreServices.UTTypeCreatePreferredIdentifierForTag(

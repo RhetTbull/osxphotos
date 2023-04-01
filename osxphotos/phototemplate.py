@@ -21,7 +21,6 @@ from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
-from .text_detection import detect_text
 from .utils import expand_and_validate_filepath, load_function, uuid_to_shortuuid
 
 __all__ = [

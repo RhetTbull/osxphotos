@@ -9,9 +9,11 @@ import typing as t
 from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
 
-import Foundation
-
 from .imageconverter import ImageConverter
+from .utils import is_macos, normalize_fs_path
+
+if is_macos:
+    import Foundation
 
 __all__ = ["FileUtilABC", "FileUtilMacOS", "FileUtilShUtil", "FileUtil", "FileUtilNoOp"]
 
@@ -90,6 +92,9 @@ class FileUtilMacOS(FileUtilABC):
         if src is None or dest is None:
             raise ValueError("src and dest must not be None", src, dest)
 
+        src = normalize_fs_path(src)
+        dest = normalize_fs_path(dest)
+
         if not os.path.isfile(src):
             raise FileNotFoundError("src file does not appear to exist", src)
 
@@ -115,6 +120,9 @@ class FileUtilMacOS(FileUtilABC):
             OSError if copy fails
             TypeError if either path is None
         """
+        src = normalize_fs_path(src)
+        dest = normalize_fs_path(dest)
+
         if not isinstance(src, pathlib.Path):
             src = pathlib.Path(src)
 
@@ -135,6 +143,7 @@ class FileUtilMacOS(FileUtilABC):
     @classmethod
     def unlink(cls, filepath):
         """unlink filepath; if it's pathlib.Path, use Path.unlink, otherwise use os.unlink"""
+        filepath = normalize_fs_path(filepath)
         if isinstance(filepath, pathlib.Path):
             filepath.unlink()
         else:
@@ -143,6 +152,7 @@ class FileUtilMacOS(FileUtilABC):
     @classmethod
     def rmdir(cls, dirpath):
         """remove directory filepath; dirpath must be empty"""
+        dirpath = normalize_fs_path(dirpath)
         if isinstance(dirpath, pathlib.Path):
             dirpath.rmdir()
         else:
@@ -151,6 +161,7 @@ class FileUtilMacOS(FileUtilABC):
     @classmethod
     def utime(cls, path, times):
         """Set the access and modified time of path."""
+        path = normalize_fs_path(path)
         os.utime(path, times=times)
 
     @classmethod
@@ -165,6 +176,9 @@ class FileUtilMacOS(FileUtilABC):
         True if the file signatures as returned by stat are the same, False otherwise.
         Does not do a byte-by-byte comparison.
         """
+
+        f1 = normalize_fs_path(f1)
+        f2 = normalize_fs_path(f2)
 
         s1 = cls._sig(os.stat(f1))
         if mtime1 is not None:
@@ -188,6 +202,7 @@ class FileUtilMacOS(FileUtilABC):
         if not s2:
             return False
 
+        f1 = normalize_fs_path(f1)
         s1 = cls._sig(os.stat(f1))
         if s1[0] != stat.S_IFREG or s2[0] != stat.S_IFREG:
             return False
@@ -196,6 +211,7 @@ class FileUtilMacOS(FileUtilABC):
     @classmethod
     def file_sig(cls, f1):
         """return os.stat signature for file f1 as tuple of (mode, size, mtime)"""
+        f1 = normalize_fs_path(f1)
         return cls._sig(os.stat(f1))
 
     @classmethod
@@ -210,6 +226,8 @@ class FileUtilMacOS(FileUtilABC):
         Returns:
             True if success, otherwise False
         """
+        src_file = normalize_fs_path(src_file)
+        dest_file = normalize_fs_path(dest_file)
         converter = ImageConverter()
         return converter.write_jpeg(
             src_file, dest_file, compression_quality=compression_quality
@@ -227,6 +245,8 @@ class FileUtilMacOS(FileUtilABC):
             Name of renamed file (dest)
 
         """
+        src = normalize_fs_path(src)
+        dest = normalize_fs_path(dest)
         os.rename(str(src), str(dest))
         return dest
 
@@ -271,6 +291,9 @@ class FileUtilShUtil(FileUtilMacOS):
             OSError if copy fails
             TypeError if either path is None
         """
+        src = normalize_fs_path(src)
+        dest = normalize_fs_path(dest)
+
         if not isinstance(src, pathlib.Path):
             src = pathlib.Path(src)
 
@@ -288,7 +311,7 @@ class FileUtilShUtil(FileUtilMacOS):
         return True
 
 
-class FileUtil(FileUtilMacOS):
+class FileUtil(FileUtilShUtil):
     """Various file utilities"""
 
     pass

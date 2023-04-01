@@ -12,13 +12,6 @@ import time
 from typing import Iterable, List, Optional, Tuple
 
 import click
-from osxmetadata import (
-    MDITEM_ATTRIBUTE_DATA,
-    MDITEM_ATTRIBUTE_SHORT_NAMES,
-    OSXMetaData,
-    Tag,
-)
-from osxmetadata.constants import _TAGS_NAMES
 
 import osxphotos
 from osxphotos._constants import (
@@ -47,25 +40,36 @@ from osxphotos.datetime_formatter import DateTimeFormatter
 from osxphotos.debug import is_debug
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db import ExportDB, ExportDBInMemory
-from osxphotos.fileutil import FileUtil, FileUtilNoOp, FileUtilShUtil
+from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
-from osxphotos.photokit import (
-    check_photokit_authorization,
-    request_photokit_authorization,
-)
-from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.queryoptions import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
     format_sec_to_hhmmss,
     get_macos_version,
+    is_macos,
     normalize_fs_path,
     pluralize,
     under_test,
 )
+
+if is_macos:
+    from osxmetadata import (
+        MDITEM_ATTRIBUTE_DATA,
+        MDITEM_ATTRIBUTE_SHORT_NAMES,
+        OSXMetaData,
+        Tag,
+    )
+    from osxmetadata.constants import _TAGS_NAMES
+
+    from osxphotos.photokit import (
+        check_photokit_authorization,
+        request_photokit_authorization,
+    )
+    from osxphotos.photosalbum import PhotosAlbum
 
 from .cli_commands import logger
 from .cli_params import (
@@ -1111,7 +1115,10 @@ def export(
 
     verbose(f"osxphotos version: {__version__}")
     verbose(f"Python version: {sys.version}")
-    verbose(f"Platform: {platform.platform()}, {'.'.join(get_macos_version())}")
+    if is_macos:
+        verbose(f"Platform: {platform.platform()}, {'.'.join(get_macos_version())}")
+    else:
+        verbose(f"Platform: {platform.platform()}")
     verbose(f"Verbose level: {verbose_flag}")
 
     # validate options
@@ -1325,7 +1332,7 @@ def export(
             if ramdb
             else ExportDB(dbfile=export_db_path, export_dir=dest)
         )
-        fileutil = FileUtilShUtil if alt_copy else FileUtil
+        fileutil = FileUtilShUtil if alt_copy or not is_macos else FileUtilMacOS
 
     if verbose:
         if export_db.was_created:
@@ -1713,7 +1720,7 @@ def export_photo(
     keyword_template=None,
     description_template=None,
     export_db=None,
-    fileutil=FileUtil,
+    fileutil=FileUtilShUtil,
     dry_run=None,
     touch_file=None,
     edited_suffix="_edited",

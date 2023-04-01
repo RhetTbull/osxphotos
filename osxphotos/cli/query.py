@@ -9,9 +9,13 @@ from osxphotos.cli.click_rich_echo import (
     set_rich_theme,
 )
 from osxphotos.debug import set_debug
-from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.queryoptions import query_options_from_kwargs
+from osxphotos.utils import assert_macos
+
+assert_macos()
+
+from osxphotos.photosalbum import PhotosAlbum
 
 from .cli_params import (
     DB_ARGUMENT,

@@ -538,13 +538,13 @@ def test_exiftool_terminate():
 
     ps = subprocess.run(["ps"], capture_output=True)
     stdout = ps.stdout.decode("utf-8")
-    assert "exiftool -stay_open" in stdout
+    assert "exiftool" in stdout
 
     osxphotos.exiftool.terminate_exiftool()
 
     ps = subprocess.run(["ps"], capture_output=True)
     stdout = ps.stdout.decode("utf-8")
-    assert "exiftool -stay_open" not in stdout
+    assert "exiftool" not in stdout
 
     # verify we can create a new instance after termination
     exif2 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)

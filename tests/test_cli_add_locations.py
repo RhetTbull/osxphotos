@@ -1,10 +1,14 @@
 """Test osxphotos add-locations command"""
 
-import photoscript
 import pytest
 from click.testing import CliRunner
 
-from osxphotos.cli.add_locations import add_locations
+from osxphotos.utils import is_macos
+if is_macos:
+    import photoscript
+    from osxphotos.cli.add_locations import add_locations
+else:
+    pytest.skip(allow_module_level=True)
 
 UUID_TEST_PHOTO_1 = "F12384F6-CD17-4151-ACBA-AE0E3688539E"  # Pumkins1.jpg
 UUID_TEST_PHOTO_LOCATION = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg

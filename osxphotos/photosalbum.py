@@ -2,12 +2,15 @@
 
 from typing import List, Optional
 
-import photoscript
 from more_itertools import chunked
-from photoscript import Album, Folder, Photo, PhotosLibrary
 
 from .photoinfo import PhotoInfo
-from .utils import noop, pluralize
+from .utils import assert_macos, noop, pluralize
+
+assert_macos()
+
+import photoscript
+from photoscript import Album, Folder, Photo, PhotosLibrary
 
 __all__ = ["PhotosAlbum", "PhotosAlbumPhotoScript"]
 

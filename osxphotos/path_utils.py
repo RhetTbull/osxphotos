@@ -1,6 +1,19 @@
-""" utility functions for validating/sanitizing path components """
+""" utility functions for validating/sanitizing path components
+
+This module also performs Unicode normalization. For a quick summary, there are
+multiple ways to write more complex characters in Unicode. This causes problems
+when e.g. checking if a file already exists and you have multiple sources for
+the same string with different encodings. This sadly happens in Photos, but
+isn't a problem on macOS, since macOS does normalization behind-the-scenes (see
+https://eclecticlight.co/2021/05/08/explainer-unicode-normalization-and-apfs/).
+This causes problems on other platforms, so we normalize as part of filename
+sanitization functions and rely on them being called every time a unique
+filename is needed.
+"""
 
 import pathvalidate
+
+from osxphotos.utils import normalize_unicode
 
 from ._constants import MAX_DIRNAME_LEN, MAX_FILENAME_LEN
 
@@ -24,7 +37,7 @@ def is_valid_filepath(filepath):
 
 
 def sanitize_filename(filename, replacement=":"):
-    """replace any illegal characters in a filename and truncate filename if needed
+    """replace any illegal characters in a filename, truncate filename if needed and normalize Unicode to NFC form
 
     Args:
         filename: str, filename to sanitze
@@ -35,6 +48,7 @@ def sanitize_filename(filename, replacement=":"):
     """
 
     if filename:
+        filename = normalize_unicode(filename)
         filename = filename.replace("/", replacement)
         if len(filename) > MAX_FILENAME_LEN:
             parts = filename.split(".")
@@ -54,7 +68,7 @@ def sanitize_filename(filename, replacement=":"):
 
 
 def sanitize_dirname(dirname, replacement=":"):
-    """replace any illegal characters in a directory name and truncate directory name if needed
+    """replace any illegal characters in a directory name, truncate directory name if needed, and normalize Unicode to NFC form
 
     Args:
         dirname: str, directory name to sanitize
@@ -69,7 +83,7 @@ def sanitize_dirname(dirname, replacement=":"):
 
 
 def sanitize_pathpart(pathpart, replacement=":"):
-    """replace any illegal characters in a path part (either directory or filename without extension) and truncate name if needed
+    """replace any illegal characters in a path part (either directory or filename without extension), truncate name if needed, and normalize Unicode to NFC form
 
     Args:
         pathpart: str, path part to sanitize
@@ -82,6 +96,7 @@ def sanitize_pathpart(pathpart, replacement=":"):
         pathpart = (
             pathpart.replace("/", replacement) if replacement is not None else pathpart
         )
+        pathpart = normalize_unicode(pathpart)
         if len(pathpart) > MAX_DIRNAME_LEN:
             drop = len(pathpart) - MAX_DIRNAME_LEN
             pathpart = pathpart[:-drop]

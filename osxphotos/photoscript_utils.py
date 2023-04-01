@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import sqlite3
 
+from .utils import assert_macos
+
+assert_macos()
+
 import photoscript
 
 from ._constants import _DB_TABLE_NAMES, _PHOTOS_5_ALBUM_KIND, _PHOTOS_5_FOLDER_KIND

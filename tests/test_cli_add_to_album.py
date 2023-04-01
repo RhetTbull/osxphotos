@@ -2,9 +2,14 @@
 
 import os
 
-import photoscript
 import pytest
 from click.testing import CliRunner
+
+from osxphotos.utils import is_macos
+if is_macos:
+    import photoscript
+else:
+    pytest.skip(allow_module_level=True)
 
 UUID_EXPORT = {"3DD2C897-F19E-4CA6-8C22-B027D5A71907": {"filename": "IMG_4547.jpg"}}
 UUID_MISSING = {

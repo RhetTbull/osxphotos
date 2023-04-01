@@ -5,12 +5,15 @@ from typing import Callable, List, Optional, Tuple
 
 from osxphotos import PhotosDB
 from osxphotos.exiftool import ExifTool
-from photoscript import Photo
 
 from .datetime_utils import datetime_naive_to_local, datetime_to_new_tz
+from .utils import assert_macos, noop
+
+assert_macos()
+
+from photoscript import Photo
 from .exif_datetime_updater import get_exif_date_time_offset
 from .phototz import PhotoTimeZone
-from .utils import noop
 
 ExifDiff = namedtuple(
     "ExifDiff",

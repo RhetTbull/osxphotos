@@ -6,15 +6,19 @@ import tempfile
 
 import pytest
 
-from osxphotos.photokit import (
-    LivePhotoAsset,
-    PhotoAsset,
-    PhotoLibrary,
-    VideoAsset,
-    PHOTOS_VERSION_CURRENT,
-    PHOTOS_VERSION_ORIGINAL,
-    PHOTOS_VERSION_UNADJUSTED,
-)
+from osxphotos.utils import is_macos
+if is_macos:
+    from osxphotos.photokit import (
+        LivePhotoAsset,
+        PhotoAsset,
+        PhotoLibrary,
+        VideoAsset,
+        PHOTOS_VERSION_CURRENT,
+        PHOTOS_VERSION_ORIGINAL,
+        PHOTOS_VERSION_UNADJUSTED,
+    )
+else:
+    pytest.skip(allow_module_level=True)
 
 skip_test = "OSXPHOTOS_TEST_EXPORT" not in os.environ
 pytestmark = pytest.mark.skipif(

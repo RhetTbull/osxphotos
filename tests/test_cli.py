@@ -14,10 +14,10 @@ import subprocess
 import tempfile
 import time
 from tempfile import TemporaryDirectory
+from bitmath import contextlib
 
 import pytest
 from click.testing import CliRunner
-from osxmetadata import OSXMetaData, Tag
 
 import osxphotos
 from osxphotos._constants import OSXPHOTOS_EXPORT_DB
@@ -32,13 +32,16 @@ from osxphotos.cli import (
     labels,
     persons,
     places,
-    query,
 )
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.fileutil import FileUtil
-from osxphotos.utils import noop, normalize_fs_path, normalize_unicode
+from osxphotos.utils import is_macos, noop, normalize_fs_path, normalize_unicode
+if is_macos:
+    from osxmetadata import OSXMetaData, Tag
+    from osxphotos.cli import query
 
 from .conftest import copy_photos_library_to_path
+from .locale_util import setlocale
 
 CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
@@ -72,12 +75,12 @@ CLI_EXPORT_FILENAMES = [
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -106,8 +109,8 @@ CLI_EXPORT_FILENAMES = [
 CLI_EXPORT_FILENAMES_DRY_RUN = [
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -152,12 +155,12 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_bearbeiten (1).jpeg",
-    "Frítest_bearbeiten.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_bearbeiten (1).jpeg",
+    "Frítest_bearbeiten.jpeg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -188,12 +191,12 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX_TEMPLATE = [
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -224,12 +227,12 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = [
     "[2020-08-29] AAF035_original (3).jpg",
     "[2020-08-29] AAF035_original.jpg",
     "DSC03584_original.dng",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest_original (1).jpg",
-    "Frítest_original (2).jpg",
-    "Frítest_original (3).jpg",
-    "Frítest_original.jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest_original (1).jpg",
+    "Frítest_original (2).jpg",
+    "Frítest_original (3).jpg",
+    "Frítest_original.jpg",
     "IMG_1693_original.tif",
     "IMG_1994_original.cr2",
     "IMG_1994_original.JPG",
@@ -260,12 +263,12 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = [
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest (1).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest_original (1).jpg",
-    "Frítest_original.jpg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest_original (1).jpg",
+    "Frítest_original.jpg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -291,8 +294,8 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = [
 ]
 
 CLI_EXPORT_FILENAMES_CURRENT = [
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A_edited.jpeg",  # Frítest.jpg
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A.jpeg",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A_edited.jpeg",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A.jpeg",  # Frítest.jpg
     "1EB2B765-0765-43BA-A90C-0D0580E6172C.jpeg",
     "2DFD33F1-A5D8-486F-A3A9-98C07995535A.jpeg",
     "35329C57-B963-48D6-BB75-6AFF9370CBBC.mov",
@@ -308,14 +311,14 @@ CLI_EXPORT_FILENAMES_CURRENT = [
     "7F74DD34-5920-4DA3-B284-479887A34F66.jpeg",
     "7FD37B5F-6FAA-4DB1-8A29-BF9C37E38091.jpeg",
     "8846E3E6-8AC8-4857-8448-E3D025784410.tiff",
-    "A8266C97-9BAF-4AF4-99F3-0013832869B8.jpeg",  # Frítest.jpg
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8.jpeg",  # Frítest.jpg
     "A92D9C26-3A50-4197-9388-CB5F7DB9FA91.cr2",
     "A92D9C26-3A50-4197-9388-CB5F7DB9FA91.jpeg",
-    "B13F4485-94E0-41CD-AF71-913095D62E31.jpeg",  # Frítest.jpg
+    "B13F4485-94E0-41CD-AF71-913095D62E31.jpeg",  # Frítest.jpg
     "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068.dng",
     "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3.mp4",
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07_edited.jpeg",  # Frítest.jpg
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07.jpeg",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07_edited.jpeg",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07.jpeg",  # Frítest.jpg
     "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg",
     "DC99FBDD-7A52-4100-A5BB-344131646C30_edited.jpeg",
     "DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg",
@@ -332,12 +335,12 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.jpeg",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.jpeg",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -368,12 +371,12 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.jpeg",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.jpeg",
     "IMG_1994.JPG",
     "IMG_1997.JPG",
@@ -896,17 +899,17 @@ UUID_IN_ALBUM = [
 ]
 
 UUID_NOT_IN_ALBUM = [
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
     "35329C57-B963-48D6-BB75-6AFF9370CBBC",
     "52083079-73D5-4921-AC1B-FE76F279133F",
     "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
     "7F74DD34-5920-4DA3-B284-479887A34F66",
     "8846E3E6-8AC8-4857-8448-E3D025784410",
     "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
-    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
-    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
+    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
     "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
     "DC99FBDD-7A52-4100-A5BB-344131646C30",
     "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91",
     "F207D5DE-EFAD-4217-8424-0764AAC971D0",
@@ -954,17 +957,17 @@ DESCRIPTION_VALUE_TITLE_CONDITIONAL = "false"
 
 
 UUID_UNICODE_TITLE = [
-    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
-    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
+    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
 ]
 
 EXPORT_UNICODE_TITLE_FILENAMES = [
-    "Frítest.jpg",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
+    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
 ]
 
 # data for --report
@@ -1118,6 +1121,7 @@ def test_about():
     assert "MIT License" in result.output
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_uuid():
 
     runner = CliRunner()
@@ -1152,6 +1156,7 @@ def test_query_uuid():
             assert json_expected[key_] in json_got[key_]
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_uuid_from_file_1():
     """Test query with --uuid-from-file"""
 
@@ -1175,6 +1180,7 @@ def test_query_uuid_from_file_1():
     assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_uuid_from_file_stdin():
     """Test query with --uuid-from-file reading from stdin"""
 
@@ -1194,6 +1200,7 @@ def test_query_uuid_from_file_stdin():
     assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_has_comment():
     """Test query with --has-comment"""
 
@@ -1211,6 +1218,7 @@ def test_query_has_comment():
     assert sorted(uuid_got) == sorted(UUID_HAS_COMMENTS)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_no_comment():
     """Test query with --no-comment"""
 
@@ -1230,6 +1238,7 @@ def test_query_no_comment():
         assert uuid not in UUID_HAS_COMMENTS
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_has_likes():
     """Test query with --has-likes"""
 
@@ -1246,6 +1255,7 @@ def test_query_has_likes():
     assert sorted(uuid_got) == sorted(UUID_HAS_LIKES)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_no_likes():
     """Test query with --no-likes"""
 
@@ -1265,6 +1275,7 @@ def test_query_no_likes():
         assert uuid not in UUID_HAS_LIKES
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_is_reference():
     """Test query with --is-reference"""
 
@@ -1281,6 +1292,7 @@ def test_query_is_reference():
     assert sorted(uuid_got) == sorted(UUID_IS_REFERENCE)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_edited():
     """Test query with --edited"""
 
@@ -1297,6 +1309,7 @@ def test_query_edited():
     assert sorted(uuid_got) == sorted(UUID_EDITED)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_not_edited():
     """Test query with --not-edited"""
 
@@ -1313,6 +1326,7 @@ def test_query_not_edited():
     assert sorted(uuid_got) == sorted(UUID_NOT_EDITED)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_in_album():
     """Test query with --in-album"""
 
@@ -1329,6 +1343,7 @@ def test_query_in_album():
     assert sorted(uuid_got) == sorted(UUID_IN_ALBUM)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_not_in_album():
     """Test query with --not-in-album"""
 
@@ -1345,6 +1360,7 @@ def test_query_not_in_album():
     assert sorted(uuid_got) == sorted(UUID_NOT_IN_ALBUM)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_duplicate():
     """Test query with --duplicate"""
 
@@ -1362,6 +1378,7 @@ def test_query_duplicate():
     assert sorted(uuid_got) == sorted(UUID_DUPLICATES)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_location():
     """Test query with --location"""
 
@@ -1380,6 +1397,7 @@ def test_query_location():
     assert UUID_NO_LOCATION not in uuid_got
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_no_location():
     """Test query with --no-location"""
 
@@ -1398,6 +1416,7 @@ def test_query_no_location():
     assert UUID_LOCATION not in uuid_got
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 @pytest.mark.parametrize("exiftag,exifvalue,uuid_expected", QUERY_EXIF_DATA)
 def test_query_exif(exiftag, exifvalue, uuid_expected):
@@ -1424,6 +1443,7 @@ def test_query_exif(exiftag, exifvalue, uuid_expected):
     assert sorted(uuid_got) == sorted(uuid_expected)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 @pytest.mark.parametrize(
     "exiftag,exifvalue,uuid_expected", QUERY_EXIF_DATA_CASE_INSENSITIVE
@@ -1453,6 +1473,7 @@ def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
     assert sorted(uuid_got) == sorted(uuid_expected)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_query_exif_multiple():
     """Test query with multiple --exif options, #873"""
@@ -1804,12 +1825,25 @@ def test_export_preview_update():
         assert len(files) == 2  # preview + original
 
 
+@contextlib.contextmanager
+def isolated_filesystem_here():
+    cwd = os.getcwd()
+    tempdir = tempfile.mkdtemp(dir=cwd)  # type: ignore[type-var]
+    os.chdir(tempdir)
+
+    try:
+        yield tempdir
+    finally:
+        os.chdir(cwd)
+        shutil.rmtree(tempdir)
+
+
 def test_export_as_hardlink():
 
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
+    with isolated_filesystem_here():
         result = runner.invoke(
             export,
             [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--export-as-hardlink", "-V"],
@@ -1829,7 +1863,7 @@ def test_export_as_hardlink_samefile():
     photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
 
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
+    with isolated_filesystem_here():
         result = runner.invoke(
             export,
             [
@@ -1854,7 +1888,7 @@ def test_export_using_hardlinks_incompat_options():
     photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
 
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
+    with isolated_filesystem_here():
         result = runner.invoke(
             export,
             [
@@ -2713,6 +2747,7 @@ def test_export_duplicate_unicode_filenames():
         assert sorted(files) == sorted(EXPORT_UNICODE_TITLE_FILENAMES)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_date_1():
     """Test --from-date and --to-date"""
 
@@ -2737,6 +2772,7 @@ def test_query_date_1():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_date_2():
     """Test --from-date and --to-date"""
 
@@ -2761,6 +2797,7 @@ def test_query_date_2():
     assert len(json_got) == 2
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_date_timezone():
     """Test --from-date, --to-date with ISO 8601 timezone"""
 
@@ -2785,6 +2822,7 @@ def test_query_date_timezone():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_time():
     """Test --from-time, --to-time"""
 
@@ -2809,6 +2847,7 @@ def test_query_time():
     assert len(json_got) == 3
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_year_1():
     """Test --year"""
 
@@ -2833,6 +2872,7 @@ def test_query_year_1():
     assert len(json_got) == 1
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_year_2():
     """Test --year with multiple years"""
 
@@ -2859,6 +2899,7 @@ def test_query_year_2():
     assert len(json_got) == 6
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_year_3():
     """Test --year with invalid year"""
 
@@ -2883,6 +2924,7 @@ def test_query_year_3():
     assert len(json_got) == 0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_keyword_1():
     """Test query --keyword"""
 
@@ -2897,6 +2939,7 @@ def test_query_keyword_1():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_keyword_2():
     """Test query --keyword with lower case keyword"""
 
@@ -2911,6 +2954,7 @@ def test_query_keyword_2():
     assert len(json_got) == 0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_keyword_3():
     """Test query --keyword with lower case keyword and --ignore-case"""
 
@@ -2932,6 +2976,7 @@ def test_query_keyword_3():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_keyword_4():
     """Test query with more than one --keyword"""
 
@@ -2954,6 +2999,7 @@ def test_query_keyword_4():
     assert len(json_got) == 6
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_no_keyword():
     """Test query --no-keyword"""
 
@@ -2975,6 +3021,7 @@ def test_query_no_keyword():
     assert len(json_got) == 11
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_person_1():
     """Test query --person"""
 
@@ -2989,6 +3036,7 @@ def test_query_person_1():
     assert len(json_got) == 3
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_person_2():
     """Test query --person with lower case person"""
 
@@ -3003,6 +3051,7 @@ def test_query_person_2():
     assert len(json_got) == 0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_person_3():
     """Test query --person with lower case person and --ignore-case"""
 
@@ -3024,6 +3073,7 @@ def test_query_person_3():
     assert len(json_got) == 3
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_person_4():
     """Test query with multiple --person"""
 
@@ -3046,6 +3096,7 @@ def test_query_person_4():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_album_1():
     """Test query --album"""
 
@@ -3066,6 +3117,7 @@ def test_query_album_1():
     assert len(json_got) == 3
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_album_2():
     """Test query --album with lower case album"""
 
@@ -3086,6 +3138,7 @@ def test_query_album_2():
     assert len(json_got) == 0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_album_3():
     """Test query --album with lower case album and --ignore-case"""
 
@@ -3107,6 +3160,7 @@ def test_query_album_3():
     assert len(json_got) == 3
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_album_4():
     """Test query with multipl --album"""
 
@@ -3129,6 +3183,7 @@ def test_query_album_4():
     assert len(json_got) == 7
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_label_1():
     """Test query --label"""
 
@@ -3143,6 +3198,7 @@ def test_query_label_1():
     assert len(json_got) == 1
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_label_2():
     """Test query --label with lower case label"""
 
@@ -3157,6 +3213,7 @@ def test_query_label_2():
     assert len(json_got) == 0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_label_3():
     """Test query --label with lower case label and --ignore-case"""
 
@@ -3178,6 +3235,7 @@ def test_query_label_3():
     assert len(json_got) == 1
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_label_4():
     """Test query with more than one --label"""
 
@@ -3200,6 +3258,7 @@ def test_query_label_4():
     assert len(json_got) == 1
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_deleted_only():
     """Test query with --deleted and --deleted-only"""
 
@@ -3218,6 +3277,7 @@ def test_query_deleted_deleted_only():
     assert "Incompatible query options" in result.output
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_1():
     """Test query with --deleted"""
 
@@ -3231,6 +3291,7 @@ def test_query_deleted_1():
     assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_IN_TRASH_LEN_15_7
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_2():
     """Test query with --deleted"""
 
@@ -3244,6 +3305,7 @@ def test_query_deleted_2():
     assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_IN_TRASH_LEN_15_7
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_3():
     """Test query with --deleted-only"""
 
@@ -3258,6 +3320,7 @@ def test_query_deleted_3():
     assert json_got[0]["intrash"]
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_4():
     """Test query with --deleted-only"""
 
@@ -3717,7 +3780,7 @@ def test_export_raw_edited_original():
 def test_export_directory_template_1():
     # test export using directory template
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3837,7 +3900,7 @@ def test_export_directory_template_locale():
     with runner.isolated_filesystem():
         # set locale environment
         os.environ["LC_ALL"] = "de_DE.UTF-8"
-        locale.setlocale(locale.LC_ALL, "")
+        setlocale(locale.LC_ALL, "")
         result = runner.invoke(
             export,
             [
@@ -3857,7 +3920,7 @@ def test_export_directory_template_locale():
 def test_export_filename_template_1():
     """export photos using filename template"""
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3882,7 +3945,7 @@ def test_export_filename_template_1():
 def test_export_filename_template_2():
     """export photos using filename template with folder_album and path_sep"""
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3907,7 +3970,7 @@ def test_export_filename_template_2():
 def test_export_filename_template_strip():
     """export photos using filename template with --strip"""
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3933,7 +3996,7 @@ def test_export_filename_template_strip():
 def test_export_filename_template_pathsep_in_name_1():
     """export photos using filename template with folder_album and "/" in album name"""
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3960,7 +4023,7 @@ def test_export_filename_template_pathsep_in_name_1():
 def test_export_filename_template_pathsep_in_name_2():
     """export photos using filename template with keyword and "/" in keyword"""
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3988,7 +4051,7 @@ def test_export_filename_template_pathsep_in_name_2():
 def test_export_filename_template_long_description():
     """export photos using filename template with description that exceeds max length"""
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4249,6 +4312,7 @@ def test_places():
         assert json_got == json.loads(CLI_PLACES_JSON)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_place_13():
     # test --place on 10.13
 
@@ -4273,6 +4337,7 @@ def test_place_13():
         assert json_got[0]["uuid"] == "2L6X2hv3ROWRSCU3WRRAGQ"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_place_13():
     # test --no-place on 10.13
 
@@ -4291,6 +4356,7 @@ def test_no_place_13():
         assert json_got[0]["uuid"] == "pERZk5T1Sb+XcKDFRCsGpA"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_place_15_1():
     # test --place on 10.15
 
@@ -4315,6 +4381,7 @@ def test_place_15_1():
         assert json_got[0]["uuid"] == "128FB4C6-0B16-4E7D-9108-FB2E90DA1546"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_place_15_2():
     # test --place on 10.15
 
@@ -4341,6 +4408,7 @@ def test_place_15_2():
         assert "FF7AFE2C-49B0-4C9B-B0D7-7E1F8B8F2F0C" in uuid
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_place_15():
     # test --no-place on 10.15
 
@@ -4358,6 +4426,7 @@ def test_no_place_15():
         assert json_got[0]["uuid"] == "A9B73E13-A6F2-4915-8D67-7213B39BAE9F"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_folder_1_15():
     # test --folder on 10.15
 
@@ -4398,6 +4467,7 @@ def test_no_folder_1_15():
                 ]
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_folder_2_15():
     # test --folder with --uuid on 10.15
 
@@ -4428,6 +4498,7 @@ def test_no_folder_2_15():
             )
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_folder_1_14():
     # test --folder on 10.14
 
@@ -4891,7 +4962,7 @@ def test_export_update_hardlink():
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
+    with isolated_filesystem_here():
         # basic export
         result = runner.invoke(
             export,
@@ -4924,7 +4995,7 @@ def test_export_update_hardlink_exiftool():
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
+    with isolated_filesystem_here():
         # basic export
         result = runner.invoke(
             export,
@@ -5069,7 +5140,7 @@ def test_export_then_hardlink():
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
+    with isolated_filesystem_here():
         # basic export
         result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
         assert result.exit_code == 0
@@ -5177,7 +5248,7 @@ def test_export_update_edits_dry_run():
 def test_export_directory_template_1_dry_run():
     """test export using directory template with dry-run flag"""
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6052,7 +6123,7 @@ def test_export_as_hardlink_download_missing():
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
+    with isolated_filesystem_here():
         result = runner.invoke(
             export,
             [
@@ -6877,6 +6948,7 @@ def test_export_finder_tag_keywords_dry_run():
             assert result.exit_code == 0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_export_finder_tag_keywords():
     """test --finder-tag-keywords"""
 
@@ -6951,6 +7023,7 @@ def test_export_finder_tag_keywords():
             assert sorted(md.tags) == sorted(expected)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_export_finder_tag_template():
     """test --finder-tag-template"""
 
@@ -7028,6 +7101,7 @@ def test_export_finder_tag_template():
             assert sorted(md.tags) == sorted(expected)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_export_finder_tag_template_multiple():
     """test --finder-tag-template used more than once"""
 
@@ -7061,6 +7135,7 @@ def test_export_finder_tag_template_multiple():
             assert sorted(md.tags) == sorted(expected)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_export_finder_tag_template_keywords():
     """test --finder-tag-template with --finder-tag-keywords"""
 
@@ -7093,6 +7168,7 @@ def test_export_finder_tag_template_keywords():
             assert sorted(md.tags) == sorted(expected)
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_export_finder_tag_template_multi_field():
     """test --finder-tag-template with multiple fields (issue #422)"""
 
@@ -7157,6 +7233,7 @@ def test_export_xattr_template_dry_run():
             assert "Writing extended attribute" in result.output
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_export_xattr_template():
     """test --xattr template"""
 
@@ -7632,6 +7709,7 @@ def test_export_skip_live_photokit():
             assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name():
     """test query --name"""
 
@@ -7648,6 +7726,7 @@ def test_query_name():
     assert json_got[0]["original_filename"] == "DSC03584.dng"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name_unicode():
     """test query --name with a unicode name"""
 
@@ -7655,17 +7734,18 @@ def test_query_name_unicode():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "Frítest"],
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "Frítest"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
 
     assert len(json_got) == 4
     assert normalize_unicode(json_got[0]["original_filename"]).startswith(
-        normalize_unicode("Frítest.jpg")
+        normalize_unicode("Frítest.jpg")
     )
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name_i():
     """test query --name -i"""
 
@@ -7689,6 +7769,7 @@ def test_query_name_i():
     assert json_got[0]["original_filename"] == "DSC03584.dng"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name_original_filename():
     """test query --name only searches original filename on Photos 5+"""
 
@@ -7704,6 +7785,7 @@ def test_query_name_original_filename():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name_original_filename_i():
     """test query --name only searches original filename on Photos 5+ with -i"""
 
@@ -7777,6 +7859,7 @@ def test_bad_query_eval():
         assert "Invalid query-eval CRITERIA" in result.output
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_min_size_1():
     """test query --min-size"""
 
@@ -7792,6 +7875,7 @@ def test_query_min_size_1():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_min_size_2():
     """test query --min-size"""
 
@@ -7813,6 +7897,7 @@ def test_query_min_size_2():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_max_size_1():
     """test query --max-size"""
 
@@ -7828,6 +7913,7 @@ def test_query_max_size_1():
     assert len(json_got) == 3
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_max_size_2():
     """test query --max-size"""
 
@@ -7843,6 +7929,7 @@ def test_query_max_size_2():
     assert len(json_got) == 3
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_min_max_size():
     """test query --max-size with --min-size"""
 
@@ -7866,6 +7953,7 @@ def test_query_min_max_size():
     assert len(json_got) == 1
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_min_size_error():
     """test query --max-size with invalid size"""
 
@@ -7878,6 +7966,7 @@ def test_query_min_size_error():
     assert result.exit_code != 0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_1():
     """test query --regex against title"""
 
@@ -7900,6 +7989,7 @@ def test_query_regex_1():
     assert len(json_got) == 1
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_2():
     """test query --regex with no match"""
 
@@ -7922,6 +8012,7 @@ def test_query_regex_2():
     assert len(json_got) == 0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_3():
     """test query --regex with --ignore-case"""
 
@@ -7945,6 +8036,7 @@ def test_query_regex_3():
     assert len(json_got) == 1
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_4():
     """test query --regex against album"""
 
@@ -7967,6 +8059,7 @@ def test_query_regex_4():
     assert len(json_got) == 2
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_multiple():
     """test query multiple --regex values (#525)"""
 
@@ -7992,6 +8085,7 @@ def test_query_regex_multiple():
     assert len(json_got) == 2
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_function():
     """test query --query-function"""
 
@@ -8023,6 +8117,7 @@ def test_query_function():
         assert json_got[0]["original_filename"] == "DSC03584.dng"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_added_after():
     """test query --added-after"""
 
@@ -8044,6 +8139,7 @@ def test_query_added_after():
     assert len(json_got) == 4
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_added_before():
     """test query --added-before"""
 
@@ -8065,6 +8161,7 @@ def test_query_added_before():
     assert len(json_got) == 7
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_added_in_last():
     """test query --added-in-last"""
 
@@ -8410,6 +8507,7 @@ def test_export_directory_template_function():
         assert pathlib.Path(f"foo/bar/{CLI_EXPORT_UUID_FILENAME}").is_file()
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_export_query_function():
     """Test --query-function"""
 
@@ -8764,6 +8862,7 @@ def test_export_print():
         assert f"uuid: {UUID_FAVORITE}" in result.output
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_print_quiet():
     """test query --print"""
 
@@ -8786,6 +8885,7 @@ def test_query_print_quiet():
         assert result.output.strip() == f"uuid: {UUID_FAVORITE}"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_field():
     """test query --field"""
 
@@ -8811,6 +8911,7 @@ def test_query_field():
         assert result.output.strip() == f"uuid,name\n{UUID_FAVORITE},{FILE_FAVORITE}"
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_field_json():
     """test query --field --json"""
 

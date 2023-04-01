@@ -5,14 +5,19 @@ import shutil
 import tempfile
 import time
 
-import photoscript
 import pytest
-from applescript import AppleScript
-from photoscript.utils import ditto
+
+from osxphotos.utils import is_macos
+
+if is_macos:
+    import photoscript
+    from applescript import AppleScript
+    from photoscript.utils import ditto
+
+    from .test_catalina_10_15_7 import UUID_DICT_LOCAL
 
 from osxphotos.exiftool import _ExifToolProc
 
-from .test_catalina_10_15_7 import UUID_DICT_LOCAL
 
 # run timewarp tests (configured with --timewarp)
 TEST_TIMEWARP = False
@@ -34,6 +39,9 @@ NO_CLEANUP = False
 
 
 def get_os_version():
+    if not is_macos:
+        return (None, None, None)
+
     import platform
 
     # returns tuple containing OS version
@@ -53,7 +61,7 @@ def get_os_version():
     return (ver, major, minor)
 
 
-OS_VER = get_os_version()
+OS_VER = get_os_version() if is_macos else [None, None]
 if OS_VER[0] == "10" and OS_VER[1] == "15":
     # Catalina
     TEST_LIBRARY = "tests/Test-10.15.7.photoslibrary"
@@ -77,28 +85,28 @@ else:
     TEST_LIBRARY_ADD_LOCATIONS = None
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_timewarp():
     if not TEST_TIMEWARP:
         return
     copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=5)
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import():
     if not TEST_IMPORT:
         return
     copy_photos_library(TEST_LIBRARY_IMPORT, delay=10)
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_sync():
     if not TEST_SYNC:
         return
     copy_photos_library(TEST_LIBRARY_SYNC, delay=10)
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_add_locations():
     if not TEST_ADD_LOCATIONS:
         return
@@ -312,7 +320,10 @@ def addalbum_library():
 
 def copy_photos_library_to_path(photos_library_path: str, dest_path: str) -> str:
     """Copy a photos library to a folder"""
-    ditto(photos_library_path, dest_path)
+    if is_macos:
+        ditto(photos_library_path, dest_path)
+    else:
+        shutil.copytree(photos_library_path, dest_path)
     return dest_path
 
 

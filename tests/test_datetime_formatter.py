@@ -1,6 +1,8 @@
 """ test datetime_formatter.DateTimeFormatter """
 import pytest
 
+from .locale_util import setlocale
+
 
 def test_datetime_formatter_1():
     """Test DateTimeFormatter """
@@ -8,7 +10,7 @@ def test_datetime_formatter_1():
     import locale
     from osxphotos.datetime_formatter import DateTimeFormatter
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     dt = datetime.datetime(2020, 5, 23, 12, 42, 33)
     dtf = DateTimeFormatter(dt)
@@ -32,7 +34,7 @@ def test_datetime_formatter_2():
     import locale
     from osxphotos.datetime_formatter import DateTimeFormatter
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     dt = datetime.datetime(2020, 5, 23, 14, 42, 33)
     dtf = DateTimeFormatter(dt)
@@ -56,7 +58,7 @@ def test_datetime_formatter_3():
     import locale
     from osxphotos.datetime_formatter import DateTimeFormatter
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
 
     dt = datetime.datetime(2020, 5, 2, 9, 3, 6)
     dtf = DateTimeFormatter(dt)
