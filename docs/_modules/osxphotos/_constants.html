@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos._constants - osxphotos 0.58.1 documentation</title>
+        <title>osxphotos._constants - osxphotos 0.59.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.58.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.59.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.58.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.59.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -199,9 +199,13 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
 <span class="n">APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;osxphotos&quot;</span>
 
@@ -661,6 +665,15 @@
 <span class="n">UUID_PATTERN</span> <span class="o">=</span> <span class="p">(</span>
     <span class="sa">r</span><span class="s2">&quot;[0-9a-fA-F]</span><span class="si">{8}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{12}</span><span class="s2">&quot;</span>
 <span class="p">)</span>
+<span class="c1"># Reference: https://docs.python.org/3/library/sqlite3.html?highlight=sqlite3%20threadsafety#sqlite3.threadsafety</span>
+<span class="c1"># and https://docs.python.org/3/library/sqlite3.html?highlight=sqlite3%20threadsafety#sqlite3.connect</span>
+<span class="c1"># 3: serialized mode; Threads may share the module, connections and cursors</span>
+<span class="c1"># 3 is the default in the python.org python 3.11 distribution</span>
+<span class="c1"># earlier versions of python.org python 3.x default to 1 which means threads may not share</span>
+<span class="c1"># sqlite3 connections and thus PhotoInfo.export() cannot be used in a multithreaded environment</span>
+<span class="c1"># pass SQLITE_CHECK_SAME_THREAD to sqlite3.connect() to enable multithreaded access on systems that support it</span>
+<span class="n">SQLITE_CHECK_SAME_THREAD</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">threadsafety</span> <span class="o">==</span> <span class="mi">3</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SQLITE_CHECK_SAME_THREAD</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">threadsafety</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

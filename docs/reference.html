@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Python Reference - osxphotos 0.58.2 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.59.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.58.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.59.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.58.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.59.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -201,25 +201,29 @@
 <p>__init__.py for osxphotos</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.AlbumInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">AlbumInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#AlbumInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.AlbumInfo" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">AlbumInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#AlbumInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.AlbumInfo" title="Permalink to this definition">#</a></dt>
 <dd><p>Info about a specific Album, contains all the details about the album
 including folders, photos, etc.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="osxphotos.AlbumInfo.asdict">
+<span class="sig-name descname"><span class="pre">asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#AlbumInfo.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.AlbumInfo.asdict" title="Permalink to this definition">#</a></dt>
+<dd><p>Return album info as a dict</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.AlbumInfo.folder_list">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">folder_list</span></span><a class="headerlink" href="#osxphotos.AlbumInfo.folder_list" title="Permalink to this definition">#</a></dt>
-<dd><p>return hierarchical list of folders the album is contained in
-as list of FolderInfo objects in form
-[“Top level folder”, “sub folder 1”, “sub folder 2”, …]
-returns empty list if album is not in any folders</p>
+<dd><p>Returns list of FolderInfo objects for each folder the album is contained in
+or empty list if album is not in any folders</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.AlbumInfo.folder_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">folder_names</span></span><a class="headerlink" href="#osxphotos.AlbumInfo.folder_names" title="Permalink to this definition">#</a></dt>
-<dd><p>return hierarchical list of folders the album is contained in
+<dd><p>Return hierarchical list of folders the album is contained in
 the folder list is in form:
 [“Top level folder”, “sub folder 1”, “sub folder 2”, …]
-returns empty list if album is not in any folders</p>
+or empty list if album is not in any folders</p>
 </dd></dl>
 
 <dl class="py property">
@@ -390,7 +394,7 @@ If called in context manager, returns True (execution is delayed until exiting c
 
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.ExportDB">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">ExportDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dbfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">ExportDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dbfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB" title="Permalink to this definition">#</a></dt>
 <dd><p>Interface to sqlite3 database used to store state information for osxphotos export command</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.close">
@@ -398,41 +402,47 @@ If called in context manager, returns True (execution is delayed until exiting c
 <dd><p>close the database connection</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.ExportDB.connection">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Connection</span></em><a class="headerlink" href="#osxphotos.ExportDB.connection" title="Permalink to this definition">#</a></dt>
+<dd><p>returns sqlite3 connection</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.create_file_record">
-<span class="sig-name descname"><span class="pre">create_file_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExportRecord</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.create_file_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.create_file_record" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">create_file_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExportRecord</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.create_file_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.create_file_record" title="Permalink to this definition">#</a></dt>
 <dd><p>create a new record for filename and uuid</p>
 <p>Returns: an ExportRecord object</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.create_or_get_file_record">
-<span class="sig-name descname"><span class="pre">create_or_get_file_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExportRecord</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.create_or_get_file_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.create_or_get_file_record" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">create_or_get_file_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExportRecord</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.create_or_get_file_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.create_or_get_file_record" title="Permalink to this definition">#</a></dt>
 <dd><p>create a new record for filename and uuid or return existing record</p>
 <p>Returns: an ExportRecord object</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.delete_data_for_filepath">
-<span class="sig-name descname"><span class="pre">delete_data_for_filepath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.delete_data_for_filepath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.delete_data_for_filepath" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_data_for_filepath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.delete_data_for_filepath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.delete_data_for_filepath" title="Permalink to this definition">#</a></dt>
 <dd><p>Delete all exportdb data for given filepath</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.delete_data_for_uuid">
-<span class="sig-name descname"><span class="pre">delete_data_for_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.delete_data_for_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.delete_data_for_uuid" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">delete_data_for_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.delete_data_for_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.delete_data_for_uuid" title="Permalink to this definition">#</a></dt>
 <dd><p>Delete all exportdb data for given UUID</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.export_dir">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">export_dir</span></span><a class="headerlink" href="#osxphotos.ExportDB.export_dir" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">export_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#osxphotos.ExportDB.export_dir" title="Permalink to this definition">#</a></dt>
 <dd><p>returns path to export directory</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_export_results">
-<span class="sig-name descname"><span class="pre">get_export_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_export_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_export_results" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_export_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'osxphotos.photoexporter.ExportResults'</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_export_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_export_results" title="Permalink to this definition">#</a></dt>
 <dd><p>Retrieve export results from database</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -458,21 +468,21 @@ If called in context manager, returns True (execution is delayed until exiting c
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_file_record">
-<span class="sig-name descname"><span class="pre">get_file_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ExportRecord</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_file_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_file_record" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_file_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'ExportRecord'</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_file_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_file_record" title="Permalink to this definition">#</a></dt>
 <dd><p>get info for filename</p>
 <p>Returns: an ExportRecord object or None if filename not found</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_files_for_uuid">
-<span class="sig-name descname"><span class="pre">get_files_for_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_files_for_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_files_for_uuid" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_files_for_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_files_for_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_files_for_uuid" title="Permalink to this definition">#</a></dt>
 <dd><p>query database for UUID and return list of files associated with UUID or empty list</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_photoinfo_for_uuid">
-<span class="sig-name descname"><span class="pre">get_photoinfo_for_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_photoinfo_for_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_photoinfo_for_uuid" title="Permalink to this definition">#</a></dt>
-<dd><p>returns the photoinfo JSON struct for a UUID</p>
+<span class="sig-name descname"><span class="pre">get_photoinfo_for_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_photoinfo_for_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_photoinfo_for_uuid" title="Permalink to this definition">#</a></dt>
+<dd><p>returns the photoinfo JSON string for a UUID or None if not found</p>
 </dd></dl>
 
 <dl class="py method">
@@ -483,7 +493,7 @@ If called in context manager, returns True (execution is delayed until exiting c
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_target_for_file">
-<span class="sig-name descname"><span class="pre">get_target_for_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_target_for_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_target_for_file" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_target_for_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_target_for_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_target_for_file" title="Permalink to this definition">#</a></dt>
 <dd><dl class="simple">
 <dt>query database for file matching file name and return the matching filename if there is one;</dt><dd><p>otherwise return None; looks for file.ext, file (1).ext, file (2).ext and so on to find the
 actual target name that was used to export filename</p>
@@ -494,33 +504,33 @@ actual target name that was used to export filename</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_uuid_for_file">
-<span class="sig-name descname"><span class="pre">get_uuid_for_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_uuid_for_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_uuid_for_file" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_uuid_for_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_uuid_for_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_uuid_for_file" title="Permalink to this definition">#</a></dt>
 <dd><p>query database for filename and return UUID
 returns None if filename not found in database</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.path">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#osxphotos.ExportDB.path" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#osxphotos.ExportDB.path" title="Permalink to this definition">#</a></dt>
 <dd><p>returns path to export database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.set_config">
-<span class="sig-name descname"><span class="pre">set_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.set_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.set_config" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.set_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.set_config" title="Permalink to this definition">#</a></dt>
 <dd><p>set config in the database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.set_export_results">
-<span class="sig-name descname"><span class="pre">set_export_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.set_export_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.set_export_results" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_export_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#osxphotos.ExportResults" title="osxphotos.photoexporter.ExportResults"><span class="pre">ExportResults</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.set_export_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.set_export_results" title="Permalink to this definition">#</a></dt>
 <dd><p>Store export results in database; data is pickled and gzipped for storage</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.set_photoinfo_for_uuid">
-<span class="sig-name descname"><span class="pre">set_photoinfo_for_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.set_photoinfo_for_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.set_photoinfo_for_uuid" title="Permalink to this definition">#</a></dt>
-<dd><p>sets the photoinfo JSON struct for a UUID</p>
+<span class="sig-name descname"><span class="pre">set_photoinfo_for_uuid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.set_photoinfo_for_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.set_photoinfo_for_uuid" title="Permalink to this definition">#</a></dt>
+<dd><p>sets the photoinfo JSON string for a UUID</p>
 </dd></dl>
 
 </dd></dl>
@@ -1184,6 +1194,12 @@ including folders, albums, etc</p>
 <dd><p>return list of albums (as AlbumInfo objects) contained in the folder</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="osxphotos.FolderInfo.asdict">
+<span class="sig-name descname"><span class="pre">asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#FolderInfo.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FolderInfo.asdict" title="Permalink to this definition">#</a></dt>
+<dd><p>Return folder info as a dict</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.FolderInfo.parent">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parent</span></span><a class="headerlink" href="#osxphotos.FolderInfo.parent" title="Permalink to this definition">#</a></dt>
@@ -1212,12 +1228,24 @@ including folders, albums, etc</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.ImportInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">ImportInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#ImportInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ImportInfo" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">ImportInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#ImportInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ImportInfo" title="Permalink to this definition">#</a></dt>
 <dd><p>Information about import sessions</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="osxphotos.ImportInfo.asdict">
+<span class="sig-name descname"><span class="pre">asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#ImportInfo.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ImportInfo.asdict" title="Permalink to this definition">#</a></dt>
+<dd><p>Return import info as a dict</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.ImportInfo.photos">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">photos</span></span><a class="headerlink" href="#osxphotos.ImportInfo.photos" title="Permalink to this definition">#</a></dt>
 <dd><p>return list of photos contained in import session</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.ImportInfo.title">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#osxphotos.ImportInfo.title" title="Permalink to this definition">#</a></dt>
+<dd><p>return title / name of import session</p>
 </dd></dl>
 
 </dd></dl>
@@ -1518,8 +1546,8 @@ self is not included in the returned list</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.cloud_metadata">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cloud_metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.cloud_metadata" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cloud_metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osxphotos.PhotoInfo.cloud_metadata" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict; Photos 5+ only</p>
 </dd></dl>
 
 <dl class="py property">
@@ -2545,7 +2573,7 @@ Returns photos regardless of intrash state.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.ProjectInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">ProjectInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#ProjectInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ProjectInfo" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">ProjectInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#ProjectInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ProjectInfo" title="Permalink to this definition">#</a></dt>
 <dd><p>ProjectInfo with info about projects
 Projects are cards, calendars, slideshows, etc.</p>
 </dd></dl>
@@ -3663,6 +3691,7 @@ Projects are cards, calendars, slideshows, etc.</p>
             <ul>
 <li><a class="reference internal" href="#">OSXPhotos Python Reference</a><ul>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo"><code class="docutils literal notranslate"><span class="pre">AlbumInfo</span></code></a><ul>
+<li><a class="reference internal" href="#osxphotos.AlbumInfo.asdict"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.asdict()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.folder_list"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.folder_list</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.folder_names"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.folder_names</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.parent"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.parent</span></code></a></li>
@@ -3687,6 +3716,7 @@ Projects are cards, calendars, slideshows, etc.</p>
 </li>
 <li><a class="reference internal" href="#osxphotos.ExportDB"><code class="docutils literal notranslate"><span class="pre">ExportDB</span></code></a><ul>
 <li><a class="reference internal" href="#osxphotos.ExportDB.close"><code class="docutils literal notranslate"><span class="pre">ExportDB.close()</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.ExportDB.connection"><code class="docutils literal notranslate"><span class="pre">ExportDB.connection</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.ExportDB.create_file_record"><code class="docutils literal notranslate"><span class="pre">ExportDB.create_file_record()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.ExportDB.create_or_get_file_record"><code class="docutils literal notranslate"><span class="pre">ExportDB.create_or_get_file_record()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.ExportDB.delete_data_for_filepath"><code class="docutils literal notranslate"><span class="pre">ExportDB.delete_data_for_filepath()</span></code></a></li>
@@ -3776,6 +3806,7 @@ Projects are cards, calendars, slideshows, etc.</p>
 </li>
 <li><a class="reference internal" href="#osxphotos.FolderInfo"><code class="docutils literal notranslate"><span class="pre">FolderInfo</span></code></a><ul>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.album_info"><code class="docutils literal notranslate"><span class="pre">FolderInfo.album_info</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.FolderInfo.asdict"><code class="docutils literal notranslate"><span class="pre">FolderInfo.asdict()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.parent"><code class="docutils literal notranslate"><span class="pre">FolderInfo.parent</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.subfolders"><code class="docutils literal notranslate"><span class="pre">FolderInfo.subfolders</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.title"><code class="docutils literal notranslate"><span class="pre">FolderInfo.title</span></code></a></li>
@@ -3783,7 +3814,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#osxphotos.ImportInfo"><code class="docutils literal notranslate"><span class="pre">ImportInfo</span></code></a><ul>
+<li><a class="reference internal" href="#osxphotos.ImportInfo.asdict"><code class="docutils literal notranslate"><span class="pre">ImportInfo.asdict()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.ImportInfo.photos"><code class="docutils literal notranslate"><span class="pre">ImportInfo.photos</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.ImportInfo.title"><code class="docutils literal notranslate"><span class="pre">ImportInfo.title</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#osxphotos.LikeInfo"><code class="docutils literal notranslate"><span class="pre">LikeInfo</span></code></a></li>

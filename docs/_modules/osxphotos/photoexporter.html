@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoexporter - osxphotos 0.58.1 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.59.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.58.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.59.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.58.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.59.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -209,6 +209,7 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">SimpleNamespace</span>
 
 <span class="kn">import</span> <span class="nn">photoscript</span>
 <span class="kn">from</span> <span class="nn">mako.template</span> <span class="kn">import</span> <span class="n">Template</span>
@@ -228,7 +229,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">._version</span> <span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">.datetime_utils</span> <span class="kn">import</span> <span class="n">datetime_tz_to_utc</span>
-<span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">exiftool_can_write</span>
+<span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">ExifToolCaching</span><span class="p">,</span> <span class="n">exiftool_can_write</span><span class="p">,</span> <span class="n">get_exiftool_path</span>
 <span class="kn">from</span> <span class="nn">.export_db</span> <span class="kn">import</span> <span class="n">ExportDB</span><span class="p">,</span> <span class="n">ExportDBTemp</span>
 <span class="kn">from</span> <span class="nn">.fileutil</span> <span class="kn">import</span> <span class="n">FileUtil</span>
 <span class="kn">from</span> <span class="nn">.photokit</span> <span class="kn">import</span> <span class="p">(</span>
@@ -264,6 +265,7 @@
 
 <span class="c1"># retry if download_missing/use_photos_export fails the first time (which sometimes it does)</span>
 <span class="n">MAX_PHOTOSCRIPT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+
 
 <span class="c1"># return values for _should_update_photo</span>
 <span class="k">class</span> <span class="nc">ShouldUpdate</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -506,7 +508,6 @@
         <span class="n">xattr_skipped</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">xattr_written</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-
         <span class="n">local_vars</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
@@ -571,7 +572,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">photo</span> <span class="o">=</span> <span class="n">photo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span> <span class="o">=</span> <span class="n">RenderOptions</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">_verbose</span>
 
         <span class="c1"># define functions for adding markup</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1147,7 +1148,8 @@
         <span class="sd">&quot;&quot;&quot;Stage a photo for export with AppleScript to a temporary directory</span>
 
 <span class="sd">        Note: If exporting an edited live photo, the associated live video will not be exported.</span>
-<span class="sd">        This is a limitation of the Photos AppleScript interface and Photos behaves the same way.&quot;&quot;&quot;</span>
+<span class="sd">        This is a limitation of the Photos AppleScript interface and Photos behaves the same way.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Edited version requested but photo has no adjustments&quot;</span><span class="p">)</span>
@@ -1761,7 +1763,7 @@
         <span class="k">with</span> <span class="n">ExifTool</span><span class="p">(</span>
             <span class="n">filepath</span><span class="p">,</span>
             <span class="n">flags</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">exiftool_flags</span><span class="p">,</span>
-            <span class="n">exiftool</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_exiftool_path</span><span class="p">,</span>
+            <span class="n">exiftool</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_exiftool_path</span><span class="p">,</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">exiftool</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">exiftag</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">exif_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
@@ -1941,7 +1943,6 @@
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">ismovie</span><span class="p">:</span>
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;Keys:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;UserData:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
-
         <span class="c1"># process date/time and timezone offset</span>
         <span class="c1"># Photos exports the following fields and sets modify date to creation date</span>
         <span class="c1"># [EXIF]    Modify Date             : 2020:10:30 00:00:00</span>
@@ -2051,7 +2052,7 @@
     <span class="k">def</span> <span class="nf">_get_exif_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;returns list of keywords found in the file&#39;s exif metadata&quot;&quot;&quot;</span>
         <span class="n">keywords</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">exif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">exiftool</span>
+        <span class="n">exif</span> <span class="o">=</span> <span class="n">exiftool_caching</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exif</span><span class="p">:</span>
             <span class="n">exifdict</span> <span class="o">=</span> <span class="n">exif</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;IPTC:Keywords&quot;</span><span class="p">,</span> <span class="s2">&quot;XMP:TagsList&quot;</span><span class="p">,</span> <span class="s2">&quot;XMP:Subject&quot;</span><span class="p">]:</span>
@@ -2068,7 +2069,7 @@
     <span class="k">def</span> <span class="nf">_get_exif_persons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;returns list of persons found in the file&#39;s exif metadata&quot;&quot;&quot;</span>
         <span class="n">persons</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">exif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">exiftool</span>
+        <span class="n">exif</span> <span class="o">=</span> <span class="n">exiftool_caching</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exif</span><span class="p">:</span>
             <span class="n">exifdict</span> <span class="o">=</span> <span class="n">exif</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
             <span class="k">try</span><span class="p">:</span>
@@ -2339,6 +2340,35 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">new_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">new_files</span>
+
+
+<span class="k">def</span> <span class="nf">exiftool_caching</span><span class="p">(</span><span class="n">photo</span><span class="p">:</span> <span class="n">SimpleNamespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExifToolCaching</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return ExifToolCaching object for photo</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        photo: SimpleNamespace object with photo info</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ExifToolCaching object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">photo</span><span class="o">.</span><span class="n">_exiftool_caching</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">exiftool_path</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">_exiftool_path</span> <span class="ow">or</span> <span class="n">get_exiftool_path</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">exiftool</span> <span class="o">=</span> <span class="n">ExifToolCaching</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="n">exiftool_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exiftool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="c1"># get_exiftool_path raises FileNotFoundError if exiftool not found</span>
+            <span class="n">exiftool</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;exiftool not in path; download and install from https://exiftool.org/&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">photo</span><span class="o">.</span><span class="n">_exiftool_caching</span> <span class="o">=</span> <span class="n">exiftool</span>
+        <span class="k">return</span> <span class="n">photo</span><span class="o">.</span><span class="n">_exiftool_caching</span>
 </pre></div>
         </article>
       </div>

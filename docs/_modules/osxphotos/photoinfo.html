@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoinfo - osxphotos 0.58.1 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.59.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.58.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.59.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.58.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.59.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -205,14 +205,16 @@
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">plistlib</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">SimpleNamespace</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">osxmetadata</span> <span class="kn">import</span> <span class="n">OSXMetaData</span>
@@ -263,7 +265,7 @@
 <span class="kn">from</span> <span class="nn">.uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span><span class="p">,</span> <span class="n">get_uti_for_extension</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_resource_loc</span><span class="p">,</span> <span class="n">hexdigest</span><span class="p">,</span> <span class="n">list_directory</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;PhotoInfoNone&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;PhotoInfoNone&quot;</span><span class="p">,</span> <span class="s2">&quot;frozen_photoinfo_factory&quot;</span><span class="p">]</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
@@ -278,6 +280,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">uuid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">:</span> <span class="s2">&quot;osxphotos.PhotosDB&quot;</span> <span class="o">=</span> <span class="n">db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_exiftool_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_verbose</span>
 
     <span class="nd">@property</span>
@@ -585,6 +588,8 @@
         <span class="sd">&quot;&quot;&quot;return path_edited_live_photo for Photos &lt;= 4&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&gt;</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Wrong database format!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="n">photopath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_predicted_path_edited_live_photo_4</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">photopath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
             <span class="c1"># the heuristic failed, so try to find the file</span>
@@ -597,10 +602,6 @@
                     <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filelist</span>
                 <span class="p">),</span>
                 <span class="kc">None</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">photopath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;MISSING PATH: edited live photo file for UUID </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="si">}</span><span class="s2"> does not appear to exist&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">photopath</span>
 
@@ -1395,7 +1396,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;score not implemented for this database version&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1541,7 +1541,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;exif_info not implemented for this database version&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1624,11 +1623,14 @@
     <span class="k">def</span> <span class="nf">hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a unique digest of the photo&#39;s properties and metadata;</span>
 <span class="sd">        useful for detecting changes in any property/metadata of the photo&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_hexdigest</span><span class="p">())</span>
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">cloud_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">cloud_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict; Photos 5+ only&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
         <span class="c1"># This is a large blob of data so don&#39;t load it unless requested</span>
         <span class="n">asset_table</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span><span class="p">][</span><span class="s2">&quot;ASSET&quot;</span><span class="p">]</span>
         <span class="n">sql_cloud_metadata</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
@@ -1638,10 +1640,6 @@
 <span class="s2">            JOIN </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2"> on  </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMASTER = ZCLOUDMASTER.Z_PK</span>
 <span class="s2">            WHERE </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID = ?</span>
 <span class="s2">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cloud_metadata not implemented for this database version&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">{}</span>
 
         <span class="n">_</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">get_db_connection</span><span class="p">()</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1979,80 +1977,112 @@
 <div class="viewcode-block" id="PhotoInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return dict representation&quot;&quot;&quot;</span>
 
-        <span class="n">folders</span> <span class="o">=</span> <span class="p">{</span><span class="n">album</span><span class="o">.</span><span class="n">title</span><span class="p">:</span> <span class="n">album</span><span class="o">.</span><span class="n">folder_names</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">}</span>
-        <span class="n">exif</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="n">place</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="n">score</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">adjustments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjustments</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjustments</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">album_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">album</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">]</span>
+        <span class="n">burst_album_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_album_info</span><span class="p">]</span>
+        <span class="n">burst_photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">]</span>
         <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">comment</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">]</span>
+        <span class="n">exif_info</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">face_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">face</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_info</span><span class="p">]</span>
+        <span class="n">folders</span> <span class="o">=</span> <span class="p">{</span><span class="n">album</span><span class="o">.</span><span class="n">title</span><span class="p">:</span> <span class="n">album</span><span class="o">.</span><span class="n">folder_names</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">}</span>
+        <span class="n">import_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_info</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_info</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="n">likes</span> <span class="o">=</span> <span class="p">[</span><span class="n">like</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">like</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">likes</span><span class="p">]</span>
-        <span class="n">faces</span> <span class="o">=</span> <span class="p">[</span><span class="n">face</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_info</span><span class="p">]</span>
+        <span class="n">person_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">person_info</span><span class="p">]</span>
+        <span class="n">place</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">project_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_info</span><span class="p">]</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="n">search_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">search_info_normalized</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_info_normalized</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info_normalized</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;library&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">,</span>
-            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
-            <span class="s2">&quot;original_filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span><span class="p">,</span>
+            <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="n">adjustments</span><span class="p">,</span>
+            <span class="s2">&quot;album_info&quot;</span><span class="p">:</span> <span class="n">album_info</span><span class="p">,</span>
+            <span class="s2">&quot;albums&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">,</span>
+            <span class="s2">&quot;burst_album_info&quot;</span><span class="p">:</span> <span class="n">burst_album_info</span><span class="p">,</span>
+            <span class="s2">&quot;burst_albums&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_albums</span><span class="p">,</span>
+            <span class="s2">&quot;burst_default_pick&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_default_pick</span><span class="p">,</span>
+            <span class="s2">&quot;burst_key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_key</span><span class="p">,</span>
+            <span class="s2">&quot;burst_photos&quot;</span><span class="p">:</span> <span class="n">burst_photos</span><span class="p">,</span>
+            <span class="s2">&quot;burst_selected&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_selected</span><span class="p">,</span>
+            <span class="s2">&quot;burst&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
+            <span class="s2">&quot;cloud_guid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_guid</span><span class="p">,</span>
+            <span class="s2">&quot;cloud_metadata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_metadata</span><span class="p">,</span>
+            <span class="s2">&quot;cloud_owner_hashed_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_owner_hashed_id</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">,</span>
+            <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_added</span><span class="p">,</span>
+            <span class="s2">&quot;date_modified&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_modified</span><span class="p">,</span>
+            <span class="s2">&quot;date_trashed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_trashed</span><span class="p">,</span>
             <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
-            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-            <span class="s2">&quot;keywords&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span>
-            <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
-            <span class="s2">&quot;keywords&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span>
-            <span class="s2">&quot;albums&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">,</span>
-            <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="n">folders</span><span class="p">,</span>
-            <span class="s2">&quot;persons&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">,</span>
-            <span class="s2">&quot;faces&quot;</span><span class="p">:</span> <span class="n">faces</span><span class="p">,</span>
-            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-            <span class="s2">&quot;ismissing&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismissing</span><span class="p">,</span>
-            <span class="s2">&quot;hasadjustments&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">,</span>
+            <span class="s2">&quot;exif_info&quot;</span><span class="p">:</span> <span class="n">exif_info</span><span class="p">,</span>
             <span class="s2">&quot;external_edit&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_edit</span><span class="p">,</span>
+            <span class="s2">&quot;face_info&quot;</span><span class="p">:</span> <span class="n">face_info</span><span class="p">,</span>
             <span class="s2">&quot;favorite&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">favorite</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+            <span class="s2">&quot;fingerprint&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">,</span>
+            <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="n">folders</span><span class="p">,</span>
+            <span class="s2">&quot;has_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_raw</span><span class="p">,</span>
+            <span class="s2">&quot;hasadjustments&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">,</span>
+            <span class="s2">&quot;hdr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="p">,</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
             <span class="s2">&quot;hidden&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">,</span>
-            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latitude</span><span class="p">,</span>
-            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_longitude</span><span class="p">,</span>
-            <span class="s2">&quot;path_edited&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">,</span>
-            <span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">,</span>
-            <span class="s2">&quot;isphoto&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span><span class="p">,</span>
-            <span class="s2">&quot;ismovie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismovie</span><span class="p">,</span>
-            <span class="s2">&quot;uti&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span><span class="p">,</span>
-            <span class="s2">&quot;uti_original&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_original</span><span class="p">,</span>
-            <span class="s2">&quot;burst&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
-            <span class="s2">&quot;live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span><span class="p">,</span>
-            <span class="s2">&quot;path_live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_live_photo</span><span class="p">,</span>
-            <span class="s2">&quot;iscloudasset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscloudasset</span><span class="p">,</span>
+            <span class="s2">&quot;import_info&quot;</span><span class="p">:</span> <span class="n">import_info</span><span class="p">,</span>
             <span class="s2">&quot;incloud&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">incloud</span><span class="p">,</span>
+            <span class="s2">&quot;intrash&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span><span class="p">,</span>
+            <span class="s2">&quot;iscloudasset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscloudasset</span><span class="p">,</span>
+            <span class="s2">&quot;ismissing&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismissing</span><span class="p">,</span>
+            <span class="s2">&quot;ismovie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismovie</span><span class="p">,</span>
+            <span class="s2">&quot;isphoto&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span><span class="p">,</span>
+            <span class="s2">&quot;israw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">israw</span><span class="p">,</span>
             <span class="s2">&quot;isreference&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isreference</span><span class="p">,</span>
-            <span class="s2">&quot;date_modified&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_modified</span><span class="p">,</span>
+            <span class="s2">&quot;keywords&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span>
+            <span class="s2">&quot;labels_normalized&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_normalized</span><span class="p">,</span>
+            <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latitude</span><span class="p">,</span>
+            <span class="s2">&quot;library&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">,</span>
+            <span class="s2">&quot;likes&quot;</span><span class="p">:</span> <span class="n">likes</span><span class="p">,</span>
+            <span class="s2">&quot;live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span><span class="p">,</span>
+            <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_longitude</span><span class="p">,</span>
+            <span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">orientation</span><span class="p">,</span>
+            <span class="s2">&quot;original_filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span><span class="p">,</span>
+            <span class="s2">&quot;original_filesize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filesize</span><span class="p">,</span>
+            <span class="s2">&quot;original_height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_height</span><span class="p">,</span>
+            <span class="s2">&quot;original_orientation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_orientation</span><span class="p">,</span>
+            <span class="s2">&quot;original_width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_width</span><span class="p">,</span>
+            <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
+            <span class="s2">&quot;panorama&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">panorama</span><span class="p">,</span>
+            <span class="s2">&quot;path_derivatives&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">,</span>
+            <span class="s2">&quot;path_edited_live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited_live_photo</span><span class="p">,</span>
+            <span class="s2">&quot;path_edited&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">,</span>
+            <span class="s2">&quot;path_live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_live_photo</span><span class="p">,</span>
+            <span class="s2">&quot;path_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_raw</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;person_info&quot;</span><span class="p">:</span> <span class="n">person_info</span><span class="p">,</span>
+            <span class="s2">&quot;persons&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">,</span>
+            <span class="s2">&quot;place&quot;</span><span class="p">:</span> <span class="n">place</span><span class="p">,</span>
             <span class="s2">&quot;portrait&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">portrait</span><span class="p">,</span>
+            <span class="s2">&quot;project_info&quot;</span><span class="p">:</span> <span class="n">project_info</span><span class="p">,</span>
+            <span class="s2">&quot;raw_original&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_original</span><span class="p">,</span>
+            <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span>
             <span class="s2">&quot;screenshot&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">screenshot</span><span class="p">,</span>
+            <span class="s2">&quot;search_info_normalized&quot;</span><span class="p">:</span> <span class="n">search_info_normalized</span><span class="p">,</span>
+            <span class="s2">&quot;search_info&quot;</span><span class="p">:</span> <span class="n">search_info</span><span class="p">,</span>
+            <span class="s2">&quot;selfie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">selfie</span><span class="p">,</span>
+            <span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">,</span>
             <span class="s2">&quot;slow_mo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">slow_mo</span><span class="p">,</span>
             <span class="s2">&quot;time_lapse&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_lapse</span><span class="p">,</span>
-            <span class="s2">&quot;hdr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="p">,</span>
-            <span class="s2">&quot;selfie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">selfie</span><span class="p">,</span>
-            <span class="s2">&quot;panorama&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">panorama</span><span class="p">,</span>
-            <span class="s2">&quot;has_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_raw</span><span class="p">,</span>
-            <span class="s2">&quot;israw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">israw</span><span class="p">,</span>
-            <span class="s2">&quot;raw_original&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_original</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s2">&quot;tzoffset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzoffset</span><span class="p">,</span>
+            <span class="s2">&quot;uti_edited&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span><span class="p">,</span>
+            <span class="s2">&quot;uti_original&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_original</span><span class="p">,</span>
             <span class="s2">&quot;uti_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_raw</span><span class="p">,</span>
-            <span class="s2">&quot;path_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_raw</span><span class="p">,</span>
-            <span class="s2">&quot;place&quot;</span><span class="p">:</span> <span class="n">place</span><span class="p">,</span>
-            <span class="s2">&quot;exif&quot;</span><span class="p">:</span> <span class="n">exif</span><span class="p">,</span>
-            <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span>
-            <span class="s2">&quot;intrash&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span><span class="p">,</span>
-            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+            <span class="s2">&quot;uti&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span><span class="p">,</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span><span class="p">,</span>
             <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
-            <span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">orientation</span><span class="p">,</span>
-            <span class="s2">&quot;original_height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_height</span><span class="p">,</span>
-            <span class="s2">&quot;original_width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_width</span><span class="p">,</span>
-            <span class="s2">&quot;original_orientation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_orientation</span><span class="p">,</span>
-            <span class="s2">&quot;original_filesize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filesize</span><span class="p">,</span>
-            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">,</span>
-            <span class="s2">&quot;likes&quot;</span><span class="p">:</span> <span class="n">likes</span><span class="p">,</span>
-            <span class="s2">&quot;search_info&quot;</span><span class="p">:</span> <span class="n">search_info</span><span class="p">,</span>
-            <span class="s2">&quot;fingerprint&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">,</span>
-            <span class="s2">&quot;cloud_guid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_guid</span><span class="p">,</span>
-            <span class="s2">&quot;cloud_owner_hashed_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_owner_hashed_id</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="PhotoInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2064,9 +2094,45 @@
 
         <span class="n">dict_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># sort lists such as keywords so JSON is consistent</span>
+            <span class="c1"># but do not sort certain items like location</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">]:</span>
+                <span class="k">continue</span>
             <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="n">dict_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">dict_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_json_hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;JSON for use by hexdigest()&quot;&quot;&quot;</span>
+
+        <span class="c1"># This differs from json() because hexdigest must not change if metadata changed</span>
+        <span class="c1"># With json(), sort order of lists of dicts is not consistent but these aren&#39;t needed</span>
+        <span class="c1"># for computing hexdigest so we can ignore them</span>
+        <span class="c1"># also don&#39;t use visible because it changes based on Photos UI state</span>
+
+        <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+
+        <span class="n">dict_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;album_info&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;burst_album_info&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;face_info&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;person_info&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;visible&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">del</span> <span class="n">dict_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># sort lists such as keywords so JSON is consistent</span>
+            <span class="c1"># but do not sort certain items like location</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">dict_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compare two PhotoInfo objects for equality&quot;&quot;&quot;</span>
@@ -2090,13 +2156,114 @@
 
 
 <span class="k">class</span> <span class="nc">PhotoInfoNone</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;mock class that returns None for all attributes&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Mock class that returns None for all attributes&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">frozen_photoinfo_factory</span><span class="p">(</span><span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimpleNamespace</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return a frozen SimpleNamespace object for a PhotoInfo object&quot;&quot;&quot;</span>
+    <span class="n">photo_json</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_object_hook</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">d</span>
+
+        <span class="c1"># if d key matches a ISO 8601 datetime (&#39;2023-03-24T06:46:57.690786&#39;, &#39;2019-07-04T16:24:01-07:00&#39;, &#39;2019-07-04T16:24:01+07:00&#39;), convert to datetime</span>
+        <span class="c1"># fromisoformat will also handle dates with timezone offset in form +0700, etc.</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s2">&quot;\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">T\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">:\d</span><span class="si">{2}</span><span class="s2">[.]?\d*[+-]?\d</span><span class="si">{2}</span><span class="s2">[:]?\d</span><span class="si">{2}</span><span class="s2">?&quot;</span><span class="p">,</span> <span class="n">v</span>
+            <span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="n">frozen</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">photo_json</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">_object_hook</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+
+    <span class="c1"># add on json() method to frozen object</span>
+    <span class="k">def</span> <span class="nf">_json</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">photo_json</span>
+
+    <span class="n">frozen</span><span class="o">.</span><span class="n">json</span> <span class="o">=</span> <span class="n">_json</span>
+
+    <span class="c1"># add hexdigest property to frozen object</span>
+    <span class="n">frozen</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span>
+
+    <span class="k">def</span> <span class="nf">detected_text</span><span class="p">(</span><span class="n">confidence_threshold</span><span class="o">=</span><span class="n">TEXT_DETECTION_CONFIDENCE_THRESHOLD</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detects text in photo and returns lists of results as (detected text, confidence)</span>
+
+<span class="sd">        confidence_threshold: float between 0.0 and 1.0. If text detection confidence is below this threshold,</span>
+<span class="sd">        text will not be returned. Default is TEXT_DETECTION_CONFIDENCE_THRESHOLD</span>
+
+<span class="sd">        If photo is edited, uses the edited photo, otherwise the original; falls back to the preview image if neither edited or original is available</span>
+
+<span class="sd">        Returns: list of (detected text, confidence) tuples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">frozen</span><span class="o">.</span><span class="n">_detected_text_cache</span><span class="p">[</span><span class="n">confidence_threshold</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="n">frozen</span><span class="o">.</span><span class="n">_detected_text_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">detected_text</span> <span class="o">=</span> <span class="n">frozen</span><span class="o">.</span><span class="n">_detected_text</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error detecting text in photo </span><span class="si">{</span><span class="n">frozen</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">detected_text</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">frozen</span><span class="o">.</span><span class="n">_detected_text_cache</span><span class="p">[</span><span class="n">confidence_threshold</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">confidence</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">confidence</span> <span class="ow">in</span> <span class="n">detected_text</span>
+                <span class="k">if</span> <span class="n">confidence</span> <span class="o">&gt;=</span> <span class="n">confidence_threshold</span>
+            <span class="p">]</span>
+            <span class="k">return</span> <span class="n">frozen</span><span class="o">.</span><span class="n">_detected_text_cache</span><span class="p">[</span><span class="n">confidence_threshold</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_detected_text</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;detect text in photo, either from cached extended attribute or by attempting text detection&quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">frozen</span><span class="o">.</span><span class="n">path_edited</span>
+            <span class="k">if</span> <span class="n">frozen</span><span class="o">.</span><span class="n">hasadjustments</span> <span class="ow">and</span> <span class="n">frozen</span><span class="o">.</span><span class="n">path_edited</span>
+            <span class="k">else</span> <span class="n">frozen</span><span class="o">.</span><span class="n">path</span>
+        <span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">or</span> <span class="n">frozen</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">frozen</span><span class="o">.</span><span class="n">path_derivatives</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">md</span> <span class="o">=</span> <span class="n">OSXMetaData</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="k">def</span> <span class="nf">decoder</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;Decode value from JSON&quot;&quot;&quot;</span>
+                <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+            <span class="n">detected_text</span> <span class="o">=</span> <span class="n">md</span><span class="o">.</span><span class="n">get_xattr</span><span class="p">(</span>
+                <span class="s2">&quot;osxphotos.metadata:detected_text&quot;</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="n">decoder</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">detected_text</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">detected_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">orientation</span> <span class="o">=</span> <span class="n">frozen</span><span class="o">.</span><span class="n">orientation</span> <span class="ow">or</span> <span class="kc">None</span>
+            <span class="n">detected_text</span> <span class="o">=</span> <span class="n">detect_text</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">orientation</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">encoder</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;Encode value as JSON&quot;&quot;&quot;</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">val</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+            <span class="n">md</span><span class="o">.</span><span class="n">set_xattr</span><span class="p">(</span>
+                <span class="s2">&quot;osxphotos.metadata:detected_text&quot;</span><span class="p">,</span> <span class="n">detected_text</span><span class="p">,</span> <span class="n">encode</span><span class="o">=</span><span class="n">encoder</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">detected_text</span>
+
+    <span class="n">frozen</span><span class="o">.</span><span class="n">detected_text</span> <span class="o">=</span> <span class="n">detected_text</span>
+    <span class="n">frozen</span><span class="o">.</span><span class="n">_detected_text</span> <span class="o">=</span> <span class="n">_detected_text</span>
+
+    <span class="k">return</span> <span class="n">frozen</span>
 </pre></div>
         </article>
       </div>
