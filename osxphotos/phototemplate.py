@@ -21,7 +21,6 @@ from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
-from .photoinfo import PhotoInfo
 from .text_detection import detect_text
 from .utils import expand_and_validate_filepath, load_function, uuid_to_shortuuid
 
@@ -1683,7 +1682,7 @@ def format_date_field(dt: datetime.datetime, field: str, args: List[str]) -> str
             raise ValueError(f"Unhandled template value: {field}") from e
 
 
-def get_place_value(photo: "PhotoInfo", field: str):
+def get_place_value(photo: "PhotoInfo", field: str):  # noqa: F821
     """Get the value of a 'place' field by attribute
 
     Args:
