@@ -432,7 +432,9 @@ def lock_filename(filepath: Union[str, pathlib.Path]) -> bool:
     Returns:
         filepath if lock file created, False if lock file already exists
     """
+    return filepath
 
+    # TODO: for future implementation
     lockfile = pathlib.Path(f"{filepath}.osxphotos.lock")
     if lockfile.exists():
         return False
@@ -447,6 +449,9 @@ def unlock_filename(filepath: Union[str, pathlib.Path]):
         filepath: str or pathlib.Path; full path, including file name
     """
 
+    return
+
+    # TODO: for future implementation
     lockfile = pathlib.Path(f"{filepath}.osxphotos.lock")
     if lockfile.exists():
         lockfile.unlink()
@@ -538,6 +543,7 @@ def uuid_to_shortuuid(uuid: str) -> str:
 def shortuuid_to_uuid(short_uuid: str) -> str:
     """Convert shortuuid to uuid"""
     return str(shortuuid.decode(short_uuid)).upper()
+
 
 def under_test() -> bool:
     """Return True if running under pytest"""

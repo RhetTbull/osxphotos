@@ -27,7 +27,6 @@ def test_dd_to_dms():
 
 @pytest.mark.skip(reason="Fails on some machines")
 def test_get_system_library_path():
-
     _, major, _ = osxphotos.utils._get_os_version()
     if int(major) < 15:
         assert osxphotos.utils.get_system_library_path() is None
@@ -84,7 +83,6 @@ def test_list_directory():
 
 
 def test_list_directory_invalid():
-
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     files = list_directory(f"{temp_dir.name}/no_such_dir", glob="*.jpg")
     assert len(files) == 0
@@ -151,6 +149,7 @@ def test_increment_filename_with_lock():
         )
 
 
+@pytest.mark.skip(reason="Lock files not yet implemented")
 def test_increment_filename_with_lock_exists():
     # test that increment_filename works with lock=True when lock file already exists
 
