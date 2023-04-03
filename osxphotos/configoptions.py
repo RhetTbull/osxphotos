@@ -50,7 +50,7 @@ class ConfigOptions:
             try:
                 arg = args[attr]
                 # don't test 'not arg'; need to handle empty strings as valid values
-                if arg is None or arg == False:
+                if arg in (False, None):
                     if type(self._attrs[attr]) == tuple:
                         setattr(self, attr, ())
                     else:
