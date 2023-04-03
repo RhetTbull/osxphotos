@@ -1427,21 +1427,21 @@ def export(
         photo_num = 0
         num_exported = 0
         limit_str = f" (limit = [num]{limit}[/num])" if limit else ""
+        # hack to avoid passing all the options to export_photo
+        kwargs = {
+            k: v
+            for k, v in locals().items()
+            if k in inspect.getfullargspec(export_photo).args
+        }
+        kwargs["export_dir"] = dest
+        kwargs["export_preview"] = preview
         with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
             task = progress.add_task(
                 f"Exporting [num]{num_photos}[/] photos{limit_str}", total=num_photos
             )
             for p in photos:
                 photo_num += 1
-                # hack to avoid passing all the options to export_photo
-                kwargs = {
-                    k: v
-                    for k, v in locals().items()
-                    if k in inspect.getfullargspec(export_photo).args
-                }
                 kwargs["photo"] = p
-                kwargs["export_dir"] = dest
-                kwargs["export_preview"] = preview
                 export_results = export_photo(**kwargs)
                 if post_function:
                     for function in post_function:
