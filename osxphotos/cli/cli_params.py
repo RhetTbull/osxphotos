@@ -8,6 +8,8 @@ from typing import Any, Callable
 import click
 import contextlib
 from textwrap import dedent
+
+from ..utils import is_macos
 from .common import OSXPHOTOS_HIDDEN, print_version
 from .param_types import *
 
@@ -641,6 +643,9 @@ _QUERY_PARAMETERS_DICT = {
         + "See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of how to use this option.",
     ),
 }
+
+if not is_macos:
+    del _QUERY_PARAMETERS_DICT["--selected"]
 
 
 def QUERY_OPTIONS(

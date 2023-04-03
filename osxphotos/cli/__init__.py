@@ -75,6 +75,7 @@ from .list import _list_libraries, list_libraries
 from .orphans import orphans
 from .persons import persons
 from .places import places
+from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
 from .theme import theme
@@ -86,7 +87,6 @@ if is_macos:
     from .batch_edit import batch_edit
     from .import_cli import import_cli
     from .photo_inspect import photo_inspect
-    from .query import query
     from .show_command import show
     from .sync import sync
     from .timewarp import timewarp

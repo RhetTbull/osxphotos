@@ -855,7 +855,6 @@ def export(
     retry,
     save_config,
     screenshot,
-    selected,
     selfie,
     shared,
     sidecar,
@@ -887,6 +886,7 @@ def export(
     verbose_flag,
     xattr_template,
     year,
+    selected=False,  # Isn't provided on unsupported platforms
     # debug,  # debug, watch, breakpoint handled in cli/__init__.py
     # watch,
     # breakpoint,

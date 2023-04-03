@@ -1,5 +1,6 @@
 """query command for osxphotos CLI"""
 
+import sys
 import click
 
 import osxphotos
@@ -11,11 +12,10 @@ from osxphotos.cli.click_rich_echo import (
 from osxphotos.debug import set_debug
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.queryoptions import query_options_from_kwargs
-from osxphotos.utils import assert_macos
+from osxphotos.utils import assert_macos, is_macos
 
-assert_macos()
-
-from osxphotos.photosalbum import PhotosAlbum
+if is_macos:
+    from osxphotos.photosalbum import PhotosAlbum
 
 from .cli_params import (
     DB_ARGUMENT,
@@ -24,6 +24,7 @@ from .cli_params import (
     FIELD_OPTION,
     JSON_OPTION,
     QUERY_OPTIONS,
+    make_click_option_decorator,
 )
 from .color_themes import get_default_theme
 from .common import CLI_COLOR_ERROR, CLI_COLOR_WARNING, OSXPHOTOS_HIDDEN, get_photos_db
@@ -31,20 +32,23 @@ from .list import _list_libraries
 from .print_photo_info import print_photo_fields, print_photo_info
 from .verbose import get_verbose_console
 
+MACOS_OPTIONS = make_click_option_decorator(*[
+    click.Option(
+        "--add-to-album",
+        metavar="ALBUM",
+        help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
+        "if it doesn't exist.  All photos in the query results will be added to this album. "
+        "This only works if the Photos library being queried is the last-opened (default) library in Photos. "
+        "This feature is currently experimental.  I don't know how well it will work on large query sets.",
+    ),
+] if is_macos else [])
 
 @click.command()
 @DB_OPTION
 @JSON_OPTION
 @QUERY_OPTIONS
 @DELETED_OPTIONS
-@click.option(
-    "--add-to-album",
-    metavar="ALBUM",
-    help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
-    "if it doesn't exist.  All photos in the query results will be added to this album. "
-    "This only works if the Photos library being queried is the last-opened (default) library in Photos. "
-    "This feature is currently experimental.  I don't know how well it will work on large query sets.",
-)
+@MACOS_OPTIONS
 @click.option(
     "--quiet",
     is_flag=True,
@@ -74,8 +78,8 @@ def query(
     json_,
     print_template,
     quiet,
-    add_to_album,
     photos_library,
+    add_to_album=False,
     **kwargs,
 ):
     """Query the Photos database using 1 or more search options;
@@ -128,6 +132,8 @@ def query(
     cli_json = cli_obj.json if cli_obj is not None else None
 
     if add_to_album and photos:
+        assert_macos()
+
         album_query = PhotosAlbum(add_to_album, verbose=None)
         photo_len = len(photos)
         photo_word = "photos" if photo_len > 1 else "photo"

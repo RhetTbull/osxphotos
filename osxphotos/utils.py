@@ -282,10 +282,11 @@ def list_photo_libraries():
 T = TypeVar("T", bound=Union[str, pathlib.Path])
 def normalize_fs_path(path: T) -> T:
     """Normalize filesystem paths with unicode in them"""
+    form = "NFD" if is_macos else "NFC"
     if isinstance(path, pathlib.Path):
-        return pathlib.Path(unicodedata.normalize("NFC", str(path)))
+        return pathlib.Path(unicodedata.normalize(form, str(path)))
     else:
-        return unicodedata.normalize("NFC", path)
+        return unicodedata.normalize(form, path)
 
 
 # def findfiles(pattern, path):

@@ -32,13 +32,13 @@ from osxphotos.cli import (
     labels,
     persons,
     places,
+    query,
 )
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.fileutil import FileUtil
 from osxphotos.utils import is_macos, noop, normalize_fs_path, normalize_unicode
 if is_macos:
     from osxmetadata import OSXMetaData, Tag
-    from osxphotos.cli import query
 
 from .conftest import copy_photos_library_to_path
 from .locale_util import setlocale
@@ -1121,7 +1121,6 @@ def test_about():
     assert "MIT License" in result.output
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_uuid():
 
     runner = CliRunner()
@@ -1156,7 +1155,6 @@ def test_query_uuid():
             assert json_expected[key_] in json_got[key_]
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_uuid_from_file_1():
     """Test query with --uuid-from-file"""
 
@@ -1180,7 +1178,6 @@ def test_query_uuid_from_file_1():
     assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_uuid_from_file_stdin():
     """Test query with --uuid-from-file reading from stdin"""
 
@@ -1200,7 +1197,6 @@ def test_query_uuid_from_file_stdin():
     assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_has_comment():
     """Test query with --has-comment"""
 
@@ -1218,7 +1214,6 @@ def test_query_has_comment():
     assert sorted(uuid_got) == sorted(UUID_HAS_COMMENTS)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_no_comment():
     """Test query with --no-comment"""
 
@@ -1238,7 +1233,6 @@ def test_query_no_comment():
         assert uuid not in UUID_HAS_COMMENTS
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_has_likes():
     """Test query with --has-likes"""
 
@@ -1255,7 +1249,6 @@ def test_query_has_likes():
     assert sorted(uuid_got) == sorted(UUID_HAS_LIKES)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_no_likes():
     """Test query with --no-likes"""
 
@@ -1275,7 +1268,6 @@ def test_query_no_likes():
         assert uuid not in UUID_HAS_LIKES
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_is_reference():
     """Test query with --is-reference"""
 
@@ -1292,7 +1284,6 @@ def test_query_is_reference():
     assert sorted(uuid_got) == sorted(UUID_IS_REFERENCE)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_edited():
     """Test query with --edited"""
 
@@ -1309,7 +1300,6 @@ def test_query_edited():
     assert sorted(uuid_got) == sorted(UUID_EDITED)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_not_edited():
     """Test query with --not-edited"""
 
@@ -1326,7 +1316,6 @@ def test_query_not_edited():
     assert sorted(uuid_got) == sorted(UUID_NOT_EDITED)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_in_album():
     """Test query with --in-album"""
 
@@ -1343,7 +1332,6 @@ def test_query_in_album():
     assert sorted(uuid_got) == sorted(UUID_IN_ALBUM)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_not_in_album():
     """Test query with --not-in-album"""
 
@@ -1360,7 +1348,6 @@ def test_query_not_in_album():
     assert sorted(uuid_got) == sorted(UUID_NOT_IN_ALBUM)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_duplicate():
     """Test query with --duplicate"""
 
@@ -1378,7 +1365,6 @@ def test_query_duplicate():
     assert sorted(uuid_got) == sorted(UUID_DUPLICATES)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_location():
     """Test query with --location"""
 
@@ -1397,7 +1383,6 @@ def test_query_location():
     assert UUID_NO_LOCATION not in uuid_got
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_no_location():
     """Test query with --no-location"""
 
@@ -1416,7 +1401,6 @@ def test_query_no_location():
     assert UUID_LOCATION not in uuid_got
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 @pytest.mark.parametrize("exiftag,exifvalue,uuid_expected", QUERY_EXIF_DATA)
 def test_query_exif(exiftag, exifvalue, uuid_expected):
@@ -1443,7 +1427,6 @@ def test_query_exif(exiftag, exifvalue, uuid_expected):
     assert sorted(uuid_got) == sorted(uuid_expected)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 @pytest.mark.parametrize(
     "exiftag,exifvalue,uuid_expected", QUERY_EXIF_DATA_CASE_INSENSITIVE
@@ -1473,7 +1456,6 @@ def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
     assert sorted(uuid_got) == sorted(uuid_expected)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_query_exif_multiple():
     """Test query with multiple --exif options, #873"""
@@ -2747,7 +2729,6 @@ def test_export_duplicate_unicode_filenames():
         assert sorted(files) == sorted(EXPORT_UNICODE_TITLE_FILENAMES)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_date_1():
     """Test --from-date and --to-date"""
 
@@ -2772,7 +2753,6 @@ def test_query_date_1():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_date_2():
     """Test --from-date and --to-date"""
 
@@ -2797,7 +2777,6 @@ def test_query_date_2():
     assert len(json_got) == 2
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_date_timezone():
     """Test --from-date, --to-date with ISO 8601 timezone"""
 
@@ -2822,7 +2801,6 @@ def test_query_date_timezone():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_time():
     """Test --from-time, --to-time"""
 
@@ -2847,7 +2825,6 @@ def test_query_time():
     assert len(json_got) == 3
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_year_1():
     """Test --year"""
 
@@ -2872,7 +2849,6 @@ def test_query_year_1():
     assert len(json_got) == 1
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_year_2():
     """Test --year with multiple years"""
 
@@ -2899,7 +2875,6 @@ def test_query_year_2():
     assert len(json_got) == 6
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_year_3():
     """Test --year with invalid year"""
 
@@ -2924,7 +2899,6 @@ def test_query_year_3():
     assert len(json_got) == 0
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_keyword_1():
     """Test query --keyword"""
 
@@ -2939,7 +2913,6 @@ def test_query_keyword_1():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_keyword_2():
     """Test query --keyword with lower case keyword"""
 
@@ -2954,7 +2927,6 @@ def test_query_keyword_2():
     assert len(json_got) == 0
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_keyword_3():
     """Test query --keyword with lower case keyword and --ignore-case"""
 
@@ -2976,7 +2948,6 @@ def test_query_keyword_3():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_keyword_4():
     """Test query with more than one --keyword"""
 
@@ -2999,7 +2970,6 @@ def test_query_keyword_4():
     assert len(json_got) == 6
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_no_keyword():
     """Test query --no-keyword"""
 
@@ -3021,7 +2991,6 @@ def test_query_no_keyword():
     assert len(json_got) == 11
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_person_1():
     """Test query --person"""
 
@@ -3036,7 +3005,6 @@ def test_query_person_1():
     assert len(json_got) == 3
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_person_2():
     """Test query --person with lower case person"""
 
@@ -3051,7 +3019,6 @@ def test_query_person_2():
     assert len(json_got) == 0
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_person_3():
     """Test query --person with lower case person and --ignore-case"""
 
@@ -3073,7 +3040,6 @@ def test_query_person_3():
     assert len(json_got) == 3
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_person_4():
     """Test query with multiple --person"""
 
@@ -3096,7 +3062,6 @@ def test_query_person_4():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_album_1():
     """Test query --album"""
 
@@ -3117,7 +3082,6 @@ def test_query_album_1():
     assert len(json_got) == 3
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_album_2():
     """Test query --album with lower case album"""
 
@@ -3138,7 +3102,6 @@ def test_query_album_2():
     assert len(json_got) == 0
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_album_3():
     """Test query --album with lower case album and --ignore-case"""
 
@@ -3160,7 +3123,6 @@ def test_query_album_3():
     assert len(json_got) == 3
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_album_4():
     """Test query with multipl --album"""
 
@@ -3183,7 +3145,6 @@ def test_query_album_4():
     assert len(json_got) == 7
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_label_1():
     """Test query --label"""
 
@@ -3198,7 +3159,6 @@ def test_query_label_1():
     assert len(json_got) == 1
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_label_2():
     """Test query --label with lower case label"""
 
@@ -3213,7 +3173,6 @@ def test_query_label_2():
     assert len(json_got) == 0
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_label_3():
     """Test query --label with lower case label and --ignore-case"""
 
@@ -3235,7 +3194,6 @@ def test_query_label_3():
     assert len(json_got) == 1
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_label_4():
     """Test query with more than one --label"""
 
@@ -3258,7 +3216,6 @@ def test_query_label_4():
     assert len(json_got) == 1
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_deleted_only():
     """Test query with --deleted and --deleted-only"""
 
@@ -3277,7 +3234,6 @@ def test_query_deleted_deleted_only():
     assert "Incompatible query options" in result.output
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_1():
     """Test query with --deleted"""
 
@@ -3291,7 +3247,6 @@ def test_query_deleted_1():
     assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_IN_TRASH_LEN_15_7
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_2():
     """Test query with --deleted"""
 
@@ -3305,7 +3260,6 @@ def test_query_deleted_2():
     assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_IN_TRASH_LEN_15_7
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_3():
     """Test query with --deleted-only"""
 
@@ -3320,7 +3274,6 @@ def test_query_deleted_3():
     assert json_got[0]["intrash"]
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_deleted_4():
     """Test query with --deleted-only"""
 
@@ -4312,7 +4265,6 @@ def test_places():
         assert json_got == json.loads(CLI_PLACES_JSON)
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_place_13():
     # test --place on 10.13
 
@@ -4337,7 +4289,6 @@ def test_place_13():
         assert json_got[0]["uuid"] == "2L6X2hv3ROWRSCU3WRRAGQ"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_place_13():
     # test --no-place on 10.13
 
@@ -4356,7 +4307,6 @@ def test_no_place_13():
         assert json_got[0]["uuid"] == "pERZk5T1Sb+XcKDFRCsGpA"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_place_15_1():
     # test --place on 10.15
 
@@ -4381,7 +4331,6 @@ def test_place_15_1():
         assert json_got[0]["uuid"] == "128FB4C6-0B16-4E7D-9108-FB2E90DA1546"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_place_15_2():
     # test --place on 10.15
 
@@ -4408,7 +4357,6 @@ def test_place_15_2():
         assert "FF7AFE2C-49B0-4C9B-B0D7-7E1F8B8F2F0C" in uuid
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_place_15():
     # test --no-place on 10.15
 
@@ -4426,7 +4374,6 @@ def test_no_place_15():
         assert json_got[0]["uuid"] == "A9B73E13-A6F2-4915-8D67-7213B39BAE9F"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_folder_1_15():
     # test --folder on 10.15
 
@@ -4467,7 +4414,6 @@ def test_no_folder_1_15():
                 ]
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_folder_2_15():
     # test --folder with --uuid on 10.15
 
@@ -4498,7 +4444,6 @@ def test_no_folder_2_15():
             )
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_no_folder_1_14():
     # test --folder on 10.14
 
@@ -4735,7 +4680,6 @@ def test_export_force_update():
             export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
         )
         assert result.exit_code == 0
-        print(result.output)
         assert (
             f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
@@ -7709,7 +7653,6 @@ def test_export_skip_live_photokit():
             assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name():
     """test query --name"""
 
@@ -7726,7 +7669,6 @@ def test_query_name():
     assert json_got[0]["original_filename"] == "DSC03584.dng"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name_unicode():
     """test query --name with a unicode name"""
 
@@ -7745,7 +7687,6 @@ def test_query_name_unicode():
     )
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name_i():
     """test query --name -i"""
 
@@ -7769,7 +7710,6 @@ def test_query_name_i():
     assert json_got[0]["original_filename"] == "DSC03584.dng"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name_original_filename():
     """test query --name only searches original filename on Photos 5+"""
 
@@ -7785,7 +7725,6 @@ def test_query_name_original_filename():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_name_original_filename_i():
     """test query --name only searches original filename on Photos 5+ with -i"""
 
@@ -7859,7 +7798,6 @@ def test_bad_query_eval():
         assert "Invalid query-eval CRITERIA" in result.output
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_min_size_1():
     """test query --min-size"""
 
@@ -7875,7 +7813,6 @@ def test_query_min_size_1():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_min_size_2():
     """test query --min-size"""
 
@@ -7897,7 +7834,6 @@ def test_query_min_size_2():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_max_size_1():
     """test query --max-size"""
 
@@ -7913,7 +7849,6 @@ def test_query_max_size_1():
     assert len(json_got) == 3
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_max_size_2():
     """test query --max-size"""
 
@@ -7929,7 +7864,6 @@ def test_query_max_size_2():
     assert len(json_got) == 3
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_min_max_size():
     """test query --max-size with --min-size"""
 
@@ -7953,7 +7887,6 @@ def test_query_min_max_size():
     assert len(json_got) == 1
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_min_size_error():
     """test query --max-size with invalid size"""
 
@@ -7966,7 +7899,6 @@ def test_query_min_size_error():
     assert result.exit_code != 0
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_1():
     """test query --regex against title"""
 
@@ -7989,7 +7921,6 @@ def test_query_regex_1():
     assert len(json_got) == 1
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_2():
     """test query --regex with no match"""
 
@@ -8012,7 +7943,6 @@ def test_query_regex_2():
     assert len(json_got) == 0
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_3():
     """test query --regex with --ignore-case"""
 
@@ -8036,7 +7966,6 @@ def test_query_regex_3():
     assert len(json_got) == 1
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_4():
     """test query --regex against album"""
 
@@ -8059,7 +7988,6 @@ def test_query_regex_4():
     assert len(json_got) == 2
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_regex_multiple():
     """test query multiple --regex values (#525)"""
 
@@ -8085,7 +8013,6 @@ def test_query_regex_multiple():
     assert len(json_got) == 2
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_function():
     """test query --query-function"""
 
@@ -8117,7 +8044,6 @@ def test_query_function():
         assert json_got[0]["original_filename"] == "DSC03584.dng"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_added_after():
     """test query --added-after"""
 
@@ -8139,7 +8065,6 @@ def test_query_added_after():
     assert len(json_got) == 4
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_added_before():
     """test query --added-before"""
 
@@ -8161,7 +8086,6 @@ def test_query_added_before():
     assert len(json_got) == 7
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_added_in_last():
     """test query --added-in-last"""
 
@@ -8507,7 +8431,6 @@ def test_export_directory_template_function():
         assert pathlib.Path(f"foo/bar/{CLI_EXPORT_UUID_FILENAME}").is_file()
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_export_query_function():
     """Test --query-function"""
 
@@ -8862,7 +8785,6 @@ def test_export_print():
         assert f"uuid: {UUID_FAVORITE}" in result.output
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_print_quiet():
     """test query --print"""
 
@@ -8885,7 +8807,6 @@ def test_query_print_quiet():
         assert result.output.strip() == f"uuid: {UUID_FAVORITE}"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_field():
     """test query --field"""
 
@@ -8911,7 +8832,6 @@ def test_query_field():
         assert result.output.strip() == f"uuid,name\n{UUID_FAVORITE},{FILE_FAVORITE}"
 
 
-@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_query_field_json():
     """test query --field --json"""
 
