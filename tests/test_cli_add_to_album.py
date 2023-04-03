@@ -12,8 +12,8 @@ UUID_MISSING = {
 }
 
 # photos with matching names
-QUERY_NAME = "AAF035"
-QUERY_COUNT = 4
+QUERY_NAME = "IMG_"
+QUERY_COUNT = 6
 
 
 @pytest.mark.addalbum
