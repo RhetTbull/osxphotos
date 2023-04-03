@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [v0.59.1](https://github.com/RhetTbull/osxphotos/compare/v0.59.0...v0.59.1)
+
+Performance Boost
+
+### 2 April 2023
+
+#### Changed
+
+- Removed lock files from export code (speed boost for NAS export, see #999); will need to eventually add this back for multithreaded export
+- Optimized some code in export CLI to speed export
+- Some linting fixed for move to ruff
+- 
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code changes.
+- [@cclauss](https://github.com/cclauss) for linting fixes
+
 ## [v0.59.0](https://github.com/RhetTbull/osxphotos/compare/v0.58.2...v0.59.0)
 
 ### 1 April 2023
