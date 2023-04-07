@@ -7,10 +7,9 @@ import pytest
 
 def setlocale(typ, name):
     try:
-        try:
+        with contextlib.suppress(Exception):
             locale.setlocale(typ, name)
-        except: pass
         # On Linux UTF-8 locales are separate
-        locale.setlocale(typ, name + ".UTF-8")
+        locale.setlocale(typ, f"{name}.UTF-8")
     except locale.Error:
         pytest.skip(f"Locale {name} not available")
