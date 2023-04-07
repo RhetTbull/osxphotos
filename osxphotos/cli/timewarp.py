@@ -164,7 +164,7 @@ See also `osxphotos help timewarp` for more information on the timewarp
 command which can be used to change the time zone of photos after import.
 
 
-"""
+"""  # noqa: E501
                 ),
                 width=formatter.width,
                 markdown=True,
