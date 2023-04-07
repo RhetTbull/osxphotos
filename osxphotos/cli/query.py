@@ -34,7 +34,7 @@ from .verbose import get_verbose_console
 
 MACOS_OPTIONS = make_click_option_decorator(*[
     click.Option(
-        "--add-to-album",
+        ["--add-to-album"],
         metavar="ALBUM",
         help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
         "if it doesn't exist.  All photos in the query results will be added to this album. "
