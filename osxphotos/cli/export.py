@@ -1442,6 +1442,7 @@ def export(
             for p in photos:
                 photo_num += 1
                 kwargs["photo"] = p
+                kwargs["photo_num"] = photo_num
                 export_results = export_photo(**kwargs)
                 if post_function:
                     for function in post_function:
