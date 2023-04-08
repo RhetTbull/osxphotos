@@ -1,5 +1,6 @@
 """Test macOS 13.0 Photos library"""
 
+import json
 from collections import namedtuple
 
 import pytest
@@ -660,7 +661,6 @@ def test_keyword_2(photosdb):
 
 
 def test_keyword_not_in_album(photosdb):
-
     # find all photos with keyword "Kids" not in the album "Pumpkin Farm"
     photos1 = photosdb.photos(albums=["Pumpkin Farm"])
     photos2 = photosdb.photos(keywords=["Kids"])
@@ -1273,3 +1273,26 @@ def test_person_feature_less(photosdb):
 
     photo = photosdb.get_photo(UUID_PERSON_NOT_FEATURE_LESS)
     assert not photo.person_info[0].feature_less
+
+
+def test_json(photosdb: osxphotos.PhotosDB):
+    """Test PhotoInfo.json()"""
+    photo = photosdb.get_photo(UUID_DICT["favorite"])
+    photo_dict = json.loads(photo.json())
+    assert photo_dict["favorite"]
+
+
+def test_json_indent(photosdb: osxphotos.PhotosDB):
+    """Test PhotoInfo.json() with indent"""
+    photo = photosdb.get_photo(UUID_DICT["favorite"])
+    photo_dict = json.loads(photo.json(indent=4))
+    assert photo_dict["favorite"]
+    assert "album_info" in photo_dict
+
+
+def test_json_shallow(photosdb: osxphotos.PhotosDB):
+    """Test PhotoInfo.json() with shallow=True"""
+    photo = photosdb.get_photo(UUID_DICT["favorite"])
+    photo_dict = json.loads(photo.json(shallow=True))
+    assert photo_dict["favorite"]
+    assert "album_info" not in photo_dict
