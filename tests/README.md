@@ -12,7 +12,7 @@ To set up a dev environment to work on osxphotos code or run tests follow these 
 
 To run the tests, do the following from the main source folder:
 `python3 -m pytest tests/`
-
+   - To run a specific test specify its name with the -k flag: `python3 -m pytest -k "test_export_cleanup"`
 
 ## Skipped Tests ##
 A few tests will look for certain environment variables to determine if they should run.
