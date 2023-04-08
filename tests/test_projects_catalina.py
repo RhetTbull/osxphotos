@@ -149,3 +149,11 @@ def test_photoinfo_project_info(photosdb, uuid, expected_projects):
 
     project_names = [p.title for p in photo.project_info]
     assert sorted(project_names) == sorted(expected_projects)
+
+
+@pytest.mark.parametrize("uuid,expected_projects", PHOTO_PROJECTS.items())
+def test_photoinfo_project_info_asdict(photosdb, uuid, expected_projects):
+    """Test PhotoInfo.project_info.asdict() #999"""
+    photo = photosdb.get_photo(uuid)
+    for p in photo.project_info:
+        assert p.asdict()
