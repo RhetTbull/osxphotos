@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.59.2](https://github.com/RhetTbull/osxphotos/compare/v0.59.1...v0.59.2)
+
+Bug Fix for Export
+
+### 08 April 2023
+
+#### Fixed
+
+- Fixed error on export when photo belonged to a project (#999)
+- Fixed large increase in export database size (#999)
+
+#### Changed
+
+- Added indent, shallow args to PhotoInfo.json() (#1038)
+
+#### Contributors
+
+- @RhetTbull for code
+- @oPromessa for finding bugs, running tests
+
 ## [v0.59.1](https://github.com/RhetTbull/osxphotos/compare/v0.59.0...v0.59.1)
 
 Performance Boost
