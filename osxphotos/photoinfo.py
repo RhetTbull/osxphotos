@@ -1888,14 +1888,46 @@ class PhotoInfo:
             "width": self.width,
         }
 
-    def json(self):
-        """Return JSON representation"""
+    def json(self, indent: int | None = None, shallow: bool = False) -> str:
+        """Return JSON representation
+
+        Args:
+            indent: indent level for JSON, if None, no indent
+            shallow: if True, return shallow JSON representation (does not contain folder_info, person_info, etc.)
+
+        Returns:
+            JSON string
+        """
 
         def default(o):
             if isinstance(o, (datetime.date, datetime.datetime)):
                 return o.isoformat()
 
         dict_data = self.asdict()
+
+        if shallow:
+            # delete items that are not needed for shallow JSON
+            # these are removed to match behavior of osxphotos < 0.59.0 (See #999, #1039)
+            for key in [
+                "adjustments",
+                "album_info",
+                "burst_album_info",
+                "burst_albums",
+                "burst_default_pick",
+                "burst_key",
+                "burst_photos",
+                "burst_selected",
+                "cloud_metadata",
+                "import_info",
+                "labels_normalized",
+                "path_derivatives",
+                "person_info",
+                "project_info",
+                "search_info_normalized",
+                "search_info",
+            ]:
+                del dict_data[key]
+
         for k, v in dict_data.items():
             # sort lists such as keywords so JSON is consistent
             # but do not sort certain items like location
@@ -1903,7 +1935,7 @@ class PhotoInfo:
                 continue
             if v and isinstance(v, (list, tuple)) and not isinstance(v[0], dict):
                 dict_data[k] = sorted(v, key=lambda v: v if v is not None else "")
-        return json.dumps(dict_data, sort_keys=True, default=default)
+        return json.dumps(dict_data, sort_keys=True, default=default, indent=indent)
 
     def _json_hexdigest(self):
         """JSON for use by hexdigest()"""

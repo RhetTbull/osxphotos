@@ -1212,7 +1212,7 @@ class PhotoExporter:
 
         # set data in the database
         with export_db.create_or_get_file_record(dest_str, self.photo.uuid) as rec:
-            rec.photoinfo = self.photo.json()
+            rec.photoinfo = self.photo.json(shallow=True)
             rec.export_options = options.bit_flags
             # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
             if not options.ignore_signature:
