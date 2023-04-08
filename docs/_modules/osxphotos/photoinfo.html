@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoinfo - osxphotos 0.59.0 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.59.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.59.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.59.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.59.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.59.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -2085,14 +2085,46 @@
             <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="PhotoInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return JSON representation&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PhotoInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shallow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return JSON representation</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            indent: indent level for JSON, if None, no indent</span>
+<span class="sd">            shallow: if True, return shallow JSON representation (does not contain folder_info, person_info, etc.)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            JSON string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
                 <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
 
         <span class="n">dict_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">shallow</span><span class="p">:</span>
+            <span class="c1"># delete items that are not needed for shallow JSON</span>
+            <span class="c1"># these are removed to match behavior of osxphotos &lt; 0.59.0 (See #999, #1039)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;adjustments&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;album_info&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;burst_album_info&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;burst_albums&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;burst_default_pick&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;burst_key&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;burst_photos&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;burst_selected&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cloud_metadata&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;import_info&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;labels_normalized&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;path_derivatives&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;person_info&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;project_info&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;search_info_normalized&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;search_info&quot;</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="k">del</span> <span class="n">dict_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="c1"># sort lists such as keywords so JSON is consistent</span>
             <span class="c1"># but do not sort certain items like location</span>
@@ -2100,7 +2132,7 @@
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">dict_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_json_hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;JSON for use by hexdigest()&quot;&quot;&quot;</span>

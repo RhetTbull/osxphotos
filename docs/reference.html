@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Python Reference - osxphotos 0.59.1 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.59.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.59.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.59.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.59.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.59.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1814,8 +1814,19 @@ isMissing = 1</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.json">
-<span class="sig-name descname"><span class="pre">json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.json" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shallow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.json" title="Permalink to this definition">#</a></dt>
 <dd><p>Return JSON representation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indent</strong> – indent level for JSON, if None, no indent</p></li>
+<li><p><strong>shallow</strong> – if True, return shallow JSON representation (does not contain folder_info, person_info, etc.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON string</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -2576,6 +2587,22 @@ Returns photos regardless of intrash state.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">ProjectInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#ProjectInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ProjectInfo" title="Permalink to this definition">#</a></dt>
 <dd><p>ProjectInfo with info about projects
 Projects are cards, calendars, slideshows, etc.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.ProjectInfo.folder_list">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">folder_list</span></span><a class="headerlink" href="#osxphotos.ProjectInfo.folder_list" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns list of FolderInfo objects for each folder the album is contained in
+or empty list if album is not in any folders</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.ProjectInfo.folder_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">folder_names</span></span><a class="headerlink" href="#osxphotos.ProjectInfo.folder_names" title="Permalink to this definition">#</a></dt>
+<dd><p>Return hierarchical list of folders the album is contained in
+the folder list is in form:
+[“Top level folder”, “sub folder 1”, “sub folder 2”, …]
+or empty list if album is not in any folders</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -3997,7 +4024,11 @@ Projects are cards, calendars, slideshows, etc.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#osxphotos.PlaceInfo"><code class="docutils literal notranslate"><span class="pre">PlaceInfo</span></code></a></li>
-<li><a class="reference internal" href="#osxphotos.ProjectInfo"><code class="docutils literal notranslate"><span class="pre">ProjectInfo</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.ProjectInfo"><code class="docutils literal notranslate"><span class="pre">ProjectInfo</span></code></a><ul>
+<li><a class="reference internal" href="#osxphotos.ProjectInfo.folder_list"><code class="docutils literal notranslate"><span class="pre">ProjectInfo.folder_list</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.ProjectInfo.folder_names"><code class="docutils literal notranslate"><span class="pre">ProjectInfo.folder_names</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions"><code class="docutils literal notranslate"><span class="pre">QueryOptions</span></code></a><ul>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.added_after"><code class="docutils literal notranslate"><span class="pre">QueryOptions.added_after</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.added_before"><code class="docutils literal notranslate"><span class="pre">QueryOptions.added_before</span></code></a></li>
