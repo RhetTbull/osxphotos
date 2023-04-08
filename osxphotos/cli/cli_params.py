@@ -1,12 +1,13 @@
 """Common options & parameters for osxphotos CLI commands"""
 
+
 from __future__ import annotations
 
 import functools
 from typing import Any, Callable
-
 import click
-
+import contextlib
+from textwrap import dedent
 from .common import OSXPHOTOS_HIDDEN, print_version
 from .param_types import *
 
@@ -23,6 +24,49 @@ __all__ = [
     "VERBOSE_OPTION",
     "VERSION_OPTION",
 ]
+
+
+def validate_selected(ctx, param, value):
+    """ "Validate photos are actually selected when --selected is used"""
+
+    if not value:
+        # --selected not used, just return
+        return value
+
+    # imports here to avoid conflict with linux port
+    # TODO: fix this once linux port is complete
+    import photoscript
+    from applescript import ScriptError
+
+    selection = None
+    with contextlib.suppress(ScriptError):
+        # ScriptError raised if selection made in edit mode or Smart Albums (on older versions of Photos)
+        selection = photoscript.PhotosLibrary().selection
+
+    if not selection:
+        click.echo(
+            dedent(
+                """
+                --selected option used but no photos selected in Photos.
+
+                To select photos in Photos use one of the following methods:
+    
+                - Select a single photo: Click the photo, or press the arrow keys to quickly navigate to and select the photo.
+
+                - Select a group of adjacent photos in a day: Click the first photo, then hold down the Shift key while you click the last photo.
+                You can also hold down Shift and press the arrow keys, or simply drag to enclose the photos within the selection rectangle.
+
+                - Select photos in a day that are not adjacent to each other: Hold down the Command key as you click each photo.
+
+                - Deselect specific photos: Hold down the Command key and click the photos you want to deselect.
+
+                - Deselect all photos: Click an empty space in the window (not a photo).
+            """
+            ),
+            err=True,
+        )
+        ctx.exit(1)
+    return value
 
 
 def _param_memo(f: Callable[..., Any], param: click.Parameter) -> None:
@@ -557,6 +601,7 @@ _QUERY_PARAMETERS_DICT = {
         ["--selected"],
         is_flag=True,
         help="Filter for photos that are currently selected in Photos.",
+        callback=validate_selected,
     ),
     "--exif": click.Option(
         ["--exif"],
