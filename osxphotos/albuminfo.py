@@ -386,7 +386,25 @@ class ProjectInfo(AlbumInfo):
     Projects are cards, calendars, slideshows, etc.
     """
 
-    ...
+    @property
+    def folder_names(self):
+        """Return hierarchical list of folders the album is contained in
+        the folder list is in form:
+        ["Top level folder", "sub folder 1", "sub folder 2", ...]
+        or empty list if album is not in any folders
+        """
+
+        # projects are not in folders
+        return []
+
+    @property
+    def folder_list(self):
+        """Returns list of FolderInfo objects for each folder the album is contained in
+        or empty list if album is not in any folders
+        """
+
+        # projects are not in folders
+        return []
 
 
 class FolderInfo:
