@@ -7,7 +7,7 @@ These are notes for developers working on osxphotos. They're mostly to help me r
 - Clone the repo: `git clone git@github.com:RhetTbull/osxphotos.git`
 - Create a virtual environment and activate it: `python3 -m venv venv` then `source venv/bin/activate`.  I use [pyenv](https://github.com/pyenv/pyenv) with [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) to manage my virtual environments
 - Install the requirements: `pip install -r requirements.txt`
-- Install the development requirements: `pip install -r requirements-dev.txt`
+- Install the development requirements: `pip install -r dev_requirements.txt`
 - Install osxphotos: `pip install -e .`
 
 ## Running tests
