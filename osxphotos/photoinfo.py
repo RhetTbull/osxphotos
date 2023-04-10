@@ -517,39 +517,26 @@ class PhotoInfo:
     @property
     def person_info(self):
         """list of PersonInfo objects for person in picture"""
-        try:
-            return self._personinfo
-        except AttributeError:
-            self._personinfo = [
-                PersonInfo(db=self._db, pk=pk) for pk in self._info["persons"]
-            ]
-            return self._personinfo
+        return [PersonInfo(db=self._db, pk=pk) for pk in self._info["persons"]]
 
     @property
     def face_info(self):
         """list of FaceInfo objects for faces in picture"""
         try:
-            return self._faceinfo
-        except AttributeError:
-            try:
-                faces = self._db._db_faceinfo_uuid[self._uuid]
-                self._faceinfo = [FaceInfo(db=self._db, pk=pk) for pk in faces]
-            except KeyError:
-                # no faces
-                self._faceinfo = []
-            return self._faceinfo
+            faces = self._db._db_faceinfo_uuid[self._uuid]
+            self._faceinfo = [FaceInfo(db=self._db, pk=pk) for pk in faces]
+        except KeyError:
+            # no faces
+            self._faceinfo = []
+        return self._faceinfo
 
     @property
     def moment_info(self):
         """Moment photo belongs to"""
         try:
-            return self._moment
-        except AttributeError:
-            try:
-                self._moment = MomentInfo(db=self._db, moment_pk=self._info["momentID"])
-            except ValueError:
-                self._moment = None
-            return self._moment
+            return MomentInfo(db=self._db, moment_pk=self._info["momentID"])
+        except ValueError:
+            return None
 
     @property
     def albums(self):
@@ -566,65 +553,41 @@ class PhotoInfo:
     @property
     def burst_albums(self):
         """If photo is burst photo, list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns self.albums"""
-        try:
-            return self._burst_albums
-        except AttributeError:
-            burst_albums = list(self.albums)
-            for photo in self.burst_photos:
-                if photo.burst_key:
-                    burst_albums.extend(photo.albums)
-            self._burst_albums = list(set(burst_albums))
-            return self._burst_albums
+        burst_albums = list(self.albums)
+        for photo in self.burst_photos:
+            if photo.burst_key:
+                burst_albums.extend(photo.albums)
+        return list(set(burst_albums))
 
     @property
     def album_info(self):
         """list of AlbumInfo objects representing albums the photo is contained in"""
-        try:
-            return self._album_info
-        except AttributeError:
-            album_uuids = self._get_album_uuids()
-            self._album_info = [
-                AlbumInfo(db=self._db, uuid=album) for album in album_uuids
-            ]
-            return self._album_info
+        album_uuids = self._get_album_uuids()
+        return [AlbumInfo(db=self._db, uuid=album) for album in album_uuids]
 
     @property
     def burst_album_info(self):
         """If photo is a burst photo, returns list of AlbumInfo objects representing albums the photo is contained in as well as albums the burst key photo is contained in, otherwise returns self.album_info."""
-        try:
-            return self._burst_album_info
-        except AttributeError:
-            burst_album_info = list(self.album_info)
-            for photo in self.burst_photos:
-                if photo.burst_key:
-                    burst_album_info.extend(photo.album_info)
-            self._burst_album_info = list(set(burst_album_info))
-            return self._burst_album_info
+        burst_album_info = list(self.album_info)
+        for photo in self.burst_photos:
+            if photo.burst_key:
+                burst_album_info.extend(photo.album_info)
+        return list(set(burst_album_info))
 
     @property
     def import_info(self):
         """ImportInfo object representing import session for the photo or None if no import session"""
-        try:
-            return self._import_info
-        except AttributeError:
-            self._import_info = (
-                ImportInfo(db=self._db, uuid=self._info["import_uuid"])
-                if self._info["import_uuid"] is not None
-                else None
-            )
-            return self._import_info
+        return (
+            ImportInfo(db=self._db, uuid=self._info["import_uuid"])
+            if self._info["import_uuid"] is not None
+            else None
+        )
 
     @property
     def project_info(self):
         """list of AlbumInfo objects representing projects for the photo or None if no projects"""
-        try:
-            return self._project_info
-        except AttributeError:
-            project_uuids = self._get_album_uuids(project=True)
-            self._project_info = [
-                ProjectInfo(db=self._db, uuid=album) for album in project_uuids
-            ]
-            return self._project_info
+        project_uuids = self._get_album_uuids(project=True)
+        return [ProjectInfo(db=self._db, uuid=album) for album in project_uuids]
 
     @property
     def keywords(self):
@@ -638,8 +601,7 @@ class PhotoInfo:
         # in this case, return None so result is the same as if title had never been set (which returns NULL)
         # issue #512
         title = self._info["name"]
-        title = None if title == "" else title
-        return title
+        return None if title == "" else title
 
     @property
     def uuid(self):
@@ -1777,41 +1739,31 @@ class PhotoInfo:
         }
         return yaml.dump(info, sort_keys=False)
 
-    def asdict(self):
-        """return dict representation"""
+    def asdict(self, shallow: bool = False) -> dict[str, Any]:
+        """Return dict representation of PhotoInfo object.
 
-        adjustments = self.adjustments.asdict() if self.adjustments else {}
-        album_info = [album.asdict() for album in self.album_info]
-        burst_album_info = [a.asdict() for a in self.burst_album_info]
-        burst_photos = [p.uuid for p in self.burst_photos]
+        Args:
+            shallow: if True, return shallow representation (does not contain folder_info, person_info, etc.)
+
+        Returns:
+            dict representation of PhotoInfo object
+
+        Note:
+            The shallow representation is used internally by export as it contains only the subset of data needed for export.
+        """
+
         comments = [comment.asdict() for comment in self.comments]
         exif_info = dataclasses.asdict(self.exif_info) if self.exif_info else {}
         face_info = [face.asdict() for face in self.face_info]
         folders = {album.title: album.folder_names for album in self.album_info}
-        import_info = self.import_info.asdict() if self.import_info else {}
         likes = [like.asdict() for like in self.likes]
-        person_info = [p.asdict() for p in self.person_info]
         place = self.place.asdict() if self.place else {}
-        project_info = [p.asdict() for p in self.project_info]
         score = dataclasses.asdict(self.score) if self.score else {}
-        search_info = self.search_info.asdict() if self.search_info else {}
-        search_info_normalized = (
-            self.search_info_normalized.asdict() if self.search_info_normalized else {}
-        )
 
-        return {
-            "adjustments": adjustments,
-            "album_info": album_info,
+        dict_data = {
             "albums": self.albums,
-            "burst_album_info": burst_album_info,
-            "burst_albums": self.burst_albums,
-            "burst_default_pick": self.burst_default_pick,
-            "burst_key": self.burst_key,
-            "burst_photos": burst_photos,
-            "burst_selected": self.burst_selected,
             "burst": self.burst,
             "cloud_guid": self.cloud_guid,
-            "cloud_metadata": self.cloud_metadata,
             "cloud_owner_hashed_id": self.cloud_owner_hashed_id,
             "comments": comments,
             "date_added": self.date_added,
@@ -1831,7 +1783,6 @@ class PhotoInfo:
             "hdr": self.hdr,
             "height": self.height,
             "hidden": self.hidden,
-            "import_info": import_info,
             "incloud": self.incloud,
             "intrash": self.intrash,
             "iscloudasset": self.iscloudasset,
@@ -1841,7 +1792,6 @@ class PhotoInfo:
             "israw": self.israw,
             "isreference": self.isreference,
             "keywords": self.keywords,
-            "labels_normalized": self.labels_normalized,
             "labels": self.labels,
             "latitude": self._latitude,
             "library": self._db._library_path,
@@ -1857,22 +1807,17 @@ class PhotoInfo:
             "original_width": self.original_width,
             "owner": self.owner,
             "panorama": self.panorama,
-            "path_derivatives": self.path_derivatives,
             "path_edited_live_photo": self.path_edited_live_photo,
             "path_edited": self.path_edited,
             "path_live_photo": self.path_live_photo,
             "path_raw": self.path_raw,
             "path": self.path,
-            "person_info": person_info,
             "persons": self.persons,
             "place": place,
             "portrait": self.portrait,
-            "project_info": project_info,
             "raw_original": self.raw_original,
             "score": score,
             "screenshot": self.screenshot,
-            "search_info_normalized": search_info_normalized,
-            "search_info": search_info,
             "selfie": self.selfie,
             "shared": self.shared,
             "slow_mo": self.slow_mo,
@@ -1888,6 +1833,37 @@ class PhotoInfo:
             "width": self.width,
         }
 
+        # non-shallow keys
+        if not shallow:
+            dict_data["album_info"] = [album.asdict() for album in self.album_info]
+            dict_data["path_derivatives"] = self.path_derivatives
+            dict_data["adjustments"] = (
+                self.adjustments.asdict() if self.adjustments else {}
+            )
+            dict_data["burst_album_info"] = [a.asdict() for a in self.burst_album_info]
+            dict_data["burst_albums"] = self.burst_albums
+            dict_data["burst_default_pick"] = self.burst_default_pick
+            dict_data["burst_key"] = self.burst_key
+            dict_data["burst_photos"] = [p.uuid for p in self.burst_photos]
+            dict_data["burst_selected"] = self.burst_selected
+            dict_data["cloud_metadata"] = self.cloud_metadata
+            dict_data["import_info"] = (
+                self.import_info.asdict() if self.import_info else {}
+            )
+            dict_data["labels_normalized"] = self.labels_normalized
+            dict_data["person_info"] = [p.asdict() for p in self.person_info]
+            dict_data["project_info"] = [p.asdict() for p in self.project_info]
+            dict_data["search_info"] = (
+                self.search_info.asdict() if self.search_info else {}
+            )
+            dict_data["search_info_normalized"] = (
+                self.search_info_normalized.asdict()
+                if self.search_info_normalized
+                else {}
+            )
+
+        return dict_data
+
     def json(self, indent: int | None = None, shallow: bool = False) -> str:
         """Return JSON representation
 
@@ -1897,36 +1873,16 @@ class PhotoInfo:
 
         Returns:
             JSON string
+
+        Note:
+            The shallow representation is used internally by export as it contains only the subset of data needed for export.
         """
 
         def default(o):
             if isinstance(o, (datetime.date, datetime.datetime)):
                 return o.isoformat()
 
-        dict_data = self.asdict()
-
-        if shallow:
-            # delete items that are not needed for shallow JSON
-            # these are removed to match behavior of osxphotos < 0.59.0 (See #999, #1039)
-            for key in [
-                "adjustments",
-                "album_info",
-                "burst_album_info",
-                "burst_albums",
-                "burst_default_pick",
-                "burst_key",
-                "burst_photos",
-                "burst_selected",
-                "cloud_metadata",
-                "import_info",
-                "labels_normalized",
-                "path_derivatives",
-                "person_info",
-                "project_info",
-                "search_info_normalized",
-                "search_info",
-            ]:
-                del dict_data[key]
+        dict_data = self.asdict(shallow=True) if shallow else self.asdict(shallow=False)
 
         for k, v in dict_data.items():
             # sort lists such as keywords so JSON is consistent
