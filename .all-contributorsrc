@@ -550,6 +550,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "rajscode",
+      "name": "rajscode",
+      "avatar_url": "https://avatars.githubusercontent.com/u/99123253?v=4",
+      "profile": "https://github.com/rajscode",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
