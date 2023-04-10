@@ -1521,10 +1521,10 @@ class PhotoExporter:
         if not options.dry_run:
             warning_, error_ = self._write_exif_data(src, options=options)
             if warning_:
-                exiftool_results.exiftool_warning.append((dest, warning_))
+                exiftool_results.exiftool_warning.append((str(dest), str(warning_)))
             if error_:
-                exiftool_results.exiftool_error.append((dest, error_))
-                exiftool_results.error.append((dest, error_))
+                exiftool_results.exiftool_error.append((str(dest), str(error_)))
+                exiftool_results.error.append((str(dest), str(error_)))
 
         exiftool_results.exif_updated.append(dest)
         exiftool_results.to_touch.append(dest)

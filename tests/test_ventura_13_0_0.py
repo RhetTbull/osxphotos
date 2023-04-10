@@ -1285,7 +1285,7 @@ def test_json(photosdb: osxphotos.PhotosDB):
 def test_json_indent(photosdb: osxphotos.PhotosDB):
     """Test PhotoInfo.json() with indent"""
     photo = photosdb.get_photo(UUID_DICT["favorite"])
-    photo_dict = json.loads(photo.json(indent=4))
+    photo_dict = json.loads(photo.json(indent=4, shallow=False))
     assert photo_dict["favorite"]
     assert "album_info" in photo_dict
 
@@ -1296,3 +1296,11 @@ def test_json_shallow(photosdb: osxphotos.PhotosDB):
     photo_dict = json.loads(photo.json(shallow=True))
     assert photo_dict["favorite"]
     assert "album_info" not in photo_dict
+
+
+def test_photosdb_photos_by_uuid(photosdb: osxphotos.PhotosDB):
+    """Test PhotosDB.photos_by_uuid"""
+    photos = photosdb.photos_by_uuid(UUID_DICT.values())
+    assert len(photos) == len(UUID_DICT)
+    for photo in photos:
+        assert photo.uuid in UUID_DICT.values()

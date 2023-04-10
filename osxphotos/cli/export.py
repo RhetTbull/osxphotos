@@ -911,7 +911,8 @@ def export(
 
     # capture locals for use with ConfigOptions before changing any of them
     locals_ = locals()
-    set_crash_data("locals", locals_)
+    crash_data = locals_.copy()
+    set_crash_data("locals", crash_data)
 
     # config expects --verbose to be named "verbose" not "verbose_flag"
     locals_["verbose"] = verbose_flag
@@ -2254,7 +2255,7 @@ def export_photo_to_directory(
                 err=True,
             )
             if tries > retry:
-                results.error.append((str(pathlib.Path(dest) / filename), e))
+                results.error.append((str(pathlib.Path(dest) / filename), str(e)))
                 break
             else:
                 rich_echo(
