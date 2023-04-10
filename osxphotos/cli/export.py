@@ -911,7 +911,8 @@ def export(
 
     # capture locals for use with ConfigOptions before changing any of them
     locals_ = locals()
-    set_crash_data("locals", locals_)
+    crash_data = locals_.copy()
+    set_crash_data("locals", crash_data)
 
     # config expects --verbose to be named "verbose" not "verbose_flag"
     locals_["verbose"] = verbose_flag
