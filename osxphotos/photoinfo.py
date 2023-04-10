@@ -1905,15 +1905,9 @@ class PhotoInfo:
             if isinstance(o, (datetime.date, datetime.datetime)):
                 return o.isoformat()
 
-        dict_data = self.asdict()
+        dict_data = self.asdict(shallow=True)
 
-        for k in [
-            "album_info",
-            "burst_album_info",
-            "face_info",
-            "person_info",
-            "visible",
-        ]:
+        for k in ["face_info", "visible"]:
             del dict_data[k]
 
         for k, v in dict_data.items():

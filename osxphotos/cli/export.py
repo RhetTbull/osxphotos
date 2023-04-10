@@ -2255,7 +2255,7 @@ def export_photo_to_directory(
                 err=True,
             )
             if tries > retry:
-                results.error.append((str(pathlib.Path(dest) / filename), e))
+                results.error.append((str(pathlib.Path(dest) / filename), str(e)))
                 break
             else:
                 rich_echo(

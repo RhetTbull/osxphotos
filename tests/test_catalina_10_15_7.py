@@ -1497,7 +1497,7 @@ def test_json(photosdb: osxphotos.PhotosDB):
 def test_json_indent(photosdb: osxphotos.PhotosDB):
     """Test PhotoInfo.json() with indent"""
     photo = photosdb.get_photo(UUID_DICT["favorite"])
-    photo_dict = json.loads(photo.json(indent=4))
+    photo_dict = json.loads(photo.json(indent=4, shallow=False))
     assert photo_dict["favorite"]
     assert "album_info" in photo_dict
 
