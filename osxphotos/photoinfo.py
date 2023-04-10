@@ -1739,7 +1739,7 @@ class PhotoInfo:
         }
         return yaml.dump(info, sort_keys=False)
 
-    def asdict(self, shallow: bool = False) -> dict[str, Any]:
+    def asdict(self, shallow: bool = True) -> dict[str, Any]:
         """Return dict representation of PhotoInfo object.
 
         Args:
@@ -1864,7 +1864,7 @@ class PhotoInfo:
 
         return dict_data
 
-    def json(self, indent: int | None = None, shallow: bool = False) -> str:
+    def json(self, indent: int | None = None, shallow: bool = True) -> str:
         """Return JSON representation
 
         Args:

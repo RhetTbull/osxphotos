@@ -50,9 +50,8 @@ def sort_list_by_keys(values, sort_keys):
         ValueError: raised if len(values) != len(sort_keys)
     """
     if len(values) != len(sort_keys):
-        return ValueError("values and sort_keys must have same length")
-
-    return list(zip(*sorted(zip(sort_keys, values))))[1]
+        raise ValueError("values and sort_keys must be same length")
+    return [x for _, x in sorted(zip(sort_keys, values))]
 
 
 class AlbumInfoBaseClass:
@@ -166,14 +165,13 @@ class AlbumInfoBaseClass:
             return self._owner
 
     def asdict(self):
-        """Return album info as a dict"""
+        """Return album info as a dict; does not include photos"""
         return {
             "uuid": self.uuid,
             "creation_date": self.creation_date,
             "start_date": self.start_date,
             "end_date": self.end_date,
             "owner": self.owner,
-            "photos": [p.uuid for p in self.photos],
         }
 
     def __len__(self):
@@ -299,7 +297,7 @@ class AlbumInfo(AlbumInfoBaseClass):
         )
 
     def asdict(self):
-        """Return album info as a dict"""
+        """Return album info as a dict; does not include photos"""
         dict_data = super().asdict()
         dict_data["title"] = self.title
         dict_data["folder_names"] = self.folder_names
@@ -362,14 +360,13 @@ class ImportInfo(AlbumInfoBaseClass):
             return self._photos
 
     def asdict(self):
-        """Return import info as a dict"""
+        """Return import info as a dict; does not include photos"""
         return {
             "uuid": self.uuid,
             "creation_date": self.creation_date,
             "start_date": self.start_date,
             "end_date": self.end_date,
             "title": self.title,
-            "photos": [p.uuid for p in self.photos],
         }
 
     def __bool__(self):

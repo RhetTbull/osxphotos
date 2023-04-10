@@ -516,7 +516,8 @@ class PhotosDB:
     @property
     def album_info_shared(self):
         """return list of AlbumInfo objects for each shared album in the photos database
-        only valid for Photos 5; on Photos <= 4, prints warning and returns empty list"""
+        only valid for Photos 5; on Photos <= 4, prints warning and returns empty list
+        """
         # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
         try:
             return self._album_info_shared
@@ -543,7 +544,8 @@ class PhotosDB:
     @property
     def albums_shared(self):
         """return list of shared albums found in photos database
-        only valid for Photos 5; on Photos <= 4, prints warning and returns empty list"""
+        only valid for Photos 5; on Photos <= 4, prints warning and returns empty list
+        """
 
         # Could be more than one album with same name
         # Right now, they are treated as same album and photos are combined from albums with same name
@@ -3053,7 +3055,6 @@ class PhotosDB:
         except KeyError:
             return None
 
-    # TODO: add to docs and test
     def photos_by_uuid(self, uuids):
         """Returns a list of photos with UUID in uuids.
             Does not generate error if invalid or missing UUID passed.
@@ -3066,14 +3067,11 @@ class PhotosDB:
         Returns:
             list of PhotoInfo instance for photo with UUID matching uuid or [] if no match
         """
-        photos = []
-        for uuid in uuids:
-            try:
-                photos.append(PhotoInfo(db=self, uuid=uuid, info=self._dbphotos[uuid]))
-            except KeyError:
-                # ignore missing/invlaid UUID
-                pass
-        return photos
+        return [
+            PhotoInfo(db=self, uuid=uuid, info=self._dbphotos[uuid])
+            for uuid in uuids
+            if uuid in self._dbphotos
+        ]
 
     def query(self, options: QueryOptions) -> List[PhotoInfo]:
         """Run a query against PhotosDB to extract the photos based on user supplied options

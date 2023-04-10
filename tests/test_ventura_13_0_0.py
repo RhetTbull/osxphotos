@@ -1296,3 +1296,11 @@ def test_json_shallow(photosdb: osxphotos.PhotosDB):
     photo_dict = json.loads(photo.json(shallow=True))
     assert photo_dict["favorite"]
     assert "album_info" not in photo_dict
+
+
+def test_photosdb_photos_by_uuid(photosdb: osxphotos.PhotosDB):
+    """Test PhotosDB.photos_by_uuid"""
+    photos = photosdb.photos_by_uuid(UUID_DICT.values())
+    assert len(photos) == len(UUID_DICT)
+    for photo in photos:
+        assert photo.uuid in UUID_DICT.values()
