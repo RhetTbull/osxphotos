@@ -550,6 +550,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "wernerzj",
+      "name": "wernerzj",
+      "avatar_url": "https://avatars.githubusercontent.com/u/130370930?v=4",
+      "profile": "https://github.com/wernerzj",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
