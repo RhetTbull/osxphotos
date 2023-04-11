@@ -713,7 +713,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">album_info_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return list of AlbumInfo objects for each shared album in the photos database</span>
-<span class="sd">        only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list&quot;&quot;&quot;</span>
+<span class="sd">        only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># if _dbalbum_details[key][&quot;cloudownerhashedpersonid&quot;] is not None, then it&#39;s a shared album</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_info_shared</span>
@@ -740,7 +741,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">albums_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return list of shared albums found in photos database</span>
-<span class="sd">        only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list&quot;&quot;&quot;</span>
+<span class="sd">        only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Could be more than one album with same name</span>
         <span class="c1"># Right now, they are treated as same album and photos are combined from albums with same name</span>
@@ -3250,7 +3252,6 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-    <span class="c1"># TODO: add to docs and test</span>
 <div class="viewcode-block" id="PhotosDB.photos_by_uuid"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.photos_by_uuid">[docs]</a>    <span class="k">def</span> <span class="nf">photos_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuids</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of photos with UUID in uuids.</span>
 <span class="sd">            Does not generate error if invalid or missing UUID passed.</span>
@@ -3263,14 +3264,11 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            list of PhotoInfo instance for photo with UUID matching uuid or [] if no match</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">photos</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="n">uuids</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">photos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PhotoInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">]))</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="c1"># ignore missing/invlaid UUID</span>
-                <span class="k">pass</span>
-        <span class="k">return</span> <span class="n">photos</span></div>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">PhotoInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="n">uuids</span>
+            <span class="k">if</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span>
+        <span class="p">]</span></div>
 
 <div class="viewcode-block" id="PhotosDB.query"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">QueryOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Run a query against PhotosDB to extract the photos based on user supplied options</span>

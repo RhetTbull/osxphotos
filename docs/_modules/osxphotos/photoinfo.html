@@ -714,39 +714,26 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">person_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;list of PersonInfo objects for person in picture&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_personinfo</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_personinfo</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">PersonInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span> <span class="k">for</span> <span class="n">pk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;persons&quot;</span><span class="p">]</span>
-            <span class="p">]</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_personinfo</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">PersonInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span> <span class="k">for</span> <span class="n">pk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;persons&quot;</span><span class="p">]]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">face_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;list of FaceInfo objects for faces in picture&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_faceinfo</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">faces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_faceinfo_uuid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_faceinfo</span> <span class="o">=</span> <span class="p">[</span><span class="n">FaceInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span> <span class="k">for</span> <span class="n">pk</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="c1"># no faces</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_faceinfo</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_faceinfo</span>
+            <span class="n">faces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_faceinfo_uuid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_faceinfo</span> <span class="o">=</span> <span class="p">[</span><span class="n">FaceInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span> <span class="k">for</span> <span class="n">pk</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># no faces</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_faceinfo</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_faceinfo</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">moment_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Moment photo belongs to&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span> <span class="o">=</span> <span class="n">MomentInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">moment_pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;momentID&quot;</span><span class="p">])</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span>
+            <span class="k">return</span> <span class="n">MomentInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">moment_pk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;momentID&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">albums</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -763,65 +750,41 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">burst_albums</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;If photo is burst photo, list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns self.albums&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burst_albums</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">burst_albums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">burst_key</span><span class="p">:</span>
-                    <span class="n">burst_albums</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_burst_albums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">burst_albums</span><span class="p">))</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burst_albums</span>
+        <span class="n">burst_albums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">burst_key</span><span class="p">:</span>
+                <span class="n">burst_albums</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">burst_albums</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;list of AlbumInfo objects representing albums the photo is contained in&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_info</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">album_uuids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_album_uuids</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_album_info</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">AlbumInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">album</span><span class="p">)</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">album_uuids</span>
-            <span class="p">]</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_info</span>
+        <span class="n">album_uuids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_album_uuids</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">AlbumInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">album</span><span class="p">)</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">album_uuids</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">burst_album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;If photo is a burst photo, returns list of AlbumInfo objects representing albums the photo is contained in as well as albums the burst key photo is contained in, otherwise returns self.album_info.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burst_album_info</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">burst_album_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">burst_key</span><span class="p">:</span>
-                    <span class="n">burst_album_info</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_burst_album_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">burst_album_info</span><span class="p">))</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burst_album_info</span>
+        <span class="n">burst_album_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">burst_key</span><span class="p">:</span>
+                <span class="n">burst_album_info</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">burst_album_info</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">import_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;ImportInfo object representing import session for the photo or None if no import session&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_info</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_import_info</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">ImportInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">])</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_info</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">ImportInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">project_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;list of AlbumInfo objects representing projects for the photo or None if no projects&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_info</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">project_uuids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_album_uuids</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_project_info</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">ProjectInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">album</span><span class="p">)</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">project_uuids</span>
-            <span class="p">]</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_info</span>
+        <span class="n">project_uuids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_album_uuids</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ProjectInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">album</span><span class="p">)</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">project_uuids</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -835,8 +798,7 @@
         <span class="c1"># in this case, return None so result is the same as if title had never been set (which returns NULL)</span>
         <span class="c1"># issue #512</span>
         <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">title</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">title</span>
-        <span class="k">return</span> <span class="n">title</span>
+        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">title</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">title</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1974,41 +1936,31 @@
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PhotoInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return dict representation&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PhotoInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shallow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return dict representation of PhotoInfo object.</span>
 
-        <span class="n">adjustments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjustments</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjustments</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="n">album_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">album</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">]</span>
-        <span class="n">burst_album_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_album_info</span><span class="p">]</span>
-        <span class="n">burst_photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">]</span>
+<span class="sd">        Args:</span>
+<span class="sd">            shallow: if True, return shallow representation (does not contain folder_info, person_info, etc.)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict representation of PhotoInfo object</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The shallow representation is used internally by export as it contains only the subset of data needed for export.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">comment</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">]</span>
         <span class="n">exif_info</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="n">face_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">face</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_info</span><span class="p">]</span>
         <span class="n">folders</span> <span class="o">=</span> <span class="p">{</span><span class="n">album</span><span class="o">.</span><span class="n">title</span><span class="p">:</span> <span class="n">album</span><span class="o">.</span><span class="n">folder_names</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">}</span>
-        <span class="n">import_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_info</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_info</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="n">likes</span> <span class="o">=</span> <span class="p">[</span><span class="n">like</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">like</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">likes</span><span class="p">]</span>
-        <span class="n">person_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">person_info</span><span class="p">]</span>
         <span class="n">place</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="n">project_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_info</span><span class="p">]</span>
         <span class="n">score</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="n">search_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="n">search_info_normalized</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">search_info_normalized</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info_normalized</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="n">adjustments</span><span class="p">,</span>
-            <span class="s2">&quot;album_info&quot;</span><span class="p">:</span> <span class="n">album_info</span><span class="p">,</span>
+        <span class="n">dict_data</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;albums&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">,</span>
-            <span class="s2">&quot;burst_album_info&quot;</span><span class="p">:</span> <span class="n">burst_album_info</span><span class="p">,</span>
-            <span class="s2">&quot;burst_albums&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_albums</span><span class="p">,</span>
-            <span class="s2">&quot;burst_default_pick&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_default_pick</span><span class="p">,</span>
-            <span class="s2">&quot;burst_key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_key</span><span class="p">,</span>
-            <span class="s2">&quot;burst_photos&quot;</span><span class="p">:</span> <span class="n">burst_photos</span><span class="p">,</span>
-            <span class="s2">&quot;burst_selected&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_selected</span><span class="p">,</span>
             <span class="s2">&quot;burst&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
             <span class="s2">&quot;cloud_guid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_guid</span><span class="p">,</span>
-            <span class="s2">&quot;cloud_metadata&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_metadata</span><span class="p">,</span>
             <span class="s2">&quot;cloud_owner_hashed_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_owner_hashed_id</span><span class="p">,</span>
             <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">,</span>
             <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_added</span><span class="p">,</span>
@@ -2028,7 +1980,6 @@
             <span class="s2">&quot;hdr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="p">,</span>
             <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
             <span class="s2">&quot;hidden&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">,</span>
-            <span class="s2">&quot;import_info&quot;</span><span class="p">:</span> <span class="n">import_info</span><span class="p">,</span>
             <span class="s2">&quot;incloud&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">incloud</span><span class="p">,</span>
             <span class="s2">&quot;intrash&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span><span class="p">,</span>
             <span class="s2">&quot;iscloudasset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscloudasset</span><span class="p">,</span>
@@ -2038,7 +1989,6 @@
             <span class="s2">&quot;israw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">israw</span><span class="p">,</span>
             <span class="s2">&quot;isreference&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isreference</span><span class="p">,</span>
             <span class="s2">&quot;keywords&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span>
-            <span class="s2">&quot;labels_normalized&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_normalized</span><span class="p">,</span>
             <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
             <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latitude</span><span class="p">,</span>
             <span class="s2">&quot;library&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">,</span>
@@ -2054,22 +2004,17 @@
             <span class="s2">&quot;original_width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_width</span><span class="p">,</span>
             <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
             <span class="s2">&quot;panorama&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">panorama</span><span class="p">,</span>
-            <span class="s2">&quot;path_derivatives&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">,</span>
             <span class="s2">&quot;path_edited_live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited_live_photo</span><span class="p">,</span>
             <span class="s2">&quot;path_edited&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">,</span>
             <span class="s2">&quot;path_live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_live_photo</span><span class="p">,</span>
             <span class="s2">&quot;path_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_raw</span><span class="p">,</span>
             <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-            <span class="s2">&quot;person_info&quot;</span><span class="p">:</span> <span class="n">person_info</span><span class="p">,</span>
             <span class="s2">&quot;persons&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">,</span>
             <span class="s2">&quot;place&quot;</span><span class="p">:</span> <span class="n">place</span><span class="p">,</span>
             <span class="s2">&quot;portrait&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">portrait</span><span class="p">,</span>
-            <span class="s2">&quot;project_info&quot;</span><span class="p">:</span> <span class="n">project_info</span><span class="p">,</span>
             <span class="s2">&quot;raw_original&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_original</span><span class="p">,</span>
             <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span>
             <span class="s2">&quot;screenshot&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">screenshot</span><span class="p">,</span>
-            <span class="s2">&quot;search_info_normalized&quot;</span><span class="p">:</span> <span class="n">search_info_normalized</span><span class="p">,</span>
-            <span class="s2">&quot;search_info&quot;</span><span class="p">:</span> <span class="n">search_info</span><span class="p">,</span>
             <span class="s2">&quot;selfie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">selfie</span><span class="p">,</span>
             <span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">,</span>
             <span class="s2">&quot;slow_mo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">slow_mo</span><span class="p">,</span>
@@ -2083,9 +2028,40 @@
             <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
             <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span><span class="p">,</span>
             <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
 
-<div class="viewcode-block" id="PhotoInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shallow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># non-shallow keys</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">shallow</span><span class="p">:</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;album_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">album</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">]</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;path_derivatives&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_derivatives</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;adjustments&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">adjustments</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjustments</span> <span class="k">else</span> <span class="p">{}</span>
+            <span class="p">)</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;burst_album_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_album_info</span><span class="p">]</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;burst_albums&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_albums</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;burst_default_pick&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_default_pick</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;burst_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_key</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;burst_photos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">]</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;burst_selected&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_selected</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;cloud_metadata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_metadata</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;import_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">import_info</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">import_info</span> <span class="k">else</span> <span class="p">{}</span>
+            <span class="p">)</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;labels_normalized&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_normalized</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;person_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">person_info</span><span class="p">]</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;project_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_info</span><span class="p">]</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;search_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_info</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info</span> <span class="k">else</span> <span class="p">{}</span>
+            <span class="p">)</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;search_info_normalized&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_info_normalized</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info_normalized</span>
+                <span class="k">else</span> <span class="p">{}</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dict_data</span></div>
+
+<div class="viewcode-block" id="PhotoInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shallow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return JSON representation</span>
 
 <span class="sd">        Args:</span>
@@ -2094,36 +2070,16 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            JSON string</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The shallow representation is used internally by export as it contains only the subset of data needed for export.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
                 <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
 
-        <span class="n">dict_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">shallow</span><span class="p">:</span>
-            <span class="c1"># delete items that are not needed for shallow JSON</span>
-            <span class="c1"># these are removed to match behavior of osxphotos &lt; 0.59.0 (See #999, #1039)</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span>
-                <span class="s2">&quot;adjustments&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;album_info&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;burst_album_info&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;burst_albums&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;burst_default_pick&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;burst_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;burst_photos&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;burst_selected&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cloud_metadata&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;import_info&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;labels_normalized&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;path_derivatives&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;person_info&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;project_info&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;search_info_normalized&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;search_info&quot;</span><span class="p">,</span>
-            <span class="p">]:</span>
-                <span class="k">del</span> <span class="n">dict_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">dict_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">shallow</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="c1"># sort lists such as keywords so JSON is consistent</span>
@@ -2146,15 +2102,9 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
                 <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
 
-        <span class="n">dict_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
+        <span class="n">dict_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;album_info&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;burst_album_info&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;face_info&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;person_info&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;visible&quot;</span><span class="p">,</span>
-        <span class="p">]:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;face_info&quot;</span><span class="p">,</span> <span class="s2">&quot;visible&quot;</span><span class="p">]:</span>
             <span class="k">del</span> <span class="n">dict_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dict_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

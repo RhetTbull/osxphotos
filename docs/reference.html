@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Python Reference - osxphotos 0.59.2 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.59.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.59.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.59.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.59.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.59.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -207,7 +207,7 @@ including folders, photos, etc.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.AlbumInfo.asdict">
 <span class="sig-name descname"><span class="pre">asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#AlbumInfo.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.AlbumInfo.asdict" title="Permalink to this definition">#</a></dt>
-<dd><p>Return album info as a dict</p>
+<dd><p>Return album info as a dict; does not include photos</p>
 </dd></dl>
 
 <dl class="py property">
@@ -1233,7 +1233,7 @@ including folders, albums, etc</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ImportInfo.asdict">
 <span class="sig-name descname"><span class="pre">asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/albuminfo.html#ImportInfo.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ImportInfo.asdict" title="Permalink to this definition">#</a></dt>
-<dd><p>Return import info as a dict</p>
+<dd><p>Return import info as a dict; does not include photos</p>
 </dd></dl>
 
 <dl class="py property">
@@ -1490,8 +1490,20 @@ including keywords, persons, albums, uuid, path, etc.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.asdict">
-<span class="sig-name descname"><span class="pre">asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.asdict" title="Permalink to this definition">#</a></dt>
-<dd><p>return dict representation</p>
+<span class="sig-name descname"><span class="pre">asdict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shallow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.asdict" title="Permalink to this definition">#</a></dt>
+<dd><p>Return dict representation of PhotoInfo object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>shallow</strong> – if True, return shallow representation (does not contain folder_info, person_info, etc.)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict representation of PhotoInfo object</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The shallow representation is used internally by export as it contains only the subset of data needed for export.</p>
+</div>
 </dd></dl>
 
 <dl class="py property">
@@ -1814,7 +1826,7 @@ isMissing = 1</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.json">
-<span class="sig-name descname"><span class="pre">json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shallow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.json" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shallow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.json" title="Permalink to this definition">#</a></dt>
 <dd><p>Return JSON representation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1827,6 +1839,10 @@ isMissing = 1</p>
 <dd class="field-even"><p>JSON string</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The shallow representation is used internally by export as it contains only the subset of data needed for export.</p>
+</div>
 </dd></dl>
 
 <dl class="py property">
