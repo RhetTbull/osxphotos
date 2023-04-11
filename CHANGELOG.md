@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.59.3](https://github.com/RhetTbull/osxphotos/compare/v0.59.2...v0.59.3)
+
+Bug fixes for memory leak, crash during export
+
+### 10 April 2023
+
+#### Fixed
+
+- Fixed memory leak in export (#1047)
+- Fixed crash during export (#1046)
+- Fixed large crash log size (#1048)
+
+#### Changed
+
+- Added better help for no selection with --selected (#1036)
+- Changed PhotoInfo.asdict() and PhotoInfo.json() to allow deep or shallow option (#1038)
+- Updated development docs (#1043)
+
+#### Contributors
+
+- @RhetTbull for code changes
+- @wernerzj for finding bug with memory leak
+- @rajscode for finding export crash
+- @oPromessa for development docs fix
+
 ## [v0.59.2](https://github.com/RhetTbull/osxphotos/compare/v0.59.1...v0.59.2)
 
 Bug Fix for Export
