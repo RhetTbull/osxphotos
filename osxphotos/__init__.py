@@ -19,6 +19,7 @@ from .photoinfo import PhotoInfo
 from .photosalbum import PhotosAlbum, PhotosAlbumPhotoScript
 from .photosdb import PhotosDB
 from .photosdb._photosdb_process_comments import CommentInfo, LikeInfo
+from .phototables import PhotoTables
 from .phototemplate import PhotoTemplate
 from .placeinfo import PlaceInfo
 from .queryoptions import QueryOptions
@@ -53,6 +54,7 @@ __all__ = [
     "PersonInfo",
     "PhotoExporter",
     "PhotoInfo",
+    "PhotoTables",
     "PhotoTemplate",
     "PhotosAlbum",
     "PhotosAlbumPhotoScript",

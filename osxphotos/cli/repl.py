@@ -1,14 +1,17 @@
 """repl command for osxphotos CLI"""
+from __future__ import annotations
 
 import os
 import os.path
 import pathlib
+import re
 import sys
 import time
 from typing import List
 
 import click
 import photoscript
+from applescript import ScriptError
 from rich import pretty, print
 
 import osxphotos
@@ -191,10 +194,16 @@ def _get_selected(photosdb):
     """get list of PhotoInfo objects for photos selected in Photos"""
 
     def get_selected():
-        selected = photoscript.PhotosLibrary().selection
-        if not selected:
-            return []
-        return photosdb.photos(uuid=[p.uuid for p in selected])
+        try:
+            selected = photoscript.PhotosLibrary().selection
+        except ScriptError as e:
+            # some photos (e.g. shared items) can't be selected and raise ScriptError:
+            # applescript.ScriptError: Photos got an error: Can’t get media item id "34C26DFA-0CEA-4DB7-8FDA-B87789B3209D/L0/001". (-1728) app='Photos' range=16820-16873
+            # In this case, we can parse the UUID from the error (though this only works for a single selected item)
+            if match := re.match(r".*Can’t get media item id \"(.*)\".*", str(e)):
+                uuid = match[1].split("/")[0]
+                return photosdb.photos(uuid=[uuid])
+        return photosdb.photos(uuid=[p.uuid for p in selected]) if selected else []
 
     return get_selected
 

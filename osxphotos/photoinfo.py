@@ -59,6 +59,7 @@ from .exiftool import ExifToolCaching, get_exiftool_path
 from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
 from .photoexporter import ExportOptions, PhotoExporter
+from .phototables import PhotoTables
 from .phototemplate import PhotoTemplate, RenderOptions
 from .placeinfo import PlaceInfo4, PlaceInfo5
 from .query_builder import get_query
@@ -1892,6 +1893,10 @@ class PhotoInfo:
             if v and isinstance(v, (list, tuple)) and not isinstance(v[0], dict):
                 dict_data[k] = sorted(v, key=lambda v: v if v is not None else "")
         return json.dumps(dict_data, sort_keys=True, default=default, indent=indent)
+
+    def tables(self) -> PhotoTables:
+        """Return PhotoTables object to provide access database tables associated with this photo (Photos 5+)"""
+        return None if self._db._photos_ver < 5 else PhotoTables(self)
 
     def _json_hexdigest(self):
         """JSON for use by hexdigest()"""
