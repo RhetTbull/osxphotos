@@ -23,6 +23,7 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
   * [CommentInfo](#commentinfo)
   * [LikeInfo](#likeinfo)
   * [AdjustmentsInfo](#adjustmentsinfo)
+  * [PhotoTables](#phototables)
   * [Raw Photos](#raw-photos)
   * [Template System](#template-system)
   * [ExifTool](#exiftoolExifTool)
