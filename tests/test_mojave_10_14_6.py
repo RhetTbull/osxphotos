@@ -5,6 +5,7 @@ from collections import namedtuple
 
 import pytest
 
+import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
@@ -531,8 +532,9 @@ def test_photosdb_repr():
 
 
 def test_photosinfo_repr():
-    import osxphotos
     import datetime  # needed for eval to work
+
+    import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
@@ -689,3 +691,10 @@ def test_fingerprint(photosdb):
     for uuid, fingerprint in UUID_FINGERPRINT.items():
         photo = photosdb.get_photo(uuid)
         assert photo.fingerprint == fingerprint
+
+
+def test_tables(photosdb: osxphotos.PhotosDB):
+    """Test PhotoInfo.tables"""
+    photo = photosdb.get_photo(UUID_DICT["favorite"])
+    tables = photo.tables()
+    assert tables is None

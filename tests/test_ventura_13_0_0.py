@@ -1304,3 +1304,14 @@ def test_photosdb_photos_by_uuid(photosdb: osxphotos.PhotosDB):
     assert len(photos) == len(UUID_DICT)
     for photo in photos:
         assert photo.uuid in UUID_DICT.values()
+
+
+def test_tables(photosdb: osxphotos.PhotosDB):
+    """Test PhotoInfo.tables"""
+    photo = photosdb.get_photo(UUID_DICT["in_album"])
+    tables = photo.tables()
+    assert isinstance(tables, osxphotos.PhotoTables)
+    assert tables.ZASSET.ZUUID[0] == photo.uuid
+    assert tables.ZADDITIONALASSETATTRIBUTES.ZTITLE[0] == photo.title
+    assert len(tables.ZASSET.rows()) == 1
+    assert tables.ZASSET.rows_dict()[0]["ZUUID"] == photo.uuid
