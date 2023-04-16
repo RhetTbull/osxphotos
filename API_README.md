@@ -1395,6 +1395,12 @@ Returns a unique fingerprint for the original photo file.  This is a hash of the
 
 Returns a unique digest of the photo's properties and metadata; useful for detecting changes in any property/metadata of the photo.
 
+#### `tables()`
+
+Returns a PhotoTables object which provides access to the underlying SQLite database tables for the photo.
+See [PhotoTables](#phototables) for more details. This is useful for debugging or developing new features but
+is not intended for general use.
+
 #### `json()`
 
 Returns a JSON representation of all photo info.
@@ -2156,6 +2162,37 @@ Returns a JSON representation of the FaceInfo instance.
 * `adj_format_version`: version for adjustments format decoded from the adjustment data.
 * `adj_version_info`: version info for the application which made the adjustments to the photo decoded from the adjustments data.
 * `asdict()`: dict representation of the AdjustmentsInfo object; contains all properties with exception of `plist`.
+
+### PhotoTables
+
+[PhotoInfo.tables](#tables) returns a PhotoTables object that contains information about the tables in the Photos database that contain information about the photo.
+The following properties are available:
+
+* `ZASSET`
+* `ZADDITIONALASSETATTRIBUTES`
+* `ZDETECTEDFACE`
+* `ZPERSON`
+
+Each of these properties returns a `Table` object that provides access to the row(s) in the table that correspond to the photo.
+
+The Table object has dynamically created properties that correspond to the associated column in the table and return a tuple of values for that column.
+
+```pycon
+>>> photo.tables().ZADDITIONALASSETATTRIBUTES.ZTITLE
+("St. James's Park",)
+```
+
+The Table object also provides a `rows()` method which returns a list a of tuples for the matching rows in the table
+and a `rows_dict()` method which returns a list of dicts for the matching rows in the table.
+
+```pycon
+
+>>> photo.tables().ZASSET.rows()
+[(6, 3, 35, 0, 0, 0, 0, 0, 0, None, None, None, None, None, 0, 0, 1, 0, 0, 0, 0, -100, 0, 1, 0, 1356, 0, 0, 0, 0, 0, 0, 0, 1, 6192599813128215, 1, 2814835671629878, 1, 0, 3, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 2047, 7, None, 8, None, None, None, None, None, None, None, None, 3, 6, 6, 6, None, 6, 4, None, None, 8, 4, None, 2, None, 3, None, 3, None, None, 585926209.859624, 596906868.198932, 689981763.374756, None, None, None, 0.5, 561129492.501, 0.0, 596906868.198932, None, 0.03816793893129771, None, 51.50357167, -0.1318055, 689982854.802854, 0.6494140625, 0.0, 561129492.501, None, None, None, None, None, None, None, 'D', 'DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg', None, 'sRGB IEC61966-2.1', 'public.jpeg', 'DC99FBDD-7A52-4100-A5BB-344131646C30', b'Ki\t@\x01\x00\x00\x00\td\tH\x01\x00\x00\x00\x93\\\tL\x01\x00\x00\x00\x1aK\x0c\x03\x0c\xa8q\x92\x00\x12C\x0c\x03\x0c"\r\x90\x00\x00<\x0c\x03\x08"\x19\x80\x00', b'\xca\xebV\tu\xc0I@/j\xf7\xab\x00\xdf\xc0\xbf\xcd\xcc\xcc\xcc\xcc\xcc\x04@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')]
+
+>>> photo.tables().ZASSET.rows_dict()
+[{'Z_PK': 6, 'Z_ENT': 3, 'Z_OPT': 35, 'ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE': 0, 'ZAVALANCHEPICKTYPE': 0, 'ZBUNDLESCOPE': 0, 'ZCAMERAPROCESSINGADJUSTMENTSTATE': 0, 'ZCLOUDDELETESTATE': 0, 'ZCLOUDDOWNLOADREQUESTS': 0, 'ZCLOUDHASCOMMENTSBYME': None, 'ZCLOUDHASCOMMENTSCONVERSATION': None, 'ZCLOUDHASUNSEENCOMMENTS': None, 'ZCLOUDISDELETABLE': None, 'ZCLOUDISMYASSET': None, 'ZCLOUDLOCALSTATE': 0, 'ZCLOUDPLACEHOLDERKIND': 0, 'ZCOMPLETE': 1, 'ZDEFERREDPROCESSINGNEEDED': 0, 'ZDEPTHTYPE': 0, 'ZDERIVEDCAMERACAPTUREDEVICE': 0, 'ZDUPLICATEASSETVISIBILITYSTATE': 0, 'ZFACEAREAPOINTS': -100, 'ZFAVORITE': 0, 'ZHASADJUSTMENTS': 1, 'ZHDRTYPE': 0, 'ZHEIGHT': 1356, 'ZHIDDEN': 0, 'ZHIGHFRAMERATESTATE': 0, 'ZISMAGICCARPET': 0, 'ZKIND': 0, 'ZKINDSUBTYPE': 0, 'ZLIBRARYSCOPESHARESTATE': 0, 'ZMONOSKITYPE': 0, 'ZORIENTATION': 1, 'ZPACKEDACCEPTABLECROPRECT': 6192599813128215, 'ZPACKEDBADGEATTRIBUTES': 1, 'ZPACKEDPREFERREDCROPRECT': 2814835671629878, 'ZPLAYBACKSTYLE': 1, 'ZPLAYBACKVARIATION': 0, 'ZSAVEDASSETTYPE': 3, 'ZSEARCHINDEXREBUILDSTATE': 0, 'ZSYNDICATIONSTATE': 0, 'ZTHUMBNAILINDEX': 5, 'ZTRASHEDSTATE': 0, 'ZVIDEOCPDURATIONVALUE': 0, 'ZVIDEOCPVISIBILITYSTATE': 0, 'ZVIDEODEFERREDPROCESSINGNEEDED': 0, 'ZVIDEOKEYFRAMETIMESCALE': 0, 'ZVIDEOKEYFRAMEVALUE': 0, 'ZVISIBILITYSTATE': 0, 'ZWIDTH': 2047, 'ZADDITIONALATTRIBUTES': 7, 'ZCLOUDFEEDASSETSENTRY': None, 'ZCOMPUTEDATTRIBUTES': 8, 'ZCONVERSATION': None, 'ZDAYGROUPHIGHLIGHTBEINGASSETS': None, 'ZDAYGROUPHIGHLIGHTBEINGEXTENDEDASSETS': None, 'ZDAYGROUPHIGHLIGHTBEINGKEYASSETPRIVATE': None, 'ZDAYGROUPHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZDAYGROUPHIGHLIGHTBEINGSUMMARYASSETS': None, 'ZDUPLICATEMETADATAMATCHINGALBUM': None, 'ZDUPLICATEPERCEPTUALMATCHINGALBUM': None, 'ZEXTENDEDATTRIBUTES': 3, 'ZHIGHLIGHTBEINGASSETS': 6, 'ZHIGHLIGHTBEINGEXTENDEDASSETS': 6, 'ZHIGHLIGHTBEINGKEYASSETPRIVATE': 6, 'ZHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZHIGHLIGHTBEINGSUMMARYASSETS': 6, 'ZIMPORTSESSION': 4, 'ZLIBRARYSCOPE': None, 'ZMASTER': None, 'ZMEDIAANALYSISATTRIBUTES': 8, 'ZMOMENT': 4, 'ZMOMENTSHARE': None, 'ZMONTHHIGHLIGHTBEINGKEYASSETPRIVATE': 2, 'ZMONTHHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZPHOTOANALYSISATTRIBUTES': 3, 'ZTRASHEDBYPARTICIPANT': None, 'ZYEARHIGHLIGHTBEINGKEYASSETPRIVATE': 3, 'ZYEARHIGHLIGHTBEINGKEYASSETSHARED': None, 'Z_FOK_CLOUDFEEDASSETSENTRY': None, 'ZADDEDDATE': 585926209.859624, 'ZADJUSTMENTTIMESTAMP': 596906868.198932, 'ZANALYSISSTATEMODIFICATIONDATE': 689981763.374756, 'ZCLOUDBATCHPUBLISHDATE': None, 'ZCLOUDLASTVIEWEDCOMMENTDATE': None, 'ZCLOUDSERVERPUBLISHDATE': None, 'ZCURATIONSCORE': 0.5, 'ZDATECREATED': 561129492.501, 'ZDURATION': 0.0, 'ZFACEADJUSTMENTVERSION': 596906868.198932, 'ZHDRGAIN': None, 'ZHIGHLIGHTVISIBILITYSCORE': 0.03816793893129771, 'ZLASTSHAREDDATE': None, 'ZLATITUDE': 51.50357167, 'ZLONGITUDE': -0.1318055, 'ZMODIFICATIONDATE': 689982854.802854, 'ZOVERALLAESTHETICSCORE': 0.6494140625, 'ZPROMOTIONSCORE': 0.0, 'ZSORTTOKEN': 561129492.501, 'ZTRASHEDDATE': None, 'ZAVALANCHEUUID': None, 'ZCLOUDASSETGUID': None, 'ZCLOUDBATCHID': None, 'ZCLOUDCOLLECTIONGUID': None, 'ZCLOUDOWNERHASHEDPERSONID': None, 'ZDELETEREASON': None, 'ZDIRECTORY': 'D', 'ZFILENAME': 'DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg', 'ZMEDIAGROUPUUID': None, 'ZORIGINALCOLORSPACE': 'sRGB IEC61966-2.1', 'ZUNIFORMTYPEIDENTIFIER': 'public.jpeg', 'ZUUID': 'DC99FBDD-7A52-4100-A5BB-344131646C30', 'ZIMAGEREQUESTHINTS': b'Ki\t@\x01\x00\x00\x00\td\tH\x01\x00\x00\x00\x93\\\tL\x01\x00\x00\x00\x1aK\x0c\x03\x0c\xa8q\x92\x00\x12C\x0c\x03\x0c"\r\x90\x00\x00<\x0c\x03\x08"\x19\x80\x00', 'ZLOCATIONDATA': b'\xca\xebV\tu\xc0I@/j\xf7\xab\x00\xdf\xc0\xbf\xcd\xcc\xcc\xcc\xcc\xcc\x04@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'}]
+```
 
 ### Raw Photos
 
