@@ -43,6 +43,10 @@ if is_macos:
 from .conftest import copy_photos_library_to_path
 from .locale_util import setlocale
 
+def _normalize_fs_paths(paths):
+    """Small helper to prepare path strings for test"""
+    return [normalize_fs_path(p) for p in paths]
+
 CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
@@ -69,18 +73,18 @@ SKIP_UUID_FILE = "tests/skip_uuid_from_file.txt"
 
 CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album", "Multi Keyword"], "persons": ["Katie"], "path": "/tests/Test-10.15.7.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": 41.256566, "longitude": -95.940257, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'
 
-CLI_EXPORT_FILENAMES = [
+CLI_EXPORT_FILENAMES = _normalize_fs_paths([
     "[2020-08-29] AAF035 (1).jpg",
     "[2020-08-29] AAF035 (2).jpg",
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -103,14 +107,14 @@ CLI_EXPORT_FILENAMES = [
     "wedding.jpg",
     "winebottle (1).jpeg",
     "winebottle.jpeg",
-]
+])
 
 
-CLI_EXPORT_FILENAMES_DRY_RUN = [
+CLI_EXPORT_FILENAMES_DRY_RUN = _normalize_fs_paths([
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -133,15 +137,25 @@ CLI_EXPORT_FILENAMES_DRY_RUN = [
     "wedding.jpg",
     "winebottle.jpeg",
     "winebottle.jpeg",
-]
+])
 
-CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES = ["Tulips.jpg", "wedding.jpg"]
+CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES = _normalize_fs_paths([
+    "Tulips.jpg",
+    "wedding.jpg"
+])
 
-CLI_EXPORT_FILENAMES_ALBUM = ["Pumkins1.jpg", "Pumkins2.jpg", "Pumpkins3.jpg"]
+CLI_EXPORT_FILENAMES_ALBUM = _normalize_fs_paths([
+    "Pumkins1.jpg",
+    "Pumkins2.jpg",
+    "Pumpkins3.jpg"
+])
 
-CLI_EXPORT_FILENAMES_ALBUM_UNICODE = ["IMG_4547.jpg"]
+CLI_EXPORT_FILENAMES_ALBUM_UNICODE = _normalize_fs_paths(["IMG_4547.jpg"])
 
-CLI_EXPORT_FILENAMES_DELETED_TWIN = ["wedding.jpg", "wedding_edited.jpeg"]
+CLI_EXPORT_FILENAMES_DELETED_TWIN = _normalize_fs_paths([
+    "wedding.jpg",
+    "wedding_edited.jpeg"
+])
 
 CLI_EXPORT_EDITED_SUFFIX = "_bearbeiten"
 CLI_EXPORT_EDITED_SUFFIX_TEMPLATE = "{edited?_edited,}"
@@ -149,18 +163,18 @@ CLI_EXPORT_ORIGINAL_SUFFIX = "_original"
 CLI_EXPORT_ORIGINAL_SUFFIX_TEMPLATE = "{edited?_original,}"
 CLI_EXPORT_PREVIEW_SUFFIX = "_lowres"
 
-CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
+CLI_EXPORT_FILENAMES_EDITED_SUFFIX = _normalize_fs_paths([
     "[2020-08-29] AAF035 (1).jpg",
     "[2020-08-29] AAF035 (2).jpg",
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_bearbeiten (1).jpeg",
-    "Frítest_bearbeiten.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_bearbeiten (1).jpeg",
+    "Frítest_bearbeiten.jpeg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -183,20 +197,20 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
     "wedding.jpg",
     "winebottle (1).jpeg",
     "winebottle.jpeg",
-]
+])
 
-CLI_EXPORT_FILENAMES_EDITED_SUFFIX_TEMPLATE = [
+CLI_EXPORT_FILENAMES_EDITED_SUFFIX_TEMPLATE = _normalize_fs_paths([
     "[2020-08-29] AAF035 (1).jpg",
     "[2020-08-29] AAF035 (2).jpg",
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -219,20 +233,20 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX_TEMPLATE = [
     "wedding.jpg",
     "winebottle (1).jpeg",
     "winebottle.jpeg",
-]
+])
 
-CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = [
+CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = _normalize_fs_paths([
     "[2020-08-29] AAF035_original (1).jpg",
     "[2020-08-29] AAF035_original (2).jpg",
     "[2020-08-29] AAF035_original (3).jpg",
     "[2020-08-29] AAF035_original.jpg",
     "DSC03584_original.dng",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest_original (1).jpg",
-    "Frítest_original (2).jpg",
-    "Frítest_original (3).jpg",
-    "Frítest_original.jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest_original (1).jpg",
+    "Frítest_original (2).jpg",
+    "Frítest_original (3).jpg",
+    "Frítest_original.jpg",
     "IMG_1693_original.tif",
     "IMG_1994_original.cr2",
     "IMG_1994_original.JPG",
@@ -255,20 +269,20 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = [
     "wedding_original.jpg",
     "winebottle_original (1).jpeg",
     "winebottle_original.jpeg",
-]
+])
 
-CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = [
+CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = _normalize_fs_paths([
     "[2020-08-29] AAF035 (1).jpg",
     "[2020-08-29] AAF035 (2).jpg",
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.dng",
-    "Frítest (1).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest_original (1).jpg",
-    "Frítest_original.jpg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest_original (1).jpg",
+    "Frítest_original.jpg",
+    "Frítest.jpg",
     "IMG_1693.tif",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -291,11 +305,11 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = [
     "wedding_original.jpg",
     "winebottle (1).jpeg",
     "winebottle.jpeg",
-]
+])
 
 CLI_EXPORT_FILENAMES_CURRENT = [
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A_edited.jpeg",  # Frítest.jpg
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A.jpeg",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A_edited.jpeg",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A.jpeg",  # Frítest.jpg
     "1EB2B765-0765-43BA-A90C-0D0580E6172C.jpeg",
     "2DFD33F1-A5D8-486F-A3A9-98C07995535A.jpeg",
     "35329C57-B963-48D6-BB75-6AFF9370CBBC.mov",
@@ -311,14 +325,14 @@ CLI_EXPORT_FILENAMES_CURRENT = [
     "7F74DD34-5920-4DA3-B284-479887A34F66.jpeg",
     "7FD37B5F-6FAA-4DB1-8A29-BF9C37E38091.jpeg",
     "8846E3E6-8AC8-4857-8448-E3D025784410.tiff",
-    "A8266C97-9BAF-4AF4-99F3-0013832869B8.jpeg",  # Frítest.jpg
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8.jpeg",  # Frítest.jpg
     "A92D9C26-3A50-4197-9388-CB5F7DB9FA91.cr2",
     "A92D9C26-3A50-4197-9388-CB5F7DB9FA91.jpeg",
-    "B13F4485-94E0-41CD-AF71-913095D62E31.jpeg",  # Frítest.jpg
+    "B13F4485-94E0-41CD-AF71-913095D62E31.jpeg",  # Frítest.jpg
     "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068.dng",
     "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3.mp4",
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07_edited.jpeg",  # Frítest.jpg
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07.jpeg",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07_edited.jpeg",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07.jpeg",  # Frítest.jpg
     "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg",
     "DC99FBDD-7A52-4100-A5BB-344131646C30_edited.jpeg",
     "DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg",
@@ -329,18 +343,18 @@ CLI_EXPORT_FILENAMES_CURRENT = [
     "F207D5DE-EFAD-4217-8424-0764AAC971D0.jpeg",
 ]
 
-CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
+CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = _normalize_fs_paths([
     "[2020-08-29] AAF035 (1).jpg",
     "[2020-08-29] AAF035 (2).jpg",
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.jpeg",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.jpeg",
     "IMG_1994.cr2",
     "IMG_1994.JPG",
@@ -363,20 +377,20 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
     "wedding.jpg",
     "winebottle (1).jpeg",
     "winebottle.jpeg",
-]
+])
 
-CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
+CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = _normalize_fs_paths([
     "[2020-08-29] AAF035 (1).jpg",
     "[2020-08-29] AAF035 (2).jpg",
     "[2020-08-29] AAF035 (3).jpg",
     "[2020-08-29] AAF035.jpg",
     "DSC03584.jpeg",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-    "Frítest_edited (1).jpeg",
-    "Frítest_edited.jpeg",
-    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+    "Frítest_edited (1).jpeg",
+    "Frítest_edited.jpeg",
+    "Frítest.jpg",
     "IMG_1693.jpeg",
     "IMG_1994.JPG",
     "IMG_1997.JPG",
@@ -397,26 +411,26 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
     "wedding.jpg",
     "winebottle (1).jpeg",
     "winebottle.jpeg",
-]
+])
 
 CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE = "DSC03584.jpeg"
 
-CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = _normalize_fs_paths([
     "2019/April/wedding.jpg",
     "2019/July/Tulips.jpg",
     "2018/October/St James Park.jpg",
     "2018/September/Pumpkins3.jpg",
     "2018/September/Pumkins2.jpg",
     "2018/September/Pumkins1.jpg",
-]
+])
 
-CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_LOCALE = [
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_LOCALE = _normalize_fs_paths([
     "2019/September/IMG_9975.JPEG",
     "2020/Februar/IMG_1064.JPEG",
     "2016/März/IMG_3984.JPEG",
-]
+])
 
-CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM1 = [
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM1 = _normalize_fs_paths([
     "Multi Keyword/wedding.jpg",
     "_/Tulips.jpg",
     "_/St James Park.jpg",
@@ -424,9 +438,9 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM1 = [
     "Pumpkin Farm/Pumkins2.jpg",
     "Pumpkin Farm/Pumkins1.jpg",
     "Test Album/Pumkins1.jpg",
-]
+])
 
-CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM2 = [
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM2 = _normalize_fs_paths([
     "Multi Keyword/wedding.jpg",
     "NOALBUM/Tulips.jpg",
     "NOALBUM/St James Park.jpg",
@@ -434,28 +448,28 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM2 = [
     "Pumpkin Farm/Pumkins2.jpg",
     "Pumpkin Farm/Pumkins1.jpg",
     "Test Album/Pumkins1.jpg",
-]
+])
 
-CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES2 = [
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES2 = _normalize_fs_paths([
     "St James's Park, Great Britain, Westminster, England, United Kingdom/St James Park.jpg",
     "_/Pumpkins3.jpg",
     "Omaha, Nebraska, United States/Pumkins2.jpg",
     "_/Pumkins1.jpg",
     "_/Tulips.jpg",
     "_/wedding.jpg",
-]
+])
 
-CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3 = [
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3 = _normalize_fs_paths([
     "2019/{foo}/wedding.jpg",
     "2019/{foo}/Tulips.jpg",
     "2018/{foo}/St James Park.jpg",
     "2018/{foo}/Pumpkins3.jpg",
     "2018/{foo}/Pumkins2.jpg",
     "2018/{foo}/Pumkins1.jpg",
-]
+])
 
 
-CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1 = [
+CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1 = _normalize_fs_paths([
     "2019-wedding.jpg",
     "2019-wedding_edited.jpeg",
     "2019-Tulips.jpg",
@@ -464,9 +478,9 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1 = [
     "2018-Pumpkins3.jpg",
     "2018-Pumkins2.jpg",
     "2018-Pumkins1.jpg",
-]
+])
 
-CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = [
+CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = _normalize_fs_paths([
     "Folder1_SubFolder2_AlbumInFolder-IMG_4547.jpg",
     "Folder1_SubFolder2_AlbumInFolder-wedding.jpg",
     "Folder1_SubFolder2_AlbumInFolder-wedding_edited.jpeg",
@@ -487,18 +501,18 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = [
     "None-IMG_1693.tif",
     "I have a deleted twin-wedding.jpg",
     "I have a deleted twin-wedding_edited.jpeg",
-]
+])
 
-CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP = [
+CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP = _normalize_fs_paths([
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum/IMG_4547.jpg",
     "Folder1/SubFolder2/AlbumInFolder/IMG_4547.jpg",
     "2019-10:11 Paris Clermont/IMG_4547.jpg",
-]
+])
 
 
-CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_KEYWORD_PATHSEP = [
+CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_KEYWORD_PATHSEP = _normalize_fs_paths([
     "foo:bar/foo:bar_IMG_3092.heic"
-]
+])
 
 CLI_EXPORTED_FILENAME_TEMPLATE_LONG_DESCRIPTION = [
     "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo"
@@ -522,46 +536,59 @@ CLI_EXPORT_BY_DATE_TOUCH_UUID = [
     "F12384F6-CD17-4151-ACBA-AE0E3688539E",  # Pumkins1.jpg
 ]
 CLI_EXPORT_BY_DATE_TOUCH_TIMES = [1538165373, 1538163349]
-CLI_EXPORT_BY_DATE_NEED_TOUCH = [
+CLI_EXPORT_BY_DATE_NEED_TOUCH = _normalize_fs_paths([
     "2018/09/28/Pumkins2.jpg",
     "2018/10/13/St James Park.jpg",
-]
+])
 CLI_EXPORT_BY_DATE_NEED_TOUCH_UUID = [
     "D79B8D77-BFFC-460B-9312-034F2877D35B",
     "DC99FBDD-7A52-4100-A5BB-344131646C30",
 ]
 CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES = [1538165227, 1539436692]
-CLI_EXPORT_BY_DATE = ["2018/09/28/Pumpkins3.jpg", "2018/09/28/Pumkins1.jpg"]
+CLI_EXPORT_BY_DATE = _normalize_fs_paths([
+    "2018/09/28/Pumpkins3.jpg",
+    "2018/09/28/Pumkins1.jpg",
+])
 
-CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.jpg.json", "Pumkins2.jpg.xmp"]
-CLI_EXPORT_SIDECAR_DROP_EXT_FILENAMES = [
+CLI_EXPORT_SIDECAR_FILENAMES = _normalize_fs_paths([
+    "Pumkins2.jpg",
+    "Pumkins2.jpg.json",
+    "Pumkins2.jpg.xmp",
+])
+CLI_EXPORT_SIDECAR_DROP_EXT_FILENAMES = _normalize_fs_paths([
     "Pumkins2.jpg",
     "Pumkins2.json",
     "Pumkins2.xmp",
-]
+])
 
 CLI_EXPORT_LIVE = [
     "51F2BEF7-431A-4D31-8AC1-3284A57826AE.jpeg",
     "51F2BEF7-431A-4D31-8AC1-3284A57826AE.mov",
 ]
 
-CLI_EXPORT_LIVE_ORIGINAL = ["IMG_0728.JPG", "IMG_0728.mov"]
+CLI_EXPORT_LIVE_ORIGINAL = _normalize_fs_paths([
+    "IMG_0728.JPG",
+    "IMG_0728.mov",
+])
 
 CLI_EXPORT_RAW = ["441DFE2A-A69B-4C79-A69B-3F51D1B9B29C.cr2"]
-CLI_EXPORT_RAW_ORIGINAL = ["IMG_0476_2.CR2"]
+CLI_EXPORT_RAW_ORIGINAL = _normalize_fs_paths(["IMG_0476_2.CR2"])
 CLI_EXPORT_RAW_EDITED = [
     "441DFE2A-A69B-4C79-A69B-3F51D1B9B29C.cr2",
     "441DFE2A-A69B-4C79-A69B-3F51D1B9B29C_edited.jpeg",
 ]
-CLI_EXPORT_RAW_EDITED_ORIGINAL = ["IMG_0476_2.CR2", "IMG_0476_2_edited.jpeg"]
+CLI_EXPORT_RAW_EDITED_ORIGINAL = _normalize_fs_paths([
+    "IMG_0476_2.CR2",
+    "IMG_0476_2_edited.jpeg",
+])
 
 CLI_UUID_DICT_15_7 = {
     "intrash": "71E3E212-00EB-430D-8A63-5E294B268554",
     "template": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
 }
 
-CLI_TEMPLATE_SIDECAR_FILENAME = "Pumkins1.jpg.json"
-CLI_TEMPLATE_FILENAME = "Pumkins1.jpg"
+CLI_TEMPLATE_SIDECAR_FILENAME = normalize_fs_path("Pumkins1.jpg.json")
+CLI_TEMPLATE_FILENAME = normalize_fs_path("Pumkins1.jpg")
 
 CLI_UUID_DICT_14_6 = {"intrash": "3tljdX43R8+k6peNHVrJNQ"}
 
@@ -899,17 +926,17 @@ UUID_IN_ALBUM = [
 ]
 
 UUID_NOT_IN_ALBUM = [
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
     "35329C57-B963-48D6-BB75-6AFF9370CBBC",
     "52083079-73D5-4921-AC1B-FE76F279133F",
     "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
     "7F74DD34-5920-4DA3-B284-479887A34F66",
     "8846E3E6-8AC8-4857-8448-E3D025784410",
     "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
-    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
-    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
+    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
     "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
     "DC99FBDD-7A52-4100-A5BB-344131646C30",
     "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91",
     "F207D5DE-EFAD-4217-8424-0764AAC971D0",
@@ -957,18 +984,18 @@ DESCRIPTION_VALUE_TITLE_CONDITIONAL = "false"
 
 
 UUID_UNICODE_TITLE = [
-    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
-    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
+    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
 ]
 
-EXPORT_UNICODE_TITLE_FILENAMES = [
-    "Frítest.jpg",
-    "Frítest (1).jpg",
-    "Frítest (2).jpg",
-    "Frítest (3).jpg",
-]
+EXPORT_UNICODE_TITLE_FILENAMES = _normalize_fs_paths([
+    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+])
 
 # data for --report
 UUID_REPORT = [
@@ -990,12 +1017,12 @@ QUERY_EXIF_DATA_CASE_INSENSITIVE = [
 EXPORT_EXIF_DATA = [("EXIF:Make", "FUJIFILM", ["Tulips.jpg", "Tulips_edited.jpeg"])]
 
 UUID_LIVE_EDITED = "136A78FA-1B90-46CC-88A7-CCA3331F0353"  # IMG_4813.HEIC
-CLI_EXPORT_LIVE_EDITED = [
+CLI_EXPORT_LIVE_EDITED = _normalize_fs_paths([
     "IMG_4813.HEIC",
     "IMG_4813.mov",
     "IMG_4813_edited.jpeg",
     "IMG_4813_edited.mov",
-]
+])
 
 UUID_FAVORITE = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
 FILE_FAVORITE = "wedding.jpg"
