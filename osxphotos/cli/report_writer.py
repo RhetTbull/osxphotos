@@ -182,7 +182,9 @@ class ExportReportWriterSQLite(ReportWriterABC):
             with suppress(FileNotFoundError):
                 os.unlink(self.output_file)
 
-        self._conn = sqlite3.connect(self.output_file, check_same_thread=SQLITE_CHECK_SAME_THREAD)
+        self._conn = sqlite3.connect(
+            self.output_file, check_same_thread=SQLITE_CHECK_SAME_THREAD
+        )
         self._create_tables()
         self.report_id = self._generate_report_id()
 
@@ -534,7 +536,9 @@ class SyncReportWriterSQLite(ReportWriterABC):
             with suppress(FileNotFoundError):
                 os.unlink(self.output_file)
 
-        self._conn = sqlite3.connect(self.output_file, check_same_thread=SQLITE_CHECK_SAME_THREAD)
+        self._conn = sqlite3.connect(
+            self.output_file, check_same_thread=SQLITE_CHECK_SAME_THREAD
+        )
         self._create_tables()
         self.report_id = self._generate_report_id()
 

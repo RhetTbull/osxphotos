@@ -17,11 +17,9 @@ if is_macos:
     import Foundation
     import objc
 
-
     def known_timezone_names():
         """Get list of valid timezones on macOS"""
         return Foundation.NSTimeZone.knownTimeZoneNames()
-
 
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
@@ -63,6 +61,7 @@ if is_macos:
             if isinstance(other, Timezone):
                 return self.timezone == other.timezone
             return False
+
 else:
     import zoneinfo
     from datetime import datetime
@@ -70,7 +69,6 @@ else:
     def known_timezone_names():
         """Get list of valid timezones"""
         return zoneinfo.available_timezones()
-
 
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""

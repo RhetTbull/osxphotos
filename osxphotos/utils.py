@@ -56,6 +56,7 @@ VERSION_INFO_URL = "https://pypi.org/pypi/osxphotos/json"
 
 is_macos = sys.platform == "darwin"
 
+
 def assert_macos():
     assert is_macos, "This feature only runs on macOS"
 
@@ -280,6 +281,8 @@ def list_photo_libraries():
 
 
 T = TypeVar("T", bound=Union[str, pathlib.Path])
+
+
 def normalize_fs_path(path: T) -> T:
     """Normalize filesystem paths with unicode in them"""
     form = "NFD" if is_macos else "NFC"

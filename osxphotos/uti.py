@@ -520,10 +520,13 @@ def _load_uti_dict():
         EXT_UTI_DICT[row["extension"]] = row["UTI"]
         UTI_EXT_DICT[row["UTI"]] = row["preferred_extension"]
 
+
 _load_uti_dict()
 
 # OS version for determining which methods can be used
-OS_VER, OS_MAJOR, _ = (int(x) for x in get_macos_version()) if is_macos else (None, None, None)
+OS_VER, OS_MAJOR, _ = (
+    (int(x) for x in get_macos_version()) if is_macos else (None, None, None)
+)
 
 
 def _get_uti_from_mdls(extension):

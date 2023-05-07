@@ -68,7 +68,6 @@ class PathOrStdin(click.Path):
 
 
 class DateTimeISO8601(click.ParamType):
-
     name = "DATETIME"
 
     def convert(self, value, param, ctx):
@@ -82,7 +81,6 @@ class DateTimeISO8601(click.ParamType):
 
 
 class BitMathSize(click.ParamType):
-
     name = "BITMATH"
 
     def convert(self, value, param, ctx):
@@ -102,7 +100,6 @@ class BitMathSize(click.ParamType):
 
 
 class TimeISO8601(click.ParamType):
-
     name = "TIME"
 
     def convert(self, value, param, ctx):
@@ -141,7 +138,6 @@ class FunctionCall(click.ParamType):
 
 
 class ExportDBType(click.ParamType):
-
     name = "EXPORTDB"
 
     def convert(self, value, param, ctx):
@@ -279,7 +275,6 @@ class StrpDateTimePattern(click.ParamType):
 
 
 class Latitude(click.ParamType):
-
     name = "Latitude"
 
     def convert(self, value, param, ctx):
@@ -295,7 +290,6 @@ class Latitude(click.ParamType):
 
 
 class Longitude(click.ParamType):
-
     name = "Longitude"
 
     def convert(self, value, param, ctx):

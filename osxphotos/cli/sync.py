@@ -170,6 +170,7 @@ def get_photo_metadata(photos: list[PhotoInfo]) -> str:
                                 photos_dict[k] = v
                             elif photos_dict[k] and v != photos_dict[k]:
                                 photos_dict[k] = f"{photos_dict[k]} {v}"
+
     # convert photos_dict to JSON string
     # wouldn't it be nice if json encoder handled datetimes...
     def default(o):

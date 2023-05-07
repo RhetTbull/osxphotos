@@ -58,6 +58,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     import logging
 
     from objexplore import explore
+
     if is_macos:
         from photoscript import Album, Photo, PhotosLibrary
     from rich import inspect as _inspect

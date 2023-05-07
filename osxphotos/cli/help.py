@@ -255,7 +255,9 @@ class ExportCommand(click.Command):
 
         if is_macos:
             formatter.write(
-                rich_text("## Extended Attributes", width=formatter.width, markdown=True)
+                rich_text(
+                    "## Extended Attributes", width=formatter.width, markdown=True
+                )
             )
             formatter.write("\n")
             formatter.write_text(

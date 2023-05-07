@@ -71,6 +71,7 @@ PlaceNames = namedtuple(
     ],
 )
 
+
 # The following classes represent Photo Library Reverse Geolocation Info as stored
 # in ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA
 # These classes are used by bpylist.archiver to unarchive the serialized objects
