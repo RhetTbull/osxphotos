@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoexporter - osxphotos 0.59.2 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.60.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.59.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.60.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.59.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -204,6 +204,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">t</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>  <span class="c1"># pylint: disable=syntax-error</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
@@ -211,7 +212,6 @@
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">SimpleNamespace</span>
 
-<span class="kn">import</span> <span class="nn">photoscript</span>
 <span class="kn">from</span> <span class="nn">mako.template</span> <span class="kn">import</span> <span class="n">Template</span>
 
 <span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="p">(</span>
@@ -232,25 +232,32 @@
 <span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">ExifToolCaching</span><span class="p">,</span> <span class="n">exiftool_can_write</span><span class="p">,</span> <span class="n">get_exiftool_path</span>
 <span class="kn">from</span> <span class="nn">.export_db</span> <span class="kn">import</span> <span class="n">ExportDB</span><span class="p">,</span> <span class="n">ExportDBTemp</span>
 <span class="kn">from</span> <span class="nn">.fileutil</span> <span class="kn">import</span> <span class="n">FileUtil</span>
-<span class="kn">from</span> <span class="nn">.photokit</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">PHOTOS_VERSION_CURRENT</span><span class="p">,</span>
-    <span class="n">PHOTOS_VERSION_ORIGINAL</span><span class="p">,</span>
-    <span class="n">PHOTOS_VERSION_UNADJUSTED</span><span class="p">,</span>
-    <span class="n">PhotoKitFetchFailed</span><span class="p">,</span>
-    <span class="n">PhotoLibrary</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.phototemplate</span> <span class="kn">import</span> <span class="n">RenderOptions</span>
 <span class="kn">from</span> <span class="nn">.rich_utils</span> <span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
 <span class="kn">from</span> <span class="nn">.uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">is_macos</span><span class="p">,</span>
     <span class="n">hexdigest</span><span class="p">,</span>
     <span class="n">increment_filename</span><span class="p">,</span>
     <span class="n">increment_filename_with_count</span><span class="p">,</span>
     <span class="n">lineno</span><span class="p">,</span>
     <span class="n">list_directory</span><span class="p">,</span>
     <span class="n">lock_filename</span><span class="p">,</span>
+    <span class="n">normalize_fs_path</span><span class="p">,</span>
     <span class="n">unlock_filename</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">photoscript</span>
+
+    <span class="kn">from</span> <span class="nn">.photokit</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="n">PHOTOS_VERSION_CURRENT</span><span class="p">,</span>
+        <span class="n">PHOTOS_VERSION_ORIGINAL</span><span class="p">,</span>
+        <span class="n">PHOTOS_VERSION_UNADJUSTED</span><span class="p">,</span>
+        <span class="n">PhotoKitFetchFailed</span><span class="p">,</span>
+        <span class="n">PhotoLibrary</span><span class="p">,</span>
+    <span class="p">)</span>
+
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;ExportError&quot;</span><span class="p">,</span>
@@ -918,7 +925,6 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Return True if photo should be updated, else False&quot;&quot;&quot;</span>
-
         <span class="c1"># NOTE: The order of certain checks is important</span>
         <span class="c1"># read the comments below to understand why before changing</span>
 
@@ -1378,7 +1384,7 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">fileutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest_str</span><span class="p">)</span>
                     <span class="n">verbose</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">dest_str</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>

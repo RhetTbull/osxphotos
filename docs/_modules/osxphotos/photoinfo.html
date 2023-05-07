@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoinfo - osxphotos 0.59.2 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.60.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.59.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.60.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.59.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -217,7 +217,6 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">osxmetadata</span> <span class="kn">import</span> <span class="n">OSXMetaData</span>
 
 <span class="kn">import</span> <span class="nn">osxphotos</span>
 
@@ -256,14 +255,18 @@
 <span class="kn">from</span> <span class="nn">.momentinfo</span> <span class="kn">import</span> <span class="n">MomentInfo</span>
 <span class="kn">from</span> <span class="nn">.personinfo</span> <span class="kn">import</span> <span class="n">FaceInfo</span><span class="p">,</span> <span class="n">PersonInfo</span>
 <span class="kn">from</span> <span class="nn">.photoexporter</span> <span class="kn">import</span> <span class="n">ExportOptions</span><span class="p">,</span> <span class="n">PhotoExporter</span>
+<span class="kn">from</span> <span class="nn">.phototables</span> <span class="kn">import</span> <span class="n">PhotoTables</span>
 <span class="kn">from</span> <span class="nn">.phototemplate</span> <span class="kn">import</span> <span class="n">PhotoTemplate</span><span class="p">,</span> <span class="n">RenderOptions</span>
 <span class="kn">from</span> <span class="nn">.placeinfo</span> <span class="kn">import</span> <span class="n">PlaceInfo4</span><span class="p">,</span> <span class="n">PlaceInfo5</span>
 <span class="kn">from</span> <span class="nn">.query_builder</span> <span class="kn">import</span> <span class="n">get_query</span>
 <span class="kn">from</span> <span class="nn">.scoreinfo</span> <span class="kn">import</span> <span class="n">ScoreInfo</span>
 <span class="kn">from</span> <span class="nn">.searchinfo</span> <span class="kn">import</span> <span class="n">SearchInfo</span>
-<span class="kn">from</span> <span class="nn">.text_detection</span> <span class="kn">import</span> <span class="n">detect_text</span>
 <span class="kn">from</span> <span class="nn">.uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span><span class="p">,</span> <span class="n">get_uti_for_extension</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_resource_loc</span><span class="p">,</span> <span class="n">hexdigest</span><span class="p">,</span> <span class="n">list_directory</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_resource_loc</span><span class="p">,</span> <span class="n">assert_macos</span><span class="p">,</span> <span class="n">is_macos</span><span class="p">,</span> <span class="n">hexdigest</span><span class="p">,</span> <span class="n">list_directory</span>
+
+<span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">osxmetadata</span> <span class="kn">import</span> <span class="n">OSXMetaData</span>
+    <span class="kn">from</span> <span class="nn">.text_detection</span> <span class="kn">import</span> <span class="n">detect_text</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;PhotoInfoNone&quot;</span><span class="p">,</span> <span class="s2">&quot;frozen_photoinfo_factory&quot;</span><span class="p">]</span>
 
@@ -1657,6 +1660,8 @@
 
     <span class="k">def</span> <span class="nf">_detected_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;detect text in photo, either from cached extended attribute or by attempting text detection&quot;&quot;&quot;</span>
+        <span class="n">assert_macos</span><span class="p">()</span>
+
         <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
         <span class="p">)</span>
@@ -2089,6 +2094,10 @@
             <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">dict_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhotoInfo.tables"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.tables">[docs]</a>    <span class="k">def</span> <span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhotoTables</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return PhotoTables object to provide access database tables associated with this photo (Photos 5+)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">&lt;</span> <span class="mi">5</span> <span class="k">else</span> <span class="n">PhotoTables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_json_hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;JSON for use by hexdigest()&quot;&quot;&quot;</span>

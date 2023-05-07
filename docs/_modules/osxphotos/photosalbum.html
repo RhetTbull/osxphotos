@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosalbum - osxphotos 0.59.2 documentation</title>
+        <title>osxphotos.photosalbum - osxphotos 0.60.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.59.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.60.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.59.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -199,12 +199,15 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">photoscript</span>
 <span class="kn">from</span> <span class="nn">more_itertools</span> <span class="kn">import</span> <span class="n">chunked</span>
-<span class="kn">from</span> <span class="nn">photoscript</span> <span class="kn">import</span> <span class="n">Album</span><span class="p">,</span> <span class="n">Folder</span><span class="p">,</span> <span class="n">Photo</span><span class="p">,</span> <span class="n">PhotosLibrary</span>
 
 <span class="kn">from</span> <span class="nn">.photoinfo</span> <span class="kn">import</span> <span class="n">PhotoInfo</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">noop</span><span class="p">,</span> <span class="n">pluralize</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">assert_macos</span><span class="p">,</span> <span class="n">noop</span><span class="p">,</span> <span class="n">pluralize</span>
+
+<span class="n">assert_macos</span><span class="p">()</span>
+
+<span class="kn">import</span> <span class="nn">photoscript</span>
+<span class="kn">from</span> <span class="nn">photoscript</span> <span class="kn">import</span> <span class="n">Album</span><span class="p">,</span> <span class="n">Folder</span><span class="p">,</span> <span class="n">Photo</span><span class="p">,</span> <span class="n">PhotosLibrary</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PhotosAlbum&quot;</span><span class="p">,</span> <span class="s2">&quot;PhotosAlbumPhotoScript&quot;</span><span class="p">]</span>
 
