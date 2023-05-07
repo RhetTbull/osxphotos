@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 
 
+## [v0.60.0](https://github.com/RhetTbull/osxphotos/compare/v0.59.3...v0.60.0)
+
+Linux Support: adds support for using a subset of osxphotos capabilities on Linux.
+
+### 07 May 2023
+
+#### Added
+
+- osxphotos now supports Linux (tested on Ubuntu 22.04); some commands are macOS only and will not be available (nor shown) on Linux. Huge thank you to [@dvdkon](https://github.com/dvdkon) for doing the Linux port!
+- Added `PhotoTables` API and `tables` property to `PhotoInfo` to access underlying SQL tables for a photo.
+
+#### Changed
+
+- Added macOS 13.3 to supported versions table.
+
+#### Contributors
+
+- @dvdkon for Linux port.
+- @RhetTbull for code changes.
+- @pekingduck for bug report.
+- @cclause for updating ruff test runner.
+
 ## [v0.59.3](https://github.com/RhetTbull/osxphotos/compare/v0.59.2...v0.59.3)
 
 Bug fixes for memory leak, crash during export
