@@ -10,7 +10,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-59-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
+OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
 
 <p align="center"><img src="docs/screencast/demo.gif?raw=true" width="713" height="430"/></p>
 
@@ -33,19 +33,23 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 ## Supported operating systems
 
-Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through macOS Monterey (12.0.1).  Tested on both x86 and Apple silicon (M1).
+Tested on Ubuntu Linux and macOS. Many features are only available on macOS.
+
+On Linux, macOS-specific features of the CLI will not be available (these will not be shown in the help output).
+The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos
+from a Photos library on a Linux machine.
+
+Tested on macOS Sierra (10.12.6) through macOS Ventura (13.3). Tested on both x86 and Apple silicon (M1).
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
-| 13.0              | Ventura    | 8.0 ✅ *           |
-| 12.0 - 12.6       | Monterey   | 7.0 ✅ *           |
+| 13.0 - 13.3       | Ventura    | 8.0 ✅             |
+| 12.0 - 12.6       | Monterey   | 7.0 ✅             |
 | 10.16, 11.0-11.4  | Big Sur    | 6.0 ✅             |
 | 10.15.1 - 10.15.7 | Catalina   | 5.0 ✅             |
 | 10.14.5, 10.14.6  | Mojave     | 4.0 ✅             |
 | 10.13.6           | High Sierra| 3.0 ✅             |
 | 10.12.6           | Sierra     | 2.0 ✅             |
-
-\* Some features may not be fully supported on Monterey and Ventura. Notably, `--use-photokit` and `--download-missing` may or may not work depending on your configuration; this is a known issue that will be fixed if I can find a solution.  Many users successfully use OSXPhotos on Monterey without problem.
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
@@ -1440,22 +1444,23 @@ option to re-export the entire library thus rebuilding the
 
                              Extended Attributes                              
 
-Some options (currently '--finder-tag-template', '--finder-tag-keywords',
-'-xattr-template') write additional metadata accessible by Spotlight to
-facilitate searching.  For example, --finder-tag-keyword writes all keywords
-(including any specified by '--keyword-template' or other options) to Finder
-tags that are searchable in Spotlight using the syntax: 'tag:tagname'. For
-example, if you have images with keyword "Travel" then using '--finder-tag-
-keywords' you could quickly find those images in the Finder by typing
-'tag:Travel' in the Spotlight search bar. Finder tags are written to the
-'com.apple.metadata:_kMDItemUserTags' extended attribute. Unlike EXIF
-metadata, extended attributes do not modify the actual file; the metadata is
-written to extended attributes associated with the file and the Spotlight
-metadata database.  Most cloud storage services do not synch extended
-attributes.  Dropbox does sync them and any changes to a file's extended
-attributes will cause Dropbox to re-sync the files.
+    Some options (currently '--finder-tag-template', '--finder-tag-keywords',
+    '-xattr-template') write     additional metadata accessible by Spotlight
+    to facilitate searching.      For example, --finder-tag-keyword writes all
+    keywords (including any specified by '--keyword-template'     or other
+    options) to Finder tags that are searchable in Spotlight using the syntax:
+    'tag:tagname'.     For example, if you have images with keyword "Travel"
+    then using '--finder-tag-keywords' you could quickly     find those images
+    in the Finder by typing 'tag:Travel' in the Spotlight search bar.
+    Finder tags are written to the 'com.apple.metadata:_kMDItemUserTags'
+    extended attribute.     Unlike EXIF metadata, extended attributes do not
+    modify the actual file;     the metadata is written to extended attributes
+    associated with the file and the Spotlight metadata database.      Most
+    cloud storage services do not synch extended attributes.      Dropbox does
+    sync them and any changes to a file's extended attributes     will cause
+    Dropbox to re-sync the files.
 
-The following attributes may be used with '--xattr-template':
+    The following attributes may be used with '--xattr-template':
 
 
 Attribute      Description
@@ -2094,7 +2099,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.59.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.60.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2581,7 +2586,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.59.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.60.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
