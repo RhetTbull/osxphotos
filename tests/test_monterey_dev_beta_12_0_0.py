@@ -14,9 +14,9 @@ import pytest
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.photoexporter import PhotoExporter
-from osxphotos.utils import get_macos_version
+from osxphotos.utils import is_macos, get_macos_version
 
-OS_VERSION = get_macos_version()
+OS_VERSION = get_macos_version() if is_macos else (None, None, None)
 # SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "17"
 SKIP_TEST = True  # don't run any of the local library tests
 PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")

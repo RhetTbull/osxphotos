@@ -16,7 +16,6 @@ from .momentinfo import MomentInfo
 from .personinfo import PersonInfo
 from .photoexporter import ExportOptions, ExportResults, PhotoExporter
 from .photoinfo import PhotoInfo
-from .photosalbum import PhotosAlbum, PhotosAlbumPhotoScript
 from .photosdb import PhotosDB
 from .photosdb._photosdb_process_comments import CommentInfo, LikeInfo
 from .phototables import PhotoTables
@@ -25,6 +24,10 @@ from .placeinfo import PlaceInfo
 from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
+from .utils import is_macos
+
+if is_macos:
+    from .photosalbum import PhotosAlbum, PhotosAlbumPhotoScript
 
 # configure logging; every module in osxphotos should use this logger
 logging.basicConfig(

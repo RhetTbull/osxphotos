@@ -10,8 +10,6 @@ import time
 from typing import List
 
 import click
-import photoscript
-from applescript import ScriptError
 from rich import pretty, print
 
 import osxphotos
@@ -25,6 +23,11 @@ from osxphotos.queryoptions import (
     QueryOptions,
     query_options_from_kwargs,
 )
+from osxphotos.utils import assert_macos, is_macos
+
+if is_macos:
+    import photoscript
+    from applescript import ScriptError
 
 from .cli_params import DB_ARGUMENT, DB_OPTION, DELETED_OPTIONS, QUERY_OPTIONS
 from .common import get_photos_db
@@ -55,7 +58,8 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     import logging
 
     from objexplore import explore
-    from photoscript import Album, Photo, PhotosLibrary
+    if is_macos:
+        from photoscript import Album, Photo, PhotosLibrary
     from rich import inspect as _inspect
 
     from osxphotos import ExifTool, PhotoInfo, PhotosDB
@@ -194,6 +198,7 @@ def _get_selected(photosdb):
     """get list of PhotoInfo objects for photos selected in Photos"""
 
     def get_selected():
+        assert_macos()
         try:
             selected = photoscript.PhotosLibrary().selection
         except ScriptError as e:
@@ -209,6 +214,7 @@ def _get_selected(photosdb):
 
 
 def _spotlight_photo(photo: PhotoInfo):
+    assert_macos()
     photo_ = photoscript.Photo(photo.uuid)
     photo_.spotlight()
 

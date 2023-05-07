@@ -19,8 +19,11 @@
 
 import copy
 import pathlib
+import sys
 import threading
 import time
+
+assert(sys.platform == "darwin")
 
 import AVFoundation
 import CoreServices

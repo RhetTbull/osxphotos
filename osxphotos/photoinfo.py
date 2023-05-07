@@ -20,7 +20,6 @@ from types import SimpleNamespace
 from typing import Any, Dict, Optional
 
 import yaml
-from osxmetadata import OSXMetaData
 
 import osxphotos
 
@@ -65,9 +64,12 @@ from .placeinfo import PlaceInfo4, PlaceInfo5
 from .query_builder import get_query
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
-from .text_detection import detect_text
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _get_resource_loc, hexdigest, list_directory
+from .utils import _get_resource_loc, assert_macos, is_macos, hexdigest, list_directory
+
+if is_macos:
+    from osxmetadata import OSXMetaData
+    from .text_detection import detect_text
 
 __all__ = ["PhotoInfo", "PhotoInfoNone", "frozen_photoinfo_factory"]
 
@@ -1461,6 +1463,8 @@ class PhotoInfo:
 
     def _detected_text(self):
         """detect text in photo, either from cached extended attribute or by attempting text detection"""
+        assert_macos()
+
         path = (
             self.path_edited if self.hasadjustments and self.path_edited else self.path
         )

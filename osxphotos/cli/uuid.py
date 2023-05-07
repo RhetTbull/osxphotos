@@ -1,6 +1,11 @@
 """uuid command for osxphotos CLI"""
 
 import click
+
+from osxphotos.utils import assert_macos
+
+assert_macos()
+
 import photoscript
 
 

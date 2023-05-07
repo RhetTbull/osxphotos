@@ -15,7 +15,9 @@ from osxphotos.phototemplate import (
     RenderOptions,
 )
 from osxphotos.photoinfo import PhotoInfoNone
+from osxphotos.utils import is_macos
 from .photoinfo_mock import PhotoInfoMock
+from .locale_util import setlocale
 
 try:
     exiftool = get_exiftool_path()
@@ -549,6 +551,8 @@ def test_lookup_multi(photosdb_places):
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
         if subst in ["{exiftool}", "{photo}", "{function}", "{format}"]:
             continue
+        if subst == "{detected_text}" and not is_macos:
+            continue
         lookup = template.get_template_value_multi(
             lookup_str,
             path_sep=os.path.sep,
@@ -562,7 +566,7 @@ def test_subst(photosdb_places):
     """Test that substitutions are correct"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     for template in TEMPLATE_VALUES:
@@ -574,7 +578,7 @@ def test_subst_date_modified(photosdb_places):
     """Test that substitutions are correct for date modified"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb_places.photos(uuid=[UUID_DICT["date_modified"]])[0]
 
     for template in TEMPLATE_VALUES_DATE_MODIFIED:
@@ -586,7 +590,7 @@ def test_subst_date_not_modified(photosdb_places):
     """Test that substitutions are correct for date modified when photo isn't modified"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb_places.photos(uuid=[UUID_DICT["date_not_modified"]])[0]
 
     for template in TEMPLATE_VALUES_DATE_NOT_MODIFIED:
@@ -600,7 +604,7 @@ def test_subst_locale_1(photosdb_places):
 
     # osxphotos.template sets local on load so set the environment first
     # set locale to DE
-    locale.setlocale(locale.LC_ALL, "de_DE.UTF-8")
+    setlocale(locale.LC_ALL, "de_DE.UTF-8")
 
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
@@ -613,6 +617,9 @@ def test_subst_locale_2(photosdb_places):
     """Test that substitutions are correct in user locale"""
     import locale
     import os
+
+    # Check if locale is available
+    setlocale(locale.LC_ALL, "de_DE.UTF-8")
 
     # osxphotos.template sets local on load so set the environment first
     os.environ["LANG"] = "de_DE.UTF-8"
@@ -634,7 +641,7 @@ def test_subst_default_val(photosdb_places):
     """Test substitution with default value specified"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{place.name.area_of_interest,UNKNOWN}"
@@ -646,7 +653,7 @@ def test_subst_default_val_2(photosdb_places):
     """Test substitution with ',' but no default value"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{place.name.area_of_interest,}"
@@ -658,7 +665,7 @@ def test_subst_unknown_val(photosdb_places):
     """Test substitution with unknown value specified"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{created.year}/{foo}"
@@ -682,7 +689,7 @@ def test_subst_unknown_val_with_default(photosdb_places):
     """Test substitution with unknown value specified"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{created.year}/{foo,bar}"
@@ -929,7 +936,7 @@ def test_subst_strftime(photosdb_places):
     """Test that strftime substitutions are correct"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     rendered, unmatched = photo.render_template("{created.strftime,%Y-%m-%d-%H%M%S}")
@@ -1287,6 +1294,7 @@ def test_album_seq(photosdb):
             assert rendered[0] == value
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_detected_text(photosdb):
     """Test {detected_text} template"""
     photo = photosdb.get_photo(UUID_DETECTED_TEXT)

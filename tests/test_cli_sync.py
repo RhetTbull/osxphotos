@@ -2,11 +2,15 @@
 
 import os
 import json
-import photoscript
 import pytest
 from click.testing import CliRunner
 
-from osxphotos.cli.sync import sync
+from osxphotos.utils import is_macos
+if is_macos:
+    import photoscript
+    from osxphotos.cli.sync import sync
+else:
+    pytest.skip(allow_module_level=True)
 
 UUID_TEST_PHOTO_1 = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg
 UUID_TEST_PHOTO_2 = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg

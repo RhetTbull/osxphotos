@@ -5,15 +5,19 @@
 # reference: https://stackoverflow.com/questions/59330149/coreimage-ciimage-write-jpg-is-shifting-colors-macos/59334308#59334308
 
 import pathlib
-
-import objc
-import Metal
-import Quartz
-from Cocoa import NSURL
-from Foundation import NSDictionary
+import sys
 
 # needed to capture system-level stderr
 from wurlitzer import pipes
+
+from .utils import is_macos
+
+if is_macos:
+    import objc
+    import Metal
+    import Quartz
+    from Cocoa import NSURL
+    from Foundation import NSDictionary
 
 __all__ = ["ImageConversionError", "ImageConverter"]
 

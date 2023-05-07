@@ -9,11 +9,15 @@ import json
 import sys
 
 import click
-import photoscript
 
 import osxphotos
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
+from osxphotos.utils import assert_macos
+
+assert_macos()
+
+import photoscript
 
 from .cli_commands import echo, echo_error, selection_command, verbose
 from .kvstore import kvstore

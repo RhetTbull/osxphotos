@@ -24,7 +24,6 @@ TEST_RUN_SCRIPT = "examples/cli_example_1.py"
 def runner() -> CliRunner:
     return CliRunner()
 
-
 from osxphotos.cli import (
     about,
     albums,
@@ -42,9 +41,13 @@ from osxphotos.cli import (
     places,
     theme,
     tutorial,
-    uuid,
     version,
 )
+
+from osxphotos.utils import is_macos
+
+if is_macos:
+    from osxphotos.cli import uuid
 
 
 def test_about(runner: CliRunner):
@@ -68,9 +71,8 @@ def test_about(runner: CliRunner):
         persons,
         places,
         tutorial,
-        uuid,
         version,
-    ],
+    ] + ([uuid] if is_macos else []),
 )
 def test_cli_comands(runner: CliRunner, command: Callable[..., Any]):
     with runner.isolated_filesystem():

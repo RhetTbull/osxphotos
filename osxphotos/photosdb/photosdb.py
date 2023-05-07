@@ -21,7 +21,6 @@ from typing import Any, List, Optional
 from unicodedata import normalize
 
 import bitmath
-import photoscript
 from rich import print
 
 from .._constants import (
@@ -62,12 +61,16 @@ from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from ..utils import (
     _check_file_exists,
+    is_macos,
     get_macos_version,
     get_last_library_path,
     noop,
     normalize_unicode,
 )
 from .photosdb_utils import get_db_model_version, get_db_version
+
+if is_macos:
+    import photoscript
 
 logger = logging.getLogger("osxphotos")
 
@@ -118,8 +121,8 @@ class PhotosDB:
 
         # Check OS version
         system = platform.system()
-        (ver, major, _) = get_macos_version()
-        if system != "Darwin" or ((ver, major) not in _TESTED_OS_VERSIONS):
+        (ver, major, _) = get_macos_version() if is_macos else (None, None, None)
+        if system == "Darwin" and ((ver, major) not in _TESTED_OS_VERSIONS):
             logging.warning(
                 f"WARNING: This module has only been tested with macOS versions "
                 f"[{', '.join(f'{v}.{m}' for (v, m) in _TESTED_OS_VERSIONS)}]: "

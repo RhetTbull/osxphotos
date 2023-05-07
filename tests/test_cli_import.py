@@ -14,16 +14,22 @@ from tempfile import TemporaryDirectory
 from typing import Dict
 
 import pytest
+
 from click.testing import CliRunner
-from photoscript import Photo
 from pytest import MonkeyPatch, approx
 
 from osxphotos import PhotosDB, QueryOptions
 from osxphotos._constants import UUID_PATTERN
-from osxphotos.cli.import_cli import import_cli
 from osxphotos.datetime_utils import datetime_remove_tz
 from osxphotos.exiftool import get_exiftool_path
+from osxphotos.utils import is_macos
 from tests.conftest import get_os_version
+
+if is_macos:
+    from photoscript import Photo
+    from osxphotos.cli.import_cli import import_cli
+else:
+    pytest.skip(allow_module_level=True)
 
 TERMINAL_WIDTH = 250
 

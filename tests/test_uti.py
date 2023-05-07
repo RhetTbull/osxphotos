@@ -8,6 +8,7 @@ from osxphotos.uti import (
     get_preferred_uti_extension,
     get_uti_for_extension,
 )
+from osxphotos.utils import is_macos
 
 EXT_DICT = {"heic": "public.heic", "jpg": "public.jpeg", ".jpg": "public.jpeg"}
 UTI_DICT = {"public.heic": "heic", "public.jpeg": "jpeg"}
@@ -43,12 +44,14 @@ def test_get_uti_for_extension_no_objc():
     osxphotos.uti.OS_VER = OLD_VER
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_get_uti_from_mdls():
     """get _get_uti_from_mdls"""
     for ext in EXT_DICT:
         assert _get_uti_from_mdls(ext) == EXT_DICT[ext]
 
 
+@pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_get_uti_not_in_dict():
     """get UTI when objc is not available and it's not in the EXT_UTI_DICT"""
     # monkey patch the EXT_UTI_DICT

@@ -5,6 +5,8 @@ import pytest
 import osxphotos
 from osxphotos.phototemplate import RenderOptions
 
+from .locale_util import setlocale
+
 PHOTOS_DB_PLACES = (
     "./tests/Test-Places-Catalina-10_15_1.photoslibrary/database/photos.db"
 )
@@ -48,7 +50,7 @@ def test_subst_today(photosdb):
     """Test that substitutions are correct for {today.x}"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     photo_template = osxphotos.PhotoTemplate(photo)
@@ -64,7 +66,7 @@ def test_subst_strftime_today(photosdb):
     """Test that strftime substitutions are correct for {today.strftime}"""
     import locale
 
-    locale.setlocale(locale.LC_ALL, "en_US")
+    setlocale(locale.LC_ALL, "en_US")
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     photo_template = osxphotos.PhotoTemplate(photo)

@@ -7,6 +7,7 @@ import logging
 import os
 import pathlib
 import re
+import sys
 import typing as t
 from collections import namedtuple  # pylint: disable=syntax-error
 from dataclasses import asdict, dataclass
@@ -14,7 +15,6 @@ from datetime import datetime
 from enum import Enum
 from types import SimpleNamespace
 
-import photoscript
 from mako.template import Template
 
 from ._constants import (
@@ -35,25 +35,32 @@ from .datetime_utils import datetime_tz_to_utc
 from .exiftool import ExifTool, ExifToolCaching, exiftool_can_write, get_exiftool_path
 from .export_db import ExportDB, ExportDBTemp
 from .fileutil import FileUtil
-from .photokit import (
-    PHOTOS_VERSION_CURRENT,
-    PHOTOS_VERSION_ORIGINAL,
-    PHOTOS_VERSION_UNADJUSTED,
-    PhotoKitFetchFailed,
-    PhotoLibrary,
-)
 from .phototemplate import RenderOptions
 from .rich_utils import add_rich_markup_tag
 from .uti import get_preferred_uti_extension
 from .utils import (
+    is_macos,
     hexdigest,
     increment_filename,
     increment_filename_with_count,
     lineno,
     list_directory,
     lock_filename,
+    normalize_fs_path,
     unlock_filename,
 )
+
+if is_macos:
+    import photoscript
+
+    from .photokit import (
+        PHOTOS_VERSION_CURRENT,
+        PHOTOS_VERSION_ORIGINAL,
+        PHOTOS_VERSION_UNADJUSTED,
+        PhotoKitFetchFailed,
+        PhotoLibrary,
+    )
+
 
 __all__ = [
     "ExportError",
@@ -721,7 +728,6 @@ class PhotoExporter:
         self, src: pathlib.Path, dest: pathlib.Path, options: ExportOptions
     ) -> t.Literal[True, False]:
         """Return True if photo should be updated, else False"""
-
         # NOTE: The order of certain checks is important
         # read the comments below to understand why before changing
 
@@ -1181,7 +1187,7 @@ class PhotoExporter:
                 try:
                     fileutil.copy(src, dest_str)
                     verbose(
-                        f"Exported {self._filename(self.photo.original_filename)} to {self._filepath(dest_str)}"
+                        f"Exported {self._filename(self.photo.original_filename)} to {self._filepath(normalize_fs_path(dest_str))}"
                     )
                 except Exception as e:
                     raise ExportError(

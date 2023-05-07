@@ -74,10 +74,12 @@ def test_hardlink_file_valid():
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     src = "tests/test-images/wedding.jpg"
+    src2 = os.path.join(temp_dir.name, "wedding_src.jpg")
     dest = os.path.join(temp_dir.name, "wedding.jpg")
-    FileUtil.hardlink(src, dest)
+    FileUtil.copy(src, src2)
+    FileUtil.hardlink(src2, dest)
     assert os.path.isfile(dest)
-    assert os.path.samefile(src, dest)
+    assert os.path.samefile(src2, dest)
 
 
 def test_unlink_file():

@@ -13,8 +13,6 @@ from typing import Generator, List, Optional, Tuple
 
 import bitmath
 import click
-from applescript import ScriptError
-from photoscript import PhotosLibrary
 from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
@@ -23,8 +21,14 @@ from rich.panel import Panel
 from osxphotos import PhotoInfo, PhotosDB
 from osxphotos._constants import _UNKNOWN_PERSON, search_category_factory
 from osxphotos.rich_utils import add_rich_markup_tag
+from osxphotos.utils import assert_macos, dd_to_dms_str
+
+assert_macos()
+
+from applescript import ScriptError
+from photoscript import PhotosLibrary
+
 from osxphotos.text_detection import detect_text as detect_text_in_photo
-from osxphotos.utils import dd_to_dms_str
 
 from .cli_params import DB_OPTION, THEME_OPTION
 from .color_themes import get_theme

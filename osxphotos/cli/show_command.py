@@ -7,12 +7,15 @@ import click
 
 from osxphotos._constants import UUID_PATTERN
 from osxphotos.export_db_utils import get_uuid_for_filepath
+from osxphotos.photosdb.photosdb_utils import get_photos_library_version
+from osxphotos.utils import get_last_library_path, assert_macos
+
+assert_macos()
+
 from osxphotos.photoscript_utils import (
     photoscript_object_from_name,
     photoscript_object_from_uuid,
 )
-from osxphotos.photosdb.photosdb_utils import get_photos_library_version
-from osxphotos.utils import get_last_library_path
 
 from .cli_commands import echo, echo_error
 from .cli_params import DB_OPTION

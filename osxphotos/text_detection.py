@@ -1,7 +1,12 @@
 """ Use Apple's Vision Framework via PyObjC to perform text detection on images (macOS 10.15+ only) """
 
 import logging
+import sys
 from typing import List, Optional
+
+from .utils import assert_macos, get_macos_version
+
+assert_macos()
 
 import objc
 import Quartz
@@ -10,8 +15,6 @@ from Foundation import NSDictionary
 
 # needed to capture system-level stderr
 from wurlitzer import pipes
-
-from .utils import get_macos_version
 
 __all__ = ["detect_text", "make_request_handler"]
 

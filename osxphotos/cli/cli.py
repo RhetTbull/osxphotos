@@ -9,11 +9,10 @@ import click
 
 from osxphotos._constants import PROFILE_SORT_KEYS
 from osxphotos._version import __version__
+from osxphotos.utils import is_macos
 
 from .about import about
-from .add_locations import add_locations
 from .albums import albums
-from .batch_edit import batch_edit
 from .cli_params import DB_OPTION, DEBUG_OPTIONS, JSON_OPTION, VERSION_OPTION
 from .common import OSXPHOTOS_HIDDEN
 from .debug_dump import debug_dump
@@ -24,7 +23,6 @@ from .export import export
 from .exportdb import exportdb
 from .grep import grep
 from .help import help
-from .import_cli import import_cli
 from .info import info
 from .install_uninstall_run import install, run, uninstall
 from .keywords import keywords
@@ -32,18 +30,23 @@ from .labels import labels
 from .list import list_libraries
 from .orphans import orphans
 from .persons import persons
-from .photo_inspect import photo_inspect
 from .places import places
 from .query import query
 from .repl import repl
-from .show_command import show
 from .snap_diff import diff, snap
-from .sync import sync
 from .theme import theme
-from .timewarp import timewarp
 from .tutorial import tutorial
-from .uuid import uuid
 from .version import version
+
+if is_macos:
+    from .add_locations import add_locations
+    from .batch_edit import batch_edit
+    from .import_cli import import_cli
+    from .photo_inspect import photo_inspect
+    from .show_command import show
+    from .sync import sync
+    from .timewarp import timewarp
+    from .uuid import uuid
 
 
 # Click CLI object & context settings
@@ -106,11 +109,9 @@ def cli_main(ctx, db, json_, profile, profile_sort, **kwargs):
 
 
 # install CLI commands
-for command in [
+commands = [
     about,
-    add_locations,
     albums,
-    batch_edit,
     debug_dump,
     diff,
     docs_command,
@@ -120,7 +121,6 @@ for command in [
     exportdb,
     grep,
     help,
-    import_cli,
     info,
     install,
     keywords,
@@ -128,19 +128,28 @@ for command in [
     list_libraries,
     orphans,
     persons,
-    photo_inspect,
     places,
     query,
     repl,
     run,
-    show,
     snap,
-    sync,
     theme,
-    timewarp,
     tutorial,
     uninstall,
-    uuid,
     version,
-]:
+]
+
+if is_macos:
+    commands += [
+        add_locations,
+        batch_edit,
+        import_cli,
+        photo_inspect,
+        show,
+        sync,
+        timewarp,
+        uuid,
+    ]
+
+for command in commands:
     cli_main.add_command(command)

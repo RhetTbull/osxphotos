@@ -20,7 +20,6 @@ from textwrap import dedent
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import click
-from photoscript import Photo, PhotosLibrary
 from rich.console import Console
 from rich.markdown import Markdown
 from strpdatetime import strpdatetime
@@ -43,7 +42,11 @@ from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
-from osxphotos.utils import pluralize
+from osxphotos.utils import assert_macos, pluralize
+
+assert_macos()
+
+from photoscript import Photo, PhotosLibrary
 
 from .cli_params import THEME_OPTION
 from .click_rich_echo import rich_click_echo, rich_echo_error

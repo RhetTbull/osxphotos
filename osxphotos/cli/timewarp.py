@@ -7,7 +7,6 @@ from functools import partial
 from textwrap import dedent
 
 import click
-from photoscript import PhotosLibrary
 from rich.console import Console
 
 from osxphotos._constants import APP_NAME
@@ -25,9 +24,13 @@ from osxphotos.photodates import (
     update_photo_from_function,
     update_photo_time_for_new_timezone,
 )
-from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
-from osxphotos.utils import noop, pluralize
+from osxphotos.utils import assert_macos, noop, pluralize
+
+assert_macos()
+
+from photoscript import PhotosLibrary
+from osxphotos.photosalbum import PhotosAlbumPhotoScript
 
 from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .click_rich_echo import rich_click_echo as echo

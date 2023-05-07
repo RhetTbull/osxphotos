@@ -5,12 +5,17 @@ from __future__ import annotations
 import os
 import time
 
-import photoscript
 import pytest
 from click.testing import CliRunner
 
 import osxphotos
-from osxphotos.cli.batch_edit import batch_edit
+from osxphotos.utils import is_macos
+
+if is_macos:
+    import photoscript
+    from osxphotos.cli.batch_edit import batch_edit
+else:
+    pytest.skip(allow_module_level=True)
 
 # set timezone to avoid issues with comparing dates
 os.environ["TZ"] = "US/Pacific"

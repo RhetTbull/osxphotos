@@ -5,6 +5,7 @@ import sys
 from rich import print
 from rich.traceback import install as install_traceback
 
+from osxphotos.utils import is_macos
 from osxphotos.debug import (
     debug_breakpoint,
     debug_watch,
@@ -44,9 +45,7 @@ if args.get("--debug", False):
     print("Debugging enabled", file=sys.stderr)
 
 from .about import about
-from .add_locations import add_locations
 from .albums import albums
-from .batch_edit import batch_edit
 from .cli import cli_main
 from .cli_commands import (
     abort,
@@ -67,7 +66,6 @@ from .export import export
 from .exportdb import exportdb
 from .grep import grep
 from .help import help
-from .import_cli import import_cli
 from .info import info
 from .install_uninstall_run import install, run, uninstall
 from .keywords import keywords
@@ -76,18 +74,23 @@ from .labels import labels
 from .list import _list_libraries, list_libraries
 from .orphans import orphans
 from .persons import persons
-from .photo_inspect import photo_inspect
 from .places import places
 from .query import query
 from .repl import repl
-from .show_command import show
 from .snap_diff import diff, snap
-from .sync import sync
 from .theme import theme
-from .timewarp import timewarp
 from .tutorial import tutorial
-from .uuid import uuid
 from .version import version
+
+if is_macos:
+    from .add_locations import add_locations
+    from .batch_edit import batch_edit
+    from .import_cli import import_cli
+    from .photo_inspect import photo_inspect
+    from .show_command import show
+    from .sync import sync
+    from .timewarp import timewarp
+    from .uuid import uuid
 
 install_traceback()
 

@@ -5,7 +5,6 @@ import re
 import typing as t
 
 import click
-from osxmetadata import MDITEM_ATTRIBUTE_DATA, MDITEM_ATTRIBUTE_SHORT_NAMES
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -21,6 +20,10 @@ from osxphotos.phototemplate import (
     TEMPLATE_SUBSTITUTIONS_PATHLIB,
     get_template_help,
 )
+from osxphotos.utils import is_macos
+
+if is_macos:
+    from osxmetadata import MDITEM_ATTRIBUTE_DATA, MDITEM_ATTRIBUTE_SHORT_NAMES
 
 from .click_rich_echo import rich_echo_via_pager
 from .color_themes import get_theme
@@ -249,68 +252,71 @@ class ExportCommand(click.Command):
             + f"rebuilding the '{OSXPHOTOS_EXPORT_DB}' database."
         )
         formatter.write("\n")
-        formatter.write(
-            rich_text("## Extended Attributes", width=formatter.width, markdown=True)
-        )
-        formatter.write("\n")
-        formatter.write_text(
-            """
-Some options (currently '--finder-tag-template', '--finder-tag-keywords', '-xattr-template') write
-additional metadata accessible by Spotlight to facilitate searching. 
-For example, --finder-tag-keyword writes all keywords (including any specified by '--keyword-template'
-or other options) to Finder tags that are searchable in Spotlight using the syntax: 'tag:tagname'.
-For example, if you have images with keyword "Travel" then using '--finder-tag-keywords' you could quickly
-find those images in the Finder by typing 'tag:Travel' in the Spotlight search bar.
-Finder tags are written to the 'com.apple.metadata:_kMDItemUserTags' extended attribute.
-Unlike EXIF metadata, extended attributes do not modify the actual file;
-the metadata is written to extended attributes associated with the file and the Spotlight metadata database. 
-Most cloud storage services do not synch extended attributes. 
-Dropbox does sync them and any changes to a file's extended attributes
-will cause Dropbox to re-sync the files.
 
-The following attributes may be used with '--xattr-template':
-
-            """
-        )
-
-        # build help text from all the attribute names
-        # passed to click.HelpFormatter.write_dl for formatting
-        attr_tuples = [
-            (
-                rich_text("[bold]Attribute[/bold]", width=formatter.width),
-                rich_text("[bold]Description[/bold]", width=formatter.width),
+        if is_macos:
+            formatter.write(
+                rich_text("## Extended Attributes", width=formatter.width, markdown=True)
             )
-        ]
-        for attr_key in sorted(EXTENDED_ATTRIBUTE_NAMES):
-            # get short and long name
-            attr = MDITEM_ATTRIBUTE_SHORT_NAMES[attr_key]
-            short_name = MDITEM_ATTRIBUTE_DATA[attr]["short_name"]
-            long_name = MDITEM_ATTRIBUTE_DATA[attr]["name"]
-            constant = MDITEM_ATTRIBUTE_DATA[attr]["xattr_constant"]
+            formatter.write("\n")
+            formatter.write_text(
+                """
+    Some options (currently '--finder-tag-template', '--finder-tag-keywords', '-xattr-template') write
+    additional metadata accessible by Spotlight to facilitate searching. 
+    For example, --finder-tag-keyword writes all keywords (including any specified by '--keyword-template'
+    or other options) to Finder tags that are searchable in Spotlight using the syntax: 'tag:tagname'.
+    For example, if you have images with keyword "Travel" then using '--finder-tag-keywords' you could quickly
+    find those images in the Finder by typing 'tag:Travel' in the Spotlight search bar.
+    Finder tags are written to the 'com.apple.metadata:_kMDItemUserTags' extended attribute.
+    Unlike EXIF metadata, extended attributes do not modify the actual file;
+    the metadata is written to extended attributes associated with the file and the Spotlight metadata database. 
+    Most cloud storage services do not synch extended attributes. 
+    Dropbox does sync them and any changes to a file's extended attributes
+    will cause Dropbox to re-sync the files.
 
-            # get help text
-            description = MDITEM_ATTRIBUTE_DATA[attr]["description"]
-            type_ = MDITEM_ATTRIBUTE_DATA[attr]["help_type"]
-            attr_help = f"{long_name}; {constant}; {description}; {type_}"
+    The following attributes may be used with '--xattr-template':
 
-            # add to list
-            attr_tuples.append((short_name, attr_help))
+                """
+            )
 
-        formatter.write_dl(attr_tuples)
-        formatter.write("\n")
-        formatter.write_text(
-            "For additional information on extended attributes see: https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys"
-        )
-        formatter.write("\n")
-        formatter.write(
-            rich_text("## Templating System", width=formatter.width, markdown=True)
-        )
-        formatter.write("\n")
-        help_text += formatter.getvalue()
-        help_text += template_help(width=formatter.width)
-        formatter = click.HelpFormatter(width=HELP_WIDTH)
+            # build help text from all the attribute names
+            # passed to click.HelpFormatter.write_dl for formatting
+            attr_tuples = [
+                (
+                    rich_text("[bold]Attribute[/bold]", width=formatter.width),
+                    rich_text("[bold]Description[/bold]", width=formatter.width),
+                )
+            ]
+            for attr_key in sorted(EXTENDED_ATTRIBUTE_NAMES):
+                # get short and long name
+                attr = MDITEM_ATTRIBUTE_SHORT_NAMES[attr_key]
+                short_name = MDITEM_ATTRIBUTE_DATA[attr]["short_name"]
+                long_name = MDITEM_ATTRIBUTE_DATA[attr]["name"]
+                constant = MDITEM_ATTRIBUTE_DATA[attr]["xattr_constant"]
 
-        formatter.write("\n")
+                # get help text
+                description = MDITEM_ATTRIBUTE_DATA[attr]["description"]
+                type_ = MDITEM_ATTRIBUTE_DATA[attr]["help_type"]
+                attr_help = f"{long_name}; {constant}; {description}; {type_}"
+
+                # add to list
+                attr_tuples.append((short_name, attr_help))
+
+            formatter.write_dl(attr_tuples)
+            formatter.write("\n")
+            formatter.write_text(
+                "For additional information on extended attributes see: https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys"
+            )
+            formatter.write("\n")
+            formatter.write(
+                rich_text("## Templating System", width=formatter.width, markdown=True)
+            )
+            formatter.write("\n")
+            help_text += formatter.getvalue()
+            help_text += template_help(width=formatter.width)
+            formatter = click.HelpFormatter(width=HELP_WIDTH)
+
+            formatter.write("\n")
+
         formatter.write_text(
             "With the --directory and --filename options you may specify a template for the "
             + "export directory or filename, respectively. "
