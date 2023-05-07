@@ -14,13 +14,12 @@ jobs:
                 --exclude=tests/ --ignore=E402,E722,E741,F401,F403,F405,F541,F822,F841 .
   build:
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     strategy:
       max-parallel: 4
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, ubuntu-latest]
         python-version: ['3.9', '3.10', '3.11']
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
