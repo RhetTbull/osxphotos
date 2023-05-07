@@ -7,7 +7,7 @@ objexplore>=1.6.3,<2.0.0
 osxmetadata>=1.2.0,<2.0.0; sys_platform == 'darwin'
 packaging>=21.3
 pathvalidate>=2.4.1,<2.5.0
-photoscript>=0.3.0,<0.4.0
+photoscript>=0.3.0,<0.4.0; sys_platform == 'darwin'
 ptpython>=3.0.20,<3.1.0
 pyobjc-core>=9.0,<10.0; sys_platform == 'darwin'
 pyobjc-framework-AppleScriptKit>=9.0,<10.0; sys_platform == 'darwin'
