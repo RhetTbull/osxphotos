@@ -309,7 +309,9 @@ def _process_faceinfo_5(photosdb):
         face["righteyey"] = row[34]
         face["roll"] = row[35]
         face["size"] = row[36]
-        face["yaw"] = 0 # Photos 4 only (this is in Photos 5-7, but dropped in Ventura so just don't support it)
+        face[
+            "yaw"
+        ] = 0  # Photos 4 only (this is in Photos 5-7, but dropped in Ventura so just don't support it)
         face["pitch"] = 0  # not defined in Photos 5
 
         photosdb._db_faceinfo_pk[pk] = face

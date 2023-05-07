@@ -57,8 +57,8 @@ def dump(
     print_template,
 ):
     """Print list of all photos & associated info from the Photos library.
-    
-    NOTE: dump is DEPRECATED and will be removed in a future release. 
+
+    NOTE: dump is DEPRECATED and will be removed in a future release.
     Use `osxphotos query` instead.
     """
 

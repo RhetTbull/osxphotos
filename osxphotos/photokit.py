@@ -23,7 +23,7 @@ import sys
 import threading
 import time
 
-assert(sys.platform == "darwin")
+assert sys.platform == "darwin"
 
 import AVFoundation
 import CoreServices
@@ -86,6 +86,7 @@ PHOTOKIT_NOTIFICATION_FINISHED_REQUEST = "PyPhotoKitNotificationFinishedRequest"
 
 # minimum amount to sleep while waiting for export
 MIN_SLEEP = 0.015
+
 
 ### utility functions
 def NSURL_to_path(url):
@@ -629,7 +630,8 @@ class PhotoAsset:
 
             def handler(imageData, dataUTI, orientation, info):
                 """result handler for requestImageDataAndOrientationForAsset_options_resultHandler_
-                all returned by the request is set as properties of nonlocal data (Fetchdata object)"""
+                all returned by the request is set as properties of nonlocal data (Fetchdata object)
+                """
 
                 nonlocal requestdata
 
@@ -676,7 +678,8 @@ class PhotoAsset:
 
             def handler(data):
                 """result handler for requestImageDataAndOrientationForAsset_options_resultHandler_
-                all returned by the request is set as properties of nonlocal data (Fetchdata object)"""
+                all returned by the request is set as properties of nonlocal data (Fetchdata object)
+                """
 
                 nonlocal requestdata
 
@@ -713,7 +716,8 @@ class PhotoAsset:
 
         def handler(imageData, dataUTI, orientation, info):
             """result handler for requestImageDataAndOrientationForAsset_options_resultHandler_
-            all returned by the request is set as properties of nonlocal data (Fetchdata object)"""
+            all returned by the request is set as properties of nonlocal data (Fetchdata object)
+            """
 
             nonlocal data
 
