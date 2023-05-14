@@ -2626,7 +2626,7 @@ I'll gladly consider pull requests for bug fixes or feature implementations.
 
 If you have an interesting example that shows usage of this package, submit an issue or pull request and i'll include it or link to it.
 
-Testing against "real world" Photos libraries would be especially helpful.  If you discover issues in testing against your Photos libraries, please open an issue.  I've done extensive testing against my own Photos library but that's a since data point and I'm certain there are issues lurking in various edge cases I haven't discovered yet.
+Testing against "real world" Photos libraries would be especially helpful.  If you discover issues in testing against your Photos libraries, please open an issue.  I've done extensive testing against my own Photos library but that's a single data point and I'm certain there are issues lurking in various edge cases I haven't discovered yet.
 
 ### Contributors ✨
 
