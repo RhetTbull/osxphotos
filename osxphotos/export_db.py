@@ -921,32 +921,35 @@ class ExportDBInMemory(ExportDB):
         returns: connection to the database
         """
         if not os.path.isfile(dbfile):
-            conn = self._get_db_connection()
-            if not conn:
+            # database doesn't exist so create it in-memory
+            src = self._get_db_connection()
+            if not src:
                 raise Exception("Error getting connection to in-memory database")
-            self._create_or_migrate_db_tables(conn)
+            self._create_or_migrate_db_tables(src)
             self.was_created = True
             self.was_upgraded = ()
-        else:
-            conn = sqlite3.connect(dbfile, check_same_thread=SQLITE_CHECK_SAME_THREAD)
-            dbdump = self._dump_db(conn)
-            conn.close()
+            self.version = OSXPHOTOS_EXPORTDB_VERSION
+            return src
 
-            # Create a database in memory and import from the dump
-            conn = sqlite3.connect(
-                ":memory:", check_same_thread=SQLITE_CHECK_SAME_THREAD
-            )
-            conn.cursor().executescript(dbdump.read())
-            self.was_created = False
-            version_info = self._get_database_version(conn)
-            if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
-                self._create_or_migrate_db_tables(conn)
-                self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
-            else:
-                self.was_upgraded = ()
+        # database exists so copy it to memory
+        src = sqlite3.connect(dbfile, check_same_thread=SQLITE_CHECK_SAME_THREAD)
+
+        # Create a database in memory by backing up the on-disk database
+        dst = sqlite3.connect(":memory:", check_same_thread=SQLITE_CHECK_SAME_THREAD)
+        with dst:
+            src.backup(dst, pages=1)
+        src.close()
+
+        self.was_created = False
+        version_info = self._get_database_version(dst)
+        if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
+            self._create_or_migrate_db_tables(dst)
+            self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
+        else:
+            self.was_upgraded = ()
         self.version = OSXPHOTOS_EXPORTDB_VERSION
 
-        return conn
+        return dst
 
     def _get_db_connection(self):
         """return db connection to in memory database"""
