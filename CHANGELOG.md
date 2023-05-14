@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.1](https://github.com/RhetTbull/osxphotos/compare/v0.60.0...v0.60.1)
+
+Hot fix for a bug with in-memory database and --dry-run.
+
+### 14 May 2023
+
+#### Fixed
+
+- Fixed crash with --dry-run with large export database (#1071)
+
+#### Contributors
+
+- @RhetTbull for code changes.
+- @rajscode for identifying the bug and filing a detailed bug report.
 
 ## [v0.60.0](https://github.com/RhetTbull/osxphotos/compare/v0.59.3...v0.60.0)
 
