@@ -244,6 +244,9 @@ class StagedFiles:
     def __str__(self):
         return str(self.asdict())
 
+    def __repr__(self):
+        return f"StagedFiles({self.asdict()})"
+
     def asdict(self):
         return {
             "original": self.original,
@@ -825,24 +828,50 @@ class PhotoExporter:
             if options.live_photo and self.photo.live_photo:
                 staged.edited_live = self.photo.path_edited_live_photo
 
+        print(f"staged: {staged}")
         # download any missing files
         if options.download_missing:
-            live_photo = staged.edited_live if options.edited else staged.original_live
-            missing_options = ExportOptions(
-                edited=options.edited,
-                preview=options.preview and not staged.preview,
-                raw_photo=options.raw_photo and not staged.raw,
-                live_photo=options.live_photo and not live_photo,
+            staged |= self._stage_missing_photos_for_export(
+                staged=staged, options=options
             )
-            if options.use_photokit:
-                missing_staged = self._stage_photo_for_export_with_photokit(
-                    options=missing_options
-                )
-            else:
-                missing_staged = self._stage_photo_for_export_with_applescript(
-                    options=missing_options
-                )
-            staged |= missing_staged
+
+        print(f"staged: {staged}")
+        return staged
+
+    def _stage_missing_photos_for_export(
+        self, staged: StagedFiles, options: ExportOptions
+    ) -> StagedFiles:
+        """Download and stage any missing files for export"""
+
+        # if live photo and requesting edited version need the edited live photo
+        live_photo = staged.edited_live if options.edited else staged.original_live
+
+        # is there actually a missing file? (#1086)
+        something_to_download = (
+            (self.photo.hasadjustments and options.edited and not staged.edited)
+            or (self.photo.live_photo and options.live_photo and not live_photo)
+            or (self.photo.has_raw and options.raw_photo and not staged.raw)
+            or (options.preview and not staged.preview)
+            or (not options.edited and not staged.original)
+        )
+        if not something_to_download:
+            return staged
+
+        missing_options = ExportOptions(
+            edited=options.edited,
+            preview=options.preview and not staged.preview,
+            raw_photo=self.photo.has_raw and options.raw_photo and not staged.raw,
+            live_photo=self.photo.live_photo and options.live_photo and not live_photo,
+        )
+        if options.use_photokit:
+            missing_staged = self._stage_photo_for_export_with_photokit(
+                options=missing_options
+            )
+        else:
+            missing_staged = self._stage_photo_for_export_with_applescript(
+                options=missing_options
+            )
+        staged |= missing_staged
         return staged
 
     def _stage_photo_for_export_with_photokit(
