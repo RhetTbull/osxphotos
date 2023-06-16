@@ -84,7 +84,7 @@ def export_previews(
 
 def export_preview_to_directory_with_filename(
     photo: osxphotos.PhotoInfo,
-    preview_path: str,
+    preview_path: pathlib.Path,
     export_dir: str,
     directory: str,
     filename_template: str,
