@@ -1,15 +1,15 @@
 """ PhotoExport class to export photos
 """
 
+from __future__ import annotations
+
 import dataclasses
 import json
 import logging
 import os
 import pathlib
 import re
-import sys
 import typing as t
-from collections import namedtuple  # pylint: disable=syntax-error
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
@@ -39,10 +39,10 @@ from .phototemplate import RenderOptions
 from .rich_utils import add_rich_markup_tag
 from .uti import get_preferred_uti_extension
 from .utils import (
-    is_macos,
     hexdigest,
     increment_filename,
     increment_filename_with_count,
+    is_macos,
     lineno,
     list_directory,
     lock_filename,
@@ -482,6 +482,11 @@ class PhotoExporter:
         dest, options = self._should_convert_to_jpeg(dest, options)
 
         # stage files for export by finding path in local library or downloading from iCloud as appropriate
+        # for `--download-missing` and `--update` case, this may cause unnecessary downloads
+        # as it will download the file even if it's not needed (won't be checked until the _should_update_photo() call from _export_photo()
+        # fixing this will require major refactoring of the export code, see #1086
+        # leaving it for now as this should not be a common use case
+        # (if using `--update` it is much better to be using "Download originals to this Mac" in Photos)
         staged_files = self._stage_photos_for_export(options)
         src = staged_files.edited if options.edited else staged_files.original
 
@@ -728,9 +733,19 @@ class PhotoExporter:
         return dest
 
     def _should_update_photo(
-        self, src: pathlib.Path, dest: pathlib.Path, options: ExportOptions
-    ) -> t.Literal[True, False]:
-        """Return True if photo should be updated, else False"""
+        self, src: pathlib.Path | None, dest: pathlib.Path, options: ExportOptions
+    ) -> bool | ShouldUpdate:
+        """Return True if photo should be updated, else False
+
+        Args:
+            src (pathlib.Path | None): source path; if None, photo is missing and
+                any checks that require src will return True
+            dest (pathlib.Path): destination path
+
+        Returns:
+            False if photo should not be updated otherwise a truthy ShouldUpdate value
+        """
+
         # NOTE: The order of certain checks is important
         # read the comments below to understand why before changing
 
@@ -743,11 +758,11 @@ class PhotoExporter:
             # photo doesn't exist in database, should update
             return ShouldUpdate.NOT_IN_DATABASE
 
-        if options.export_as_hardlink and not dest.samefile(src):
+        if options.export_as_hardlink and (not src or not dest.samefile(src)):
             # different files, should update
             return ShouldUpdate.HARDLINK_DIFFERENT_FILES
 
-        if not options.export_as_hardlink and dest.samefile(src):
+        if not options.export_as_hardlink and (not src or dest.samefile(src)):
             # same file but not exporting as hardlink, should update
             return ShouldUpdate.NOT_HARDLINK_SAME_FILES
 
@@ -779,7 +794,9 @@ class PhotoExporter:
             # as exiftool will be used to update edited file
             return ShouldUpdate.EXIFTOOL_DIFFERENT if rv else False
 
-        if options.edited and not fileutil.cmp_file_sig(src, file_record.src_sig):
+        if options.edited and (
+            not src or not fileutil.cmp_file_sig(src, file_record.src_sig)
+        ):
             # edited file in Photos doesn't match what was last exported
             return ShouldUpdate.EDITED_SIG_DIFFERENT
 
@@ -828,14 +845,12 @@ class PhotoExporter:
             if options.live_photo and self.photo.live_photo:
                 staged.edited_live = self.photo.path_edited_live_photo
 
-        print(f"staged: {staged}")
         # download any missing files
         if options.download_missing:
             staged |= self._stage_missing_photos_for_export(
                 staged=staged, options=options
             )
 
-        print(f"staged: {staged}")
         return staged
 
     def _stage_missing_photos_for_export(
