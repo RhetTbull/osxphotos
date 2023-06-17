@@ -76,6 +76,10 @@ if t.TYPE_CHECKING:
 # retry if download_missing/use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
 
+# Global to hold the compiled XMP template
+# This is expensive to compile so we only want to do it once
+_global_xmp_template: Template | None = None
+
 
 # return values for _should_update_photo
 class ShouldUpdate(Enum):
@@ -673,8 +677,16 @@ class PhotoExporter:
             return lock_filename(filename) if lock else filename
 
         # if overwrite==False and #increment==False, export should fail if file exists
-        if dest.exists() and not any(
-            [options.increment, options.update, options.force_update, options.overwrite]
+        if (
+            not any(
+                [
+                    options.increment,
+                    options.update,
+                    options.force_update,
+                    options.overwrite,
+                ]
+            )
+            and dest.exists()
         ):
             raise FileExistsError(
                 f"destination exists ({dest}); overwrite={options.overwrite}, increment={options.increment}"
@@ -2003,10 +2015,7 @@ class PhotoExporter:
 
         options = options or ExportOptions()
 
-        xmp_template_file = (
-            _XMP_TEMPLATE_NAME if not self.photo._db._beta else _XMP_TEMPLATE_NAME_BETA
-        )
-        xmp_template = Template(filename=os.path.join(_TEMPLATE_DIR, xmp_template_file))
+        xmp_template = self._xmp_template()
 
         if extension is None:
             extension = pathlib.Path(self.photo.original_filename)
@@ -2112,6 +2121,20 @@ class PhotoExporter:
         # remove extra lines that mako inserts from template
         xmp_str = "\n".join(line for line in xmp_str.split("\n") if line.strip() != "")
         return xmp_str
+
+    def _xmp_template(self):
+        """Return the mako template for XMP sidecar, creating it if necessary"""
+        global _global_xmp_template
+        if _global_xmp_template is not None:
+            return _global_xmp_template
+
+        xmp_template_file = (
+            _XMP_TEMPLATE_NAME_BETA if self.photo._db._beta else _XMP_TEMPLATE_NAME
+        )
+        _global_xmp_template = Template(
+            filename=os.path.join(_TEMPLATE_DIR, xmp_template_file)
+        )
+        return _global_xmp_template
 
     def _write_sidecar(self, filename, sidecar_str):
         """write sidecar_str to filename
