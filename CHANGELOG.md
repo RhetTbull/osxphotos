@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.2](https://github.com/RhetTbull/osxphotos/compare/v0.60.1...v0.60.2)
+
+Performance Improvements for --download-missing
+
+### [v0.60.2] - 2023-06-17
+
+#### Fixed
+
+- Performance improvements for `osxphotos export` when used with `--download-missing` or `--sidecar XMP` options. (#1086)
+
+#### Added
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code changes.
+- [@MaxLyt](https://github.com/MaxLyt) for finding the issue.
+
 ## [v0.60.1](https://github.com/RhetTbull/osxphotos/compare/v0.60.0...v0.60.1)
 
 Hot fix for a bug with in-memory database and --dry-run.
@@ -95,7 +114,8 @@ Performance Boost
 - Removed lock files from export code (speed boost for NAS export, see #999); will need to eventually add this back for multithreaded export
 - Optimized some code in export CLI to speed export
 - Some linting fixed for move to ruff
-- 
+-
+
 #### Contributors
 
 - [@RhetTbull](https://github.com/RhetTbull) for code changes.
@@ -195,15 +215,15 @@ See example code in [concurrent_export.py](https://github.com/RhetTbull/osxphoto
 
 #### Added
 
- - `--migrate-photos-library` option added to `osxphotos exportdb` to migrate the export database from one Photos library to another. This is useful when moving to a new computer but maintaining the existing osxphotos export.  Thanks to @swduncan for the idea. (#990)
+- `--migrate-photos-library` option added to `osxphotos exportdb` to migrate the export database from one Photos library to another. This is useful when moving to a new computer but maintaining the existing osxphotos export.  Thanks to @swduncan for the idea. (#990)
 
 #### Fixed
 
- - Fixed a bug in `osxphotos export --cleanup` to handle files which could not be deleted. Thanks to @oPromessa for finding this and suggesting the fix. (#987)
+- Fixed a bug in `osxphotos export --cleanup` to handle files which could not be deleted. Thanks to @oPromessa for finding this and suggesting the fix. (#987)
 
 #### Internal
 
- - Fixed a bug that caused `rich_echo()` to not display rich text if `--verbose` wasn't specified.
+- Fixed a bug that caused `rich_echo()` to not display rich text if `--verbose` wasn't specified.
 
 #### Contributors To This Release
 
@@ -211,10 +231,10 @@ See example code in [concurrent_export.py](https://github.com/RhetTbull/osxphoto
 - [@Promessa](https://github.com/promessa) who found the cleanup bug and suggested a code fix.
 - [@swduncan](https://github.com/swduncan) who suggested the library migrate use case.
 
-
 ## [v0.57.1](https://github.com/RhetTbull/osxphotos/compare/v0.57.0...v0.57.1)
 
 ### 12 February 2023
+
 ### Added show command, bug fix, refactoring
 
 A bug fix and some refactoring to prepare for adding a parallel export mode. Also added `osxphotos show` command.
@@ -236,7 +256,6 @@ A bug fix and some refactoring to prepare for adding a parallel export mode. Als
 
 - [@RhetTbull](https://github.com/RhetTbull)
 - [@aa599](https://github.com/aa599) for reporting the timezone bug and suggesting change to `--uuid-from-file`
-
 
 ## [v0.57.0](https://github.com/RhetTbull/osxphotos/compare/v0.56.7...v0.57.0)
 
@@ -269,7 +288,7 @@ for building simple command line tools.
 
 #### Contributors
 
-- @RhetTbull 
+- @RhetTbull
 
 ## [v0.56.7](https://github.com/RhetTbull/osxphotos/compare/v0.56.6...v0.56.7)
 
@@ -295,7 +314,6 @@ for building simple command line tools.
 - @oPromessa for adding `--not-edited`
 - @pweaver - thanks for finding the bug with `--dry-run` and `--finder-tag-keywords`
 - @eecue for providing testing data
-
 
 ## [v0.56.6](https://github.com/RhetTbull/osxphotos/compare/v0.56.5...v0.56.6)
 
@@ -345,7 +363,6 @@ for building simple command line tools.
 - Thanks to @djbeadle for idea of adding SearchInfo.source
 - Thanks for @oPromessa for testing `import` speed-ups and providing test data
 
-
 ### [v0.56.3](https://github.com/RhetTbull/osxphotos/compare/v0.56.2...v0.56.3)
 
 ### 16 January 2023
@@ -382,7 +399,7 @@ for building simple command line tools.
 
 #### Contributors to this release
 
-- @RhetTbull - Added AI scores to `osxphotos inspect` 
+- @RhetTbull - Added AI scores to `osxphotos inspect`
 - @mave2k - Documentation fixes
 - @oPromessa - Bug fix for metadata in `osxphotos import`
 
@@ -396,7 +413,6 @@ for building simple command line tools.
 
 - Added new `osxphotos sync` command to sync metadata between libraries (#887)
 
-
 ## [v0.56.0](https://github.com/RhetTbull/osxphotos/compare/v0.55.7...v0.56.0)
 
 ### 13 January 2023
@@ -409,6 +425,7 @@ for building simple command line tools.
 - Added PhotoInfo.fingerprint (#900)
 
 #### Changed
+
 - Added --profile, --watch, --breakpoint, --debug as global options; previously these worked only with export
 
 #### New Contributors
@@ -416,6 +433,7 @@ for building simple command line tools.
 - Added @oPromessa as a contributor for code
 - Added @johnsturgeon as a contributor for bug, and doc
 - Added @qkeddy as a contributor for ideas, and data
+
 ## [v0.55.7](https://github.com/RhetTbull/osxphotos/compare/v0.55.6...v0.55.7)
 
 ### 1 January 2023
@@ -434,6 +452,7 @@ for building simple command line tools.
 ### Updates for timewarp and export when reading/writing QuickTime dates
 
 #### Changed
+
 - Added QuickTime:ContentCreateDate as a source for `osxphotos timewarp`
 - Write QuickTime:ContentCreateDate when exporting with --exiftool for `osxphotos export`
 
@@ -2223,7 +2242,7 @@ Thanks to @PetrochukM for identifying this and providing code!
 - doc: start with examples before the export reference [`7c7bf1b`](https://github.com/RhetTbull/osxphotos/commit/7c7bf1be6b6382a995a4e17906adfd8720d0a1c3)
 - Updated dependencies in README.md [`b1cab32`](https://github.com/RhetTbull/osxphotos/commit/b1cab32ff4c7b65ae4c9a5a9a11c175dbd487c0a)
 - remove extra spaces [`a59bb5b`](https://github.com/RhetTbull/osxphotos/commit/a59bb5b02f10fa554dae346a7271be37f50d8bcc)
-- Adding back  dependency https://github.com/RhetTbull/PhotoScript) [`7c8bfc8`](https://github.com/RhetTbull/osxphotos/commit/7c8bfc811ab3a93dabadf1655f7d0e217d6c7b01)
+- Adding back  dependency <https://github.com/RhetTbull/PhotoScript>) [`7c8bfc8`](https://github.com/RhetTbull/osxphotos/commit/7c8bfc811ab3a93dabadf1655f7d0e217d6c7b01)
 
 ## [v0.39.6](https://github.com/RhetTbull/osxphotos/compare/v0.39.5...v0.39.6)
 
