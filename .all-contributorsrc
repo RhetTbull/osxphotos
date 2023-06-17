@@ -570,8 +570,18 @@
         "bug",
         "doc"
       ]
+    },
+    {
+      "login": "MaxLyt",
+      "name": "MaxLyt",
+      "avatar_url": "https://avatars.githubusercontent.com/u/136200430?v=4",
+      "profile": "https://github.com/MaxLyt",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
-  "skipCi": true
+  "skipCi": true,
+  "commitType": "docs"
 }
