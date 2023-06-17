@@ -877,33 +877,10 @@ class PhotoInfo:
 
         photopath = None
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            if self.live_photo and not self.ismissing:
-                live_model_id = self._info["live_model_id"]
-                if live_model_id is None:
-                    logger.debug(f"missing live_model_id: {self._uuid}")
-                    photopath = None
-                else:
-                    folder_id, file_id, nn_id = _get_resource_loc(live_model_id)
-                    library_path = self._db.library_path
-                    photopath = os.path.join(
-                        library_path,
-                        "resources",
-                        "media",
-                        "master",
-                        folder_id,
-                        nn_id,
-                        f"jpegvideocomplement_{file_id}.mov",
-                    )
-                    if not os.path.isfile(photopath):
-                        # In testing, I've seen occasional missing movie for live photo
-                        # These appear to be valid -- e.g. live component hasn't been downloaded from iCloud
-                        # photos 4 has "isOnDisk" column we could check
-                        # or could do the actual check with "isfile"
-                        # TODO: should this be a warning or debug?
-                        photopath = None
-            else:
-                photopath = None
+            return self._path_live_photo_4()
         elif self.live_photo and self.path and not self.ismissing:
+            if self.shared:
+                return self._path_live_photo_shared_5()
             filename = pathlib.Path(self.path)
             photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
             photopath = str(photopath)
@@ -915,6 +892,50 @@ class PhotoInfo:
         else:
             photopath = None
 
+        return photopath
+
+    def _path_live_photo_shared_5(self):
+        """Return path for live photo for shared photos"""
+        if not self.shared:
+            raise ValueError(f"photo {self.uuid} is not a shared photo")
+        if not self.live_photo:
+            raise ValueError(f"photo {self.uuid} is not a live photo")
+
+        photopath = self._path_5_shared()
+        if photopath:
+            photopath = pathlib.Path(photopath).with_suffix(".MOV")
+            if not photopath.exists():
+                photopath = None
+        return photopath
+
+    def _path_live_photo_4(self):
+        """Return path for live edited photo for Photos <= 4"""
+        if self.live_photo and not self.ismissing:
+            live_model_id = self._info["live_model_id"]
+            if live_model_id is None:
+                logger.debug(f"missing live_model_id: {self._uuid}")
+                photopath = None
+            else:
+                folder_id, file_id, nn_id = _get_resource_loc(live_model_id)
+                library_path = self._db.library_path
+                photopath = os.path.join(
+                    library_path,
+                    "resources",
+                    "media",
+                    "master",
+                    folder_id,
+                    nn_id,
+                    f"jpegvideocomplement_{file_id}.mov",
+                )
+                if not os.path.isfile(photopath):
+                    # In testing, I've seen occasional missing movie for live photo
+                    # These appear to be valid -- e.g. live component hasn't been downloaded from iCloud
+                    # photos 4 has "isOnDisk" column we could check
+                    # or could do the actual check with "isfile"
+                    # TODO: should this be a warning or debug?
+                    photopath = None
+        else:
+            photopath = None
         return photopath
 
     @cached_property
