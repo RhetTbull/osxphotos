@@ -1,9 +1,8 @@
 """Utilities for working with datetimes"""
 
 import datetime
-from typing import Optional
-
 import re
+from typing import Optional
 
 
 def utc_offset_string_to_seconds(utc_offset: str) -> int:

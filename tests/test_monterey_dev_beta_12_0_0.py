@@ -14,7 +14,7 @@ import pytest
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.photoexporter import PhotoExporter
-from osxphotos.utils import is_macos, get_macos_version
+from osxphotos.utils import get_macos_version, is_macos
 
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
 # SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "17"
@@ -291,13 +291,11 @@ def test_init5(mocker):
 
 
 def test_db_len(photosdb):
-
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
     assert len(photosdb) == PHOTOS_DB_LEN
 
 
 def test_db_version(photosdb):
-
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
     assert photosdb.db_version == "6000"
 
@@ -307,46 +305,39 @@ def test_photos_version(photosdb):
 
 
 def test_persons(photosdb):
-
     assert "Katie" in photosdb.persons
     assert Counter(PERSONS) == Counter(photosdb.persons)
 
 
 def test_keywords(photosdb):
-
     assert "wedding" in photosdb.keywords
     assert Counter(KEYWORDS) == Counter(photosdb.keywords)
 
 
 def test_album_names(photosdb):
-
     assert "Pumpkin Farm" in photosdb.albums
     assert Counter(ALBUMS) == Counter(photosdb.albums)
 
 
 def test_keywords_dict(photosdb):
-
     keywords = photosdb.keywords_as_dict
     assert keywords["wedding"] == 3
     assert keywords == KEYWORDS_DICT
 
 
 def test_persons_as_dict(photosdb):
-
     persons = photosdb.persons_as_dict
     assert persons["Maria"] == 2
     assert persons == PERSONS_DICT
 
 
 def test_albums_as_dict(photosdb):
-
     albums = photosdb.albums_as_dict
     assert albums["Pumpkin Farm"] == 3
     assert albums == ALBUM_DICT
 
 
 def test_album_sort_order(photosdb):
-
     album = [a for a in photosdb.album_info if a.title == "Pumpkin Farm"][0]
     photos = album.photos
 
@@ -355,14 +346,12 @@ def test_album_sort_order(photosdb):
 
 
 def test_album_empty_album(photosdb):
-
     album = [a for a in photosdb.album_info if a.title == "EmptyAlbum"][0]
     photos = album.photos
     assert photos == []
 
 
 def test_attributes(photosdb):
-
     photos = photosdb.photos(uuid=["D79B8D77-BFFC-460B-9312-034F2877D35B"])
     assert len(photos) == 1
     p = photos[0]
@@ -434,7 +423,6 @@ def test_attributes_2(photosdb):
 
 
 def test_missing(photosdb):
-
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
     assert len(photos) == 1
     p = photos[0]
@@ -443,7 +431,6 @@ def test_missing(photosdb):
 
 
 def test_favorite(photosdb):
-
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     assert len(photos) == 1
     p = photos[0]
@@ -451,7 +438,6 @@ def test_favorite(photosdb):
 
 
 def test_not_favorite(photosdb):
-
     photos = photosdb.photos(uuid=[UUID_DICT["not_favorite"]])
     assert len(photos) == 1
     p = photos[0]
@@ -459,7 +445,6 @@ def test_not_favorite(photosdb):
 
 
 def test_hidden(photosdb):
-
     photos = photosdb.photos(uuid=[UUID_DICT["hidden"]])
     assert len(photos) == 1
     p = photos[0]
@@ -467,7 +452,6 @@ def test_hidden(photosdb):
 
 
 def test_not_hidden(photosdb):
-
     photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
     assert len(photos) == 1
     p = photos[0]
@@ -606,7 +590,6 @@ def test_not_ismovie(photosdb):
 
 
 def test_count(photosdb):
-
     photos = photosdb.photos()
     assert len(photos) == PHOTOS_NOT_IN_TRASH_LEN
 
@@ -685,13 +668,11 @@ def test_photoinfo_not_intrash(photosdb):
 
 
 def test_keyword_2(photosdb):
-
     photos = photosdb.photos(keywords=["wedding"])
     assert len(photos) == 2  # won't show the one in the trash
 
 
 def test_keyword_not_in_album(photosdb):
-
     # find all photos with keyword "Kids" not in the album "Pumpkin Farm"
     photos1 = photosdb.photos(albums=["Pumpkin Farm"])
     photos2 = photosdb.photos(keywords=["Kids"])
@@ -708,20 +689,17 @@ def test_album_folder_name(photosdb):
 
 
 def test_multi_person(photosdb):
-
     photos = photosdb.photos(persons=["Katie", "Suzy"])
 
     assert len(photos) == 3
 
 
 def test_get_db_path(photosdb):
-
     db_path = photosdb.db_path
     assert db_path.endswith(PHOTOS_DB_PATH)
 
 
 def test_get_library_path(photosdb):
-
     lib_path = photosdb.library_path
     assert lib_path.endswith(PHOTOS_LIBRARY_PATH)
 
@@ -1028,14 +1006,12 @@ def test_eq_2():
 
 
 def test_not_eq(photosdb):
-
     photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
     photos2 = photosdb.photos(uuid=[UUID_DICT["missing"]])
     assert photos1[0] != photos2[0]
 
 
 def test_photosdb_repr():
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = eval(repr(photosdb))
 
@@ -1046,7 +1022,6 @@ def test_photosdb_repr():
 
 
 def test_photosinfo_repr(photosdb):
-
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     photo = photos[0]
     photo2 = eval(repr(photo))

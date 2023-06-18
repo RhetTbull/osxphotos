@@ -1,6 +1,6 @@
 """ ScoreInfo class to expose computed score info from the library """
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
 from ._constants import _PHOTOS_4_VERSION
 

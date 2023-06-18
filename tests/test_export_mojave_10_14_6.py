@@ -330,7 +330,6 @@ def test_export_13(photosdb):
 
 
 def test_exiftool_json_sidecar(photosdb):
-
     uuid = UUID_DICT["location"]
     photo = photosdb.get_photo(uuid)
 
@@ -344,7 +343,6 @@ def test_exiftool_json_sidecar(photosdb):
 
 
 def test_xmp_sidecar(photosdb):
-
     uuid = UUID_DICT["xmp"]
     photo = photosdb.get_photo(uuid)
 
@@ -357,7 +355,6 @@ def test_xmp_sidecar(photosdb):
 
 
 def test_xmp_sidecar_keyword_template(photosdb):
-
     uuid = UUID_DICT["xmp"]
     photo = photosdb.get_photo(uuid)
 

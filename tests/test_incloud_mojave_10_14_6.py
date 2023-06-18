@@ -19,6 +19,7 @@ UUID_DICT = {
 def photosdb():
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB_CLOUD)
 
+
 def test_incloud(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["incloud"]])
 

@@ -357,7 +357,6 @@ def test_export_13(photosdb):
 
 
 def test_dd_to_dms_str_1():
-
     lat_str, lon_str = dd_to_dms_str(
         34.559331096, 69.206499174
     )  # Kabul, 34°33'33.59" N 69°12'23.40" E
@@ -367,7 +366,6 @@ def test_dd_to_dms_str_1():
 
 
 def test_dd_to_dms_str_2():
-
     lat_str, lon_str = dd_to_dms_str(
         -34.601997592, -58.375665164
     )  # Buenos Aires, 34°36'7.19" S 58°22'32.39" W
@@ -377,7 +375,6 @@ def test_dd_to_dms_str_2():
 
 
 def test_dd_to_dms_str_3():
-
     lat_str, lon_str = dd_to_dms_str(
         -1.2666656, 36.7999968
     )  # Nairobi, 1°15'60.00" S 36°47'59.99" E
@@ -387,7 +384,6 @@ def test_dd_to_dms_str_3():
 
 
 def test_dd_to_dms_str_4():
-
     lat_str, lon_str = dd_to_dms_str(
         38.889248, -77.050636
     )  # DC: 38° 53' 21.2928" N, 77° 3' 2.2896" W
@@ -397,7 +393,6 @@ def test_dd_to_dms_str_4():
 
 
 def test_exiftool_json_sidecar(photosdb):
-
     uuid = EXIF_JSON_UUID
     photo = photosdb.get_photo(uuid)
 
@@ -411,7 +406,6 @@ def test_exiftool_json_sidecar(photosdb):
 
 
 def test_exiftool_json_sidecar_ignore_date_modified(photosdb):
-
     uuid = EXIF_JSON_UUID
     photo = photosdb.get_photo(uuid)
 
@@ -469,9 +463,7 @@ def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
             assert json_got[k] == v
 
 
-
 def test_exiftool_json_sidecar_keyword_template(photosdb):
-
     uuid = EXIF_JSON_UUID
     photo = photosdb.get_photo(uuid)
 
@@ -488,7 +480,6 @@ def test_exiftool_json_sidecar_keyword_template(photosdb):
 
 
 def test_exiftool_json_sidecar_use_persons_keyword(photosdb):
-
     uuid = UUID_DICT["xmp"]
     photo = photosdb.get_photo(uuid)
 
@@ -506,7 +497,6 @@ def test_exiftool_json_sidecar_use_persons_keyword(photosdb):
 
 
 def test_exiftool_json_sidecar_use_albums_keywords(photosdb):
-
     uuid = UUID_DICT["xmp"]
     photo = photosdb.get_photo(uuid)
 
@@ -550,7 +540,6 @@ def test_xmp_sidecar_is_valid(tmp_path, photosdb):
 
 
 def test_xmp_sidecar(photosdb):
-
     uuid = UUID_DICT["xmp"]
     photos = photosdb.photos(uuid=[uuid])
 
@@ -575,7 +564,6 @@ def test_xmp_sidecar_extension(photosdb):
 
 
 def test_xmp_sidecar_use_persons_keyword(photosdb):
-
     uuid = UUID_DICT["xmp"]
     photo = photosdb.get_photo(uuid)
 
@@ -589,7 +577,6 @@ def test_xmp_sidecar_use_persons_keyword(photosdb):
 
 
 def test_xmp_sidecar_use_albums_keyword(photosdb):
-
     uuid = UUID_DICT["xmp"]
     photo = photosdb.get_photo(uuid)
 
@@ -616,7 +603,6 @@ def test_xmp_sidecar_gps(photosdb):
 
 
 def test_xmp_sidecar_keyword_template(photosdb):
-
     uuid = UUID_DICT["location"]
     photo = photosdb.get_photo(uuid)
 

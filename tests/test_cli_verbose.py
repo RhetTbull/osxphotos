@@ -3,13 +3,12 @@
 import re
 from io import StringIO
 
-
 from osxphotos.cli.verbose import (
+    _reset_verbose_globals,
     get_verbose_level,
     set_verbose_level,
     verbose,
     verbose_print,
-    _reset_verbose_globals,
 )
 
 

@@ -1,7 +1,6 @@
 import pytest
 
 import osxphotos
-
 from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "./tests/Test-10.13.6.photoslibrary/database/photos.db"

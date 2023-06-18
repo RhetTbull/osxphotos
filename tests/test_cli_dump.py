@@ -91,10 +91,11 @@ def test_dump_field(photos):
                 "name",
                 "{photo.original_filename}",
             ],
-                   )
+        )
         assert result.exit_code == 0
         for photo in photos:
             assert f"{photo.uuid},{photo.original_filename}" in result.output
+
 
 def test_dump_field_json(photos):
     """Test osxphotos dump --field --jso"""
@@ -117,7 +118,7 @@ def test_dump_field_json(photos):
                 "{photo.original_filename}",
                 "--json",
             ],
-                   )
+        )
         assert result.exit_code == 0
         json_data = {record["uuid"]: record for record in json.loads(result.output)}
         for photo in photos:

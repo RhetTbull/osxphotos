@@ -4,7 +4,7 @@
 import logging
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
-from ..sqlite_utils import sqlite_open_ro, sqlite_db_is_locked
+from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from .photosdb_utils import get_db_version
 
 

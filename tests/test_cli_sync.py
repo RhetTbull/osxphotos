@@ -1,13 +1,16 @@
 """Test osxphotos sync command"""
 
-import os
 import json
+import os
+
 import pytest
 from click.testing import CliRunner
 
 from osxphotos.utils import is_macos
+
 if is_macos:
     import photoscript
+
     from osxphotos.cli.sync import sync
 else:
     pytest.skip(allow_module_level=True)

@@ -8,7 +8,7 @@ import click
 from osxphotos._constants import UUID_PATTERN
 from osxphotos.export_db_utils import get_uuid_for_filepath
 from osxphotos.photosdb.photosdb_utils import get_photos_library_version
-from osxphotos.utils import get_last_library_path, assert_macos
+from osxphotos.utils import assert_macos, get_last_library_path
 
 assert_macos()
 

@@ -101,7 +101,9 @@ class PhotosAlbum:
             try:
                 photos.append(photoscript.Photo(p.uuid))
             except Exception as e:
-                print(f"Error creating Photo object for photo {self._format_uuid(p.uuid)}: {e}")
+                print(
+                    f"Error creating Photo object for photo {self._format_uuid(p.uuid)}: {e}"
+                )
                 self.verbose(
                     f"Error creating Photo object for photo {self._format_uuid(p.uuid)}: {e}"
                 )

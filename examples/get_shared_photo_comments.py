@@ -10,7 +10,7 @@ from osxphotos._constants import TIME_DELTA
 
 @dataclass
 class Comment:
-    """ Class for shared photo comments """
+    """Class for shared photo comments"""
 
     uuid: str
     sort_fok: int
@@ -22,7 +22,7 @@ class Comment:
 
 @dataclass
 class Like:
-    """ Class for shared photo likes """
+    """Class for shared photo likes"""
 
     uuid: str
     sort_fok: int
@@ -32,10 +32,10 @@ class Like:
 
 
 def get_shared_person_info(photosdb, hashed_person_id):
-    """ returns tuple of (first name, last name, full name) 
-        for person invited to shared album with 
+    """returns tuple of (first name, last name, full name)
+        for person invited to shared album with
         ZINVITEEHASHEDPERSONID = hashed_person_id
-        
+
     Args:
         photosdb: a osxphotos.PhotosDB object
         hashed_person_id: str, value of ZINVITEEHASHEDPERSONID to lookup
@@ -66,12 +66,12 @@ def get_shared_person_info(photosdb, hashed_person_id):
 
 
 def get_comments(photosdb, uuid):
-    """ return comments and likes, if any, for photo with uuid
+    """return comments and likes, if any, for photo with uuid
 
     Args:
         photosdb: a osxphotos.PhotosDB object
         uuid: uuid of the photo
-    
+
     Returns:
         tuple of (list of comments as Comment objects or [] if no comments, list of likes as Like objects or [] if no likes)
     """

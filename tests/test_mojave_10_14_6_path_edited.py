@@ -15,6 +15,7 @@ UUID_DICT = {
 def test_path_edited1():
     # test a valid edited path
     import os.path
+
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -29,6 +30,7 @@ def test_path_edited1():
 def test_path_edited2():
     # test a non-standard (not 00) edited path
     import os.path
+
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)

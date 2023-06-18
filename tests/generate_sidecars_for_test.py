@@ -7,7 +7,7 @@
 import pathlib
 
 import osxphotos
-from osxphotos.photoexporter import PhotoExporter, ExportOptions
+from osxphotos.photoexporter import ExportOptions, PhotoExporter
 
 PHOTOS_DB_15_7 = "./tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_14_6 = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
@@ -92,9 +92,7 @@ def generate_sidecars(dbname, uuid_dict):
 
         # ignore_date_modified
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_ignore_date_modified.json")
-        json_ = exporter.exiftool_json_sidecar(
-            ExportOptions(ignore_date_modified=True)
-        )
+        json_ = exporter.exiftool_json_sidecar(ExportOptions(ignore_date_modified=True))
         with open(sidecar, "w") as file:
             file.write(json_)
 

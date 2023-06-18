@@ -29,7 +29,9 @@ def main():
             exported = photo.export(tempdir.name, use_photos_export=True, timeout=300)
             if photo.hasadjustments:
                 exported.extend(
-                    photo.export(tempdir.name, use_photos_export=True, edited=True, timeout=300)
+                    photo.export(
+                        tempdir.name, use_photos_export=True, edited=True, timeout=300
+                    )
                 )
             for filename in exported:
                 print(f"Removing temporary file {filename}")

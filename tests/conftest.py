@@ -18,7 +18,6 @@ if is_macos:
 
 from osxphotos.exiftool import _ExifToolProc
 
-
 # run timewarp tests (configured with --timewarp)
 TEST_TIMEWARP = False
 

@@ -1,6 +1,5 @@
 import pytest
 
-
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.14.6.photoslibrary"
@@ -17,6 +16,7 @@ ALBUM_DICT = {
 PHOTOS_DB_LEN = 13
 PHOTOS_NOT_IN_TRASH_LEN = 12
 PHOTOS_IN_TRASH_LEN = 1
+
 
 def test_album_names():
     import osxphotos

@@ -32,7 +32,7 @@ import osxphotos
     default=None,
 )
 def export(export_path, library_path, uuid):
-    """ export photos to export_path and draw faces """
+    """export photos to export_path and draw faces"""
     library_path = os.path.expanduser(library_path) if library_path else None
     if library_path is not None:
         photosdb = osxphotos.PhotosDB(library_path)
@@ -61,7 +61,7 @@ def export(export_path, library_path, uuid):
 
 
 def get_circle_points(xy, radius):
-    """ Returns tuples of (x0, y0), (x1, y1) for a circle centered at x, y with radius
+    """Returns tuples of (x0, y0), (x1, y1) for a circle centered at x, y with radius
 
     Arguments:
         xy: tuple of x, y coordinates

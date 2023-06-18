@@ -5,7 +5,6 @@ from osxphotos.path_utils import sanitize_filename
 
 
 def test_sanitize_filename():
-
     # basic sanitize
     filenames = {
         "Foobar.txt": "Foobar.txt",
