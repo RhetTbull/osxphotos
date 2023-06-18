@@ -101,10 +101,13 @@ class PhotosAlbum:
             try:
                 photos.append(photoscript.Photo(p.uuid))
             except Exception as e:
+                print(f"Error creating Photo object for photo {self._format_uuid(p.uuid)}: {e}")
                 self.verbose(
                     f"Error creating Photo object for photo {self._format_uuid(p.uuid)}: {e}"
                 )
+        print(f"photos: {photos}")
         for photolist in chunked(photos, 10):
+            print(f"photolist: {photolist}")
             self.album.add(photolist)
         photo_len = len(photo_list)
         self.verbose(

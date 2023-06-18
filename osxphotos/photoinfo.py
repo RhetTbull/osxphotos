@@ -65,10 +65,11 @@ from .query_builder import get_query
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _get_resource_loc, assert_macos, is_macos, hexdigest, list_directory
+from .utils import _get_resource_loc, assert_macos, hexdigest, is_macos, list_directory
 
 if is_macos:
     from osxmetadata import OSXMetaData
+
     from .text_detection import detect_text
 
 __all__ = ["PhotoInfo", "PhotoInfoNone", "frozen_photoinfo_factory"]
@@ -134,8 +135,7 @@ class PhotoInfo:
         if not self.hasadjustments and self._db._db_version <= _PHOTOS_4_VERSION:
             return None
 
-        imagedate = self._info["lastmodifieddate"]
-        if imagedate:
+        if imagedate := self._info["lastmodifieddate"]:
             seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
             delta = timedelta(seconds=seconds)
             tz = timezone(delta)
@@ -172,6 +172,9 @@ class PhotoInfo:
         """Returns candidate path for original photo on Photos >= version 5"""
         if self._info["shared"]:
             return self._path_5_shared()
+        if self.syndicated and not self.saved_to_library:
+            # path for "shared with you" syndicated photos that have not yet been saved to the library
+            return self._path_syndication()
         return (
             os.path.join(self._info["directory"], self._info["filename"])
             if self._info["directory"].startswith("/")
@@ -210,6 +213,21 @@ class PhotoInfo:
             self._info["directory"],
             filename,
         )
+
+    def _path_syndication(self):
+        """Return path for syndicated photo on Photos >= version 8"""
+        # Photos 8+ stores syndicated photos in a separate directory
+        # in ~/Photos Library.photoslibrary/scopes/syndication/originals/X/UUID.ext
+        # where X is first digit of UUID
+        syndication_path = "scopes/syndication/originals"
+        uuid_dir = self.uuid[0]
+        path = os.path.join(
+            self._db._library_path,
+            syndication_path,
+            uuid_dir,
+            self.filename,
+        )
+        return path if os.path.isfile(path) else None
 
     def _path_4(self):
         """Returns candidate path for original photo on Photos <= version 4"""
@@ -881,6 +899,10 @@ class PhotoInfo:
         elif self.live_photo and self.path and not self.ismissing:
             if self.shared:
                 return self._path_live_photo_shared_5()
+            if self.syndicated and not self.saved_to_library:
+                # syndicated ("Shared with you") photos not yet saved to library
+                return self._path_live_syndicated()
+
             filename = pathlib.Path(self.path)
             photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
             photopath = str(photopath)
@@ -938,8 +960,24 @@ class PhotoInfo:
             photopath = None
         return photopath
 
+    def _path_live_syndicated(self):
+        """Return path for live syndicated photo on Photos >= version 8"""
+        # Photos 8+ stores live syndicated photos in a separate directory
+        # in ~/Photos Library.photoslibrary/scopes/syndication/originals/X/UUID_3.mov
+        # where X is first digit of UUID
+        syndication_path = "scopes/syndication/originals"
+        uuid_dir = self.uuid[0]
+        filename = f"{pathlib.Path(self.filename).stem}_3.mov"
+        live_photo = os.path.join(
+            self._db._library_path,
+            syndication_path,
+            uuid_dir,
+            filename,
+        )
+        return live_photo if os.path.isfile(live_photo) else None
+
     @cached_property
-    def path_derivatives(self):
+    def path_derivatives(self) -> list[str]:
         """Return any derivative (preview) images associated with the photo as a list of paths, sorted by file size (largest first)"""
         if self._db._db_version <= _PHOTOS_4_VERSION:
             return self._path_derivatives_4()
@@ -948,24 +986,36 @@ class PhotoInfo:
             return self._path_derivatives_5_shared()
 
         directory = self._uuid[0]  # first char of uuid
-        derivative_path = (
-            pathlib.Path(self._db._library_path) / f"resources/derivatives/{directory}"
-        )
+        if self.syndicated and not self.saved_to_library:
+            # syndicated ("Shared with you") photos not yet saved to library
+            derivative_path = "scopes/syndication/resources/derivatives"
+            thumb_path = (
+                f"{derivative_path}/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
+            )
+        else:
+            derivative_path = f"resources/derivatives/{directory}"
+            thumb_path = (
+                f"resources/derivatives/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
+            )
+
+        derivative_path = pathlib.Path(self._db._library_path).joinpath(derivative_path)
+        thumb_path = pathlib.Path(self._db._library_path).joinpath(thumb_path)
+
+        # find all files that start with uuid in derivative path
         files = list(derivative_path.glob(f"{self.uuid}*.*"))
 
         # previews may be missing from derivatives path
         # there are what appear to be low res thumbnails in the "masters" subfolder
-        thumb_path = (
-            pathlib.Path(self._db._library_path)
-            / f"resources/derivatives/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
-        )
         if thumb_path.exists():
             files.append(thumb_path)
 
+        # sort by file size, largest first
         files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
+
         # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
         derivatives = [str(filename) for filename in files if filename.suffix != ".THM"]
         if self.isphoto and len(derivatives) > 1 and derivatives[0].endswith(".mov"):
+            # ensure .mov is first in list as poster image could be larger than the movie preview
             derivatives[1], derivatives[0] = derivatives[0], derivatives[1]
 
         return derivatives
@@ -1283,6 +1333,38 @@ class PhotoInfo:
         except AttributeError:
             self._search_info_normalized = SearchInfo(self, normalized=True)
             return self._search_info_normalized
+
+    @cached_property
+    def syndicated(self) -> bool | None:
+        """Return true if photo was shared via syndication (e.g. via Messages, etc.);
+        these are photos that appear in "Shared with you" album.
+        Photos 8+ only; returns None if not Photos 8+.
+        """
+        if self._db.photos_version < 8:
+            return None
+
+        try:
+            return (
+                self._db._db_syndication_uuid[self.uuid]["syndication_identifier"]
+                is not None
+            )
+        except KeyError:
+            return False
+
+    @cached_property
+    def saved_to_library(self) -> bool | None:
+        """Return True if syndicated photo has been saved to library;
+        returns False if photo is not syndicated or has not been saved to the library.
+        Returns None if not Photos 8+.
+        Syndicated photos are photos that appear in "Shared with you" album; Photos 8+ only.
+        """
+        if self._db.photos_version < 8:
+            return None
+
+        try:
+            return self._db._db_syndication_uuid[self.uuid]["syndication_history"] != 0
+        except KeyError:
+            return False
 
     @property
     def labels(self):

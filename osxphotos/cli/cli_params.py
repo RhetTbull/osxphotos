@@ -590,6 +590,26 @@ _QUERY_PARAMETERS_DICT = {
         is_flag=True,
         help="Search for photos that are not in iCloud (have not been synched)",
     ),
+    "--syndicated": click.Option(
+        ["--syndicated"],
+        is_flag=True,
+        help="Search for photos that have been shared via syndication ('Shared with You' album via Messages, etc.)",
+    ),
+    "--not-syndicated": click.Option(
+        ["--not-syndicated"],
+        is_flag=True,
+        help="Search for photos that have not been shared via syndication ('Shared with You' album via Messages, etc.)",
+    ),
+    "--saved-to-library": click.Option(
+        ["--saved-to-library"],
+        is_flag=True,
+        help="Search for syndicated photos that have saved to the library",
+    ),
+    "--not-saved-to-library": click.Option(
+        ["--not-saved-to-library"],
+        is_flag=True,
+        help="Search for syndicated photos that have not saved to the library",
+    ),
     "--regex": click.Option(
         ["--regex"],
         metavar="REGEX TEMPLATE",

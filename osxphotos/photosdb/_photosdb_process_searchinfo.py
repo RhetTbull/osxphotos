@@ -7,7 +7,6 @@ import logging
 import pathlib
 import uuid as uuidlib
 from functools import lru_cache
-from pprint import pformat
 
 from .._constants import _PHOTOS_4_VERSION, search_category_factory
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
@@ -154,7 +153,7 @@ def _process_searchinfo(self):
 def labels(self):
     """return list of all search info labels found in the library"""
     if self._db_version <= _PHOTOS_4_VERSION:
-        logging.warning(f"SearchInfo not implemented for this library version")
+        logging.warning("SearchInfo not implemented for this library version")
         return []
 
     return list(self._db_searchinfo_labels.keys())
@@ -164,7 +163,7 @@ def labels(self):
 def labels_normalized(self):
     """return list of all normalized search info labels found in the library"""
     if self._db_version <= _PHOTOS_4_VERSION:
-        logging.warning(f"SearchInfo not implemented for this library version")
+        logging.warning("SearchInfo not implemented for this library version")
         return []
 
     return list(self._db_searchinfo_labels_normalized.keys())
@@ -174,8 +173,8 @@ def labels_normalized(self):
 def labels_as_dict(self):
     """return labels as dict of label: count in reverse sorted order (descending)"""
     if self._db_version <= _PHOTOS_4_VERSION:
-        logging.warning(f"SearchInfo not implemented for this library version")
-        return dict()
+        logging.warning("SearchInfo not implemented for this library version")
+        return {}
 
     labels = {k: len(v) for k, v in self._db_searchinfo_labels.items()}
     labels = dict(sorted(labels.items(), key=lambda kv: kv[1], reverse=True))
@@ -186,8 +185,8 @@ def labels_as_dict(self):
 def labels_normalized_as_dict(self):
     """return normalized labels as dict of label: count in reverse sorted order (descending)"""
     if self._db_version <= _PHOTOS_4_VERSION:
-        logging.warning(f"SearchInfo not implemented for this library version")
-        return dict()
+        logging.warning("SearchInfo not implemented for this library version")
+        return {}
     labels = {k: len(v) for k, v in self._db_searchinfo_labels_normalized.items()}
     labels = dict(sorted(labels.items(), key=lambda kv: kv[1], reverse=True))
     return labels

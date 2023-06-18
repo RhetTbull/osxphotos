@@ -96,6 +96,7 @@ class PhotosDB:
         labels_normalized,
         labels_normalized_as_dict,
     )
+    from ._photosdb_process_syndicationinfo import _process_syndicationinfo
 
     def __init__(
         self,
@@ -289,6 +290,10 @@ class PhotosDB:
 
         # Dict to hold data on imports for Photos <= 4
         self._db_import_group = {}
+
+        # Dict to hold syndication info for Photos >= 8
+        # key is UUID and value is dict of syndication info
+        self._db_syndication_uuid = {}
 
         logger.debug(f"dbfile = {dbfile}")
 
@@ -2517,6 +2522,10 @@ class PhotosDB:
         verbose("Processing moments.")
         self._process_moments()
 
+        if self.photos_version >= 8:
+            verbose("Processing syndication info.")
+            self._process_syndicationinfo()
+
         verbose("Done processing details from Photos library.")
 
     def _process_moments(self):
@@ -3515,6 +3524,16 @@ class PhotosDB:
             added_after = datetime.now() - options.added_in_last
             added_after = datetime_naive_to_local(added_after)
             photos = [p for p in photos if p.date_added and p.date_added > added_after]
+
+        if options.syndicated:
+            photos = [p for p in photos if p.syndicated]
+        elif options.not_syndicated:
+            photos = [p for p in photos if not p.syndicated]
+
+        if options.saved_to_library:
+            photos = [p for p in photos if p.syndicated and p.saved_to_library]
+        elif options.not_saved_to_library:
+            photos = [p for p in photos if p.syndicated and not p.saved_to_library]
 
         if options.function:
             for function in options.function:

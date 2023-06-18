@@ -108,6 +108,10 @@ class QueryOptions:
         uti: list of UTIs to search for
         uuid: list of uuids to search for
         year: search for photos taken in a given year
+        syndicated: search for photos that have been shared via syndication ("Shared with You" album via Messages, etc.)
+        not_syndicated: search for photos that have not been shared via syndication ("Shared with You" album via Messages, etc.)
+        saved_to_library: search for syndicated photos that have been saved to the Photos library
+        not_saved_to_library: search for syndicated photos that have not been saved to the Photos library
     """
 
     added_after: Optional[datetime.datetime] = None
@@ -192,6 +196,10 @@ class QueryOptions:
     uti: Optional[Iterable[str]] = None
     uuid: Optional[Iterable[str]] = None
     year: Optional[Iterable[int]] = None
+    syndicated: Optional[bool] = None
+    not_syndicated: Optional[bool] = None
+    saved_to_library: Optional[bool] = None
+    not_saved_to_library: Optional[bool] = None
 
     def asdict(self):
         return asdict(self)
@@ -261,6 +269,8 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         ("deleted", "not_deleted"),
         ("deleted", "deleted_only"),
         ("deleted_only", "not_deleted"),
+        ("syndicated", "not_syndicated"),
+        ("saved_to_library", "not_saved_to_library"),
     ]
     # TODO: add option to validate requiring at least one query arg
     for arg, not_arg in exclusive:

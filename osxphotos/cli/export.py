@@ -886,6 +886,10 @@ def export(
     verbose_flag,
     xattr_template,
     year,
+    syndicated,
+    not_syndicated,
+    saved_to_library,
+    not_saved_to_library,
     selected=False,  # Isn't provided on unsupported platforms
     # debug,  # debug, watch, breakpoint handled in cli/__init__.py
     # watch,
@@ -1107,6 +1111,11 @@ def export(
         verbose_flag = cfg.verbose
         xattr_template = cfg.xattr_template
         year = cfg.year
+        syndicated = cfg.syndicated
+        not_syndicated = cfg.not_syndicated
+        saved_to_library = cfg.saved_to_library
+        not_saved_to_library = cfg.not_saved_to_library
+
         # config file might have changed verbose
         verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
         verbose(f"Loaded options from file [filepath]{load_config}")
@@ -1155,6 +1164,8 @@ def export(
         ("slow_mo", "not_slow_mo"),
         ("time_lapse", "not_time_lapse"),
         ("title", "no_title"),
+        ("syndicated", "not_syndicated"),
+        ("saved_to_library", "not_saved_to_library"),
     ]
     dependent_options = [
         ("append", ("report")),
