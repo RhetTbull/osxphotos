@@ -869,6 +869,16 @@ Options:
                                   been synched)
   --not-incloud                   Search for photos that are not in iCloud (have
                                   not been synched)
+  --syndicated                    Search for photos that have been shared via
+                                  syndication ('Shared with You' album via
+                                  Messages, etc.)
+  --not-syndicated                Search for photos that have not been shared
+                                  via syndication ('Shared with You' album via
+                                  Messages, etc.)
+  --saved-to-library              Search for syndicated photos that have saved
+                                  to the library
+  --not-saved-to-library          Search for syndicated photos that have not
+                                  saved to the library
   --regex REGEX TEMPLATE          Search for photos where TEMPLATE matches
                                   regular expression REGEX. For example, to find
                                   photos in an album that begins with 'Beach': '
@@ -2099,7 +2109,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.60.2'
+{osxphotos_version}             The osxphotos version, e.g. '0.60.3'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2586,7 +2596,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.60.2'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.60.3'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
