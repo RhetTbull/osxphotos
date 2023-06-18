@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.4](https://github.com/RhetTbull/osxphotos/compare/v0.60.3...v0.60.4)
+
+Updated testing / compatibility matrix to include macOS 13.4.
+
+## [v0.60.4] - 2023-06-18
+
+### Fixed
+
+### Added
+
+### Removed
+
+### Changed
+
+### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull/osxphotos) - code & testing
+
 ## [v0.60.3](https://github.com/RhetTbull/osxphotos/compare/v0.60.2...v0.60.3)
 
 Ventura introduced a "shared with you" album which shows photos shared via Messages (and possible other apps). These show up in the Photos library in the
