@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.3](https://github.com/RhetTbull/osxphotos/compare/v0.60.2...v0.60.3)
+
+Ventura introduced a "shared with you" album which shows photos shared via Messages (and possible other apps). These show up in the Photos library in the
+"Shared with you" album but the images are stored in a different location that regular images so osxphotos could not previously access the images.
+It can now do so.
+
+### [v0.60.3] 2023-06-18
+
+#### Fixed
+
+#### Added
+
+- `PhotoInfo.syndicated` property to identify syndicated photos.
+- `PhotoInfo.saved_to_library` property to identify syndicated photos that have been saved to the library.
+- `--syndicated`/`--not-syndicated`, `--saved-to-library`/`--not-saved-to-library` query options.
+- `find()` function in `osxphotos repl` to search for files in the active Photos library directory.
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code.
+
 ## [v0.60.2](https://github.com/RhetTbull/osxphotos/compare/v0.60.1...v0.60.2)
 
 Performance Improvements for --download-missing
