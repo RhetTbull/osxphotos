@@ -74,6 +74,14 @@ Once you've installed osxphotos with pipx, to upgrade to the latest version:
 
     pipx upgrade osxphotos
 
+**Note**: When installing other packages with homebrew, homebrew may update the version of Python installed which would then cause any app (including osxphotos) installed with `pipx` to fail. If this happens, the easiest fix is to reinstall osxphotos with:
+
+    pipx reinstall osxphotos
+
+Alternatively, you can reinstall all apps installed with `pipx` with:
+
+    pipx reinstall-all
+
 ### Installation using pip
 
 You can also install directly from [pypi](https://pypi.org/project/osxphotos/):
