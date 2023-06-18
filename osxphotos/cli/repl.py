@@ -253,7 +253,6 @@ def _find_in_library(photosdb: PhotosDB, search_str: str) -> list[str]:
     search_str = shlex.quote(search_str)
     library_path = shlex.quote(library_path)
     cmd = f"find {library_path} | grep {search_str}"
-    print(cmd)
     output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
 
     # Split the output into lines and return as a list
