@@ -5,8 +5,11 @@ import os
 import os.path
 import pathlib
 import re
+import shlex
+import subprocess
 import sys
 import time
+from functools import partial
 from typing import List
 
 import click
@@ -100,6 +103,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     get_photo = photosdb.get_photo
     show = _show_photo
     spotlight = _spotlight_photo
+    find = partial(_find_in_library, photosdb)
     get_selected = _get_selected(photosdb)
     try:
         selected = get_selected()
@@ -129,28 +133,31 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     )
     print(f"\nThe following functions may be helpful:")
     print(
-        f"- get_photo(uuid): return a PhotoInfo object for photo with uuid; e.g. get_photo('B13F4485-94E0-41CD-AF71-913095D62E31')"
+        "- get_photo(uuid): return a PhotoInfo object for photo with uuid; e.g. get_photo('B13F4485-94E0-41CD-AF71-913095D62E31')"
     )
     print(
-        f"- get_selected(); return list of PhotoInfo objects for photos selected in Photos"
+        "- get_selected(); return list of PhotoInfo objects for photos selected in Photos"
     )
     print(
-        f"- show(photo): open a photo object in the default viewer; e.g. show(selected[0])"
+        "- show(photo): open a photo object in the default viewer; e.g. show(selected[0])"
     )
     print(
-        f"- show(path): open a file at path in the default viewer; e.g. show('/path/to/photo.jpg')"
+        "- show(path): open a file at path in the default viewer; e.g. show('/path/to/photo.jpg')"
     )
-    print(f"- spotlight(photo): open a photo and spotlight it in Photos")
+    print("- spotlight(photo): open a photo and spotlight it in Photos")
     # print(
     #     f"- help(object): print help text including list of methods for object; for example, help(PhotosDB)"
     # )
     print(
-        f"- inspect(object): print information about an object; e.g. inspect(PhotoInfo)"
+        "- inspect(object): print information about an object; e.g. inspect(PhotoInfo)"
     )
     print(
-        f"- explore(object): interactively explore an object with objexplore; e.g. explore(PhotoInfo)"
+        "- explore(object): interactively explore an object with objexplore; e.g. explore(PhotoInfo)"
     )
-    print(f"- q, quit, quit(), exit, exit(): exit this interactive shell\n")
+    print(
+        "- find(text): search for files matching text in Photos library; e.g. find('B13F4485')"
+    )
+    print("- q, quit, quit(), exit, exit(): exit this interactive shell\n")
 
     embed_repl(
         globals=globals(),
@@ -233,3 +240,20 @@ def _query_photos(photosdb: PhotosDB, query_options: QueryOptions) -> List:
         ) from e
 
     return photos
+
+
+def _find_in_library(photosdb: PhotosDB, search_str: str) -> list[str]:
+    """Find files in Photos library matching search_str using find command"""
+    # this is a quick and dirty way to find files in the Photos library
+    # e.g. those matching a UUID or a filename
+    library_path = photosdb.library_path
+    if not library_path:
+        raise ValueError("Could not find Photos library")
+
+    search_str = shlex.quote(search_str)
+    library_path = shlex.quote(library_path)
+    cmd = f"find {library_path} | grep {search_str}"
+    output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
+
+    # Split the output into lines and return as a list
+    return output.strip().split("\n")
