@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoinfo - osxphotos 0.60.2 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.60.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.60.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.60.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.60.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -262,10 +262,11 @@
 <span class="kn">from</span> <span class="nn">.scoreinfo</span> <span class="kn">import</span> <span class="n">ScoreInfo</span>
 <span class="kn">from</span> <span class="nn">.searchinfo</span> <span class="kn">import</span> <span class="n">SearchInfo</span>
 <span class="kn">from</span> <span class="nn">.uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span><span class="p">,</span> <span class="n">get_uti_for_extension</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_resource_loc</span><span class="p">,</span> <span class="n">assert_macos</span><span class="p">,</span> <span class="n">is_macos</span><span class="p">,</span> <span class="n">hexdigest</span><span class="p">,</span> <span class="n">list_directory</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_get_resource_loc</span><span class="p">,</span> <span class="n">assert_macos</span><span class="p">,</span> <span class="n">hexdigest</span><span class="p">,</span> <span class="n">is_macos</span><span class="p">,</span> <span class="n">list_directory</span>
 
 <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">osxmetadata</span> <span class="kn">import</span> <span class="n">OSXMetaData</span>
+
     <span class="kn">from</span> <span class="nn">.text_detection</span> <span class="kn">import</span> <span class="n">detect_text</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;PhotoInfoNone&quot;</span><span class="p">,</span> <span class="s2">&quot;frozen_photoinfo_factory&quot;</span><span class="p">]</span>
@@ -331,8 +332,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="n">imagedate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;lastmodifieddate&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">imagedate</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">imagedate</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;lastmodifieddate&quot;</span><span class="p">]:</span>
             <span class="n">seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imageTimeZoneOffsetSeconds&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
             <span class="n">delta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
             <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
@@ -369,6 +369,9 @@
         <span class="sd">&quot;&quot;&quot;Returns candidate path for original photo on Photos &gt;= version 5&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;shared&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_5_shared</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">syndicated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_to_library</span><span class="p">:</span>
+            <span class="c1"># path for &quot;shared with you&quot; syndicated photos that have not yet been saved to the library</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_syndication</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
@@ -407,6 +410,21 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">],</span>
             <span class="n">filename</span><span class="p">,</span>
         <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_path_syndication</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return path for syndicated photo on Photos &gt;= version 8&quot;&quot;&quot;</span>
+        <span class="c1"># Photos 8+ stores syndicated photos in a separate directory</span>
+        <span class="c1"># in ~/Photos Library.photoslibrary/scopes/syndication/originals/X/UUID.ext</span>
+        <span class="c1"># where X is first digit of UUID</span>
+        <span class="n">syndication_path</span> <span class="o">=</span> <span class="s2">&quot;scopes/syndication/originals&quot;</span>
+        <span class="n">uuid_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">,</span>
+            <span class="n">syndication_path</span><span class="p">,</span>
+            <span class="n">uuid_dir</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_path_4</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns candidate path for original photo on Photos &lt;= version 4&quot;&quot;&quot;</span>
@@ -1078,6 +1096,10 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismissing</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_photo_shared_5</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">syndicated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_to_library</span><span class="p">:</span>
+                <span class="c1"># syndicated (&quot;Shared with you&quot;) photos not yet saved to library</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_syndicated</span><span class="p">()</span>
+
             <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
             <span class="n">photopath</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_3.mov&quot;</span><span class="p">)</span>
             <span class="n">photopath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span>
@@ -1135,8 +1157,24 @@
             <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">photopath</span>
 
+    <span class="k">def</span> <span class="nf">_path_live_syndicated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return path for live syndicated photo on Photos &gt;= version 8&quot;&quot;&quot;</span>
+        <span class="c1"># Photos 8+ stores live syndicated photos in a separate directory</span>
+        <span class="c1"># in ~/Photos Library.photoslibrary/scopes/syndication/originals/X/UUID_3.mov</span>
+        <span class="c1"># where X is first digit of UUID</span>
+        <span class="n">syndication_path</span> <span class="o">=</span> <span class="s2">&quot;scopes/syndication/originals&quot;</span>
+        <span class="n">uuid_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_3.mov&quot;</span>
+        <span class="n">live_photo</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">,</span>
+            <span class="n">syndication_path</span><span class="p">,</span>
+            <span class="n">uuid_dir</span><span class="p">,</span>
+            <span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">live_photo</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">live_photo</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">path_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">path_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Return any derivative (preview) images associated with the photo as a list of paths, sorted by file size (largest first)&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_derivatives_4</span><span class="p">()</span>
@@ -1145,24 +1183,36 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_derivatives_5_shared</span><span class="p">()</span>
 
         <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># first char of uuid</span>
-        <span class="n">derivative_path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;resources/derivatives/</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">syndicated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_to_library</span><span class="p">:</span>
+            <span class="c1"># syndicated (&quot;Shared with you&quot;) photos not yet saved to library</span>
+            <span class="n">derivative_path</span> <span class="o">=</span> <span class="s2">&quot;scopes/syndication/resources/derivatives&quot;</span>
+            <span class="n">thumb_path</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">derivative_path</span><span class="si">}</span><span class="s2">/masters/</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">_4_5005_c.jpeg&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">derivative_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;resources/derivatives/</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">thumb_path</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;resources/derivatives/masters/</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">_4_5005_c.jpeg&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">derivative_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">derivative_path</span><span class="p">)</span>
+        <span class="n">thumb_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">thumb_path</span><span class="p">)</span>
+
+        <span class="c1"># find all files that start with uuid in derivative path</span>
         <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">derivative_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">*.*&quot;</span><span class="p">))</span>
 
         <span class="c1"># previews may be missing from derivatives path</span>
         <span class="c1"># there are what appear to be low res thumbnails in the &quot;masters&quot; subfolder</span>
-        <span class="n">thumb_path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">)</span>
-            <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;resources/derivatives/masters/</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">_4_5005_c.jpeg&quot;</span>
-        <span class="p">)</span>
         <span class="k">if</span> <span class="n">thumb_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thumb_path</span><span class="p">)</span>
 
+        <span class="c1"># sort by file size, largest first</span>
         <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
+
         <span class="c1"># return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)</span>
         <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">&quot;.THM&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">derivatives</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.mov&quot;</span><span class="p">):</span>
+            <span class="c1"># ensure .mov is first in list as poster image could be larger than the movie preview</span>
             <span class="n">derivatives</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">derivatives</span>
@@ -1480,6 +1530,38 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_search_info_normalized</span> <span class="o">=</span> <span class="n">SearchInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_info_normalized</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">syndicated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return true if photo was shared via syndication (e.g. via Messages, etc.);</span>
+<span class="sd">        these are photos that appear in &quot;Shared with you&quot; album.</span>
+<span class="sd">        Photos 8+ only; returns None if not Photos 8+.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_syndication_uuid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;syndication_identifier&quot;</span><span class="p">]</span>
+                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">saved_to_library</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return True if syndicated photo has been saved to library;</span>
+<span class="sd">        returns False if photo is not syndicated or has not been saved to the library.</span>
+<span class="sd">        Returns None if not Photos 8+.</span>
+<span class="sd">        Syndicated photos are photos that appear in &quot;Shared with you&quot; album; Photos 8+ only.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_syndication_uuid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;syndication_history&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
