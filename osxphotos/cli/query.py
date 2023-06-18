@@ -1,6 +1,7 @@
 """query command for osxphotos CLI"""
 
 import sys
+
 import click
 
 import osxphotos

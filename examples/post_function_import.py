@@ -1,8 +1,10 @@
 """ Example function for use with osxphotos import --post-function option """
 
-import typing as t
-import photoscript
 import pathlib
+import typing as t
+
+import photoscript
+
 from osxphotos.cli.import_cli import ReportRecord
 
 

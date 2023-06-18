@@ -1,7 +1,6 @@
 import pytest
 
 import osxphotos
-
 from osxphotos._constants import _UNKNOWN_PERSON, AlbumSortOrder
 
 PHOTOS_DB = "./tests/Test-10.15.7.photoslibrary/database/photos.db"

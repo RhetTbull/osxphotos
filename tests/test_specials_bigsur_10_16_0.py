@@ -30,6 +30,7 @@ def test_portrait1():
     photos = photosdb.photos(uuid=[UUID_DICT["no_specials"]])
     assert not photos[0].portrait
 
+
 def test_portrait2():
     import osxphotos
 

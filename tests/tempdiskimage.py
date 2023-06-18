@@ -8,11 +8,11 @@ import time
 
 
 class TempDiskImage:
-    """ Create and mount a temporary disk image """
+    """Create and mount a temporary disk image"""
 
     def __init__(self, size=100, prefix=None):
-        """ Create and mount a temporary disk image.
-        
+        """Create and mount a temporary disk image.
+
         Args:
             size: int; size in MB of disk image, default = 100
             prefix: str; optional prefix to prepend to name of the temporary disk image
@@ -59,7 +59,7 @@ class TempDiskImage:
         self._mount_point, self.name = self._mount_image(self.path)
 
     def _mount_image(self, image_path):
-        """ mount a DMG file and return path, returns (mount_point, path) """
+        """mount a DMG file and return path, returns (mount_point, path)"""
         hdiutil = subprocess.run(
             ["/usr/bin/hdiutil", "attach", image_path],
             check=True,

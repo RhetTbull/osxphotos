@@ -13,8 +13,8 @@ from wurlitzer import pipes
 from .utils import is_macos
 
 if is_macos:
-    import objc
     import Metal
+    import objc
     import Quartz
     from Cocoa import NSURL
     from Foundation import NSDictionary

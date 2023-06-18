@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 
-from .utils import assert_macos, is_macos, get_macos_version
+from .utils import assert_macos, get_macos_version, is_macos
 
 if is_macos:
     import CoreServices

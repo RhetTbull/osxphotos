@@ -1,4 +1,5 @@
 from datetime import date, timezone
+
 import pytest
 
 from osxphotos.datetime_utils import *

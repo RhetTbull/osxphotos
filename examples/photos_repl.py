@@ -15,14 +15,14 @@ import time
 import click
 
 import osxphotos
-from osxphotos.cli import get_photos_db, _list_libraries
+from osxphotos.cli import _list_libraries, get_photos_db
 
 
 def show(photo):
-    """ open image with default image viewer
-    
-    Note: This is for debugging only -- it will actually open any filetype which could 
-    be very, very bad.  
+    """open image with default image viewer
+
+    Note: This is for debugging only -- it will actually open any filetype which could
+    be very, very bad.
 
     Args:
         photo: PhotoInfo object or a path to a photo on disk

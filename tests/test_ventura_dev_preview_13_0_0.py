@@ -608,7 +608,6 @@ def test_keyword_2(photosdb):
 
 
 def test_keyword_not_in_album(photosdb):
-
     # find all photos with keyword "Kids" not in the album "Pumpkin Farm"
     photos1 = photosdb.photos(albums=["Pumpkin Farm"])
     photos2 = photosdb.photos(keywords=["Kids"])

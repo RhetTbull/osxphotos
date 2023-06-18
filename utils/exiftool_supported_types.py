@@ -6,7 +6,6 @@ import sys
 import requests
 from bs4 import BeautifulSoup
 
-
 if __name__ == "__main__":
     url = "https://www.exiftool.org/"
     json_file = "exiftool_filetypes.json"

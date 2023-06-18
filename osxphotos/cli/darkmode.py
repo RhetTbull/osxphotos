@@ -2,10 +2,9 @@
 
 from osxphotos.utils import is_macos
 
-
 if is_macos:
-    import objc
     import Foundation
+    import objc
 
     def theme():
         with objc.autorelease_pool():

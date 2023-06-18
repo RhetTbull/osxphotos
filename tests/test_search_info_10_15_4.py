@@ -4,7 +4,6 @@ import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
 
-
 PHOTOS_DB = "./tests/Test-10.15.4.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.4.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.4.photoslibrary"

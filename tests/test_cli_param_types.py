@@ -1,12 +1,9 @@
 """ Test custom click paramater types used by osxphotos CLI"""
 
 import datetime
-from bitmath import MB
 
 import pytest
-
-from osxphotos.timezones import Timezone
-
+from bitmath import MB
 from click.exceptions import BadParameter
 
 from osxphotos.cli.param_types import (
@@ -21,6 +18,7 @@ from osxphotos.cli.param_types import (
     TimeString,
     UTCOffset,
 )
+from osxphotos.timezones import Timezone
 
 
 def test_date_offset():

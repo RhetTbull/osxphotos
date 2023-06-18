@@ -5,9 +5,10 @@ from .locale_util import setlocale
 
 
 def test_datetime_formatter_1():
-    """Test DateTimeFormatter """
+    """Test DateTimeFormatter"""
     import datetime
     import locale
+
     from osxphotos.datetime_formatter import DateTimeFormatter
 
     setlocale(locale.LC_ALL, "en_US")
@@ -29,9 +30,10 @@ def test_datetime_formatter_1():
 
 
 def test_datetime_formatter_2():
-    """Test DateTimeFormatter with hour > 12 """
+    """Test DateTimeFormatter with hour > 12"""
     import datetime
     import locale
+
     from osxphotos.datetime_formatter import DateTimeFormatter
 
     setlocale(locale.LC_ALL, "en_US")
@@ -53,9 +55,10 @@ def test_datetime_formatter_2():
 
 
 def test_datetime_formatter_3():
-    """Test DateTimeFormatter zero-padding  """
+    """Test DateTimeFormatter zero-padding"""
     import datetime
     import locale
+
     from osxphotos.datetime_formatter import DateTimeFormatter
 
     setlocale(locale.LC_ALL, "en_US")

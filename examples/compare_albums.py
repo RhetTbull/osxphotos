@@ -2,8 +2,9 @@
 
 import sys
 
-import osxphotos
 import click
+
+import osxphotos
 
 
 @click.command()

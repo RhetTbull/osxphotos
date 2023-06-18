@@ -30,24 +30,27 @@ def test_db_version():
 
 
 def test_persons():
-    import osxphotos
     import collections
+
+    import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert photosdb.persons == []
 
 
 def test_keywords():
-    import osxphotos
     import collections
+
+    import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert photosdb.keywords == []
 
 
 def test_album_names():
-    import osxphotos
     import collections
+
+    import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert photosdb.albums == []

@@ -3,6 +3,7 @@ import os.path
 
 import osxphotos
 
+
 def main():
     db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
     photosdb = osxphotos.PhotosDB(db)
@@ -15,11 +16,14 @@ def main():
     print(photosdb.albums_as_dict)
 
     # find all photos with Keyword = Foo and containing John Smith
-    photos = photosdb.photos(keywords=["Foo"],persons=["John Smith"])
+    photos = photosdb.photos(keywords=["Foo"], persons=["John Smith"])
 
     # find all photos that include Alice Smith but do not contain the keyword Bar
-    photos = [p for p in photosdb.photos(persons=["Alice Smith"]) 
-                if p not in photosdb.photos(keywords=["Bar"]) ]
+    photos = [
+        p
+        for p in photosdb.photos(persons=["Alice Smith"])
+        if p not in photosdb.photos(keywords=["Bar"])
+    ]
     for p in photos:
         print(
             p.uuid,
@@ -33,6 +37,7 @@ def main():
             p.persons,
             p.path,
         )
+
 
 if __name__ == "__main__":
     main()

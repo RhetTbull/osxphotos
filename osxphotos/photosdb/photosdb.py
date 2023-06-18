@@ -61,9 +61,9 @@ from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from ..utils import (
     _check_file_exists,
-    is_macos,
-    get_macos_version,
     get_last_library_path,
+    get_macos_version,
+    is_macos,
     noop,
     normalize_unicode,
 )

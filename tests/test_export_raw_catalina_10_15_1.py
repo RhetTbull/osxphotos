@@ -66,9 +66,9 @@ def test_export_edited_name():
     # export edited file with name provided
     import os
     import os.path
+    import pathlib
     import tempfile
     import time
-    import pathlib
 
     import osxphotos
 
@@ -109,10 +109,10 @@ def test_export_edited_wrong_suffix():
     # should produce a warning via logging.warning
     import os
     import os.path
+    import pathlib
     import sys
     import tempfile
     import time
-    import pathlib
 
     import osxphotos
 

@@ -7,6 +7,7 @@ import pytest
 import osxphotos
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db import ExportDBInMemory
+from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import (
     PUNCTUATION,
     TEMPLATE_SUBSTITUTIONS,
@@ -14,10 +15,10 @@ from osxphotos.phototemplate import (
     PhotoTemplate,
     RenderOptions,
 )
-from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.utils import is_macos
-from .photoinfo_mock import PhotoInfoMock
+
 from .locale_util import setlocale
+from .photoinfo_mock import PhotoInfoMock
 
 try:
     exiftool = get_exiftool_path()

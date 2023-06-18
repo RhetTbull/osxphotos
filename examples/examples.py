@@ -1,5 +1,6 @@
-import osxphotos
 import os.path
+
+import osxphotos
 
 
 def main():

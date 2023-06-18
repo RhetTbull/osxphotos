@@ -19,14 +19,14 @@ from osxphotos.export_db_utils import (
     export_db_backup,
     export_db_check_signatures,
     export_db_get_errors,
+    export_db_get_last_library,
     export_db_get_last_run,
     export_db_get_version,
+    export_db_migrate_photos_library,
     export_db_save_config_to_file,
     export_db_touch_files,
     export_db_update_signatures,
     export_db_vacuum,
-    export_db_migrate_photos_library,
-    export_db_get_last_library,
 )
 from osxphotos.utils import pluralize
 

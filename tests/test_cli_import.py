@@ -14,7 +14,6 @@ from tempfile import TemporaryDirectory
 from typing import Dict
 
 import pytest
-
 from click.testing import CliRunner
 from pytest import MonkeyPatch, approx
 
@@ -27,6 +26,7 @@ from tests.conftest import get_os_version
 
 if is_macos:
     from photoscript import Photo
+
     from osxphotos.cli.import_cli import import_cli
 else:
     pytest.skip(allow_module_level=True)

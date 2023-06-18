@@ -6,7 +6,6 @@ import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
 
-
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 
 LABELS_DICT = {

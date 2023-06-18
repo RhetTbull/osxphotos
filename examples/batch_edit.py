@@ -21,7 +21,6 @@ from osxphotos.sqlitekvstore import SQLiteKVStore
 
 
 class Latitude(click.ParamType):
-
     name = "Latitude"
 
     def convert(self, value, param, ctx):
@@ -37,7 +36,6 @@ class Latitude(click.ParamType):
 
 
 class Longitude(click.ParamType):
-
     name = "Longitude"
 
     def convert(self, value, param, ctx):

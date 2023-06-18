@@ -9,9 +9,11 @@ UUID_DICT = {
     "not_modified": "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068",
 }
 
+
 @pytest.fixture(scope="module")
 def photosdb():
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
 
 def test_modified(photosdb):
     import datetime

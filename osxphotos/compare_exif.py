@@ -12,6 +12,7 @@ from .utils import assert_macos, noop
 assert_macos()
 
 from photoscript import Photo
+
 from .exif_datetime_updater import get_exif_date_time_offset
 from .phototz import PhotoTimeZone
 

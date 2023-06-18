@@ -14,9 +14,9 @@ import subprocess
 import tempfile
 import time
 from tempfile import TemporaryDirectory
-from bitmath import contextlib
 
 import pytest
+from bitmath import contextlib
 from click.testing import CliRunner
 
 import osxphotos

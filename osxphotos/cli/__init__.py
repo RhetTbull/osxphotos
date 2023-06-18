@@ -5,7 +5,6 @@ import sys
 from rich import print
 from rich.traceback import install as install_traceback
 
-from osxphotos.utils import is_macos
 from osxphotos.debug import (
     debug_breakpoint,
     debug_watch,
@@ -14,6 +13,7 @@ from osxphotos.debug import (
     set_debug,
     wrap_function,
 )
+from osxphotos.utils import is_macos
 
 # apply any debug functions
 # need to do this before importing anything else so that the debug functions

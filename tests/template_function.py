@@ -7,7 +7,7 @@ import osxphotos
 
 
 def foo(photo: osxphotos.PhotoInfo, **kwargs) -> Union[List, str]:
-    """ example function for {function} template
+    """example function for {function} template
 
     Args:
         photo: osxphotos.PhotoInfo object

@@ -33,8 +33,9 @@ def test_db_version():
 
 
 def test_keywords():
-    import osxphotos
     import collections
+
+    import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert "test" in photosdb.keywords
@@ -42,6 +43,7 @@ def test_keywords():
 
 def test_attributes():
     import datetime
+
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)

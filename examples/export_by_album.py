@@ -32,7 +32,7 @@ import osxphotos
     default=False,
 )
 def export(export_path, default_album, library_path, edited):
-    """ Export all photos, organized by album """
+    """Export all photos, organized by album"""
     export_path = os.path.expanduser(export_path)
     library_path = os.path.expanduser(library_path) if library_path else None
 
@@ -66,11 +66,11 @@ def export(export_path, default_album, library_path, edited):
                     os.makedirs(dest_dir)
 
                 filename = p.original_filename
-                # export the photo but only if --edited, photo has adjustments, and 
+                # export the photo but only if --edited, photo has adjustments, and
                 # path_edited is not None (can be None if edited photo is missing)
                 if edited and p.hasadjustments and p.path_edited:
                     # export edited version
-                    # use original filename with _edited appended but make sure suffix is 
+                    # use original filename with _edited appended but make sure suffix is
                     # same as edited file
                     edited_filename = f"{pathlib.Path(filename).stem}_edited{pathlib.Path(p.path_edited).suffix}"
                     exported = p.export(dest_dir, edited_filename, edited=True)

@@ -1,11 +1,14 @@
 """about command for osxphotos CLI"""
 
-import click
 import os
+
+import click
+import packaging
+
 from osxphotos._constants import OSXPHOTOS_URL
 from osxphotos._version import __version__
+
 from .common import get_latest_version
-import packaging
 
 
 @click.command(name="version")

@@ -23,10 +23,7 @@ to your function.  You can then do whatever you want with the photos.
 from __future__ import annotations
 
 import osxphotos
-from osxphotos.cli import (
-    selection_command,
-    verbose,
-)
+from osxphotos.cli import selection_command, verbose
 
 
 @selection_command

@@ -30,6 +30,7 @@ from osxphotos.utils import assert_macos, noop, pluralize
 assert_macos()
 
 from photoscript import PhotosLibrary
+
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 
 from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION

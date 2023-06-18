@@ -1,6 +1,7 @@
 """ Test ScoreInfo """
 
 from math import isclose
+
 import pytest
 
 from osxphotos.scoreinfo import ScoreInfo
@@ -78,7 +79,7 @@ def photosdb():
 
 
 def test_score_info_v5(photosdb):
-    """ test score """
+    """test score"""
     # use math.isclose to compare floats
     # on MacOS x64 these can probably compared for equality but would possibly
     # fail if osxphotos ever ported to other platforms
@@ -89,7 +90,7 @@ def test_score_info_v5(photosdb):
 
 
 def test_score_info_v4():
-    """ test version 4, score should be None """
+    """test version 4, score should be None"""
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_4)

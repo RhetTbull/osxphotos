@@ -4074,7 +4074,7 @@ def photosdb4():
 
 @pytest.mark.parametrize("uuid_dict", UUID_LIST_5)
 def test_faceinfo_v5(photosdb5, uuid_dict):
-    """ Test FaceInfo object """
+    """Test FaceInfo object"""
     import json
 
     for uuid in uuid_dict:
@@ -4084,23 +4084,23 @@ def test_faceinfo_v5(photosdb5, uuid_dict):
         for face in faces:
             assert face.uuid in uuid_dict[uuid]
             # test by keys instead of dict == dict because Monterey+ dropped support for some of the face details
-            # and I didn't want to regenerate all the test data (e.g.eye, mouth coordinates) 
+            # and I didn't want to regenerate all the test data (e.g.eye, mouth coordinates)
             face_dict = face.asdict()
             for key in face_dict:
                 if key == "yaw":
-                    continue # yaw set to 0 as it's not in Ventura
+                    continue  # yaw set to 0 as it's not in Ventura
                 assert face_dict[key] == uuid_dict[uuid][face.uuid][key]
 
 
 def test_faceinfo_v5_no_face(photosdb5):
-    """ Test FaceInfo on image with no faces """
+    """Test FaceInfo on image with no faces"""
     photo = photosdb5.get_photo(UUID_NO_FACE_5)
     assert photo.face_info == []
 
 
 @pytest.mark.parametrize("uuid_dict", UUID_LIST_4)
 def test_faceinfo_v4(photosdb4, uuid_dict):
-    """ Test FaceInfo object """
+    """Test FaceInfo object"""
     import json
 
     for uuid in uuid_dict:
@@ -4110,13 +4110,13 @@ def test_faceinfo_v4(photosdb4, uuid_dict):
         for face in faces:
             assert face.uuid in uuid_dict[uuid]
             # test by keys instead of dict == dict because Monterey+ dropped support for some of the face details
-            # and I didn't want to regenerate all the test data (e.g.eye, mouth coordinates) 
+            # and I didn't want to regenerate all the test data (e.g.eye, mouth coordinates)
             face_dict = face.asdict()
             for key in face_dict:
                 assert face_dict[key] == uuid_dict[uuid][face.uuid][key]
 
 
 def test_faceinfo_v4_no_face(photosdb4):
-    """ Test FaceInfo on image with no faces """
+    """Test FaceInfo on image with no faces"""
     photo = photosdb4.get_photo(UUID_NO_FACE_4)
     assert photo.face_info == []

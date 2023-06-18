@@ -1,4 +1,5 @@
 import pytest
+
 from osxphotos.exiftool import get_exiftool_path
 
 TEST_FILE_ONE_KEYWORD = "tests/test-images/wedding.jpg"
@@ -107,7 +108,7 @@ def test_version():
 
 
 def test_singleton():
-    """ tests per-file singleton behavior """
+    """tests per-file singleton behavior"""
     import osxphotos.exiftool
 
     exif1 = osxphotos.exiftool.ExifToolCaching(TEST_FILE_ONE_KEYWORD)
@@ -131,6 +132,7 @@ def test_setvalue_1():
     # test setting a tag value
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -147,6 +149,7 @@ def test_setvalue_cache():
     # test setting a tag value doesn't affect cached value
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -174,6 +177,7 @@ def test_setvalue_context_manager():
     # test setting a tag value as context manager
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -190,6 +194,7 @@ def test_flags():
     # test that flags raise error
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -207,6 +212,7 @@ def test_clear_value():
     # test clearing a tag value
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -224,6 +230,7 @@ def test_addvalues_1():
     # test setting a tag value
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -276,8 +283,9 @@ def test_as_dict_no_tag_groups():
 
 
 def test_json():
-    import osxphotos.exiftool
     import json
+
+    import osxphotos.exiftool
 
     exif1 = osxphotos.exiftool.ExifToolCaching(TEST_FILE_ONE_KEYWORD)
     exifdata = json.loads(exif1.json())
@@ -293,7 +301,7 @@ def test_str():
 
 
 def test_photoinfo_exiftool():
-    """ test PhotoInfo.exiftool which returns ExifTool object for photo """
+    """test PhotoInfo.exiftool which returns ExifTool object for photo"""
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -306,7 +314,7 @@ def test_photoinfo_exiftool():
 
 
 def test_photoinfo_exiftool_no_groups():
-    """ test PhotoInfo.exiftool which returns ExifTool object for photo without tag group names"""
+    """test PhotoInfo.exiftool which returns ExifTool object for photo without tag group names"""
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)

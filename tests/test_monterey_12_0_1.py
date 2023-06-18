@@ -232,6 +232,7 @@ def test_init4():
     # test invalid db
     import os
     import tempfile
+
     import osxphotos
 
     (bad_db, bad_db_name) = tempfile.mkstemp(suffix=".db", prefix="osxphotos-")
@@ -608,7 +609,6 @@ def test_keyword_2(photosdb):
 
 
 def test_keyword_not_in_album(photosdb):
-
     # find all photos with keyword "Kids" not in the album "Pumpkin Farm"
     photos1 = photosdb.photos(albums=["Pumpkin Farm"])
     photos2 = photosdb.photos(keywords=["Kids"])
@@ -1026,6 +1026,7 @@ def test_date_invalid():
     """Test date is invalid"""
     # doesn't run correctly with the module-level fixture
     from datetime import datetime, timedelta, timezone
+
     import osxphotos
 
     # UUID_DICT["date_invalid"] has an invalid date that's

@@ -62,7 +62,6 @@ def test_photos_version(photosdb):
 
 
 def test_persons(photosdb):
-
     assert "Katie" in photosdb.persons
     assert collections.Counter(PERSONS) == collections.Counter(photosdb.persons)
 

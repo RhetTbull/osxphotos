@@ -4,8 +4,10 @@ import pytest
 from click.testing import CliRunner
 
 from osxphotos.utils import is_macos
+
 if is_macos:
     import photoscript
+
     from osxphotos.cli.add_locations import add_locations
 else:
     pytest.skip(allow_module_level=True)

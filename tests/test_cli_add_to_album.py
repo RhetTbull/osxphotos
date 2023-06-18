@@ -6,6 +6,7 @@ import pytest
 from click.testing import CliRunner
 
 from osxphotos.utils import is_macos
+
 if is_macos:
     import photoscript
 else:

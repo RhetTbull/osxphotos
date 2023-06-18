@@ -3,11 +3,12 @@
 
 from __future__ import annotations
 
-import functools
-from typing import Any, Callable
-import click
 import contextlib
+import functools
 from textwrap import dedent
+from typing import Any, Callable
+
+import click
 
 from ..utils import is_macos
 from .common import OSXPHOTOS_HIDDEN, print_version

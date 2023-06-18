@@ -11,6 +11,7 @@ UUID_DICT = {
     "not_modified": "35243F7D-88C4-4408-B516-C74406E90C15",
 }
 
+
 @pytest.fixture(scope="module")
 def photosdb():
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB)

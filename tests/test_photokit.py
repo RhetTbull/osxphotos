@@ -7,15 +7,16 @@ import tempfile
 import pytest
 
 from osxphotos.utils import is_macos
+
 if is_macos:
     from osxphotos.photokit import (
+        PHOTOS_VERSION_CURRENT,
+        PHOTOS_VERSION_ORIGINAL,
+        PHOTOS_VERSION_UNADJUSTED,
         LivePhotoAsset,
         PhotoAsset,
         PhotoLibrary,
         VideoAsset,
-        PHOTOS_VERSION_CURRENT,
-        PHOTOS_VERSION_ORIGINAL,
-        PHOTOS_VERSION_UNADJUSTED,
     )
 else:
     pytest.skip(allow_module_level=True)

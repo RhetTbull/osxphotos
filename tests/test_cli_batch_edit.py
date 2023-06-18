@@ -13,6 +13,7 @@ from osxphotos.utils import is_macos
 
 if is_macos:
     import photoscript
+
     from osxphotos.cli.batch_edit import batch_edit
 else:
     pytest.skip(allow_module_level=True)
