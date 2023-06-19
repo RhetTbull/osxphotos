@@ -29,6 +29,10 @@ def test_set_unicode_format():
     set_unicode_form("NFC")
     assert get_unicode_form() == "NFC"
 
+    # test invalid format
+    with pytest.raises(ValueError):
+        set_unicode_form("foo")
+
 
 def test_set_unicode_fs_format():
     set_unicode_fs_form("NFC")
@@ -36,6 +40,10 @@ def test_set_unicode_fs_format():
 
     set_unicode_fs_form("NFD")
     assert get_unicode_fs_form() == "NFD"
+
+    # test invalid format
+    with pytest.raises(ValueError):
+        set_unicode_fs_form("foo")
 
 
 def test_normalize_fs_path():
