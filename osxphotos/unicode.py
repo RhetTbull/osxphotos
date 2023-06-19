@@ -20,6 +20,15 @@ UnicodeDataType = TypeVar(
     "UnicodeDataType", bound=Union[str, list[str], tuple[str, ...], None]
 )
 
+__all__ = [
+    "get_unicode_format",
+    "set_unicode_format",
+    "get_unicode_fs_format",
+    "set_unicode_fs_format",
+    "normalize_fs_path",
+    "normalize_unicode",
+]
+
 
 def get_unicode_format() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     """Return the global unicode format"""
@@ -29,6 +38,10 @@ def get_unicode_format() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
 
 def set_unicode_format(format: Literal["NFC", "NFKC", "NFD", "NFKD"]) -> None:
     """Set the global unicode format"""
+
+    if format not in ["NFC", "NFKC", "NFD", "NFKD"]:
+        raise ValueError(f"Invalid unicode format: {format}")
+
     global UNICODE_FORMAT
     UNICODE_FORMAT = format
 
@@ -41,6 +54,10 @@ def get_unicode_fs_format() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
 
 def set_unicode_fs_format(format: str) -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     """Set the global unicode filesystem format"""
+
+    if format not in ["NFC", "NFKC", "NFD", "NFKD"]:
+        raise ValueError(f"Invalid unicode format: {format}")
+
     global UNICODE_FS_FORMAT
     UNICODE_FS_FORMAT = format
 
@@ -58,8 +75,10 @@ def normalize_unicode(value: UnicodeDataType) -> UnicodeDataType:
     """normalize unicode data"""
     if value is None:
         return None
-    if isinstance(value, (tuple, list)):
+    if isinstance(value, tuple):
         return tuple(unicodedata.normalize(UNICODE_FORMAT, v) for v in value)
+    elif isinstance(value, list):
+        return [unicodedata.normalize(UNICODE_FORMAT, v) for v in value]
     elif isinstance(value, str):
         return unicodedata.normalize(UNICODE_FORMAT, value)
     else:
