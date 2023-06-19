@@ -9,10 +9,13 @@ from typing import Literal, TypeVar, Union
 from osxphotos.platform import is_macos
 
 # Unicode format to use for comparing strings
-UNICODE_FORM = "NFC"
+DEFAULT_UNICODE_FORM = "NFC"
 
-# Unicode format to use for filesystem paths
-UNICODE_FS_FORM = "NFD" if is_macos else "NFC"
+# global unicode format
+_GLOBAL_UNICODE_FORM = DEFAULT_UNICODE_FORM
+
+# global unicode format to use for filesystem paths
+_GLOBAL_UNICODE_FS_FORM = "NFD" if is_macos else "NFC"
 
 PathType = TypeVar("PathType", bound=Union[str, pathlib.Path])
 
@@ -27,13 +30,14 @@ __all__ = [
     "set_unicode_fs_form",
     "normalize_fs_path",
     "normalize_unicode",
+    "DEFAULT_UNICODE_FORM",
 ]
 
 
 def get_unicode_form() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     """Return the global unicode format"""
-    global UNICODE_FORM
-    return UNICODE_FORM
+    global _GLOBAL_UNICODE_FORM
+    return _GLOBAL_UNICODE_FORM
 
 
 def set_unicode_form(format: Literal["NFC", "NFKC", "NFD", "NFKD"]) -> None:
@@ -42,14 +46,14 @@ def set_unicode_form(format: Literal["NFC", "NFKC", "NFD", "NFKD"]) -> None:
     if format not in ["NFC", "NFKC", "NFD", "NFKD"]:
         raise ValueError(f"Invalid unicode format: {format}")
 
-    global UNICODE_FORM
-    UNICODE_FORM = format
+    global _GLOBAL_UNICODE_FORM
+    _GLOBAL_UNICODE_FORM = format
 
 
 def get_unicode_fs_form() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     """Return the global unicode filesystem format"""
-    global UNICODE_FS_FORM
-    return UNICODE_FS_FORM
+    global _GLOBAL_UNICODE_FS_FORM
+    return _GLOBAL_UNICODE_FS_FORM
 
 
 def set_unicode_fs_form(format: str) -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
@@ -58,8 +62,8 @@ def set_unicode_fs_form(format: str) -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     if format not in ["NFC", "NFKC", "NFD", "NFKD"]:
         raise ValueError(f"Invalid unicode format: {format}")
 
-    global UNICODE_FS_FORM
-    UNICODE_FS_FORM = format
+    global _GLOBAL_UNICODE_FS_FORM
+    _GLOBAL_UNICODE_FS_FORM = format
 
 
 def normalize_fs_path(path: PathType) -> PathType:

@@ -34,6 +34,9 @@ def test_set_unicode_format():
     with pytest.raises(ValueError):
         set_unicode_form("foo")
 
+    # Reset to correct format based
+    set_unicode_form(DEFAULT_UNICODE_FORM)
+
 
 def test_set_unicode_fs_format():
     set_unicode_fs_form("NFC")
@@ -102,3 +105,6 @@ def test_normalize_unicode():
 
     # Test with None
     assert normalize_unicode(None) is None
+
+    # Reset to correct format based
+    set_unicode_form(DEFAULT_UNICODE_FORM)
