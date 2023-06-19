@@ -5,6 +5,7 @@ from unicodedata import normalize
 
 import pytest
 
+from osxphotos.platform import is_macos
 from osxphotos.unicode import *
 
 UNICODE_PATH_NFC = normalize("NFC", "/path/to/ünicøde")
@@ -45,6 +46,9 @@ def test_set_unicode_fs_format():
     with pytest.raises(ValueError):
         set_unicode_fs_form("foo")
 
+    # Reset to correct format based on platform
+    set_unicode_fs_form("NFD" if is_macos else "NFC")
+
 
 def test_normalize_fs_path():
     # Test with string path in NFC format
@@ -66,6 +70,9 @@ def test_normalize_fs_path():
     assert normalize_fs_path(pathlib.Path(UNICODE_PATH_NFC)) == pathlib.Path(
         UNICODE_PATH_NFD
     )
+
+    # Reset to correct format based on platform
+    set_unicode_fs_form("NFD" if is_macos else "NFC")
 
 
 def test_normalize_unicode():
