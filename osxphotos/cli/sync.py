@@ -15,13 +15,14 @@ from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.photosdb.photosdb_utils import get_db_version
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.platform import assert_macos
 from osxphotos.queryoptions import (
     IncompatibleQueryOptions,
     QueryOptions,
     query_options_from_kwargs,
 )
 from osxphotos.sqlitekvstore import SQLiteKVStore
-from osxphotos.utils import assert_macos, pluralize
+from osxphotos.utils import pluralize
 
 assert_macos()
 

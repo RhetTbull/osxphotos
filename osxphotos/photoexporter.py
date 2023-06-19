@@ -36,17 +36,17 @@ from .exiftool import ExifTool, ExifToolCaching, exiftool_can_write, get_exiftoo
 from .export_db import ExportDB, ExportDBTemp
 from .fileutil import FileUtil
 from .phototemplate import RenderOptions
+from .platform import is_macos
 from .rich_utils import add_rich_markup_tag
+from .unicode import normalize_fs_path
 from .uti import get_preferred_uti_extension
 from .utils import (
     hexdigest,
     increment_filename,
     increment_filename_with_count,
-    is_macos,
     lineno,
     list_directory,
     lock_filename,
-    normalize_fs_path,
     unlock_filename,
 )
 

@@ -13,7 +13,7 @@ from osxphotos.debug import (
     set_debug,
     wrap_function,
 )
-from osxphotos.utils import is_macos
+from osxphotos.platform import is_macos
 
 # apply any debug functions
 # need to do this before importing anything else so that the debug functions

@@ -4,7 +4,7 @@
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..sqlite_utils import sqlite_open_ro
-from ..utils import normalize_unicode
+from ..unicode import normalize_unicode
 from .photosdb_utils import get_db_version
 
 """

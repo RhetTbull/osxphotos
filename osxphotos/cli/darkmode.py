@@ -1,6 +1,6 @@
 """Detect dark mode on MacOS >= 10.14 or fake it elsewhere"""
 
-from osxphotos.utils import is_macos
+from osxphotos.platform import is_macos
 
 if is_macos:
     import Foundation

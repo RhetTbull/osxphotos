@@ -23,6 +23,8 @@ import sys
 import threading
 import time
 
+from .platform import get_macos_version
+
 assert sys.platform == "darwin"
 
 import AVFoundation
@@ -37,7 +39,7 @@ from wurlitzer import pipes
 
 from .fileutil import FileUtil
 from .uti import get_preferred_uti_extension
-from .utils import get_macos_version, increment_filename
+from .utils import increment_filename
 
 __all__ = [
     "NSURL_to_path",

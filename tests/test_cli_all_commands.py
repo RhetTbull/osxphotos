@@ -44,7 +44,7 @@ from osxphotos.cli import (
     tutorial,
     version,
 )
-from osxphotos.utils import is_macos
+from osxphotos.platform import is_macos
 
 if is_macos:
     from osxphotos.cli import uuid

@@ -61,11 +61,12 @@ from .photoexporter import ExportOptions, PhotoExporter
 from .phototables import PhotoTables
 from .phototemplate import PhotoTemplate, RenderOptions
 from .placeinfo import PlaceInfo4, PlaceInfo5
+from .platform import assert_macos, is_macos
 from .query_builder import get_query
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _get_resource_loc, assert_macos, hexdigest, is_macos, list_directory
+from .utils import _get_resource_loc, hexdigest, list_directory
 
 if is_macos:
     from osxmetadata import OSXMetaData

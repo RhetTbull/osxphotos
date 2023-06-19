@@ -11,8 +11,7 @@ from collections import namedtuple  # pylint: disable=syntax-error
 import yaml
 from bpylist2 import archiver
 
-from ._constants import UNICODE_FORMAT
-from .utils import normalize_unicode
+from .unicode import normalize_unicode
 
 __all__ = [
     "PLRevGeoLocationInfo",

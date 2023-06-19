@@ -21,7 +21,7 @@ from osxphotos import PhotosDB, QueryOptions
 from osxphotos._constants import UUID_PATTERN
 from osxphotos.datetime_utils import datetime_remove_tz
 from osxphotos.exiftool import get_exiftool_path
-from osxphotos.utils import is_macos
+from osxphotos.platform import is_macos
 from tests.conftest import get_os_version
 
 if is_macos:

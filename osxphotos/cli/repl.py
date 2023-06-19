@@ -20,13 +20,13 @@ from osxphotos._constants import _PHOTOS_4_VERSION
 from osxphotos.cli.click_rich_echo import rich_echo_error as echo_error
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.photosdb import PhotosDB
+from osxphotos.platform import assert_macos, is_macos
 from osxphotos.pyrepl import embed_repl
 from osxphotos.queryoptions import (
     IncompatibleQueryOptions,
     QueryOptions,
     query_options_from_kwargs,
 )
-from osxphotos.utils import assert_macos, is_macos
 
 if is_macos:
     import photoscript

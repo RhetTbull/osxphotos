@@ -20,8 +20,9 @@ from rich.panel import Panel
 
 from osxphotos import PhotoInfo, PhotosDB
 from osxphotos._constants import _UNKNOWN_PERSON, search_category_factory
+from osxphotos.platform import assert_macos
 from osxphotos.rich_utils import add_rich_markup_tag
-from osxphotos.utils import assert_macos, dd_to_dms_str
+from osxphotos.utils import dd_to_dms_str
 
 assert_macos()
 

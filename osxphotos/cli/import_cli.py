@@ -41,8 +41,9 @@ from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
-from osxphotos.utils import assert_macos, pluralize
+from osxphotos.utils import pluralize
 
 assert_macos()
 

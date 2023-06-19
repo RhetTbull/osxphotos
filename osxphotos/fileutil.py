@@ -10,7 +10,8 @@ from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
 
 from .imageconverter import ImageConverter
-from .utils import is_macos, normalize_fs_path
+from .platform import is_macos
+from .unicode import normalize_fs_path
 
 if is_macos:
     import Foundation

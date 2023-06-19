@@ -25,7 +25,8 @@ from osxphotos.photodates import (
     update_photo_time_for_new_timezone,
 )
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
-from osxphotos.utils import assert_macos, noop, pluralize
+from osxphotos.platform import assert_macos
+from osxphotos.utils import noop, pluralize
 
 assert_macos()
 

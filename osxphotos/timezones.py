@@ -2,7 +2,7 @@
 
 from typing import Union
 
-from .utils import is_macos
+from .platform import is_macos
 
 
 def format_offset_time(offset: int) -> str:

@@ -3,7 +3,7 @@ import os
 import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.utils import get_macos_version, is_macos
+from osxphotos.platform import get_macos_version, is_macos
 
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
 SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"

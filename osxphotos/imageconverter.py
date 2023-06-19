@@ -10,7 +10,7 @@ import sys
 # needed to capture system-level stderr
 from wurlitzer import pipes
 
-from .utils import is_macos
+from .platform import is_macos
 
 if is_macos:
     import Metal

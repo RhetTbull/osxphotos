@@ -5,7 +5,8 @@ from typing import List, Optional
 from more_itertools import chunked
 
 from .photoinfo import PhotoInfo
-from .utils import assert_macos, noop, pluralize
+from .platform import assert_macos
+from .utils import noop, pluralize
 
 assert_macos()
 

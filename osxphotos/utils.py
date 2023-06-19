@@ -1,5 +1,7 @@
 """ Utility functions used in osxphotos """
 
+from __future__ import annotations
+
 import datetime
 import fnmatch
 import hashlib
@@ -9,30 +11,29 @@ import logging
 import os
 import os.path
 import pathlib
-import platform
 import re
 import subprocess
 import sys
-import unicodedata
 import urllib.parse
 from plistlib import load as plistload
-from typing import Any, Callable, List, Optional, Tuple, TypeVar, Union
+from typing import Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
 
 import requests
 import shortuuid
 
-from ._constants import UNICODE_FORMAT
+from osxphotos.platform import get_macos_version, is_macos
+from osxphotos.unicode import normalize_fs_path
+
+T = TypeVar("T", bound=Union[str, pathlib.Path])
 
 logger = logging.getLogger("osxphotos")
 
+
 __all__ = [
-    "is_macos",
-    "assert_macos",
     "dd_to_dms_str",
     "expand_and_validate_filepath",
     "get_last_library_path",
-    "get_macos_version",
     "get_system_library_path",
     "hexdigest",
     "increment_filename_with_count",
@@ -43,8 +44,6 @@ __all__ = [
     "load_function",
     "lock_filename",
     "noop",
-    "normalize_fs_path",
-    "normalize_unicode",
     "pluralize",
     "shortuuid_to_uuid",
     "uuid_to_shortuuid",
@@ -52,13 +51,6 @@ __all__ = [
 
 
 VERSION_INFO_URL = "https://pypi.org/pypi/osxphotos/json"
-
-
-is_macos = sys.platform == "darwin"
-
-
-def assert_macos():
-    assert is_macos, "This feature only runs on macOS"
 
 
 if is_macos:
@@ -76,25 +68,6 @@ def lineno(filename):
     line = inspect.currentframe().f_back.f_lineno
     filename = pathlib.Path(filename).name
     return f"{filename}: {line}"
-
-
-def get_macos_version():
-    assert_macos()
-    # returns tuple of str containing OS version
-    # e.g. 10.13.6 = ("10", "13", "6")
-    version = platform.mac_ver()[0].split(".")
-    if len(version) == 2:
-        (ver, major) = version
-        minor = "0"
-    elif len(version) == 3:
-        (ver, major, minor) = version
-    else:
-        raise (
-            ValueError(
-                f"Could not parse version string: {platform.mac_ver()} {version}"
-            )
-        )
-    return (ver, major, minor)
 
 
 def _check_file_exists(filename):
@@ -280,16 +253,6 @@ def list_photo_libraries():
     return lib_list
 
 
-T = TypeVar("T", bound=Union[str, pathlib.Path])
-
-
-def normalize_fs_path(path: T) -> T:
-    """Normalize filesystem paths with unicode in them"""
-    form = "NFD" if is_macos else "NFC"
-    if isinstance(path, pathlib.Path):
-        return pathlib.Path(unicodedata.normalize(form, str(path)))
-    else:
-        return unicodedata.normalize(form, path)
 
 
 # def findfiles(pattern, path):
@@ -376,18 +339,6 @@ def list_directory(
         files = [pathlib.Path(f) for f in files]
 
     return files
-
-
-def normalize_unicode(value) -> Any:
-    """normalize unicode data"""
-    if value is None:
-        return None
-    if isinstance(value, (tuple, list)):
-        return tuple(unicodedata.normalize(UNICODE_FORMAT, v) for v in value)
-    elif isinstance(value, str):
-        return unicodedata.normalize(UNICODE_FORMAT, value)
-    else:
-        return value
 
 
 def increment_filename_with_count(

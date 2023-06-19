@@ -10,7 +10,7 @@ from functools import lru_cache
 
 from .._constants import _PHOTOS_4_VERSION, search_category_factory
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
-from ..utils import normalize_unicode
+from ..unicode import normalize_unicode
 
 """
     This module should be imported in the class defintion of PhotosDB in photosdb.py

@@ -3,12 +3,12 @@
 import pytest
 
 import osxphotos.uti
+from osxphotos.platform import is_macos
 from osxphotos.uti import (
     _get_uti_from_mdls,
     get_preferred_uti_extension,
     get_uti_for_extension,
 )
-from osxphotos.utils import is_macos
 
 EXT_DICT = {"heic": "public.heic", "jpg": "public.jpeg", ".jpg": "public.jpeg"}
 UTI_DICT = {"public.heic": "heic", "public.jpeg": "jpeg"}

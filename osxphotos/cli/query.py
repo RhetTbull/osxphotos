@@ -12,8 +12,8 @@ from osxphotos.cli.click_rich_echo import (
 )
 from osxphotos.debug import set_debug
 from osxphotos.phototemplate import RenderOptions
+from osxphotos.platform import assert_macos, is_macos
 from osxphotos.queryoptions import query_options_from_kwargs
-from osxphotos.utils import assert_macos, is_macos
 
 if is_macos:
     from osxphotos.photosalbum import PhotosAlbum

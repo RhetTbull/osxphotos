@@ -7,7 +7,8 @@ from osxphotos import PhotosDB
 from osxphotos.exiftool import ExifTool
 
 from .datetime_utils import datetime_naive_to_local, datetime_to_new_tz
-from .utils import assert_macos, noop
+from .platform import assert_macos
+from .utils import noop
 
 assert_macos()
 

@@ -10,7 +10,7 @@ from typing import Any, Callable
 
 import click
 
-from ..utils import is_macos
+from ..platform import is_macos
 from .common import OSXPHOTOS_HIDDEN, print_version
 from .param_types import *
 
