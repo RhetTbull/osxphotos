@@ -7,7 +7,7 @@ from typing import Callable
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.exiftool import ExifTool
-from osxphotos.utils import normalize_unicode
+from osxphotos.unicode import normalize_unicode
 
 # Update this for your custom keyword to rating mapping
 RATINGS = {

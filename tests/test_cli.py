@@ -36,7 +36,9 @@ from osxphotos.cli import (
 )
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.fileutil import FileUtil
-from osxphotos.utils import is_macos, noop, normalize_fs_path, normalize_unicode
+from osxphotos.platform import is_macos
+from osxphotos.unicode import normalize_fs_path, normalize_unicode
+from osxphotos.utils import noop
 
 if is_macos:
     from osxmetadata import OSXMetaData, Tag

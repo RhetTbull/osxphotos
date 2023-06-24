@@ -56,17 +56,12 @@ from ..fileutil import FileUtil
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
 from ..phototemplate import RenderOptions
+from ..platform import get_macos_version, is_macos
 from ..queryoptions import QueryOptions
 from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
-from ..utils import (
-    _check_file_exists,
-    get_last_library_path,
-    get_macos_version,
-    is_macos,
-    noop,
-    normalize_unicode,
-)
+from ..unicode import normalize_unicode
+from ..utils import _check_file_exists, get_last_library_path, noop
 from .photosdb_utils import get_db_model_version, get_db_version
 
 if is_macos:

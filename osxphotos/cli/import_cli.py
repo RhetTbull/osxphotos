@@ -41,8 +41,10 @@ from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
-from osxphotos.utils import assert_macos, pluralize
+from osxphotos.unicode import normalize_unicode
+from osxphotos.utils import pluralize
 
 assert_macos()
 
@@ -357,11 +359,12 @@ def set_photo_metadata(
     merge_keywords: bool,
 ) -> MetaData:
     """Set metadata (title, description, keywords) for a Photo object"""
-    photo.title = metadata.title
-    photo.description = metadata.description
+    photo.title = normalize_unicode(metadata.title)
+    photo.description = normalize_unicode(metadata.description)
     keywords = metadata.keywords.copy()
+    keywords =normalize_unicode(keywords)
     if merge_keywords:
-        if old_keywords := photo.keywords:
+        if old_keywords := normalize_unicode(photo.keywords):
             keywords.extend(old_keywords)
             keywords = list(set(keywords))
     photo.keywords = keywords
@@ -420,7 +423,7 @@ def set_photo_title(
         verbose(
             f"Setting title of photo [filename]{filepath.name}[/] to '{title_text[0]}'"
         )
-        photo.title = title_text[0]
+        photo.title = normalize_unicode(title_text[0])
         return title_text[0]
     else:
         return ""
@@ -448,7 +451,7 @@ def set_photo_description(
         verbose(
             f"Setting description of photo [filename]{filepath.name}[/] to '{description_text[0]}'"
         )
-        photo.description = description_text[0]
+        photo.description = normalize_unicode(description_text[0])
         return description_text[0]
     else:
         return ""
@@ -469,8 +472,9 @@ def set_photo_keywords(
         kw = render_photo_template(filepath, relative_filepath, keyword, exiftool_path)
         keywords.extend(kw)
     if keywords:
+        keywords = normalize_unicode(keywords)
         if merge:
-            if old_keywords := photo.keywords:
+            if old_keywords := normalize_unicode(photo.keywords):
                 keywords.extend(old_keywords)
                 keywords = list(set(keywords))
         verbose(f"Setting keywords of photo [filename]{filepath.name}[/] to {keywords}")

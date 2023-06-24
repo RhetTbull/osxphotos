@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from osxphotos.utils import is_macos
+from osxphotos.platform import is_macos
 
 if is_macos:
     import photoscript

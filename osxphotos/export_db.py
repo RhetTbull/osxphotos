@@ -27,7 +27,7 @@ import osxphotos
 from ._constants import OSXPHOTOS_EXPORT_DB, SQLITE_CHECK_SAME_THREAD
 from ._version import __version__
 from .fileutil import FileUtil
-from .utils import normalize_fs_path
+from .unicode import normalize_fs_path
 
 __all__ = [
     "ExportDB",

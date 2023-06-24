@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from .utils import assert_macos
+from .platform import assert_macos
 
 assert_macos()
 

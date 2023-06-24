@@ -13,7 +13,7 @@ filename is needed.
 
 import pathvalidate
 
-from osxphotos.utils import normalize_unicode
+from osxphotos.unicode import normalize_unicode
 
 from ._constants import MAX_DIRNAME_LEN, MAX_FILENAME_LEN
 

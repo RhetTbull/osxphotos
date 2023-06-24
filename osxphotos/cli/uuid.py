@@ -2,7 +2,7 @@
 
 import click
 
-from osxphotos.utils import assert_macos
+from osxphotos.platform import assert_macos
 
 assert_macos()
 

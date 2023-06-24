@@ -9,6 +9,7 @@ import re
 import shutil
 import sqlite3
 import time
+import unicodedata
 from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import Dict
@@ -21,7 +22,7 @@ from osxphotos import PhotosDB, QueryOptions
 from osxphotos._constants import UUID_PATTERN
 from osxphotos.datetime_utils import datetime_remove_tz
 from osxphotos.exiftool import get_exiftool_path
-from osxphotos.utils import is_macos
+from osxphotos.platform import is_macos
 from tests.conftest import get_os_version
 
 if is_macos:
@@ -44,17 +45,17 @@ TEST_DATA = {
     TEST_IMAGE_1: {
         "title": "Waves crashing on rocks",
         "description": "Used for testing osxphotos",
-        "keywords": ["osxphotos"],
+        "keywords": ["osxphotos", "Sümmer"],
         "lat": 33.7150638888889,
         "lon": -118.319672222222,
         "check_templates": [
             "exiftool title: Waves crashing on rocks",
             "exiftool description: Used for testing osxphotos",
-            "exiftool keywords: ['osxphotos']",
+            "exiftool keywords: ['osxphotos', 'Sümmer']",
             "exiftool location: (33.7150638888889, -118.319672222222)",
             "title: {exiftool:XMP:Title}: Waves crashing on rocks",
             "description: {exiftool:IPTC:Caption-Abstract}: Used for testing osxphotos",
-            "keyword: {exiftool:IPTC:Keywords}: ['osxphotos']",
+            "keyword: {exiftool:IPTC:Keywords}: ['osxphotos', 'Sümmer']",
             "album: {filepath.parent}: test-images",
         ],
     },
@@ -536,7 +537,44 @@ def test_import_keyword_merge():
     photo_1 = Photo(uuid_1)
 
     assert photo_1.filename == file_1
-    assert sorted(photo_1.keywords) == ["Bar", "Foo", "osxphotos"]
+    assert sorted(photo_1.keywords) == sorted(list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"])))
+
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+@pytest.mark.test_import
+def test_import_keyword_merge_unicode():
+    """Test import with --keyword and --merge-keywords with unicode keywords (#1085)"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--exiftool",
+            "--keyword",
+            "Bar",
+            "--keyword",
+            "Foo",
+            "--keyword",
+            unicodedata.normalize("NFD", "Sümmer"),
+            "--keyword",
+            unicodedata.normalize("NFC", "Sümmer"),
+            "--merge-keywords",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert sorted(photo_1.keywords) == sorted(list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"])))
 
 
 @pytest.mark.test_import

@@ -15,7 +15,8 @@ from xdg import xdg_config_home, xdg_data_home
 import osxphotos
 from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
-from osxphotos.utils import get_latest_version, get_macos_version
+from osxphotos.platform import get_macos_version
+from osxphotos.utils import get_latest_version
 
 # used to show/hide hidden commands
 OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))

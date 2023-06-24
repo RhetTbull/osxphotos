@@ -12,8 +12,8 @@ import click
 
 import osxphotos
 from osxphotos.phototemplate import RenderOptions
+from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
-from osxphotos.utils import assert_macos
 
 assert_macos()
 

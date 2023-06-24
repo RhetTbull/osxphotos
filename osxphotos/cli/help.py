@@ -20,7 +20,7 @@ from osxphotos.phototemplate import (
     TEMPLATE_SUBSTITUTIONS_PATHLIB,
     get_template_help,
 )
-from osxphotos.utils import is_macos
+from osxphotos.platform import is_macos
 
 if is_macos:
     from osxmetadata import MDITEM_ATTRIBUTE_DATA, MDITEM_ATTRIBUTE_SHORT_NAMES

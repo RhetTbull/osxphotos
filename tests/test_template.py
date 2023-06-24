@@ -15,7 +15,7 @@ from osxphotos.phototemplate import (
     PhotoTemplate,
     RenderOptions,
 )
-from osxphotos.utils import is_macos
+from osxphotos.platform import is_macos
 
 from .locale_util import setlocale
 from .photoinfo_mock import PhotoInfoMock
