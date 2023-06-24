@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosalbum - osxphotos 0.60.3 documentation</title>
+        <title>osxphotos.photosalbum - osxphotos 0.60.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.60.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.60.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.60.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -197,12 +197,16 @@
           <h1>Source code for osxphotos.photosalbum</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot; PhotosAlbum class to create an album in default Photos library and add photos to it &quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">unicodedata</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">more_itertools</span> <span class="kn">import</span> <span class="n">chunked</span>
 
 <span class="kn">from</span> <span class="nn">.photoinfo</span> <span class="kn">import</span> <span class="n">PhotoInfo</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">assert_macos</span><span class="p">,</span> <span class="n">noop</span><span class="p">,</span> <span class="n">pluralize</span>
+<span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">assert_macos</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">noop</span><span class="p">,</span> <span class="n">pluralize</span>
 
 <span class="n">assert_macos</span><span class="p">()</span>
 
@@ -212,19 +216,36 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PhotosAlbum&quot;</span><span class="p">,</span> <span class="s2">&quot;PhotosAlbumPhotoScript&quot;</span><span class="p">]</span>
 
 
+<span class="k">def</span> <span class="nf">get_unicode_variants</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get all unicode variants of string&quot;&quot;&quot;</span>
+    <span class="n">variants</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;NFC&quot;</span><span class="p">,</span> <span class="s2">&quot;NFD&quot;</span><span class="p">,</span> <span class="s2">&quot;NFKC&quot;</span><span class="p">,</span> <span class="s2">&quot;NFKD&quot;</span><span class="p">]:</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">variants</span>
+
+
 <span class="k">def</span> <span class="nf">folder_by_path</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Folder</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Get (and create if necessary) a Photos Folder by path (passed as list of folder names)&quot;&quot;&quot;</span>
     <span class="n">library</span> <span class="o">=</span> <span class="n">PhotosLibrary</span><span class="p">()</span>
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="n">noop</span>
     <span class="n">top_folder_name</span> <span class="o">=</span> <span class="n">folders</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">top_folder</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">folder</span><span class="p">(</span><span class="n">top_folder_name</span><span class="p">,</span> <span class="n">top_level</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">top_folder</span><span class="p">:</span>
+
+    <span class="k">for</span> <span class="n">folder_variant</span> <span class="ow">in</span> <span class="n">get_unicode_variants</span><span class="p">(</span><span class="n">top_folder_name</span><span class="p">):</span>
+        <span class="n">top_folder</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">folder</span><span class="p">(</span><span class="n">folder_variant</span><span class="p">,</span> <span class="n">top_level</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">top_folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
         <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating folder &#39;</span><span class="si">{</span><span class="n">top_folder_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
         <span class="n">top_folder</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">create_folder</span><span class="p">(</span><span class="n">top_folder_name</span><span class="p">)</span>
+
     <span class="n">current_folder</span> <span class="o">=</span> <span class="n">top_folder</span>
     <span class="k">for</span> <span class="n">folder_name</span> <span class="ow">in</span> <span class="n">folders</span><span class="p">:</span>
-        <span class="n">folder</span> <span class="o">=</span> <span class="n">current_folder</span><span class="o">.</span><span class="n">folder</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">folder</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">folder_variant</span> <span class="ow">in</span> <span class="n">get_unicode_variants</span><span class="p">(</span><span class="n">folder_name</span><span class="p">):</span>
+            <span class="n">folder</span> <span class="o">=</span> <span class="n">current_folder</span><span class="o">.</span><span class="n">folder</span><span class="p">(</span><span class="n">folder_variant</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating folder &#39;</span><span class="si">{</span><span class="n">folder_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
             <span class="n">folder</span> <span class="o">=</span> <span class="n">current_folder</span><span class="o">.</span><span class="n">create_folder</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span>
         <span class="n">current_folder</span> <span class="o">=</span> <span class="n">folder</span>
@@ -241,15 +262,24 @@
         <span class="c1"># have folders</span>
         <span class="n">album_name</span> <span class="o">=</span> <span class="n">folders_album</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="n">folder</span> <span class="o">=</span> <span class="n">folder_by_path</span><span class="p">(</span><span class="n">folders_album</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
-        <span class="n">album</span> <span class="o">=</span> <span class="n">folder</span><span class="o">.</span><span class="n">album</span><span class="p">(</span><span class="n">album_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">album</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">album_variant</span> <span class="ow">in</span> <span class="n">get_unicode_variants</span><span class="p">(</span><span class="n">album_name</span><span class="p">):</span>
+            <span class="c1"># Get album if it exists</span>
+            <span class="c1"># need to check every unicode variant to avoid creating duplicate albums with same visual representation (#1085)</span>
+            <span class="n">album</span> <span class="o">=</span> <span class="n">folder</span><span class="o">.</span><span class="n">album</span><span class="p">(</span><span class="n">album_variant</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">album</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating album &#39;</span><span class="si">{</span><span class="n">album_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
             <span class="n">album</span> <span class="o">=</span> <span class="n">folder</span><span class="o">.</span><span class="n">create_album</span><span class="p">(</span><span class="n">album_name</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># only have album name</span>
         <span class="n">album_name</span> <span class="o">=</span> <span class="n">folders_album</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">album</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">album</span><span class="p">(</span><span class="n">album_name</span><span class="p">,</span> <span class="n">top_level</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">album</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">album_variant</span> <span class="ow">in</span> <span class="n">get_unicode_variants</span><span class="p">(</span><span class="n">album_name</span><span class="p">):</span>
+            <span class="n">album</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">album</span><span class="p">(</span><span class="n">album_variant</span><span class="p">,</span> <span class="n">top_level</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">album</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># album doesn&#39;t exist, create it</span>
             <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating album &#39;</span><span class="si">{</span><span class="n">album_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
             <span class="n">album</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">create_album</span><span class="p">(</span><span class="n">album_name</span><span class="p">)</span>
 
@@ -298,13 +328,10 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">photos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">photoscript</span><span class="o">.</span><span class="n">Photo</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error creating Photo object for photo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_uuid</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Error creating Photo object for photo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_uuid</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;photos: </span><span class="si">{</span><span class="n">photos</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">photolist</span> <span class="ow">in</span> <span class="n">chunked</span><span class="p">(</span><span class="n">photos</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;photolist: </span><span class="si">{</span><span class="n">photolist</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">album</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">photolist</span><span class="p">)</span>
         <span class="n">photo_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">photo_list</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span>
