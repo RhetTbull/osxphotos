@@ -2,21 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.5](https://github.com/RhetTbull/osxphotos/compare/v0.60.4...v0.60.5)
+
+Unicode Fixes
+
+### [v0.60.5] - 2023-06-24
+
+#### Added
+
+- Added `--count`to query to print count of query results and exit (#1098)
+
+#### Removed
+
+#### Changed
+
+#### Fixed
+
+- Normalize unicode for `osxphotos import` to avoid duplicate keywords and albums (#1087)
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull/osxphotos) - code & testing
+- [@oPromessa](https://github.com/oPromessa) - for finding and documenting the unicode bugs
+
 ## [v0.60.4](https://github.com/RhetTbull/osxphotos/compare/v0.60.3...v0.60.4)
 
 Updated testing / compatibility matrix to include macOS 13.4.
 
-## [v0.60.4] - 2023-06-18
+### [v0.60.4] - 2023-06-18
 
-### Fixed
+#### Fixed
 
-### Added
+#### Added
 
-### Removed
+#### Removed
 
-### Changed
+#### Changed
 
-### Contributors
+#### Contributors
 
 - [@RhetTbull](https://github.com/RhetTbull/osxphotos) - code & testing
 
