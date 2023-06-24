@@ -52,6 +52,7 @@ MACOS_OPTIONS = make_click_option_decorator(
 @click.command()
 @DB_OPTION
 @JSON_OPTION
+@click.option("--count", is_flag=True, help="Print count of photos matching query and exit.")
 @QUERY_OPTIONS
 @DELETED_OPTIONS
 @MACOS_OPTIONS
@@ -82,6 +83,7 @@ def query(
     db,
     field,
     json_,
+    count,
     print_template,
     quiet,
     photos_library,
@@ -136,6 +138,10 @@ def query(
 
     # below needed for to make CliRunner work for testing
     cli_json = cli_obj.json if cli_obj is not None else None
+
+    if count:
+        click.echo(len(photos))
+        return
 
     if add_to_album and photos:
         assert_macos()
