@@ -8174,6 +8174,46 @@ def test_query_added_in_last():
     assert results.exit_code == 0
 
 
+def test_query_count():
+    """Test query --count"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    results = runner.invoke(
+        query,
+        [
+            "--library",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--added-before",
+            "2019-07-28",
+            "--count",
+        ],
+    )
+    assert results.exit_code == 0
+    assert results.output.strip() == "7"
+
+
+def test_query_count_0():
+    """Test query --count with zero results"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    results = runner.invoke(
+        query,
+        [
+            "--library",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--added-before",
+            "1900-01-01",
+            "--count",
+        ],
+    )
+    assert results.exit_code == 0
+    assert results.output.strip() == "0"
+
+
 def test_export_export_dir_template():
     """Test {export_dir} template"""
 
