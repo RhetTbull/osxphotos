@@ -23,7 +23,7 @@ One test for locale does not run on GitHub's automated workflow and will look fo
 
 A couple of tests require interaction with Photos and configuring a specific test library. Currently these run only on Catalina.  The tests must be specified by using a pytest flag. Only one of these interactive tests can be run at a time.  The current flags are:
 
---addalbum: test --add-to-album options
+--addalbum: test --add-to-album options (pytest -vv tests/test_photosalbum_unicode.py tests/test_cli_add_to_album.py --addalbum)
 --timewarp: test `osxphotos timewarp`
 --test-import: test `osxphotos import`
 --test-sync: test `osxphotos sync`
