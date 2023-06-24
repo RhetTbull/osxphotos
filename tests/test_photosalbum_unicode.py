@@ -5,9 +5,13 @@ from unicodedata import normalize
 
 import pytest
 
+from osxphotos.platform import is_macos
+
+if not is_macos:
+    pytest.skip("requires macOS", allow_module_level=True)
+
 import osxphotos
 from osxphotos.photosalbum import PhotosAlbum, PhotosAlbumPhotoScript
-from osxphotos.platform import is_macos
 from osxphotos.unicode import *
 
 UNICODE_FOLDER_NFC = normalize("NFC", "FolderUnicode/føldêr2")
