@@ -13,7 +13,7 @@ from .exiftool import ExifTool
 from .export_db import ExportDB, ExportDBTemp
 from .fileutil import FileUtil, FileUtilNoOp
 from .momentinfo import MomentInfo
-from .personinfo import PersonInfo
+from .personinfo import FaceInfo, PersonInfo
 from .photoexporter import ExportOptions, ExportResults, PhotoExporter
 from .photoinfo import PhotoInfo
 from .photosdb import PhotosDB
@@ -48,6 +48,7 @@ __all__ = [
     "ExportDBTemp",
     "ExportOptions",
     "ExportResults",
+    "FaceInfo",
     "FileUtil",
     "FileUtilNoOp",
     "FolderInfo",
