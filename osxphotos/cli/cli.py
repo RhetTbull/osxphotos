@@ -13,7 +13,7 @@ from osxphotos.platform import is_macos
 
 from .about import about
 from .albums import albums
-from .cli_params import DB_OPTION, DEBUG_OPTIONS, JSON_OPTION, VERSION_OPTION
+from .cli_params import DEBUG_OPTIONS, VERSION_OPTION
 from .common import OSXPHOTOS_HIDDEN
 from .debug_dump import debug_dump
 from .docs import docs_command
@@ -62,8 +62,6 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 @click.group(context_settings=CTX_SETTINGS)
 @VERSION_OPTION
-@DB_OPTION
-@JSON_OPTION
 @DEBUG_OPTIONS
 @click.option(
     "--profile", is_flag=True, hidden=OSXPHOTOS_HIDDEN, help="Enable profiling"
@@ -83,12 +81,12 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
     "Default = 'cumulative'.",
 )
 @click.pass_context
-def cli_main(ctx, db, json_, profile, profile_sort, **kwargs):
+def cli_main(ctx, profile, profile_sort, **kwargs):
     """osxphotos: the multi-tool for your Photos library"""
     # Note: kwargs is used to catch any debug options passed in
     # the debug options are handled in cli/__init__.py
     # before this function is called
-    ctx.obj = CLI_Obj(db=db, json=json_, group=cli_main)
+    ctx.obj = CLI_Obj(group=cli_main)
     if profile:
         click.echo("Profiling...")
         profile_sort = profile_sort or ["cumulative"]

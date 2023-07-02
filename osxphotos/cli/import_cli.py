@@ -1422,7 +1422,13 @@ def import_cli(
     verbose_flag,
     walk,
 ):
-    """Import photos and videos into Photos."""
+    """Import photos and videos into Photos. Photos will be imported into the
+    most recently opened Photos library.
+
+    Photos are imported one at a time thus the "Imports" album in Photos will show
+    a new import group for each photo imported. Batch import into a single import
+    group will be added in a future release.
+    """
 
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
