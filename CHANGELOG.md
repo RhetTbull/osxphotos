@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.6](https://github.com/RhetTbull/osxphotos/compare/v0.60.5...v0.60.6)
+
+Remove --library/--db from import command
+
+### [v0.60.6] - 2023-07-02
+
+#### Added
+
+#### Removed
+
+- Removed `--library/--db` options from `osxphotos import` as import does not allow user to specify a library; the last used library is always used for import
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) - Code and documentation
+- [@msolo](https://github.com/msolo) - Bug report for `osxphotos import`
+
 ## [v0.60.5](https://github.com/RhetTbull/osxphotos/compare/v0.60.4...v0.60.5)
 
 Unicode Fixes
