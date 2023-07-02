@@ -140,15 +140,8 @@ Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
   osxphotos: the multi-tool for your Photos library
 
 Options:
-  -v, --version                   Show the version and exit.
-  --library, --db PHOTOS_LIBRARY_PATH
-                                  Specify path to Photos library. If not
-                                  provided, will attempt to find the library to
-                                  use in the following order: 1. last opened
-                                  library, 2. system library, 3.
-                                  ~/Pictures/Photos Library.photoslibrary
-  --json                          Print output in JSON format.
-  -h, --help                      Show this message and exit.
+  -v, --version  Show the version and exit.
+  -h, --help     Show this message and exit.
 
 Commands:
   about          Print information about osxphotos including license.
