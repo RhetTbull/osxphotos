@@ -427,6 +427,7 @@ class PlaceInfo:
         pass
 
     def asdict():
+        """Returns a dictionary representation of the PlaceInfo object."""
         pass
 
 
