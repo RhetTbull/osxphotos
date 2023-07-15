@@ -135,6 +135,7 @@ class ExportOptions:
         render_options (RenderOptions): t.Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
         replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
         rich (bool): if True, will use rich markup with verbose output
+        export_aae (bool): if True, also exports adjustments as .AAE file
         sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
         sidecar: bit field (int): set to one or more of `SIDECAR_XMP`, `SIDECAR_JSON`, `SIDECAR_EXIFTOOL`
           - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
@@ -187,6 +188,7 @@ class ExportOptions:
     render_options: t.Optional[RenderOptions] = None
     replace_keywords: bool = False
     rich: bool = False
+    export_aae: bool = False
     sidecar_drop_ext: bool = False
     sidecar: int = 0
     strip: bool = False
@@ -281,6 +283,7 @@ class ExportResults:
         "missing",
         "missing_album",
         "new",
+        "aae_written",
         "sidecar_exiftool_skipped",
         "sidecar_exiftool_written",
         "sidecar_json_skipped",
@@ -311,6 +314,7 @@ class ExportResults:
         missing=None,
         missing_album=None,
         new=None,
+        aae_written=None,
         sidecar_exiftool_skipped=None,
         sidecar_exiftool_written=None,
         sidecar_json_skipped=None,
@@ -350,6 +354,7 @@ class ExportResults:
             + self.exif_updated
             + self.touched
             + self.converted_to_jpeg
+            + self.aae_written
             + self.sidecar_json_written
             + self.sidecar_json_skipped
             + self.sidecar_exiftool_written
@@ -605,6 +610,8 @@ class PhotoExporter:
                     f"Skipping missing preview photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                 )
 
+        if options.export_aae:
+            all_results += self._write_aae_file(dest=dest, options=options)
         all_results += self._write_sidecar_files(dest=dest, options=options)
 
         return all_results
@@ -1403,6 +1410,53 @@ class PhotoExporter:
                 FileUtil.copy(str(path), str(dest_new))
             exported_paths.append(str(dest_new))
         return exported_paths
+
+    def _write_aae_file(
+        self,
+        dest: pathlib.Path,
+        options: ExportOptions,
+    ) -> ExportResults:
+        """Write AAE file for the photo."""
+
+        # AAE files describe adjustments to originals, so they don't make sense
+        # for edited files
+        if options.edited:
+            return ExportResults()
+
+        verbose = options.verbose or self._verbose
+
+        aae_src = self.photo.adjustments_path
+        if aae_src is None:
+            return ExportResults()
+        aae_dest = dest.with_suffix(".AAE")
+
+        if options.export_as_hardlink:
+            try:
+                if aae_dest.exists() and any(
+                    [options.overwrite, options.update, options.force_update]):
+                    try:
+                        options.fileutil.unlink(aae_dest)
+                    except Exception as e:
+                        raise ExportError(
+                            f"Error removing file {aae_dest}: {e} (({lineno(__file__)})"
+                        ) from e
+                options.fileutil.hardlink(aae_src, aae_dest)
+            except Exception as e:
+                raise ExportError(
+                    f"Error hardlinking {aae_src} to {aae_dest}: {e} ({lineno(__file__)})"
+                ) from e
+        else:
+            try:
+                options.fileutil.copy(aae_src, aae_dest)
+                verbose(
+                    f"Exported adjustments of {self._filename(self.photo.original_filename)} to {self._filepath(normalize_fs_path(aae_dest))}"
+                )
+            except Exception as e:
+                raise ExportError(
+                    f"Error copying file {aae_src} to {aae_dest}: {e} ({lineno(__file__)})"
+                ) from e
+
+        return ExportResults(aae_written=[aae_dest])
 
     def _write_sidecar_files(
         self,

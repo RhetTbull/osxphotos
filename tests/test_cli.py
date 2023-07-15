@@ -604,6 +604,13 @@ CLI_EXPORT_SIDECAR_DROP_EXT_FILENAMES = _normalize_fs_paths(
     ]
 )
 
+CLI_EXPORT_AAE_UUID = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
+CLI_EXPORT_AAE_FILENAMES = [
+    "wedding.jpg",
+    "wedding.AAE",
+    "wedding_edited.jpeg",
+]
+
 CLI_EXPORT_LIVE = [
     "51F2BEF7-431A-4D31-8AC1-3284A57826AE.jpeg",
     "51F2BEF7-431A-4D31-8AC1-3284A57826AE.mov",
@@ -3356,6 +3363,53 @@ def test_query_deleted_4():
     assert len(json_got) == PHOTOS_IN_TRASH_LEN_15_7
     assert json_got[0]["intrash"]
 
+
+def test_export_aae():
+    """Test export with --export-aae"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--export-aae",
+                f"--uuid={CLI_EXPORT_AAE_UUID}",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORT_AAE_FILENAMES)
+
+def test_export_aae_as_hardlink():
+    """Test export with --export-aae and --export-as-hardlink"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with isolated_filesystem_here():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--export-aae",
+                "--export-as-hardlink",
+                f"--uuid={CLI_EXPORT_AAE_UUID}",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORT_AAE_FILENAMES)
 
 def test_export_sidecar():
     """test --sidecar"""
