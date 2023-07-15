@@ -650,28 +650,38 @@ class PhotoInfo:
         return self._info["hasAdjustments"] == 1
 
     @property
-    def adjustments(self):
-        """Returns AdjustmentsInfo class for adjustment data or None if no adjustments; Photos 5+ only"""
+    def adjustments_path(self):
+        """Returns path to adjustments file or none if file doesn't exist"""
         if self._db._db_version <= _PHOTOS_4_VERSION:
             return None
 
-        if self.hasadjustments:
-            try:
-                return self._adjustmentinfo
-            except AttributeError:
-                library = self._db._library_path
-                directory = self._uuid[0]  # first char of uuid
-                plist_file = (
-                    pathlib.Path(library)
-                    / "resources"
-                    / "renders"
-                    / directory
-                    / f"{self._uuid}.plist"
-                )
-                if not plist_file.is_file():
-                    return None
-                self._adjustmentinfo = AdjustmentsInfo(plist_file)
-                return self._adjustmentinfo
+        if not self.hasadjustments:
+            return None
+
+        library = self._db._library_path
+        directory = self._uuid[0]  # first char of uuid
+        plist_file = (
+            pathlib.Path(library)
+            / "resources"
+            / "renders"
+            / directory
+            / f"{self._uuid}.plist"
+        )
+        if not plist_file.is_file():
+            return None
+        return plist_file
+
+    @property
+    def adjustments(self):
+        """Returns AdjustmentsInfo class for adjustment data or None if no adjustments; Photos 5+ only"""
+        try:
+            return self._adjustmentinfo
+        except AttributeError:
+            plist_file = self.adjustments_path
+            if plist_file is None:
+                return None
+            self._adjustmentinfo = AdjustmentsInfo(plist_file)
+            return self._adjustmentinfo
 
     @property
     def external_edit(self):

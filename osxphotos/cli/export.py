@@ -298,6 +298,14 @@ from .verbose import get_verbose_console, verbose_print
     "only the primary photo will be exported--associated burst images will be skipped.",
 )
 @click.option(
+    "--export-aae",
+    is_flag=True,
+    help="Also export an adjustments file detailing edits made to the original. "
+    "The resulting file is named photoname.AAE. "
+    "Note that to import these files back to Photos succesfully, you also need to "
+    "export the edited photo and match the filename format Photos.app expects: "
+    "--filename 'IMG_{edited_version?E,}{id:04d}' --edited-suffix ''")
+@click.option(
     "--sidecar",
     default=None,
     multiple=True,
@@ -852,6 +860,7 @@ def export(
     screenshot,
     selfie,
     shared,
+    export_aae,
     sidecar,
     sidecar_drop_ext,
     skip_bursts,
@@ -1076,6 +1085,7 @@ def export(
         selected = cfg.selected
         selfie = cfg.selfie
         shared = cfg.shared
+        export_aae = cfg.export_aae
         sidecar = cfg.sidecar
         sidecar_drop_ext = cfg.sidecar_drop_ext
         skip_bursts = cfg.skip_bursts
@@ -1645,6 +1655,7 @@ def export(
             + results.exif_updated
             + results.touched
             + results.converted_to_jpeg
+            + results.aae_written
             + results.sidecar_json_written
             + results.sidecar_json_skipped
             + results.sidecar_exiftool_written
@@ -1702,6 +1713,7 @@ def export_photo(
     dest=None,
     verbose=None,
     export_by_date=None,
+    export_aae=None,
     sidecar=None,
     sidecar_drop_ext=False,
     update=None,
@@ -1790,6 +1802,7 @@ def export_photo(
         preview_suffix: str, template to use as suffix for preview images
         replace_keywords: if True, --keyword-template replaces keywords instead of adding keywords
         retry: retry up to retry # of times if there's an error
+        export_aae: bool; if True, will also save adjustments
         sidecar_drop_ext: bool; if True, drops photo extension from sidecar name
         sidecar: list zero, 1 or 2 of ["json","xmp"] of sidecar variety to export
         skip_original_if_edited: bool; if True does not export original if photo has been edited
@@ -1956,6 +1969,7 @@ def export_photo(
                 preview_suffix=rendered_preview_suffix,
                 replace_keywords=replace_keywords,
                 retry=retry,
+                export_aae=export_aae,
                 sidecar_drop_ext=sidecar_drop_ext,
                 sidecar_flags=sidecar_flags,
                 touch_file=touch_file,
@@ -2072,6 +2086,7 @@ def export_photo(
                     preview_suffix=rendered_preview_suffix,
                     replace_keywords=replace_keywords,
                     retry=retry,
+                    export_aae=export_aae,
                     sidecar_drop_ext=sidecar_drop_ext,
                     sidecar_flags=sidecar_flags if not export_original else 0,
                     touch_file=touch_file,
@@ -2159,6 +2174,7 @@ def export_photo_to_directory(
     preview_suffix,
     replace_keywords,
     retry,
+    export_aae,
     sidecar_drop_ext,
     sidecar_flags,
     touch_file,
@@ -2223,6 +2239,7 @@ def export_photo_to_directory(
                 render_options=render_options,
                 replace_keywords=replace_keywords,
                 rich=True,
+                export_aae=export_aae,
                 sidecar=sidecar_flags,
                 sidecar_drop_ext=sidecar_drop_ext,
                 tmpdir=tmpdir,
