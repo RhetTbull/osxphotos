@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/><title>Index - osxphotos 0.60.6 documentation</title>
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/><title>Index - osxphotos 0.60.7 documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.60.6 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.60.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.60.6 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -771,6 +771,13 @@
           <li><a href="cli.html#cmdoption-osxphotos-orphans-export">osxphotos-orphans command line option</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-sync-e">osxphotos-sync command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --export-aae
+
+        <ul>
+          <li><a href="cli.html#cmdoption-osxphotos-export-export-aae">osxphotos-export command line option</a>
 </li>
         </ul></li>
         <li>
@@ -3036,6 +3043,8 @@
 </li>
         <li><a href="reference.html#osxphotos.PhotoInfo.adjustments">adjustments (osxphotos.PhotoInfo property)</a>
 </li>
+        <li><a href="reference.html#osxphotos.PhotoInfo.adjustments_path">adjustments_path (osxphotos.PhotoInfo property)</a>
+</li>
         <li><a href="reference.html#osxphotos.QueryOptions.album">album (osxphotos.QueryOptions attribute)</a>
 </li>
         <li><a href="reference.html#osxphotos.FolderInfo.album_info">album_info (osxphotos.FolderInfo property)</a>
@@ -3093,6 +3102,8 @@
           <li><a href="reference.html#osxphotos.PersonInfo.asdict">(osxphotos.PersonInfo method)</a>
 </li>
           <li><a href="reference.html#osxphotos.PhotoInfo.asdict">(osxphotos.PhotoInfo method)</a>
+</li>
+          <li><a href="reference.html#osxphotos.PlaceInfo.asdict">(osxphotos.PlaceInfo method)</a>
 </li>
           <li><a href="reference.html#osxphotos.ScoreInfo.asdict">(osxphotos.ScoreInfo method)</a>
 </li>
@@ -3293,14 +3304,16 @@
 </li>
         <li><a href="reference.html#osxphotos.PhotoTemplate.expand_variables_to_str">expand_variables_to_str() (osxphotos.PhotoTemplate method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference.html#osxphotos.PhotoExporter.export">export() (osxphotos.PhotoExporter method)</a>
 
         <ul>
           <li><a href="reference.html#osxphotos.PhotoInfo.export">(osxphotos.PhotoInfo method)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference.html#osxphotos.ExportOptions.export_aae">export_aae (osxphotos.ExportOptions attribute)</a>
+</li>
         <li><a href="reference.html#osxphotos.ExportOptions.export_as_hardlink">export_as_hardlink (osxphotos.ExportOptions attribute)</a>
 </li>
         <li>
@@ -4222,6 +4235,8 @@
           <li><a href="cli.html#cmdoption-osxphotos-export-exiftool-option">--exiftool-option</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-export-exiftool-path">--exiftool-path</a>
+</li>
+          <li><a href="cli.html#cmdoption-osxphotos-export-export-aae">--export-aae</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-export-export-as-hardlink">--export-as-hardlink</a>
 </li>

@@ -1066,6 +1066,14 @@ Options:
                                   export all burst images; only the primary
                                   photo will be exported--associated burst
                                   images will be skipped.
+  --export-aae                    Also export an adjustments file detailing
+                                  edits made to the original. The resulting file
+                                  is named photoname.AAE. Note that to import
+                                  these files back to Photos succesfully, you
+                                  also need to export the edited photo and match
+                                  the filename format Photos.app expects:
+                                  --filename 'IMG_{edited_version?E,}{id:04d}'
+                                  --edited-suffix ''
   --sidecar FORMAT                Create sidecar for each photo exported; valid
                                   FORMAT values: xmp, json, exiftool; --sidecar
                                   xmp: create XMP sidecar used by Digikam, Adobe
@@ -2110,7 +2118,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.60.6'
+{osxphotos_version}             The osxphotos version, e.g. '0.60.7'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2597,7 +2605,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.60.6'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.60.7'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
