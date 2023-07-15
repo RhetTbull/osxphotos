@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [v0.60.7](https://github.com/RhetTbull/osxphotos/compare/v0.60.6...v0.60.7)
+
+AAE Export Support
+
+### [v0.60.7] - 2023-07-15 
+
+#### Addeded
+
+- `--export-aae` option for `osxphotos export` to export the raw adjustments plist files
+- `PhotoInfo.adjustments_path` property for retrieving the path to the AAE file
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- [@dvdkon](https://github.com/dvdkon) - code changes to add support for AAE files.
+
 ## [v0.60.6](https://github.com/RhetTbull/osxphotos/compare/v0.60.5...v0.60.6)
 
 Remove --library/--db from import command
