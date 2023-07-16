@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>hostname</key>
+	<string>rhets-Virtual-Machine.local</string>
+	<key>hostuuid</key>
+	<string>DB248ADD-817E-5469-8229-D55158E1D479</string>
+	<key>pid</key>
+	<integer>627</integer>
+	<key>processname</key>
+	<string>photolibraryd</string>
+	<key>uid</key>
+	<integer>501</integer>
+</dict>
+</plist>

@@ -204,10 +204,12 @@ class PersonTable(Table):
     def rows(self) -> list[tuple[Any]]:
         """Return rows for this photo from the ZPERSON table."""
         conn, cursor = self.db.get_db_connection()
+        person_fk = _DB_TABLE_NAMES[self.version]["DETECTED_FACE_PERSON_FK"]
+        asset_fk = _DB_TABLE_NAMES[self.version]["DETECTED_FACE_ASSET_FK"]
         sql = f"""  SELECT ZPERSON.*
                     FROM ZPERSON 
-                    JOIN ZDETECTEDFACE ON ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK
-                    JOIN ZASSET ON ZASSET.Z_PK = ZDETECTEDFACE.ZASSET
+                    JOIN ZDETECTEDFACE ON {person_fk} = ZPERSON.Z_PK
+                    JOIN ZASSET ON ZASSET.Z_PK = {asset_fk}
                     WHERE {self.asset_table}.ZUUID = ?;
             """
         cursor.execute(sql, (self.uuid,))
@@ -216,10 +218,12 @@ class PersonTable(Table):
     def _get_column(self, column: str) -> tuple[Any]:
         """Get column value for this photo from the ZPERSON table."""
         conn, cursor = self.db.get_db_connection()
+        person_fk = _DB_TABLE_NAMES[self.version]["DETECTED_FACE_PERSON_FK"]
+        asset_fk = _DB_TABLE_NAMES[self.version]["DETECTED_FACE_ASSET_FK"]
         sql = f"""  SELECT ZPERSON.{column}
                     FROM ZPERSON 
-                    JOIN ZDETECTEDFACE ON ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK
-                    JOIN ZASSET ON ZASSET.Z_PK = ZDETECTEDFACE.ZASSET
+                    JOIN ZDETECTEDFACE ON {person_fk} = ZPERSON.Z_PK
+                    JOIN ZASSET ON ZASSET.Z_PK = {asset_fk}
                     WHERE {self.asset_table}.ZUUID = ?;
             """
         cursor.execute(sql, (self.uuid,))

@@ -1706,6 +1706,7 @@ class PhotosDB:
 
         # get info on keyface -- some photos have null keyface so can't do a single query
         # (at least not with my SQL skills)
+        asset_fk = _DB_TABLE_NAMES[photos_ver]["DETECTED_FACE_ASSET_FK"]
         c.execute(
             f""" SELECT
                 ZPERSON.Z_PK,
@@ -1714,7 +1715,7 @@ class PhotosDB:
                 ZDETECTEDFACE.ZUUID
                 FROM ZPERSON, ZDETECTEDFACE, {asset_table}
                 WHERE ZDETECTEDFACE.Z_PK = ZPERSON.ZKEYFACE AND
-                ZDETECTEDFACE.ZASSET = {asset_table}.Z_PK
+                {asset_fk} = {asset_table}.Z_PK
             """
         )
 
@@ -1733,13 +1734,14 @@ class PhotosDB:
 
         # get information on detected faces
         verbose("Processing detected faces in photos.")
+        person_fk = _DB_TABLE_NAMES[photos_ver]["DETECTED_FACE_PERSON_FK"]
         c.execute(
             f""" SELECT
                 ZPERSON.Z_PK,
                 {asset_table}.ZUUID
                 FROM ZPERSON, ZDETECTEDFACE, {asset_table}
-                WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND
-                ZDETECTEDFACE.ZASSET = {asset_table}.Z_PK
+                WHERE {person_fk} = ZPERSON.Z_PK AND
+                {asset_fk} = {asset_table}.Z_PK
             """
         )
 
