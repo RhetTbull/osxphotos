@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.8](https://github.com/RhetTbull/osxphotos/compare/v0.60.7...v0.60.8)
+
+Adds support for working with Photos libraries on macOS Sonoma (14.0 preview)
+
+### [v0.60.8] - 2023-07-16
+
+#### Added
+
+- Supports Photos libraries created by Photos 9.0 (macOS Sonoma)
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) - code changes and testing
 
 ## [v0.60.7](https://github.com/RhetTbull/osxphotos/compare/v0.60.6...v0.60.7)
 
