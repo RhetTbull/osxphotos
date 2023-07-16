@@ -16,6 +16,7 @@ from .._constants import (
     _PHOTOS_6_MODEL_VERSION,
     _PHOTOS_7_MODEL_VERSION,
     _PHOTOS_8_MODEL_VERSION,
+    _PHOTOS_9_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
 )
 from ..sqlite_utils import sqlite_open_ro
@@ -112,10 +113,12 @@ def get_db_model_version(db_file: str) -> int:
         return 7
     elif _PHOTOS_8_MODEL_VERSION[0] <= model_ver <= _PHOTOS_8_MODEL_VERSION[1]:
         return 8
+    elif _PHOTOS_9_MODEL_VERSION[0] <= model_ver <= _PHOTOS_9_MODEL_VERSION[1]:
+        return 9
     else:
         logging.warning(f"Unknown model version: {model_ver}")
         # cross our fingers and try latest version
-        return 8
+        return 9
 
 
 def get_photos_library_version(library_path: str | pathlib.Path) -> int:
@@ -149,10 +152,12 @@ def get_photos_library_version(library_path: str | pathlib.Path) -> int:
         return 7
     if _PHOTOS_8_MODEL_VERSION[0] <= model_ver <= _PHOTOS_8_MODEL_VERSION[1]:
         return 8
+    if _PHOTOS_9_MODEL_VERSION[0] <= model_ver <= _PHOTOS_9_MODEL_VERSION[1]:
+        return 9
     logging.warning(
         f"Unknown db / model version: db_ver={db_ver}, model_ver={model_ver}; assuming Photos 8"
     )
-    return 8
+    return 9
 
 
 def get_db_path_for_library(photos_library: str | pathlib.Path) -> pathlib.Path:

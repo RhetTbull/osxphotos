@@ -179,6 +179,8 @@ def _process_faceinfo_5(photosdb):
     db = photosdb._tmp_db
 
     asset_table = _DB_TABLE_NAMES[photosdb._photos_ver]["ASSET"]
+    asset_fk = _DB_TABLE_NAMES[photosdb._photos_ver]["DETECTED_FACE_ASSET_FK"]
+    person_fk = _DB_TABLE_NAMES[photosdb._photos_ver]["DETECTED_FACE_PERSON_FK"]
 
     (conn, cursor) = sqlite_open_ro(db)
 
@@ -188,7 +190,7 @@ def _process_faceinfo_5(photosdb):
         ZDETECTEDFACE.Z_PK,
         {asset_table}.ZUUID,
         ZDETECTEDFACE.ZUUID,
-        ZDETECTEDFACE.ZPERSON,
+        {person_fk},
         ZPERSON.ZFULLNAME,
         ZDETECTEDFACE.ZAGETYPE,
         NULL, -- ZDETECTEDFACE.ZBALDTYPE (Removed in Monterey)
@@ -225,8 +227,8 @@ def _process_faceinfo_5(photosdb):
         NULL, -- ZDETECTEDFACE.ZYAW,
         ZDETECTEDFACE.ZMASTERIDENTIFIER
         FROM ZDETECTEDFACE
-        JOIN {asset_table} ON {asset_table}.Z_PK = ZDETECTEDFACE.ZASSET
-        JOIN ZPERSON ON ZPERSON.Z_PK = ZDETECTEDFACE.ZPERSON;
+        JOIN {asset_table} ON {asset_table}.Z_PK = {asset_fk}
+        JOIN ZPERSON ON ZPERSON.Z_PK = {person_fk};
         """
     )
 

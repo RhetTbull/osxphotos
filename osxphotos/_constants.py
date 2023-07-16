@@ -23,15 +23,18 @@ TIME_DELTA = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_sec
 # Photos 3.0 (10.13.6) == 3301
 # Photos 4.0 (10.14.5) == 4016
 # Photos 4.0 (10.14.6) == 4025
-# Photos 5.0 (10.15.0) == 6000 or 5001
+# Photos 5.0+ (10.15.0) == 6000 or 5001
 _TESTED_DB_VERSIONS = ["6000", "5001", "4025", "4016", "3301", "2622"]
 
-# database model versions (applies to Photos 5, Photos 6)
+# database model versions (applies to Photos 5+)
 # these come from PLModelVersion key in binary plist in Z_METADATA.Z_PLIST
 # Photos 5 (10.15.1) == 13537
 # Photos 5 (10.15.4, 10.15.5, 10.15.6) == 13703
 # Photos 6 (10.16.0 Beta) == 14104
-_TEST_MODEL_VERSIONS = ["13537", "13703", "14104"]
+# Photos 7 (12.0.1) == 15323
+# Photos 8 (13.0.0) == 16320
+# Photos 9 (14.0.0 dev preview) = 17120
+_TEST_MODEL_VERSIONS = ["13537", "13703", "14104", "15323", "16320", "17120"]
 
 _PHOTOS_2_VERSION = "2622"
 
@@ -39,7 +42,7 @@ _PHOTOS_2_VERSION = "2622"
 _PHOTOS_3_VERSION = "3301"
 
 # versions 5.0 and later have a different database structure
-_PHOTOS_4_VERSION = "4025"  # latest Mojove version on 10.14.6
+_PHOTOS_4_VERSION = "4025"  # latest Mojave version on 10.14.6
 _PHOTOS_5_VERSION = "5000"  # I've seen both 5001 and 6000.  6000 is most common on Catalina and up but there are some version 5001 database in the wild
 
 # Ranges for model version by Photos version
@@ -47,8 +50,9 @@ _PHOTOS_5_MODEL_VERSION = [13000, 13999]
 _PHOTOS_6_MODEL_VERSION = [14000, 14999]
 _PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Dev preview: 15134, 12.1: 15331
 _PHOTOS_8_MODEL_VERSION = [16000, 16999]  # Ventura dev preview: 16119
+_PHOTOS_9_MODEL_VERSION = [17000, 17999]  # Sonoma dev preview: 17120
 
-# some table names differ between Photos 5 and Photos 6
+# some table names differ between Photos 5 and later versions
 _DB_TABLE_NAMES = {
     5: {
         "ASSET": "ZGENERICASSET",
@@ -61,6 +65,8 @@ _DB_TABLE_NAMES = {
         "ASSET_ALBUM_JOIN": "Z_26ASSETS.Z_26ALBUMS",
         "ASSET_ALBUM_TABLE": "Z_26ASSETS",
         "HDR_TYPE": "ZCUSTOMRENDEREDVALUE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSON",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSET",
     },
     6: {
         "ASSET": "ZASSET",
@@ -73,6 +79,8 @@ _DB_TABLE_NAMES = {
         "ASSET_ALBUM_JOIN": "Z_26ASSETS.Z_26ALBUMS",
         "ASSET_ALBUM_TABLE": "Z_26ASSETS",
         "HDR_TYPE": "ZCUSTOMRENDEREDVALUE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSON",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSET",
     },
     7: {
         "ASSET": "ZASSET",
@@ -85,6 +93,8 @@ _DB_TABLE_NAMES = {
         "ASSET_ALBUM_JOIN": "Z_27ASSETS.Z_27ALBUMS",
         "ASSET_ALBUM_TABLE": "Z_27ASSETS",
         "HDR_TYPE": "ZHDRTYPE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSON",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSET",
     },
     8: {
         "ASSET": "ZASSET",
@@ -97,6 +107,22 @@ _DB_TABLE_NAMES = {
         "ASSET_ALBUM_JOIN": "Z_28ASSETS.Z_28ALBUMS",
         "ASSET_ALBUM_TABLE": "Z_28ASSETS",
         "HDR_TYPE": "ZHDRTYPE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSON",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSET",
+    },
+    9: {
+        "ASSET": "ZASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_40KEYWORDS",
+        "ALBUM_JOIN": "Z_28ASSETS.Z_3ASSETS",
+        "ALBUM_SORT_ORDER": "Z_28ASSETS.Z_FOK_3ASSETS",
+        "IMPORT_FOK": "null",
+        "DEPTH_STATE": "ZASSET.ZDEPTHTYPE",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZCOMPACTUTI",
+        "ASSET_ALBUM_JOIN": "Z_28ASSETS.Z_28ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_28ASSETS",
+        "HDR_TYPE": "ZHDRTYPE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSONFORFACE",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSETFORFACE",
     },
 }
 
@@ -127,6 +153,7 @@ _TESTED_OS_VERSIONS = [
     ("13", "2"),
     ("13", "3"),
     ("13", "4"),
+    ("14", "0"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face
