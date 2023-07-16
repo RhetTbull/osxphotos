@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.60.5 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.60.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.60.5 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.60.8 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.60.5 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.8 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1903,6 +1903,7 @@
 
         <span class="c1"># get info on keyface -- some photos have null keyface so can&#39;t do a single query</span>
         <span class="c1"># (at least not with my SQL skills)</span>
+        <span class="n">asset_fk</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">]</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;&quot;&quot; SELECT</span>
 <span class="s2">                ZPERSON.Z_PK,</span>
@@ -1911,7 +1912,7 @@
 <span class="s2">                ZDETECTEDFACE.ZUUID</span>
 <span class="s2">                FROM ZPERSON, ZDETECTEDFACE, </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2"></span>
 <span class="s2">                WHERE ZDETECTEDFACE.Z_PK = ZPERSON.ZKEYFACE AND</span>
-<span class="s2">                ZDETECTEDFACE.ZASSET = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">asset_fk</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK</span>
 <span class="s2">            &quot;&quot;&quot;</span>
         <span class="p">)</span>
 
@@ -1930,13 +1931,14 @@
 
         <span class="c1"># get information on detected faces</span>
         <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Processing detected faces in photos.&quot;</span><span class="p">)</span>
+        <span class="n">person_fk</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">]</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;&quot;&quot; SELECT</span>
 <span class="s2">                ZPERSON.Z_PK,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID</span>
 <span class="s2">                FROM ZPERSON, ZDETECTEDFACE, </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2"></span>
-<span class="s2">                WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND</span>
-<span class="s2">                ZDETECTEDFACE.ZASSET = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK</span>
+<span class="s2">                WHERE </span><span class="si">{</span><span class="n">person_fk</span><span class="si">}</span><span class="s2"> = ZPERSON.Z_PK AND</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">asset_fk</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK</span>
 <span class="s2">            &quot;&quot;&quot;</span>
         <span class="p">)</span>
 
