@@ -1188,6 +1188,10 @@ Return true if photo was shared via syndication (e.g. via Messages, etc.); these
 Return True if syndicated photo has been saved to library; returns False if photo is not syndicated or has not been saved to the library.
 Syndicated photos are photos that appear in "Shared with you" album. Photos 8+ only; returns None if not Photos 8+.
 
+### `shared_moment`
+
+Return True if photo is part of a shared moment, otherwise False.  Shared moments are created when multiple photos are shared via iCloud. (e.g. in Messages)
+
 #### `uti`
 
 Returns Uniform Type Identifier (UTI) for the current version of the image, for example: 'public.jpeg' or 'com.apple. quicktime-movie'.  If the image has been edited, `uti` will return the UTI for the edited image, otherwise it will return the UTI for the original image.

@@ -1235,6 +1235,9 @@ class PhotosDB:
             # photos 5+ only, for shared photos
             self._dbphotos[uuid]["cloudownerhashedpersonid"] = None
 
+            # photos 8+ only, shared moments
+            self._dbphotos[uuid]["moment_share"] = None
+
             # compute signatures for finding possible duplicates
             signature = self._duplicate_signature(uuid)
             try:
@@ -1949,7 +1952,8 @@ class PhotosDB:
                 {asset_table}.ZSAVEDASSETTYPE,
                 {asset_table}.ZADDEDDATE,
                 {asset_table}.Z_PK,
-                {asset_table}.ZCLOUDOWNERHASHEDPERSONID
+                {asset_table}.ZCLOUDOWNERHASHEDPERSONID,
+                {asset_table}.ZMOMENTSHARE
                 FROM {asset_table} 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 ORDER BY {asset_table}.ZUUID  """
@@ -2000,6 +2004,7 @@ class PhotosDB:
         # 41   ZGENERICASSET.ZADDEDDATE -- date item added to the library
         # 42   ZGENERICASSET.Z_PK -- primary key
         # 43   ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID -- used to look up owner name (for shared photos)
+        # 44   ZASSET.ZMOMENTSHARE -- FK for ZSHARE (shared moments, Photos 8+)
 
         for row in c:
             uuid = row[0]
@@ -2186,6 +2191,8 @@ class PhotosDB:
 
             info["pk"] = row[42]
             info["cloudownerhashedpersonid"] = row[43]
+
+            info["moment_share"] = row[44]
 
             # initialize import session info which will be filled in later
             # not every photo has an import session so initialize all records now
@@ -3531,6 +3538,11 @@ class PhotosDB:
             photos = [p for p in photos if p.syndicated and p.saved_to_library]
         elif options.not_saved_to_library:
             photos = [p for p in photos if p.syndicated and not p.saved_to_library]
+
+        if options.shared_moment:
+            photos = [p for p in photos if p.shared_moment]
+        elif options.not_shared_moment:
+            photos = [p for p in photos if not p.shared_moment]
 
         if options.function:
             for function in options.function:

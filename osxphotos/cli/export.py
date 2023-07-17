@@ -894,6 +894,8 @@ def export(
     not_syndicated,
     saved_to_library,
     not_saved_to_library,
+    shared_moment,
+    not_shared_moment,
     selected=False,  # Isn't provided on unsupported platforms
     # debug,  # debug, watch, breakpoint handled in cli/__init__.py
     # watch,
@@ -1120,6 +1122,8 @@ def export(
         not_syndicated = cfg.not_syndicated
         saved_to_library = cfg.saved_to_library
         not_saved_to_library = cfg.not_saved_to_library
+        shared_moment = cfg.shared_moment
+        not_shared_moment = cfg.not_shared_moment
 
         # config file might have changed verbose
         verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
@@ -1171,6 +1175,7 @@ def export(
         ("title", "no_title"),
         ("syndicated", "not_syndicated"),
         ("saved_to_library", "not_saved_to_library"),
+        ("shared_moment", "not_shared_moment"),
     ]
     dependent_options = [
         ("append", ("report")),
