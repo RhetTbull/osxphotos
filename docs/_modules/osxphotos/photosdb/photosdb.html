@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.60.8 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.60.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.60.8 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.60.9 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.60.8 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.9 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1432,6 +1432,9 @@
             <span class="c1"># photos 5+ only, for shared photos</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudownerhashedpersonid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
+            <span class="c1"># photos 8+ only, shared moments</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;moment_share&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
             <span class="c1"># compute signatures for finding possible duplicates</span>
             <span class="n">signature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_duplicate_signature</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
@@ -2146,7 +2149,8 @@
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZSAVEDASSETTYPE,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZADDEDDATE,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDOWNERHASHEDPERSONID</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDOWNERHASHEDPERSONID,</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMOMENTSHARE</span>
 <span class="s2">                FROM </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2"> </span>
 <span class="s2">                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK </span>
 <span class="s2">                ORDER BY </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID  &quot;&quot;&quot;</span>
@@ -2197,6 +2201,7 @@
         <span class="c1"># 41   ZGENERICASSET.ZADDEDDATE -- date item added to the library</span>
         <span class="c1"># 42   ZGENERICASSET.Z_PK -- primary key</span>
         <span class="c1"># 43   ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID -- used to look up owner name (for shared photos)</span>
+        <span class="c1"># 44   ZASSET.ZMOMENTSHARE -- FK for ZSHARE (shared moments, Photos 8+)</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
             <span class="n">uuid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2383,6 +2388,8 @@
 
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;pk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">42</span><span class="p">]</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;cloudownerhashedpersonid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">43</span><span class="p">]</span>
+
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;moment_share&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">44</span><span class="p">]</span>
 
             <span class="c1"># initialize import session info which will be filled in later</span>
             <span class="c1"># not every photo has an import session so initialize all records now</span>
@@ -3728,6 +3735,11 @@
             <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">syndicated</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">saved_to_library</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">not_saved_to_library</span><span class="p">:</span>
             <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">syndicated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">saved_to_library</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">shared_moment</span><span class="p">:</span>
+            <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">shared_moment</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">not_shared_moment</span><span class="p">:</span>
+            <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">shared_moment</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">function</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">function</span><span class="p">:</span>
