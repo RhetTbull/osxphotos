@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.9](https://github.com/RhetTbull/osxphotos/compare/v0.60.8...v0.60.9)
+
+Fixed missing path for photos that are part of a shared moment (Ventura+)
+
+### [v0.60.9] - 2023-07-16
+
+#### Added
+
+- `PhotoInfo.shared_moment` property (True if photo is part of a shared moment, otherwise False)
+- `--shared-moment`, `--not-shared-moment` query options
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code
+- [@neilpa](https://github.com/neilpa) for identifying the bug with shared moments
+
 ## [v0.60.8](https://github.com/RhetTbull/osxphotos/compare/v0.60.7...v0.60.8)
 
 Adds support for working with Photos libraries on macOS Sonoma (14.0 preview)
