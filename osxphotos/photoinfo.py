@@ -173,6 +173,12 @@ class PhotoInfo:
         """Returns candidate path for original photo on Photos >= version 5"""
         if self._info["shared"]:
             return self._path_5_shared()
+        if self.shared_moment and self._path_shared_moment():
+            # path for photos in shared moments if it's in the shared moment folder
+            # the file may also be in the originals folder which the next check will catch
+            # check shared_moment first as a photo can be both a shared moment and syndicated
+            # and if so, will be in the shared moment folder
+            return self._path_shared_moment()
         if self.syndicated and not self.saved_to_library:
             # path for "shared with you" syndicated photos that have not yet been saved to the library
             return self._path_syndication()
@@ -225,6 +231,21 @@ class PhotoInfo:
         path = os.path.join(
             self._db._library_path,
             syndication_path,
+            uuid_dir,
+            self.filename,
+        )
+        return path if os.path.isfile(path) else None
+
+    def _path_shared_moment(self):
+        """Return path for shared moment photo on Photos >= version 8"""
+        # Photos 8+ stores shared moment photos in a separate directory
+        # in ~/Photos Library.photoslibrary/scopes/momentshared/originals/X/UUID.ext
+        # where X is first digit of UUID
+        momentshared_path = "scopes/momentshared/originals"
+        uuid_dir = self.uuid[0]
+        path = os.path.join(
+            self._db._library_path,
+            momentshared_path,
             uuid_dir,
             self.filename,
         )
@@ -910,6 +931,8 @@ class PhotoInfo:
         elif self.live_photo and self.path and not self.ismissing:
             if self.shared:
                 return self._path_live_photo_shared_5()
+            if self.shared_moment:
+                return self._path_live_shared_moment()
             if self.syndicated and not self.saved_to_library:
                 # syndicated ("Shared with you") photos not yet saved to library
                 return self._path_live_syndicated()
@@ -987,6 +1010,22 @@ class PhotoInfo:
         )
         return live_photo if os.path.isfile(live_photo) else None
 
+    def _path_live_shared_moment(self):
+        """Return path for live shared moment photo on Photos >= version 8"""
+        # Photos 8+ stores live shared moment photos in a separate directory
+        # in ~/Photos Library.photoslibrary/scopes/momentshared/originals/X/UUID_3.mov
+        # where X is first digit of UUID
+        shared_moment_path = "scopes/momentshared/originals"
+        uuid_dir = self.uuid[0]
+        filename = f"{pathlib.Path(self.filename).stem}_3.mov"
+        live_photo = os.path.join(
+            self._db._library_path,
+            shared_moment_path,
+            uuid_dir,
+            filename,
+        )
+        return live_photo if os.path.isfile(live_photo) else None
+
     @cached_property
     def path_derivatives(self) -> list[str]:
         """Return any derivative (preview) images associated with the photo as a list of paths, sorted by file size (largest first)"""
@@ -997,19 +1036,29 @@ class PhotoInfo:
             return self._path_derivatives_5_shared()
 
         directory = self._uuid[0]  # first char of uuid
-        if self.syndicated and not self.saved_to_library:
+        if self.shared_moment:
+            # shared moments
+            derivative_path = "scopes/momentshared/resources/derivatives"
+            thumb_path = (
+                f"{derivative_path}/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
+            )
+        elif self.syndicated and not self.saved_to_library:
             # syndicated ("Shared with you") photos not yet saved to library
             derivative_path = "scopes/syndication/resources/derivatives"
             thumb_path = (
                 f"{derivative_path}/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
             )
         else:
-            derivative_path = f"resources/derivatives/{directory}"
+            derivative_path = "resources/derivatives"
             thumb_path = (
                 f"resources/derivatives/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
             )
 
-        derivative_path = pathlib.Path(self._db._library_path).joinpath(derivative_path)
+        derivative_path = (
+            pathlib.Path(self._db._library_path)
+            .joinpath(derivative_path)
+            .joinpath(directory)
+        )
         thumb_path = pathlib.Path(self._db._library_path).joinpath(thumb_path)
 
         # find all files that start with uuid in derivative path
@@ -1376,6 +1425,11 @@ class PhotoInfo:
             return self._db._db_syndication_uuid[self.uuid]["syndication_history"] != 0
         except KeyError:
             return False
+
+    @cached_property
+    def shared_moment(self) -> bool:
+        """Returns True if photo is part of a shared moment otherwise False"""
+        return bool(self._info["moment_share"])
 
     @property
     def labels(self):
