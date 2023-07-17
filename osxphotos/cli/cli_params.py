@@ -611,6 +611,16 @@ _QUERY_PARAMETERS_DICT = {
         is_flag=True,
         help="Search for syndicated photos that have not saved to the library",
     ),
+    "--shared-moment": click.Option(
+        ["--shared-moment"],
+        is_flag=True,
+        help="Search for photos that are part of a shared moment",
+    ),
+    "--not-shared-moment": click.Option(
+        ["--not-shared-moment"],
+        is_flag=True,
+        help="Search for photos that are not part of a shared moment",
+    ),
     "--regex": click.Option(
         ["--regex"],
         metavar="REGEX TEMPLATE",

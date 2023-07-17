@@ -3539,6 +3539,11 @@ class PhotosDB:
         elif options.not_saved_to_library:
             photos = [p for p in photos if p.syndicated and not p.saved_to_library]
 
+        if options.shared_moment:
+            photos = [p for p in photos if p.shared_moment]
+        elif options.not_shared_moment:
+            photos = [p for p in photos if not p.shared_moment]
+
         if options.function:
             for function in options.function:
                 photos = function[0](photos)
