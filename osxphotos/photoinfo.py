@@ -1933,16 +1933,20 @@ class PhotoInfo:
         place = self.place.asdict() if self.place else {}
         score = dataclasses.asdict(self.score) if self.score else {}
 
+        # do not add any new properties to data_dict as this is used by export to determine
+        # if a photo needs to be re-exported and adding new properties may cause all photos
+        # to be re-exported
+        # see below `if not shallow:`
         dict_data = {
             "albums": self.albums,
             "burst": self.burst,
             "cloud_guid": self.cloud_guid,
             "cloud_owner_hashed_id": self.cloud_owner_hashed_id,
             "comments": comments,
-            "date": self.date,
             "date_added": self.date_added,
             "date_modified": self.date_modified,
             "date_trashed": self.date_trashed,
+            "date": self.date,
             "description": self.description,
             "exif_info": exif_info,
             "external_edit": self.external_edit,
@@ -1980,36 +1984,34 @@ class PhotoInfo:
             "original_width": self.original_width,
             "owner": self.owner,
             "panorama": self.panorama,
-            "path": self.path,
-            "path_edited": self.path_edited,
             "path_edited_live_photo": self.path_edited_live_photo,
+            "path_edited": self.path_edited,
             "path_live_photo": self.path_live_photo,
             "path_raw": self.path_raw,
+            "path": self.path,
             "persons": self.persons,
             "place": place,
             "portrait": self.portrait,
             "raw_original": self.raw_original,
-            "saved_to_library": self.saved_to_library,
             "score": score,
             "screenshot": self.screenshot,
             "selfie": self.selfie,
             "shared": self.shared,
-            "shared_moment": self.shared_moment,
             "slow_mo": self.slow_mo,
-            "syndicated": self.syndicated,
             "time_lapse": self.time_lapse,
             "title": self.title,
             "tzoffset": self.tzoffset,
-            "uti": self.uti,
             "uti_edited": self.uti_edited,
             "uti_original": self.uti_original,
             "uti_raw": self.uti_raw,
+            "uti": self.uti,
             "uuid": self.uuid,
             "visible": self.visible,
             "width": self.width,
         }
 
         # non-shallow keys
+        # add any new properties here
         if not shallow:
             dict_data["album_info"] = [album.asdict() for album in self.album_info]
             dict_data["path_derivatives"] = self.path_derivatives
@@ -2037,6 +2039,9 @@ class PhotoInfo:
                 if self.search_info_normalized
                 else {}
             )
+            dict_data["syndicated"] = self.syndicated
+            dict_data["saved_to_library"] = self.saved_to_library
+            dict_data["shared_moment"] = self.shared_moment
 
         return dict_data
 
