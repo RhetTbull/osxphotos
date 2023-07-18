@@ -93,13 +93,25 @@ def debug_dump(
             pprint.pprint(photosdb._dbpersons_fullname)
         elif attr == "photos":
             photos = photosdb.query(options=query_options)
-            uuid = [photo.uuid for photo in photos]
-            for uuid_ in uuid:
-                print(f"_dbphotos['{uuid_}']:")
+            for p in photos:
+                # print info on each photo
+                # catch any errors and continue (because if we're using debug-dump, it might be because of an error)
+                print(f"photo: {p.uuid}")
+                print(f"_dbphotos['{p.uuid}']:")
                 try:
-                    pprint.pprint(photosdb._dbphotos[uuid_])
+                    print(photosdb._dbphotos[p.uuid])
                 except KeyError:
-                    print(f"Did not find uuid {uuid_} in _dbphotos")
+                    print(f"Did not find uuid {p.uuid} in _dbphotos")
+                print("PhotoInfo:")
+                try:
+                    print(p.asdict(shallow=False))
+                except Exception as e:
+                    print(f"Error dumping PhotoInfo.asdict(): {e}")
+                print("ZASSET")
+                print(p.tables().ZASSET.rows_dict())
+                print("ZADDITIONALASSETATTRIBUTES")
+                print(p.tables().ZADDITIONALASSETATTRIBUTES.rows_dict())
+                print("-" * 40)
         else:
             try:
                 val = getattr(photosdb, attr)
