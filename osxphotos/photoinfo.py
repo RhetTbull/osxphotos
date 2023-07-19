@@ -1933,6 +1933,10 @@ class PhotoInfo:
         place = self.place.asdict() if self.place else {}
         score = dataclasses.asdict(self.score) if self.score else {}
 
+        # do not add any new properties to data_dict as this is used by export to determine
+        # if a photo needs to be re-exported and adding new properties may cause all photos
+        # to be re-exported
+        # see below `if not shallow:`
         dict_data = {
             "albums": self.albums,
             "burst": self.burst,
@@ -2007,6 +2011,7 @@ class PhotoInfo:
         }
 
         # non-shallow keys
+        # add any new properties here
         if not shallow:
             dict_data["album_info"] = [album.asdict() for album in self.album_info]
             dict_data["path_derivatives"] = self.path_derivatives
@@ -2034,6 +2039,9 @@ class PhotoInfo:
                 if self.search_info_normalized
                 else {}
             )
+            dict_data["syndicated"] = self.syndicated
+            dict_data["saved_to_library"] = self.saved_to_library
+            dict_data["shared_moment"] = self.shared_moment
 
         return dict_data
 
