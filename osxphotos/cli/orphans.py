@@ -101,6 +101,22 @@ def orphans(ctx, cli_obj, export, db, verbose_flag, timestamp, theme):
     )
     scan_for_files(directory, uuids_in_library)
 
+    # scopes directory (Photos 7+)
+    if photosdb.photos_version >= 7:
+        verbose_("Scanning scopes cloudsharing files")
+        directory = joinpath(
+            photosdb.library_path, "scopes", "cloudsharing", "resources"
+        )
+        scan_for_files(directory, uuids_in_library)
+
+        verbose_("Scanning scopes syndication files")
+        directory = joinpath(photosdb.library_path, "scopes", "syndication")
+        scan_for_files(directory, uuids_in_library)
+
+        verbose_("Scanning scopes momentshared files")
+        directory = joinpath(photosdb.library_path, "scopes", "momentshared")
+        scan_for_files(directory, uuids_in_library)
+
     # find orphans
     possible_orphans = []
     for uuid, files in uuids_in_library.items():
