@@ -52,6 +52,9 @@ _PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Dev preview: 15134, 12.1: 15331
 _PHOTOS_8_MODEL_VERSION = [16000, 16999]  # Ventura dev preview: 16119
 _PHOTOS_9_MODEL_VERSION = [17000, 17999]  # Sonoma dev preview: 17120
 
+# the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing
+_PHOTOS_SYNDICATION_MODEL_VERSION = 15323 # 12.0.1
+
 # some table names differ between Photos 5 and later versions
 _DB_TABLE_NAMES = {
     5: {

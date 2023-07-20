@@ -173,7 +173,11 @@ class PhotoInfo:
         """Returns candidate path for original photo on Photos >= version 5"""
         if self._info["shared"]:
             return self._path_5_shared()
-        if self.shared_moment and self._path_shared_moment():
+        if (
+            self.shared_moment
+            and self._db.photos_version >= 7
+            and self._path_shared_moment()
+        ):
             # path for photos in shared moments if it's in the shared moment folder
             # the file may also be in the originals folder which the next check will catch
             # check shared_moment first as a photo can be both a shared moment and syndicated
@@ -222,8 +226,8 @@ class PhotoInfo:
         )
 
     def _path_syndication(self):
-        """Return path for syndicated photo on Photos >= version 8"""
-        # Photos 8+ stores syndicated photos in a separate directory
+        """Return path for syndicated photo on Photos >= version 7"""
+        # Photos 7+ stores syndicated photos in a separate directory
         # in ~/Photos Library.photoslibrary/scopes/syndication/originals/X/UUID.ext
         # where X is first digit of UUID
         syndication_path = "scopes/syndication/originals"
@@ -237,8 +241,8 @@ class PhotoInfo:
         return path if os.path.isfile(path) else None
 
     def _path_shared_moment(self):
-        """Return path for shared moment photo on Photos >= version 8"""
-        # Photos 8+ stores shared moment photos in a separate directory
+        """Return path for shared moment photo on Photos >= version 7"""
+        # Photos 7+ stores shared moment photos in a separate directory
         # in ~/Photos Library.photoslibrary/scopes/momentshared/originals/X/UUID.ext
         # where X is first digit of UUID
         momentshared_path = "scopes/momentshared/originals"
@@ -371,7 +375,7 @@ class PhotoInfo:
         )
 
     def _path_edited_4(self) -> str | None:
-        """return path_edited for Photos <= 4; modified version of code in PhotoInfo to debug #859"""
+        """return path_edited for Photos <= 4; #859"""
 
         if not self._info["hasAdjustments"]:
             return None
@@ -476,7 +480,7 @@ class PhotoInfo:
 
         # In Photos 5, raw is in same folder as original but with _4.ext
         # Unless "Copy Items to the Photos Library" is not checked
-        # then RAW image is not renamed but has same name is jpeg buth with raw extension
+        # then RAW image is not renamed but has same name is jpeg but with raw extension
         # Current implementation finds images with the correct raw UTI extension
         # in same folder as the original and with same stem as original in form: original_stem*.raw_ext
         # TODO: I don't like this -- would prefer a more deterministic approach but until I have more
@@ -931,7 +935,7 @@ class PhotoInfo:
         elif self.live_photo and self.path and not self.ismissing:
             if self.shared:
                 return self._path_live_photo_shared_5()
-            if self.shared_moment:
+            if self.shared_moment and self._db.photos_version >= 7:
                 return self._path_live_shared_moment()
             if self.syndicated and not self.saved_to_library:
                 # syndicated ("Shared with you") photos not yet saved to library
@@ -995,8 +999,8 @@ class PhotoInfo:
         return photopath
 
     def _path_live_syndicated(self):
-        """Return path for live syndicated photo on Photos >= version 8"""
-        # Photos 8+ stores live syndicated photos in a separate directory
+        """Return path for live syndicated photo on Photos >= version 7"""
+        # Photos 7+ stores live syndicated photos in a separate directory
         # in ~/Photos Library.photoslibrary/scopes/syndication/originals/X/UUID_3.mov
         # where X is first digit of UUID
         syndication_path = "scopes/syndication/originals"
@@ -1011,8 +1015,8 @@ class PhotoInfo:
         return live_photo if os.path.isfile(live_photo) else None
 
     def _path_live_shared_moment(self):
-        """Return path for live shared moment photo on Photos >= version 8"""
-        # Photos 8+ stores live shared moment photos in a separate directory
+        """Return path for live shared moment photo on Photos >= version 7"""
+        # Photos 7+ stores live shared moment photos in a separate directory
         # in ~/Photos Library.photoslibrary/scopes/momentshared/originals/X/UUID_3.mov
         # where X is first digit of UUID
         shared_moment_path = "scopes/momentshared/originals"
@@ -1036,7 +1040,7 @@ class PhotoInfo:
             return self._path_derivatives_5_shared()
 
         directory = self._uuid[0]  # first char of uuid
-        if self.shared_moment:
+        if self.shared_moment and self._db.photos_version >= 7:
             # shared moments
             derivative_path = "scopes/momentshared/resources/derivatives"
             thumb_path = (
@@ -1398,9 +1402,9 @@ class PhotoInfo:
     def syndicated(self) -> bool | None:
         """Return true if photo was shared via syndication (e.g. via Messages, etc.);
         these are photos that appear in "Shared with you" album.
-        Photos 8+ only; returns None if not Photos 8+.
+        Photos 7+ only; returns None if not Photos 7+.
         """
-        if self._db.photos_version < 8:
+        if self._db.photos_version < 7:
             return None
 
         try:
@@ -1415,10 +1419,10 @@ class PhotoInfo:
     def saved_to_library(self) -> bool | None:
         """Return True if syndicated photo has been saved to library;
         returns False if photo is not syndicated or has not been saved to the library.
-        Returns None if not Photos 8+.
-        Syndicated photos are photos that appear in "Shared with you" album; Photos 8+ only.
+        Returns None if not Photos 7+.
+        Syndicated photos are photos that appear in "Shared with you" album; Photos 7+ only.
         """
-        if self._db.photos_version < 8:
+        if self._db.photos_version < 7:
             return None
 
         try:
@@ -1428,7 +1432,7 @@ class PhotoInfo:
 
     @cached_property
     def shared_moment(self) -> bool:
-        """Returns True if photo is part of a shared moment otherwise False"""
+        """Returns True if photo is part of a shared moment otherwise False (Photos 7+ only)"""
         return bool(self._info["moment_share"])
 
     @property
