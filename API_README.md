@@ -1181,12 +1181,12 @@ Returns True if photo is a [cloud asset](#iscloudasset) and is synched to iCloud
 
 #### `syndicated`
 
-Return true if photo was shared via syndication (e.g. via Messages, etc.); these are photos that appear in "Shared with you" album. Photos 8+ only; returns None if not Photos 8+.
+Return true if photo was shared via syndication (e.g. via Messages, etc.); these are photos that appear in "Shared with you" album. Photos 7+ only; returns None if not Photos 7+.
 
 #### `saved_to_library`
 
 Return True if syndicated photo has been saved to library; returns False if photo is not syndicated or has not been saved to the library.
-Syndicated photos are photos that appear in "Shared with you" album. Photos 8+ only; returns None if not Photos 8+.
+Syndicated photos are photos that appear in "Shared with you" album. Photos 7+ only; returns None if not Photos 7+.
 
 ### `shared_moment`
 

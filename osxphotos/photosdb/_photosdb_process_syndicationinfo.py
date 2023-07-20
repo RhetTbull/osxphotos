@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .._constants import _DB_TABLE_NAMES
+from .._constants import _DB_TABLE_NAMES, _PHOTOS_SYNDICATION_MODEL_VERSION
 from ..sqlite_utils import sqlite_open_ro
 
 if TYPE_CHECKING:
@@ -16,15 +16,18 @@ def _process_syndicationinfo(self: PhotosDB):
 
     self._db_syndication_uuid = {}
 
-    if self.photos_version < 8:
+    if self.photos_version < 7:
         raise NotImplementedError(
             f"syndication info not implemented for this database version: {self.photos_version}"
         )
-    else:
-        _process_syndicationinfo_8(self)
+
+    if self._model_ver < _PHOTOS_SYNDICATION_MODEL_VERSION:
+        return
+
+    _process_syndicationinfo_7(self)
 
 
-def _process_syndicationinfo_8(photosdb: PhotosDB):
+def _process_syndicationinfo_7(photosdb: PhotosDB):
     """Process Syndication info for Photos 8.0 and later
 
     Args:

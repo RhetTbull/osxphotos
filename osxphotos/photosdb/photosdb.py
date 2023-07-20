@@ -62,7 +62,7 @@ from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from ..unicode import normalize_unicode
 from ..utils import _check_file_exists, get_last_library_path, noop
-from .photosdb_utils import get_db_model_version, get_db_version
+from .photosdb_utils import get_photos_version_from_model, get_db_version, get_model_version
 
 if is_macos:
     import photoscript
@@ -326,7 +326,7 @@ class PhotosDB:
         # photoanalysisd sometimes maintains this lock even after Photos is closed
         # In those cases, make a temp copy of the file for sqlite3 to read
         if sqlite_db_is_locked(self._dbfile):
-            verbose(f"Database locked, creating temporary copy.")
+            verbose("Database locked, creating temporary copy.")
             self._tmp_db = self._copy_db_file(self._dbfile)
 
         # _db_version is set from photos.db
@@ -341,21 +341,23 @@ class PhotosDB:
             self._photos_ver = 4
         else:
             self._photos_ver = 5
+        self._model_ver = 0  # only set for Photos 5+
+
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) > int(_PHOTOS_4_VERSION):
             dbpath = pathlib.Path(self._dbfile).parent
             dbfile = dbpath / "Photos.sqlite"
             if not _check_file_exists(dbfile):
                 raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
-            else:
-                self._dbfile_actual = self._tmp_db = dbfile
-                verbose(f"Processing database {self._filepath(self._dbfile_actual)}")
-                # if database is exclusively locked, make a copy of it and use the copy
-                if sqlite_db_is_locked(self._dbfile_actual):
-                    verbose(f"Database locked, creating temporary copy.")
-                    self._tmp_db = self._copy_db_file(self._dbfile_actual)
+            self._dbfile_actual = self._tmp_db = dbfile
+            verbose(f"Processing database {self._filepath(self._dbfile_actual)}")
+            # if database is exclusively locked, make a copy of it and use the copy
+            if sqlite_db_is_locked(self._dbfile_actual):
+                verbose("Database locked, creating temporary copy.")
+                self._tmp_db = self._copy_db_file(self._dbfile_actual)
             # set the photos version to actual value based on Photos.sqlite
-            self._photos_ver = get_db_model_version(self._tmp_db)
+            self._photos_ver = get_photos_version_from_model(self._tmp_db)
+            self._model_ver = get_model_version(self._tmp_db)
 
             logger.debug(
                 f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
@@ -1235,7 +1237,7 @@ class PhotosDB:
             # photos 5+ only, for shared photos
             self._dbphotos[uuid]["cloudownerhashedpersonid"] = None
 
-            # photos 8+ only, shared moments
+            # photos 7+ only, shared moments
             self._dbphotos[uuid]["moment_share"] = None
 
             # compute signatures for finding possible duplicates
@@ -2004,7 +2006,7 @@ class PhotosDB:
         # 41   ZGENERICASSET.ZADDEDDATE -- date item added to the library
         # 42   ZGENERICASSET.Z_PK -- primary key
         # 43   ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID -- used to look up owner name (for shared photos)
-        # 44   ZASSET.ZMOMENTSHARE -- FK for ZSHARE (shared moments, Photos 8+)
+        # 44   ZASSET.ZMOMENTSHARE -- FK for ZSHARE (shared moments, Photos 5+; in Photos 7+ these are in the scopes/momentshared folder)
 
         for row in c:
             uuid = row[0]
@@ -2526,7 +2528,7 @@ class PhotosDB:
         verbose("Processing moments.")
         self._process_moments()
 
-        if self.photos_version >= 8:
+        if self.photos_version >= 7:
             verbose("Processing syndication info.")
             self._process_syndicationinfo()
 
