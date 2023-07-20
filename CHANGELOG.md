@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.60.10](https://github.com/RhetTbull/osxphotos/compare/v0.60.9...v0.60.10)
+
+Support for syndicated photos on Monterey (Photos 7)
+
+### [v0.60.10] - 2023-07-20
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+- Added additional photo details to `osxphotos debug-dump`
+
+#### Fixed
+
+- Syndicated photos now work on Monterey (#1116)
+- `osxphotos orphans` now also scans the scopes directory
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) - code
+- [@neilpa](https://github.com/neilpa) - for testing and finding the bug with syndicated photos on Monterey
+
 ## [v0.60.9](https://github.com/RhetTbull/osxphotos/compare/v0.60.8...v0.60.9)
 
 Fixed missing path for photos that are part of a shared moment (Ventura+)
