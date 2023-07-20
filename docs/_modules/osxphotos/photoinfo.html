@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoinfo - osxphotos 0.60.9 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.60.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.60.9 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.60.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.60.9 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -370,7 +370,11 @@
         <span class="sd">&quot;&quot;&quot;Returns candidate path for original photo on Photos &gt;= version 5&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;shared&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_5_shared</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_shared_moment</span><span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&gt;=</span> <span class="mi">7</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_shared_moment</span><span class="p">()</span>
+        <span class="p">):</span>
             <span class="c1"># path for photos in shared moments if it&#39;s in the shared moment folder</span>
             <span class="c1"># the file may also be in the originals folder which the next check will catch</span>
             <span class="c1"># check shared_moment first as a photo can be both a shared moment and syndicated</span>
@@ -419,8 +423,8 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_path_syndication</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return path for syndicated photo on Photos &gt;= version 8&quot;&quot;&quot;</span>
-        <span class="c1"># Photos 8+ stores syndicated photos in a separate directory</span>
+        <span class="sd">&quot;&quot;&quot;Return path for syndicated photo on Photos &gt;= version 7&quot;&quot;&quot;</span>
+        <span class="c1"># Photos 7+ stores syndicated photos in a separate directory</span>
         <span class="c1"># in ~/Photos Library.photoslibrary/scopes/syndication/originals/X/UUID.ext</span>
         <span class="c1"># where X is first digit of UUID</span>
         <span class="n">syndication_path</span> <span class="o">=</span> <span class="s2">&quot;scopes/syndication/originals&quot;</span>
@@ -434,8 +438,8 @@
         <span class="k">return</span> <span class="n">path</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_path_shared_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return path for shared moment photo on Photos &gt;= version 8&quot;&quot;&quot;</span>
-        <span class="c1"># Photos 8+ stores shared moment photos in a separate directory</span>
+        <span class="sd">&quot;&quot;&quot;Return path for shared moment photo on Photos &gt;= version 7&quot;&quot;&quot;</span>
+        <span class="c1"># Photos 7+ stores shared moment photos in a separate directory</span>
         <span class="c1"># in ~/Photos Library.photoslibrary/scopes/momentshared/originals/X/UUID.ext</span>
         <span class="c1"># where X is first digit of UUID</span>
         <span class="n">momentshared_path</span> <span class="o">=</span> <span class="s2">&quot;scopes/momentshared/originals&quot;</span>
@@ -568,7 +572,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_path_edited_4</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return path_edited for Photos &lt;= 4; modified version of code in PhotoInfo to debug #859&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return path_edited for Photos &lt;= 4; #859&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;hasAdjustments&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -673,7 +677,7 @@
 
         <span class="c1"># In Photos 5, raw is in same folder as original but with _4.ext</span>
         <span class="c1"># Unless &quot;Copy Items to the Photos Library&quot; is not checked</span>
-        <span class="c1"># then RAW image is not renamed but has same name is jpeg buth with raw extension</span>
+        <span class="c1"># then RAW image is not renamed but has same name is jpeg but with raw extension</span>
         <span class="c1"># Current implementation finds images with the correct raw UTI extension</span>
         <span class="c1"># in same folder as the original and with same stem as original in form: original_stem*.raw_ext</span>
         <span class="c1"># TODO: I don&#39;t like this -- would prefer a more deterministic approach but until I have more</span>
@@ -1128,7 +1132,7 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismissing</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_photo_shared_5</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_shared_moment</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">syndicated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_to_library</span><span class="p">:</span>
                 <span class="c1"># syndicated (&quot;Shared with you&quot;) photos not yet saved to library</span>
@@ -1192,8 +1196,8 @@
         <span class="k">return</span> <span class="n">photopath</span>
 
     <span class="k">def</span> <span class="nf">_path_live_syndicated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return path for live syndicated photo on Photos &gt;= version 8&quot;&quot;&quot;</span>
-        <span class="c1"># Photos 8+ stores live syndicated photos in a separate directory</span>
+        <span class="sd">&quot;&quot;&quot;Return path for live syndicated photo on Photos &gt;= version 7&quot;&quot;&quot;</span>
+        <span class="c1"># Photos 7+ stores live syndicated photos in a separate directory</span>
         <span class="c1"># in ~/Photos Library.photoslibrary/scopes/syndication/originals/X/UUID_3.mov</span>
         <span class="c1"># where X is first digit of UUID</span>
         <span class="n">syndication_path</span> <span class="o">=</span> <span class="s2">&quot;scopes/syndication/originals&quot;</span>
@@ -1208,8 +1212,8 @@
         <span class="k">return</span> <span class="n">live_photo</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">live_photo</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_path_live_shared_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return path for live shared moment photo on Photos &gt;= version 8&quot;&quot;&quot;</span>
-        <span class="c1"># Photos 8+ stores live shared moment photos in a separate directory</span>
+        <span class="sd">&quot;&quot;&quot;Return path for live shared moment photo on Photos &gt;= version 7&quot;&quot;&quot;</span>
+        <span class="c1"># Photos 7+ stores live shared moment photos in a separate directory</span>
         <span class="c1"># in ~/Photos Library.photoslibrary/scopes/momentshared/originals/X/UUID_3.mov</span>
         <span class="c1"># where X is first digit of UUID</span>
         <span class="n">shared_moment_path</span> <span class="o">=</span> <span class="s2">&quot;scopes/momentshared/originals&quot;</span>
@@ -1233,7 +1237,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_derivatives_5_shared</span><span class="p">()</span>
 
         <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># first char of uuid</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
             <span class="c1"># shared moments</span>
             <span class="n">derivative_path</span> <span class="o">=</span> <span class="s2">&quot;scopes/momentshared/resources/derivatives&quot;</span>
             <span class="n">thumb_path</span> <span class="o">=</span> <span class="p">(</span>
@@ -1595,9 +1599,9 @@
     <span class="k">def</span> <span class="nf">syndicated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return true if photo was shared via syndication (e.g. via Messages, etc.);</span>
 <span class="sd">        these are photos that appear in &quot;Shared with you&quot; album.</span>
-<span class="sd">        Photos 8+ only; returns None if not Photos 8+.</span>
+<span class="sd">        Photos 7+ only; returns None if not Photos 7+.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1612,10 +1616,10 @@
     <span class="k">def</span> <span class="nf">saved_to_library</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return True if syndicated photo has been saved to library;</span>
 <span class="sd">        returns False if photo is not syndicated or has not been saved to the library.</span>
-<span class="sd">        Returns None if not Photos 8+.</span>
-<span class="sd">        Syndicated photos are photos that appear in &quot;Shared with you&quot; album; Photos 8+ only.</span>
+<span class="sd">        Returns None if not Photos 7+.</span>
+<span class="sd">        Syndicated photos are photos that appear in &quot;Shared with you&quot; album; Photos 7+ only.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1625,7 +1629,7 @@
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">shared_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns True if photo is part of a shared moment otherwise False&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns True if photo is part of a shared moment otherwise False (Photos 7+ only)&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;moment_share&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
@@ -2130,6 +2134,10 @@
         <span class="n">place</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="n">score</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="k">else</span> <span class="p">{}</span>
 
+        <span class="c1"># do not add any new properties to data_dict as this is used by export to determine</span>
+        <span class="c1"># if a photo needs to be re-exported and adding new properties may cause all photos</span>
+        <span class="c1"># to be re-exported</span>
+        <span class="c1"># see below `if not shallow:`</span>
         <span class="n">dict_data</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;albums&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">,</span>
             <span class="s2">&quot;burst&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
@@ -2204,6 +2212,7 @@
         <span class="p">}</span>
 
         <span class="c1"># non-shallow keys</span>
+        <span class="c1"># add any new properties here</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">shallow</span><span class="p">:</span>
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;album_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">album</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">]</span>
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;path_derivatives&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_derivatives</span>
@@ -2231,6 +2240,9 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_info_normalized</span>
                 <span class="k">else</span> <span class="p">{}</span>
             <span class="p">)</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;syndicated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">syndicated</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;saved_to_library&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_to_library</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;shared_moment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span>
 
         <span class="k">return</span> <span class="n">dict_data</span></div>
 

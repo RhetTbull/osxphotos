@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Python Reference - osxphotos 0.60.9 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.60.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.60.9 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.60.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.60.9 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.60.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -2189,8 +2189,8 @@ otherwise returns False</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">saved_to_library</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.saved_to_library" title="Permalink to this definition">#</a></dt>
 <dd><p>Return True if syndicated photo has been saved to library;
 returns False if photo is not syndicated or has not been saved to the library.
-Returns None if not Photos 8+.
-Syndicated photos are photos that appear in “Shared with you” album; Photos 8+ only.</p>
+Returns None if not Photos 7+.
+Syndicated photos are photos that appear in “Shared with you” album; Photos 7+ only.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -2240,7 +2240,7 @@ Only valid on Photos 5; returns None on older versions</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.shared_moment">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shared_moment</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.shared_moment" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns True if photo is part of a shared moment otherwise False</p>
+<dd><p>Returns True if photo is part of a shared moment otherwise False (Photos 7+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -2254,7 +2254,7 @@ Only valid on Photos 5; returns None on older versions</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">syndicated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.syndicated" title="Permalink to this definition">#</a></dt>
 <dd><p>Return true if photo was shared via syndication (e.g. via Messages, etc.);
 these are photos that appear in “Shared with you” album.
-Photos 8+ only; returns None if not Photos 8+.</p>
+Photos 7+ only; returns None if not Photos 7+.</p>
 </dd></dl>
 
 <dl class="py method">
