@@ -86,9 +86,10 @@ from .common import (
     get_photos_db,
     noop,
 )
+from .custom_sidecar import generate_custom_sidecar
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
-from .param_types import ExportDBType, FunctionCall, TemplateString
+from .param_types import ExportDBType, FunctionCall, TemplateString, BooleanString
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
@@ -304,7 +305,8 @@ from .verbose import get_verbose_console, verbose_print
     "The resulting file is named photoname.AAE. "
     "Note that to import these files back to Photos succesfully, you also need to "
     "export the edited photo and match the filename format Photos.app expects: "
-    "--filename 'IMG_{edited_version?E,}{id:04d}' --edited-suffix ''")
+    "--filename 'IMG_{edited_version?E,}{id:04d}' --edited-suffix ''",
+)
 @click.option(
     "--sidecar",
     default=None,
@@ -337,6 +339,15 @@ from .verbose import get_verbose_console, verbose_print
     "Resulting sidecar files will have name in format 'IMG_1234.xmp'. "
     "Warning: this may result in sidecar filename collisions if there are files of different "
     "types but the same name in the output directory, e.g. 'IMG_1234.JPG' and 'IMG_1234.MOV'.",
+)
+@click.option(
+    "--sidecar-template",
+    metavar="MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE STRIP_WHITESPACE STRIP_LINES",
+    multiple=True,
+    type=click.Tuple(
+        [click.Path(dir_okay=False, file_okay=True, exists=True), TemplateString(), BooleanString(), BooleanString()]
+    ),
+    help="Mako template for custom sidecar.",
 )
 @click.option(
     "--exiftool",
@@ -863,6 +874,7 @@ def export(
     export_aae,
     sidecar,
     sidecar_drop_ext,
+    sidecar_template,
     skip_bursts,
     skip_edited,
     skip_live,
@@ -1090,6 +1102,7 @@ def export(
         export_aae = cfg.export_aae
         sidecar = cfg.sidecar
         sidecar_drop_ext = cfg.sidecar_drop_ext
+        sidecar_template = cfg.sidecar_template
         skip_bursts = cfg.skip_bursts
         skip_edited = cfg.skip_edited
         skip_live = cfg.skip_live
@@ -1473,6 +1486,21 @@ def export(
                 kwargs["photo"] = p
                 kwargs["photo_num"] = photo_num
                 export_results = export_photo(**kwargs)
+
+                # generate custom sidecars if needed
+                if sidecar_template:
+                    print(f"Generating sidecars: {sidecar_template}")
+                    generate_custom_sidecar(
+                        photo=p,
+                        export_results=export_results,
+                        sidecar_template=sidecar_template,
+                        exiftool_path=exiftool_path,
+                        export_dir=dest,
+                        dry_run=dry_run,
+                        verbose=verbose,
+                    )
+
+                # run post functions
                 if post_function:
                     for function in post_function:
                         # post function is tuple of (function, filename.py::function_name)
@@ -1485,6 +1513,7 @@ def export(
                                     f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
                                 )
 
+                # run post command
                 run_post_command(
                     photo=p,
                     post_command=post_command,
@@ -2739,9 +2768,6 @@ def run_post_command(
     verbose,
 ):
     # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
-    # todo: need a shell_quote template type:
-    # {shell_quote,{filepath}/foo/bar}
-    # that quotes everything in the default value
     for category, command_template in post_command:
         files = getattr(export_results, category)
         for f in files:
