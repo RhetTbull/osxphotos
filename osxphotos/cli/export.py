@@ -345,9 +345,29 @@ from .verbose import get_verbose_console, verbose_print
     metavar="MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE STRIP_WHITESPACE STRIP_LINES",
     multiple=True,
     type=click.Tuple(
-        [click.Path(dir_okay=False, file_okay=True, exists=True), TemplateString(), BooleanString(), BooleanString()]
+        [
+            click.Path(dir_okay=False, file_okay=True, exists=True),
+            TemplateString(),
+            BooleanString(),
+            BooleanString(),
+        ]
     ),
-    help="Mako template for custom sidecar.",
+    help="Create a custom sidecar file for each photo exported with user provided Mako template (MAKO_TEMPLATE_FILE). "
+    "MAKO_TEMPLATE_FILE must be a valid Mako template (see https://www.makotemplates.org/). "
+    "The template will passed the following variables: photo (PhotoInfo object for the photo being exported), "
+    "sidecar_path (pathlib.Path object for the path to the sidecar being written), and "
+    "photo_path (pathlib.Path object for the path to the exported photo. "
+    "SIDECAR_TEMPLATE_FILENAME must be a valid template string (see Templating System below) "
+    "which will be rendered to generate the filename of the sidecar file. "
+    "The `{filepath}` template variable may be used in the SIDECAR_TEMPLATE_FILENAME to refer to the filename of the "
+    "photo being exported. "
+    "STRIP_WHITESPACE and STRIP_LINES are boolean values (true/false, yes/no, 1/0 are all valid values) "
+    "and indicate whether or not to strip whitespace and blank lines from the resulting sidecar file. "
+    "For example, to create a sidecar file with extension .xmp using a template file named 'sidecar.mako' "
+    "and strip blank lines but not whitespace: "
+    "`--sidecar-template sidecar.mako '{filepath}.xmp' no yes`. "
+    "To do the same but to drop the photo extension from the sidecar filename: "
+    "`--sidecar-template sidecar.mako '{filepath.parent}/{filepath.stem}.xmp' no yes --sidecar-drop-ext`. "
 )
 @click.option(
     "--exiftool",
