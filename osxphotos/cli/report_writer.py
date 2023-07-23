@@ -98,6 +98,7 @@ class ExportReportWriterCSV(ReportWriterABC):
             "cleanup_deleted_file",
             "cleanup_deleted_directory",
             "exported_album",
+            "sidecar_user",
         ]
 
         mode = "a" if append else "w"
@@ -197,9 +198,9 @@ class ExportReportWriterSQLite(ReportWriterABC):
             cursor = self._conn.cursor()
             cursor.execute(
                 "INSERT INTO report "
-                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id) "
+                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user) "
                 "VALUES "
-                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id);",
+                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user);",
                 data,
             )
         self._conn.commit()
@@ -260,6 +261,13 @@ class ExportReportWriterSQLite(ReportWriterABC):
         # migrate report table to add report_id if needed (#731)
         if "report_id" not in sqlite_columns(self._conn, "report"):
             self._conn.cursor().execute("ALTER TABLE report ADD COLUMN report_id TEXT;")
+            self._conn.commit()
+
+        # migrate report table and add sidecar_user column if needed (#1123)
+        if "sidecar_user" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute(
+                "ALTER TABLE report ADD COLUMN sidecar_user INTEGER;"
+            )
             self._conn.commit()
 
         # create report_summary view
@@ -347,6 +355,7 @@ def prepare_export_results_for_writing(
                 "cleanup_deleted_file": false,
                 "cleanup_deleted_directory": false,
                 "exported_album": "",
+                "sidecar_user": false,
             }
 
     for result in export_results.exported:
@@ -420,6 +429,14 @@ def prepare_export_results_for_writing(
 
     for result, album in export_results.exported_album:
         all_results[str(result)]["exported_album"] = album
+
+    for result in export_results.sidecar_user_written:
+        all_results[str(result)]["sidecar_user"] = true
+        all_results[str(result)]["exported"] = true
+
+    for result in export_results.sidecar_user_skipped:
+        all_results[str(result)]["sidecar_user"] = true
+        all_results[str(result)]["skipped"] = true
 
     return all_results
 
