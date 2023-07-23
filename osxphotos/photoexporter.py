@@ -290,6 +290,8 @@ class ExportResults:
         "sidecar_json_written",
         "sidecar_xmp_skipped",
         "sidecar_xmp_written",
+        "sidecar_user_written",
+        "sidecar_user_skipped",
         "skipped",
         "skipped_album",
         "to_touch",
@@ -321,6 +323,8 @@ class ExportResults:
         sidecar_json_written=None,
         sidecar_xmp_skipped=None,
         sidecar_xmp_written=None,
+        sidecar_user_written=None,
+        sidecar_user_skipped=None,
         skipped=None,
         skipped_album=None,
         to_touch=None,
@@ -361,6 +365,8 @@ class ExportResults:
             + self.sidecar_exiftool_skipped
             + self.sidecar_xmp_written
             + self.sidecar_xmp_skipped
+            + self.sidecar_user_written
+            + self.sidecar_user_skipped
             + self.missing
         )
         files += [x[0] for x in self.exiftool_warning]

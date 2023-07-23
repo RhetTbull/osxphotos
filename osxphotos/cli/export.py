@@ -86,12 +86,12 @@ from .common import (
     get_photos_db,
     noop,
 )
-from .custom_sidecar import generate_custom_sidecar
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
-from .param_types import ExportDBType, FunctionCall, TemplateString, BooleanString
+from .param_types import BooleanString, ExportDBType, FunctionCall, TemplateString
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
+from .sidecar import generate_user_sidecar
 from .verbose import get_verbose_console, verbose_print
 
 
@@ -342,12 +342,13 @@ from .verbose import get_verbose_console, verbose_print
 )
 @click.option(
     "--sidecar-template",
-    metavar="MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE STRIP_WHITESPACE STRIP_LINES",
+    metavar="MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE WRITE_SKIPPED STRIP_WHITESPACE STRIP_LINES",
     multiple=True,
     type=click.Tuple(
         [
             click.Path(dir_okay=False, file_okay=True, exists=True),
             TemplateString(),
+            BooleanString(),
             BooleanString(),
             BooleanString(),
         ]
@@ -357,17 +358,22 @@ from .verbose import get_verbose_console, verbose_print
     "The template will passed the following variables: photo (PhotoInfo object for the photo being exported), "
     "sidecar_path (pathlib.Path object for the path to the sidecar being written), and "
     "photo_path (pathlib.Path object for the path to the exported photo. "
-    "SIDECAR_TEMPLATE_FILENAME must be a valid template string (see Templating System below) "
+    "SIDECAR_TEMPLATE_FILENAME must be a valid template string (see Templating System in help) "
     "which will be rendered to generate the filename of the sidecar file. "
     "The `{filepath}` template variable may be used in the SIDECAR_TEMPLATE_FILENAME to refer to the filename of the "
     "photo being exported. "
+    "WRITE_SKIPPED is a boolean value (true/false, yes/no, 1/0 are all valid values) and indicates whether or not "
+    "write the sidecar file even if the photo is skipped during export. "
+    "If WRITE_SKIPPED is false, the sidecar file will not be written if the photo is skipped during export. "
+    "If WRITE_SKIPPED is true, the sidecar file will be written even if the photo is skipped during export. "
     "STRIP_WHITESPACE and STRIP_LINES are boolean values (true/false, yes/no, 1/0 are all valid values) "
     "and indicate whether or not to strip whitespace and blank lines from the resulting sidecar file. "
     "For example, to create a sidecar file with extension .xmp using a template file named 'sidecar.mako' "
-    "and strip blank lines but not whitespace: "
-    "`--sidecar-template sidecar.mako '{filepath}.xmp' no yes`. "
+    "and write a sidecar for skipped photos and strip blank lines but not whitespace: "
+    "`--sidecar-template sidecar.mako '{filepath}.xmp' yes no yes`. "
     "To do the same but to drop the photo extension from the sidecar filename: "
-    "`--sidecar-template sidecar.mako '{filepath.parent}/{filepath.stem}.xmp' no yes --sidecar-drop-ext`. "
+    "`--sidecar-template sidecar.mako '{filepath.parent}/{filepath.stem}.xmp' yes no yes --sidecar-drop-ext`. "
+    "For an example Mako file see https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/custom_sidecar.mako",
 )
 @click.option(
     "--exiftool",
@@ -1509,8 +1515,7 @@ def export(
 
                 # generate custom sidecars if needed
                 if sidecar_template:
-                    print(f"Generating sidecars: {sidecar_template}")
-                    generate_custom_sidecar(
+                    export_results += generate_user_sidecar(
                         photo=p,
                         export_results=export_results,
                         sidecar_template=sidecar_template,
@@ -1716,6 +1721,8 @@ def export(
             + results.sidecar_exiftool_skipped
             + results.sidecar_xmp_written
             + results.sidecar_xmp_skipped
+            + results.sidecar_user_written
+            + results.sidecar_user_skipped
             # include missing so a file that was already in export directory
             # but was missing on --update doesn't get deleted
             # (better to have old version than none)
@@ -1815,7 +1822,7 @@ def export_photo(
     num_photos=1,
     tmpdir=None,
     update_errors=False,
-):
+) -> ExportResults:
     """Helper function for export that does the actual export
 
     Args:
@@ -1866,6 +1873,7 @@ def export_photo(
         use_photos_export: bool; if True forces the use of AppleScript to export even if photo not missing
         verbose: callable for verbose output
         tmpdir: optional str; temporary directory to use for export
+
     Returns:
         list of path(s) of exported photo or None if photo was missing
 
@@ -2238,7 +2246,7 @@ def export_photo_to_directory(
     use_photokit,
     verbose,
     tmpdir,
-):
+) -> ExportResults:
     """Export photo to directory dest_path"""
 
     results = ExportResults()
