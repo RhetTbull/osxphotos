@@ -51,6 +51,7 @@ def test_export_sidecar_template_1():
         sidecar_data = sidecar_file.read_text()
         assert sidecar_data == SIDECAR_DATA
 
+
 def test_export_sidecar_template_strip_whitespace():
     """test basic export with --sidecar-template and STRIP_WHITESPACE = True"""
     runner = CliRunner()
@@ -78,7 +79,9 @@ def test_export_sidecar_template_strip_whitespace():
         sidecar_file = pathlib.Path("wedding.jpg.txt")
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
-        sidecar_expected = "\n".join(line.strip() for line in SIDECAR_DATA.splitlines()) + "\n"
+        sidecar_expected = (
+            "\n".join(line.strip() for line in SIDECAR_DATA.splitlines()) + "\n"
+        )
         assert sidecar_data == sidecar_expected
 
 
@@ -109,9 +112,10 @@ def test_export_sidecar_template_strip_lines():
         sidecar_file = pathlib.Path("wedding.jpg.txt")
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
-        sidecar_expected = "\n".join(line for line in SIDECAR_DATA.splitlines() if line.strip())
+        sidecar_expected = "\n".join(
+            line for line in SIDECAR_DATA.splitlines() if line.strip()
+        )
         assert sidecar_data == sidecar_expected
-
 
 
 def test_export_sidecar_template_strip_lines_strip_whitespace():
@@ -141,5 +145,7 @@ def test_export_sidecar_template_strip_lines_strip_whitespace():
         sidecar_file = pathlib.Path("wedding.jpg.txt")
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
-        sidecar_expected = "\n".join(line.strip() for line in SIDECAR_DATA.splitlines() if line.strip())
+        sidecar_expected = "\n".join(
+            line.strip() for line in SIDECAR_DATA.splitlines() if line.strip()
+        )
         assert sidecar_data == sidecar_expected
