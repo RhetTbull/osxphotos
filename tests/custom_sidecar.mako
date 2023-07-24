@@ -16,7 +16,7 @@
     % endif
 </%def>\
 
-Photo: ${photo_path.name}
-UUID: ${photo.uuid}
 Sidecar: ${sidecar_path.name}
-Rating: ${rating(photo)}
+    Photo: ${photo_path.name}
+    UUID: ${photo.uuid}
+    Rating: ${rating(photo)}

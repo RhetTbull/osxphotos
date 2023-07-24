@@ -18,6 +18,7 @@ from osxphotos.utils import expand_and_validate_filepath, load_function
 
 __all__ = [
     "BitMathSize",
+    "BooleanString",
     "DateOffset",
     "DateTimeISO8601",
     "DeprecatedPath",
@@ -301,4 +302,20 @@ class Longitude(click.ParamType):
         except Exception:
             self.fail(
                 f"Invalid longitude {value}. Must be a floating point number between -180 and 180."
+            )
+
+
+class BooleanString(click.ParamType):
+    """A boolean string in the format True/False, Yes/No, T/F, Y/N, 1/0 (case insensitive)"""
+
+    name = "BooleanString"
+
+    def convert(self, value, param, ctx):
+        if value.lower() in ["true", "yes", "t", "y", "1"]:
+            return True
+        elif value.lower() in ["false", "no", "f", "n", "0"]:
+            return False
+        else:
+            self.fail(
+                f"Invalid boolean string {value}. Must be one of True/False, Yes/No, T/F, Y/N, 1/0 (case insensitive)."
             )
