@@ -10,6 +10,8 @@ from osxphotos.cli import export
 
 PHOTOS_DB = "./tests/Test-10.15.7.photoslibrary"
 
+PHOTO_UUID = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
+SIDECAR_FILENAME = "wedding.jpg.txt"
 SIDECAR_DATA = """
 
 
@@ -19,7 +21,6 @@ Sidecar: wedding.jpg.txt
     Rating: ★★★★★
 """
 
-PHOTO_UUID = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
 
 
 def test_export_sidecar_template_1():
@@ -46,7 +47,7 @@ def test_export_sidecar_template_1():
             ],
         )
         assert result.exit_code == 0
-        sidecar_file = pathlib.Path("wedding.jpg.txt")
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME)
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
         assert sidecar_data == SIDECAR_DATA
@@ -76,7 +77,7 @@ def test_export_sidecar_template_strip_whitespace():
             ],
         )
         assert result.exit_code == 0
-        sidecar_file = pathlib.Path("wedding.jpg.txt")
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME)
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
         sidecar_expected = (
@@ -109,7 +110,7 @@ def test_export_sidecar_template_strip_lines():
             ],
         )
         assert result.exit_code == 0
-        sidecar_file = pathlib.Path("wedding.jpg.txt")
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME)
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
         sidecar_expected = "\n".join(
@@ -142,7 +143,7 @@ def test_export_sidecar_template_strip_lines_strip_whitespace():
             ],
         )
         assert result.exit_code == 0
-        sidecar_file = pathlib.Path("wedding.jpg.txt")
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME)
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
         sidecar_expected = "\n".join(
