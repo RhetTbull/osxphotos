@@ -1117,6 +1117,52 @@ Options:
                                   of different types but the same name in the
                                   output directory, e.g. 'IMG_1234.JPG' and
                                   'IMG_1234.MOV'.
+  --sidecar-template MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE WRITE_SKIPPED STRIP_WHITESPACE STRIP_LINES
+                                  Create a custom sidecar file for each photo
+                                  exported with user provided Mako template
+                                  (MAKO_TEMPLATE_FILE). MAKO_TEMPLATE_FILE must
+                                  be a valid Mako template (see
+                                  https://www.makotemplates.org/). The template
+                                  will passed the following variables: photo
+                                  (PhotoInfo object for the photo being
+                                  exported), sidecar_path (pathlib.Path object
+                                  for the path to the sidecar being written),
+                                  and photo_path (pathlib.Path object for the
+                                  path to the exported photo.
+                                  SIDECAR_FILENAME_TEMPLATE must be a valid
+                                  template string (see Templating System in
+                                  help) which will be rendered to generate the
+                                  filename of the sidecar file. The `{filepath}`
+                                  template variable may be used in the
+                                  SIDECAR_FILENAME_TEMPLATE to refer to the
+                                  filename of the photo being exported.
+                                  WRITE_SKIPPED is a boolean value (true/false,
+                                  yes/no, 1/0 are all valid values) and
+                                  indicates whether or not write the sidecar
+                                  file even if the photo is skipped during
+                                  export. If WRITE_SKIPPED is false, the sidecar
+                                  file will not be written if the photo is
+                                  skipped during export. If WRITE_SKIPPED is
+                                  true, the sidecar file will be written even if
+                                  the photo is skipped during export.
+                                  STRIP_WHITESPACE and STRIP_LINES are boolean
+                                  values (true/false, yes/no, 1/0 are all valid
+                                  values) and indicate whether or not to strip
+                                  whitespace and blank lines from the resulting
+                                  sidecar file. For example, to create a sidecar
+                                  file with extension .xmp using a template file
+                                  named 'sidecar.mako' and write a sidecar for
+                                  skipped photos and strip blank lines but not
+                                  whitespace: `--sidecar-template sidecar.mako
+                                  '{filepath}.xmp' yes no yes`. To do the same
+                                  but to drop the photo extension from the
+                                  sidecar filename: `--sidecar-template
+                                  sidecar.mako
+                                  '{filepath.parent}/{filepath.stem}.xmp' yes no
+                                  yes --sidecar-drop-ext`. For an example Mako
+                                  file see https://raw.githubusercontent.com/Rhe
+                                  tTbull/osxphotos/main/examples/custom_sidecar.
+                                  mako
   --exiftool                      Use exiftool to write metadata directly to
                                   exported photos. To use this option, exiftool
                                   must be installed and in the path.  exiftool
@@ -2124,7 +2170,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.60.10'
+{osxphotos_version}             The osxphotos version, e.g. '0.61.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2611,7 +2657,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.60.10'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.61.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
