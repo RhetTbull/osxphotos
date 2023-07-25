@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.61.0](https://github.com/RhetTbull/osxphotos/compare/v0.60.10...v0.61.0)
+
+Custom sidecars for osxphotos export
+
+### [v0.61.0] - 20230725
+
+#### Added
+
+- `--sidecar-template` option to export to allow user to specify one or more Mako templates for creating custom sidecars. See [example](https://github.com/RhetTbull/osxphotos/blob/main/examples/custom_sidecar.mako for an example)
+
+#### Removed
+
+#### Changed
+
+- Added `user_sidecar` field to all report formats. This means that if you are using a CSV report with `--append`, you should archive your current report and create a new one which will include the correct headers. For JSON reports, the JSON outpput will simply include a new key for new records. For SQLite reports, the `report` table will be altered to add the new column.
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) - Code and testing
+- [@neilpa](https://github.com/neilpa) - The idea for custom sidecars
+
 ## [v0.60.10](https://github.com/RhetTbull/osxphotos/compare/v0.60.9...v0.60.10)
 
 Support for syndicated photos on Monterey (Photos 7)
