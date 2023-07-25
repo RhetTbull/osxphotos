@@ -15,10 +15,19 @@ PHOTOS_DB = "./tests/Test-10.15.7.photoslibrary"
 
 PHOTO_UUID = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
 SIDECAR_FILENAME = "wedding.jpg.txt"
+SIDECAR_FILENAME_2 = "wedding.jpg.sidecar"
 SIDECAR_DATA = """
 
 
 Sidecar: wedding.jpg.txt
+    Photo: wedding.jpg
+    UUID: E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51
+    Rating: ★★★★★
+"""
+SIDECAR_DATA_2 = """
+
+
+Sidecar: wedding.jpg.sidecar
     Photo: wedding.jpg
     UUID: E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51
     Rating: ★★★★★
@@ -401,3 +410,69 @@ def test_export_sidecar_template_report_db():
             else:
                 assert row[1] == 0
         assert found_sidecar
+
+
+def test_export_sidecar_template_multiple():
+    """test export with multiple --sidecar-template options"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar-template",
+                os.path.join(cwd, "tests", "custom_sidecar.mako"),
+                "{filepath}.txt",
+                "no",
+                "no",
+                "no",
+                "--sidecar-template",
+                os.path.join(cwd, "tests", "custom_sidecar.mako"),
+                "{filepath}.sidecar",
+                "no",
+                "no",
+                "no",
+            ],
+        )
+        assert result.exit_code == 0
+
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME)
+        assert sidecar_file.exists()
+        sidecar_data = sidecar_file.read_text()
+        assert sidecar_data == SIDECAR_DATA
+
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME_2)
+        assert sidecar_file.exists()
+        sidecar_data = sidecar_file.read_text()
+        assert sidecar_data == SIDECAR_DATA_2
+
+
+def test_export_sidecar_template_full_library():
+    """test export with --sidecar-template option against full library (repeated calls to generate sidecar files))"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--sidecar-template",
+                os.path.join(cwd, "tests", "custom_sidecar.mako"),
+                "{filepath}.txt",
+                "no",
+                "no",
+                "no",
+            ],
+        )
+        assert result.exit_code == 0

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pathlib
+from functools import cache
 from typing import Callable
 
 import click
@@ -11,6 +12,12 @@ from mako.template import Template
 from osxphotos.photoexporter import ExportResults
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+
+
+@cache
+def get_template(template: str) -> Template:
+    """Get template from cache or load from file"""
+    return Template(filename=template)
 
 
 def generate_user_sidecar(
@@ -123,7 +130,7 @@ def _render_sidecar_and_write_data(
     dry_run: bool,
 ):
     """Render sidecar template and write data to file"""
-    sidecar = Template(filename=template_file)
+    sidecar = get_template(template_file)
     sidecar_data = sidecar.render(
         photo=photo,
         sidecar_path=pathlib.Path(template_filename),
