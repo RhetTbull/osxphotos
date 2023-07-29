@@ -23,7 +23,7 @@ def get_template(template: str) -> Template:
 def generate_user_sidecar(
     photo: PhotoInfo,
     export_results: ExportResults,
-    sidecar_template: tuple[tuple[str, str, bool, bool]],
+    sidecar_template: tuple[tuple[str, str, tuple[str, ...]], ...],
     exiftool_path: str,
     export_dir: str,
     dry_run: bool,
@@ -48,10 +48,12 @@ def generate_user_sidecar(
     for (
         template_file,
         filename_template,
-        write_skipped,
-        strip_whitespace,
-        strip_lines,
+        options,
     ) in sidecar_template:
+        strip_whitespace = "strip_whitespace" in options
+        strip_lines = "strip_lines" in options
+        write_skipped = "write_skipped" in options
+
         if not write_skipped:
             # skip writing sidecar if photo not exported
             # but if run with --update and --cleanup, a sidecar file may have been written

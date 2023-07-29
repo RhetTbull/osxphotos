@@ -1,4 +1,7 @@
 """Click parameter types for osxphotos CLI"""
+
+from __future__ import annotations
+
 import datetime
 import os
 import pathlib
@@ -19,6 +22,7 @@ from osxphotos.utils import expand_and_validate_filepath, load_function
 __all__ = [
     "BitMathSize",
     "BooleanString",
+    "CSVOptions",
     "DateOffset",
     "DateTimeISO8601",
     "DeprecatedPath",
@@ -319,3 +323,30 @@ class BooleanString(click.ParamType):
             self.fail(
                 f"Invalid boolean string {value}. Must be one of True/False, Yes/No, T/F, Y/N, 1/0 (case insensitive)."
             )
+
+
+class CSVOptions(click.ParamType):
+    """A comma-separated list of option values, not case sensitive"""
+
+    name = "CSVOptions"
+
+    def __init__(self, options: list[str]):
+        """Initialize CSVOptions
+
+        Args:
+            options: list of valid options as str
+
+        Note:
+            The convert method returns a tuple[str, ...] of the options selected
+        """
+        self._csv_options = options
+
+    def convert(self, value, param, ctx) -> tuple[str, ...]:
+        values = value.split(",")
+        values = [v.lower().strip() for v in values]
+        for v in values:
+            if v not in self._csv_options:
+                self.fail(
+                    f"Invalid option {v}. Must be one of {','.join(self._csv_options)}"
+                )
+        return tuple(values)
