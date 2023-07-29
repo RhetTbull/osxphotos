@@ -53,6 +53,7 @@ def generate_user_sidecar(
         strip_whitespace = "strip_whitespace" in options
         strip_lines = "strip_lines" in options
         write_skipped = "write_skipped" in options
+        skip_zero = "skip_zero" in options
 
         if not write_skipped:
             # skip writing sidecar if photo not exported
@@ -97,6 +98,8 @@ def generate_user_sidecar(
                 filepath=filepath,
                 strip_whitespace=strip_whitespace,
                 strip_lines=strip_lines,
+                skip_zero=skip_zero,
+                verbose=verbose,
                 dry_run=dry_run,
             )
             sidecar_results.sidecar_user_written.append(template_filename)
@@ -129,6 +132,8 @@ def _render_sidecar_and_write_data(
     filepath: str,
     strip_whitespace: bool,
     strip_lines: bool,
+    skip_zero: bool,
+    verbose: Callable[..., None],
     dry_run: bool,
 ):
     """Render sidecar template and write data to file"""
@@ -149,5 +154,8 @@ def _render_sidecar_and_write_data(
         )
     if not dry_run:
         # write sidecar file
+        if skip_zero and not sidecar_data:
+            verbose(f"Skipping empty sidecar file [filepath]{template_filename}[/]")
+            return
         with open(template_filename, "w") as f:
             f.write(sidecar_data)
