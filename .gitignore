@@ -1,6 +1,6 @@
 .metrics
 .DS_store
-__pycache__
+__pycache__/
 .coverage
 .condaauto
 t.out
