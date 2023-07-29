@@ -52,9 +52,7 @@ def test_export_sidecar_template_1():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
             ],
         )
         assert result.exit_code == 0
@@ -62,6 +60,34 @@ def test_export_sidecar_template_1():
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
         assert sidecar_data == SIDECAR_DATA
+
+def test_export_sidecar_template_option_case():
+    """test basic export with --sidecar-template and option case insensitivity"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar-template",
+                os.path.join(cwd, "tests", "custom_sidecar.mako"),
+                "{filepath}.txt",
+                "None",
+            ],
+        )
+        assert result.exit_code == 0
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME)
+        assert sidecar_file.exists()
+        sidecar_data = sidecar_file.read_text()
+        assert sidecar_data == SIDECAR_DATA
+
 
 
 def test_export_sidecar_template_strip_whitespace():
@@ -82,9 +108,7 @@ def test_export_sidecar_template_strip_whitespace():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "yes",
-                "no",
+                "strip_whitespace",
             ],
         )
         assert result.exit_code == 0
@@ -115,9 +139,7 @@ def test_export_sidecar_template_strip_lines():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "yes",
+                "strip_lines",
             ],
         )
         assert result.exit_code == 0
@@ -148,9 +170,7 @@ def test_export_sidecar_template_strip_lines_strip_whitespace():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "yes",
-                "yes",
+                "strip_whitespace,strip_lines",
             ],
         )
         assert result.exit_code == 0
@@ -162,6 +182,35 @@ def test_export_sidecar_template_strip_lines_strip_whitespace():
         )
         assert sidecar_data == sidecar_expected
 
+def test_export_sidecar_template_strip_lines_strip_whitespace_option_space():
+    """test basic export with --sidecar-template and STRIP_LINES = True and STRIP_WHITESPACE = True with space in option"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar-template",
+                os.path.join(cwd, "tests", "custom_sidecar.mako"),
+                "{filepath}.txt",
+                "strip_whitespace, strip_lines",
+            ],
+        )
+        assert result.exit_code == 0
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME)
+        assert sidecar_file.exists()
+        sidecar_data = sidecar_file.read_text()
+        sidecar_expected = "\n".join(
+            line.strip() for line in SIDECAR_DATA.splitlines() if line.strip()
+        )
+        assert sidecar_data == sidecar_expected
 
 def test_export_sidecar_template_update_no():
     """test basic export with --sidecar-template and WRITE_SKIPPED = False, also test --cleanup"""
@@ -181,9 +230,7 @@ def test_export_sidecar_template_update_no():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
             ],
         )
 
@@ -200,9 +247,7 @@ def test_export_sidecar_template_update_no():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
                 "--update",
                 "--cleanup",
             ],
@@ -237,9 +282,7 @@ def test_export_sidecar_template_update_ues():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
             ],
         )
 
@@ -256,9 +299,7 @@ def test_export_sidecar_template_update_ues():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "yes",
-                "no",
-                "no",
+                "write_skipped",
                 "--update",
                 "--cleanup",
             ],
@@ -294,9 +335,7 @@ def test_export_sidecar_template_report_csv():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
                 "--report",
                 "report.csv",
             ],
@@ -340,9 +379,7 @@ def test_export_sidecar_template_report_json():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
                 "--report",
                 "report.json",
             ],
@@ -385,9 +422,7 @@ def test_export_sidecar_template_report_db():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
                 "--report",
                 "report.db",
             ],
@@ -430,15 +465,11 @@ def test_export_sidecar_template_multiple():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.sidecar",
-                "no",
-                "no",
-                "no",
+                "none",
             ],
         )
         assert result.exit_code == 0
@@ -470,9 +501,7 @@ def test_export_sidecar_template_full_library():
                 "--sidecar-template",
                 os.path.join(cwd, "tests", "custom_sidecar.mako"),
                 "{filepath}.txt",
-                "no",
-                "no",
-                "no",
+                "none",
             ],
         )
         assert result.exit_code == 0

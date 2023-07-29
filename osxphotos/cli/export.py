@@ -88,7 +88,7 @@ from .common import (
 )
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
-from .param_types import BooleanString, ExportDBType, FunctionCall, TemplateString
+from .param_types import CSVOptions, ExportDBType, FunctionCall, TemplateString
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
 from .sidecar import generate_user_sidecar
@@ -342,15 +342,13 @@ from .verbose import get_verbose_console, verbose_print
 )
 @click.option(
     "--sidecar-template",
-    metavar="MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE WRITE_SKIPPED STRIP_WHITESPACE STRIP_LINES",
+    metavar="MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE OPTIONS",
     multiple=True,
     type=click.Tuple(
         [
             click.Path(dir_okay=False, file_okay=True, exists=True),
             TemplateString(),
-            BooleanString(),
-            BooleanString(),
-            BooleanString(),
+            CSVOptions(["write_skipped", "strip_whitespace", "strip_lines", "none"])
         ]
     ),
     help="Create a custom sidecar file for each photo exported with user provided Mako template (MAKO_TEMPLATE_FILE). "
@@ -362,17 +360,19 @@ from .verbose import get_verbose_console, verbose_print
     "which will be rendered to generate the filename of the sidecar file. "
     "The `{filepath}` template variable may be used in the SIDECAR_FILENAME_TEMPLATE to refer to the filename of the "
     "photo being exported. "
-    "WRITE_SKIPPED is a boolean value (true/false, yes/no, 1/0 are all valid values) and indicates whether or not "
-    "write the sidecar file even if the photo is skipped during export. "
-    "If WRITE_SKIPPED is false, the sidecar file will not be written if the photo is skipped during export. "
-    "If WRITE_SKIPPED is true, the sidecar file will be written even if the photo is skipped during export. "
-    "STRIP_WHITESPACE and STRIP_LINES are boolean values (true/false, yes/no, 1/0 are all valid values) "
-    "and indicate whether or not to strip whitespace and blank lines from the resulting sidecar file. "
+    "OPTIONS is a comma-separated list of strings providing additional options to the template. "
+    "Valid options are: write_skipped, strip_whitespace, strip_lines, none. "
+    "write_skipped will cause the sidecar file to be written even if the photo is skipped during export. "
+    "If write_skipped is not passed as an option, the sidecar file will not be written if the photo is skipped during export. "
+    "strip_whitespace and strip_lines indicate whether or not to strip whitespace and blank lines, respectively, "
+    "from the resulting sidecar file. "
     "For example, to create a sidecar file with extension .xmp using a template file named 'sidecar.mako' "
     "and write a sidecar for skipped photos and strip blank lines but not whitespace: "
-    "`--sidecar-template sidecar.mako '{filepath}.xmp' yes no yes`. "
+    "`--sidecar-template sidecar.mako '{filepath}.xmp' write_skipped,strip_lines`. "
     "To do the same but to drop the photo extension from the sidecar filename: "
-    "`--sidecar-template sidecar.mako '{filepath.parent}/{filepath.stem}.xmp' yes no yes --sidecar-drop-ext`. "
+    "`--sidecar-template sidecar.mako '{filepath.parent}/{filepath.stem}.xmp' write_skipped,strip_lines`. "
+    "If you are not passing any options, you must pass 'none' as the last argument to --sidecar-template: "
+    "`--sidecar-template sidecar.mako '{filepath}.xmp' none`. "
     "For an example Mako file see https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/custom_sidecar.mako",
 )
 @click.option(
