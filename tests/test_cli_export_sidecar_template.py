@@ -33,6 +33,9 @@ Sidecar: wedding.jpg.sidecar
     Rating: ★★★★★
 """
 
+PHOTO_UUID_NO_KEYWORD = "4D521201-92AC-43E5-8F7C-59BC41C37A96"  # IMG_1997.CR2
+SIDECAR_FILENAME_NO_KEYWORD = "IMG_1997.CR2.txt"
+
 
 def test_export_sidecar_template_1():
     """test basic export with --sidecar-template"""
@@ -61,6 +64,7 @@ def test_export_sidecar_template_1():
         sidecar_data = sidecar_file.read_text()
         assert sidecar_data == SIDECAR_DATA
 
+
 def test_export_sidecar_template_option_case():
     """test basic export with --sidecar-template and option case insensitivity"""
     runner = CliRunner()
@@ -87,7 +91,6 @@ def test_export_sidecar_template_option_case():
         assert sidecar_file.exists()
         sidecar_data = sidecar_file.read_text()
         assert sidecar_data == SIDECAR_DATA
-
 
 
 def test_export_sidecar_template_strip_whitespace():
@@ -182,6 +185,7 @@ def test_export_sidecar_template_strip_lines_strip_whitespace():
         )
         assert sidecar_data == sidecar_expected
 
+
 def test_export_sidecar_template_strip_lines_strip_whitespace_option_space():
     """test basic export with --sidecar-template and STRIP_LINES = True and STRIP_WHITESPACE = True with space in option"""
     runner = CliRunner()
@@ -211,6 +215,7 @@ def test_export_sidecar_template_strip_lines_strip_whitespace_option_space():
             line.strip() for line in SIDECAR_DATA.splitlines() if line.strip()
         )
         assert sidecar_data == sidecar_expected
+
 
 def test_export_sidecar_template_update_no():
     """test basic export with --sidecar-template and WRITE_SKIPPED = False, also test --cleanup"""
@@ -505,3 +510,37 @@ def test_export_sidecar_template_full_library():
             ],
         )
         assert result.exit_code == 0
+
+
+def test_export_sidecar_template_skip_zero():
+    """test basic export with --sidecar-template with skip_zero option"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                PHOTO_UUID,
+                "--uuid",
+                PHOTO_UUID_NO_KEYWORD,
+                "--sidecar-template",
+                os.path.join(cwd, "tests", "custom_sidecar_zero.mako"),
+                "{filepath}.txt",
+                "strip_whitespace,strip_lines,skip_zero",
+            ],
+        )
+        assert result.exit_code == 0
+
+        assert "Skipping empty sidecar file" in result.output
+
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME)
+        assert sidecar_file.exists()
+
+        sidecar_file = pathlib.Path(SIDECAR_FILENAME_NO_KEYWORD)
+        assert not sidecar_file.exists()

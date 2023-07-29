@@ -348,7 +348,15 @@ from .verbose import get_verbose_console, verbose_print
         [
             click.Path(dir_okay=False, file_okay=True, exists=True),
             TemplateString(),
-            CSVOptions(["write_skipped", "strip_whitespace", "strip_lines", "none"])
+            CSVOptions(
+                [
+                    "write_skipped",
+                    "strip_whitespace",
+                    "strip_lines",
+                    "skip_zero",
+                    "none",
+                ]
+            ),
         ]
     ),
     help="Create a custom sidecar file for each photo exported with user provided Mako template (MAKO_TEMPLATE_FILE). "
@@ -361,11 +369,12 @@ from .verbose import get_verbose_console, verbose_print
     "The `{filepath}` template variable may be used in the SIDECAR_FILENAME_TEMPLATE to refer to the filename of the "
     "photo being exported. "
     "OPTIONS is a comma-separated list of strings providing additional options to the template. "
-    "Valid options are: write_skipped, strip_whitespace, strip_lines, none. "
+    "Valid options are: write_skipped, strip_whitespace, strip_lines, skip_zero, none. "
     "write_skipped will cause the sidecar file to be written even if the photo is skipped during export. "
     "If write_skipped is not passed as an option, the sidecar file will not be written if the photo is skipped during export. "
     "strip_whitespace and strip_lines indicate whether or not to strip whitespace and blank lines, respectively, "
     "from the resulting sidecar file. "
+    "skip_zero causes the sidecar file to be skipped if the rendered template is zero-length. "
     "For example, to create a sidecar file with extension .xmp using a template file named 'sidecar.mako' "
     "and write a sidecar for skipped photos and strip blank lines but not whitespace: "
     "`--sidecar-template sidecar.mako '{filepath}.xmp' write_skipped,strip_lines`. "
