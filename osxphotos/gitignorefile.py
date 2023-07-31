@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import os
 import re
-
 from typing import Callable
 
 DEFAULT_IGNORE_NAMES = [".gitignore", ".git/info/exclude"]
@@ -175,7 +174,7 @@ class Cache:
 
 class _Path:
     def __init__(self, path):
-        if isinstance(path, str):
+        if isinstance(path, (str, bytes, os.PathLike)):
             abs_path = os.path.abspath(path)
             self.__parts = tuple(_path_split(abs_path))
             self.__joined = abs_path
@@ -302,10 +301,12 @@ class _IgnoreRules:
     def __init__(self, rules, base_path):
         self.__rules = rules
         self.__can_return_immediately = not any((r.negation for r in rules))
-        self.__base_path = _Path(base_path) if isinstance(base_path, str) else base_path
+        self.__base_path = (
+            _Path(base_path) if not isinstance(base_path, _Path) else base_path
+        )
 
     def match(self, path, is_dir=None):
-        if isinstance(path, str):
+        if not isinstance(path, _Path):
             path = _Path(path)
 
         rel_path = path.relpath(self.__base_path)

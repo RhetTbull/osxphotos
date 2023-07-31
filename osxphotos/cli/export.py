@@ -41,6 +41,7 @@ from osxphotos.debug import is_debug
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db import ExportDB, ExportDBInMemory
 from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
+from osxphotos.gitignorefile import parse_pattern_list
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
@@ -611,22 +612,21 @@ from .verbose import get_verbose_console, verbose_print
 )
 @click.option(
     "--keep",
-    metavar="KEEP_PATH",
+    metavar="KEEP_PATTERN",
     nargs=1,
     multiple=True,
-    help="When used with --cleanup, prevents file or directory KEEP_PATH from being deleted "
+    help="When used with --cleanup, prevents file or directory KEEP_PATTERN from being deleted "
     "when cleanup is run. Use this if there are files in the export directory that you don't "
     "want to be deleted when --cleanup is run. "
-    "KEEP_PATH may be a file path, e.g. '/Volumes/Photos/keep.jpg', "
-    "or a file path and wild card, e.g. '/Volumes/Photos/*.txt', "
-    "or a directory, e.g. '/Volumes/Photos/KeepMe'. "
-    "KEEP_PATH may be an absolute path or a relative path. "
-    "If it is relative, it must be relative to the export destination. "
+    "KEEP_PATTERN follows the same format rules a .gitignore file. "
+    "Reference https://git-scm.com/docs/gitignore#_pattern_format for details. "
     "For example if export destination is `/Volumes/Photos` and you want to keep all `.txt` files, "
-    'you can specify `--keep "/Volumes/Photos/*.txt"` or `--keep "*.txt"`. '
-    "If wild card is used, KEEP_PATH must be enclosed in quotes to prevent the shell from expanding the wildcard, "
-    'e.g. `--keep "/Volumes/Photos/*.txt"`. '
-    "If KEEP_PATH is a directory, all files and directories contained in KEEP_PATH will be kept. "
+    'in the top level of the export directory, you can specify `--keep "/*.txt"`. '
+    "If you want to keep all `.txt` files in the export directory and all subdirectories, "
+    'you can specify `--keep "**/*.txt"`. '
+    "If wild card is used, KEEP_PATTERN must be enclosed in quotes to prevent the shell from expanding the wildcard. "
+    "If KEEP_PATTERN is a directory, all files and directories contained in KEEP_PATTERN will be kept. "
+    "For example, if KEEP_PATTERN is '/keep/', all files and directories in '/Volumes/Photos/keep/' will be kept. "
     "--keep may be repeated to keep additional files/directories.",
 )
 @click.option(
@@ -2550,22 +2550,24 @@ def collect_files_to_keep(
     """Collect all files to keep for --keep/--cleanup.
 
     Args:
-        keep: Iterable of filepaths to keep; each path may be a filepath, a filepath/wildcard, or a directory path.
+        keep: Iterable of patterns to keep; each pattern is a pattern that follows gitignore syntax
         export_dir: the export directory which will be used to resolve paths when paths in keep are relative instead of absolute
 
     Returns:
         tuple of [files_to_keep], [dirs_to_keep]
     """
-    export_dir = pathlib.Path(export_dir)
-    keepers = []
+    export_dir = pathlib.Path(export_dir).expanduser()
+    export_dir_str = str(export_dir)
+    keep_patterns = []
     for k in keep:
-        keeper = pathlib.Path(k).expanduser()
-        if not keeper.is_absolute():
-            # relative path: relative to export_dir
-            keeper = export_dir / keeper
-        if keeper.is_dir():
-            keepers.extend(keeper.glob("**/*"))
-        keepers.extend(keeper.parent.glob(keeper.name))
+        if k.startswith(export_dir_str):
+            # allow full path to be specified for keep (e.g. --keep /path/to/file)
+            keep_patterns.append(k.replace(export_dir_str, ""))
+        else:
+            keep_patterns.append(k)
+    keepers = []
+    matcher = parse_pattern_list(keep_patterns, export_dir)
+    keepers = [path for path in export_dir.rglob("*") if matcher(path)]
     files_to_keep = [str(k) for k in keepers if k.is_file()]
     dirs_to_keep = [str(k) for k in keepers if k.is_dir()]
     return files_to_keep, dirs_to_keep
