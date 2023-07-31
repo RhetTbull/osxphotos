@@ -226,9 +226,6 @@ def _rule_from_pattern(pattern):
     # directories. Patterns which do not match files, such as comments
     # and blank lines, will return `None`.
 
-    # Store the exact pattern for our repr and string functions
-    orig_pattern = pattern
-
     # Early returns follow
     # Discard comments and separators
     if not pattern.lstrip() or pattern.lstrip().startswith("#"):
@@ -358,10 +355,10 @@ class _IgnoreRule:
 
 if os.altsep is not None:
     _all_seps_expr = f"[{re.escape(os.sep)}{re.escape(os.altsep)}]"
-    _path_split = lambda path: re.split(_all_seps_expr, path)
+    _path_split = lambda path: re.split(_all_seps_expr, path) # noqa: E731
 
 else:
-    _path_split = lambda path: path.split(os.sep)
+    _path_split = lambda path: path.split(os.sep) # noqa: E731
 
 
 def _fnmatch_pathname_to_regexp(pattern, anchored, directory_only):
