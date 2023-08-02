@@ -54,6 +54,7 @@ def generate_user_sidecar(
         strip_lines = "strip_lines" in options
         write_skipped = "write_skipped" in options
         skip_zero = "skip_zero" in options
+        catch_errors = "catch_errors" in options
 
         if not write_skipped:
             # skip writing sidecar if photo not exported
@@ -91,7 +92,7 @@ def generate_user_sidecar(
                 )
 
             verbose(f"Writing sidecar file [filepath]{template_filename}[/]")
-            _render_sidecar_and_write_data(
+            if error := _render_sidecar_and_write_data(
                 template_file=template_file,
                 photo=photo,
                 template_filename=template_filename,
@@ -99,11 +100,15 @@ def generate_user_sidecar(
                 strip_whitespace=strip_whitespace,
                 strip_lines=strip_lines,
                 skip_zero=skip_zero,
+                catch_errors=catch_errors,
                 verbose=verbose,
                 dry_run=dry_run,
-            )
-            sidecar_results.sidecar_user_written.append(template_filename)
+            ):
+                sidecar_results.sidecar_user_error.append((template_filename, error))
+            else:
+                sidecar_results.sidecar_user_written.append(template_filename)
 
+    print(sidecar_results)
     return sidecar_results
 
 
@@ -133,16 +138,28 @@ def _render_sidecar_and_write_data(
     strip_whitespace: bool,
     strip_lines: bool,
     skip_zero: bool,
+    catch_errors: bool,
     verbose: Callable[..., None],
     dry_run: bool,
-):
-    """Render sidecar template and write data to file"""
+) -> Exception | None:
+    """Render sidecar template and write data to file
+
+    Returns:
+        None if no errors, otherwise Exception if catch_errors is True
+        If catch_errors is False, raises exception if error
+    """
     sidecar = get_template(template_file)
-    sidecar_data = sidecar.render(
-        photo=photo,
-        sidecar_path=pathlib.Path(template_filename),
-        photo_path=pathlib.Path(filepath),
-    )
+    try:
+        sidecar_data = sidecar.render(
+            photo=photo,
+            sidecar_path=pathlib.Path(template_filename),
+            photo_path=pathlib.Path(filepath),
+        )
+    except Exception as e:
+        if catch_errors:
+            verbose(f"Error rendering sidecar template: {e}")
+            return e
+        raise e
 
     if strip_whitespace:
         # strip whitespace
@@ -159,3 +176,5 @@ def _render_sidecar_and_write_data(
             return
         with open(template_filename, "w") as f:
             f.write(sidecar_data)
+
+    return None
