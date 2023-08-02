@@ -3387,6 +3387,7 @@ def test_export_aae():
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_AAE_FILENAMES)
 
+
 def test_export_aae_as_hardlink():
     """Test export with --export-aae and --export-as-hardlink"""
 
@@ -3410,6 +3411,7 @@ def test_export_aae_as_hardlink():
         assert result.exit_code == 0
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_AAE_FILENAMES)
+
 
 def test_export_sidecar():
     """test --sidecar"""
@@ -6564,13 +6566,14 @@ def test_export_cleanup_keep():
         assert pathlib.Path("./report.db").is_file()
 
 
-def test_export_cleanup_keep_relative_path():
-    """test export with --cleanup --keep options with relative paths"""
+def test_export_cleanup_keep_leading_slash():
+    """test export with --cleanup --keep options when pattern has leading slash"""
 
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
+        tmpdir = os.getcwd()
         result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
         assert result.exit_code == 0
 
@@ -6602,11 +6605,11 @@ def test_export_cleanup_keep_relative_path():
                 "--update",
                 "--cleanup",
                 "--keep",
-                "keep_me",
+                f"/keep_me/",
                 "--keep",
-                "keep_me.txt",
+                f"/keep_me.txt",
                 "--keep",
-                "*.db",
+                f"/*.db",
                 "--dry-run",
             ],
         )
@@ -6625,17 +6628,105 @@ def test_export_cleanup_keep_relative_path():
                 "--update",
                 "--cleanup",
                 "--keep",
-                "keep_me",
+                f"/keep_me/",
                 "--keep",
-                "keep_me.txt",
+                f"/keep_me.txt",
                 "--keep",
-                "*.db",
+                f"/*.db",
             ],
         )
         assert "Deleted: 2 files, 2 directories" in result.output
         assert not pathlib.Path("./delete_me.txt").is_file()
         assert not pathlib.Path("./delete_me_dir/delete_me_too.txt").is_file()
         assert not pathlib.Path("./empty_dir").is_dir()
+        assert pathlib.Path("./keep_me.txt").is_file()
+        assert pathlib.Path("./keep_me").is_dir()
+        assert pathlib.Path("./keep_me/keep_me.txt").is_file()
+        assert pathlib.Path("./keep_me/keep_me_2").is_dir()
+        assert pathlib.Path("./report.db").is_file()
+
+
+def test_export_cleanup_keep_relative_path():
+    """test export with --cleanup --keep options with relative paths"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+
+        # create file and a directory that should be deleted
+        os.mkdir("./empty_dir")
+        os.mkdir("./delete_me_dir")
+        with open("./delete_me.txt", "w") as fd:
+            fd.write("delete me!")
+        with open("./delete_me_dir/delete_me.txt", "w") as fd:
+            fd.write("delete me!")
+
+        # create files and directories that should be kept
+        os.mkdir("./keep_me")
+        os.mkdir("./keep_me/keep_me_2")
+        with open("./keep_me.txt", "w") as fd:
+            fd.write("keep me!")
+        with open("./report.db", "w") as fd:
+            fd.write("keep me!")
+        with open("./keep_me/keep_me.txt", "w") as fd:
+            fd.write("keep me")
+
+        # for negation rule
+        with open("./keep_me/keep_me.db", "w") as fd:
+            fd.write("keep me")
+
+        # run cleanup with dry-run
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--cleanup",
+                "--keep",
+                "keep_me/",
+                "--keep",
+                "keep_me.txt",
+                "--keep",
+                "*.db",
+                "--dry-run",
+                "--keep",
+                "!keep_me/keep_me.db",
+            ],
+        )
+        assert "Deleted: 3 files, 1 directory" in result.output
+        assert pathlib.Path("./delete_me.txt").is_file()
+        assert pathlib.Path("./delete_me_dir/delete_me.txt").is_file()
+        assert pathlib.Path("./empty_dir").is_dir()
+
+        # run cleanup without dry-run
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--cleanup",
+                "--keep",
+                "keep_me/",
+                "--keep",
+                "keep_me.txt",
+                "--keep",
+                "*.db",
+                "--keep",
+                "!keep_me/keep_me.db",
+            ],
+        )
+        assert "Deleted: 3 files, 2 directories" in result.output
+        assert not pathlib.Path("./delete_me.txt").is_file()
+        assert not pathlib.Path("./delete_me_dir/delete_me_too.txt").is_file()
+        assert not pathlib.Path("./empty_dir").is_dir()
+        assert not pathlib.Path("./keep_me/keep_me.db").is_file()
         assert pathlib.Path("./keep_me.txt").is_file()
         assert pathlib.Path("./keep_me").is_dir()
         assert pathlib.Path("./keep_me/keep_me.txt").is_file()
@@ -6680,6 +6771,159 @@ def test_export_cleanup_exportdb_report():
         deleted_files = [x for x in report if x["cleanup_deleted_file"]]
         assert len(deleted_dirs) == 1
         assert len(deleted_files) == 2
+
+
+def test_export_cleanup_osxphotos_keep():
+    """test export with --cleanup with a .osxphotos_keep file"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        tmpdir = os.getcwd()
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+
+        # create file and a directory that should be deleted
+        os.mkdir("./empty_dir")
+        os.mkdir("./delete_me_dir")
+        with open("./delete_me.txt", "w") as fd:
+            fd.write("delete me!")
+        with open("./delete_me_dir/delete_me.txt", "w") as fd:
+            fd.write("delete me!")
+
+        # create files and directories that should be kept
+        os.mkdir("./keep_me")
+        os.mkdir("./keep_me/keep_me_2")
+        with open("./keep_me.txt", "w") as fd:
+            fd.write("keep me!")
+        with open("./report.db", "w") as fd:
+            fd.write("keep me!")
+        with open("./keep_me/keep_me.txt", "w") as fd:
+            fd.write("keep me")
+
+        with open(".osxphotos_keep", "w") as fd:
+            fd.write("/keep_me/\n")
+            fd.write("/keep_me.txt\n")
+            fd.write("/*.db\n")
+
+        # run cleanup with dry-run
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                "-V",
+                "--update",
+                "--cleanup",
+                "--dry-run",
+            ],
+        )
+        assert "Deleted: 2 files, 1 directory" in result.output
+        assert pathlib.Path("./delete_me.txt").is_file()
+        assert pathlib.Path("./delete_me_dir/delete_me.txt").is_file()
+        assert pathlib.Path("./empty_dir").is_dir()
+
+        # run cleanup without dry-run
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                "-V",
+                "--update",
+                "--cleanup",
+            ],
+        )
+        assert "Deleted: 2 files, 2 directories" in result.output
+        assert not pathlib.Path("./delete_me.txt").is_file()
+        assert not pathlib.Path("./delete_me_dir/delete_me_too.txt").is_file()
+        assert not pathlib.Path("./empty_dir").is_dir()
+        assert pathlib.Path("./keep_me.txt").is_file()
+        assert pathlib.Path("./keep_me").is_dir()
+        assert pathlib.Path("./keep_me/keep_me.txt").is_file()
+        assert pathlib.Path("./keep_me/keep_me_2").is_dir()
+        assert pathlib.Path("./report.db").is_file()
+
+
+def test_export_cleanup_osxphotos_keep_keep():
+    """test export with --cleanup with a .osxphotos_keep file and --keep"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        tmpdir = os.getcwd()
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+
+        # create file and a directory that should be deleted
+        os.mkdir("./empty_dir")
+        os.mkdir("./delete_me_dir")
+        with open("./delete_me.txt", "w") as fd:
+            fd.write("delete me!")
+        with open("./delete_me_dir/delete_me.txt", "w") as fd:
+            fd.write("delete me!")
+
+        # create files and directories that should be kept
+        os.mkdir("./keep_me")
+        os.mkdir("./keep_me/keep_me_2")
+        with open("./keep_me.txt", "w") as fd:
+            fd.write("keep me!")
+        with open("./report.db", "w") as fd:
+            fd.write("keep me!")
+        with open("./keep_me/keep_me.txt", "w") as fd:
+            fd.write("keep me")
+
+        with open(".osxphotos_keep", "w") as fd:
+            fd.write("/keep_me/\n")
+            fd.write("/keep_me.txt\n")
+
+        # run cleanup with dry-run
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                "-V",
+                "--update",
+                "--cleanup",
+                "--dry-run",
+                "--keep",
+                "/*.db",
+            ],
+        )
+        assert "Deleted: 2 files, 1 directory" in result.output
+        assert pathlib.Path("./delete_me.txt").is_file()
+        assert pathlib.Path("./delete_me_dir/delete_me.txt").is_file()
+        assert pathlib.Path("./empty_dir").is_dir()
+
+        # run cleanup without dry-run
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                "-V",
+                "--update",
+                "--cleanup",
+                "--keep",
+                "/*.db",
+            ],
+        )
+        assert "Deleted: 2 files, 2 directories" in result.output
+        assert not pathlib.Path("./delete_me.txt").is_file()
+        assert not pathlib.Path("./delete_me_dir/delete_me_too.txt").is_file()
+        assert not pathlib.Path("./empty_dir").is_dir()
+        assert pathlib.Path("./keep_me.txt").is_file()
+        assert pathlib.Path("./keep_me").is_dir()
+        assert pathlib.Path("./keep_me/keep_me.txt").is_file()
+        assert pathlib.Path("./keep_me/keep_me_2").is_dir()
+        assert pathlib.Path("./report.db").is_file()
 
 
 def test_save_load_config():

@@ -2393,6 +2393,7 @@ OSXPhotos adheres to the [XDG](https://specifications.freedesktop.org/basedir-sp
 * `$XDG_DATA_HOME` or `$HOME/.local/share`: `osxphotos` directory containing local data files, for example, the help files displayed with `osxphotos docs`.
 * Current working dir: `osxphotos_crash.log` file containing the stack trace of the last crash if OSXPhotos encounters a fatal error during execution.
 * export directory (when running `osxphotos export` command): `.osxphotos_export.db` [SQLite](https://www.sqlite.org/index.html) database containing information needed to update an export and track metadata changes in exported photos. *Note*: This file may contain sensitive information such as locations and the names of persons in photos so if you are using `osxphotos export` to share with others, you may want to delete this file. You can also specify an alternate location for the export database using the `--exportdb` flag during export.  See also `osxphotos help exportdb` for more information about built in utilities for working with the export database.
+* While osxphotos does not create the file, if present in the root of the export directory, osxphotos will read the file `.osxphotos_keep` to load a list of file/directory patterns which should be excluded from `--cleanup` during export. This file uses the same rule format as [.gitignore](https://git-scm.com/docs/gitignore). See `osxphotos help export cleanup` for more information.
 
 ## Python API
 
