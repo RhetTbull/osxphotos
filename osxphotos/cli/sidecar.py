@@ -12,6 +12,7 @@ from mako.template import Template
 from osxphotos.photoexporter import ExportResults
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.cli.click_rich_echo import rich_echo_error
 
 
 @cache
@@ -157,7 +158,7 @@ def _render_sidecar_and_write_data(
         )
     except Exception as e:
         if catch_errors:
-            verbose(f"Error rendering sidecar template: {e}")
+            rich_echo_error(f"[error]Error rendering sidecar template: {e}[/]")
             return e
         raise e
 
