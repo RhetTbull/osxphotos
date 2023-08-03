@@ -292,6 +292,7 @@ class ExportResults:
         "sidecar_xmp_written",
         "sidecar_user_written",
         "sidecar_user_skipped",
+        "sidecar_user_error",
         "skipped",
         "skipped_album",
         "to_touch",
@@ -325,6 +326,7 @@ class ExportResults:
         sidecar_xmp_written=None,
         sidecar_user_written=None,
         sidecar_user_skipped=None,
+        sidecar_user_error=None,
         skipped=None,
         skipped_album=None,
         to_touch=None,
@@ -372,6 +374,7 @@ class ExportResults:
         files += [x[0] for x in self.exiftool_warning]
         files += [x[0] for x in self.exiftool_error]
         files += [x[0] for x in self.error]
+        files += [x[0] for x in self.sidecar_user_error]
 
         return list(set(files))
 
@@ -1439,7 +1442,8 @@ class PhotoExporter:
         if options.export_as_hardlink:
             try:
                 if aae_dest.exists() and any(
-                    [options.overwrite, options.update, options.force_update]):
+                    [options.overwrite, options.update, options.force_update]
+                ):
                     try:
                         options.fileutil.unlink(aae_dest)
                     except Exception as e:
