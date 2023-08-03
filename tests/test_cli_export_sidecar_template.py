@@ -544,3 +544,51 @@ def test_export_sidecar_template_skip_zero():
 
         sidecar_file = pathlib.Path(SIDECAR_FILENAME_NO_KEYWORD)
         assert not sidecar_file.exists()
+
+
+def test_export_sidecar_template_error():
+    """test basic export with --sidecar-template that generates an error"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar-template",
+                os.path.join(cwd, "tests", "custom_sidecar_bad.mako"),
+                "{filepath}.txt",
+                "none",
+            ],
+        )
+        assert result.exit_code != 0
+
+
+def test_export_sidecar_template_catch_error():
+    """test basic export with --sidecar-template that catches an error"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar-template",
+                os.path.join(cwd, "tests", "custom_sidecar_bad.mako"),
+                "{filepath}.txt",
+                "catch_errors",
+            ],
+        )
+        assert result.exit_code == 0
