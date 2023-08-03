@@ -1,5 +1,7 @@
 """export command for osxphotos CLI"""
 
+from __future__ import annotations
+
 import atexit
 import inspect
 import os
@@ -9,7 +11,7 @@ import shlex
 import subprocess
 import sys
 import time
-from typing import Iterable, List, Optional, Tuple
+from typing import Any, Callable, Iterable, List, Optional, Tuple
 
 import click
 
@@ -647,7 +649,7 @@ from .verbose import get_verbose_console, verbose_print
     "If present, this file will be read after the export is completed and any rules found in the file "
     "will be added to the list of rules to keep. "
     "This file uses the same format as a .gitignore file and should contain one rule per line; "
-    "lines starting with a `#` will be ignored. "
+    "lines starting with a `#` will be ignored. ",
 )
 @click.option(
     "--add-exported-to-album",
@@ -687,6 +689,22 @@ from .verbose import get_verbose_console, verbose_print
     type=click.Tuple(
         [click.Choice(POST_COMMAND_CATEGORIES, case_sensitive=False), TemplateString()]
     ),
+)
+@click.option(
+    "--post-command-break",
+    is_flag=True,
+    help="If specified and a --post-command fails, catch and log the error then stop running any other --post-command commands for the current photo; "
+    "--post-command will continue to run for the next photo. "
+    "The default behavior or --post-command is abort the export if a command encounters an error. "
+    "See also, --post-command-catch.",
+)
+@click.option(
+    "--post-command-catch",
+    is_flag=True,
+    help="If specified, catch and log any errors when running --post-command but continue "
+    "running any other --post-command commands for the current photo. "
+    "The default behavior or --post-command is abort the export if a command encounters an error. "
+    "See also --post-command-break.",
 )
 @click.option(
     "--post-function",
@@ -910,6 +928,8 @@ def export(
     place,
     portrait,
     post_command,
+    post_command_break,
+    post_command_catch,
     post_function,
     preview,
     preview_if_missing,
@@ -1138,6 +1158,8 @@ def export(
         place = cfg.place
         portrait = cfg.portrait
         post_command = cfg.post_command
+        post_command_break = cfg.post_command_break
+        post_command_catch = cfg.post_command_catch
         post_function = cfg.post_function
         preview = cfg.preview
         preview_if_missing = cfg.preview_if_missing
@@ -1575,7 +1597,8 @@ def export(
                     export_dir=dest,
                     dry_run=dry_run,
                     exiftool_path=exiftool_path,
-                    export_db=export_db,
+                    break_on_error=post_command_break,
+                    catch_errors=post_command_catch,
                     verbose=verbose,
                 )
 
@@ -2590,7 +2613,7 @@ def collect_files_to_keep(
     KEEP_RULEs = []
 
     # parse .osxphotos_keep file if it exists
-    keep_file : pathlib.Path = export_dir / ".osxphotos_keep"
+    keep_file: pathlib.Path = export_dir / ".osxphotos_keep"
     if keep_file.is_file():
         for line in keep_file.read_text().splitlines():
             line = line.rstrip("\r\n")
@@ -2604,10 +2627,10 @@ def collect_files_to_keep(
             KEEP_RULEs.append(k.replace(export_dir_str, ""))
         else:
             KEEP_RULEs.append(k)
-    
+
     if not KEEP_RULEs:
         return [], []
-    
+
     # have some rules to apply
     matcher = osxphotos.gitignorefile.parse_pattern_list(KEEP_RULEs, export_dir)
     keepers = []
@@ -2841,16 +2864,19 @@ def write_extended_attributes(
 
 
 def run_post_command(
-    photo,
-    post_command,
-    export_results,
-    export_dir,
-    dry_run,
-    exiftool_path,
-    export_db,
-    verbose,
+    photo: osxphotos.PhotoInfo,
+    post_command: tuple[tuple[str, str]],
+    export_results: ExportResults,
+    export_dir: str | pathlib.Path,
+    dry_run: bool,
+    exiftool_path: str,
+    break_on_error: bool,
+    catch_errors: bool,
+    verbose: Callable[[Any], None],
 ):
+    """Run --post-command commands"""
     # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
+
     for category, command_template in post_command:
         files = getattr(export_results, category)
         for f in files:
@@ -2864,7 +2890,6 @@ def run_post_command(
             if command:
                 verbose(f'Running command: "{command}"')
                 if not dry_run:
-                    args = shlex.split(command)
                     cwd = pathlib.Path(f).parent
                     run_error = None
                     run_results = None
@@ -2873,11 +2898,16 @@ def run_post_command(
                     except Exception as e:
                         run_error = e
                     finally:
-                        run_error = run_error or run_results.returncode
-                        if run_error:
-                            rich_echo_error(
-                                f'[error]Error running command "{command}": {run_error}'
-                            )
+                        returncode = run_results.returncode if run_results else None
+                        if run_error or returncode:
+                            error_str = f'Error running command "{command}": return code: {returncode}, exception: {run_error}'
+                            if break_on_error or catch_errors:
+                                rich_echo_error(f"[error]{error_str}[/]")
+                            else:
+                                raise RuntimeError(error_str)
+                            if break_on_error:
+                                # break out of loop and return
+                                return
 
 
 def render_and_validate_report(report: str, exiftool_path: str, export_dir: str) -> str:
