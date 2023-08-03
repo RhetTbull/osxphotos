@@ -9,10 +9,10 @@ from typing import Callable
 import click
 from mako.template import Template
 
+from osxphotos.cli.click_rich_echo import rich_echo_error
 from osxphotos.photoexporter import ExportResults
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
-from osxphotos.cli.click_rich_echo import rich_echo_error
 
 
 @cache
