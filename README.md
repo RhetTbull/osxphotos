@@ -1117,7 +1117,7 @@ Options:
                                   of different types but the same name in the
                                   output directory, e.g. 'IMG_1234.JPG' and
                                   'IMG_1234.MOV'.
-  --sidecar-template MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE WRITE_SKIPPED STRIP_WHITESPACE STRIP_LINES
+  --sidecar-template MAKO_TEMPLATE_FILE SIDECAR_FILENAME_TEMPLATE OPTIONS
                                   Create a custom sidecar file for each photo
                                   exported with user provided Mako template
                                   (MAKO_TEMPLATE_FILE). MAKO_TEMPLATE_FILE must
@@ -1135,31 +1135,40 @@ Options:
                                   filename of the sidecar file. The `{filepath}`
                                   template variable may be used in the
                                   SIDECAR_FILENAME_TEMPLATE to refer to the
-                                  filename of the photo being exported.
-                                  WRITE_SKIPPED is a boolean value (true/false,
-                                  yes/no, 1/0 are all valid values) and
-                                  indicates whether or not write the sidecar
-                                  file even if the photo is skipped during
-                                  export. If WRITE_SKIPPED is false, the sidecar
-                                  file will not be written if the photo is
-                                  skipped during export. If WRITE_SKIPPED is
-                                  true, the sidecar file will be written even if
-                                  the photo is skipped during export.
-                                  STRIP_WHITESPACE and STRIP_LINES are boolean
-                                  values (true/false, yes/no, 1/0 are all valid
-                                  values) and indicate whether or not to strip
-                                  whitespace and blank lines from the resulting
-                                  sidecar file. For example, to create a sidecar
+                                  filename of the photo being exported. OPTIONS
+                                  is a comma-separated list of strings providing
+                                  additional options to the template. Valid
+                                  options are: write_skipped, strip_whitespace,
+                                  strip_lines, skip_zero, catch_errors, none.
+                                  write_skipped will cause the sidecar file to
+                                  be written even if the photo is skipped during
+                                  export. If write_skipped is not passed as an
+                                  option, the sidecar file will not be written
+                                  if the photo is skipped during export.
+                                  strip_whitespace and strip_lines indicate
+                                  whether or not to strip whitespace and blank
+                                  lines, respectively, from the resulting
+                                  sidecar file. skip_zero causes the sidecar
+                                  file to be skipped if the rendered template is
+                                  zero-length. catch_errors causes errors in the
+                                  template to be caught and logged but not
+                                  raised. Without catch_errors, osxphotos will
+                                  abort the export if an error occurs in the
+                                  template. For example, to create a sidecar
                                   file with extension .xmp using a template file
                                   named 'sidecar.mako' and write a sidecar for
                                   skipped photos and strip blank lines but not
                                   whitespace: `--sidecar-template sidecar.mako
-                                  '{filepath}.xmp' yes no yes`. To do the same
-                                  but to drop the photo extension from the
-                                  sidecar filename: `--sidecar-template
+                                  '{filepath}.xmp' write_skipped,strip_lines`.
+                                  To do the same but to drop the photo extension
+                                  from the sidecar filename: `--sidecar-template
                                   sidecar.mako
-                                  '{filepath.parent}/{filepath.stem}.xmp' yes no
-                                  yes --sidecar-drop-ext`. For an example Mako
+                                  '{filepath.parent}/{filepath.stem}.xmp'
+                                  write_skipped,strip_lines`. If you are not
+                                  passing any options, you must pass 'none' as
+                                  the last argument to --sidecar-template:
+                                  `--sidecar-template sidecar.mako
+                                  '{filepath}.xmp' none`. For an example Mako
                                   file see https://raw.githubusercontent.com/Rhe
                                   tTbull/osxphotos/main/examples/custom_sidecar.
                                   mako
@@ -1343,30 +1352,59 @@ Options:
                                   scripts or other files.  Be sure this is what
                                   you intend before using --cleanup.  Use --dry-
                                   run with --cleanup first if you're not
-                                  certain.
-  --keep KEEP_PATH                When used with --cleanup, prevents file or
-                                  directory KEEP_PATH from being deleted when
-                                  cleanup is run. Use this if there are files in
-                                  the export directory that you don't want to be
-                                  deleted when --cleanup is run. KEEP_PATH may
-                                  be a file path, e.g.
-                                  '/Volumes/Photos/keep.jpg', or a file path and
-                                  wild card, e.g. '/Volumes/Photos/*.txt', or a
-                                  directory, e.g. '/Volumes/Photos/KeepMe'.
-                                  KEEP_PATH may be an absolute path or a
-                                  relative path. If it is relative, it must be
-                                  relative to the export destination. For
+                                  certain. To prevent files not generated by
+                                  osxphotos from being deleted, you may specify
+                                  one or more rulesin a file named
+                                  `.osxphotos_keep` in the export directory.
+                                  This file uses the same format as a .gitignore
+                                  file and should contain one rule per line;
+                                  lines starting with a `#` will be ignored.
+                                  Reference https://git-
+                                  scm.com/docs/gitignore#_pattern_format for
+                                  details. In addition to the standard
+                                  .gitignore rules, the rules may also be the
+                                  absolute path to a file or directory. For
                                   example if export destination is
                                   `/Volumes/Photos` and you want to keep all
-                                  `.txt` files, you can specify `--keep
-                                  "/Volumes/Photos/*.txt"` or `--keep "*.txt"`.
-                                  If wild card is used, KEEP_PATH must be
-                                  enclosed in quotes to prevent the shell from
-                                  expanding the wildcard, e.g. `--keep
-                                  "/Volumes/Photos/*.txt"`. If KEEP_PATH is a
-                                  directory, all files and directories contained
-                                  in KEEP_PATH will be kept. --keep may be
-                                  repeated to keep additional files/directories.
+                                  `.txt` files, in the top level of the export
+                                  directory, you can specify `/*.txt"` in the
+                                  .osxphotos_keep file. If you want to keep all
+                                  `.txt` files in the export directory and all
+                                  subdirectories, you can specify `**/*.txt`. If
+                                  present, the .osxphotos_keep file will be read
+                                  after the export is completed and any rules
+                                  found in the file will be added to the list of
+                                  rules to keep. See also --keep.
+  --keep KEEP_RULE                When used with --cleanup, prevents file or
+                                  directory matching KEEP_RULE from being
+                                  deleted when cleanup is run. Use this if there
+                                  are files in the export directory that you
+                                  don't want to be deleted when --cleanup is
+                                  run. KEEP_RULE follows the same format rules a
+                                  .gitignore file. Reference https://git-
+                                  scm.com/docs/gitignore#_pattern_format for
+                                  details. In addition to the standard
+                                  .gitignore rules, KEEP_RULE may also be the
+                                  absolute path to a file or directory. For
+                                  example if export destination is
+                                  `/Volumes/Photos` and you want to keep all
+                                  `.txt` files, in the top level of the export
+                                  directory, you can specify `--keep "/*.txt"`.
+                                  If you want to keep all `.txt` files in the
+                                  export directory and all subdirectories, you
+                                  can specify `--keep "**/*.txt"`. If wild card
+                                  is used, KEEP_RULE must be enclosed in quotes
+                                  to prevent the shell from expanding the
+                                  wildcard. --keep may be repeated to keep
+                                  additional files/directories. Rules may also
+                                  be included in a file named `.osxphotos_keep`
+                                  in the export directory. If present, this file
+                                  will be read after the export is completed and
+                                  any rules found in the file will be added to
+                                  the list of rules to keep. This file uses the
+                                  same format as a .gitignore file and should
+                                  contain one rule per line; lines starting with
+                                  a `#` will be ignored.
   --add-exported-to-album ALBUM   Add all exported photos to album ALBUM in
                                   Photos. Album ALBUM will be created if it
                                   doesn't exist.  All exported photos will be
