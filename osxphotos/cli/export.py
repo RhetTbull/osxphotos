@@ -11,7 +11,7 @@ import shlex
 import subprocess
 import sys
 import time
-from typing import Any, Callable, Iterable, List, Optional, Tuple
+from typing import Any, Callable, Iterable, List, Literal, Optional, Tuple
 
 import click
 
@@ -685,26 +685,20 @@ from .verbose import get_verbose_console, verbose_print
     "COMMAND is an osxphotos template string, for example: '--post-command exported \"echo {filepath|shell_quote} >> {export_dir}/exported.txt\"', "
     "which appends the full path of all exported files to the file 'exported.txt'. "
     "You can run more than one command by repeating the '--post-command' option with different arguments. "
+    "See also --post-command-error and --post-function."
     "See Post Command below.",
     type=click.Tuple(
         [click.Choice(POST_COMMAND_CATEGORIES, case_sensitive=False), TemplateString()]
     ),
 )
 @click.option(
-    "--post-command-break",
-    is_flag=True,
-    help="If specified and a --post-command fails, catch and log the error then stop running any other --post-command commands for the current photo; "
-    "--post-command will continue to run for the next photo. "
-    "The default behavior or --post-command is abort the export if a command encounters an error. "
-    "See also, --post-command-catch.",
-)
-@click.option(
-    "--post-command-catch",
-    is_flag=True,
-    help="If specified, catch and log any errors when running --post-command but continue "
-    "running any other --post-command commands for the current photo. "
-    "The default behavior or --post-command is abort the export if a command encounters an error. "
-    "See also --post-command-break.",
+    "--post-command-error",
+    help="Specify either `continue` or `break` to control behavior when a post-command fails. "
+    "If `continue`, osxphotos will log the error and continue processing. "
+    "If `break`, osxphotos will stop processing any additional --post-command commands for the current photo "
+    "but will continue with the export. "
+    "Without --post-command-error, osxphotos will abort the export if a post-command encounters an error. ",
+    type=click.Choice(["continue", "break"], case_sensitive=False),
 )
 @click.option(
     "--post-function",
@@ -928,8 +922,7 @@ def export(
     place,
     portrait,
     post_command,
-    post_command_break,
-    post_command_catch,
+    post_command_error,
     post_function,
     preview,
     preview_if_missing,
@@ -1158,8 +1151,7 @@ def export(
         place = cfg.place
         portrait = cfg.portrait
         post_command = cfg.post_command
-        post_command_break = cfg.post_command_break
-        post_command_catch = cfg.post_command_catch
+        post_command_error = cfg.post_command_error
         post_function = cfg.post_function
         preview = cfg.preview
         preview_if_missing = cfg.preview_if_missing
@@ -1597,8 +1589,7 @@ def export(
                     export_dir=dest,
                     dry_run=dry_run,
                     exiftool_path=exiftool_path,
-                    break_on_error=post_command_break,
-                    catch_errors=post_command_catch,
+                    on_error=post_command_error,
                     verbose=verbose,
                 )
 
@@ -2870,8 +2861,7 @@ def run_post_command(
     export_dir: str | pathlib.Path,
     dry_run: bool,
     exiftool_path: str,
-    break_on_error: bool,
-    catch_errors: bool,
+    on_error: Literal["break", "continue"] | None,
     verbose: Callable[[Any], None],
 ):
     """Run --post-command commands"""
@@ -2900,14 +2890,16 @@ def run_post_command(
                     finally:
                         returncode = run_results.returncode if run_results else None
                         if run_error or returncode:
+                            # there was an error running the command
                             error_str = f'Error running command "{command}": return code: {returncode}, exception: {run_error}'
-                            if break_on_error or catch_errors:
-                                rich_echo_error(f"[error]{error_str}[/]")
-                            else:
+                            rich_echo_error(f"[error]{error_str}[/]")
+                            if not on_error:
+                                # no error handling specified, raise exception
                                 raise RuntimeError(error_str)
-                            if break_on_error:
+                            if on_error == "break":
                                 # break out of loop and return
                                 return
+                            # else on_error must be continue
 
 
 def render_and_validate_report(report: str, exiftool_path: str, export_dir: str) -> str:
