@@ -8644,14 +8644,67 @@ def test_export_post_command_bad_command():
                 ".",
                 "--post-command",
                 "exported",
-                "foobar {filepath.name|shell_quote} >> {export_dir}/exported.txt",
+                "false",
                 "--name",
                 "Park",
                 "--skip-original-if-edited",
             ],
         )
+        assert result.exit_code != 0
+
+
+def test_export_post_command_bad_command_continue():
+    """Test --post-command with bad command with --post-command-error=continue"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--post-command",
+                "exported",
+                "false",
+                "--post-command-error",
+                "continue",
+                "--name",
+                "wedding",
+            ],
+        )
         assert result.exit_code == 0
-        assert 'Error running command "foobar' in result.output
+        assert result.output.count("Error running command") == 2
+
+
+def test_export_post_command_bad_command_break():
+    """Test --post-command with bad command with --post-command-error=break"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--post-command",
+                "exported",
+                "false",
+                "--post-command-error",
+                "break",
+                "--name",
+                "wedding",
+            ],
+        )
+        assert result.exit_code == 0
+        assert result.output.count("Error running command") == 1
 
 
 def test_export_post_command_bad_option_1():
