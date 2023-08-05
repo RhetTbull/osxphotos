@@ -693,7 +693,8 @@ from .verbose import get_verbose_console, verbose_print
 )
 @click.option(
     "--post-command-error",
-    help="Specify either `continue` or `break` to control behavior when a post-command fails. "
+    metavar="ACTION",
+    help="Specify either `continue` or `break` for ACTION to control behavior when a post-command fails. "
     "If `continue`, osxphotos will log the error and continue processing. "
     "If `break`, osxphotos will stop processing any additional --post-command commands for the current photo "
     "but will continue with the export. "
