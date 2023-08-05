@@ -1448,8 +1448,18 @@ Options:
                                   full path of all exported files to the file
                                   'exported.txt'. You can run more than one
                                   command by repeating the '--post-command'
-                                  option with different arguments. See Post
-                                  Command below.
+                                  option with different arguments. See also
+                                  --post-command-error and --post-function.See
+                                  Post Command below.
+  --post-command-error ACTION     Specify either `continue` or `break` for
+                                  ACTION to control behavior when a post-command
+                                  fails. If `continue`, osxphotos will log the
+                                  error and continue processing. If `break`,
+                                  osxphotos will stop processing any additional
+                                  --post-command commands for the current photo
+                                  but will continue with the export. Without
+                                  --post-command-error, osxphotos will abort the
+                                  export if a post-command encounters an error.
   --post-function filename.py::function
                                   Run function on exported files. Use this in
                                   format: --post-function filename.py::function
