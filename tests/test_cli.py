@@ -556,7 +556,7 @@ CLI_EXPORTED_FILENAME_TEMPLATE_LONG_DESCRIPTION = [
     "pellentesque eu, pretium q.tif"
 ]
 
-CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
+CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg
 CLI_EXPORT_UUID_STATUE = "3DD2C897-F19E-4CA6-8C22-B027D5A71907"
 CLI_EXPORT_UUID_KEYWORD_PATHSEP = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"
 CLI_EXPORT_UUID_LONG_DESCRIPTION = "8846E3E6-8AC8-4857-8448-E3D025784410"
@@ -8823,7 +8823,7 @@ def test_export_post_function_exception():
                 "-V",
             ],
         )
-        assert result.exit_code == 0
+        assert result.exit_code != 0
         assert "Error running post-function" in result.output
 
 
@@ -8860,6 +8860,57 @@ def test_export_post_function_bad_value():
         )
         assert result.exit_code != 0
         assert "Could not load function" in result.output
+
+
+def test_export_post_function_results():
+    """Test --post-function with returned ExportResults, uses the post_function in examples/post_function.py"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        tempdir = os.getcwd()
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--name",
+                "wedding",
+                "-V",
+                "--post-function",
+                f"{cwd}/examples/post_function.py::post_function",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Writing new file" in result.output
+        export_files = glob.glob(os.path.join(f"{tempdir}", "*"))
+        assert os.path.join(tempdir, "wedding.jpg.new") in export_files
+
+        # run again with --update and --cleanup
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--name",
+                "wedding",
+                "-V",
+                "--post-function",
+                f"{cwd}/examples/post_function.py::post_function",
+                "--update",
+                "--cleanup",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Skipping file" in result.output
+        assert "Deleted: 0 files" in result.output
+        export_files = glob.glob(os.path.join(f"{tempdir}", "*"))
+        assert os.path.join(tempdir, "wedding.jpg.new") in export_files
 
 
 def test_export_directory_template_function():

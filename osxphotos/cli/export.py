@@ -1570,17 +1570,14 @@ def export(
                     )
 
                 # run post functions
-                if post_function:
-                    for function in post_function:
-                        # post function is tuple of (function, filename.py::function_name)
-                        verbose(f"Calling post-function [bold]{function[1]}")
-                        if not dry_run:
-                            try:
-                                function[0](p, export_results, verbose)
-                            except Exception as e:
-                                rich_echo_error(
-                                    f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
-                                )
+                if run_results := run_post_function(
+                    photo=p,
+                    post_function=post_function,
+                    export_results=export_results,
+                    verbose=verbose,
+                    dry_run=dry_run,
+                ):
+                    export_results += run_results
 
                 # run post command
                 run_post_command(
@@ -1768,6 +1765,8 @@ def export(
             + results.sidecar_xmp_skipped
             + results.sidecar_user_written
             + results.sidecar_user_skipped
+            + results.user_written
+            + results.user_skipped
             # include missing so a file that was already in export directory
             # but was missing on --update doesn't get deleted
             # (better to have old version than none)
@@ -2853,6 +2852,39 @@ def write_extended_attributes(
                 written.add(f)
 
     return list(written), [f for f in skipped if f not in written]
+
+
+def run_post_function(
+    photo: osxphotos.PhotoInfo,
+    post_function: tuple[
+        tuple[
+            Callable[
+                [osxphotos.PhotoInfo, ExportResults, Callable[[Any], None]],
+                None | ExportResults,
+            ],
+            str,
+        ],
+        ...,
+    ],
+    export_results: ExportResults,
+    verbose: Callable[[Any], None],
+    dry_run: bool,
+) -> ExportResults:
+    """Run the --post-function functions"""
+    returned_results = ExportResults()
+    for function in post_function:
+        # post function is tuple of (function, filename.py::function_name)
+        verbose(f"Calling post-function [bold]{function[1]}")
+        if not dry_run:
+            try:
+                if results := function[0](photo, export_results, verbose):
+                    returned_results += results
+            except Exception as e:
+                rich_echo_error(
+                    f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
+                )
+                raise e
+    return returned_results
 
 
 def run_post_command(
