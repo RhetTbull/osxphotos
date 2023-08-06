@@ -977,6 +977,8 @@ def export(
     not_saved_to_library,
     shared_moment,
     not_shared_moment,
+    shared_library,
+    not_shared_library,
     selected=False,  # Isn't provided on unsupported platforms
     # debug,  # debug, watch, breakpoint handled in cli/__init__.py
     # watch,
@@ -1077,6 +1079,7 @@ def export(
         exiftool_merge_persons = cfg.exiftool_merge_persons
         exiftool_option = cfg.exiftool_option
         exiftool_path = cfg.exiftool_path
+        export_aae = cfg.export_aae
         export_as_hardlink = cfg.export_as_hardlink
         export_by_date = cfg.export_by_date
         exportdb = cfg.exportdb
@@ -1135,10 +1138,14 @@ def export(
         not_panorama = cfg.not_panorama
         not_portrait = cfg.not_portrait
         not_reference = cfg.not_reference
+        not_saved_to_library = cfg.not_saved_to_library
         not_screenshot = cfg.not_screenshot
         not_selfie = cfg.not_selfie
         not_shared = cfg.not_shared
+        not_shared_library = cfg.not_shared_library
+        not_shared_moment = cfg.not_shared_moment
         not_slow_mo = cfg.not_slow_mo
+        not_syndicated = cfg.not_syndicated
         not_time_lapse = cfg.not_time_lapse
         only_movies = cfg.only_movies
         only_new = cfg.only_new
@@ -1165,11 +1172,13 @@ def export(
         replace_keywords = cfg.replace_keywords
         report = cfg.report
         retry = cfg.retry
+        saved_to_library = cfg.saved_to_library
         screenshot = cfg.screenshot
         selected = cfg.selected
         selfie = cfg.selfie
         shared = cfg.shared
-        export_aae = cfg.export_aae
+        shared_library = cfg.shared_library
+        shared_moment = cfg.shared_moment
         sidecar = cfg.sidecar
         sidecar_drop_ext = cfg.sidecar_drop_ext
         sidecar_template = cfg.sidecar_template
@@ -1182,6 +1191,7 @@ def export(
         skip_uuid_from_file = cfg.skip_uuid_from_file
         slow_mo = cfg.slow_mo
         strip = cfg.strip
+        syndicated = cfg.syndicated
         theme = cfg.theme
         time_lapse = cfg.time_lapse
         timestamp = cfg.timestamp
@@ -1197,16 +1207,11 @@ def export(
         uti = cfg.uti
         uuid = cfg.uuid
         uuid_from_file = cfg.uuid_from_file
-        # this is the one option that is named differently in the config file than the variable passed by --verbose (verbose_flag)
-        verbose_flag = cfg.verbose
+        verbose_flag = (
+            cfg.verbose
+        )  # this is named differently in the config file than the variable passed by --verbose (verbose_flag)
         xattr_template = cfg.xattr_template
         year = cfg.year
-        syndicated = cfg.syndicated
-        not_syndicated = cfg.not_syndicated
-        saved_to_library = cfg.saved_to_library
-        not_saved_to_library = cfg.not_saved_to_library
-        shared_moment = cfg.shared_moment
-        not_shared_moment = cfg.not_shared_moment
 
         # config file might have changed verbose
         verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)

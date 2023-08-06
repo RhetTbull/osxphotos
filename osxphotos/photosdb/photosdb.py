@@ -62,7 +62,11 @@ from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from ..unicode import normalize_unicode
 from ..utils import _check_file_exists, get_last_library_path, noop
-from .photosdb_utils import get_photos_version_from_model, get_db_version, get_model_version
+from .photosdb_utils import (
+    get_db_version,
+    get_model_version,
+    get_photos_version_from_model,
+)
 
 if is_macos:
     import photoscript
@@ -91,6 +95,7 @@ class PhotosDB:
         labels_normalized,
         labels_normalized_as_dict,
     )
+    from ._photosdb_process_shared_library import _process_shared_library_info
     from ._photosdb_process_syndicationinfo import _process_syndicationinfo
 
     def __init__(
@@ -286,7 +291,7 @@ class PhotosDB:
         # Dict to hold data on imports for Photos <= 4
         self._db_import_group = {}
 
-        # Dict to hold syndication info for Photos >= 8
+        # Dict to hold syndication info for Photos >= 7
         # key is UUID and value is dict of syndication info
         self._db_syndication_uuid = {}
 
@@ -1552,6 +1557,12 @@ class PhotosDB:
                 info["UTI_raw"] = None
                 info["raw_pair_info"] = None
 
+        # placeholders for shared library info on Photos 8+
+        for uuid in self._dbphotos:
+            self._dbphotos[uuid]["active_library_participation_state"] = None
+            self._dbphotos[uuid]["library_scope_share_state"] = None
+            self._dbphotos[uuid]["library_scope"] = None
+
         # done with the database connection
         conn.close()
 
@@ -2220,6 +2231,11 @@ class PhotosDB:
             info["UTI_edited_photo"] = None
             info["UTI_edited_video"] = None
 
+            # placeholder for shared library info (Photos 8+)
+            info["active_library_participation_state"] = None
+            info["library_scope_share_state"] = None
+            info["library_scope"] = None
+
             self._dbphotos[uuid] = info
 
             # compute signatures for finding possible duplicates
@@ -2531,6 +2547,10 @@ class PhotosDB:
         if self.photos_version >= 7:
             verbose("Processing syndication info.")
             self._process_syndicationinfo()
+
+        if self.photos_version >= 8:
+            verbose("Processing shared iCloud library info")
+            self._process_shared_library_info()
 
         verbose("Done processing details from Photos library.")
 
@@ -3545,6 +3565,11 @@ class PhotosDB:
             photos = [p for p in photos if p.shared_moment]
         elif options.not_shared_moment:
             photos = [p for p in photos if not p.shared_moment]
+
+        if options.shared_library:
+            photos = [p for p in photos if p.shared_library]
+        elif options.not_shared_library:
+            photos = [p for p in photos if not p.shared_library]
 
         if options.function:
             for function in options.function:

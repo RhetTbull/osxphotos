@@ -1435,6 +1435,12 @@ class PhotoInfo:
         """Returns True if photo is part of a shared moment otherwise False (Photos 7+ only)"""
         return bool(self._info["moment_share"])
 
+    @cached_property
+    def shared_library(self) -> bool:
+        """Returns True if photo is in a shared iCloud library otherwise False (Photos 8+ only)"""
+        # TODO: this is just a guess right now as I don't currently use shared libraries
+        return bool(self._info["active_library_participation_state"])
+
     @property
     def labels(self):
         """returns list of labels applied to photo by Photos image categorization

@@ -621,6 +621,16 @@ _QUERY_PARAMETERS_DICT = {
         is_flag=True,
         help="Search for photos that are not part of a shared moment",
     ),
+    "--shared-library": click.Option(
+        ["--shared-library"],
+        is_flag=True,
+        help="Search for photos that are part of a shared library",
+    ),
+    "--not-shared-library": click.Option(
+        ["--not-shared-library"],
+        is_flag=True,
+        help="Search for photos that are not part of a shared library",
+    ),
     "--regex": click.Option(
         ["--regex"],
         metavar="REGEX TEMPLATE",
