@@ -71,10 +71,10 @@ def post_function(
         # simulate doing some processing
         new_filename = pathlib.Path(f"{filename}.new")
         if new_filename.exists():
-            verbose(f"Skipping [filepath]{new_filename}[/] as it already exists")
+            verbose(f"Skipping file [filepath]{new_filename}[/] as it already exists")
             post_results.user_skipped.append(new_filename)
         else:
-            verbose(f"Writing [filepath]{new_filename}[/]")
+            verbose(f"Writing new file [filepath]{new_filename}[/]")
             new_filename.touch()
             post_results.user_written.append(new_filename)
 
