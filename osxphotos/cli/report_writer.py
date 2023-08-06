@@ -99,6 +99,10 @@ class ExportReportWriterCSV(ReportWriterABC):
             "cleanup_deleted_directory",
             "exported_album",
             "sidecar_user",
+            "sidecar_user_error",
+            "user_written",
+            "user_skipped",
+            "user_error",
         ]
 
         mode = "a" if append else "w"
@@ -198,9 +202,9 @@ class ExportReportWriterSQLite(ReportWriterABC):
             cursor = self._conn.cursor()
             cursor.execute(
                 "INSERT INTO report "
-                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user) "  # noqa
+                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user, sidecar_user_error, user_written, user_skipped, user_error) "  # noqa
                 "VALUES "
-                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user);",  # noqa
+                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user, :sidecar_user_error, :user_written, :user_skipped, :user_error);",  # noqa
                 data,
             )
         self._conn.commit()
@@ -267,6 +271,32 @@ class ExportReportWriterSQLite(ReportWriterABC):
         if "sidecar_user" not in sqlite_columns(self._conn, "report"):
             self._conn.cursor().execute(
                 "ALTER TABLE report ADD COLUMN sidecar_user INTEGER;"
+            )
+            self._conn.commit()
+
+        # migrate report table and add sidecar_user_error if needed (#1123)
+        if "sidecar_user_error" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute(
+                "ALTER TABLE report ADD COLUMN sidecar_user_error TEXT;"
+            )
+            self._conn.commit()
+
+        # migrate report table and add user_written, skipped, error if needed (#1136)
+        if "user_written" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute(
+                "ALTER TABLE report ADD COLUMN user_written INTEGER;"
+            )
+            self._conn.commit()
+
+        if "user_skipped" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute(
+                "ALTER TABLE report ADD COLUMN user_skipped INTEGER;"
+            )
+            self._conn.commit()
+
+        if "user_error" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute(
+                "ALTER TABLE report ADD COLUMN user_error TEXT;"
             )
             self._conn.commit()
 
@@ -356,6 +386,10 @@ def prepare_export_results_for_writing(
                 "cleanup_deleted_directory": false,
                 "exported_album": "",
                 "sidecar_user": false,
+                "sidecar_user_error": "",
+                "user_written": false,
+                "user_skipped": false,
+                "user_error": "",
             }
 
     for result in export_results.exported:
@@ -437,6 +471,20 @@ def prepare_export_results_for_writing(
     for result in export_results.sidecar_user_skipped:
         all_results[str(result)]["sidecar_user"] = true
         all_results[str(result)]["skipped"] = true
+
+    for result in export_results.sidecar_user_error:
+        all_results[str(result[0])]["sidecar_user_error"] = result[1]
+
+    for result in export_results.user_written:
+        all_results[str(result)]["user_written"] = true
+        all_results[str(result)]["exported"] = true
+
+    for result in export_results.user_skipped:
+        all_results[str(result)]["user_skipped"] = true
+        all_results[str(result)]["skipped"] = true
+
+    for result in export_results.user_error:
+        all_results[str(result[0])]["user_error"] = result[1]
 
     return all_results
 

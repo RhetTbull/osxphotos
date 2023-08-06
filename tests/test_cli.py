@@ -8823,7 +8823,7 @@ def test_export_post_function_exception():
                 "-V",
             ],
         )
-        assert result.exit_code == 0
+        assert result.exit_code != 0
         assert "Error running post-function" in result.output
 
 
