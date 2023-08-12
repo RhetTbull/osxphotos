@@ -65,6 +65,8 @@ from .platform import assert_macos, is_macos
 from .query_builder import get_query
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
+from .shareinfo import ShareInfo, get_moment_share_info, get_share_info
+from .shareparticipant import ShareParticipant, get_share_participants
 from .uti import get_preferred_uti_extension, get_uti_for_extension
 from .utils import _get_resource_loc, hexdigest, list_directory
 
@@ -1434,6 +1436,41 @@ class PhotoInfo:
     def shared_moment(self) -> bool:
         """Returns True if photo is part of a shared moment otherwise False (Photos 7+ only)"""
         return bool(self._info["moment_share"])
+
+    @cached_property
+    def shared_moment_info(self) -> ShareInfo | None:
+        """Returns ShareInfo object with information about the shared moment the photo is part of (Photos 7+ only)"""
+        if self._db.photos_version < 7:
+            return None
+
+        try:
+            return get_moment_share_info(self._db, self.uuid)
+        except ValueError:
+            return None
+
+    @cached_property
+    def share_info(self) -> ShareInfo | None:
+        """Returns ShareInfo object with information about the shared photo in a shared iCloud library (Photos 8+ only) (currently experimental)"""
+        if self._db.photos_version < 8:
+            return None
+
+        try:
+            return get_share_info(self._db, self.uuid)
+        except ValueError:
+            return None
+
+    @cached_property
+    def shared_library(self) -> bool:
+        """Returns True if photo is in a shared iCloud library otherwise False (Photos 8+ only)"""
+        # TODO: this is just a guess right now as I don't currently use shared libraries
+        return bool(self._info["active_library_participation_state"])
+
+    @cached_property
+    def share_participants(self) -> list[ShareParticipant]:
+        """Returns list of ShareParticpant objects with information on who the photo is shared with (Photos 8+ only)"""
+        if self._db.photos_version < 8:
+            return []
+        return get_share_participants(self._db, self.uuid)
 
     @property
     def labels(self):

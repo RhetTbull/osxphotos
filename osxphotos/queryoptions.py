@@ -114,6 +114,8 @@ class QueryOptions:
         not_saved_to_library: search for syndicated photos that have not been saved to the Photos library
         shared_moment: search for photos that have been shared via a shared moment
         not_shared_moment: search for photos that have not been shared via a shared moment
+        shared_library: search for photos that are part of a shared iCloud library
+        not_shared_library: search for photos that are not part of a shared iCloud library
     """
 
     added_after: Optional[datetime.datetime] = None
@@ -204,6 +206,8 @@ class QueryOptions:
     not_saved_to_library: Optional[bool] = None
     shared_moment: Optional[bool] = None
     not_shared_moment: Optional[bool] = None
+    shared_library: Optional[bool] = None
+    not_shared_library: Optional[bool] = None
 
     def asdict(self):
         return asdict(self)
@@ -276,7 +280,9 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         ("syndicated", "not_syndicated"),
         ("saved_to_library", "not_saved_to_library"),
         ("shared_moment", "not_shared_moment"),
+        ("shared_library", "not_shared_library"),
     ]
+
     # TODO: add option to validate requiring at least one query arg
     for arg, not_arg in exclusive:
         if kwargs.get(arg) and kwargs.get(not_arg):
