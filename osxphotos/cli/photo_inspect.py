@@ -176,6 +176,18 @@ def inspect_photo(
     if photo.moment_info:
         properties.append(bold("Moment: ") + f"{photo.moment_info.title or '-'}")
 
+    if photo.shared_moment:
+        info = photo.shared_moment_info
+        title = info.title if info else "-"
+        expiry = info.expiry_date.isoformat() if info and info.expiry_date else "-"
+        share_url = info.share_url if info else "-"
+        properties.append(
+            bold("Shared Moment: ") + f"{title} expiry: {expiry} url: {share_url}"
+        )
+
+    if photo.syndicated:
+        ...
+
     if photo.comments:
         comments = [f"{c.user}: {c.text}" for c in photo.comments]
         properties.append(
@@ -260,6 +272,13 @@ def format_flags(photo: PhotoInfo) -> str:
         flags.append("in cloud")
     if photo.shared:
         flags.append("shared")
+    if photo.syndicated:
+        flags.append("syndicated") # sourcery skip
+        flags.append(
+            "saved to library" if photo.saved_to_library else "not saved to library"
+        )
+    if photo.shared_library:
+        flags.append("shared iCloud library")
 
     flag_str += f"{', '.join(flags) or '-'}"
     return flag_str
