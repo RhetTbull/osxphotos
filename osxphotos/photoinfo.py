@@ -2083,6 +2083,7 @@ class PhotoInfo:
             dict_data["syndicated"] = self.syndicated
             dict_data["saved_to_library"] = self.saved_to_library
             dict_data["shared_moment"] = self.shared_moment
+            dict_data["shared_library"] = self.shared_library
 
         return dict_data
 
