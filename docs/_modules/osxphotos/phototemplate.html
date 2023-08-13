@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.phototemplate - osxphotos 0.61.0 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.62.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.61.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.62.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.61.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.62.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -160,6 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_readme.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
@@ -661,7 +662,7 @@
 <span class="sd">            ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">template</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;template must be type str, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">template</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
@@ -1592,7 +1593,7 @@
             <span class="c1"># if no uuid, then template is being validated but not actually run</span>
             <span class="c1"># so don&#39;t run the function</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">elif</span> <span class="n">caller</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;export&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="n">caller</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;export&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">}:</span>
             <span class="c1"># function signature is:</span>
             <span class="c1"># def example(photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs) -&gt; Union[List, str]:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">template_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">field_arg</span><span class="p">)</span>
@@ -1608,7 +1609,7 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Invalid return type for function </span><span class="si">{</span><span class="n">funcname</span><span class="si">}</span><span class="s2">: expected str or list&quot;</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">]</span>
 
         <span class="c1"># sanitize directory names if needed</span>
