@@ -29,7 +29,7 @@ Initial support for photos in Shared iCloud Libraries has been implemented. Thes
 #### Changed
 
 - Changed `--sidecar-template` options to use named options instead of boolean
-- Changed signature of --post-function function to enable it to work with --report, --cleanup (#1142)
+- Changed signature of --post-function function to enable it to work with --report, --cleanup (#1136)
 - Now can catch template errors with `catch_errors` option to `--sidecar-template`
 
 #### Fixed
