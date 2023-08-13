@@ -16,7 +16,7 @@ Documentation Fixes
 
 #### Fixed
 
-Minor fixes to the documentation.
+- Minor fixes to the documentation.
 
 #### Contributors
 
