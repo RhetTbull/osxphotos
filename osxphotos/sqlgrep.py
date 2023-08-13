@@ -40,7 +40,7 @@ def sqlgrep(
                 for row_num, row in enumerate(cursor):
                     for field in row.keys():
                         field_value = row[field]
-                        if not field_value or type(field_value) == bytes:
+                        if not field_value or isinstance(field_value, bytes):
                             # don't search binary blobs
                             next
                         field_value = str(field_value)

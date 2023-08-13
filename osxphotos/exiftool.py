@@ -58,7 +58,7 @@ def exiftool_can_write(suffix: str) -> bool:
 
 def escape_str(s):
     """escape string for use with exiftool -E"""
-    if type(s) != str:
+    if not isinstance(s, str):
         return s
     s = html.escape(s)
     s = s.replace("\n", "&#xa;")
@@ -69,7 +69,7 @@ def escape_str(s):
 
 def unescape_str(s):
     """unescape an HTML string returned by exiftool -E"""
-    if type(s) != str:
+    if not isinstance(s, str):
         return s
     # avoid " in values which result in json.loads() throwing an exception, #636
     s = s.replace("&quot;", '\\"')
