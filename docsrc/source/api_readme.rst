@@ -1334,6 +1334,11 @@ Syndicated photos are photos that appear in "Shared with you" album. Photos 7+ o
 
 Return True if photo is part of a shared moment, otherwise False.  Shared moments are created when multiple photos are shared via iCloud. (e.g. in Messages)
 
+``shared_library``
+^^^^^^^^^^^^^^^^^^^^^^
+
+Return True if photo is included in shared iCloud library, otherwise False. Photos 8+ only; returns False if not Photos 8+.
+
 ``uti``
 ~~~~~~~~~~~
 
@@ -2964,7 +2969,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.61.0'
+     - The osxphotos version, e.g. '0.62.0'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}

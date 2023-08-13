@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Reference" href="reference.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Python API - osxphotos 0.61.0 documentation</title>
+        <title>OSXPhotos Python API - osxphotos 0.62.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.61.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.62.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.61.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.62.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1311,6 +1311,10 @@ Syndicated photos are photos that appear in “Shared with you” album. Photos 
 <section id="shared-moment">
 <h3><code class="docutils literal notranslate"><span class="pre">shared_moment</span></code><a class="headerlink" href="#shared-moment" title="Permalink to this heading">#</a></h3>
 <p>Return True if photo is part of a shared moment, otherwise False.  Shared moments are created when multiple photos are shared via iCloud. (e.g. in Messages)</p>
+</section>
+<section id="shared-library">
+<h3><code class="docutils literal notranslate"><span class="pre">shared_library</span></code><a class="headerlink" href="#shared-library" title="Permalink to this heading">#</a></h3>
+<p>Return True if photo is included in shared iCloud library, otherwise False. Photos 8+ only; returns False if not Photos 8+.</p>
 <section id="uti">
 <h4><code class="docutils literal notranslate"><span class="pre">uti</span></code><a class="headerlink" href="#uti" title="Permalink to this heading">#</a></h4>
 <p>Returns Uniform Type Identifier (UTI) for the current version of the image, for example: ‘public.jpeg’ or ‘com.apple. quicktime-movie’.  If the image has been edited, <code class="docutils literal notranslate"><span class="pre">uti</span></code> will return the UTI for the edited image, otherwise it will return the UTI for the original image.</p>
@@ -2766,7 +2770,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.61.0’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.62.0’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -3237,7 +3241,8 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#saved-to-library"><code class="docutils literal notranslate"><span class="pre">saved_to_library</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#shared-moment"><code class="docutils literal notranslate"><span class="pre">shared_moment</span></code></a><ul>
+<li><a class="reference internal" href="#shared-moment"><code class="docutils literal notranslate"><span class="pre">shared_moment</span></code></a></li>
+<li><a class="reference internal" href="#shared-library"><code class="docutils literal notranslate"><span class="pre">shared_library</span></code></a><ul>
 <li><a class="reference internal" href="#uti"><code class="docutils literal notranslate"><span class="pre">uti</span></code></a></li>
 <li><a class="reference internal" href="#uti-original"><code class="docutils literal notranslate"><span class="pre">uti_original</span></code></a></li>
 <li><a class="reference internal" href="#uti-edited"><code class="docutils literal notranslate"><span class="pre">uti_edited</span></code></a></li>

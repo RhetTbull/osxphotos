@@ -886,6 +886,10 @@ Options:
                                   moment
   --not-shared-moment             Search for photos that are not part of a
                                   shared moment
+  --shared-library                Search for photos that are part of a shared
+                                  library
+  --not-shared-library            Search for photos that are not part of a
+                                  shared library
   --regex REGEX TEMPLATE          Search for photos where TEMPLATE matches
                                   regular expression REGEX. For example, to find
                                   photos in an album that begins with 'Beach': '
@@ -2219,7 +2223,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.61.0'
+{osxphotos_version}             The osxphotos version, e.g. '0.62.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2707,7 +2711,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.61.0'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.62.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
