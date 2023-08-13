@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.62.1](https://github.com/RhetTbull/osxphotos/compare/v0.62.0...v0.62.1)
+
+Documentation Fixes
+
+### [v0.62.1] - 2023-08-13
+
+#### Changed
+
+#### Added
+
+#### Removed
+
+#### Fixed
+
+Minor fixes to the documentation.
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull)
+
 ## [v0.62.0](https://github.com/RhetTbull/osxphotos/compare/v0.61.0...v0.62.0)
 
 Initial support for iCloud Shared Libraries.
