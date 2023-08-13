@@ -14,7 +14,7 @@ Welcome to OSXPhotos's documentation!
    cli
    template_help
    package_overview
-   api_readme
+   API_README
    reference
 
 

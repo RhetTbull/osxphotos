@@ -30,11 +30,11 @@ python3 utils/generate_template_docs.py
 m2r2 docsrc/source/template_help.md
 rm docsrc/source/template_help.md
 
-echo "Copying API_README.md to docsrc/source/api_readme.md"
-rm docsrc/source/api_readme.rst
-cp API_README.md docsrc/source/api_readme.md
-m2r2 docsrc/source/api_readme.md
-rm docsrc/source/api_readme.md
+echo "Copying API_README.md to docsrc/source/API_README.md"
+rm docsrc/source/API_README.rst
+cp API_README.md docsrc/source/API_README.md
+m2r2 docsrc/source/API_README.md
+rm docsrc/source/API_README.md
 
 # build docs
 echo "Building docs"
