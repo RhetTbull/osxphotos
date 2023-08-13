@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [v0.62.0](https://github.com/RhetTbull/osxphotos/compare/v0.61.0...v0.62.0)
 
-Initial support for iCloud Shared Libraries
+Initial support for iCloud Shared Libraries.
+
+This release contains a lot of changes some of which may be breaking depending on your workflow. If you use `--sidecar-template`, you should look at the help for this option as the options have changed from boolean flags to named flags. 
+
+If you use `--report` with `--append` and you use CSV reports, you should archive the existing report and start a new one as the report now contains additional fields for user files.
+
+If you use `--post-function`, the called function may now return an [ExportResults](https://rhettbull.github.io/osxphotos/reference.html#osxphotos.ExportResults) object with information about the files written, the files skipped, and any errors generated. If returned, these files will be included in `--report` and will be protected from cleanup with `--cleanup`. 
+
+Initial support for photos in Shared iCloud Libraries has been implemented. These photos can be queried via the `--shared-library` option.  Still working on decoding the participant information (who is sharing the photos).
 
 ### [v0.62.0] - 20230812
 
