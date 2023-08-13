@@ -379,7 +379,6 @@ UUID_CONDITIONAL = {
         "{title contains Park?YES,NO}": ["YES"],
         "{title not contains Park?YES,NO}": ["NO"],
         "{title matches Park?YES,NO}": ["NO"],
-        "{title matches Elder Park?YES,NO}": ["YES"],
         "{title == Elder Park?YES,NO}": ["YES"],
         "{title != Elder Park?YES,NO}": ["NO"],
         "{title[ ,] == ElderPark?YES,NO}": ["YES"],
@@ -389,7 +388,6 @@ UUID_CONDITIONAL = {
         "{title endswith Elder?YES,NO}": ["NO"],
         "{title startswith Elder?YES,NO}": ["YES"],
         "{title startswith Elder|endswith Park?YES,NO}": ["YES"],
-        "{title endswith Elder?YES,NO}": ["NO"],
         "{photo.place.name contains Adelaide?YES,NO}": ["YES"],
         "{photo.place.name|lower contains adelaide?YES,NO}": ["YES"],
         "{photo.place.name|lower contains adelaide|australia?YES,NO}": ["YES"],
@@ -1136,13 +1134,27 @@ def test_nested_template(photosdb):
     assert rendered == ["My Title"]
 
 
-def test_punctuation(photosdb):
+def test_punctuation_1(photosdb):
+    """Test punctuation template fields"""
     from osxphotos.phototemplate import PUNCTUATION
 
     photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
     for punc in PUNCTUATION:
         rendered, _ = photo.render_template("{" + punc + "}")
         assert rendered[0] == PUNCTUATION[punc]
+
+
+def test_punctuation_2():
+    """Test punctuation template fields"""
+    template_string = ""
+    expected_string = ""
+    for field, value in PUNCTUATION.items():
+        template_string += "{" + field + "}"
+        expected_string += f"{value}"
+    template = PhotoTemplate(PhotoInfoNone())
+    options = RenderOptions()
+    rendered, _ = template.render(template_string, options)
+    assert rendered == [expected_string]
 
 
 def test_photo_template(photosdb):
@@ -1361,16 +1373,3 @@ def test_bad_sslice(photosdb):
     # bad function raises ValueError
     with pytest.raises((SyntaxError, ValueError)):
         rendered, _ = photo.render_template("{photo.original_filename|sslice(1:2:3:4)}")
-
-
-def test_punctuation():
-    """Test punctuation template fields"""
-    template_string = ""
-    expected_string = ""
-    for field, value in PUNCTUATION.items():
-        template_string += "{" + field + "}"
-        expected_string += f"{value}"
-    template = PhotoTemplate(PhotoInfoNone())
-    options = RenderOptions()
-    rendered, _ = template.render(template_string, options)
-    assert rendered == [expected_string]

@@ -22,7 +22,7 @@ class TempDiskImage:
             TypeError if size is not int
             RunTimeError if not on MacOS
         """
-        if type(size) != int:
+        if not isinstance(size, int):
             raise TypeError("size must be int")
 
         system = platform.system()

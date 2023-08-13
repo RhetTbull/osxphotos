@@ -71,22 +71,22 @@ def test_attributes():
     assert p.path.endswith(
         "tests/Test-Movie-5_0.photoslibrary/originals/4/423C0683-672D-4DDD-979C-23A6A53D7256.mov"
     )
-    assert p.ismissing == False
-    assert p.hasadjustments == True
+    assert not p.ismissing
+    assert p.hasadjustments
     assert p.path_edited.endswith(
         "tests/Test-Movie-5_0.photoslibrary/resources/renders/4/423C0683-672D-4DDD-979C-23A6A53D7256_2_0_a.mov"
     )
 
 
 def test_hasadjustments1():
-    # test hasadjustments == True
+    # test hasadjustments
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["movie"]], movies=True)
     assert len(photos) == 1
     p = photos[0]
-    assert p.hasadjustments == True
+    assert p.hasadjustments
 
 
 def test_path_edited1():

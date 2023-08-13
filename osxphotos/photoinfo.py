@@ -552,6 +552,7 @@ class PhotoInfo:
                 f"MISSING PATH: RAW photo for UUID {self._uuid} should be at {photopath} but does not appear to exist"
             )
             photopath = None
+        return photopath
 
     @property
     def description(self):

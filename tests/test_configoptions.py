@@ -19,7 +19,7 @@ def test_init():
     cfg = ConfigOptions("test", VARS)
     assert isinstance(cfg, ConfigOptions)
     assert cfg.foo == "bar"
-    assert cfg.bar == False
+    assert not cfg.bar
     assert type(cfg.test1) == tuple
 
 
@@ -67,7 +67,7 @@ def test_asdict():
     cfg = ConfigOptions("test", VARS)
     cfg_dict = cfg.asdict()
     assert cfg_dict["foo"] == "bar"
-    assert cfg_dict["bar"] == False
+    assert not cfg_dict["bar"]
     assert cfg_dict["test1"] == ()
 
 
