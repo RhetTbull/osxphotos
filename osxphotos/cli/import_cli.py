@@ -362,7 +362,7 @@ def set_photo_metadata(
     photo.title = normalize_unicode(metadata.title)
     photo.description = normalize_unicode(metadata.description)
     keywords = metadata.keywords.copy()
-    keywords =normalize_unicode(keywords)
+    keywords = normalize_unicode(keywords)
     if merge_keywords:
         if old_keywords := normalize_unicode(photo.keywords):
             keywords.extend(old_keywords)

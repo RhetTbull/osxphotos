@@ -270,7 +270,7 @@ def test_attributes(photosdb):
     assert p.path.endswith(
         "/tests/Test-10.14.6.photoslibrary/Masters/2019/07/27/20190727-131650/Pumkins2.jpg"
     )
-    assert p.ismissing == False
+    assert not p.ismissing
 
 
 def test_attributes_2(photosdb):
@@ -321,28 +321,28 @@ def test_favorite(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.favorite == True
+    assert p.favorite
 
 
 def test_not_favorite(photosdb):
     photos = photosdb.photos(uuid=["od0fmC7NQx+ayVr+%i06XA"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.favorite == False
+    assert not p.favorite
 
 
 def test_hidden(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["hidden"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hidden == True
+    assert p.hidden
 
 
 def test_not_hidden(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hidden == False
+    assert not p.hidden
 
 
 def test_visible(photosdb):
@@ -382,11 +382,11 @@ def test_location_2(photosdb):
 
 
 def test_hasadjustments1(photosdb):
-    # test hasadjustments == True
+    # test hasadjustments
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hasadjustments == True
+    assert p.hasadjustments
 
 
 def test_hasadjustments2(photosdb):
@@ -394,7 +394,7 @@ def test_hasadjustments2(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hasadjustments == False
+    assert not p.hasadjustments
 
 
 def test_external_edit1(photosdb):
@@ -403,7 +403,7 @@ def test_external_edit1(photosdb):
     assert len(photos) == 1
     p = photos[0]
 
-    assert p.external_edit == True
+    assert p.external_edit
 
 
 def test_external_edit2(photosdb):
@@ -412,7 +412,7 @@ def test_external_edit2(photosdb):
     assert len(photos) == 1
     p = photos[0]
 
-    assert p.external_edit == False
+    assert not p.external_edit
 
 
 def test_path_edited1(photosdb):
@@ -646,7 +646,7 @@ def test_raw(photosdb):
     assert photo.path_raw is None
 
 
-def test_raw():
+def test_raw_properties():
     """Test various raw properties"""
     import osxphotos
 

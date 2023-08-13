@@ -273,7 +273,7 @@ def format_flags(photo: PhotoInfo) -> str:
     if photo.shared:
         flags.append("shared")
     if photo.syndicated:
-        flags.append("syndicated") # sourcery skip
+        flags.append("syndicated")  # sourcery skip
         flags.append(
             "saved to library" if photo.saved_to_library else "not saved to library"
         )

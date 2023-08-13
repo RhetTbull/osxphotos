@@ -355,10 +355,10 @@ class _IgnoreRule:
 
 if os.altsep is not None:
     _all_seps_expr = f"[{re.escape(os.sep)}{re.escape(os.altsep)}]"
-    _path_split = lambda path: re.split(_all_seps_expr, path) # noqa: E731
+    _path_split = lambda path: re.split(_all_seps_expr, path)  # noqa: E731
 
 else:
-    _path_split = lambda path: path.split(os.sep) # noqa: E731
+    _path_split = lambda path: path.split(os.sep)  # noqa: E731
 
 
 def _fnmatch_pathname_to_regexp(pattern, anchored, directory_only):

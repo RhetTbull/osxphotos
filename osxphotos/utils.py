@@ -253,8 +253,6 @@ def list_photo_libraries():
     return lib_list
 
 
-
-
 # def findfiles(pattern, path):
 #     """Returns list of filenames from path matched by pattern
 #     shell pattern. Matching is case-insensitive.

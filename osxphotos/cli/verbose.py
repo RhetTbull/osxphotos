@@ -219,7 +219,7 @@ def _verbose_print_function(
         styled_args = []
         timestamp_str = f"{str(datetime.now())} -- " if timestamp else ""
         for arg in args:
-            if type(arg) == str:
+            if isinstance(arg, str):
                 arg = timestamp_str + arg
                 if "error" in arg.lower():
                     arg = click.style(arg, fg=CLI_COLOR_ERROR)
@@ -236,7 +236,7 @@ def _verbose_print_function(
         timestamp_str = time_stamp() if timestamp else ""
         new_args = []
         for arg in args:
-            if type(arg) == str:
+            if isinstance(arg, str):
                 if "error" in arg.lower():
                     arg = f"[error]{arg}"
                     if ERROR_EMOJI:
@@ -257,7 +257,7 @@ def _verbose_print_function(
         timestamp_str = time_stamp() if timestamp else ""
         new_args = []
         for arg in args:
-            if type(arg) == str:
+            if isinstance(arg, str):
                 if "error" in arg.lower():
                     arg = f"[error]{arg}"
                     if ERROR_EMOJI:

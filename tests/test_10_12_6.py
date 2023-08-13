@@ -111,7 +111,7 @@ def test_attributes(photosdb):
     assert p.path.endswith(
         "/tests/Test-10.12.6.photoslibrary/Masters/2019/08/24/20190824-030824/Pumkins2.jpg"
     )
-    assert p.ismissing == False
+    assert not p.ismissing
 
 
 def test_missing(photosdb):
@@ -119,7 +119,7 @@ def test_missing(photosdb):
     assert len(photos) == 1
     p = photos[0]
     assert p.path is None
-    assert p.ismissing == True
+    assert p.ismissing
 
 
 def test_count(photosdb):

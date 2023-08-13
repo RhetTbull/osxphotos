@@ -138,16 +138,3 @@ def test_place_place_info_asdict():
 
     assert isinstance(photo.place, osxphotos.placeinfo.PlaceInfo)
     assert photo.place.asdict() == MAUI_DICT
-
-
-# def test_place_str():
-#     # test __str__
-#     import osxphotos
-
-#     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-#     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
-
-#     assert (
-#         str(photo.place)
-#         == "PlaceInfo(name='2038 18th St NW', names='['2038 18th St NW', 'Adams Morgan', 'Washington', 'Washington', 'Washington', 'District of Columbia', 'United States']', country_code='US', ishome='False', address_str='2038 18th St NW, Washington, DC  20009, United States', address='PostalAddress(street='2038 18th St NW', sub_locality='Adams Morgan', city='Washington', sub_administrative_area=None, state='DC', postal_code='20009', country='United States', iso_country_code='US')')"
-#     )

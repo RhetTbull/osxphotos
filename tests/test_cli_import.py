@@ -537,7 +537,10 @@ def test_import_keyword_merge():
     photo_1 = Photo(uuid_1)
 
     assert photo_1.filename == file_1
-    assert sorted(photo_1.keywords) == sorted(list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"])))
+    assert sorted(photo_1.keywords) == sorted(
+        list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"]))
+    )
+
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
 @pytest.mark.test_import
@@ -574,7 +577,9 @@ def test_import_keyword_merge_unicode():
     photo_1 = Photo(uuid_1)
 
     assert photo_1.filename == file_1
-    assert sorted(photo_1.keywords) == sorted(list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"])))
+    assert sorted(photo_1.keywords) == sorted(
+        list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"]))
+    )
 
 
 @pytest.mark.test_import

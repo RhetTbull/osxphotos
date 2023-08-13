@@ -102,7 +102,7 @@ def test_albums_1(photosdb):
 
 
 @pytest.mark.parametrize("album_name,album_uuids", ALBUM_PHOTO_DATA)
-def test_photoinfo_albums(photosdb, album_name, album_uuids):
+def test_photoinfo_albums_1(photosdb, album_name, album_uuids):
     """Test PhotoInfo.albums"""
     photos = photosdb.photos(uuid=album_uuids)
 
@@ -111,7 +111,7 @@ def test_photoinfo_albums(photosdb, album_name, album_uuids):
 
 
 @pytest.mark.parametrize("uuid,expected_albums", PHOTO_ALBUM_DATA.items())
-def test_photoinfo_albums(photosdb, uuid, expected_albums):
+def test_photoinfo_albums_2(photosdb, uuid, expected_albums):
     """Test PhotoInfo.albums"""
     photo = photosdb.get_photo(uuid)
 

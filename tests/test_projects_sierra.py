@@ -11,23 +11,6 @@ TOP_LEVEL_FOLDERS = ["Folder1", "iPhoto Events"]
 
 ALBUM_NAMES = ["Album1", "Pumpkin Farm", "Event 1"]
 
-ALBUM_PHOTO_DATA = [
-    (
-        "Pumpkin Farm",
-        [
-            "FO2q5khAS9y4O9CkjpuYaw",
-            "47wXm7h6RfGRACCdcbLiCA",
-            "ZXV0MzbOSf65q82evn6G7g",
-        ],
-    ),
-    (
-        "Album1",
-        [
-            "ZXV0MzbOSf65q82evn6G7g",
-        ],
-    ),
-]
-
 PHOTO_ALBUM_DATA = {
     "FO2q5khAS9y4O9CkjpuYaw": ["Pumpkin Farm", "Album1", "Event 1"],
     "ZXV0MzbOSf65q82evn6G7g": ["Pumpkin Farm", "Event 1"],
@@ -99,15 +82,6 @@ def test_albums_1(photosdb):
     # check names
     album_names = [a.title for a in albums]
     assert sorted(album_names) == sorted(ALBUM_NAMES)
-
-
-@pytest.mark.parametrize("album_name,album_uuids", ALBUM_PHOTO_DATA)
-def test_photoinfo_albums(photosdb, album_name, album_uuids):
-    """Test PhotoInfo.albums"""
-    photos = photosdb.photos(uuid=album_uuids)
-
-    albums = photos[0].albums
-    assert album_name in albums
 
 
 @pytest.mark.parametrize("uuid,expected_albums", PHOTO_ALBUM_DATA.items())

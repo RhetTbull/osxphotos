@@ -52,7 +52,9 @@ MACOS_OPTIONS = make_click_option_decorator(
 @click.command()
 @DB_OPTION
 @JSON_OPTION
-@click.option("--count", is_flag=True, help="Print count of photos matching query and exit.")
+@click.option(
+    "--count", is_flag=True, help="Print count of photos matching query and exit."
+)
 @QUERY_OPTIONS
 @DELETED_OPTIONS
 @MACOS_OPTIONS
