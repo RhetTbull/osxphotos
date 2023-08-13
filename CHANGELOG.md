@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.62.0](https://github.com/RhetTbull/osxphotos/compare/v0.61.0...v0.62.0)
+
+Initial support for iCloud Shared Libraries
+
+### [v0.62.0] - 20230812
+
+#### Added
+
+- Support for iCloud shared libraries, PhotoInfo.shared_library, PhotoInfo.share_participants, PhotoInfo.share_info (#860)
+- Shared moment, syndicated, shared library support to `osxphotos inspect`(#860)
+- `--post-command-error` option to configure error handling of `--post-command` (#1142)
+- `.osxphotos_keep` file can now be used to specify keep patterns for `--cleanup` (#1135)
+- Option to `--sidecar-template` to skip zero length files
+
+#### Removed
+
+#### Changed
+
+- Changed `--sidecar-template` options to use named options instead of boolean
+- Changed signature of --post-function function to enable it to work with --report, --cleanup (#1142)
+- Now can catch template errors with `catch_errors` option to `--sidecar-template`
+
+#### Fixed
+
+- Fixed bug with PhotoInfo.path_raw on Photos <= 4.0
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) - Code and testing
+- [@neilpa](https://github.com/neilpa) - The idea for custom sidecars and suggestions to improve the feature
+- [@kvisle](https://github.com/kvisle) - For user testing with iCloud shared libraries
+
 ## [v0.61.0](https://github.com/RhetTbull/osxphotos/compare/v0.60.10...v0.61.0)
 
 Custom sidecars for osxphotos export
