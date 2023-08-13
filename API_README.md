@@ -445,7 +445,7 @@ if __name__ == "__main__":
 
 ## Package Interface
 
-### PhotosDB
+### <a name="photosdb">PhotosDB</a>
 
 #### Read a Photos library database
 
@@ -636,11 +636,11 @@ For example, in my library, Photos says I have 19,386 photos and 474 movies.  Ho
 
 Returns a single PhotoInfo instance for photo with UUID matching `uuid` or None if no photo is found matching `uuid`.  If you know the UUID of a photo, `get_photo()` is much faster than `photos`.  See also [photos()](#photos).
 
-#### <A name="photosdbquery">`query(options: QueryOptions) -> List[PhotoInfo]:`</a>
+#### <A name="photosdb_query">`query(options: QueryOptions) -> List[PhotoInfo]:`</a>
 
 Returns a list of [PhotoInfo](#photoinfo) objects matching the query options. This is preferred method of querying the photos database. See [QueryOptions](#queryoptions) for details on the options available.
 
-#### `keywords`
+#### <a name="photosdb_keywords">`keywords`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -649,16 +649,16 @@ keywords = photosdb.keywords
 
 Returns a list of the keywords found in the Photos library
 
-#### <a name="photosdbalbuminfo">`album_info`</a>
+#### <a name="photosdb_albuminfo">`album_info`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 albums = photosdb.album_info
 ```
 
-Returns a list of [AlbumInfo](#albuminfo) objects representing albums in the database or empty list if there are no albums.  See also [albums](#albums) and [burst_album_info](#burst_album_info).
+Returns a list of [AlbumInfo](#albuminfo) objects representing albums in the database or empty list if there are no albums.  See also [albums](#photosdb_albums) and [burst_album_info](#burst_album_info).
 
-#### `albums`
+#### <a name="photosdb_albums">`albums`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -669,7 +669,7 @@ Returns a list of the album names found in the Photos library. See also [burst_a
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-See also [album_info](#album_info.)
+See also [album_info](#photosdb_album_info.)
 
 #### `albums_shared`
 
@@ -677,30 +677,30 @@ Returns list of shared album names found in photos database (e.g. albums shared 
 
 **Note**: *Only valid for Photos 5 / MacOS 10.15*; on Photos <= 4, prints warning and returns empty list.
 
-#### `import_info`
+#### <a name = "photosdb_import_info">`import_info`</a>
 
 Returns a list of [ImportInfo](#importinfo) objects representing the import sessions for the database.
 
-#### `project_info`
+#### <a name="photosdb_project_info">`project_info`</a>
 
 Returns a list of [ProjectInfo](#projectinfo) objects representing the projects/creations (cards, calendars, etc.) in the database.
 
-#### `moment_info`
+#### <a name="photosdb_moment_info">`moment_info`</a>
 
 Returns the  [MomentInfo](#momentinfo) object for the photo or `None` if the photo does not have an associated moment.
 
-#### `folder_info`
+#### <a name="photosdb_folder_info">`folder_info`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 folders = photosdb.folder_info
 ```
 
-Returns a list of [FolderInfo](#folderinfo) objects representing top level folders in the database or empty list if there are no folders.  See also [folders](#folders).
+Returns a list of [FolderInfo](#folderinfo) objects representing top level folders in the database or empty list if there are no folders.  See also [folders](#photosdb_folders).
 
 **Note**: Currently folder_info is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.
 
-#### `folders`
+#### <a name="photosdb_folders">`folders`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -711,16 +711,16 @@ Returns a list names of top level folder names in the database.
 
 **Note**: Currently folders is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.
 
-#### `persons`
+#### <a name="photosdb_persons">`persons`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 persons = photosdb.persons
 ```
 
-Returns a list of the person names (faces) found in the Photos library.  **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#dbpersoninfo).
+Returns a list of the person names (faces) found in the Photos library.  **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#photosdb_personinfo).
 
-#### <a name="dbpersoninfo">`person_info`</a>
+#### <a name="photosdb_person_info">`person_info`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -769,17 +769,17 @@ Returns a dictionary of shared albums (e.g. shared via iCloud photo sharing) fou
 
 **Note**: *Photos 5 / MacOS 10.15 only*.  On earlier versions of Photos, prints warning and returns empty dictionary.
 
-#### `labels`
+#### <a name="photosdb_labels">`labels`</a>
 
 Returns image categorization labels associated with photos in the library as list of str.
 
-**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized](#labels_normalized).  
+**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized](#photosdb_labels_normalized).  
 
-#### `labels_normalized`
+#### <a name="photosdb_labels_normalized">`labels_normalized`</a>
 
 Returns image categorization labels associated with photos in the library as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label.
 
-**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#labels).  
+**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#photosdb_labels).  
 
 #### `labels_as_dict`
 
@@ -952,7 +952,7 @@ if __name__ == "__main__":
         print(photo.original_filename, photo.date)
 ```
 
-### PhotoInfo
+### <a name="photoinfo">PhotoInfo</a>
 
 PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.
 
@@ -1012,11 +1012,11 @@ Returns a list of [ProjectInfo](#projectinfo) objects representing projects/crea
 
 Returns a list of the names of the persons in the photo
 
-#### <a name="photopersoninfo">`person_info`</a>
+#### <a name="photoinfo_personinfo">`person_info`</a>
 
 Returns a list of [PersonInfo](#personinfo) objects representing persons in the photo.  Each PersonInfo object is associated with one or more FaceInfo objects.
 
-#### <a name="photofaceinfo">`face_info`</a>
+#### <a name="photooinfo_faceinfo">`face_info`</a>
 
 Returns a list of [FaceInfo](#faceinfo) objects representing faces in the photo.  Each face is associated with the a PersonInfo object.
 
@@ -1191,11 +1191,11 @@ Return true if photo was shared via syndication (e.g. via Messages, etc.); these
 Return True if syndicated photo has been saved to library; returns False if photo is not syndicated or has not been saved to the library.
 Syndicated photos are photos that appear in "Shared with you" album. Photos 7+ only; returns None if not Photos 7+.
 
-### `shared_moment`
+#### `shared_moment`
 
 Return True if photo is part of a shared moment, otherwise False.  Shared moments are created when multiple photos are shared via iCloud. (e.g. in Messages)
 
-### `shared_library`
+#### `shared_library`
 
 Return True if photo is included in shared iCloud library, otherwise False. Photos 8+ only; returns False if not Photos 8+.
 
@@ -1329,19 +1329,19 @@ for photo in photosdb.photos():
 
 **Note**: Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#labels).  
 
-#### <a name="photosearchinfo">`search_info`</a>
+#### <a name="photoinfo_searchinfo">`search_info`</a>
 
 Returns [SearchInfo](#searchinfo) object that represents search metadata for the photo.  
 
 **Note**: Only valid on Photos 5+; on ealier versions, returns None.
 
-#### <a name="photosearchinfo-normalized">`search_info_normalized`</a>
+#### <a name="photoinfo_search_info_normalized">`search_info_normalized`</a>
 
 Returns [SearchInfo](#searchinfo) object that represents normalized search metadata for the photo.  This returns a SearchInfo object just as `search_info` but all the properties of the object return normalized text (converted to lowercase).
 
 **Note**: Only valid on Photos 5+; on ealier versions, returns None.
 
-#### `exif_info`
+#### <a name="photoinfo_exif_info">`exif_info`</a>
 
 Returns an [ExifInfo](#exifinfo) object with EXIF details from the Photos database.  See [ExifInfo](#exifinfo) for additional details.
 
@@ -1349,7 +1349,7 @@ Returns an [ExifInfo](#exifinfo) object with EXIF details from the Photos databa
 
 See also `exiftool`.
 
-#### `exiftool`
+#### <a name="photoinfo_exiftool">`exiftool`</a>
 
 Returns an [ExifToolCaching](#exiftoolExifTool) object for the photo which provides an interface to [exiftool](https://exiftool.org/) allowing you to read the actual EXIF data in the image file inside the Photos library.  If [exif_info](#exif-info) doesn't give you all the data you need, you can use `exiftool` to read the entire EXIF contents of the image.
 
@@ -1499,7 +1499,7 @@ Some substitutions, notably `album`, `keyword`, and `person` could return multip
 
 See [Template System](#template-system) for additional details.
 
-#### <a name="detected_text_method">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a>
+#### <a name="photoinfo_detected_text">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a>
 
 Detects text in photo and returns lists of results as (detected text, confidence)
 
@@ -1515,7 +1515,7 @@ See also [Text Detection](#textdetection).
 
 ### ExifInfo
 
-[PhotosInfo.exif_info](#exif-info) returns an `ExifInfo` object with some EXIF data about the photo (Photos 5 only).  `ExifInfo` contains the following properties:
+[PhotosInfo.exif_info](#photoinfo_exif_info) returns an `ExifInfo` object with some EXIF data about the photo (Photos 5 only).  `ExifInfo` contains the following properties:
 
 ```python
     flash_fired: bool
@@ -1553,7 +1553,7 @@ nikon_photos = [
 
 ### AlbumInfo
 
-PhotosDB.album_info and PhotoInfo.album_info return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
+[PhotosDB.album_info](#photosdb_album_info) and [PhotoInfo.album_info](photoinfo_album_info) return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
 
 #### `uuid`
 
@@ -1729,11 +1729,11 @@ Returns the universally unique identifier (uuid) of the folder.  This is how Pho
 
 Returns the title or name of the folder.
 
-#### `album_info`
+#### <a name="folderinfo_album_info">`album_info`</a>
 
 Returns a list of [AlbumInfo](#albuminfo) objects representing each album contained in the folder.
 
-#### `album_info_shared`
+#### <a name="folderinfo_album_info_shared">`album_info_shared`</a>
 
 Returns a list of [AlbumInfo](#albuminfo) objects for each shared album in the photos database.
 
@@ -2044,11 +2044,11 @@ Returns a dictionary representation of the PersonInfo instance.
 
 [PhotoInfo.face_info](#photofaceinfo) return a list of FaceInfo objects representing detected faces in a photo.  The FaceInfo class has the following properties and methods.
 
-#### `uuid`
+#### <a name="faceinfo_uuid">`uuid`</a>
 
 UUID of the face.
 
-#### `name`
+#### <a name="faceinfo_name">`name`</a>
 
 Full name of the person represented by the face or None if person hasn't been given a name in Photos.  This is a shortcut for `FaceInfo.person_info.name`.
 
@@ -2056,11 +2056,11 @@ Full name of the person represented by the face or None if person hasn't been gi
 
 UUID of the photo this face is associated with.
 
-#### `person_info`
+#### <a name="faceinfo_person_info">`person_info`</a>
 
 [PersonInfo](#personinfo) object associated with this face.
 
-#### `photo`
+#### <a name="faceinfo_photo">`photo`</a>
 
 [PhotoInfo](#photoinfo) object representing the photo that contains this face.
 
@@ -2137,11 +2137,11 @@ The following additional properties are also available but are not yet fully doc
 * `lip_makeup_type`:
 * `smile_type`:
 
-#### `asdict()`
+#### <a name="faceinfo_asdict">`asdict()`</a>
 
 Returns a dictionary representation of the FaceInfo instance.
 
-#### `json()`
+#### <a name="faceinfo_json">`json()`</a>
 
 Returns a JSON representation of the FaceInfo instance.
 
@@ -2512,7 +2512,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.62.0'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.62.1'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -2704,7 +2704,7 @@ Attributes:
 
 ### <a name="textdetection">Text Detection</a>
 
-The [PhotoInfo.detected_text()](#detected_text_method) and the `{detected_text}` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named `osxphotos.metadata:detected_text` and can be viewed using the built-in [xattr](https://ss64.com/osx/xattr.html) command or my [osxmetadata](https://github.com/RhetTbull/osxmetadata) tool.  If you want to remove the cached attribute, you can do so with `xattr` as follows:
+The [PhotoInfo.detected_text()](#photoinfo_detected_text) and the `{detected_text}` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named `osxphotos.metadata:detected_text` and can be viewed using the built-in [xattr](https://ss64.com/osx/xattr.html) command or my [osxmetadata](https://github.com/RhetTbull/osxmetadata) tool.  If you want to remove the cached attribute, you can do so with `xattr` as follows:
 
 `find ~/Pictures/Photos\ Library.photoslibrary | xargs -I{} xattr -c osxphotos.metadata:detected_text '{}'`
 

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Reference" href="reference.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Python API - osxphotos 0.62.0 documentation</title>
+        <title>OSXPhotos Python API - osxphotos 0.62.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.62.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.62.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.62.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -630,8 +630,8 @@ Python &lt; 3.11.</p>
 </section>
 <section id="id6">
 <h2>Package Interface<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h2>
-<section id="id7">
-<h3>PhotosDB<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<section id="a-name-photosdb-photosdb-a">
+<h3><span class="raw-html-m2r"><a name="photosdb">PhotosDB</a></span><a class="headerlink" href="#a-name-photosdb-photosdb-a" title="Permalink to this heading">#</a></h3>
 <section id="read-a-photos-library-database">
 <h4>Read a Photos library database<a class="headerlink" href="#read-a-photos-library-database" title="Permalink to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
@@ -786,64 +786,64 @@ Python &lt; 3.11.</p>
 <h4><span class="raw-html-m2r"><a name="getphoto"></span><code class="docutils literal notranslate"><span class="pre">get_photo(uuid)</span></code>&lt;/A&gt;<a class="headerlink" href="#a-name-getphoto-get-photo-uuid-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a single PhotoInfo instance for photo with UUID matching <code class="docutils literal notranslate"><span class="pre">uuid</span></code> or None if no photo is found matching <code class="docutils literal notranslate"><span class="pre">uuid</span></code>.  If you know the UUID of a photo, <code class="docutils literal notranslate"><span class="pre">get_photo()</span></code> is much faster than <code class="docutils literal notranslate"><span class="pre">photos</span></code>.  See also <a class="reference external" href="#photos">photos()</a>.</p>
 </section>
-<section id="a-name-photosdbquery-query-options-queryoptions-list-photoinfo-a">
-<h4><span class="raw-html-m2r"><A name="photosdbquery"></span><code class="docutils literal notranslate"><span class="pre">query(options:</span> <span class="pre">QueryOptions)</span> <span class="pre">-&gt;</span> <span class="pre">List[PhotoInfo]:</span></code>&lt;/a&gt;<a class="headerlink" href="#a-name-photosdbquery-query-options-queryoptions-list-photoinfo-a" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-query-query-options-queryoptions-list-photoinfo-a">
+<h4><span class="raw-html-m2r"><A name="photosdb_query"></span><code class="docutils literal notranslate"><span class="pre">query(options:</span> <span class="pre">QueryOptions)</span> <span class="pre">-&gt;</span> <span class="pre">List[PhotoInfo]:</span></code>&lt;/a&gt;<a class="headerlink" href="#a-name-photosdb-query-query-options-queryoptions-list-photoinfo-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#photoinfo">PhotoInfo</a> objects matching the query options. This is preferred method of querying the photos database. See <a class="reference external" href="#queryoptions">QueryOptions</a> for details on the options available.</p>
 </section>
-<section id="keywords">
-<h4><code class="docutils literal notranslate"><span class="pre">keywords</span></code><a class="headerlink" href="#keywords" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-keywords-keywords-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_keywords">`keywords`</a></span><a class="headerlink" href="#a-name-photosdb-keywords-keywords-a" title="Permalink to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
 <span class="n">keywords</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">keywords</span>
 </pre></div>
 </div>
 <p>Returns a list of the keywords found in the Photos library</p>
 </section>
-<section id="a-name-photosdbalbuminfo-album-info-a">
-<h4><span class="raw-html-m2r"><a name="photosdbalbuminfo">`album_info`</a></span><a class="headerlink" href="#a-name-photosdbalbuminfo-album-info-a" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-albuminfo-album-info-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_albuminfo">`album_info`</a></span><a class="headerlink" href="#a-name-photosdb-albuminfo-album-info-a" title="Permalink to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
 <span class="n">albums</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">album_info</span>
 </pre></div>
 </div>
-<p>Returns a list of <a class="reference external" href="#albuminfo">AlbumInfo</a> objects representing albums in the database or empty list if there are no albums.  See also <a class="reference external" href="#albums">albums</a> and <a class="reference external" href="#burst_album_info">burst_album_info</a>.</p>
+<p>Returns a list of <a class="reference external" href="#albuminfo">AlbumInfo</a> objects representing albums in the database or empty list if there are no albums.  See also <a class="reference external" href="#photosdb_albums">albums</a> and <a class="reference external" href="#burst_album_info">burst_album_info</a>.</p>
 </section>
-<section id="id14">
-<h4><code class="docutils literal notranslate"><span class="pre">albums</span></code><a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-albums-albums-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_albums">`albums`</a></span><a class="headerlink" href="#a-name-photosdb-albums-albums-a" title="Permalink to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
 <span class="n">album_names</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">albums</span>
 </pre></div>
 </div>
 <p>Returns a list of the album names found in the Photos library. See also <a class="reference external" href="#burst_albums">burst_albums</a>.</p>
 <p><strong>Note</strong>: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named “Wedding” and each has 2 photos, osxphotos will treat this as a single album named “Wedding” with 4 photos in it.</p>
-<p>See also <a class="reference external" href="#album_info.">album_info</a></p>
+<p>See also <a class="reference external" href="#photosdb_album_info.">album_info</a></p>
 </section>
 <section id="albums-shared">
 <h4><code class="docutils literal notranslate"><span class="pre">albums_shared</span></code><a class="headerlink" href="#albums-shared" title="Permalink to this heading">#</a></h4>
 <p>Returns list of shared album names found in photos database (e.g. albums shared via iCloud photo sharing)</p>
 <p><strong>Note</strong>: <em>Only valid for Photos 5 / MacOS 10.15</em>; on Photos &lt;= 4, prints warning and returns empty list.</p>
 </section>
-<section id="import-info">
-<h4><code class="docutils literal notranslate"><span class="pre">import_info</span></code><a class="headerlink" href="#import-info" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-import-info-import-info-a">
+<h4><span class="raw-html-m2r"><a name = "photosdb_import_info">`import_info`</a></span><a class="headerlink" href="#a-name-photosdb-import-info-import-info-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#importinfo">ImportInfo</a> objects representing the import sessions for the database.</p>
 </section>
-<section id="project-info">
-<h4><code class="docutils literal notranslate"><span class="pre">project_info</span></code><a class="headerlink" href="#project-info" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-project-info-project-info-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_project_info">`project_info`</a></span><a class="headerlink" href="#a-name-photosdb-project-info-project-info-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#projectinfo">ProjectInfo</a> objects representing the projects/creations (cards, calendars, etc.) in the database.</p>
 </section>
-<section id="moment-info">
-<h4><code class="docutils literal notranslate"><span class="pre">moment_info</span></code><a class="headerlink" href="#moment-info" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-moment-info-moment-info-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_moment_info">`moment_info`</a></span><a class="headerlink" href="#a-name-photosdb-moment-info-moment-info-a" title="Permalink to this heading">#</a></h4>
 <p>Returns the  <a class="reference external" href="#momentinfo">MomentInfo</a> object for the photo or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the photo does not have an associated moment.</p>
 </section>
-<section id="folder-info">
-<h4><code class="docutils literal notranslate"><span class="pre">folder_info</span></code><a class="headerlink" href="#folder-info" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-folder-info-folder-info-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_folder_info">`folder_info`</a></span><a class="headerlink" href="#a-name-photosdb-folder-info-folder-info-a" title="Permalink to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
 <span class="n">folders</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">folder_info</span>
 </pre></div>
 </div>
-<p>Returns a list of <a class="reference external" href="#folderinfo">FolderInfo</a> objects representing top level folders in the database or empty list if there are no folders.  See also <a class="reference external" href="#folders">folders</a>.</p>
+<p>Returns a list of <a class="reference external" href="#folderinfo">FolderInfo</a> objects representing top level folders in the database or empty list if there are no folders.  See also <a class="reference external" href="#photosdb_folders">folders</a>.</p>
 <p><strong>Note</strong>: Currently folder_info is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.</p>
 </section>
-<section id="id19">
-<h4><code class="docutils literal notranslate"><span class="pre">folders</span></code><a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-folders-folders-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_folders">`folders`</a></span><a class="headerlink" href="#a-name-photosdb-folders-folders-a" title="Permalink to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
 <span class="n">folders</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">folders</span>
 </pre></div>
@@ -851,16 +851,16 @@ Python &lt; 3.11.</p>
 <p>Returns a list names of top level folder names in the database.</p>
 <p><strong>Note</strong>: Currently folders is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.</p>
 </section>
-<section id="persons">
-<h4><code class="docutils literal notranslate"><span class="pre">persons</span></code><a class="headerlink" href="#persons" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-persons-persons-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_persons">`persons`</a></span><a class="headerlink" href="#a-name-photosdb-persons-persons-a" title="Permalink to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
 <span class="n">persons</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">persons</span>
 </pre></div>
 </div>
-<p>Returns a list of the person names (faces) found in the Photos library.  <strong>Note</strong>: It is of course possible to have more than one person with the same name, e.g. “Maria Smith”, in the database.  <code class="docutils literal notranslate"><span class="pre">persons</span></code> assumes these are the same person and will list only one person named “Maria Smith”.  If you need more information about persons in the database, see <a class="reference external" href="#dbpersoninfo">person_info</a>.</p>
+<p>Returns a list of the person names (faces) found in the Photos library.  <strong>Note</strong>: It is of course possible to have more than one person with the same name, e.g. “Maria Smith”, in the database.  <code class="docutils literal notranslate"><span class="pre">persons</span></code> assumes these are the same person and will list only one person named “Maria Smith”.  If you need more information about persons in the database, see <a class="reference external" href="#photosdb_personinfo">person_info</a>.</p>
 </section>
-<section id="a-name-dbpersoninfo-person-info-a">
-<h4><span class="raw-html-m2r"><a name="dbpersoninfo">`person_info`</a></span><a class="headerlink" href="#a-name-dbpersoninfo-person-info-a" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-person-info-person-info-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_person_info">`person_info`</a></span><a class="headerlink" href="#a-name-photosdb-person-info-person-info-a" title="Permalink to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
 <span class="n">person_info</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">person_info</span>
 </pre></div>
@@ -901,23 +901,23 @@ Python &lt; 3.11.</p>
 <p>Returns a dictionary of shared albums (e.g. shared via iCloud photo sharing) found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first).</p>
 <p><strong>Note</strong>: <em>Photos 5 / MacOS 10.15 only</em>.  On earlier versions of Photos, prints warning and returns empty dictionary.</p>
 </section>
-<section id="labels">
-<h4><code class="docutils literal notranslate"><span class="pre">labels</span></code><a class="headerlink" href="#labels" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-labels-labels-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_labels">`labels`</a></span><a class="headerlink" href="#a-name-photosdb-labels-labels-a" title="Permalink to this heading">#</a></h4>
 <p>Returns image categorization labels associated with photos in the library as list of str.</p>
-<p><strong>Note</strong>: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as “People”, “Dog”, “Water”, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#labels_normalized">labels_normalized</a>.</p>
+<p><strong>Note</strong>: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as “People”, “Dog”, “Water”, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#photosdb_labels_normalized">labels_normalized</a>.</p>
 </section>
-<section id="id22">
-<h4><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code><a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photosdb-labels-normalized-labels-normalized-a">
+<h4><span class="raw-html-m2r"><a name="photosdb_labels_normalized">`labels_normalized`</a></span><a class="headerlink" href="#a-name-photosdb-labels-normalized-labels-normalized-a" title="Permalink to this heading">#</a></h4>
 <p>Returns image categorization labels associated with photos in the library as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don’t how Apple capitalizes a label.</p>
-<p><strong>Note</strong>: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as “People”, “Dog”, “Water”, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#labels">labels</a>.</p>
+<p><strong>Note</strong>: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as “People”, “Dog”, “Water”, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#photosdb_labels">labels</a>.</p>
 </section>
 <section id="labels-as-dict">
 <h4><code class="docutils literal notranslate"><span class="pre">labels_as_dict</span></code><a class="headerlink" href="#labels-as-dict" title="Permalink to this heading">#</a></h4>
 <p>Returns dictionary image categorization labels associated with photos in the library where key is label and value is number of photos in the library with the label.</p>
 <p><strong>Note</strong>: Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as “People”, “Dog”, “Water”, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#labels_normalized_as_dict">labels_normalized_as_dict</a>.</p>
 </section>
-<section id="id24">
-<h4><code class="docutils literal notranslate"><span class="pre">labels_normalized_as_dict</span></code><a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h4>
+<section id="id19">
+<h4><code class="docutils literal notranslate"><span class="pre">labels_normalized_as_dict</span></code><a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h4>
 <p>Returns dictionary of image categorization labels associated with photos in the library where key is normalized label and value is number of photos in the library with that label. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don’t how Apple capitalizes a label.</p>
 <p><strong>Note</strong>: Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as “People”, “Dog”, “Water”, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#labels_as_dict">labels_as_dict</a>.</p>
 </section>
@@ -976,8 +976,8 @@ Python &lt; 3.11.</p>
 <p>Execute sql statement against the Photos database and return a sqlite cursor with the results.</p>
 </section>
 </section>
-<section id="id26">
-<h3>QueryOptions<a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h3>
+<section id="id21">
+<h3>QueryOptions<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h3>
 <p>QueryOptions class for <a class="reference external" href="#photosdbquery">PhotosDB.query()</a></p>
 <section id="attributes">
 <h4>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading">#</a></h4>
@@ -1076,8 +1076,8 @@ Python &lt; 3.11.</p>
 </div>
 </section>
 </section>
-<section id="id27">
-<h3>PhotoInfo<a class="headerlink" href="#id27" title="Permalink to this heading">#</a></h3>
+<section id="a-name-photoinfo-photoinfo-a">
+<h3><span class="raw-html-m2r"><a name="photoinfo">PhotoInfo</a></span><a class="headerlink" href="#a-name-photoinfo-photoinfo-a" title="Permalink to this heading">#</a></h3>
 <p>PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.</p>
 <section id="uuid">
 <h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#uuid" title="Permalink to this heading">#</a></h4>
@@ -1087,8 +1087,8 @@ Python &lt; 3.11.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">filename</span></code><a class="headerlink" href="#filename" title="Permalink to this heading">#</a></h4>
 <p>Returns the current filename of the photo on disk.  See also <a class="reference external" href="#original_filename">original_filename</a></p>
 </section>
-<section id="id28">
-<h4><code class="docutils literal notranslate"><span class="pre">original_filename</span></code><a class="headerlink" href="#id28" title="Permalink to this heading">#</a></h4>
+<section id="id22">
+<h4><code class="docutils literal notranslate"><span class="pre">original_filename</span></code><a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h4>
 <p>Returns the original filename of the photo when it was imported to Photos.  <strong>Note</strong>: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also <a class="reference external" href="#filename">filename</a></p>
 </section>
 <section id="date">
@@ -1111,36 +1111,36 @@ Python &lt; 3.11.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#title" title="Permalink to this heading">#</a></h4>
 <p>Returns the title of the photo</p>
 </section>
-<section id="id30">
-<h4><code class="docutils literal notranslate"><span class="pre">keywords</span></code><a class="headerlink" href="#id30" title="Permalink to this heading">#</a></h4>
+<section id="keywords">
+<h4><code class="docutils literal notranslate"><span class="pre">keywords</span></code><a class="headerlink" href="#keywords" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of keywords (e.g. tags) applied to the photo</p>
 </section>
-<section id="id31">
-<h4><code class="docutils literal notranslate"><span class="pre">albums</span></code><a class="headerlink" href="#id31" title="Permalink to this heading">#</a></h4>
+<section id="id24">
+<h4><code class="docutils literal notranslate"><span class="pre">albums</span></code><a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of albums the photo is contained in. See also <a class="reference external" href="#album_info">album_info</a>.</p>
 </section>
-<section id="id33">
-<h4><code class="docutils literal notranslate"><span class="pre">album_info</span></code><a class="headerlink" href="#id33" title="Permalink to this heading">#</a></h4>
+<section id="id26">
+<h4><code class="docutils literal notranslate"><span class="pre">album_info</span></code><a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#albuminfo">AlbumInfo</a> objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also <a class="reference external" href="#albums">albums</a>.</p>
 </section>
-<section id="id36">
-<h4><code class="docutils literal notranslate"><span class="pre">import_info</span></code><a class="headerlink" href="#id36" title="Permalink to this heading">#</a></h4>
+<section id="import-info">
+<h4><code class="docutils literal notranslate"><span class="pre">import_info</span></code><a class="headerlink" href="#import-info" title="Permalink to this heading">#</a></h4>
 <p>Returns an <a class="reference external" href="#importinfo">ImportInfo</a> object representing the import session associated with the photo or <code class="docutils literal notranslate"><span class="pre">None</span></code> if there is no associated import session.</p>
 </section>
-<section id="id38">
-<h4><code class="docutils literal notranslate"><span class="pre">project_info</span></code><a class="headerlink" href="#id38" title="Permalink to this heading">#</a></h4>
+<section id="project-info">
+<h4><code class="docutils literal notranslate"><span class="pre">project_info</span></code><a class="headerlink" href="#project-info" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#projectinfo">ProjectInfo</a> objects representing projects/creations (cards, calendars, etc.) the photo is contained in or empty list if there are no projects associated with the photo.</p>
 </section>
-<section id="id40">
-<h4><code class="docutils literal notranslate"><span class="pre">persons</span></code><a class="headerlink" href="#id40" title="Permalink to this heading">#</a></h4>
+<section id="persons">
+<h4><code class="docutils literal notranslate"><span class="pre">persons</span></code><a class="headerlink" href="#persons" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of the names of the persons in the photo</p>
 </section>
-<section id="a-name-photopersoninfo-person-info-a">
-<h4><span class="raw-html-m2r"><a name="photopersoninfo">`person_info`</a></span><a class="headerlink" href="#a-name-photopersoninfo-person-info-a" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photoinfo-personinfo-person-info-a">
+<h4><span class="raw-html-m2r"><a name="photoinfo_personinfo">`person_info`</a></span><a class="headerlink" href="#a-name-photoinfo-personinfo-person-info-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#personinfo">PersonInfo</a> objects representing persons in the photo.  Each PersonInfo object is associated with one or more FaceInfo objects.</p>
 </section>
-<section id="a-name-photofaceinfo-face-info-a">
-<h4><span class="raw-html-m2r"><a name="photofaceinfo">`face_info`</a></span><a class="headerlink" href="#a-name-photofaceinfo-face-info-a" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photooinfo-faceinfo-face-info-a">
+<h4><span class="raw-html-m2r"><a name="photooinfo_faceinfo">`face_info`</a></span><a class="headerlink" href="#a-name-photooinfo-faceinfo-face-info-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#faceinfo">FaceInfo</a> objects representing faces in the photo.  Each face is associated with the a PersonInfo object.</p>
 </section>
 <section id="path">
@@ -1197,28 +1197,28 @@ Python &lt; 3.11.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">orientation</span></code><a class="headerlink" href="#orientation" title="Permalink to this heading">#</a></h4>
 <p>Returns EXIF orientation value of the photo as integer.  If image has been edited, returns orientation of the edited image, otherwise returns orientation of the original image. See also <a class="reference external" href="#original_orientation">original_orientation</a>.  If orientation cannot be determined, returns 0 (this happens if osxphotos cannot decode the adjustment info for an edited image).</p>
 </section>
-<section id="id48">
-<h4><code class="docutils literal notranslate"><span class="pre">original_height</span></code><a class="headerlink" href="#id48" title="Permalink to this heading">#</a></h4>
+<section id="id38">
+<h4><code class="docutils literal notranslate"><span class="pre">original_height</span></code><a class="headerlink" href="#id38" title="Permalink to this heading">#</a></h4>
 <p>Returns height of the original photo in pixels. See also <a class="reference external" href="#height">height</a>.</p>
 </section>
-<section id="id50">
-<h4><code class="docutils literal notranslate"><span class="pre">original_width</span></code><a class="headerlink" href="#id50" title="Permalink to this heading">#</a></h4>
+<section id="id40">
+<h4><code class="docutils literal notranslate"><span class="pre">original_width</span></code><a class="headerlink" href="#id40" title="Permalink to this heading">#</a></h4>
 <p>Returns width of the original photo in pixels. See also <a class="reference external" href="#width">width</a>.</p>
 </section>
-<section id="id52">
-<h4><code class="docutils literal notranslate"><span class="pre">original_orientation</span></code><a class="headerlink" href="#id52" title="Permalink to this heading">#</a></h4>
+<section id="id42">
+<h4><code class="docutils literal notranslate"><span class="pre">original_orientation</span></code><a class="headerlink" href="#id42" title="Permalink to this heading">#</a></h4>
 <p>Returns EXIF orientation value of the original photo as integer. See also <a class="reference external" href="#orientation">orientation</a>.</p>
 </section>
 <section id="original-filesize">
 <h4><code class="docutils literal notranslate"><span class="pre">original_filesize</span></code><a class="headerlink" href="#original-filesize" title="Permalink to this heading">#</a></h4>
 <p>Returns size of the original photo in bytes as integer.</p>
 </section>
-<section id="id54">
-<h4><code class="docutils literal notranslate"><span class="pre">ismissing</span></code><a class="headerlink" href="#id54" title="Permalink to this heading">#</a></h4>
+<section id="id44">
+<h4><code class="docutils literal notranslate"><span class="pre">ismissing</span></code><a class="headerlink" href="#id44" title="Permalink to this heading">#</a></h4>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the original image file is missing on disk, otherwise <code class="docutils literal notranslate"><span class="pre">False</span></code>.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted and user hasn’t enabled “Copy items to the Photos library” in Photos preferences. <strong>Note</strong>: this status is computed based on data in the Photos library and <code class="docutils literal notranslate"><span class="pre">ismissing</span></code> does not verify if the photo is actually missing. See also <a class="reference external" href="#path">path</a>.</p>
 </section>
-<section id="id56">
-<h4><code class="docutils literal notranslate"><span class="pre">hasadjustments</span></code><a class="headerlink" href="#id56" title="Permalink to this heading">#</a></h4>
+<section id="id46">
+<h4><code class="docutils literal notranslate"><span class="pre">hasadjustments</span></code><a class="headerlink" href="#id46" title="Permalink to this heading">#</a></h4>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the picture has been edited, otherwise <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </section>
 <section id="adjustments">
@@ -1233,8 +1233,8 @@ Python &lt; 3.11.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">favorite</span></code><a class="headerlink" href="#favorite" title="Permalink to this heading">#</a></h4>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the picture has been marked as a favorite, otherwise <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </section>
-<section id="id58">
-<h4><code class="docutils literal notranslate"><span class="pre">hidden</span></code><a class="headerlink" href="#id58" title="Permalink to this heading">#</a></h4>
+<section id="id48">
+<h4><code class="docutils literal notranslate"><span class="pre">hidden</span></code><a class="headerlink" href="#id48" title="Permalink to this heading">#</a></h4>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the picture has been marked as hidden, otherwise <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </section>
 <section id="visible">
@@ -1257,25 +1257,25 @@ Python &lt; 3.11.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">place</span></code><a class="headerlink" href="#place" title="Permalink to this heading">#</a></h4>
 <p>Returns a <a class="reference external" href="#placeinfo">PlaceInfo</a> object with reverse geolocation data or None if there is the photo has no reverse geolocation information.</p>
 </section>
-<section id="id60">
-<h4><code class="docutils literal notranslate"><span class="pre">shared</span></code><a class="headerlink" href="#id60" title="Permalink to this heading">#</a></h4>
+<section id="id50">
+<h4><code class="docutils literal notranslate"><span class="pre">shared</span></code><a class="headerlink" href="#id50" title="Permalink to this heading">#</a></h4>
 <p>Returns True if photo is in a shared album, otherwise False.</p>
-<p><strong>Note</strong>: <a href="#id61"><span class="problematic" id="id62">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns None.</p>
+<p><strong>Note</strong>: <a href="#id51"><span class="problematic" id="id52">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns None.</p>
 </section>
 <section id="owner">
 <h4><code class="docutils literal notranslate"><span class="pre">owner</span></code><a class="headerlink" href="#owner" title="Permalink to this heading">#</a></h4>
 <p>Returns full name of the photo owner (person who shared the photo) for shared photos or None if photo is not shared. Also returns None if you are the person who shared the photo.</p>
-<p><strong>Note</strong>: <a href="#id63"><span class="problematic" id="id64">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns None.</p>
+<p><strong>Note</strong>: <a href="#id53"><span class="problematic" id="id54">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns None.</p>
 </section>
 <section id="comments">
 <h4><code class="docutils literal notranslate"><span class="pre">comments</span></code><a class="headerlink" href="#comments" title="Permalink to this heading">#</a></h4>
 <p>Returns list of <a class="reference external" href="#commentinfo">CommentInfo</a> objects for comments on shared photos or empty list if no comments.</p>
-<p><strong>Note</strong>: <a href="#id66"><span class="problematic" id="id67">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns empty list.</p>
+<p><strong>Note</strong>: <a href="#id56"><span class="problematic" id="id57">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns empty list.</p>
 </section>
 <section id="likes">
 <h4><code class="docutils literal notranslate"><span class="pre">likes</span></code><a class="headerlink" href="#likes" title="Permalink to this heading">#</a></h4>
 <p>Returns list of <a class="reference external" href="#likeinfo">LikeInfo</a> objects for likes on shared photos or empty list if no likes.</p>
-<p><strong>Note</strong>: <a href="#id69"><span class="problematic" id="id70">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns empty list.</p>
+<p><strong>Note</strong>: <a href="#id59"><span class="problematic" id="id60">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns empty list.</p>
 </section>
 <section id="isreference">
 <h4><code class="docutils literal notranslate"><span class="pre">isreference</span></code><a class="headerlink" href="#isreference" title="Permalink to this heading">#</a></h4>
@@ -1293,8 +1293,8 @@ Python &lt; 3.11.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">iscloudasset</span></code><a class="headerlink" href="#iscloudasset" title="Permalink to this heading">#</a></h4>
 <p>Returns True if photo is a cloud asset, that is, it is in a library synched to iCloud.  See also <a class="reference external" href="#incloud">incloud</a></p>
 </section>
-<section id="id71">
-<h4><code class="docutils literal notranslate"><span class="pre">incloud</span></code><a class="headerlink" href="#id71" title="Permalink to this heading">#</a></h4>
+<section id="id61">
+<h4><code class="docutils literal notranslate"><span class="pre">incloud</span></code><a class="headerlink" href="#id61" title="Permalink to this heading">#</a></h4>
 <p>Returns True if photo is a <a class="reference external" href="#iscloudasset">cloud asset</a> and is synched to iCloud otherwise False if photo is a cloud asset and not yet synched to iCloud. Returns None if photo is not a cloud asset.</p>
 <p><strong>Note</strong>: Applies to master (original) photo only.  It’s possible for the master to be in iCloud but a local edited version is not yet synched to iCloud. <code class="docutils literal notranslate"><span class="pre">incloud</span></code> provides status of only the master photo.  osxphotos does not yet provide a means to determine if the edited version is in iCloud.  If you need this feature, please open an <a class="reference external" href="https://github.com/RhetTbull/osxphotos/issues">issue</a>.</p>
 </section>
@@ -1307,14 +1307,14 @@ Python &lt; 3.11.</p>
 <p>Return True if syndicated photo has been saved to library; returns False if photo is not syndicated or has not been saved to the library.
 Syndicated photos are photos that appear in “Shared with you” album. Photos 7+ only; returns None if not Photos 7+.</p>
 </section>
-</section>
 <section id="shared-moment">
-<h3><code class="docutils literal notranslate"><span class="pre">shared_moment</span></code><a class="headerlink" href="#shared-moment" title="Permalink to this heading">#</a></h3>
+<h4><code class="docutils literal notranslate"><span class="pre">shared_moment</span></code><a class="headerlink" href="#shared-moment" title="Permalink to this heading">#</a></h4>
 <p>Return True if photo is part of a shared moment, otherwise False.  Shared moments are created when multiple photos are shared via iCloud. (e.g. in Messages)</p>
 </section>
 <section id="shared-library">
-<h3><code class="docutils literal notranslate"><span class="pre">shared_library</span></code><a class="headerlink" href="#shared-library" title="Permalink to this heading">#</a></h3>
+<h4><code class="docutils literal notranslate"><span class="pre">shared_library</span></code><a class="headerlink" href="#shared-library" title="Permalink to this heading">#</a></h4>
 <p>Return True if photo is included in shared iCloud library, otherwise False. Photos 8+ only; returns False if not Photos 8+.</p>
+</section>
 <section id="uti">
 <h4><code class="docutils literal notranslate"><span class="pre">uti</span></code><a class="headerlink" href="#uti" title="Permalink to this heading">#</a></h4>
 <p>Returns Uniform Type Identifier (UTI) for the current version of the image, for example: ‘public.jpeg’ or ‘com.apple. quicktime-movie’.  If the image has been edited, <code class="docutils literal notranslate"><span class="pre">uti</span></code> will return the UTI for the edited image, otherwise it will return the UTI for the original image.</p>
@@ -1331,8 +1331,8 @@ Syndicated photos are photos that appear in “Shared with you” album. Photos 
 <h4><code class="docutils literal notranslate"><span class="pre">uti_raw</span></code><a class="headerlink" href="#uti-raw" title="Permalink to this heading">#</a></h4>
 <p>Returns Uniform Type Identifier (UTI) for the associated raw image, if there is one; for example, ‘com.canon.cr2-raw-image’.  If the image is raw but not part of a RAW+JPEG pair, <code class="docutils literal notranslate"><span class="pre">uti_raw</span></code> returns None.  In this case, use <code class="docutils literal notranslate"><span class="pre">uti</span></code>, or <code class="docutils literal notranslate"><span class="pre">uti_original</span></code>.  See also <a class="reference external" href="#has_raw">has_raw</a> and <a class="reference external" href="#raw-photos">notes on Raw Photos</a>.</p>
 </section>
-<section id="id74">
-<h4><code class="docutils literal notranslate"><span class="pre">burst</span></code><a class="headerlink" href="#id74" title="Permalink to this heading">#</a></h4>
+<section id="id64">
+<h4><code class="docutils literal notranslate"><span class="pre">burst</span></code><a class="headerlink" href="#id64" title="Permalink to this heading">#</a></h4>
 <p>Returns True if photos is a burst image (e.g. part of a set of burst images), otherwise False.
 See <a class="reference external" href="#burst_photos">burst_photos</a></p>
 </section>
@@ -1348,8 +1348,8 @@ See <a class="reference external" href="#burst_photos">burst_photos</a></p>
 <h4><code class="docutils literal notranslate"><span class="pre">burst_default_pick</span></code><a class="headerlink" href="#burst-default-pick" title="Permalink to this heading">#</a></h4>
 <p>Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False.</p>
 </section>
-<section id="id75">
-<h4><code class="docutils literal notranslate"><span class="pre">burst_photos</span></code><a class="headerlink" href="#id75" title="Permalink to this heading">#</a></h4>
+<section id="id65">
+<h4><code class="docutils literal notranslate"><span class="pre">burst_photos</span></code><a class="headerlink" href="#id65" title="Permalink to this heading">#</a></h4>
 <p>If photo is a burst image (see <a class="reference external" href="#burst">burst</a>), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.</p>
 <p>Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  PhotosDB.photos() will only return the photos in the burst set that the user <a class="reference external" href="https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac">selected</a> using “Make a Selection…” in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using <code class="docutils literal notranslate"><span class="pre">burst_photos</span></code> you can access the other images in the burst set to export them, etc.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">osxphotos</span>
@@ -1370,21 +1370,21 @@ See <a class="reference external" href="#burst_photos">burst_photos</a></p>
 </pre></div>
 </div>
 </section>
-<section id="id77">
-<h4><code class="docutils literal notranslate"><span class="pre">burst_albums</span></code><a class="headerlink" href="#id77" title="Permalink to this heading">#</a></h4>
+<section id="id67">
+<h4><code class="docutils literal notranslate"><span class="pre">burst_albums</span></code><a class="headerlink" href="#id67" title="Permalink to this heading">#</a></h4>
 <p>If photo is burst photo, returns list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns <code class="docutils literal notranslate"><span class="pre">PhotoInfo.albums</span></code>.</p>
 <p>If a burst photo which has unselected burst images (e.g. the burst images are in the library but haven’t been selected by the user using the “Make a selection” feature) is placed in a an album, Photos treats only the selected “key” photo as in the album.  The unselected burst images, while associated with the photo in the album, are not technically in the album.  If you are handling one of these unselected burst photos and want to know which album it would be in based on which albums it’s selected key images are in, use <code class="docutils literal notranslate"><span class="pre">burst_albums</span></code>. See also <a class="reference external" href="#burst_album_info">burst_album_info</a> and <a class="reference external" href="#albums">albums</a>.</p>
 </section>
-<section id="id80">
-<h4><code class="docutils literal notranslate"><span class="pre">burst_album_info</span></code><a class="headerlink" href="#id80" title="Permalink to this heading">#</a></h4>
+<section id="id70">
+<h4><code class="docutils literal notranslate"><span class="pre">burst_album_info</span></code><a class="headerlink" href="#id70" title="Permalink to this heading">#</a></h4>
 <p>If photo is non-selected burst photo, teturns a list of <a class="reference external" href="#albuminfo">AlbumInfo</a> objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns <code class="docutils literal notranslate"><span class="pre">PhotoInfo.album_info</span></code>. See also <a class="reference external" href="#burst_albums">burst_albums</a> and <a class="reference external" href="#album_info">album_info</a>.</p>
 </section>
 <section id="live-photo">
 <h4><code class="docutils literal notranslate"><span class="pre">live_photo</span></code><a class="headerlink" href="#live-photo" title="Permalink to this heading">#</a></h4>
 <p>Returns True if photo is an Apple live photo (ie. it has an associated “live” video component), otherwise returns False.  See <a class="reference external" href="#path_live_photo">path_live_photo</a>.</p>
 </section>
-<section id="id84">
-<h4><code class="docutils literal notranslate"><span class="pre">path_live_photo</span></code><a class="headerlink" href="#id84" title="Permalink to this heading">#</a></h4>
+<section id="id74">
+<h4><code class="docutils literal notranslate"><span class="pre">path_live_photo</span></code><a class="headerlink" href="#id74" title="Permalink to this heading">#</a></h4>
 <p>Returns the path to the live video component of a <a class="reference external" href="#live_photo">live photo</a>. If photo is not a live photo, returns None.</p>
 <p><strong>Note</strong>: will also return None if the live video component is missing on disk. It’s possible that the original photo may be on disk (<a class="reference external" href="#ismissing">ismissing</a>==False) but the video component is missing, likely because it has not been downloaded from iCloud.</p>
 </section>
@@ -1418,13 +1418,13 @@ See <a class="reference external" href="#burst_photos">burst_photos</a></p>
 <h4><code class="docutils literal notranslate"><span class="pre">slow_mo</span></code><a class="headerlink" href="#slow-mo" title="Permalink to this heading">#</a></h4>
 <p>Returns True if photo is a slow motion video, otherwise False</p>
 </section>
-<section id="id88">
-<h4><code class="docutils literal notranslate"><span class="pre">labels</span></code><a class="headerlink" href="#id88" title="Permalink to this heading">#</a></h4>
+<section id="id78">
+<h4><code class="docutils literal notranslate"><span class="pre">labels</span></code><a class="headerlink" href="#id78" title="Permalink to this heading">#</a></h4>
 <p>Returns image categorization labels associated with the photo as list of str.</p>
 <p><strong>Note</strong>: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as “People”, “Dog”, “Water”, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#labels_normalized">labels_normalized</a>.</p>
 </section>
-<section id="id90">
-<h4><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code><a class="headerlink" href="#id90" title="Permalink to this heading">#</a></h4>
+<section id="id80">
+<h4><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code><a class="headerlink" href="#id80" title="Permalink to this heading">#</a></h4>
 <p>Returns image categorization labels associated with the photo as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don’t how Apple capitalizes a label. For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
 
@@ -1436,24 +1436,24 @@ See <a class="reference external" href="#burst_photos">burst_photos</a></p>
 </div>
 <p><strong>Note</strong>: Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as “People”, “Dog”, “Water”, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#labels">labels</a>.</p>
 </section>
-<section id="a-name-photosearchinfo-search-info-a">
-<h4><span class="raw-html-m2r"><a name="photosearchinfo">`search_info`</a></span><a class="headerlink" href="#a-name-photosearchinfo-search-info-a" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photoinfo-searchinfo-search-info-a">
+<h4><span class="raw-html-m2r"><a name="photoinfo_searchinfo">`search_info`</a></span><a class="headerlink" href="#a-name-photoinfo-searchinfo-search-info-a" title="Permalink to this heading">#</a></h4>
 <p>Returns <a class="reference external" href="#searchinfo">SearchInfo</a> object that represents search metadata for the photo.</p>
 <p><strong>Note</strong>: Only valid on Photos 5+; on ealier versions, returns None.</p>
 </section>
-<section id="a-name-photosearchinfo-normalized-search-info-normalized-a">
-<h4><span class="raw-html-m2r"><a name="photosearchinfo-normalized">`search_info_normalized`</a></span><a class="headerlink" href="#a-name-photosearchinfo-normalized-search-info-normalized-a" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photoinfo-search-info-normalized-search-info-normalized-a">
+<h4><span class="raw-html-m2r"><a name="photoinfo_search_info_normalized">`search_info_normalized`</a></span><a class="headerlink" href="#a-name-photoinfo-search-info-normalized-search-info-normalized-a" title="Permalink to this heading">#</a></h4>
 <p>Returns <a class="reference external" href="#searchinfo">SearchInfo</a> object that represents normalized search metadata for the photo.  This returns a SearchInfo object just as <code class="docutils literal notranslate"><span class="pre">search_info</span></code> but all the properties of the object return normalized text (converted to lowercase).</p>
 <p><strong>Note</strong>: Only valid on Photos 5+; on ealier versions, returns None.</p>
 </section>
-<section id="exif-info">
-<h4><code class="docutils literal notranslate"><span class="pre">exif_info</span></code><a class="headerlink" href="#exif-info" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photoinfo-exif-info-exif-info-a">
+<h4><span class="raw-html-m2r"><a name="photoinfo_exif_info">`exif_info`</a></span><a class="headerlink" href="#a-name-photoinfo-exif-info-exif-info-a" title="Permalink to this heading">#</a></h4>
 <p>Returns an <a class="reference external" href="#exifinfo">ExifInfo</a> object with EXIF details from the Photos database.  See <a class="reference external" href="#exifinfo">ExifInfo</a> for additional details.</p>
 <p><strong>Note</strong>: Only valid on Photos 5+; on earlier versions, returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.  The EXIF details returned are a subset of the actual EXIF data in a typical image.  At import Photos stores this subset in the database and it’s this stored data that <code class="docutils literal notranslate"><span class="pre">exif_info</span></code> returns.</p>
 <p>See also <code class="docutils literal notranslate"><span class="pre">exiftool</span></code>.</p>
 </section>
-<section id="id96">
-<h4><code class="docutils literal notranslate"><span class="pre">exiftool</span></code><a class="headerlink" href="#id96" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photoinfo-exiftool-exiftool-a">
+<h4><span class="raw-html-m2r"><a name="photoinfo_exiftool">`exiftool`</a></span><a class="headerlink" href="#a-name-photoinfo-exiftool-exiftool-a" title="Permalink to this heading">#</a></h4>
 <p>Returns an <a class="reference external" href="#exiftoolExifTool">ExifToolCaching</a> object for the photo which provides an interface to <a class="reference external" href="https://exiftool.org/">exiftool</a> allowing you to read the actual EXIF data in the image file inside the Photos library.  If <a class="reference external" href="#exif-info">exif_info</a> doesn’t give you all the data you need, you can use <code class="docutils literal notranslate"><span class="pre">exiftool</span></code> to read the entire EXIF contents of the image.</p>
 <p>If the file is missing from the library (e.g. not downloaded from iCloud), returns None.</p>
 <p>exiftool must be installed in the path for this to work.  If exiftool cannot be found in the path, calling <code class="docutils literal notranslate"><span class="pre">exiftool</span></code> will log a warning and return <code class="docutils literal notranslate"><span class="pre">None</span></code>.  You can check the exiftool path using <code class="docutils literal notranslate"><span class="pre">osxphotos.exiftool.get_exiftool_path</span></code> which will raise FileNotFoundError if exiftool cannot be found.</p>
@@ -1587,8 +1587,8 @@ is not intended for general use.</p>
 <p>Some substitutions, notably <code class="docutils literal notranslate"><span class="pre">album</span></code>, <code class="docutils literal notranslate"><span class="pre">keyword</span></code>, and <code class="docutils literal notranslate"><span class="pre">person</span></code> could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: ‘Vacation’ and ‘Family’ would result in the following rendered values if template was “{created.year}/{album}” and created.year == 2020: <code class="docutils literal notranslate"><span class="pre">[&quot;2020/Vacation&quot;,&quot;2020/Family&quot;]</span></code></p>
 <p>See <a class="reference external" href="#template-system">Template System</a> for additional details.</p>
 </section>
-<section id="a-name-detected-text-method-detected-text-confidence-threshold-text-detection-confidence-threshold-a">
-<h4><span class="raw-html-m2r"><a name="detected_text_method">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a></span><a class="headerlink" href="#a-name-detected-text-method-detected-text-confidence-threshold-text-detection-confidence-threshold-a" title="Permalink to this heading">#</a></h4>
+<section id="a-name-photoinfo-detected-text-detected-text-confidence-threshold-text-detection-confidence-threshold-a">
+<h4><span class="raw-html-m2r"><a name="photoinfo_detected_text">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a></span><a class="headerlink" href="#a-name-photoinfo-detected-text-detected-text-confidence-threshold-text-detection-confidence-threshold-a" title="Permalink to this heading">#</a></h4>
 <p>Detects text in photo and returns lists of results as (detected text, confidence)</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">confidence_threshold</span></code>: float between 0.0 and 1.0. If text detection confidence is below this threshold, text will not be returned. Default is <code class="docutils literal notranslate"><span class="pre">osxphotos._constants.TEXT_DETECTION_CONFIDENCE_THRESHOLD</span></code></p></li>
@@ -1599,9 +1599,9 @@ is not intended for general use.</p>
 <p>See also <a class="reference external" href="#textdetection">Text Detection</a>.</p>
 </section>
 </section>
-<section id="id106">
-<h3>ExifInfo<a class="headerlink" href="#id106" title="Permalink to this heading">#</a></h3>
-<p><a class="reference external" href="#exif-info">PhotosInfo.exif_info</a> returns an <code class="docutils literal notranslate"><span class="pre">ExifInfo</span></code> object with some EXIF data about the photo (Photos 5 only).  <code class="docutils literal notranslate"><span class="pre">ExifInfo</span></code> contains the following properties:</p>
+<section id="id94">
+<h3>ExifInfo<a class="headerlink" href="#id94" title="Permalink to this heading">#</a></h3>
+<p><a class="reference external" href="#photoinfo_exif_info">PhotosInfo.exif_info</a> returns an <code class="docutils literal notranslate"><span class="pre">ExifInfo</span></code> object with some EXIF data about the photo (Photos 5 only).  <code class="docutils literal notranslate"><span class="pre">ExifInfo</span></code> contains the following properties:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">flash_fired</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="n">iso</span><span class="p">:</span> <span class="nb">int</span>
 <span class="n">metering_mode</span><span class="p">:</span> <span class="nb">int</span>
@@ -1634,15 +1634,15 @@ is not intended for general use.</p>
 </pre></div>
 </div>
 </section>
-<section id="id107">
-<h3>AlbumInfo<a class="headerlink" href="#id107" title="Permalink to this heading">#</a></h3>
-<p>PhotosDB.album_info and PhotoInfo.album_info return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.</p>
-<section id="id108">
-<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id108" title="Permalink to this heading">#</a></h4>
+<section id="id95">
+<h3>AlbumInfo<a class="headerlink" href="#id95" title="Permalink to this heading">#</a></h3>
+<p><a class="reference external" href="#photosdb_album_info">PhotosDB.album_info</a> and <a class="reference external" href="photoinfo_album_info">PhotoInfo.album_info</a> return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.</p>
+<section id="id96">
+<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id96" title="Permalink to this heading">#</a></h4>
 <p>Returns the universally unique identifier (uuid) of the album.  This is how Photos keeps track of individual objects within the database.</p>
 </section>
-<section id="id109">
-<h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#id109" title="Permalink to this heading">#</a></h4>
+<section id="id97">
+<h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#id97" title="Permalink to this heading">#</a></h4>
 <p>Returns the title or name of the album.</p>
 </section>
 <section id="a-name-albumphotos-photos-a">
@@ -1687,131 +1687,131 @@ is not intended for general use.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">parent</span></code><a class="headerlink" href="#parent" title="Permalink to this heading">#</a></h4>
 <p>Returns a <a class="reference external" href="#folderinfo">FolderInfo</a> object representing the albums parent folder or <code class="docutils literal notranslate"><span class="pre">None</span></code> if album is not a in a folder.</p>
 </section>
-<section id="id113">
-<h4><code class="docutils literal notranslate"><span class="pre">owner</span></code><a class="headerlink" href="#id113" title="Permalink to this heading">#</a></h4>
+<section id="id101">
+<h4><code class="docutils literal notranslate"><span class="pre">owner</span></code><a class="headerlink" href="#id101" title="Permalink to this heading">#</a></h4>
 <p>Returns full name of the album owner (person who shared the album) for shared albums or None if album is not shared.</p>
-<p><strong>Note</strong>: <a href="#id114"><span class="problematic" id="id115">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns None.</p>
+<p><strong>Note</strong>: <a href="#id102"><span class="problematic" id="id103">*</span></a>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns None.</p>
 </section>
-<section id="id116">
-<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id116" title="Permalink to this heading">#</a></h4>
+<section id="id104">
+<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id104" title="Permalink to this heading">#</a></h4>
 <p>Returns a dictionary representation of the AlbumInfo object.</p>
 </section>
 </section>
-<section id="id117">
-<h3>ImportInfo<a class="headerlink" href="#id117" title="Permalink to this heading">#</a></h3>
+<section id="id105">
+<h3>ImportInfo<a class="headerlink" href="#id105" title="Permalink to this heading">#</a></h3>
 <p>PhotosDB.import_info returns a list of ImportInfo objects.  Each ImportInfo object represents an import session in the library.  PhotoInfo.import_info returns a single ImportInfo object representing the import session for the photo (or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no associated import session).</p>
-<section id="id118">
-<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id118" title="Permalink to this heading">#</a></h4>
+<section id="id106">
+<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id106" title="Permalink to this heading">#</a></h4>
 <p>Returns the universally unique identifier (uuid) of the import session.  This is how Photos keeps track of individual objects within the database.</p>
 </section>
 <section id="a-name-importphotos-photos-a">
 <h4><span class="raw-html-m2r"><a name="importphotos">`photos`</a></span><a class="headerlink" href="#a-name-importphotos-photos-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#photoinfo">PhotoInfo</a> objects representing each photo contained in the import session.</p>
 </section>
-<section id="id120">
-<h4><code class="docutils literal notranslate"><span class="pre">creation_date</span></code><a class="headerlink" href="#id120" title="Permalink to this heading">#</a></h4>
+<section id="id108">
+<h4><code class="docutils literal notranslate"><span class="pre">creation_date</span></code><a class="headerlink" href="#id108" title="Permalink to this heading">#</a></h4>
 <p>Returns the creation date as a timezone aware datetime.datetime object of the import session.</p>
 </section>
-<section id="id121">
-<h4><code class="docutils literal notranslate"><span class="pre">start_date</span></code><a class="headerlink" href="#id121" title="Permalink to this heading">#</a></h4>
+<section id="id109">
+<h4><code class="docutils literal notranslate"><span class="pre">start_date</span></code><a class="headerlink" href="#id109" title="Permalink to this heading">#</a></h4>
 <p>Returns the start date as a timezone aware datetime.datetime object for when the import session began.</p>
 </section>
-<section id="id122">
-<h4><code class="docutils literal notranslate"><span class="pre">end_date</span></code><a class="headerlink" href="#id122" title="Permalink to this heading">#</a></h4>
+<section id="id110">
+<h4><code class="docutils literal notranslate"><span class="pre">end_date</span></code><a class="headerlink" href="#id110" title="Permalink to this heading">#</a></h4>
 <p>Returns the end date as a timezone aware datetime.datetime object for when the import session completed.</p>
 <p><strong>Note</strong>: On Photos &lt;=4, <code class="docutils literal notranslate"><span class="pre">start_date</span></code> and <code class="docutils literal notranslate"><span class="pre">end_date</span></code> will be the same as <code class="docutils literal notranslate"><span class="pre">creation_date</span></code>.</p>
 </section>
-<section id="id123">
-<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id123" title="Permalink to this heading">#</a></h4>
+<section id="id111">
+<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id111" title="Permalink to this heading">#</a></h4>
 <p>Returns a dictionary representation of the import session.</p>
 </section>
 </section>
-<section id="id124">
-<h3>ProjectInfo<a class="headerlink" href="#id124" title="Permalink to this heading">#</a></h3>
+<section id="id112">
+<h3>ProjectInfo<a class="headerlink" href="#id112" title="Permalink to this heading">#</a></h3>
 <p>PhotosDB.projcet_info returns a list of ProjectInfo objects.  Each ProjectInfo object represents a project in the library.  PhotoInfo.project_info returns a list of ProjectInfo objects for each project the photo is contained in.</p>
 <p>Projects (found under “My Projects” in Photos) are projects or creations such as cards, calendars, and slideshows created in Photos.  osxphotos provides only very basic information about projects and projects created with third party plugins may not accessible to osxphotos.</p>
-<section id="id125">
-<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id125" title="Permalink to this heading">#</a></h4>
+<section id="id113">
+<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id113" title="Permalink to this heading">#</a></h4>
 <p>Returns the universally unique identifier (uuid) of the project.  This is how Photos keeps track of individual objects within the database.</p>
 </section>
-<section id="id126">
-<h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#id126" title="Permalink to this heading">#</a></h4>
+<section id="id114">
+<h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#id114" title="Permalink to this heading">#</a></h4>
 <p>Returns the title or name of the project.</p>
 </section>
 <section id="a-name-projectphotos-photos-a">
 <h4><span class="raw-html-m2r"><a name="projectphotos">`photos`</a></span><a class="headerlink" href="#a-name-projectphotos-photos-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#photoinfo">PhotoInfo</a> objects representing each photo contained in the project.</p>
 </section>
-<section id="id128">
-<h4><code class="docutils literal notranslate"><span class="pre">creation_date</span></code><a class="headerlink" href="#id128" title="Permalink to this heading">#</a></h4>
+<section id="id116">
+<h4><code class="docutils literal notranslate"><span class="pre">creation_date</span></code><a class="headerlink" href="#id116" title="Permalink to this heading">#</a></h4>
 <p>Returns the creation date as a timezone aware datetime.datetime object of the project.</p>
 </section>
-<section id="id129">
-<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id129" title="Permalink to this heading">#</a></h4>
+<section id="id117">
+<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id117" title="Permalink to this heading">#</a></h4>
 <p>Returns a dictionary representation of the ProjectInfo object.</p>
 </section>
 </section>
-<section id="id130">
-<h3>MomentInfo<a class="headerlink" href="#id130" title="Permalink to this heading">#</a></h3>
+<section id="id118">
+<h3>MomentInfo<a class="headerlink" href="#id118" title="Permalink to this heading">#</a></h3>
 <p>PhotoInfo.moment_info return the MomentInfo object for the photo.  The MomentInfo object contains information about the photo’s moment as assigned by Photos.  The MomentInfo object contains the following properties:</p>
 <section id="pk">
 <h4><code class="docutils literal notranslate"><span class="pre">pk</span></code><a class="headerlink" href="#pk" title="Permalink to this heading">#</a></h4>
 <p>Returns the primary key of the moment in the Photos database.</p>
 </section>
-<section id="id131">
-<h4><code class="docutils literal notranslate"><span class="pre">location</span></code><a class="headerlink" href="#id131" title="Permalink to this heading">#</a></h4>
+<section id="id119">
+<h4><code class="docutils literal notranslate"><span class="pre">location</span></code><a class="headerlink" href="#id119" title="Permalink to this heading">#</a></h4>
 <p>Returns the location of the moment as a tuple of (latitude, longitude).</p>
 </section>
-<section id="id132">
-<h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#id132" title="Permalink to this heading">#</a></h4>
+<section id="id120">
+<h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#id120" title="Permalink to this heading">#</a></h4>
 <p>Returns the title of the moment.</p>
 </section>
 <section id="subtitle">
 <h4><code class="docutils literal notranslate"><span class="pre">subtitle</span></code><a class="headerlink" href="#subtitle" title="Permalink to this heading">#</a></h4>
 <p>Returns the subtitle of the moment.</p>
 </section>
-<section id="id133">
-<h4><code class="docutils literal notranslate"><span class="pre">start_date</span></code><a class="headerlink" href="#id133" title="Permalink to this heading">#</a></h4>
+<section id="id121">
+<h4><code class="docutils literal notranslate"><span class="pre">start_date</span></code><a class="headerlink" href="#id121" title="Permalink to this heading">#</a></h4>
 <p>Returns the start date of the moment as a timezone aware datetime.datetime object.</p>
 </section>
-<section id="id134">
-<h4><code class="docutils literal notranslate"><span class="pre">end_date</span></code><a class="headerlink" href="#id134" title="Permalink to this heading">#</a></h4>
+<section id="id122">
+<h4><code class="docutils literal notranslate"><span class="pre">end_date</span></code><a class="headerlink" href="#id122" title="Permalink to this heading">#</a></h4>
 <p>Returns the end date of the moment as a timezone aware datetime.datetime object.</p>
 </section>
-<section id="id135">
-<h4><code class="docutils literal notranslate"><span class="pre">date</span></code><a class="headerlink" href="#id135" title="Permalink to this heading">#</a></h4>
+<section id="id123">
+<h4><code class="docutils literal notranslate"><span class="pre">date</span></code><a class="headerlink" href="#id123" title="Permalink to this heading">#</a></h4>
 <p>Returns the date of the moment as a timezone aware datetime.datetime object.</p>
 </section>
 <section id="modification-date">
 <h4><code class="docutils literal notranslate"><span class="pre">modification_date</span></code><a class="headerlink" href="#modification-date" title="Permalink to this heading">#</a></h4>
 <p>Returns the modification date of the moment as a timezone aware datetime.datetime object.</p>
 </section>
-<section id="id136">
-<h4><code class="docutils literal notranslate"><span class="pre">photos</span></code><a class="headerlink" href="#id136" title="Permalink to this heading">#</a></h4>
+<section id="id124">
+<h4><code class="docutils literal notranslate"><span class="pre">photos</span></code><a class="headerlink" href="#id124" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of [PhotoInfo] objects representing the photos in the moment.</p>
 </section>
-<section id="id137">
-<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id137" title="Permalink to this heading">#</a></h4>
+<section id="id125">
+<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id125" title="Permalink to this heading">#</a></h4>
 <p>Returns a dictionary representation of the moment.</p>
 </section>
 </section>
-<section id="id138">
-<h3>FolderInfo<a class="headerlink" href="#id138" title="Permalink to this heading">#</a></h3>
+<section id="id126">
+<h3>FolderInfo<a class="headerlink" href="#id126" title="Permalink to this heading">#</a></h3>
 <p>PhotosDB.folder_info returns a list of FolderInfo objects representing the top level folders in the library.  Each FolderInfo object represents a single folder in the Photos library.</p>
-<section id="id139">
-<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id139" title="Permalink to this heading">#</a></h4>
+<section id="id127">
+<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id127" title="Permalink to this heading">#</a></h4>
 <p>Returns the universally unique identifier (uuid) of the folder.  This is how Photos keeps track of individual objects within the database.</p>
 </section>
-<section id="id140">
-<h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#id140" title="Permalink to this heading">#</a></h4>
+<section id="id128">
+<h4><code class="docutils literal notranslate"><span class="pre">title</span></code><a class="headerlink" href="#id128" title="Permalink to this heading">#</a></h4>
 <p>Returns the title or name of the folder.</p>
 </section>
-<section id="id141">
-<h4><code class="docutils literal notranslate"><span class="pre">album_info</span></code><a class="headerlink" href="#id141" title="Permalink to this heading">#</a></h4>
+<section id="a-name-folderinfo-album-info-album-info-a">
+<h4><span class="raw-html-m2r"><a name="folderinfo_album_info">`album_info`</a></span><a class="headerlink" href="#a-name-folderinfo-album-info-album-info-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#albuminfo">AlbumInfo</a> objects representing each album contained in the folder.</p>
 </section>
-<section id="album-info-shared">
-<h4><code class="docutils literal notranslate"><span class="pre">album_info_shared</span></code><a class="headerlink" href="#album-info-shared" title="Permalink to this heading">#</a></h4>
+<section id="a-name-folderinfo-album-info-shared-album-info-shared-a">
+<h4><span class="raw-html-m2r"><a name="folderinfo_album_info_shared">`album_info_shared`</a></span><a class="headerlink" href="#a-name-folderinfo-album-info-shared-album-info-shared-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#albuminfo">AlbumInfo</a> objects for each shared album in the photos database.</p>
 <p><strong>Note</strong>: Only valid for Photos 5+; on Photos &lt;= 4, prints warning and returns empty list.</p>
 </section>
@@ -1819,8 +1819,8 @@ is not intended for general use.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">subfolders</span></code><a class="headerlink" href="#subfolders" title="Permalink to this heading">#</a></h4>
 <p>Returns a list of <a class="reference external" href="#folderinfo">FolderInfo</a> objects representing the sub-folders of the folder.</p>
 </section>
-<section id="id145">
-<h4><code class="docutils literal notranslate"><span class="pre">parent</span></code><a class="headerlink" href="#id145" title="Permalink to this heading">#</a></h4>
+<section id="id132">
+<h4><code class="docutils literal notranslate"><span class="pre">parent</span></code><a class="headerlink" href="#id132" title="Permalink to this heading">#</a></h4>
 <p>Returns a <a class="reference external" href="#folderinfo">FolderInfo</a> object representing the folder’s parent folder or <code class="docutils literal notranslate"><span class="pre">None</span></code> if album is not a in a folder.</p>
 </section>
 <section id="sort-order">
@@ -1839,8 +1839,8 @@ is not intended for general use.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">photo_index(photo)</span></code><a class="headerlink" href="#photo-index-photo" title="Permalink to this heading">#</a></h4>
 <p>Returns index of photo in album (based on album sort order).</p>
 </section>
-<section id="id147">
-<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id147" title="Permalink to this heading">#</a></h4>
+<section id="id134">
+<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id134" title="Permalink to this heading">#</a></h4>
 <p>Returns a dictionary representation of the FolderInfo object.</p>
 <p><strong>Note</strong>: FolderInfo and AlbumInfo objects effectively work as a linked list.  The children of a folder are contained in <code class="docutils literal notranslate"><span class="pre">subfolders</span></code> and <code class="docutils literal notranslate"><span class="pre">album_info</span></code> and the parent object of both <code class="docutils literal notranslate"><span class="pre">AlbumInfo</span></code> and <code class="docutils literal notranslate"><span class="pre">FolderInfo</span></code> is represented by <code class="docutils literal notranslate"><span class="pre">parent</span></code>.  For example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">osxphotos</span>
@@ -1861,8 +1861,8 @@ is not intended for general use.</p>
 </div>
 </section>
 </section>
-<section id="id148">
-<h3>PlaceInfo<a class="headerlink" href="#id148" title="Permalink to this heading">#</a></h3>
+<section id="id135">
+<h3>PlaceInfo<a class="headerlink" href="#id135" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#place">PhotoInfo.place</a> returns a PlaceInfo object if the photo contains valid reverse geolocation information.  PlaceInfo has the following properties.</p>
 <p><strong>Note</strong> For Photos versions &lt;= 4, only <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">names</span></code>, and <code class="docutils literal notranslate"><span class="pre">country_code</span></code> properties are defined.  All others return <code class="docutils literal notranslate"><span class="pre">None</span></code>.  This is because older versions of Photos do not store the more detailed reverse geolocation information.</p>
 <section id="ishome">
@@ -1935,8 +1935,8 @@ is not intended for general use.</p>
 </div>
 </section>
 </section>
-<section id="id149">
-<h3>ScoreInfo<a class="headerlink" href="#id149" title="Permalink to this heading">#</a></h3>
+<section id="id136">
+<h3>ScoreInfo<a class="headerlink" href="#id136" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#score">PhotoInfo.score</a> returns a ScoreInfo object that exposes the computed aesthetic scores for each photo (<strong>Photos 5+ only</strong>).  I have not yet reverse engineered the meaning of each score.  The <code class="docutils literal notranslate"><span class="pre">overall</span></code> score seems to the most useful and appears to be a composite of the other scores.  The following score properties are currently available:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">overall</span><span class="p">:</span> <span class="nb">float</span>
 <span class="n">curation</span><span class="p">:</span> <span class="nb">float</span>
@@ -1974,12 +1974,12 @@ is not intended for general use.</p>
 </pre></div>
 </div>
 </section>
-<section id="id150">
-<h3>SearchInfo<a class="headerlink" href="#id150" title="Permalink to this heading">#</a></h3>
+<section id="id137">
+<h3>SearchInfo<a class="headerlink" href="#id137" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#photosearchinfo">PhotoInfo.search_info</a> and <a class="reference external" href="#photosearchinfo-normalized">PhotoInfo.search_info_normalized</a> return a SearchInfo object that exposes various metadata that Photos uses when searching for photos such as labels, associated holiday, etc. (<strong>Photos 5+ only</strong>).</p>
 <p>The following properties are available:</p>
-<section id="id151">
-<h4><code class="docutils literal notranslate"><span class="pre">labels</span></code><a class="headerlink" href="#id151" title="Permalink to this heading">#</a></h4>
+<section id="id138">
+<h4><code class="docutils literal notranslate"><span class="pre">labels</span></code><a class="headerlink" href="#id138" title="Permalink to this heading">#</a></h4>
 <p>Returns list of labels applied to photo by Photos image categorization algorithms.</p>
 </section>
 <section id="place-names">
@@ -2054,24 +2054,24 @@ is not intended for general use.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">all</span></code><a class="headerlink" href="#all" title="Permalink to this heading">#</a></h4>
 <p>Returns all search_info properties as a single list of strings.</p>
 </section>
-<section id="id152">
-<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id152" title="Permalink to this heading">#</a></h4>
+<section id="id139">
+<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id139" title="Permalink to this heading">#</a></h4>
 <p>Returns all associated search_info metadata as a dict.</p>
 </section>
 </section>
-<section id="id153">
-<h3>PersonInfo<a class="headerlink" href="#id153" title="Permalink to this heading">#</a></h3>
+<section id="id140">
+<h3>PersonInfo<a class="headerlink" href="#id140" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#dbpersoninfo">PhotosDB.person_info</a> and <a class="reference external" href="#photopersoninfo">PhotoInfo.person_info</a> return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.</p>
-<section id="id154">
-<h4><code class="docutils literal notranslate"><span class="pre">name</span></code><a class="headerlink" href="#id154" title="Permalink to this heading">#</a></h4>
+<section id="id141">
+<h4><code class="docutils literal notranslate"><span class="pre">name</span></code><a class="headerlink" href="#id141" title="Permalink to this heading">#</a></h4>
 <p>Returns the full name of the person represented in the photo. For example, “Maria Smith”.</p>
 </section>
 <section id="display-name">
 <h4><code class="docutils literal notranslate"><span class="pre">display_name</span></code><a class="headerlink" href="#display-name" title="Permalink to this heading">#</a></h4>
 <p>Returns the display name of the person represented in the photo. For example, “Maria”.</p>
 </section>
-<section id="id155">
-<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id155" title="Permalink to this heading">#</a></h4>
+<section id="id142">
+<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id142" title="Permalink to this heading">#</a></h4>
 <p>Returns the UUID of the person as stored in the Photos library database.</p>
 </section>
 <section id="keyphoto">
@@ -2098,36 +2098,36 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="personsortorder">`sort_order`</a></span><a class="headerlink" href="#a-name-personsortorder-sort-order-a" title="Permalink to this heading">#</a></h4>
 <p>Returns the sort order for the person in the Photos People view.  Available on Photos 5+ only; on Photos &lt;= 4, returns None.</p>
 </section>
-<section id="id157">
-<h4><code class="docutils literal notranslate"><span class="pre">json()</span></code><a class="headerlink" href="#id157" title="Permalink to this heading">#</a></h4>
+<section id="id144">
+<h4><code class="docutils literal notranslate"><span class="pre">json()</span></code><a class="headerlink" href="#id144" title="Permalink to this heading">#</a></h4>
 <p>Returns a json string representation of the PersonInfo instance.</p>
 </section>
-<section id="id158">
-<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id158" title="Permalink to this heading">#</a></h4>
+<section id="id145">
+<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id145" title="Permalink to this heading">#</a></h4>
 <p>Returns a dictionary representation of the PersonInfo instance.</p>
 </section>
 </section>
-<section id="id159">
-<h3>FaceInfo<a class="headerlink" href="#id159" title="Permalink to this heading">#</a></h3>
+<section id="id146">
+<h3>FaceInfo<a class="headerlink" href="#id146" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#photofaceinfo">PhotoInfo.face_info</a> return a list of FaceInfo objects representing detected faces in a photo.  The FaceInfo class has the following properties and methods.</p>
-<section id="id160">
-<h4><code class="docutils literal notranslate"><span class="pre">uuid</span></code><a class="headerlink" href="#id160" title="Permalink to this heading">#</a></h4>
+<section id="a-name-faceinfo-uuid-uuid-a">
+<h4><span class="raw-html-m2r"><a name="faceinfo_uuid">`uuid`</a></span><a class="headerlink" href="#a-name-faceinfo-uuid-uuid-a" title="Permalink to this heading">#</a></h4>
 <p>UUID of the face.</p>
 </section>
-<section id="id161">
-<h4><code class="docutils literal notranslate"><span class="pre">name</span></code><a class="headerlink" href="#id161" title="Permalink to this heading">#</a></h4>
+<section id="a-name-faceinfo-name-name-a">
+<h4><span class="raw-html-m2r"><a name="faceinfo_name">`name`</a></span><a class="headerlink" href="#a-name-faceinfo-name-name-a" title="Permalink to this heading">#</a></h4>
 <p>Full name of the person represented by the face or None if person hasn’t been given a name in Photos.  This is a shortcut for <code class="docutils literal notranslate"><span class="pre">FaceInfo.person_info.name</span></code>.</p>
 </section>
 <section id="asset-uuid">
 <h4><code class="docutils literal notranslate"><span class="pre">asset_uuid</span></code><a class="headerlink" href="#asset-uuid" title="Permalink to this heading">#</a></h4>
 <p>UUID of the photo this face is associated with.</p>
 </section>
-<section id="id162">
-<h4><code class="docutils literal notranslate"><span class="pre">person_info</span></code><a class="headerlink" href="#id162" title="Permalink to this heading">#</a></h4>
+<section id="a-name-faceinfo-person-info-person-info-a">
+<h4><span class="raw-html-m2r"><a name="faceinfo_person_info">`person_info`</a></span><a class="headerlink" href="#a-name-faceinfo-person-info-person-info-a" title="Permalink to this heading">#</a></h4>
 <p><a class="reference external" href="#personinfo">PersonInfo</a> object associated with this face.</p>
 </section>
-<section id="photo">
-<h4><code class="docutils literal notranslate"><span class="pre">photo</span></code><a class="headerlink" href="#photo" title="Permalink to this heading">#</a></h4>
+<section id="a-name-faceinfo-photo-photo-a">
+<h4><span class="raw-html-m2r"><a name="faceinfo_photo">`photo`</a></span><a class="headerlink" href="#a-name-faceinfo-photo-photo-a" title="Permalink to this heading">#</a></h4>
 <p><a class="reference external" href="#photoinfo">PhotoInfo</a> object representing the photo that contains this face.</p>
 </section>
 <section id="mwg-rs-area">
@@ -2204,17 +2204,17 @@ is not intended for general use.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">smile_type</span></code>:</p></li>
 </ul>
 </section>
-<section id="id165">
-<h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id165" title="Permalink to this heading">#</a></h4>
+<section id="a-name-faceinfo-asdict-asdict-a">
+<h4><span class="raw-html-m2r"><a name="faceinfo_asdict">`asdict()`</a></span><a class="headerlink" href="#a-name-faceinfo-asdict-asdict-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a dictionary representation of the FaceInfo instance.</p>
 </section>
-<section id="id166">
-<h4><code class="docutils literal notranslate"><span class="pre">json()</span></code><a class="headerlink" href="#id166" title="Permalink to this heading">#</a></h4>
+<section id="a-name-faceinfo-json-json-a">
+<h4><span class="raw-html-m2r"><a name="faceinfo_json">`json()`</a></span><a class="headerlink" href="#a-name-faceinfo-json-json-a" title="Permalink to this heading">#</a></h4>
 <p>Returns a JSON representation of the FaceInfo instance.</p>
 </section>
 </section>
-<section id="id167">
-<h3>CommentInfo<a class="headerlink" href="#id167" title="Permalink to this heading">#</a></h3>
+<section id="id149">
+<h3>CommentInfo<a class="headerlink" href="#id149" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#comments">PhotoInfo.comments</a> returns a list of CommentInfo objects for comments on shared photos. (Photos 5/MacOS 10.15+ only).  The list of CommentInfo objects will be sorted in ascending order by date comment was made.  CommentInfo contains the following fields:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">datetime</span></code>: <code class="docutils literal notranslate"><span class="pre">datetime.datetime</span></code>, date/time comment was made</p></li>
@@ -2223,8 +2223,8 @@ is not intended for general use.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">text</span></code>: <code class="docutils literal notranslate"><span class="pre">str</span></code>, text of the actual comment</p></li>
 </ul>
 </section>
-<section id="id168">
-<h3>LikeInfo<a class="headerlink" href="#id168" title="Permalink to this heading">#</a></h3>
+<section id="id150">
+<h3>LikeInfo<a class="headerlink" href="#id150" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#likes">PhotoInfo.likes</a> returns a list of LikeInfo objects for “likes” on shared photos. (Photos 5/MacOS 10.15+ only).  The list of LikeInfo objects will be sorted in ascending order by date like was made.  LikeInfo contains the following fields:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">datetime</span></code>: <code class="docutils literal notranslate"><span class="pre">datetime.datetime</span></code>, date/time like was made</p></li>
@@ -2232,8 +2232,8 @@ is not intended for general use.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">ismine</span></code>: <code class="docutils literal notranslate"><span class="pre">bool</span></code>, True if like was made by person who owns the Photos library being operated on</p></li>
 </ul>
 </section>
-<section id="id169">
-<h3>AdjustmentsInfo<a class="headerlink" href="#id169" title="Permalink to this heading">#</a></h3>
+<section id="id151">
+<h3>AdjustmentsInfo<a class="headerlink" href="#id151" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#adjustments">PhotoInfo.adjustments</a> returns an AdjustmentsInfo object, if the photo has adjustments, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the photo does not have adjusments.   AdjustmentsInfo has the following properties and methods:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">plist</span></code>: The adjustments plist file maintained by Photos as a dict.</p></li>
@@ -2251,8 +2251,8 @@ is not intended for general use.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">asdict()</span></code>: dict representation of the AdjustmentsInfo object; contains all properties with exception of <code class="docutils literal notranslate"><span class="pre">plist</span></code>.</p></li>
 </ul>
 </section>
-<section id="id170">
-<h3>PhotoTables<a class="headerlink" href="#id170" title="Permalink to this heading">#</a></h3>
+<section id="id152">
+<h3>PhotoTables<a class="headerlink" href="#id152" title="Permalink to this heading">#</a></h3>
 <p><a class="reference external" href="#tables">PhotoInfo.tables</a> returns a PhotoTables object that contains information about the tables in the Photos database that contain information about the photo.
 The following properties are available:</p>
 <ul class="simple">
@@ -2277,8 +2277,8 @@ and a <code class="docutils literal notranslate"><span class="pre">rows_dict()</
 </pre></div>
 </div>
 </section>
-<section id="id171">
-<h3>Raw Photos<a class="headerlink" href="#id171" title="Permalink to this heading">#</a></h3>
+<section id="id153">
+<h3>Raw Photos<a class="headerlink" href="#id153" title="Permalink to this heading">#</a></h3>
 <p>Handling raw photos in <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> requires a bit of extra work.  Raw photos in Photos can be imported in two different ways: 1) a single raw photo with no associated JPEG image is imported 2) a raw+JPEG pair is imported – two separate images with same file stem (e.g. <code class="docutils literal notranslate"><span class="pre">IMG_0001.CR2</span></code> and <code class="docutils literal notranslate"><span class="pre">IMG_001.JPG</span></code>) are imported.</p>
 <p>The latter are treated by Photos as a single image.  By default, Photos will treat these as a JPEG image.  They are denoted in the Photos interface with a “J” icon superimposed on the image.  In Photos, the user can select “Use RAW as original” in which case the “J” icon changes to an “R” icon and all subsequent edits will use the raw image as the original. To further complicate this, different versions of Photos handle these differently in their internal logic.</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> attempts to simplify the handling of these raw+JPEG pairs by providing a set of attributes for accessing both the JPEG and the raw version.  For example, <a class="reference external" href="#has_raw">PhotoInfo.has_raw</a> will be True if the photo has an associated raw image but False otherwise and <a class="reference external" href="#path_raw">PhotoInfo.path_raw</a> provides the path to the associated raw image.  Reference the following table for the various attributes useful for dealing with raw images.  Given the different ways Photos deals with raw images I’ve struggled with how to represent these in a logical and consistent manner.  If you have suggestions for a better interface, please open an <a class="reference external" href="https://github.com/RhetTbull/osxphotos/issues">issue</a>!</p>
@@ -2347,8 +2347,8 @@ and a <code class="docutils literal notranslate"><span class="pre">rows_dict()</
 </div>
 </section>
 </section>
-<section id="id180">
-<h3>Template System<a class="headerlink" href="#id180" title="Permalink to this heading">#</a></h3>
+<section id="id162">
+<h3>Template System<a class="headerlink" href="#id162" title="Permalink to this heading">#</a></h3>
 <!--[[[cog
 from osxphotos.phototemplate import get_template_help
 cog.out("\n"+get_template_help())
@@ -2770,7 +2770,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.62.0’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.62.1’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -3007,18 +3007,18 @@ cog.out("\n"+get_template_field_table()+"\n")
 </section>
 <section id="a-name-textdetection-text-detection-a">
 <h3><span class="raw-html-m2r"><a name="textdetection">Text Detection</a></span><a class="headerlink" href="#a-name-textdetection-text-detection-a" title="Permalink to this heading">#</a></h3>
-<p>The <a class="reference external" href="#detected_text_method">PhotoInfo.detected_text()</a> and the <code class="docutils literal notranslate"><span class="pre">{detected_text}</span></code> template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named <code class="docutils literal notranslate"><span class="pre">osxphotos.metadata:detected_text</span></code> and can be viewed using the built-in <a class="reference external" href="https://ss64.com/osx/xattr.html">xattr</a> command or my <a class="reference external" href="https://github.com/RhetTbull/osxmetadata">osxmetadata</a> tool.  If you want to remove the cached attribute, you can do so with <code class="docutils literal notranslate"><span class="pre">xattr</span></code> as follows:</p>
+<p>The <a class="reference external" href="#photoinfo_detected_text">PhotoInfo.detected_text()</a> and the <code class="docutils literal notranslate"><span class="pre">{detected_text}</span></code> template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named <code class="docutils literal notranslate"><span class="pre">osxphotos.metadata:detected_text</span></code> and can be viewed using the built-in <a class="reference external" href="https://ss64.com/osx/xattr.html">xattr</a> command or my <a class="reference external" href="https://github.com/RhetTbull/osxmetadata">osxmetadata</a> tool.  If you want to remove the cached attribute, you can do so with <code class="docutils literal notranslate"><span class="pre">xattr</span></code> as follows:</p>
 <p><code class="docutils literal notranslate"><span class="pre">find</span> <span class="pre">~/Pictures/Photos\</span> <span class="pre">Library.photoslibrary</span> <span class="pre">|</span> <span class="pre">xargs</span> <span class="pre">-I{}</span> <span class="pre">xattr</span> <span class="pre">-c</span> <span class="pre">osxphotos.metadata:detected_text</span> <span class="pre">'{}'</span></code></p>
 </section>
-<section id="id183">
-<h3>Utility Functions<a class="headerlink" href="#id183" title="Permalink to this heading">#</a></h3>
+<section id="id165">
+<h3>Utility Functions<a class="headerlink" href="#id165" title="Permalink to this heading">#</a></h3>
 <p>The following functions are located in osxphotos.utils</p>
-<section id="id184">
-<h4><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code><a class="headerlink" href="#id184" title="Permalink to this heading">#</a></h4>
+<section id="id166">
+<h4><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code><a class="headerlink" href="#id166" title="Permalink to this heading">#</a></h4>
 <p><strong>MacOS 10.15 Only</strong> Returns path to System Photo Library as string.  On MacOS version &lt; 10.15, returns None.</p>
 </section>
-<section id="id185">
-<h4><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code><a class="headerlink" href="#id185" title="Permalink to this heading">#</a></h4>
+<section id="id167">
+<h4><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code><a class="headerlink" href="#id167" title="Permalink to this heading">#</a></h4>
 <p>Returns path to last opened Photo Library as string.</p>
 </section>
 <section id="list-photo-libraries">
@@ -3027,8 +3027,8 @@ cog.out("\n"+get_template_field_table()+"\n")
 </section>
 </section>
 </section>
-<section id="id186">
-<h2>Additional Examples<a class="headerlink" href="#id186" title="Permalink to this heading">#</a></h2>
+<section id="id168">
+<h2>Additional Examples<a class="headerlink" href="#id168" title="Permalink to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -3147,33 +3147,33 @@ cog.out("\n"+get_template_field_table()+"\n")
 </li>
 <li><a class="reference internal" href="#concurrency">Concurrency</a></li>
 <li><a class="reference internal" href="#id6">Package Interface</a><ul>
-<li><a class="reference internal" href="#id7">PhotosDB</a><ul>
+<li><a class="reference internal" href="#a-name-photosdb-photosdb-a"><span class="raw-html-m2r"><a name="photosdb">PhotosDB</a></span></a><ul>
 <li><a class="reference internal" href="#read-a-photos-library-database">Read a Photos library database</a></li>
 <li><a class="reference internal" href="#open-the-default-last-opened-photos-library">Open the default (last opened) Photos library</a></li>
 <li><a class="reference internal" href="#open-system-photos-library">Open System Photos library</a></li>
 <li><a class="reference internal" href="#open-a-specific-photos-library">Open a specific Photos library</a></li>
 <li><a class="reference internal" href="#a-name-photosdbphotos-photos-keywords-none-uuid-none-persons-none-albums-none-images-true-movies-true-from-date-none-to-date-none-intrash-false-a"><span class="raw-html-m2r"><A name="photosdbphotos"></span><code class="docutils literal notranslate"><span class="pre">photos(keywords=None,</span> <span class="pre">uuid=None,</span> <span class="pre">persons=None,</span> <span class="pre">albums=None,</span> <span class="pre">images=True,</span> <span class="pre">movies=True,</span> <span class="pre">from_date=None,</span> <span class="pre">to_date=None,</span> <span class="pre">intrash=False)</span></code>&lt;/a&gt;</a></li>
 <li><a class="reference internal" href="#a-name-getphoto-get-photo-uuid-a"><span class="raw-html-m2r"><a name="getphoto"></span><code class="docutils literal notranslate"><span class="pre">get_photo(uuid)</span></code>&lt;/A&gt;</a></li>
-<li><a class="reference internal" href="#a-name-photosdbquery-query-options-queryoptions-list-photoinfo-a"><span class="raw-html-m2r"><A name="photosdbquery"></span><code class="docutils literal notranslate"><span class="pre">query(options:</span> <span class="pre">QueryOptions)</span> <span class="pre">-&gt;</span> <span class="pre">List[PhotoInfo]:</span></code>&lt;/a&gt;</a></li>
-<li><a class="reference internal" href="#keywords"><code class="docutils literal notranslate"><span class="pre">keywords</span></code></a></li>
-<li><a class="reference internal" href="#a-name-photosdbalbuminfo-album-info-a"><span class="raw-html-m2r"><a name="photosdbalbuminfo">`album_info`</a></span></a></li>
-<li><a class="reference internal" href="#id14"><code class="docutils literal notranslate"><span class="pre">albums</span></code></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-query-query-options-queryoptions-list-photoinfo-a"><span class="raw-html-m2r"><A name="photosdb_query"></span><code class="docutils literal notranslate"><span class="pre">query(options:</span> <span class="pre">QueryOptions)</span> <span class="pre">-&gt;</span> <span class="pre">List[PhotoInfo]:</span></code>&lt;/a&gt;</a></li>
+<li><a class="reference internal" href="#a-name-photosdb-keywords-keywords-a"><span class="raw-html-m2r"><a name="photosdb_keywords">`keywords`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-albuminfo-album-info-a"><span class="raw-html-m2r"><a name="photosdb_albuminfo">`album_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-albums-albums-a"><span class="raw-html-m2r"><a name="photosdb_albums">`albums`</a></span></a></li>
 <li><a class="reference internal" href="#albums-shared"><code class="docutils literal notranslate"><span class="pre">albums_shared</span></code></a></li>
-<li><a class="reference internal" href="#import-info"><code class="docutils literal notranslate"><span class="pre">import_info</span></code></a></li>
-<li><a class="reference internal" href="#project-info"><code class="docutils literal notranslate"><span class="pre">project_info</span></code></a></li>
-<li><a class="reference internal" href="#moment-info"><code class="docutils literal notranslate"><span class="pre">moment_info</span></code></a></li>
-<li><a class="reference internal" href="#folder-info"><code class="docutils literal notranslate"><span class="pre">folder_info</span></code></a></li>
-<li><a class="reference internal" href="#id19"><code class="docutils literal notranslate"><span class="pre">folders</span></code></a></li>
-<li><a class="reference internal" href="#persons"><code class="docutils literal notranslate"><span class="pre">persons</span></code></a></li>
-<li><a class="reference internal" href="#a-name-dbpersoninfo-person-info-a"><span class="raw-html-m2r"><a name="dbpersoninfo">`person_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-import-info-import-info-a"><span class="raw-html-m2r"><a name = "photosdb_import_info">`import_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-project-info-project-info-a"><span class="raw-html-m2r"><a name="photosdb_project_info">`project_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-moment-info-moment-info-a"><span class="raw-html-m2r"><a name="photosdb_moment_info">`moment_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-folder-info-folder-info-a"><span class="raw-html-m2r"><a name="photosdb_folder_info">`folder_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-folders-folders-a"><span class="raw-html-m2r"><a name="photosdb_folders">`folders`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-persons-persons-a"><span class="raw-html-m2r"><a name="photosdb_persons">`persons`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-person-info-person-info-a"><span class="raw-html-m2r"><a name="photosdb_person_info">`person_info`</a></span></a></li>
 <li><a class="reference internal" href="#keywords-as-dict"><code class="docutils literal notranslate"><span class="pre">keywords_as_dict</span></code></a></li>
 <li><a class="reference internal" href="#persons-as-dict"><code class="docutils literal notranslate"><span class="pre">persons_as_dict</span></code></a></li>
 <li><a class="reference internal" href="#albums-as-dict"><code class="docutils literal notranslate"><span class="pre">albums_as_dict</span></code></a></li>
 <li><a class="reference internal" href="#albums-shared-as-dict"><code class="docutils literal notranslate"><span class="pre">albums_shared_as_dict</span></code></a></li>
-<li><a class="reference internal" href="#labels"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
-<li><a class="reference internal" href="#id22"><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-labels-labels-a"><span class="raw-html-m2r"><a name="photosdb_labels">`labels`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photosdb-labels-normalized-labels-normalized-a"><span class="raw-html-m2r"><a name="photosdb_labels_normalized">`labels_normalized`</a></span></a></li>
 <li><a class="reference internal" href="#labels-as-dict"><code class="docutils literal notranslate"><span class="pre">labels_as_dict</span></code></a></li>
-<li><a class="reference internal" href="#id24"><code class="docutils literal notranslate"><span class="pre">labels_normalized_as_dict</span></code></a></li>
+<li><a class="reference internal" href="#id19"><code class="docutils literal notranslate"><span class="pre">labels_normalized_as_dict</span></code></a></li>
 <li><a class="reference internal" href="#library-path"><code class="docutils literal notranslate"><span class="pre">library_path</span></code></a></li>
 <li><a class="reference internal" href="#db-path"><code class="docutils literal notranslate"><span class="pre">db_path</span></code></a></li>
 <li><a class="reference internal" href="#db-version"><code class="docutils literal notranslate"><span class="pre">db_version</span></code></a></li>
@@ -3182,27 +3182,27 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#execute-sql"><code class="docutils literal notranslate"><span class="pre">execute(sql)</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id26">QueryOptions</a><ul>
+<li><a class="reference internal" href="#id21">QueryOptions</a><ul>
 <li><a class="reference internal" href="#attributes">Attributes</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id27">PhotoInfo</a><ul>
+<li><a class="reference internal" href="#a-name-photoinfo-photoinfo-a"><span class="raw-html-m2r"><a name="photoinfo">PhotoInfo</a></span></a><ul>
 <li><a class="reference internal" href="#uuid"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 <li><a class="reference internal" href="#filename"><code class="docutils literal notranslate"><span class="pre">filename</span></code></a></li>
-<li><a class="reference internal" href="#id28"><code class="docutils literal notranslate"><span class="pre">original_filename</span></code></a></li>
+<li><a class="reference internal" href="#id22"><code class="docutils literal notranslate"><span class="pre">original_filename</span></code></a></li>
 <li><a class="reference internal" href="#date"><code class="docutils literal notranslate"><span class="pre">date</span></code></a></li>
 <li><a class="reference internal" href="#date-added"><code class="docutils literal notranslate"><span class="pre">date_added</span></code></a></li>
 <li><a class="reference internal" href="#date-modified"><code class="docutils literal notranslate"><span class="pre">date_modified</span></code></a></li>
 <li><a class="reference internal" href="#description"><code class="docutils literal notranslate"><span class="pre">description</span></code></a></li>
 <li><a class="reference internal" href="#title"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
-<li><a class="reference internal" href="#id30"><code class="docutils literal notranslate"><span class="pre">keywords</span></code></a></li>
-<li><a class="reference internal" href="#id31"><code class="docutils literal notranslate"><span class="pre">albums</span></code></a></li>
-<li><a class="reference internal" href="#id33"><code class="docutils literal notranslate"><span class="pre">album_info</span></code></a></li>
-<li><a class="reference internal" href="#id36"><code class="docutils literal notranslate"><span class="pre">import_info</span></code></a></li>
-<li><a class="reference internal" href="#id38"><code class="docutils literal notranslate"><span class="pre">project_info</span></code></a></li>
-<li><a class="reference internal" href="#id40"><code class="docutils literal notranslate"><span class="pre">persons</span></code></a></li>
-<li><a class="reference internal" href="#a-name-photopersoninfo-person-info-a"><span class="raw-html-m2r"><a name="photopersoninfo">`person_info`</a></span></a></li>
-<li><a class="reference internal" href="#a-name-photofaceinfo-face-info-a"><span class="raw-html-m2r"><a name="photofaceinfo">`face_info`</a></span></a></li>
+<li><a class="reference internal" href="#keywords"><code class="docutils literal notranslate"><span class="pre">keywords</span></code></a></li>
+<li><a class="reference internal" href="#id24"><code class="docutils literal notranslate"><span class="pre">albums</span></code></a></li>
+<li><a class="reference internal" href="#id26"><code class="docutils literal notranslate"><span class="pre">album_info</span></code></a></li>
+<li><a class="reference internal" href="#import-info"><code class="docutils literal notranslate"><span class="pre">import_info</span></code></a></li>
+<li><a class="reference internal" href="#project-info"><code class="docutils literal notranslate"><span class="pre">project_info</span></code></a></li>
+<li><a class="reference internal" href="#persons"><code class="docutils literal notranslate"><span class="pre">persons</span></code></a></li>
+<li><a class="reference internal" href="#a-name-photoinfo-personinfo-person-info-a"><span class="raw-html-m2r"><a name="photoinfo_personinfo">`person_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photooinfo-faceinfo-face-info-a"><span class="raw-html-m2r"><a name="photooinfo_faceinfo">`face_info`</a></span></a></li>
 <li><a class="reference internal" href="#path"><code class="docutils literal notranslate"><span class="pre">path</span></code></a></li>
 <li><a class="reference internal" href="#path-edited"><code class="docutils literal notranslate"><span class="pre">path_edited</span></code></a></li>
 <li><a class="reference internal" href="#path-derivatives"><code class="docutils literal notranslate"><span class="pre">path_derivatives</span></code></a></li>
@@ -3213,22 +3213,22 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#height"><code class="docutils literal notranslate"><span class="pre">height</span></code></a></li>
 <li><a class="reference internal" href="#width"><code class="docutils literal notranslate"><span class="pre">width</span></code></a></li>
 <li><a class="reference internal" href="#orientation"><code class="docutils literal notranslate"><span class="pre">orientation</span></code></a></li>
-<li><a class="reference internal" href="#id48"><code class="docutils literal notranslate"><span class="pre">original_height</span></code></a></li>
-<li><a class="reference internal" href="#id50"><code class="docutils literal notranslate"><span class="pre">original_width</span></code></a></li>
-<li><a class="reference internal" href="#id52"><code class="docutils literal notranslate"><span class="pre">original_orientation</span></code></a></li>
+<li><a class="reference internal" href="#id38"><code class="docutils literal notranslate"><span class="pre">original_height</span></code></a></li>
+<li><a class="reference internal" href="#id40"><code class="docutils literal notranslate"><span class="pre">original_width</span></code></a></li>
+<li><a class="reference internal" href="#id42"><code class="docutils literal notranslate"><span class="pre">original_orientation</span></code></a></li>
 <li><a class="reference internal" href="#original-filesize"><code class="docutils literal notranslate"><span class="pre">original_filesize</span></code></a></li>
-<li><a class="reference internal" href="#id54"><code class="docutils literal notranslate"><span class="pre">ismissing</span></code></a></li>
-<li><a class="reference internal" href="#id56"><code class="docutils literal notranslate"><span class="pre">hasadjustments</span></code></a></li>
+<li><a class="reference internal" href="#id44"><code class="docutils literal notranslate"><span class="pre">ismissing</span></code></a></li>
+<li><a class="reference internal" href="#id46"><code class="docutils literal notranslate"><span class="pre">hasadjustments</span></code></a></li>
 <li><a class="reference internal" href="#adjustments"><code class="docutils literal notranslate"><span class="pre">adjustments</span></code></a></li>
 <li><a class="reference internal" href="#external-edit"><code class="docutils literal notranslate"><span class="pre">external_edit</span></code></a></li>
 <li><a class="reference internal" href="#favorite"><code class="docutils literal notranslate"><span class="pre">favorite</span></code></a></li>
-<li><a class="reference internal" href="#id58"><code class="docutils literal notranslate"><span class="pre">hidden</span></code></a></li>
+<li><a class="reference internal" href="#id48"><code class="docutils literal notranslate"><span class="pre">hidden</span></code></a></li>
 <li><a class="reference internal" href="#visible"><code class="docutils literal notranslate"><span class="pre">visible</span></code></a></li>
 <li><a class="reference internal" href="#intrash"><code class="docutils literal notranslate"><span class="pre">intrash</span></code></a></li>
 <li><a class="reference internal" href="#date-trashed"><code class="docutils literal notranslate"><span class="pre">date_trashed</span></code></a></li>
 <li><a class="reference internal" href="#location"><code class="docutils literal notranslate"><span class="pre">location</span></code></a></li>
 <li><a class="reference internal" href="#place"><code class="docutils literal notranslate"><span class="pre">place</span></code></a></li>
-<li><a class="reference internal" href="#id60"><code class="docutils literal notranslate"><span class="pre">shared</span></code></a></li>
+<li><a class="reference internal" href="#id50"><code class="docutils literal notranslate"><span class="pre">shared</span></code></a></li>
 <li><a class="reference internal" href="#owner"><code class="docutils literal notranslate"><span class="pre">owner</span></code></a></li>
 <li><a class="reference internal" href="#comments"><code class="docutils literal notranslate"><span class="pre">comments</span></code></a></li>
 <li><a class="reference internal" href="#likes"><code class="docutils literal notranslate"><span class="pre">likes</span></code></a></li>
@@ -3236,26 +3236,24 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#isphoto"><code class="docutils literal notranslate"><span class="pre">isphoto</span></code></a></li>
 <li><a class="reference internal" href="#ismovie"><code class="docutils literal notranslate"><span class="pre">ismovie</span></code></a></li>
 <li><a class="reference internal" href="#iscloudasset"><code class="docutils literal notranslate"><span class="pre">iscloudasset</span></code></a></li>
-<li><a class="reference internal" href="#id71"><code class="docutils literal notranslate"><span class="pre">incloud</span></code></a></li>
+<li><a class="reference internal" href="#id61"><code class="docutils literal notranslate"><span class="pre">incloud</span></code></a></li>
 <li><a class="reference internal" href="#syndicated"><code class="docutils literal notranslate"><span class="pre">syndicated</span></code></a></li>
 <li><a class="reference internal" href="#saved-to-library"><code class="docutils literal notranslate"><span class="pre">saved_to_library</span></code></a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#shared-moment"><code class="docutils literal notranslate"><span class="pre">shared_moment</span></code></a></li>
-<li><a class="reference internal" href="#shared-library"><code class="docutils literal notranslate"><span class="pre">shared_library</span></code></a><ul>
+<li><a class="reference internal" href="#shared-library"><code class="docutils literal notranslate"><span class="pre">shared_library</span></code></a></li>
 <li><a class="reference internal" href="#uti"><code class="docutils literal notranslate"><span class="pre">uti</span></code></a></li>
 <li><a class="reference internal" href="#uti-original"><code class="docutils literal notranslate"><span class="pre">uti_original</span></code></a></li>
 <li><a class="reference internal" href="#uti-edited"><code class="docutils literal notranslate"><span class="pre">uti_edited</span></code></a></li>
 <li><a class="reference internal" href="#uti-raw"><code class="docutils literal notranslate"><span class="pre">uti_raw</span></code></a></li>
-<li><a class="reference internal" href="#id74"><code class="docutils literal notranslate"><span class="pre">burst</span></code></a></li>
+<li><a class="reference internal" href="#id64"><code class="docutils literal notranslate"><span class="pre">burst</span></code></a></li>
 <li><a class="reference internal" href="#burst-selected"><code class="docutils literal notranslate"><span class="pre">burst_selected</span></code></a></li>
 <li><a class="reference internal" href="#burst-key"><code class="docutils literal notranslate"><span class="pre">burst_key</span></code></a></li>
 <li><a class="reference internal" href="#burst-default-pick"><code class="docutils literal notranslate"><span class="pre">burst_default_pick</span></code></a></li>
-<li><a class="reference internal" href="#id75"><code class="docutils literal notranslate"><span class="pre">burst_photos</span></code></a></li>
-<li><a class="reference internal" href="#id77"><code class="docutils literal notranslate"><span class="pre">burst_albums</span></code></a></li>
-<li><a class="reference internal" href="#id80"><code class="docutils literal notranslate"><span class="pre">burst_album_info</span></code></a></li>
+<li><a class="reference internal" href="#id65"><code class="docutils literal notranslate"><span class="pre">burst_photos</span></code></a></li>
+<li><a class="reference internal" href="#id67"><code class="docutils literal notranslate"><span class="pre">burst_albums</span></code></a></li>
+<li><a class="reference internal" href="#id70"><code class="docutils literal notranslate"><span class="pre">burst_album_info</span></code></a></li>
 <li><a class="reference internal" href="#live-photo"><code class="docutils literal notranslate"><span class="pre">live_photo</span></code></a></li>
-<li><a class="reference internal" href="#id84"><code class="docutils literal notranslate"><span class="pre">path_live_photo</span></code></a></li>
+<li><a class="reference internal" href="#id74"><code class="docutils literal notranslate"><span class="pre">path_live_photo</span></code></a></li>
 <li><a class="reference internal" href="#path-edited-live-photo"><code class="docutils literal notranslate"><span class="pre">path_edited_live_photo</span></code></a></li>
 <li><a class="reference internal" href="#portrait"><code class="docutils literal notranslate"><span class="pre">portrait</span></code></a></li>
 <li><a class="reference internal" href="#hdr"><code class="docutils literal notranslate"><span class="pre">hdr</span></code></a></li>
@@ -3263,12 +3261,12 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#time-lapse"><code class="docutils literal notranslate"><span class="pre">time_lapse</span></code></a></li>
 <li><a class="reference internal" href="#panorama"><code class="docutils literal notranslate"><span class="pre">panorama</span></code></a></li>
 <li><a class="reference internal" href="#slow-mo"><code class="docutils literal notranslate"><span class="pre">slow_mo</span></code></a></li>
-<li><a class="reference internal" href="#id88"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
-<li><a class="reference internal" href="#id90"><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code></a></li>
-<li><a class="reference internal" href="#a-name-photosearchinfo-search-info-a"><span class="raw-html-m2r"><a name="photosearchinfo">`search_info`</a></span></a></li>
-<li><a class="reference internal" href="#a-name-photosearchinfo-normalized-search-info-normalized-a"><span class="raw-html-m2r"><a name="photosearchinfo-normalized">`search_info_normalized`</a></span></a></li>
-<li><a class="reference internal" href="#exif-info"><code class="docutils literal notranslate"><span class="pre">exif_info</span></code></a></li>
-<li><a class="reference internal" href="#id96"><code class="docutils literal notranslate"><span class="pre">exiftool</span></code></a></li>
+<li><a class="reference internal" href="#id78"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
+<li><a class="reference internal" href="#id80"><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code></a></li>
+<li><a class="reference internal" href="#a-name-photoinfo-searchinfo-search-info-a"><span class="raw-html-m2r"><a name="photoinfo_searchinfo">`search_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photoinfo-search-info-normalized-search-info-normalized-a"><span class="raw-html-m2r"><a name="photoinfo_search_info_normalized">`search_info_normalized`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photoinfo-exif-info-exif-info-a"><span class="raw-html-m2r"><a name="photoinfo_exif_info">`exif_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photoinfo-exiftool-exiftool-a"><span class="raw-html-m2r"><a name="photoinfo_exiftool">`exiftool`</a></span></a></li>
 <li><a class="reference internal" href="#score"><code class="docutils literal notranslate"><span class="pre">score</span></code></a></li>
 <li><a class="reference internal" href="#duplicates"><code class="docutils literal notranslate"><span class="pre">duplicates</span></code></a></li>
 <li><a class="reference internal" href="#cloud-guid"><code class="docutils literal notranslate"><span class="pre">cloud_guid</span></code></a></li>
@@ -3280,13 +3278,13 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#asdict"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 <li><a class="reference internal" href="#export"><code class="docutils literal notranslate"><span class="pre">export()</span></code></a></li>
 <li><a class="reference internal" href="#a-name-rendertemplate-render-template-template-str-options-none-a"><span class="raw-html-m2r"><a name="rendertemplate">`render_template(template_str, options=None)`</a></span></a></li>
-<li><a class="reference internal" href="#a-name-detected-text-method-detected-text-confidence-threshold-text-detection-confidence-threshold-a"><span class="raw-html-m2r"><a name="detected_text_method">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-photoinfo-detected-text-detected-text-confidence-threshold-text-detection-confidence-threshold-a"><span class="raw-html-m2r"><a name="photoinfo_detected_text">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a></span></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id106">ExifInfo</a></li>
-<li><a class="reference internal" href="#id107">AlbumInfo</a><ul>
-<li><a class="reference internal" href="#id108"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-<li><a class="reference internal" href="#id109"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
+<li><a class="reference internal" href="#id94">ExifInfo</a></li>
+<li><a class="reference internal" href="#id95">AlbumInfo</a><ul>
+<li><a class="reference internal" href="#id96"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li><a class="reference internal" href="#id97"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
 <li><a class="reference internal" href="#a-name-albumphotos-photos-a"><span class="raw-html-m2r"><a name="albumphotos">`photos`</a></span></a></li>
 <li><a class="reference internal" href="#creation-date"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
 <li><a class="reference internal" href="#start-date"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
@@ -3294,53 +3292,53 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#folder-list"><code class="docutils literal notranslate"><span class="pre">folder_list</span></code></a></li>
 <li><a class="reference internal" href="#folder-names"><code class="docutils literal notranslate"><span class="pre">folder_names</span></code></a></li>
 <li><a class="reference internal" href="#parent"><code class="docutils literal notranslate"><span class="pre">parent</span></code></a></li>
-<li><a class="reference internal" href="#id113"><code class="docutils literal notranslate"><span class="pre">owner</span></code></a></li>
-<li><a class="reference internal" href="#id116"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li><a class="reference internal" href="#id101"><code class="docutils literal notranslate"><span class="pre">owner</span></code></a></li>
+<li><a class="reference internal" href="#id104"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id117">ImportInfo</a><ul>
-<li><a class="reference internal" href="#id118"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li><a class="reference internal" href="#id105">ImportInfo</a><ul>
+<li><a class="reference internal" href="#id106"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 <li><a class="reference internal" href="#a-name-importphotos-photos-a"><span class="raw-html-m2r"><a name="importphotos">`photos`</a></span></a></li>
-<li><a class="reference internal" href="#id120"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
+<li><a class="reference internal" href="#id108"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
+<li><a class="reference internal" href="#id109"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
+<li><a class="reference internal" href="#id110"><code class="docutils literal notranslate"><span class="pre">end_date</span></code></a></li>
+<li><a class="reference internal" href="#id111"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id112">ProjectInfo</a><ul>
+<li><a class="reference internal" href="#id113"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li><a class="reference internal" href="#id114"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
+<li><a class="reference internal" href="#a-name-projectphotos-photos-a"><span class="raw-html-m2r"><a name="projectphotos">`photos`</a></span></a></li>
+<li><a class="reference internal" href="#id116"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
+<li><a class="reference internal" href="#id117"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id118">MomentInfo</a><ul>
+<li><a class="reference internal" href="#pk"><code class="docutils literal notranslate"><span class="pre">pk</span></code></a></li>
+<li><a class="reference internal" href="#id119"><code class="docutils literal notranslate"><span class="pre">location</span></code></a></li>
+<li><a class="reference internal" href="#id120"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
+<li><a class="reference internal" href="#subtitle"><code class="docutils literal notranslate"><span class="pre">subtitle</span></code></a></li>
 <li><a class="reference internal" href="#id121"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
 <li><a class="reference internal" href="#id122"><code class="docutils literal notranslate"><span class="pre">end_date</span></code></a></li>
-<li><a class="reference internal" href="#id123"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id124">ProjectInfo</a><ul>
-<li><a class="reference internal" href="#id125"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-<li><a class="reference internal" href="#id126"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
-<li><a class="reference internal" href="#a-name-projectphotos-photos-a"><span class="raw-html-m2r"><a name="projectphotos">`photos`</a></span></a></li>
-<li><a class="reference internal" href="#id128"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
-<li><a class="reference internal" href="#id129"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id130">MomentInfo</a><ul>
-<li><a class="reference internal" href="#pk"><code class="docutils literal notranslate"><span class="pre">pk</span></code></a></li>
-<li><a class="reference internal" href="#id131"><code class="docutils literal notranslate"><span class="pre">location</span></code></a></li>
-<li><a class="reference internal" href="#id132"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
-<li><a class="reference internal" href="#subtitle"><code class="docutils literal notranslate"><span class="pre">subtitle</span></code></a></li>
-<li><a class="reference internal" href="#id133"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
-<li><a class="reference internal" href="#id134"><code class="docutils literal notranslate"><span class="pre">end_date</span></code></a></li>
-<li><a class="reference internal" href="#id135"><code class="docutils literal notranslate"><span class="pre">date</span></code></a></li>
+<li><a class="reference internal" href="#id123"><code class="docutils literal notranslate"><span class="pre">date</span></code></a></li>
 <li><a class="reference internal" href="#modification-date"><code class="docutils literal notranslate"><span class="pre">modification_date</span></code></a></li>
-<li><a class="reference internal" href="#id136"><code class="docutils literal notranslate"><span class="pre">photos</span></code></a></li>
-<li><a class="reference internal" href="#id137"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li><a class="reference internal" href="#id124"><code class="docutils literal notranslate"><span class="pre">photos</span></code></a></li>
+<li><a class="reference internal" href="#id125"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id138">FolderInfo</a><ul>
-<li><a class="reference internal" href="#id139"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-<li><a class="reference internal" href="#id140"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
-<li><a class="reference internal" href="#id141"><code class="docutils literal notranslate"><span class="pre">album_info</span></code></a></li>
-<li><a class="reference internal" href="#album-info-shared"><code class="docutils literal notranslate"><span class="pre">album_info_shared</span></code></a></li>
+<li><a class="reference internal" href="#id126">FolderInfo</a><ul>
+<li><a class="reference internal" href="#id127"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li><a class="reference internal" href="#id128"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
+<li><a class="reference internal" href="#a-name-folderinfo-album-info-album-info-a"><span class="raw-html-m2r"><a name="folderinfo_album_info">`album_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-folderinfo-album-info-shared-album-info-shared-a"><span class="raw-html-m2r"><a name="folderinfo_album_info_shared">`album_info_shared`</a></span></a></li>
 <li><a class="reference internal" href="#subfolders"><code class="docutils literal notranslate"><span class="pre">subfolders</span></code></a></li>
-<li><a class="reference internal" href="#id145"><code class="docutils literal notranslate"><span class="pre">parent</span></code></a></li>
+<li><a class="reference internal" href="#id132"><code class="docutils literal notranslate"><span class="pre">parent</span></code></a></li>
 <li><a class="reference internal" href="#sort-order"><code class="docutils literal notranslate"><span class="pre">sort_order</span></code></a></li>
 <li><a class="reference internal" href="#photo-index-photo"><code class="docutils literal notranslate"><span class="pre">photo_index(photo)</span></code></a></li>
-<li><a class="reference internal" href="#id147"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li><a class="reference internal" href="#id134"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id148">PlaceInfo</a><ul>
+<li><a class="reference internal" href="#id135">PlaceInfo</a><ul>
 <li><a class="reference internal" href="#ishome"><code class="docutils literal notranslate"><span class="pre">ishome</span></code></a></li>
 <li><a class="reference internal" href="#name"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
 <li><a class="reference internal" href="#names"><code class="docutils literal notranslate"><span class="pre">names</span></code></a></li>
@@ -3349,9 +3347,9 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#address"><code class="docutils literal notranslate"><span class="pre">address</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id149">ScoreInfo</a></li>
-<li><a class="reference internal" href="#id150">SearchInfo</a><ul>
-<li><a class="reference internal" href="#id151"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
+<li><a class="reference internal" href="#id136">ScoreInfo</a></li>
+<li><a class="reference internal" href="#id137">SearchInfo</a><ul>
+<li><a class="reference internal" href="#id138"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
 <li><a class="reference internal" href="#place-names"><code class="docutils literal notranslate"><span class="pre">place_names</span></code></a></li>
 <li><a class="reference internal" href="#streets"><code class="docutils literal notranslate"><span class="pre">streets</span></code></a></li>
 <li><a class="reference internal" href="#neighborhoods"><code class="docutils literal notranslate"><span class="pre">neighborhoods</span></code></a></li>
@@ -3370,29 +3368,29 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#venue-types"><code class="docutils literal notranslate"><span class="pre">venue_types</span></code></a></li>
 <li><a class="reference internal" href="#media-types"><code class="docutils literal notranslate"><span class="pre">media_types</span></code></a></li>
 <li><a class="reference internal" href="#all"><code class="docutils literal notranslate"><span class="pre">all</span></code></a></li>
-<li><a class="reference internal" href="#id152"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li><a class="reference internal" href="#id139"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id153">PersonInfo</a><ul>
-<li><a class="reference internal" href="#id154"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
+<li><a class="reference internal" href="#id140">PersonInfo</a><ul>
+<li><a class="reference internal" href="#id141"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
 <li><a class="reference internal" href="#display-name"><code class="docutils literal notranslate"><span class="pre">display_name</span></code></a></li>
-<li><a class="reference internal" href="#id155"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li><a class="reference internal" href="#id142"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 <li><a class="reference internal" href="#keyphoto"><code class="docutils literal notranslate"><span class="pre">keyphoto</span></code></a></li>
 <li><a class="reference internal" href="#facecount"><code class="docutils literal notranslate"><span class="pre">facecount</span></code></a></li>
 <li><a class="reference internal" href="#a-name-personphotos-photos-a"><span class="raw-html-m2r"><a name="personphotos">`photos`</a></span></a></li>
 <li><a class="reference internal" href="#a-name-personfaceinfo-face-info-a"><span class="raw-html-m2r"><a name="personfaceinfo">`face_info`</a></span></a></li>
 <li><a class="reference internal" href="#a-name-personfavorite-favorite-a"><span class="raw-html-m2r"><a name="personfavorite">`favorite`</a></span></a></li>
 <li><a class="reference internal" href="#a-name-personsortorder-sort-order-a"><span class="raw-html-m2r"><a name="personsortorder">`sort_order`</a></span></a></li>
-<li><a class="reference internal" href="#id157"><code class="docutils literal notranslate"><span class="pre">json()</span></code></a></li>
-<li><a class="reference internal" href="#id158"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li><a class="reference internal" href="#id144"><code class="docutils literal notranslate"><span class="pre">json()</span></code></a></li>
+<li><a class="reference internal" href="#id145"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id159">FaceInfo</a><ul>
-<li><a class="reference internal" href="#id160"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-<li><a class="reference internal" href="#id161"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
+<li><a class="reference internal" href="#id146">FaceInfo</a><ul>
+<li><a class="reference internal" href="#a-name-faceinfo-uuid-uuid-a"><span class="raw-html-m2r"><a name="faceinfo_uuid">`uuid`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-faceinfo-name-name-a"><span class="raw-html-m2r"><a name="faceinfo_name">`name`</a></span></a></li>
 <li><a class="reference internal" href="#asset-uuid"><code class="docutils literal notranslate"><span class="pre">asset_uuid</span></code></a></li>
-<li><a class="reference internal" href="#id162"><code class="docutils literal notranslate"><span class="pre">person_info</span></code></a></li>
-<li><a class="reference internal" href="#photo"><code class="docutils literal notranslate"><span class="pre">photo</span></code></a></li>
+<li><a class="reference internal" href="#a-name-faceinfo-person-info-person-info-a"><span class="raw-html-m2r"><a name="faceinfo_person_info">`person_info`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-faceinfo-photo-photo-a"><span class="raw-html-m2r"><a name="faceinfo_photo">`photo`</a></span></a></li>
 <li><a class="reference internal" href="#mwg-rs-area"><code class="docutils literal notranslate"><span class="pre">mwg_rs_area</span></code></a></li>
 <li><a class="reference internal" href="#mpri-reg-rect"><code class="docutils literal notranslate"><span class="pre">mpri_reg_rect</span></code></a></li>
 <li><a class="reference internal" href="#face-rect"><code class="docutils literal notranslate"><span class="pre">face_rect()</span></code></a></li>
@@ -3403,20 +3401,20 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#pitch">pitch</a></li>
 <li><a class="reference internal" href="#yaw">yaw</a></li>
 <li><a class="reference internal" href="#additional-properties"><code class="docutils literal notranslate"><span class="pre">Additional</span> <span class="pre">properties</span></code></a></li>
-<li><a class="reference internal" href="#id165"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
-<li><a class="reference internal" href="#id166"><code class="docutils literal notranslate"><span class="pre">json()</span></code></a></li>
+<li><a class="reference internal" href="#a-name-faceinfo-asdict-asdict-a"><span class="raw-html-m2r"><a name="faceinfo_asdict">`asdict()`</a></span></a></li>
+<li><a class="reference internal" href="#a-name-faceinfo-json-json-a"><span class="raw-html-m2r"><a name="faceinfo_json">`json()`</a></span></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id167">CommentInfo</a></li>
-<li><a class="reference internal" href="#id168">LikeInfo</a></li>
-<li><a class="reference internal" href="#id169">AdjustmentsInfo</a></li>
-<li><a class="reference internal" href="#id170">PhotoTables</a></li>
-<li><a class="reference internal" href="#id171">Raw Photos</a><ul>
+<li><a class="reference internal" href="#id149">CommentInfo</a></li>
+<li><a class="reference internal" href="#id150">LikeInfo</a></li>
+<li><a class="reference internal" href="#id151">AdjustmentsInfo</a></li>
+<li><a class="reference internal" href="#id152">PhotoTables</a></li>
+<li><a class="reference internal" href="#id153">Raw Photos</a><ul>
 <li><a class="reference internal" href="#raw-related-attributes">Raw-Related Attributes</a></li>
 <li><a class="reference internal" href="#example">Example</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id180">Template System</a></li>
+<li><a class="reference internal" href="#id162">Template System</a></li>
 <li><a class="reference internal" href="#a-name-exiftoolexiftool-exiftool-a"><span class="raw-html-m2r"><a name="exiftoolExifTool">ExifTool</a></span></a><ul>
 <li><a class="reference internal" href="#exiftool-methods">ExifTool methods</a></li>
 <li><a class="reference internal" href="#implementation-note">Implementation Note</a></li>
@@ -3429,15 +3427,15 @@ cog.out("\n"+get_template_field_table()+"\n")
 </ul>
 </li>
 <li><a class="reference internal" href="#a-name-textdetection-text-detection-a"><span class="raw-html-m2r"><a name="textdetection">Text Detection</a></span></a></li>
-<li><a class="reference internal" href="#id183">Utility Functions</a><ul>
-<li><a class="reference internal" href="#id184"><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code></a></li>
-<li><a class="reference internal" href="#id185"><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code></a></li>
+<li><a class="reference internal" href="#id165">Utility Functions</a><ul>
+<li><a class="reference internal" href="#id166"><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code></a></li>
+<li><a class="reference internal" href="#id167"><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code></a></li>
 <li><a class="reference internal" href="#list-photo-libraries"><code class="docutils literal notranslate"><span class="pre">list_photo_libraries()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id186">Additional Examples</a></li>
+<li><a class="reference internal" href="#id168">Additional Examples</a></li>
 </ul>
 </li>
 </ul>

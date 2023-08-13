@@ -491,8 +491,8 @@ For example, the following code will work on Python >= 3.11. This code is availa
 Package Interface
 -----------------
 
-PhotosDB
-^^^^^^^^
+:raw-html-m2r:`<a name="photosdb">PhotosDB</a>`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Read a Photos library database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -690,13 +690,13 @@ For example, in my library, Photos says I have 19,386 photos and 474 movies.  Ho
 
 Returns a single PhotoInfo instance for photo with UUID matching ``uuid`` or None if no photo is found matching ``uuid``.  If you know the UUID of a photo, ``get_photo()`` is much faster than ``photos``.  See also `photos() <#photos>`_.
 
-:raw-html-m2r:`<A name="photosdbquery">`\ ``query(options: QueryOptions) -> List[PhotoInfo]:``\ </a>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<A name="photosdb_query">`\ ``query(options: QueryOptions) -> List[PhotoInfo]:``\ </a>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a list of `PhotoInfo <#photoinfo>`_ objects matching the query options. This is preferred method of querying the photos database. See `QueryOptions <#queryoptions>`_ for details on the options available.
 
-``keywords``
-~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_keywords">`keywords`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -705,18 +705,18 @@ Returns a list of `PhotoInfo <#photoinfo>`_ objects matching the query options. 
 
 Returns a list of the keywords found in the Photos library
 
-:raw-html-m2r:`<a name="photosdbalbuminfo">`album_info`</a>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_albuminfo">`album_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
    # assumes photosdb is a PhotosDB object (see above)
    albums = photosdb.album_info
 
-Returns a list of `AlbumInfo <#albuminfo>`_ objects representing albums in the database or empty list if there are no albums.  See also `albums <#albums>`_ and `burst_album_info <#burst_album_info>`_.
+Returns a list of `AlbumInfo <#albuminfo>`_ objects representing albums in the database or empty list if there are no albums.  See also `albums <#photosdb_albums>`_ and `burst_album_info <#burst_album_info>`_.
 
-``albums``
-~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_albums">`albums`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -727,7 +727,7 @@ Returns a list of the album names found in the Photos library. See also `burst_a
 
 **Note**\ : In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-See also `album_info <#album_info.>`_
+See also `album_info <#photosdb_album_info.>`_
 
 ``albums_shared``
 ~~~~~~~~~~~~~~~~~~~~~
@@ -736,35 +736,35 @@ Returns list of shared album names found in photos database (e.g. albums shared 
 
 **Note**\ : *Only valid for Photos 5 / MacOS 10.15*\ ; on Photos <= 4, prints warning and returns empty list.
 
-``import_info``
-~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name = "photosdb_import_info">`import_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a list of `ImportInfo <#importinfo>`_ objects representing the import sessions for the database.
 
-``project_info``
-~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_project_info">`project_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a list of `ProjectInfo <#projectinfo>`_ objects representing the projects/creations (cards, calendars, etc.) in the database.
 
-``moment_info``
-~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_moment_info">`moment_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns the  `MomentInfo <#momentinfo>`_ object for the photo or ``None`` if the photo does not have an associated moment.
 
-``folder_info``
-~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_folder_info">`folder_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
    # assumes photosdb is a PhotosDB object (see above)
    folders = photosdb.folder_info
 
-Returns a list of `FolderInfo <#folderinfo>`_ objects representing top level folders in the database or empty list if there are no folders.  See also `folders <#folders>`_.
+Returns a list of `FolderInfo <#folderinfo>`_ objects representing top level folders in the database or empty list if there are no folders.  See also `folders <#photosdb_folders>`_.
 
 **Note**\ : Currently folder_info is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.
 
-``folders``
-~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_folders">`folders`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -775,18 +775,18 @@ Returns a list names of top level folder names in the database.
 
 **Note**\ : Currently folders is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.
 
-``persons``
-~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_persons">`persons`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
    # assumes photosdb is a PhotosDB object (see above)
    persons = photosdb.persons
 
-Returns a list of the person names (faces) found in the Photos library.  **Note**\ : It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  ``persons`` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see `person_info <#dbpersoninfo>`_.
+Returns a list of the person names (faces) found in the Photos library.  **Note**\ : It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  ``persons`` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see `person_info <#photosdb_personinfo>`_.
 
-:raw-html-m2r:`<a name="dbpersoninfo">`person_info`</a>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_person_info">`person_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -839,19 +839,19 @@ Returns a dictionary of shared albums (e.g. shared via iCloud photo sharing) fou
 
 **Note**\ : *Photos 5 / MacOS 10.15 only*.  On earlier versions of Photos, prints warning and returns empty dictionary.
 
-``labels``
-~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_labels">`labels`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns image categorization labels associated with photos in the library as list of str.
 
-**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_normalized <#labels_normalized>`_.  
+**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_normalized <#photosdb_labels_normalized>`_.  
 
-``labels_normalized``
-~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photosdb_labels_normalized">`labels_normalized`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns image categorization labels associated with photos in the library as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label.
 
-**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels <#labels>`_.  
+**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels <#photosdb_labels>`_.  
 
 ``labels_as_dict``
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1035,8 +1035,8 @@ See `queryoptions.py <https://github.com/RhetTbull/osxphotos/blob/master/osxphot
        for photo in results:
            print(photo.original_filename, photo.date)
 
-PhotoInfo
-^^^^^^^^^
+:raw-html-m2r:`<a name="photoinfo">PhotoInfo</a>`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.
 
@@ -1110,13 +1110,13 @@ Returns a list of `ProjectInfo <#projectinfo>`_ objects representing projects/cr
 
 Returns a list of the names of the persons in the photo
 
-:raw-html-m2r:`<a name="photopersoninfo">`person_info`</a>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photoinfo_personinfo">`person_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a list of `PersonInfo <#personinfo>`_ objects representing persons in the photo.  Each PersonInfo object is associated with one or more FaceInfo objects.
 
-:raw-html-m2r:`<a name="photofaceinfo">`face_info`</a>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photooinfo_faceinfo">`face_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a list of `FaceInfo <#faceinfo>`_ objects representing faces in the photo.  Each face is associated with the a PersonInfo object.
 
@@ -1330,12 +1330,12 @@ Return True if syndicated photo has been saved to library; returns False if phot
 Syndicated photos are photos that appear in "Shared with you" album. Photos 7+ only; returns None if not Photos 7+.
 
 ``shared_moment``
-^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~
 
 Return True if photo is part of a shared moment, otherwise False.  Shared moments are created when multiple photos are shared via iCloud. (e.g. in Messages)
 
 ``shared_library``
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~
 
 Return True if photo is included in shared iCloud library, otherwise False. Photos 8+ only; returns False if not Photos 8+.
 
@@ -1491,22 +1491,22 @@ Returns image categorization labels associated with the photo as list of str. La
 
 **Note**\ : Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels <#labels>`_.  
 
-:raw-html-m2r:`<a name="photosearchinfo">`search_info`</a>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photoinfo_searchinfo">`search_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns `SearchInfo <#searchinfo>`_ object that represents search metadata for the photo.  
 
 **Note**\ : Only valid on Photos 5+; on ealier versions, returns None.
 
-:raw-html-m2r:`<a name="photosearchinfo-normalized">`search_info_normalized`</a>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photoinfo_search_info_normalized">`search_info_normalized`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns `SearchInfo <#searchinfo>`_ object that represents normalized search metadata for the photo.  This returns a SearchInfo object just as ``search_info`` but all the properties of the object return normalized text (converted to lowercase).
 
 **Note**\ : Only valid on Photos 5+; on ealier versions, returns None.
 
-``exif_info``
-~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photoinfo_exif_info">`exif_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns an `ExifInfo <#exifinfo>`_ object with EXIF details from the Photos database.  See `ExifInfo <#exifinfo>`_ for additional details.
 
@@ -1514,8 +1514,8 @@ Returns an `ExifInfo <#exifinfo>`_ object with EXIF details from the Photos data
 
 See also ``exiftool``.
 
-``exiftool``
-~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photoinfo_exiftool">`exiftool`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns an `ExifToolCaching <#exiftoolExifTool>`_ object for the photo which provides an interface to `exiftool <https://exiftool.org/>`_ allowing you to read the actual EXIF data in the image file inside the Photos library.  If `exif_info <#exif-info>`_ doesn't give you all the data you need, you can use ``exiftool`` to read the entire EXIF contents of the image.
 
@@ -1681,8 +1681,8 @@ Some substitutions, notably ``album``\ , ``keyword``\ , and ``person`` could ret
 
 See `Template System <#template-system>`_ for additional details.
 
-:raw-html-m2r:`<a name="detected_text_method">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="photoinfo_detected_text">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Detects text in photo and returns lists of results as (detected text, confidence)
 
@@ -1700,7 +1700,7 @@ See also `Text Detection <#textdetection>`_.
 ExifInfo
 ^^^^^^^^
 
-`PhotosInfo.exif_info <#exif-info>`_ returns an ``ExifInfo`` object with some EXIF data about the photo (Photos 5 only).  ``ExifInfo`` contains the following properties:
+`PhotosInfo.exif_info <#photoinfo_exif_info>`_ returns an ``ExifInfo`` object with some EXIF data about the photo (Photos 5 only).  ``ExifInfo`` contains the following properties:
 
 .. code-block:: python
 
@@ -1739,7 +1739,7 @@ For example:
 AlbumInfo
 ^^^^^^^^^
 
-PhotosDB.album_info and PhotoInfo.album_info return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
+`PhotosDB.album_info <#photosdb_album_info>`_ and `PhotoInfo.album_info <photoinfo_album_info>`_ return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
 
 ``uuid``
 ~~~~~~~~~~~~
@@ -1953,13 +1953,13 @@ Returns the universally unique identifier (uuid) of the folder.  This is how Pho
 
 Returns the title or name of the folder.
 
-``album_info``
-~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="folderinfo_album_info">`album_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a list of `AlbumInfo <#albuminfo>`_ objects representing each album contained in the folder.
 
-``album_info_shared``
-~~~~~~~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="folderinfo_album_info_shared">`album_info_shared`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a list of `AlbumInfo <#albuminfo>`_ objects for each shared album in the photos database.
 
@@ -2321,13 +2321,13 @@ FaceInfo
 
 `PhotoInfo.face_info <#photofaceinfo>`_ return a list of FaceInfo objects representing detected faces in a photo.  The FaceInfo class has the following properties and methods.
 
-``uuid``
-~~~~~~~~~~~~
+:raw-html-m2r:`<a name="faceinfo_uuid">`uuid`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 UUID of the face.
 
-``name``
-~~~~~~~~~~~~
+:raw-html-m2r:`<a name="faceinfo_name">`name`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Full name of the person represented by the face or None if person hasn't been given a name in Photos.  This is a shortcut for ``FaceInfo.person_info.name``.
 
@@ -2336,13 +2336,13 @@ Full name of the person represented by the face or None if person hasn't been gi
 
 UUID of the photo this face is associated with.
 
-``person_info``
-~~~~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="faceinfo_person_info">`person_info`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `PersonInfo <#personinfo>`_ object associated with this face.
 
-``photo``
-~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="faceinfo_photo">`photo`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `PhotoInfo <#photoinfo>`_ object representing the photo that contains this face.
 
@@ -2432,13 +2432,13 @@ The following additional properties are also available but are not yet fully doc
 * ``lip_makeup_type``\ :
 * ``smile_type``\ :
 
-``asdict()``
-~~~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="faceinfo_asdict">`asdict()`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a dictionary representation of the FaceInfo instance.
 
-``json()``
-~~~~~~~~~~~~~~
+:raw-html-m2r:`<a name="faceinfo_json">`json()`</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a JSON representation of the FaceInfo instance.
 
@@ -2969,7 +2969,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.62.0'
+     - The osxphotos version, e.g. '0.62.1'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
@@ -3209,7 +3209,7 @@ Attributes:
 :raw-html-m2r:`<a name="textdetection">Text Detection</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `PhotoInfo.detected_text() <#detected_text_method>`_ and the ``{detected_text}`` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named ``osxphotos.metadata:detected_text`` and can be viewed using the built-in `xattr <https://ss64.com/osx/xattr.html>`_ command or my `osxmetadata <https://github.com/RhetTbull/osxmetadata>`_ tool.  If you want to remove the cached attribute, you can do so with ``xattr`` as follows:
+The `PhotoInfo.detected_text() <#photoinfo_detected_text>`_ and the ``{detected_text}`` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named ``osxphotos.metadata:detected_text`` and can be viewed using the built-in `xattr <https://ss64.com/osx/xattr.html>`_ command or my `osxmetadata <https://github.com/RhetTbull/osxmetadata>`_ tool.  If you want to remove the cached attribute, you can do so with ``xattr`` as follows:
 
 ``find ~/Pictures/Photos\ Library.photoslibrary | xargs -I{} xattr -c osxphotos.metadata:detected_text '{}'``
 
