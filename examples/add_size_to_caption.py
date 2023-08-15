@@ -1,8 +1,8 @@
 """Add the photo size in form widthxheight to each photo's caption/description in Photos
 
-Run this with `osxphotos run add_size_to_caption`
+Run this with `osxphotos run add_size_to_caption.py`
 
-Run `osxphotos run add_size_to_caption --help` for help.
+Run `osxphotos run add_size_to_caption.py --help` for help.
 
 Intended to be run with osxphotos; see https://github.com/RhetTbull/osxphotos
 
@@ -38,6 +38,10 @@ def main(photos: list[osxphotos.PhotoInfo], original: bool, clear: bool, **kwarg
     Use --original to use the original image size instead of the edited image size.
     Use --clear to remove existing size information from caption.
     """
+
+    # filter out any shared photos
+    photos = [p for p in photos if not p.shared]
+
     echo(f"Processing {len(photos)} {pluralize(len(photos), 'photo', 'photos')}...")
     if clear:
         clear_size_str_from_photos(photos, original)
