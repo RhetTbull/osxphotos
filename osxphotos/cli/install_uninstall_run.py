@@ -28,15 +28,28 @@ class RunCommand(click.Command):
 
 
 @click.command()
-@click.argument("packages", nargs=-1, required=True)
 @click.option(
-    "-U", "--upgrade", is_flag=True, help="Upgrade packages to latest version"
+    "-U", "--upgrade", is_flag=True, help="Upgrade packages to latest version."
 )
-def install(packages, upgrade):
+@click.option(
+    "-r",
+    "requirements_file",
+    metavar="FILE",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    help="Install from requirements file FILE.",
+)
+@click.argument("packages", nargs=-1, required=False)
+def install(packages, upgrade, requirements_file):
     """Install Python packages into the same environment as osxphotos"""
     args = ["pip", "install"]
     if upgrade:
         args += ["--upgrade"]
+    if requirements_file:
+        args += ["-r", requirements_file]
+    if not requirements_file and not packages:
+        raise click.UsageError(
+            "Must specify either -r or one or more packages to install"
+        )
     args += list(packages)
     sys.argv = args
     run_module("pip", run_name="__main__")
@@ -44,7 +57,7 @@ def install(packages, upgrade):
 
 @click.command()
 @click.argument("packages", nargs=-1, required=True)
-@click.option("-y", "--yes", is_flag=True, help="Don't ask for confirmation")
+@click.option("-y", "--yes", is_flag=True, help="Don't ask for confirmation.")
 def uninstall(packages, yes):
     """Uninstall Python packages from the osxphotos environment"""
     sys.argv = ["pip", "uninstall"] + list(packages) + (["-y"] if yes else [])
@@ -52,7 +65,7 @@ def uninstall(packages, yes):
 
 
 @click.command(name="run", cls=RunCommand)
-@click.option("--help", "-h", is_flag=True, help="Show this message and exit")
+@click.option("--help", "-h", is_flag=True, help="Show this message and exit.")
 @click.argument("python_file", nargs=1, type=click.Path(exists=True))
 @click.argument("args", metavar="ARGS", nargs=-1)
 def run(python_file, help, args):
