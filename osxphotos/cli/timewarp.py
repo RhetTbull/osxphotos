@@ -267,6 +267,9 @@ command which can be used to change the time zone of photos after import.
     "Requires the third-party exiftool utility be installed (see https://exiftool.org/). "
     "Using this option modifies the *original* file of the image in your Photos library. "
     "--push-exif will be executed after any other updates are performed on the photo. "
+    "Note that if the Photos library is synced to iCloud, the updated EXIF data will not be"
+    "synced to iCloud and thus exporting the photo on any other device will not show the updated EXIF data. "
+    "This option is most useful for libraries that are not synced to iCloud. "
     "See also --pull-exif.",
 )
 @click.option(
