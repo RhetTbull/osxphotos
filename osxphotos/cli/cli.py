@@ -35,6 +35,7 @@ from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
 from .theme import theme
+from .template_repl import template_repl
 from .tutorial import tutorial
 from .version import version
 
@@ -132,6 +133,7 @@ commands = [
     run,
     snap,
     theme,
+    template_repl,
     tutorial,
     uninstall,
     version,

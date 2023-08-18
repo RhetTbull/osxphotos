@@ -78,6 +78,7 @@ from .places import places
 from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
+from .template_repl import template_repl
 from .theme import theme
 from .tutorial import tutorial
 from .version import version
@@ -133,7 +134,11 @@ __all__ = [
     "set_debug",
     "show",
     "snap",
+    "sync",
+    "template_repl",
+    "timewarp",
     "tutorial",
     "uuid",
     "verbose",
+    "version",
 ]
