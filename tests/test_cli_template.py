@@ -7,8 +7,7 @@ from click.testing import CliRunner
 
 from osxphotos.cli.template_repl import template_repl
 
-from .conftest import TEST_LIBRARY
-
+TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
 TEST_UUID = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
 
 
