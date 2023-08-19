@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-from osxphotos.platform import assert_macos
-
-assert_macos()
-
 import contextlib
 import re
 import readline
@@ -14,7 +10,6 @@ from textwrap import dedent
 from typing import Literal
 
 import click
-import photoscript
 from rich.columns import Columns
 from rich.console import Console
 
@@ -28,10 +23,14 @@ from osxphotos.phototemplate import (
     get_template_field_table,
     get_template_help,
 )
+from osxphotos.platform import is_macos
 
 from .cli_params import DB_OPTION
 from .click_rich_echo import rich_echo_via_pager
 from .common import get_data_dir
+
+if is_macos:
+    import photoscript
 
 HISTORY_PATH = get_data_dir() / ".template_history"
 
@@ -248,6 +247,9 @@ def get_photo(
     """
     if not uuid:
         # no uuid, get uuid of selected photo
+        if not is_macos:
+            print("Set photo uuid with --uuid option")
+            return None
         try:
             selected = photoscript.PhotosLibrary().selection
             if not selected:
