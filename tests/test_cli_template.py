@@ -1,5 +1,11 @@
 """Test the `template` command of the CLI.  """
 
+
+from osxphotos.platform import is_macos
+
+if not is_macos:
+    pytest.skip(allow_module_level=True)
+
 import pytest
 from click.testing import CliRunner
 

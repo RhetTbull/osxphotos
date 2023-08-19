@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from osxphotos.platform import assert_macos
+
+assert_macos()
+
 import contextlib
 import re
 import readline
@@ -21,9 +25,12 @@ from osxphotos.phototemplate import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
     TEMPLATE_SUBSTITUTIONS_PATHLIB,
+    get_template_field_table,
+    get_template_help,
 )
 
 from .cli_params import DB_OPTION
+from .click_rich_echo import rich_echo_via_pager
 from .common import get_data_dir
 
 HISTORY_PATH = get_data_dir() / ".template_history"
@@ -199,6 +206,12 @@ def print_help(help_command: str):
         print_intro()
         return
 
+    search_text = search_text.lower().strip()
+
+    if search_text == "template":
+        print_template_help()
+        return
+
     if help_text := [
         f"{k}: {v}"
         for k, v in HELP_DICT.items()
@@ -208,6 +221,20 @@ def print_help(help_command: str):
         print("\n".join(help_text))
     else:
         print(f"No help found for {search_text}")
+
+
+def print_template_help():
+    """ "Print help for template system"""
+    help_text = get_template_help()
+    help_text = (
+        "# Template System Help\n\n"
+        + "**Press Space to page or q to exit help.**\n\n"
+        + help_text
+    )
+    help_text += (
+        "\n\n" + "## Template Substitutions\n\n" + get_template_field_table() + "\n"
+    )
+    rich_echo_via_pager(help_text, markdown=True)
 
 
 def get_photo(
@@ -337,12 +364,13 @@ def print_intro():
 
         The following commands are available. All commands start with a colon (:).
 
-        :help KEYWORD   	Print help for KEYWORD
-        :fields         	Print list of all template fields
-        :filters        	Print list of all template filters
-        :emacs          	Set Emacs keybindings
-        :vi             	Set Vi keybindings
-        :quit, :q, :exit      	Exit the REPL (Ctrl+C or Ctrl+D will also exit)
+        :help <KEYWORD>     Print help for <KEYWORD> (e.g. :help description to get help on {descr} template field)
+        :help template      Print help for template system
+        :fields             Print list of all template fields
+        :filters            Print list of all template filters
+        :emacs              Set Emacs keybindings
+        :vi                 Set Vi keybindings
+        :quit, :q, :exit    Exit the REPL (Ctrl+C or Ctrl+D will also exit)
         """
         )
     )
