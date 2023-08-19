@@ -1,5 +1,7 @@
 """Test the `template` command of the CLI.  """
 
+import os
+
 import pytest
 from click.testing import CliRunner
 
@@ -13,10 +15,13 @@ TEST_UUID = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
 def test_template():
     """Test osxphotos template command"""
 
+    cwd = os.getcwd()
+    db_path = os.path.join(cwd, TEST_LIBRARY)
+
     runner = CliRunner()
     results = runner.invoke(
         template_repl,
-        ["--db", TEST_LIBRARY, "--uuid", TEST_UUID, "--template", "{descr}"],
+        ["--db", db_path, "--uuid", TEST_UUID, "--template", "{descr}"],
     )
     assert results.output == "Bride Wedding day\n"
 
@@ -24,10 +29,13 @@ def test_template():
 def test_template_unknown_template():
     """Test osxphotos template command with unknown keyword in template"""
 
+    cwd = os.getcwd()
+    db_path = os.path.join(cwd, TEST_LIBRARY)
+
     runner = CliRunner()
     results = runner.invoke(
         template_repl,
-        ["--db", TEST_LIBRARY, "--uuid", TEST_UUID, "--template", "{desc}"],
+        ["--db", db_path, "--uuid", TEST_UUID, "--template", "{desc}"],
     )
     assert "Unknown template" in results.output
 
@@ -35,6 +43,9 @@ def test_template_unknown_template():
 def test_template_repl(monkeypatch):
     """Test osxphotos template command"""
 
+    cwd = os.getcwd()
+    db_path = os.path.join(cwd, TEST_LIBRARY)
+
     commands = ["descr={descr}", ":quit"]
 
     def _input(_):
@@ -49,7 +60,7 @@ def test_template_repl(monkeypatch):
     runner = CliRunner()
     results = runner.invoke(
         template_repl,
-        ["--db", TEST_LIBRARY, "--uuid", TEST_UUID],
+        ["--db", db_path, "--uuid", TEST_UUID],
     )
     assert "descr=Bride Wedding day" in results.output
 
@@ -57,6 +68,9 @@ def test_template_repl(monkeypatch):
 def test_template_repl_unknown(monkeypatch):
     """Test osxphotos template command"""
 
+    cwd = os.getcwd()
+    db_path = os.path.join(cwd, TEST_LIBRARY)
+
     commands = ["descr={descr}", ":quit"]
 
     def _input(_):
@@ -71,6 +85,6 @@ def test_template_repl_unknown(monkeypatch):
     runner = CliRunner()
     results = runner.invoke(
         template_repl,
-        ["--db", TEST_LIBRARY, "--uuid", TEST_UUID],
+        ["--db", db_path, "--uuid", TEST_UUID],
     )
     assert "descr=Bride Wedding day" in results.output
