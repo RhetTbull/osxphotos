@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.62.2](https://github.com/RhetTbull/osxphotos/compare/v0.62.1...v0.62.2)
+
+More support for shared iCloud libraries and `osxphotos template` REPL command.
+
+### [v0.62.2] - 2023-08-20
+
+#### Changed
+
+- Added `-r` option to `osxphotos install` for use with requirements.txt files
+
+#### Added
+
+- Updated `osxphotos inspect` to include details about shared iCloud library photos
+- Added `osxphotos template` command for interactive template REPL tool
+
+#### Removed
+
+#### Fixed
+
+- Added clarifying note to help for `--push-exif` option
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code
+- [@kvisle](https://github.com/kvisle) for testing & data to implement iCloud Shared Library features
+
 ## [v0.62.1](https://github.com/RhetTbull/osxphotos/compare/v0.62.0...v0.62.1)
 
 Documentation Fixes
