@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.phototemplate - osxphotos 0.62.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
+        <title>osxphotos.phototemplate - osxphotos 0.62.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.62.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.62.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +146,10 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.62.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -160,7 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api_readme.html">OSXPhotos Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
@@ -261,7 +261,7 @@
     <span class="s2">&quot;</span><span class="si">{title}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Title of the photo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{descr}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Description of the photo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{media_type}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Special media type resolved in this precedence: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">MEDIA_TYPE_DEFAULTS</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Special media type resolved in this precedence: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">MEDIA_TYPE_DEFAULTS</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
         <span class="s2">&quot;Defaults to &#39;photo&#39; or &#39;video&#39; if no special type. &quot;</span>
         <span class="s2">&quot;Customize one or more media types using format: &#39;{media_type,video=vidéo;time_lapse=vidéo_accélérée}&#39;&quot;</span>
     <span class="p">),</span>
@@ -544,7 +544,7 @@
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">RenderOptions</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Options for PhotoTemplate.render</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Options for PhotoTemplate.render</span>
 
 <span class="sd">    template: str template</span>
 <span class="sd">    none_str: str to use default for None values, default is &#39;_&#39;</span>
@@ -580,19 +580,19 @@
 
 
 <span class="k">class</span> <span class="nc">PhotoTemplateParser</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Parser for PhotoTemplate&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parser for PhotoTemplate&quot;&quot;&quot;</span>
 
     <span class="c1"># implemented as Singleton</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create new object or return instance of already created singleton&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create new object or return instance of already created singleton&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;instance&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">instance</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">instance</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return existing singleton or create a new one&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return existing singleton or create a new one&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;metamodel&quot;</span><span class="p">):</span>
             <span class="k">return</span>
@@ -600,20 +600,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">metamodel</span> <span class="o">=</span> <span class="n">metamodel_from_file</span><span class="p">(</span><span class="n">MTL_GRAMMAR_MODEL</span><span class="p">,</span> <span class="n">skipws</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_statement</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parse a template_statement string&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse a template_statement string&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metamodel</span><span class="o">.</span><span class="n">model_from_str</span><span class="p">(</span><span class="n">template_statement</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_statement</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return list of fields found in a template statement; does not verify that fields are valid&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of fields found in a template statement; does not verify that fields are valid&quot;&quot;&quot;</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template_statement</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">field</span> <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">template_strings</span> <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="PhotoTemplate"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate">[docs]</a><span class="k">class</span> <span class="nc">PhotoTemplate</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;PhotoTemplate class to render a template string from a PhotoInfo object&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PhotoTemplate">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate">[docs]</a>
+<span class="k">class</span> <span class="nc">PhotoTemplate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PhotoTemplate class to render a template string from a PhotoInfo object&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">,</span> <span class="n">exiftool_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Inits PhotoTemplate class with photo</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inits PhotoTemplate class with photo</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            photo: a PhotoInfo instance.</span>
@@ -647,12 +649,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dest_path</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">dest_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="PhotoTemplate.render"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span>
+<div class="viewcode-block" id="PhotoTemplate.render">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.render">[docs]</a>
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">RenderOptions</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Render a filename or directory template</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render a filename or directory template</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            template: str template</span>
@@ -691,6 +695,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_statement</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">_render_statement</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">statement</span><span class="p">,</span>
@@ -724,7 +729,7 @@
         <span class="n">results</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">unmatched</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Render a TemplateString object&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render a TemplateString object&quot;&quot;&quot;</span>
 
         <span class="n">results</span> <span class="o">=</span> <span class="n">results</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
         <span class="n">unmatched</span> <span class="o">=</span> <span class="n">unmatched</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -846,7 +851,7 @@
                 <span class="c1"># have a conditional operator</span>
 
                 <span class="k">def</span> <span class="nf">string_test</span><span class="p">(</span><span class="n">test_function</span><span class="p">):</span>
-                    <span class="sd">&quot;&quot;&quot;Perform string comparison using test_function; closure to capture conditional_value, vals, negation&quot;&quot;&quot;</span>
+<span class="w">                    </span><span class="sd">&quot;&quot;&quot;Perform string comparison using test_function; closure to capture conditional_value, vals, negation&quot;&quot;&quot;</span>
                     <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conditional_value</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">:</span>
@@ -863,7 +868,7 @@
                     <span class="p">)</span>
 
                 <span class="k">def</span> <span class="nf">comparison_test</span><span class="p">(</span><span class="n">test_function</span><span class="p">):</span>
-                    <span class="sd">&quot;&quot;&quot;Perform numerical comparisons using test_function; closure to capture conditional_val, vals, negation&quot;&quot;&quot;</span>
+<span class="w">                    </span><span class="sd">&quot;&quot;&quot;Perform numerical comparisons using test_function; closure to capture conditional_val, vals, negation&quot;&quot;&quot;</span>
                     <span class="c1"># returns True if any of the values match the condition</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conditional_value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
@@ -947,8 +952,10 @@
 
         <span class="k">return</span> <span class="n">results</span><span class="p">,</span> <span class="n">unmatched</span>
 
-<div class="viewcode-block" id="PhotoTemplate.expand_variables_to_str"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.expand_variables_to_str">[docs]</a>    <span class="k">def</span> <span class="nf">expand_variables_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PhotoTemplate.expand_variables_to_str">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.expand_variables_to_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">expand_variables_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Expand variables in value and return a str of the expanded value.</span>
 <span class="sd">        Enforce that the expanded value is a single value, raises ValueError if not.</span>
 
@@ -961,8 +968,11 @@
             <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must have a single value, not </span><span class="si">{</span><span class="n">expanded</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">expanded</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.expand_variables"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.expand_variables">[docs]</a>    <span class="k">def</span> <span class="nf">expand_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Expand variables in value&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhotoTemplate.expand_variables">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.expand_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">expand_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expand variables in value&quot;&quot;&quot;</span>
         <span class="c1"># replace any variables with their values</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
         <span class="n">new_values</span> <span class="o">=</span> <span class="p">[]</span>
@@ -993,14 +1003,17 @@
 
         <span class="k">return</span> <span class="n">values</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_field_values"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_field_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_field_values</span><span class="p">(</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_field_values">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_field_values">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_field_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">subfield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the values for a field&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the values for a field&quot;&quot;&quot;</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">unmatched</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="p">(</span>
@@ -1040,14 +1053,17 @@
             <span class="k">return</span> <span class="p">[],</span> <span class="n">unmatched</span>
         <span class="k">return</span> <span class="n">vals</span><span class="p">,</span> <span class="n">unmatched</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_template_value"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value</span><span class="p">(</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_template_value">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_template_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">subfield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;lookup value for template field (single-value template substitutions)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;lookup value for template field (single-value template substitutions)</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            field: template field to find value for.</span>
@@ -1160,8 +1176,11 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_template_value_pathlib"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_pathlib">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_pathlib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;lookup value for template pathlib template fields</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_template_value_pathlib">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_pathlib">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_template_value_pathlib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;lookup value for template pathlib template fields</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            field: template field to find value for.</span>
@@ -1191,8 +1210,11 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_filter_values"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_filter_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_filter_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return filtered values&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_filter_values">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_filter_values">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_filter_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return filtered values&quot;&quot;&quot;</span>
 
         <span class="c1"># extract args, if any</span>
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(.*\)&quot;</span><span class="p">,</span> <span class="n">filter_</span><span class="p">):</span>
@@ -1326,8 +1348,11 @@
             <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.filter_predicate"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.filter_predicate">[docs]</a>    <span class="k">def</span> <span class="nf">filter_predicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return True if value passes predicate&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhotoTemplate.filter_predicate">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.filter_predicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">filter_predicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if value passes predicate&quot;&quot;&quot;</span>
 
         <span class="c1"># extract function name and arguments</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
@@ -1341,7 +1366,7 @@
         <span class="n">conditional_value</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">comparison_test</span><span class="p">(</span><span class="n">test_function</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Perform numerical comparisons using test_function&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Perform numerical comparisons using test_function&quot;&quot;&quot;</span>
             <span class="c1"># returns True if any of the values match the condition</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
@@ -1377,8 +1402,11 @@
 
         <span class="k">return</span> <span class="n">predicate_is_true</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_template_value_multi"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_multi">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">path_sep</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;lookup value for template field (multi-value template substitutions)</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_template_value_multi">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_multi">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_template_value_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">path_sep</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;lookup value for template field (multi-value template substitutions)</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            field: template field to find value for.</span>
@@ -1393,7 +1421,7 @@
 <span class="sd">            ValueError if no rule exists for field.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="sd">&quot;&quot;&quot; return list of values for a multi-valued template field &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; return list of values for a multi-valued template field &quot;&quot;&quot;</span>
 
         <span class="n">path_sep</span> <span class="o">=</span> <span class="n">path_sep</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_sep</span>
 
@@ -1507,10 +1535,13 @@
         <span class="n">values</span> <span class="o">=</span> <span class="n">values</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">values</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_format_values"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_format_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_format_values</span><span class="p">(</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_format_values">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_format_values">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_format_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
-        <span class="sd">&quot;&quot;&quot;Return values for {format} templates&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return values for {format} templates&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unhandled template value in get_format_values: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1532,11 +1563,14 @@
         <span class="n">format_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_variables_to_str</span><span class="p">(</span><span class="n">format_str</span><span class="p">,</span> <span class="s2">&quot;format string&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">format_str_value</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">format_str</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default_</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_template_value_exiftool"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_exiftool">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_exiftool</span><span class="p">(</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_template_value_exiftool">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_exiftool">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_template_value_exiftool</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subfield</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get template value for format &quot;{exiftool:EXIF:Model}&quot; &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get template value for format &quot;{exiftool:EXIF:Model}&quot; &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -1562,13 +1596,16 @@
 
         <span class="k">return</span> <span class="n">values</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_template_value_function"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_function</span><span class="p">(</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_template_value_function">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_function">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_template_value_function</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">caller</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get template value from external function</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get template value from external function</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            subfield: the filename and function name in for filename.py::function</span>
@@ -1621,8 +1658,11 @@
 
         <span class="k">return</span> <span class="n">values</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_template_value_filter_function"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_filter_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_filter_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Filter template value from external function&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_template_value_filter_function">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_filter_function">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_template_value_filter_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter template value from external function&quot;&quot;&quot;</span>
         <span class="c1"># TODO: add args to filter function call? Would change signature of function</span>
 
         <span class="n">filter_</span> <span class="o">=</span> <span class="n">filter_</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;function:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1655,13 +1695,19 @@
 
         <span class="k">return</span> <span class="n">values</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_photo_video_type"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_photo_video_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_photo_video_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return media type, e.g. photo or video&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_photo_video_type">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_photo_video_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_photo_video_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return media type, e.g. photo or video&quot;&quot;&quot;</span>
         <span class="n">default_dict</span> <span class="o">=</span> <span class="n">parse_default_kv</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">PHOTO_VIDEO_TYPE_DEFAULTS</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">default_dict</span><span class="p">[</span><span class="s2">&quot;photo&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">isphoto</span> <span class="k">else</span> <span class="n">default_dict</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_media_type"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_media_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return special media type, e.g. slow_mo, panorama, etc., defaults to photo or video if no special type&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhotoTemplate.get_media_type">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_media_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return special media type, e.g. slow_mo, panorama, etc., defaults to photo or video if no special type&quot;&quot;&quot;</span>
         <span class="n">default_dict</span> <span class="o">=</span> <span class="n">parse_default_kv</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">MEDIA_TYPE_DEFAULTS</span><span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span>
         <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">selfie</span><span class="p">:</span>
@@ -1685,13 +1731,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">default_dict</span><span class="p">[</span><span class="s2">&quot;photo&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_photo_bool_attribute"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_photo_bool_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">get_photo_bool_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">bool_val</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the boolean value for a photo attribute&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">bool_val</span> <span class="k">if</span> <span class="p">(</span><span class="n">val</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span> <span class="k">else</span> <span class="n">default</span></div></div>
+
+<div class="viewcode-block" id="PhotoTemplate.get_photo_bool_attribute">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_photo_bool_attribute">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_photo_bool_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">bool_val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the boolean value for a photo attribute&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">bool_val</span> <span class="k">if</span> <span class="p">(</span><span class="n">val</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span> <span class="k">else</span> <span class="n">default</span></div>
+</div>
+
 
 
 <span class="k">def</span> <span class="nf">parse_default_kv</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">default_dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;parse a string in form key1=value1;key2=value2,... as used for some template fields</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;parse a string in form key1=value1;key2=value2,... as used for some template fields</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        default: str, in form &#39;photo=foto;video=vidéo&#39;</span>
@@ -1716,7 +1767,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_template_help</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Return help for template system as markdown string&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return help for template system as markdown string&quot;&quot;&quot;</span>
     <span class="c1"># TODO: would be better to use importlib.abc.ResourceReader but I can&#39;t find a single example of how to do this</span>
     <span class="n">help_file</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;phototemplate.md&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">help_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
@@ -1725,7 +1776,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_template_field_table</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Return markdown table of template field substitutions&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return markdown table of template field substitutions&quot;&quot;&quot;</span>
     <span class="n">template_table</span> <span class="o">=</span> <span class="s2">&quot;| Field | Description |&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">|--------------|-------------|&quot;</span>
     <span class="k">for</span> <span class="n">subst</span><span class="p">,</span> <span class="n">descr</span> <span class="ow">in</span> <span class="p">[</span>
         <span class="o">*</span><span class="n">TEMPLATE_SUBSTITUTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
@@ -1738,7 +1789,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_pathlib_value</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">quote</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get the value for a pathlib.Path type template</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the value for a pathlib.Path type template</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        field: the path field, e.g. &quot;filename.stem&quot;</span>
@@ -1765,7 +1816,7 @@
 
 
 <span class="k">def</span> <span class="nf">format_str_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">format_str</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Format value based on format code in field in format id:02d&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format value based on format code in field in format id:02d&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">format_str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
     <span class="n">format_str</span> <span class="o">=</span> <span class="s2">&quot;{0:&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">format_str</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
@@ -1773,7 +1824,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_album_by_name</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">album</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Finds first album named album that photo is in and returns the AlbumInfo object, otherwise returns None&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Finds first album named album that photo is in and returns the AlbumInfo object, otherwise returns None&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">next</span><span class="p">(</span>
         <span class="p">(</span><span class="n">album_info</span> <span class="k">for</span> <span class="n">album_info</span> <span class="ow">in</span> <span class="n">photo</span><span class="o">.</span><span class="n">album_info</span> <span class="k">if</span> <span class="n">album_info</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">album</span><span class="p">),</span>
         <span class="kc">None</span><span class="p">,</span>
@@ -1781,7 +1832,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_album_by_path</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">folder_album_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;finds the first album whose folder_album path matches and folder_album_path and returns the AlbumInfo object, otherwise, returns None&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;finds the first album whose folder_album path matches and folder_album_path and returns the AlbumInfo object, otherwise, returns None&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">album_info</span> <span class="ow">in</span> <span class="n">photo</span><span class="o">.</span><span class="n">album_info</span><span class="p">:</span>
         <span class="c1"># following code is how {folder_album} builds the folder path</span>
         <span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sanitize_dirname</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">album_info</span><span class="o">.</span><span class="n">folder_names</span><span class="p">)</span>
@@ -1792,7 +1843,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_detected_text</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="n">TEXT_DETECTION_CONFIDENCE_THRESHOLD</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the detected text for a photo</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the detected text for a photo</span>
 <span class="sd">    {detected_text} uses this instead of PhotoInfo.detected_text() to cache the text for all confidence values</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">photo</span><span class="o">.</span><span class="n">isphoto</span><span class="p">:</span>
@@ -1811,7 +1862,7 @@
 
 
 <span class="k">def</span> <span class="nf">create_slice</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Create a slice object from a string of args in form &quot;start:end:step&quot; &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a slice object from a string of args in form &quot;start:end:step&quot; &quot;&quot;&quot;</span>
     <span class="n">slice_args</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slice_args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">slice_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
@@ -1833,7 +1884,7 @@
 
 
 <span class="k">def</span> <span class="nf">values_to_int</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Convert a list of strings to str representation of ints, if possible, otherwise strip values from list&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a list of strings to str representation of ints, if possible, otherwise strip values from list&quot;&quot;&quot;</span>
     <span class="n">int_values</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
@@ -1842,7 +1893,7 @@
 
 
 <span class="k">def</span> <span class="nf">values_to_float</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Convert a list of strings to str representation of float, if possible, otherwise strip values from list&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a list of strings to str representation of float, if possible, otherwise strip values from list&quot;&quot;&quot;</span>
     <span class="n">float_values</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
@@ -1851,7 +1902,7 @@
 
 
 <span class="k">def</span> <span class="nf">format_date_field</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Format a date template field in format &#39;created&#39;, &#39;create.year&#39; etc.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format a date template field in format &#39;created&#39;, &#39;create.year&#39; etc.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dt: datetime object</span>
@@ -1880,7 +1931,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_place_value</span><span class="p">(</span><span class="n">photo</span><span class="p">:</span> <span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># noqa: F821</span>
-    <span class="sd">&quot;&quot;&quot;Get the value of a &#39;place&#39; field by attribute</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the value of a &#39;place&#39; field by attribute</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        photo: the PhotoInfo object</span>
@@ -1947,9 +1998,7 @@
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -1961,14 +2010,11 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/scripts/furo.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
+</div><script src="../../_static/documentation_options.js?v=8e1e0bc4"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>
 </html>

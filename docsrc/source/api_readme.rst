@@ -1339,6 +1339,16 @@ Return True if photo is part of a shared moment, otherwise False.  Shared moment
 
 Return True if photo is included in shared iCloud library, otherwise False. Photos 8+ only; returns False if not Photos 8+.
 
+``share_participant_info``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of ShareParticipant objects with information on who the photo in shared iCloud library is shared with (Photos 8+ only)
+
+``share_participants``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of names of people the photo in shared iCloud library is shared with (Photos 8+ only)
+
 ``uti``
 ~~~~~~~~~~~
 
@@ -2969,7 +2979,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.62.1'
+     - The osxphotos version, e.g. '0.62.2'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
