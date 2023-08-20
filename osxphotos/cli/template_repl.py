@@ -100,7 +100,12 @@ HELP_DICT = (
 def template_repl(
     mode: str | None, template: tuple[str, ...], uuid: str | None, db: str | None
 ):
-    """Interactive read/eval/print/loop (REPL) for rendering templates for currently selected photo."""
+    """Interactively render templates for selected photo.
+    
+    Launches a REPL (Read-Eval-Print-Loop) to interactively render a template for the selected photo.
+    
+    Select a photo in Photos then run `osxphotos template` to start the REPL.
+    """
     configure_readline(mode)
     if not template:
         print("Loading Photos library...")
@@ -227,7 +232,7 @@ def print_template_help():
     help_text = get_template_help()
     help_text = (
         "# Template System Help\n\n"
-        + "**Press Space to page or q to exit help.**\n\n"
+        + "**Press Space to page, arrow keys to scroll, or q to exit help.**\n\n"
         + help_text
     )
     help_text += (
