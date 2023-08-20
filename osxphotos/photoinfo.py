@@ -1467,11 +1467,21 @@ class PhotoInfo:
         return bool(self._info["active_library_participation_state"])
 
     @cached_property
-    def share_participants(self) -> list[ShareParticipant]:
-        """Returns list of ShareParticpant objects with information on who the photo is shared with (Photos 8+ only)"""
+    def share_participant_info(self) -> list[ShareParticipant]:
+        """Returns list of ShareParticipant objects with information on who the photo is shared with (Photos 8+ only)"""
         if self._db.photos_version < 8:
             return []
         return get_share_participants(self._db, self.uuid)
+
+    @cached_property
+    def share_participants(self) -> list[str]:
+        """Returns list of names of people the photo is shared with (Photos 8+ only)"""
+        if self._db.photos_version < 8:
+            return []
+        return [
+            f"{p.name_components.given_name} {p.name_components.family_name}"
+            for p in self.share_participant_info
+        ]
 
     @property
     def labels(self):

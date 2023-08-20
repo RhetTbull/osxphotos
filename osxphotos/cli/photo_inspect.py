@@ -91,8 +91,19 @@ def inspect_photo(
     photo: PhotoInfo,
     detected_text: Optional[str] = None,
     templates: Optional[List[str]] = None,
+    beta: bool = False,
 ) -> str:
-    """Get info about an osxphotos PhotoInfo object formatted for printing"""
+    """Get info about an osxphotos PhotoInfo object formatted for printing
+
+    Args:
+        photo: PhotoInfo object to inspect
+        detected_text: text detected in photo
+        templates: list of templates to render for photo
+        beta: if True, include beta properties in output
+
+    Returns:
+        str: formatted string with photo info
+    """
 
     if templates:
         return inspect_photo_templates(photo, templates)
@@ -182,22 +193,29 @@ def inspect_photo(
         expiry = info.expiry_date.isoformat() if info and info.expiry_date else "-"
         share_url = info.share_url if info else "-"
         properties.append(
-            bold("Shared Moment: ") + f"{title} expiry: {expiry} url: {share_url}"
+            bold("Shared Moment: ")
+            + trim(f"{title} expiry: {expiry} url: {share_url}", "Shared Moment: ")
         )
 
-    if photo.syndicated:
-        ...
-
-    if photo.comments:
+    if photo.shared:
+        properties.append(bold("Owner: ") + f"{photo.owner or '-'}")
         comments = [f"{c.user}: {c.text}" for c in photo.comments]
         properties.append(
-            bold("Comments: ") + trim(f"{', '.join(comments)}", "Comments: ")
+            bold("Comments: ") + trim(f"{', '.join(comments) or '-'}", "Comments: ")
         )
-
-    if photo.likes:
         properties.append(
             bold("Likes: ")
-            + trim(f"{', '.join(l.user for l in photo.likes)}", "Likes: ")
+            + trim(f"{', '.join(l.user for l in photo.likes) or '-'}", "Likes: ")
+        )
+
+    if beta and photo.shared_library:
+        share_participants = ", ".join(
+            f"{p.name_components.given_name} {p.name_components.family_name}{' (current user)' if p.is_current_user else ''}"
+            for p in photo.share_participant_info
+        )
+        properties.append(
+            bold("Share participant: ")
+            + trim(share_participants, "Share participant: ")
         )
 
     properties.append(format_exif_info(photo))
@@ -332,10 +350,8 @@ def format_paths(photo: PhotoInfo) -> str:
 
 def format_exif_info(photo: PhotoInfo) -> str:
     """Format exif_info for inspect_photo"""
-    exif_str = bold("EXIF: ")
     exif = photo.exif_info
-    if not exif:
-        return f"{exif_str}-"
+    exif_str = ""
 
     if exif.camera_make:
         exif_str += f"{exif.camera_make} "
@@ -373,7 +389,8 @@ def format_exif_info(photo: PhotoInfo) -> str:
         exif_str += f"{exif.codec}"
     if exif.track_format:
         exif_str += f"{exif.track_format}"
-    return exif_str
+
+    return bold("EXIF: ") + (exif_str or "-")
 
 
 def get_photo_type(photo: PhotoInfo) -> str:
@@ -469,7 +486,8 @@ def make_layout() -> Layout:
 )
 @THEME_OPTION
 @DB_OPTION
-def photo_inspect(db, theme, detect_text, template):
+@click.option("--beta", is_flag=True, help="Include beta properties in output")
+def photo_inspect(db, theme, detect_text, template, beta):
     """Interactively inspect photos selected in Photos.
 
     Open Photos then run `osxphotos inspect` in the terminal.
@@ -519,6 +537,7 @@ def photo_inspect(db, theme, detect_text, template):
         last_uuid = None
         uuid = None
         total = 0
+        width = Console().width
         while True:
             try:
                 uuid, total = get_uuid_for_photos_selection()
@@ -528,7 +547,9 @@ def photo_inspect(db, theme, detect_text, template):
                 # allow Ctrl+C to quit
                 break
             finally:
-                if uuid and uuid != last_uuid:
+                if uuid and (uuid != last_uuid or width != Console().width):
+                    # new photo selected or terminal resized
+                    width = Console().width
                     if total > 1:
                         update_status(
                             f"{total} photos selected; inspecting uuid={uuid}"
@@ -543,6 +564,7 @@ def photo_inspect(db, theme, detect_text, template):
                                     photo,
                                     detected_text=detected_text_cache.get(uuid, None),
                                     templates=template,
+                                    beta=beta,
                                 ),
                                 title=photo.title or photo.original_filename,
                             )
