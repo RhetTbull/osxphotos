@@ -185,7 +185,11 @@ def inspect_photo(
             bold("Shared Moment: ") + f"{title} expiry: {expiry} url: {share_url}"
         )
 
-    if photo.syndicated:
+    if photo.shared:
+        properties.append(bold("Owner: ") + f"{photo.owner or '-'}")
+
+    if photo.shared_library:
+        # todo add info on share participants once tested
         ...
 
     if photo.comments:
