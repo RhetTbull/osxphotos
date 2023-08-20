@@ -1,16 +1,16 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="./">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos" href="overview.html" />
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos 0.62.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
+        <title>osxphotos 0.62.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">osxphotos 0.62.1 documentation</div></a>
+      <a href="#"><div class="brand">osxphotos 0.62.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,10 +147,10 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.62.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -198,7 +198,7 @@
         </div>
         <article role="main">
           <section id="welcome-to-osxphotos-s-documentation">
-<h1>Welcome to OSXPhotos’s documentation!<a class="headerlink" href="#welcome-to-osxphotos-s-documentation" title="Permalink to this heading">#</a></h1>
+<h1>Welcome to OSXPhotos’s documentation!<a class="headerlink" href="#welcome-to-osxphotos-s-documentation" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">OSXPhotos</a><ul>
@@ -263,6 +263,7 @@
 <li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-show">show</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-snap">snap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-sync">sync</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-template">template</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-theme">theme</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-timewarp">timewarp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-tutorial">tutorial</a></li>
@@ -386,6 +387,8 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#saved-to-library"><code class="docutils literal notranslate"><span class="pre">saved_to_library</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#shared-moment"><code class="docutils literal notranslate"><span class="pre">shared_moment</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#shared-library"><code class="docutils literal notranslate"><span class="pre">shared_library</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#share-participant-info"><code class="docutils literal notranslate"><span class="pre">share_participant_info</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#share-participants"><code class="docutils literal notranslate"><span class="pre">share_participants</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#uti"><code class="docutils literal notranslate"><span class="pre">uti</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#uti-original"><code class="docutils literal notranslate"><span class="pre">uti_original</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#uti-edited"><code class="docutils literal notranslate"><span class="pre">uti_edited</span></code></a></li>
@@ -843,6 +846,7 @@
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.search_info_normalized"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.search_info_normalized</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.selfie"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.selfie</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.share_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.share_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.share_participant_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.share_participant_info</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.share_participants"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.share_participants</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.shared"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.shared</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.shared_library"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.shared_library</span></code></a></li>
@@ -1061,7 +1065,7 @@
 </div>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">#</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">#</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -1096,9 +1100,7 @@
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -1110,14 +1112,11 @@
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/scripts/furo.js"></script>
-    <script src="_static/clipboard.min.js"></script>
-    <script src="_static/copybutton.js"></script>
+</div><script src="_static/documentation_options.js?v=8e1e0bc4"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
     </body>
 </html>

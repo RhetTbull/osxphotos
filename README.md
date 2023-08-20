@@ -173,6 +173,7 @@ Commands:
   show           Show photo, album, or folder in Photos from UUID_OR_NAME
   snap           Create snapshot of Photos database to use with diff command
   sync           Sync metadata and albums between Photos libraries.
+  template       Interactively render templates for selected photo.
   theme          Manage osxphotos color themes.
   timewarp       Adjust date/time/timezone of photos in Apple Photos.
   tutorial       Display osxphotos tutorial.
@@ -1635,6 +1636,7 @@ _keys
 
                               Templating System                               
 
+
 The templating system converts one or template statements, written in         
 osxphotos metadata templating language, to one or more rendered values using  
 information from the photo being processed.                                   
@@ -2223,7 +2225,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.62.1'
+{osxphotos_version}             The osxphotos version, e.g. '0.62.2'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2711,7 +2713,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.62.1'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.62.2'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
