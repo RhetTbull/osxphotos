@@ -34,6 +34,7 @@ from .places import places
 from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
+from .template_repl import template_repl
 from .theme import theme
 from .tutorial import tutorial
 from .version import version
@@ -133,6 +134,7 @@ commands = [
     snap,
     theme,
     tutorial,
+    template_repl,
     uninstall,
     version,
 ]

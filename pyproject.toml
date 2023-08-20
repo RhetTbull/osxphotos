@@ -3,7 +3,20 @@
 # Rules: https://beta.ruff.rs/docs/rules/
 target-version = "py39"
 line-length = 366
-ignore = ["E402","E722","E741","F401","F403","F405","F541","F822","F841"]
+# TODO: most of these can probasbly be removed but will require code cleanup
+# These were added to make ruff pass with code in current state
+ignore = [
+    "E402",
+    "E721",
+    "E722",
+    "E741",
+    "F401",
+    "F403",
+    "F405",
+    "F541",
+    "F822",
+    "F841",
+]
 # Exclude a variety of commonly ignored directories.
 exclude = [
     ".git",

@@ -78,6 +78,7 @@ from .places import places
 from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
+from .template_repl import template_repl
 from .theme import theme
 from .tutorial import tutorial
 from .version import version
@@ -97,9 +98,7 @@ install_traceback()
 __all__ = [
     "abort",
     "about",
-    "add_locations",
     "albums",
-    "batch_edit",
     "cli_main",
     "debug_dump",
     "diff",
@@ -112,7 +111,6 @@ __all__ = [
     "exportdb",
     "grep",
     "help",
-    "import_cli",
     "info",
     "install",
     "keywords",
@@ -123,7 +121,6 @@ __all__ = [
     "logger",
     "orphans",
     "persons",
-    "photo_inspect",
     "places",
     "query",
     "query_command",
@@ -131,9 +128,21 @@ __all__ = [
     "run",
     "selection_command",
     "set_debug",
-    "show",
     "snap",
+    "template_repl",
     "tutorial",
-    "uuid",
     "verbose",
+    "version",
 ]
+
+if is_macos:
+    __all__ += [
+        "add_locations",
+        "batch_edit",
+        "import_cli",
+        "photo_inspect",
+        "show",
+        "sync",
+        "timewarp",
+        "uuid",
+    ]

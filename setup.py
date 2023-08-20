@@ -98,7 +98,7 @@ setup(
         "PyYAML>=6.0.0,<7.0.0",
         "requests>=2.27.1,<3.0.0",
         "rich_theme_manager>=0.11.0",
-        "rich>=11.2.0,<13.0.0",
+        "rich>=13.5.2,<14.0.0",
         "shortuuid==1.0.9",
         "strpdatetime>=0.2.0",
         "tenacity>=8.0.1,<9.0.0",
