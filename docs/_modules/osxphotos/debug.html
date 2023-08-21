@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>osxphotos.debug - osxphotos 0.62.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>osxphotos.debug - osxphotos 0.61.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.62.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.61.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +146,10 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.61.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -160,7 +160,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
@@ -225,27 +224,21 @@
 <span class="n">__osxphotos_debug</span> <span class="o">=</span> <span class="kc">False</span>
 
 
-<div class="viewcode-block" id="set_debug">
-<a class="viewcode-back" href="../../reference.html#osxphotos.set_debug">[docs]</a>
-<span class="k">def</span> <span class="nf">set_debug</span><span class="p">(</span><span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;set debug flag&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="set_debug"><a class="viewcode-back" href="../../reference.html#osxphotos.set_debug">[docs]</a><span class="k">def</span> <span class="nf">set_debug</span><span class="p">(</span><span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;set debug flag&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">__osxphotos_debug</span>
     <span class="n">__osxphotos_debug</span> <span class="o">=</span> <span class="n">debug</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span> <span class="k">if</span> <span class="n">debug</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="is_debug">
-<a class="viewcode-back" href="../../reference.html#osxphotos.is_debug">[docs]</a>
-<span class="k">def</span> <span class="nf">is_debug</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;return debug flag&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="is_debug"><a class="viewcode-back" href="../../reference.html#osxphotos.is_debug">[docs]</a><span class="k">def</span> <span class="nf">is_debug</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;return debug flag&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">__osxphotos_debug</span>
     <span class="k">return</span> <span class="n">__osxphotos_debug</span></div>
 
 
-
 <span class="k">def</span> <span class="nf">debug_watch</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;For use with wrapt.wrap_function_wrapper to watch calls to a function&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;For use with wrapt.wrap_function_wrapper to watch calls to a function&quot;&quot;&quot;</span>
     <span class="n">caller</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">wrapped</span><span class="o">.</span><span class="vm">__name__</span>
     <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
@@ -255,18 +248,18 @@
     <span class="n">start_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
     <span class="n">rv</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">stop_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> returned: </span><span class="si">{</span><span class="n">rv</span><span class="si">}</span><span class="s2">, elapsed time: </span><span class="si">{</span><span class="n">stop_t</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_t</span><span class="si">}</span><span class="s2"> sec&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> returned: </span><span class="si">{</span><span class="n">rv</span><span class="si">}</span><span class="s2">, elapsed time: </span><span class="si">{</span><span class="n">stop_t</span> <span class="o">-</span> <span class="n">start_t</span><span class="si">}</span><span class="s2"> sec&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rv</span>
 
 
 <span class="k">def</span> <span class="nf">debug_breakpoint</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;For use with wrapt.wrap_function_wrapper to set breakpoint on a function&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;For use with wrapt.wrap_function_wrapper to set breakpoint on a function&quot;&quot;&quot;</span>
     <span class="nb">breakpoint</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">wrap_function</span><span class="p">(</span><span class="n">function_path</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap a function with wrapper function&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Wrap a function with wrapper function&quot;&quot;&quot;</span>
     <span class="n">module</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">function_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">wrapt</span><span class="o">.</span><span class="n">wrap_function_wrapper</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">)</span>
@@ -275,7 +268,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_debug_options</span><span class="p">(</span><span class="n">arg_names</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the options for the debug options;</span>
+    <span class="sd">&quot;&quot;&quot;Get the options for the debug options;</span>
 <span class="sd">    Some of the debug options like --watch and --breakpoint need to be processed before any other packages are loaded</span>
 <span class="sd">    so they can&#39;t be handled in the normal click argument processing, thus this function is called</span>
 <span class="sd">    from osxphotos/cli/__init__.py</span>
@@ -308,7 +301,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_debug_flags</span><span class="p">(</span><span class="n">arg_names</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the flags for the debug options;</span>
+    <span class="sd">&quot;&quot;&quot;Get the flags for the debug options;</span>
 <span class="sd">    Processes flags like --debug that resolve to True or False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># argv[0] is the program name</span>
@@ -339,7 +332,9 @@
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              
+            </div>
           </div>
         </div>
         
@@ -351,11 +346,14 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=2a668fdd"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
     </body>
 </html>

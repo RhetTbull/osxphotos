@@ -2974,7 +2974,7 @@ or empty list if album is not in any folders</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="osxphotos.QueryOptions.added_after">
 <span class="sig-name descname"><span class="pre">added_after</span></span><a class="headerlink" href="#osxphotos.QueryOptions.added_after" title="Link to this definition">#</a></dt>
-<dd><p>search for photos added after a given date</p>
+<dd><p>search for photos added on or after a given date</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>datetime.datetime | None</p>
@@ -3154,6 +3154,17 @@ or empty list if album is not in any folders</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>datetime.datetime | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.from_time">
+<span class="sig-name descname"><span class="pre">from_time</span></span><a class="headerlink" href="#osxphotos.QueryOptions.from_time" title="Link to this definition">#</a></dt>
+<dd><p>search for photos taken on or after this time of day</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.time | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3810,10 +3821,21 @@ or empty list if album is not in any folders</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="osxphotos.QueryOptions.to_date">
 <span class="sig-name descname"><span class="pre">to_date</span></span><a class="headerlink" href="#osxphotos.QueryOptions.to_date" title="Link to this definition">#</a></dt>
-<dd><p>search for photos taken on or before this date</p>
+<dd><p>search for photos taken before this date</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>datetime.datetime | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.to_time">
+<span class="sig-name descname"><span class="pre">to_time</span></span><a class="headerlink" href="#osxphotos.QueryOptions.to_time" title="Link to this definition">#</a></dt>
+<dd><p>search for photos taken before this time of day</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.time | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -4531,6 +4553,7 @@ or empty list if album is not in any folders</p>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.favorite"><code class="docutils literal notranslate"><span class="pre">QueryOptions.favorite</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.folder"><code class="docutils literal notranslate"><span class="pre">QueryOptions.folder</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.from_date"><code class="docutils literal notranslate"><span class="pre">QueryOptions.from_date</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.QueryOptions.from_time"><code class="docutils literal notranslate"><span class="pre">QueryOptions.from_time</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.function"><code class="docutils literal notranslate"><span class="pre">QueryOptions.function</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.has_comment"><code class="docutils literal notranslate"><span class="pre">QueryOptions.has_comment</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.has_likes"><code class="docutils literal notranslate"><span class="pre">QueryOptions.has_likes</span></code></a></li>
@@ -4591,6 +4614,7 @@ or empty list if album is not in any folders</p>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.time_lapse"><code class="docutils literal notranslate"><span class="pre">QueryOptions.time_lapse</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.title"><code class="docutils literal notranslate"><span class="pre">QueryOptions.title</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.to_date"><code class="docutils literal notranslate"><span class="pre">QueryOptions.to_date</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.QueryOptions.to_time"><code class="docutils literal notranslate"><span class="pre">QueryOptions.to_time</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.uti"><code class="docutils literal notranslate"><span class="pre">QueryOptions.uti</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.uuid"><code class="docutils literal notranslate"><span class="pre">QueryOptions.uuid</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.QueryOptions.year"><code class="docutils literal notranslate"><span class="pre">QueryOptions.year</span></code></a></li>

@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.62.3](https://github.com/RhetTbull/osxphotos/compare/v0.62.2...v0.62.3)
+
+Added macOS 13.5 to compatibility matrix.
+
+### [0.62.3] - 2023-08-21
+
+#### Fixed
+
+- `--to-date` and `--to-time` are now exclusive (find files *before* date/time) (#590)
+
+#### Added
+
+- Support for macOS 13.5
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code
+
 ## [v0.62.2](https://github.com/RhetTbull/osxphotos/compare/v0.62.1...v0.62.2)
 
 More support for shared iCloud libraries and `osxphotos template` REPL command.

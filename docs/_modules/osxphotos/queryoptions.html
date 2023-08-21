@@ -228,7 +228,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;QueryOptions class for PhotosDB.query</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        added_after: search for photos added after a given date</span>
+<span class="sd">        added_after: search for photos added on or after a given date</span>
 <span class="sd">        added_before: search for photos added before a given date</span>
 <span class="sd">        added_in_last: search for photos added in last X datetime.timedelta</span>
 <span class="sd">        album: list of album names to search for</span>
@@ -245,6 +245,7 @@
 <span class="sd">        favorite: search for favorite photos</span>
 <span class="sd">        folder: list of folder names to search for</span>
 <span class="sd">        from_date: search for photos taken on or after this date</span>
+<span class="sd">        from_time: search for photos taken on or after this time of day</span>
 <span class="sd">        function: list of query functions to evaluate</span>
 <span class="sd">        has_comment: search for photos with comments</span>
 <span class="sd">        has_likes: search for shared photos with likes</span>
@@ -304,7 +305,8 @@
 <span class="sd">        slow_mo: search for slow-mo photos</span>
 <span class="sd">        time_lapse: search for time-lapse photos</span>
 <span class="sd">        title: list of titles to search for</span>
-<span class="sd">        to_date: search for photos taken on or before this date</span>
+<span class="sd">        to_date: search for photos taken before this date</span>
+<span class="sd">        to_time: search for photos taken before this time of day</span>
 <span class="sd">        uti: list of UTIs to search for</span>
 <span class="sd">        uuid: list of uuids to search for</span>
 <span class="sd">        year: search for photos taken in a given year</span>

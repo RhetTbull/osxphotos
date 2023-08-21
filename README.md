@@ -791,18 +791,18 @@ Options:
                                   images and movies).
   --only-photos                   Search only for photos/images (default
                                   searches both images and movies).
-  --from-date DATETIME            Search by item start date, e.g.
+  --from-date DATE                Search for items created on or after DATE,
+                                  e.g. 2000-01-12T12:00:00,
+                                  2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
+                                  8601 with/without timezone).
+  --to-date DATE                  Search for items created before DATE, e.g.
                                   2000-01-12T12:00:00,
                                   2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
                                   8601 with/without timezone).
-  --to-date DATETIME              Search by item end date, e.g.
-                                  2000-01-12T12:00:00,
-                                  2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
-                                  8601 with/without timezone).
-  --from-time TIME                Search by item start time of day, e.g. 12:00,
-                                  or 12:00:00.
-  --to-time TIME                  Search by item end time of day, e.g. 12:00 or
-                                  12:00:00.
+  --from-time TIME                Search for items created on or after TIME of
+                                  day, e.g. 12:00, or 12:00:00.
+  --to-time TIME                  Search for items created before TIME of day,
+                                  e.g. 12:00 or 12:00:00.
   --year YEAR                     Search for items from a specific year, e.g.
                                   --year 2022 to find all photos from the year
                                   2022. May be repeated to search multiple
@@ -812,9 +812,9 @@ Options:
                                   2000-01-12T12:00:00,
                                   2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
                                   8601 with/without timezone).
-  --added-after DATE              Search for items added to the libray after a
-                                  specific date/time, e.g. --added-after e.g.
-                                  2000-01-12T12:00:00,
+  --added-after DATE              Search for items added to the library on or
+                                  after a specific date/time, e.g. --added-after
+                                  e.g. 2000-01-12T12:00:00,
                                   2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
                                   8601 with/without timezone).
   --added-in-last TIME_DELTA      Search for items added to the library in the
