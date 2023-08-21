@@ -28,7 +28,7 @@ class QueryOptions:
     """QueryOptions class for PhotosDB.query
 
     Attributes:
-        added_after: search for photos added after a given date
+        added_after: search for photos added on or after a given date
         added_before: search for photos added before a given date
         added_in_last: search for photos added in last X datetime.timedelta
         album: list of album names to search for
@@ -45,6 +45,7 @@ class QueryOptions:
         favorite: search for favorite photos
         folder: list of folder names to search for
         from_date: search for photos taken on or after this date
+        from_time: search for photos taken on or after this time of day
         function: list of query functions to evaluate
         has_comment: search for photos with comments
         has_likes: search for shared photos with likes
@@ -104,7 +105,8 @@ class QueryOptions:
         slow_mo: search for slow-mo photos
         time_lapse: search for time-lapse photos
         title: list of titles to search for
-        to_date: search for photos taken on or before this date
+        to_date: search for photos taken before this date
+        to_time: search for photos taken before this time of day
         uti: list of UTIs to search for
         uuid: list of uuids to search for
         year: search for photos taken in a given year
