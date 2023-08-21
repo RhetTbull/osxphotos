@@ -3054,7 +3054,7 @@ class PhotosDB:
                 if to_date:
                     if not datetime_has_tz(to_date):
                         to_date = datetime_naive_to_local(to_date)
-                    dsel = {k: v for k, v in dsel.items() if v["imageDate"] <= to_date}
+                    dsel = {k: v for k, v in dsel.items() if v["imageDate"] < to_date}
                 photos_sets.append(set(dsel.keys()))
 
         photoinfo = []
@@ -3383,7 +3383,7 @@ class PhotosDB:
             photos = [p for p in photos if p.date.time() >= options.from_time]
 
         if options.to_time:
-            photos = [p for p in photos if p.date.time() <= options.to_time]
+            photos = [p for p in photos if p.date.time() < options.to_time]
 
         if options.year:
             photos = [p for p in photos if p.date.year in options.year]

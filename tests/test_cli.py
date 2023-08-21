@@ -2805,8 +2805,8 @@ def test_export_duplicate_unicode_filenames():
         assert sorted(files) == sorted(EXPORT_UNICODE_TITLE_FILENAMES)
 
 
-def test_query_date_1():
-    """Test --from-date and --to-date"""
+def test_query_from_to_date():
+    """Test --from-date and --to-date #590"""
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -2820,17 +2820,17 @@ def test_query_date_1():
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--from-date=2018-09-28",
-            "--to-date=2018-09-28T23:00:00",
+            "--to-date=2018-09-28T16:09:33.022000-04:00",
         ],
     )
     assert result.exit_code == 0
 
     json_got = json.loads(result.output)
-    assert len(json_got) == 4
+    assert len(json_got) == 3 
 
 
-def test_query_date_2():
-    """Test --from-date and --to-date"""
+def test_query_from_to_date_alt_location():
+    """Test --from-date and --to-date in a different timezone"""
 
     os.environ["TZ"] = "Asia/Jerusalem"
     time.tzset()
@@ -2853,7 +2853,7 @@ def test_query_date_2():
     assert len(json_got) == 2
 
 
-def test_query_date_timezone():
+def test_query_from_to_date_timezone():
     """Test --from-date, --to-date with ISO 8601 timezone"""
 
     os.environ["TZ"] = "US/Pacific"
@@ -2877,7 +2877,7 @@ def test_query_date_timezone():
     assert len(json_got) == 4
 
 
-def test_query_time():
+def test_query_from_to_time():
     """Test --from-time, --to-time"""
 
     os.environ["TZ"] = "US/Pacific"
@@ -2892,16 +2892,16 @@ def test_query_time():
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--from-time=16:00",
-            "--to-time=17:00",
+            "--to-time=16:09:33.022000",
         ],
     )
     assert result.exit_code == 0
 
     json_got = json.loads(result.output)
-    assert len(json_got) == 3
+    assert len(json_got) == 1 
 
 
-def test_query_year_1():
+def test_query_year_single():
     """Test --year"""
 
     os.environ["TZ"] = "US/Pacific"
@@ -2925,7 +2925,7 @@ def test_query_year_1():
     assert len(json_got) == 1
 
 
-def test_query_year_2():
+def test_query_year_mulitple():
     """Test --year with multiple years"""
 
     os.environ["TZ"] = "US/Pacific"

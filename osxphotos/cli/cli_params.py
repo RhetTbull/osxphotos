@@ -449,22 +449,25 @@ _QUERY_PARAMETERS_DICT = {
     ),
     "--from-date": click.Option(
         ["--from-date"],
-        help="Search by item start date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
+        metavar="DATE",
+        help="Search for items created on or after DATE, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
         type=DateTimeISO8601(),
     ),
     "--to-date": click.Option(
         ["--to-date"],
-        help="Search by item end date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
+        metavar="DATE",
+        help="Search for items created before DATE, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
         type=DateTimeISO8601(),
     ),
     "--from-time": click.Option(
         ["--from-time"],
-        help="Search by item start time of day, e.g. 12:00, or 12:00:00.",
+        metavar="TIME",
+        help="Search for items created on or after TIME of day, e.g. 12:00, or 12:00:00.",
         type=TimeISO8601(),
     ),
     "--to-time": click.Option(
         ["--to-time"],
-        help="Search by item end time of day, e.g. 12:00 or 12:00:00.",
+        help="Search for items created before TIME of day, e.g. 12:00 or 12:00:00.",
         type=TimeISO8601(),
     ),
     "--year": click.Option(
@@ -485,7 +488,7 @@ _QUERY_PARAMETERS_DICT = {
     "--added-after": click.Option(
         ["--added-after"],
         metavar="DATE",
-        help="Search for items added to the libray after a specific date/time, "
+        help="Search for items added to the library on or after a specific date/time, "
         "e.g. --added-after e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
         type=DateTimeISO8601(),
     ),
