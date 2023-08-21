@@ -59,7 +59,8 @@ setup(
     url="https://github.com/RhetTbull/",
     project_urls={"GitHub": "https://github.com/RhetTbull/osxphotos"},
     download_url="https://github.com/RhetTbull/osxphotos",
-    packages=find_packages(exclude=["tests", "examples", "utils"]),
+    packages=find_packages(exclude=["tests", "examples", "utils"])
+    + ["osxphotos.docs", "osxphotos.templates", "osxphotos.queries"],
     license="License :: OSI Approved :: MIT License",
     classifiers=[
         "Development Status :: 4 - Beta",

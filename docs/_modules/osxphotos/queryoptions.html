@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.queryoptions - osxphotos 0.62.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
+        <title>osxphotos.queryoptions - osxphotos 0.62.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.62.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.62.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +146,10 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.62.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -160,7 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api_readme.html">OSXPhotos Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
@@ -215,15 +215,17 @@
 
 
 <span class="k">class</span> <span class="nc">IncompatibleQueryOptions</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Incompatible query options&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Incompatible query options&quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="QueryOptions"><a class="viewcode-back" href="../../reference.html#osxphotos.QueryOptions">[docs]</a><span class="nd">@dataclass</span>
+<div class="viewcode-block" id="QueryOptions">
+<a class="viewcode-back" href="../../reference.html#osxphotos.QueryOptions">[docs]</a>
+<span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">QueryOptions</span><span class="p">:</span>
 
-    <span class="sd">&quot;&quot;&quot;QueryOptions class for PhotosDB.query</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;QueryOptions class for PhotosDB.query</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        added_after: search for photos added after a given date</span>
@@ -334,7 +336,7 @@
     <span class="n">folder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">from_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">from_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">callable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">callable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">has_comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">has_likes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">has_raw</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -411,8 +413,9 @@
         <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">query_options_from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QueryOptions</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Validate query options and create a QueryOptions instance.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate query options and create a QueryOptions instance.</span>
 <span class="sd">    Note: this will block on stdin if uuid_from_file is set to &quot;-&quot;</span>
 <span class="sd">    so it is best to call function before creating the PhotosDB instance</span>
 <span class="sd">    so that the validation of query options can happen before the database</span>
@@ -523,7 +526,7 @@
 
 
 <span class="k">def</span> <span class="nf">load_uuid_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load UUIDs from file.</span>
 <span class="sd">    Does not validate UUIDs but does validate that the UUIDs are in the correct format.</span>
 <span class="sd">    Format is 1 UUID per line, any line beginning with # is ignored.</span>
@@ -551,7 +554,7 @@
 
 
 <span class="k">def</span> <span class="nf">_load_uuid_from_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load UUIDs from stream.</span>
 <span class="sd">    Does not validate UUIDs but does validate that the UUIDs are in the correct format.</span>
 <span class="sd">    Format is 1 UUID per line, any line beginning with # is ignored.</span>
@@ -596,9 +599,7 @@
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -610,14 +611,11 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/scripts/furo.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
+</div><script src="../../_static/documentation_options.js?v=2a668fdd"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>
 </html>
