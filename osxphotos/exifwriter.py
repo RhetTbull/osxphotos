@@ -82,7 +82,11 @@ def exif_options_from_export_options(export_options: ExportOptions) -> ExifOptio
 
 
 class ExifWriter:
-    """Write EXIF & other metadata to files using exiftool for a Photo asset"""
+    """Write EXIF & other metadata to files using exiftool for a Photo asset
+    
+    Args:
+        photo: PhotoInfo, the photo object to write metadata for
+    """
 
     def __init__(self, photo: PhotoInfo):
         """Create instance of ExifWriter
