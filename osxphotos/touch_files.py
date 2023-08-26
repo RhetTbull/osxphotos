@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 __all__ = ["touch_files"]
 
+
 def touch_files(
     photo: PhotoInfo, touch_files: list[str], options: ExportOptions
 ) -> ExportResults:

@@ -76,7 +76,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     from osxphotos.queryoptions import QueryOptions
     from osxphotos.scoreinfo import ScoreInfo
     from osxphotos.searchinfo import SearchInfo
-    from osxphotos.sidecars import xmp_sidecar, SidecarWriter
+    from osxphotos.sidecars import SidecarWriter, xmp_sidecar
 
     logger = logging.getLogger()
     logger.disabled = True
