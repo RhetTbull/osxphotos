@@ -29,6 +29,7 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
   * [ExifTool](#exiftoolExifTool)
   * [PhotoExporter](#photoexporter)
   * [ExifWriter](#exifwriter)
+  * [SidecarWriter](#sidecarwriter)
   * [Text Detection](#textdetection)
   * [Utility Functions](#utility-functions)
 * [Additional Examples](#additional-examples)
@@ -2765,6 +2766,49 @@ See source code for full details.
 * use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
 * use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
 * favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
+
+### <a name="sidecarwriter">SidecarWriter</a>
+
+`osxphotos.sidecars.SidecarWriter` is a utility class used by [PhotoExporter](#photoexporter) to write the sidecars (XMP, JSON, exiftool) for exported images. You can use this yourself to write sidecars if needed.
+
+```python
+from osxphotos.sidecars import SidecarWriter
+
+# photo is a PhotoInfo object
+writer = SidecarWriter(photo)
+
+# dest is destination folder for sidecar files, options is an ExportOptions
+# returns ExportResults of sidecars written or skipped
+results = writer.write_sidecar_files(dest, options)
+```
+
+You can get the string for the XMP sidecar with `xmp_sidecar()`:
+
+```python
+def xmp_sidecar(
+    photo: PhotoInfo,
+    options: ExportOptions | None = None,
+    extension: str | None = None,
+) -> str:
+    """Returns string for XMP sidecar
+
+    Args:
+        photo (PhotoInfo): photo to generate sidecars
+        options (ExportOptions): options for export
+        extension (Optional[str]): which extension to use for SidecarForExtension property
+
+    Returns:
+        str: string containing XMP sidecar
+    """
+```
+
+```python
+from osxphotos.sidecars import xmp_sidecar
+
+sidecar = xmp_sidecar(photo, options, extension)
+```
+
+See implementation for more information.
 
 ### <a name="textdetection">Text Detection</a>
 

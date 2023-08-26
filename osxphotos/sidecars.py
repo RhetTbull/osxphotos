@@ -29,7 +29,7 @@ from .exportoptions import ExportOptions, ExportResults
 from .phototemplate import RenderOptions
 from .rich_utils import add_rich_markup_tag
 from .touch_files import touch_files
-from .utils import hexdigest, noop
+from .utils import hexdigest
 
 if TYPE_CHECKING:
     from .photoinfo import PhotoInfo
@@ -361,12 +361,16 @@ def xmp_sidecar(
     photo: PhotoInfo,
     options: ExportOptions | None = None,
     extension: str | None = None,
-):
-    """returns string for XMP sidecar
+) -> str:
+    """Returns string for XMP sidecar
 
     Args:
+        photo: PhotoInfo object to generate sidecar for
         options (ExportOptions): options for export
         extension (Optional[str]): which extension to use for SidecarForExtension property
+
+    Returns:
+        str: string containing XMP sidecar
     """
 
     writer = SidecarWriter(photo)
