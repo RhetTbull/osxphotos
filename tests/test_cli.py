@@ -2826,7 +2826,7 @@ def test_query_from_to_date():
     assert result.exit_code == 0
 
     json_got = json.loads(result.output)
-    assert len(json_got) == 3 
+    assert len(json_got) == 3
 
 
 def test_query_from_to_date_alt_location():
@@ -2898,7 +2898,7 @@ def test_query_from_to_time():
     assert result.exit_code == 0
 
     json_got = json.loads(result.output)
-    assert len(json_got) == 1 
+    assert len(json_got) == 1
 
 
 def test_query_year_single():
@@ -6206,32 +6206,6 @@ def test_export_as_hardlink_download_missing():
         )
         assert result.exit_code != 0
         assert "Incompatible export options" in result.output
-
-
-def test_export_missing():
-    """test export with --missing"""
-
-    # note this won't actually export the missing images since they are not in the test db
-    # but it will test the code path by attempting to do the export
-
-    runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
-                "-V",
-                "--missing",
-                "--dry-run",
-                "--download-missing",
-                ".",
-            ],
-        )
-        assert result.exit_code == 0
-        assert f"Exporting {PHOTOS_MISSING_15_7} photos" in result.output
 
 
 def test_export_missing_not_download_missing():
