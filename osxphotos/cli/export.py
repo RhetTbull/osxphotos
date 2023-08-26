@@ -7,7 +7,6 @@ import inspect
 import os
 import pathlib
 import platform
-import shlex
 import subprocess
 import sys
 import time
@@ -42,6 +41,7 @@ from osxphotos.crash_reporter import crash_reporter, set_crash_data
 from osxphotos.datetime_formatter import DateTimeFormatter
 from osxphotos.debug import is_debug
 from osxphotos.exiftool import get_exiftool_path
+from osxphotos.exifwriter import ExifWriter
 from osxphotos.export_db import ExportDB, ExportDBInMemory
 from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
@@ -2727,7 +2727,7 @@ def write_finder_tags(
             merge_exif_keywords=exiftool_merge_keywords,
             rich=True,
         )
-        exif = PhotoExporter(photo)._exiftool_dict(options=export_options)
+        exif = ExifWriter(photo).exiftool_dict(options=export_options)
         try:
             if exif["IPTC:Keywords"]:
                 tags.extend(exif["IPTC:Keywords"])

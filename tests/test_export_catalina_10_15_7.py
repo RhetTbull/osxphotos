@@ -10,6 +10,11 @@ from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.photoexporter import ExportOptions, PhotoExporter
 from osxphotos.utils import dd_to_dms_str
+from osxphotos._constants import _MAX_IPTC_KEYWORD_LEN
+import os
+import os.path
+import tempfile
+import time
 
 # determine if exiftool installed so exiftool tests can be skipped
 try:
@@ -88,9 +93,6 @@ EXIF_JSON_UUID = UUID_DICT["has_adjustments"]
 def test_export_1(photosdb):
     # test basic export
     # get an unedited image and export it using default filename
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -106,10 +108,6 @@ def test_export_1(photosdb):
 
 def test_export_2(photosdb):
     # test export with user provided filename
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -126,10 +124,6 @@ def test_export_2(photosdb):
 
 def test_export_3(photosdb):
     # test file already exists and test increment=True (default)
-    import os
-    import os.path
-    import pathlib
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -149,11 +143,6 @@ def test_export_3(photosdb):
 
 def test_export_4(photosdb):
     # test user supplied file already exists and test increment=True (default)
-    import os
-    import os.path
-    import pathlib
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -174,9 +163,6 @@ def test_export_4(photosdb):
 def test_export_5(photosdb):
     # test file already exists and test increment=True (default)
     # and overwrite = True
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -196,11 +182,6 @@ def test_export_5(photosdb):
 def test_export_6(photosdb):
     # test user supplied file already exists and test increment=True (default)
     # and overwrite = True
-    import os
-    import os.path
-    import pathlib
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -221,9 +202,6 @@ def test_export_6(photosdb):
 def test_export_7(photosdb):
     # test file already exists and test increment=False (not default), overwrite=False (default)
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -241,9 +219,6 @@ def test_export_7(photosdb):
 
 def test_export_8(photosdb):
     # try to export missing file
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -255,9 +230,6 @@ def test_export_8(photosdb):
 def test_export_9(photosdb):
     # try to export edited file that's not edited
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -271,10 +243,6 @@ def test_export_9(photosdb):
 def test_export_10(photosdb):
     # try to export edited file that's not edited and name provided
     # should raise exception
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -291,10 +259,6 @@ def test_export_10(photosdb):
 
 def test_export_11(photosdb):
     # export edited file with name provided
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -310,10 +274,6 @@ def test_export_11(photosdb):
 
 def test_export_12(photosdb):
     # export edited file with default name
-    import os
-    import os.path
-    import pathlib
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -333,9 +293,6 @@ def test_export_12(photosdb):
 def test_export_13(photosdb):
     # export to invalid destination
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -422,8 +379,9 @@ def test_exiftool_json_sidecar_ignore_date_modified(photosdb):
     assert json_got == json_expected
 
 
-def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
-    from osxphotos._constants import _MAX_IPTC_KEYWORD_LEN
+def test_exiftool_json_sidecar_keyword_template_long(caplog, photosdb):
+    """Test that long keywords generate a warning"""
+    caplog.set_level("WARNING")
 
     photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
 
@@ -452,8 +410,7 @@ def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
     )
     json_got = json.loads(json_got)[0]
 
-    captured = capsys.readouterr()
-    assert "some keywords exceed max IPTC Keyword length" in captured.out
+    assert "some keywords exceed max IPTC Keyword length" in caplog.text
 
     # some gymnastics to account for different sort order in different pythons
     for k, v in json_expected.items():

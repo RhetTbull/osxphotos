@@ -1581,7 +1581,7 @@ class PhotoInfo:
         return exif_info
 
     @property
-    def exiftool(self):
+    def exiftool(self) -> ExifToolCaching:
         """Returns a ExifToolCaching (read-only instance of ExifTool) object for the photo.
         Requires that exiftool (https://exiftool.org/) be installed
         If exiftool not installed, logs warning and returns None
