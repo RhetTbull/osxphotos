@@ -9,6 +9,7 @@ from typing import Any, Callable, Optional
 from ._constants import DEFAULT_PREVIEW_SUFFIX
 from .export_db import ExportDB
 from .fileutil import FileUtil
+from .phototemplate import RenderOptions
 
 # These two classes are in a separate file as classes other than PhotoExporter need to use them
 
@@ -259,7 +260,7 @@ class ExportResults:
             setattr(self, attr, local_vars.get(attr) or [])
 
     @property
-    def attributes(self) -> t.List[str]:
+    def attributes(self) -> list[str]:
         """Return list of attributes tracked by ExportResults"""
         return [attr for attr in self.__slots__ if not attr.startswith("_")]
 
@@ -268,7 +269,7 @@ class ExportResults:
         """Return datetime when ExportResults was created"""
         return self._datetime
 
-    def all_files(self) -> t.List[str]:
+    def all_files(self) -> list[str]:
         """return all filenames contained in results"""
         files = (
             self.exported
