@@ -2728,6 +2728,23 @@ writer.write_exif_data(filepath, options)
 
 You can also retrieve the dictionary that will be used to write the metadata without actually writing to file using `ExifTool().exiftool_dict()`.
 
+The JSON string for the exiftool sidecar can be retrieved using the function `exiftool_json_sidecar` which has the following signature:
+
+```python
+def exiftool_json_sidecar(
+    photo: PhotoInfo,
+    options: ExportOptions | ExifOptions | None = None,
+    tag_groups: bool = True,
+    filename: str | None = None,
+) -> str:
+```
+
+```python
+from osxphotos.exifwriter import exiftool_json_sidecar
+
+sidecar = exiftool_json_sidecar(photo, options, tag_groups, filename)
+```
+
 See source code for full details.
 
 `ExifOptions` has the following properties:

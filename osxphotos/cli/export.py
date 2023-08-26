@@ -45,7 +45,8 @@ from osxphotos.exifwriter import ExifWriter
 from osxphotos.export_db import ExportDB, ExportDBInMemory
 from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
-from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
+from osxphotos.photoexporter import PhotoExporter
+from osxphotos.exportoptions import ExportOptions, ExportResults
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos

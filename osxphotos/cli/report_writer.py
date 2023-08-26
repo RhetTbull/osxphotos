@@ -14,7 +14,7 @@ from typing import Dict, Union
 
 from osxphotos._constants import SQLITE_CHECK_SAME_THREAD
 from osxphotos.export_db import OSXPHOTOS_ABOUT_STRING
-from osxphotos.photoexporter import ExportResults
+from osxphotos.exportoptions import ExportResults
 from osxphotos.sqlite_utils import sqlite_columns
 
 from .sync_results import SyncResults

@@ -55,9 +55,10 @@ from .adjustmentsinfo import AdjustmentsInfo
 from .albuminfo import AlbumInfo, ImportInfo, ProjectInfo
 from .exifinfo import ExifInfo
 from .exiftool import ExifToolCaching, get_exiftool_path
+from .exportoptions import ExportOptions
 from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
-from .photoexporter import ExportOptions, PhotoExporter
+from .photoexporter import PhotoExporter
 from .phototables import PhotoTables
 from .phototemplate import PhotoTemplate, RenderOptions
 from .placeinfo import PlaceInfo4, PlaceInfo5

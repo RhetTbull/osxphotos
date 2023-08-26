@@ -1,4 +1,4 @@
-"""Generate custom sidecar files for use wit `osxphotos export` command and --sidecar-template option"""
+"""Generate custom sidecar files for use with `osxphotos export` command and --sidecar-template option"""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import click
 from mako.template import Template
 
 from osxphotos.cli.click_rich_echo import rich_echo_error
-from osxphotos.photoexporter import ExportResults
+from osxphotos.exportoptions import ExportResults
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 

@@ -69,7 +69,8 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     from osxphotos import ExifTool, PhotoInfo, PhotosDB
     from osxphotos.albuminfo import AlbumInfo
     from osxphotos.momentinfo import MomentInfo
-    from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
+    from osxphotos.photoexporter import PhotoExporter
+    from osxphotos.exportoptions import ExportOptions, ExportResults
     from osxphotos.placeinfo import PlaceInfo
     from osxphotos.queryoptions import QueryOptions
     from osxphotos.scoreinfo import ScoreInfo

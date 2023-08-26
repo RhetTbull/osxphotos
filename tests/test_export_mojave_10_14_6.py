@@ -5,7 +5,9 @@ import pytest
 
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.photoexporter import ExportOptions, PhotoExporter
+from osxphotos.exifwriter import exiftool_json_sidecar
+from osxphotos.exportoptions import ExportOptions
+from osxphotos.sidecars import xmp_sidecar
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.14.6.photoslibrary/database/photos.db"
@@ -336,7 +338,7 @@ def test_exiftool_json_sidecar(photosdb):
     with open(str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.json"), "r") as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = PhotoExporter(photo).exiftool_json_sidecar()
+    json_got = exiftool_json_sidecar(photo)
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected
@@ -349,7 +351,7 @@ def test_xmp_sidecar(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_ext.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = PhotoExporter(photo)._xmp_sidecar(extension="jpg")
+    xmp_got = xmp_sidecar(photo, extension="jpg")
 
     assert xmp_got == xmp_expected
 
@@ -361,7 +363,8 @@ def test_xmp_sidecar_keyword_template(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = PhotoExporter(photo)._xmp_sidecar(
+    xmp_got = xmp_sidecar(
+        photo,
         ExportOptions(keyword_template=["{created.year}", "{folder_album}"]),
         extension="jpg",
     )

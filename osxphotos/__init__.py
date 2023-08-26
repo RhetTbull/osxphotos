@@ -10,11 +10,13 @@ from .albuminfo import AlbumInfo, FolderInfo, ImportInfo, ProjectInfo
 from .debug import is_debug, set_debug
 from .exifinfo import ExifInfo
 from .exiftool import ExifTool
+from .exifwriter import ExifWriter
 from .export_db import ExportDB, ExportDBTemp
+from .exportoptions import ExportOptions, ExportResults
 from .fileutil import FileUtil, FileUtilNoOp
 from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
-from .photoexporter import ExportOptions, ExportResults, PhotoExporter
+from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photosdb import PhotosDB
 from .photosdb._photosdb_process_comments import CommentInfo, LikeInfo
@@ -25,6 +27,7 @@ from .platform import is_macos
 from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
+from .sidecars import SidecarWriter
 
 if is_macos:
     from .photosalbum import PhotosAlbum, PhotosAlbumPhotoScript
@@ -44,6 +47,7 @@ __all__ = [
     "CommentInfo",
     "ExifInfo",
     "ExifTool",
+    "ExifWriter",
     "ExportDB",
     "ExportDBTemp",
     "ExportOptions",
@@ -68,6 +72,7 @@ __all__ = [
     "QueryOptions",
     "ScoreInfo",
     "SearchInfo",
+    "SidecarWriter",
     "__version__",
     "is_debug",
     "logger",

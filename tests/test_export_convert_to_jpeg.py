@@ -3,7 +3,8 @@ import os
 import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.photoexporter import ExportOptions, PhotoExporter
+from osxphotos.exportoptions import ExportOptions
+from osxphotos.photoexporter import PhotoExporter
 
 skip_test = "OSXPHOTOS_TEST_CONVERT" not in os.environ
 pytestmark = pytest.mark.skipif(

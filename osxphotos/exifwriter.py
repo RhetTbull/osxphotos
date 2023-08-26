@@ -15,14 +15,16 @@ from typing import TYPE_CHECKING
 from ._constants import _MAX_IPTC_KEYWORD_LEN, _OSXPHOTOS_NONE_SENTINEL, _UNKNOWN_PERSON
 from .datetime_utils import datetime_tz_to_utc
 from .exiftool import ExifTool, ExifToolCaching, get_exiftool_path
+from .exportoptions import ExportOptions
 from .phototemplate import RenderOptions
 from .utils import noop
 
 if TYPE_CHECKING:
-    from .photoexporter import ExportOptions
     from .photoinfo import PhotoInfo
 
 logger = logging.getLogger("osxphotos")
+
+__all__ = ["ExifWriter", "ExifOptions", "exiftool_json_sidecar"]
 
 
 @dataclass
@@ -71,8 +73,8 @@ class ExifOptions:
         return dataclasses.asdict(self)
 
 
-def exif_options_from_export_options(export_options: ExportOptions) -> ExifOptions:
-    """Given an ExportOptions, which is a partial superset of ExifOptions, return an ExifOptions object"""
+def exif_options_from_options(export_options: ExportOptions) -> ExifOptions:
+    """Given an ExportOptions, which is a superset of ExifOptions, return an ExifOptions object"""
     fields = dataclasses.fields(ExifOptions)
     exif_options = ExifOptions()
     for field in fields:
@@ -83,7 +85,7 @@ def exif_options_from_export_options(export_options: ExportOptions) -> ExifOptio
 
 class ExifWriter:
     """Write EXIF & other metadata to files using exiftool for a Photo asset
-    
+
     Args:
         photo: PhotoInfo, the photo object to write metadata for
     """
@@ -515,3 +517,29 @@ def exiftool_caching(photo: SimpleNamespace) -> ExifToolCaching:
 
         photo._exiftool_caching = exiftool
         return photo._exiftool_caching
+
+
+def exiftool_json_sidecar(
+    photo: PhotoInfo,
+    options: ExportOptions | ExifOptions = None,
+    tag_groups: bool = True,
+    filename: str | None = None,
+) -> str:
+    """Return JSON dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
+        Does not include all the EXIF fields as those are likely already in the image.
+
+    Args:
+        options (ExportOptions or ExifOptions): options for export
+        tag_groups (bool, default=True): if True, include tag groups in the output
+        filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
+
+    Returns: JSON str with dict of exiftool tags / values
+    """
+    exif_options = (
+        exif_options_from_options(options)
+        if isinstance(options, ExportOptions)
+        else options
+    )
+    return ExifWriter(photo).exiftool_json_sidecar(
+        options=exif_options, tag_groups=tag_groups, filename=filename
+    )

@@ -8,40 +8,23 @@ import json
 import logging
 import os
 import pathlib
-import re
 import typing as t
-from dataclasses import asdict, dataclass
-from datetime import datetime
 from enum import Enum
-from types import SimpleNamespace
 
-from mako.template import Template
-
-from ._constants import (
-    _MAX_IPTC_KEYWORD_LEN,
-    _OSXPHOTOS_NONE_SENTINEL,
-    _TEMPLATE_DIR,
-    _UNKNOWN_PERSON,
-    _XMP_TEMPLATE_NAME,
-    _XMP_TEMPLATE_NAME_BETA,
-    DEFAULT_PREVIEW_SUFFIX,
-    LIVE_VIDEO_EXTENSIONS,
-    SIDECAR_EXIFTOOL,
-    SIDECAR_JSON,
-    SIDECAR_XMP,
-)
 from ._version import __version__
 from .exiftool import exiftool_can_write
-from .exifwriter import ExifWriter, exif_options_from_export_options
-from .export_db import ExportDB, ExportDBTemp
+from .exifwriter import ExifWriter, exif_options_from_options, exiftool_json_sidecar
+from .export_db import ExportDBTemp
+from .exportoptions import ExportOptions, ExportResults
 from .fileutil import FileUtil
 from .phototemplate import RenderOptions
 from .platform import is_macos
 from .rich_utils import add_rich_markup_tag
+from .sidecars import SidecarWriter
+from .touch_files import touch_files
 from .unicode import normalize_fs_path
 from .uti import get_preferred_uti_extension
 from .utils import (
-    hexdigest,
     increment_filename,
     increment_filename_with_count,
     lineno,
@@ -75,10 +58,6 @@ if t.TYPE_CHECKING:
 # retry if download_missing/use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
 
-# Global to hold the compiled XMP template
-# This is expensive to compile so we only want to do it once
-_global_xmp_template: Template | None = None
-
 
 # return values for _should_update_photo
 class ShouldUpdate(Enum):
@@ -97,120 +76,6 @@ class ExportError(Exception):
     """error during export"""
 
     pass
-
-
-@dataclass
-class ExportOptions:
-    """Options class for exporting photos with export
-
-    Attributes:
-        convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg
-        description_template (str): t.Optional template string that will be rendered for use as photo description
-        download_missing: (bool, default=False): if True will attempt to export photo via applescript interaction with Photos if missing (see also use_photokit, use_photos_export)
-        dry_run: (bool, default=False): set to True to run in "dry run" mode
-        edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
-        exiftool_flags (list of str): t.Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
-        exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
-        export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
-        export_db: (ExportDB): instance of a class that conforms to ExportDB with methods for getting/setting data related to exported files to compare update state
-        face_regions: (bool, default=True): if True, will export face regions
-        fileutil: (FileUtilABC): class that conforms to FileUtilABC with various file utilities
-        force_update: (bool, default=False): if True, will export photo if any metadata has changed but export otherwise would not be triggered (e.g. metadata changed but not using exiftool)
-        ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
-        ignore_signature (bool, default=False): ignore file signature when used with update (look only at filename)
-        increment (bool, default=True): if True, will increment file name until a non-existant name is found if overwrite=False and increment=False, export will fail if destination file already exists
-        jpeg_ext (str): if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
-        jpeg_quality (float in range 0.0 <= jpeg_quality <= 1.0): a value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
-        keyword_template (list of str): list of template strings that will be rendered as used as keywords
-        live_photo (bool, default=False): if True, will also export the associated .mov for live photos
-        location (bool): if True, include location in exported metadata
-        merge_exif_keywords (bool): if True, merged keywords found in file's exif data (requires exiftool)
-        merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)
-        overwrite (bool, default=False): if True will overwrite files if they already exist
-        persons (bool): if True, include persons in exported metadata
-        preview_suffix (str): t.Optional string to append to end of filename for preview images
-        preview (bool): if True, also exports preview image
-        raw_photo (bool, default=False): if True, will also export the associated RAW photo
-        render_options (RenderOptions): t.Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
-        replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
-        rich (bool): if True, will use rich markup with verbose output
-        export_aae (bool): if True, also exports adjustments as .AAE file
-        sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
-        sidecar: bit field (int): set to one or more of `SIDECAR_XMP`, `SIDECAR_JSON`, `SIDECAR_EXIFTOOL`
-          - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-          includes exiftool tag group names (e.g. `exiftool -G -j`)
-          - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-          does not include exiftool tag group names (e.g. `exiftool -j`)
-          - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
-        strip (bool): if True, strip whitespace from rendered templates
-        timeout (int, default=120): timeout in seconds used with use_photos_export
-        touch_file (bool, default=False): if True, sets file's modification time upon photo date
-        update (bool, default=False): if True export will run in update mode, that is, it will not export the photo if the current version already exists in the destination
-        update_errors (bool, default=False): if True photos that previously produced a warning or error will be re-exported; otherwise they will note be
-        use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
-        use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
-        use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos even if not missing (see also use_photokit, download_missing)
-        use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
-        verbose (callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
-        tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory
-        favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
-
-    """
-
-    convert_to_jpeg: bool = False
-    description_template: t.Optional[str] = None
-    download_missing: bool = False
-    dry_run: bool = False
-    edited: bool = False
-    exiftool_flags: t.Optional[t.List] = None
-    exiftool: bool = False
-    export_as_hardlink: bool = False
-    export_db: t.Optional[ExportDB] = None
-    face_regions: bool = True
-    fileutil: t.Optional[FileUtil] = None
-    force_update: bool = False
-    ignore_date_modified: bool = False
-    ignore_signature: bool = False
-    increment: bool = True
-    jpeg_ext: t.Optional[str] = None
-    jpeg_quality: float = 1.0
-    keyword_template: t.Optional[t.List[str]] = None
-    live_photo: bool = False
-    location: bool = True
-    merge_exif_keywords: bool = False
-    merge_exif_persons: bool = False
-    overwrite: bool = False
-    persons: bool = True
-    preview_suffix: str = DEFAULT_PREVIEW_SUFFIX
-    preview: bool = False
-    raw_photo: bool = False
-    render_options: t.Optional[RenderOptions] = None
-    replace_keywords: bool = False
-    rich: bool = False
-    export_aae: bool = False
-    sidecar_drop_ext: bool = False
-    sidecar: int = 0
-    strip: bool = False
-    timeout: int = 120
-    touch_file: bool = False
-    update: bool = False
-    update_errors: bool = False
-    use_albums_as_keywords: bool = False
-    use_persons_as_keywords: bool = False
-    use_photokit: bool = False
-    use_photos_export: bool = False
-    verbose: t.Optional[t.Callable] = None
-    tmpdir: t.Optional[str] = None
-    favorite_rating: bool = False
-
-    def asdict(self):
-        return asdict(self)
-
-    @property
-    def bit_flags(self):
-        """Return bit flags representing options that affect export"""
-        # currently only exiftool makes a difference
-        return self.exiftool << 1
 
 
 class StagedFiles:
@@ -264,195 +129,6 @@ class StagedFiles:
         }
 
 
-class ExportResults:
-    """Results class which holds export results for export
-
-    Args:
-        converted_to_jpeg: list of files converted to jpeg
-        deleted_directories: list of directories deleted
-        deleted_files: list of files deleted
-        error: list of tuples of (filename, error) for any errors generated during export
-        exif_updated: list of files where exif data was updated with exiftool
-        exiftool_error: list of tuples of (filename, error) for any errors generated by exiftool
-        exiftool_warning: list of tuples of (filename, warning) for any warnings generated by exiftool
-        exported: list of files exported
-        exported_album: list of tuples of (file, album) for any files exported to an album
-        metadata_changed: list of filenames that had metadata changes since last export
-        missing: list of files that were missing
-        missing_album: list of tuples of (file, album) for any files that were missing from an album
-        new: list of files that were new
-        aae_written: list of files where .AAE file was written
-        sidecar_exiftool_skipped: list of files where exiftool sidecar was skipped
-        sidecar_exiftool_written: list of files where exiftool sidecar was written
-        sidecar_json_skipped: list of files where json sidecar was skipped
-        sidecar_json_written: list of files where json sidecar was written
-        sidecar_xmp_skipped: list of files where xmp sidecar was skipped
-        sidecar_xmp_written: list of files where xmp sidecar was written
-        sidecar_user_written: list of files where user sidecar was written
-        sidecar_user_skipped: list of files where user sidecar was skipped
-        sidecar_user_error: list of tuples of (filename, error) for any errors generated by user sidecar
-        skipped: list of files that were skipped
-        skipped_album: list of tuples of (file, album) for any files that were skipped from an album
-        to_touch: list of files that were touched
-        touched: list of files that were touched
-        updated: list of files that were updated
-        xattr_skipped: list of files where xattr was skipped
-        xattr_written: list of files where xattr was written
-        user_written: list of files written by user post_function
-        user_skipped: list of files skipped by user post_function
-        user_error: list of tuples of (filename, error) for any errors generated by user post_function
-
-    Notes:
-        Each attribute is a list of files or None if no files for that attribute.
-        Error and warning attributes are a list of tuples of (filename, error) where filename is the file that caused the error and error is the error message.
-        Album attributes are a list of tuples of (file, album) where file is the file exported and album is the album it was exported to.
-        ExportResults can be added together with the += operator to combine results as the export progresses.
-    """
-
-    # Note: __init__ docs above added in the class docstring so they are picked up by sphinx
-
-    __slots__ = [
-        "_datetime",
-        "converted_to_jpeg",
-        "deleted_directories",
-        "deleted_files",
-        "error",
-        "exif_updated",
-        "exiftool_error",
-        "exiftool_warning",
-        "exported",
-        "exported_album",
-        "metadata_changed",
-        "missing",
-        "missing_album",
-        "new",
-        "aae_written",
-        "sidecar_exiftool_skipped",
-        "sidecar_exiftool_written",
-        "sidecar_json_skipped",
-        "sidecar_json_written",
-        "sidecar_xmp_skipped",
-        "sidecar_xmp_written",
-        "sidecar_user_written",
-        "sidecar_user_skipped",
-        "sidecar_user_error",
-        "skipped",
-        "skipped_album",
-        "to_touch",
-        "touched",
-        "updated",
-        "xattr_skipped",
-        "xattr_written",
-        "user_written",
-        "user_skipped",
-        "user_error",
-    ]
-
-    def __init__(
-        self,
-        converted_to_jpeg: list[str] | None = None,
-        deleted_directories: list[str] | None = None,
-        deleted_files: list[str] | None = None,
-        error: list[str] | None = None,
-        exif_updated: list[str] | None = None,
-        exiftool_error: list[tuple[str, str]] | None = None,
-        exiftool_warning: list[tuple[str, str]] | None = None,
-        exported: list[str] | None = None,
-        exported_album: list[tuple[str, str]] | None = None,
-        metadata_changed: list[str] | None = None,
-        missing: list[str] | None = None,
-        missing_album: list[tuple[str, str]] | None = None,
-        new: list[str] | None = None,
-        aae_written: list[str] | None = None,
-        sidecar_exiftool_skipped: list[str] | None = None,
-        sidecar_exiftool_written: list[str] | None = None,
-        sidecar_json_skipped: list[str] | None = None,
-        sidecar_json_written: list[str] | None = None,
-        sidecar_xmp_skipped: list[str] | None = None,
-        sidecar_xmp_written: list[str] | None = None,
-        sidecar_user_written: list[str] | None = None,
-        sidecar_user_skipped: list[str] | None = None,
-        sidecar_user_error: list[tuple[str, str]] | None = None,
-        skipped: list[str] | None = None,
-        skipped_album: list[tuple[str, str]] | None = None,
-        to_touch: list[str] | None = None,
-        touched: list[str] | None = None,
-        updated: list[str] | None = None,
-        xattr_skipped: list[str] | None = None,
-        xattr_written: list[str] | None = None,
-        user_written: list[str] | None = None,
-        user_skipped: list[str] | None = None,
-        user_error: list[tuple[str, str]] | None = None,
-    ):
-        """ExportResults data class to hold results of export.
-
-        See class docstring for details.
-        """
-        local_vars = locals()
-        self._datetime = datetime.now().isoformat()
-        for attr in self.attributes:
-            setattr(self, attr, local_vars.get(attr) or [])
-
-    @property
-    def attributes(self) -> t.List[str]:
-        """Return list of attributes tracked by ExportResults"""
-        return [attr for attr in self.__slots__ if not attr.startswith("_")]
-
-    @property
-    def datetime(self) -> str:
-        """Return datetime when ExportResults was created"""
-        return self._datetime
-
-    def all_files(self) -> t.List[str]:
-        """return all filenames contained in results"""
-        files = (
-            self.exported
-            + self.new
-            + self.updated
-            + self.skipped
-            + self.exif_updated
-            + self.touched
-            + self.converted_to_jpeg
-            + self.aae_written
-            + self.sidecar_json_written
-            + self.sidecar_json_skipped
-            + self.sidecar_exiftool_written
-            + self.sidecar_exiftool_skipped
-            + self.sidecar_xmp_written
-            + self.sidecar_xmp_skipped
-            + self.sidecar_user_written
-            + self.sidecar_user_skipped
-            + self.missing
-            + self.user_written
-            + self.user_skipped
-        )
-        files += [x[0] for x in self.exiftool_warning]
-        files += [x[0] for x in self.exiftool_error]
-        files += [x[0] for x in self.error]
-        files += [x[0] for x in self.sidecar_user_error]
-        files += [x[0] for x in self.user_error]
-
-        return list(set(files))
-
-    def __iadd__(self, other) -> "ExportResults":
-        if type(other) != ExportResults:
-            raise TypeError("Can only add ExportResults to ExportResults")
-
-        for attribute in self.attributes:
-            setattr(
-                self, attribute, getattr(self, attribute) + getattr(other, attribute)
-            )
-        return self
-
-    def __str__(self) -> str:
-        return (
-            "ExportResults("
-            + f"datetime={self._datetime}, "
-            + ", ".join([f"{attr}={getattr(self, attr)}" for attr in self.attributes])
-            + ")"
-        )
-
-
 class PhotoExporter:
     """Export a photo"""
 
@@ -460,7 +136,6 @@ class PhotoExporter:
         self.photo = photo
         self._render_options = RenderOptions()
         self._verbose = photo._verbose
-        self._exifwriter = ExifWriter(self.photo)
 
         # define functions for adding markup
         self._filepath = add_rich_markup_tag("filepath", rich=False)
@@ -678,30 +353,10 @@ class PhotoExporter:
 
         if options.export_aae:
             all_results += self._write_aae_file(dest=dest, options=options)
-        all_results += self._write_sidecar_files(dest=dest, options=options)
+        sidecar_writer = SidecarWriter(self.photo)
+        all_results += sidecar_writer.write_sidecar_files(dest=dest, options=options)
 
         return all_results
-
-    def exiftool_json_sidecar(
-        self,
-        options: ExportOptions | None = None,
-        tag_groups: bool = True,
-        filename: str | None = None,
-    ):
-        """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
-            Does not include all the EXIF fields as those are likely already in the image.
-
-        Args:
-            options (ExportOptions): options for export
-            tag_groups (bool, default=True): if True, include tag groups in the output
-            filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
-
-        Returns: dict with exiftool tags / values
-        """
-        exif_options = exif_options_from_export_options(options) if options else None
-        return self._exifwriter.exiftool_json_sidecar(
-            options=exif_options, tag_groups=tag_groups, filename=filename
-        )
 
     def _init_temp_dir(self, options: ExportOptions):
         """Initialize (if necessary) the object's temporary directory.
@@ -716,25 +371,6 @@ class PhotoExporter:
         self._temp_dir = fileutil.tmpdir(prefix="osxphotos_export_", dir=options.tmpdir)
         self._temp_dir_path = pathlib.Path(self._temp_dir.name)
         return
-
-    def _touch_files(
-        self, touch_files: t.List, options: ExportOptions
-    ) -> ExportResults:
-        """touch file date/time to match photo creation date/time; only touches files if needed"""
-        fileutil = options.fileutil
-        touch_results = []
-        for touch_file in set(touch_files):
-            ts = int(self.photo.date.timestamp())
-            try:
-                stat = os.stat(touch_file)
-                if stat.st_mtime != ts:
-                    fileutil.utime(touch_file, (ts, ts))
-                    touch_results.append(touch_file)
-            except FileNotFoundError as e:
-                # ignore errors if in dry_run as file may not be present
-                if not options.dry_run:
-                    raise e from e
-        return ExportResults(touched=touch_results)
 
     def _get_edited_filename(self, original_filename):
         """Return the filename for the exported edited photo
@@ -894,7 +530,7 @@ class PhotoExporter:
             return ShouldUpdate.UPDATE_ERRORS
 
         if options.exiftool:
-            current_exifdata = self.exiftool_json_sidecar(options=options)
+            current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
             rv = current_exifdata != file_record.exifdata
             # if using exiftool, don't need to continue checking edited below
             # as exiftool will be used to update edited file
@@ -1358,7 +994,8 @@ class PhotoExporter:
 
         # touch files if needed
         if options.touch_file:
-            results += self._touch_files(
+            results += touch_files(
+                self.photo,
                 exported_files
                 + update_new_files
                 + update_updated_files
@@ -1374,7 +1011,7 @@ class PhotoExporter:
             if not options.ignore_signature:
                 rec.dest_sig = fileutil.file_sig(dest)
             if options.exiftool:
-                rec.exifdata = self.exiftool_json_sidecar(options)
+                rec.exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
             if self.photo.hexdigest != rec.digest:
                 results.metadata_changed = [dest_str]
             rec.digest = self.photo.hexdigest
@@ -1546,147 +1183,6 @@ class PhotoExporter:
 
         return ExportResults(aae_written=[aae_dest])
 
-    def _write_sidecar_files(
-        self,
-        dest: pathlib.Path,
-        options: ExportOptions,
-    ) -> ExportResults:
-        """Write sidecar files for the photo."""
-
-        export_db = options.export_db
-        fileutil = options.fileutil
-        verbose = options.verbose or self._verbose
-
-        # export metadata
-        sidecars = []
-        sidecar_json_files_skipped = []
-        sidecar_json_files_written = []
-        sidecar_exiftool_files_skipped = []
-        sidecar_exiftool_files_written = []
-        sidecar_xmp_files_skipped = []
-        sidecar_xmp_files_written = []
-
-        dest_suffix = "" if options.sidecar_drop_ext else dest.suffix
-        if options.sidecar & SIDECAR_JSON:
-            sidecar_filename = dest.parent / pathlib.Path(
-                f"{dest.stem}{dest_suffix}.json"
-            )
-            sidecar_str = self.exiftool_json_sidecar(
-                filename=dest.name, options=options
-            )
-            sidecars.append(
-                (
-                    sidecar_filename,
-                    sidecar_str,
-                    sidecar_json_files_written,
-                    sidecar_json_files_skipped,
-                    "JSON",
-                )
-            )
-
-        if options.sidecar & SIDECAR_EXIFTOOL:
-            sidecar_filename = dest.parent / pathlib.Path(
-                f"{dest.stem}{dest_suffix}.json"
-            )
-            sidecar_str = self.exiftool_json_sidecar(
-                tag_groups=False, filename=dest.name, options=options
-            )
-            sidecars.append(
-                (
-                    sidecar_filename,
-                    sidecar_str,
-                    sidecar_exiftool_files_written,
-                    sidecar_exiftool_files_skipped,
-                    "exiftool",
-                )
-            )
-
-        if options.sidecar & SIDECAR_XMP:
-            sidecar_filename = dest.parent / pathlib.Path(
-                f"{dest.stem}{dest_suffix}.xmp"
-            )
-            sidecar_str = self._xmp_sidecar(
-                extension=dest.suffix[1:] if dest.suffix else None, options=options
-            )
-            sidecars.append(
-                (
-                    sidecar_filename,
-                    sidecar_str,
-                    sidecar_xmp_files_written,
-                    sidecar_xmp_files_skipped,
-                    "XMP",
-                )
-            )
-
-        for data in sidecars:
-            sidecar_filename = data[0]
-            sidecar_str = data[1]
-            files_written = data[2]
-            files_skipped = data[3]
-            sidecar_type = data[4]
-
-            sidecar_digest = hexdigest(sidecar_str)
-            sidecar_record = export_db.create_or_get_file_record(
-                sidecar_filename, self.photo.uuid
-            )
-            write_sidecar = (
-                not (options.update or options.force_update)
-                or (
-                    (options.update or options.force_update)
-                    and not sidecar_filename.exists()
-                )
-                or (
-                    (options.update or options.force_update)
-                    and (sidecar_digest != sidecar_record.digest)
-                    or not fileutil.cmp_file_sig(
-                        sidecar_filename, sidecar_record.dest_sig
-                    )
-                )
-            )
-            if write_sidecar:
-                verbose(
-                    f"Writing {sidecar_type} sidecar {self._filepath(sidecar_filename)}"
-                )
-                files_written.append(str(sidecar_filename))
-                if not options.dry_run:
-                    self._write_sidecar(sidecar_filename, sidecar_str)
-                    sidecar_record.digest = sidecar_digest
-                    sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
-            else:
-                verbose(
-                    f"Skipped up to date {sidecar_type} sidecar {self._filepath(sidecar_filename)}"
-                )
-                files_skipped.append(str(sidecar_filename))
-
-        results = ExportResults(
-            sidecar_json_written=sidecar_json_files_written,
-            sidecar_json_skipped=sidecar_json_files_skipped,
-            sidecar_exiftool_written=sidecar_exiftool_files_written,
-            sidecar_exiftool_skipped=sidecar_exiftool_files_skipped,
-            sidecar_xmp_written=sidecar_xmp_files_written,
-            sidecar_xmp_skipped=sidecar_xmp_files_skipped,
-        )
-
-        if options.touch_file:
-            all_sidecars = (
-                sidecar_json_files_written
-                + sidecar_exiftool_files_written
-                + sidecar_xmp_files_written
-                + sidecar_json_files_skipped
-                + sidecar_exiftool_files_skipped
-                + sidecar_xmp_files_skipped
-            )
-            results += self._touch_files(all_sidecars, options)
-
-            # update destination signatures in database
-            for sidecar_filename in all_sidecars:
-                sidecar_record = export_db.create_or_get_file_record(
-                    sidecar_filename, self.photo.uuid
-                )
-                sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
-
-        return results
-
     def write_exiftool_metadata_to_file(
         self,
         src,
@@ -1724,7 +1220,9 @@ class PhotoExporter:
         )
         if not options.dry_run:
             writer = ExifWriter(self.photo)
-            warning_, error_ = writer.write_exif_data(src, options=options)
+            warning_, error_ = writer.write_exif_data(
+                src, options=exif_options_from_options(options)
+            )
             if warning_:
                 exiftool_results.exiftool_warning.append((str(dest), str(warning_)))
             if error_:
@@ -1744,7 +1242,9 @@ class PhotoExporter:
             old_data = exif_record.exifdata if exif_record else None
             if old_data is not None:
                 old_data = json.loads(old_data)[0]
-                current_data = json.loads(self.exiftool_json_sidecar(options=options))
+                current_data = json.loads(
+                    exiftool_json_sidecar(photo=self.photo, options=options)
+                )
                 current_data = current_data[0]
                 if old_data != current_data:
                     files_are_different = True
@@ -1754,156 +1254,6 @@ class PhotoExporter:
                 # or files were different
                 run_exiftool = True
         return run_exiftool
-
-    def _xmp_sidecar(
-        self,
-        options: t.Optional[ExportOptions] = None,
-        extension: t.Optional[str] = None,
-    ):
-        """returns string for XMP sidecar
-
-        Args:
-            options (ExportOptions): options for export
-            extension (t.Optional[str]): which extension to use for SidecarForExtension property
-        """
-
-        options = options or ExportOptions()
-
-        xmp_template = self._xmp_template()
-
-        if extension is None:
-            extension = pathlib.Path(self.photo.original_filename)
-            extension = extension.suffix[1:] if extension.suffix else None
-
-        if options.description_template is not None:
-            render_options = dataclasses.replace(
-                self._render_options, expand_inplace=True, inplace_sep=", "
-            )
-            rendered = self.photo.render_template(
-                options.description_template, render_options
-            )[0]
-            description = " ".join(rendered) if rendered else ""
-            if options.strip:
-                description = description.strip()
-        else:
-            description = (
-                self.photo.description if self.photo.description is not None else ""
-            )
-
-        keyword_list = []
-        if options.merge_exif_keywords:
-            keyword_list.extend(self._get_exif_keywords())
-
-        if self.photo.keywords and not options.replace_keywords:
-            keyword_list.extend(self.photo.keywords)
-
-        # TODO: keyword handling in this and _exiftool_json_sidecar is
-        # good candidate for pulling out in a function
-
-        person_list = []
-        if options.persons:
-            if options.merge_exif_persons:
-                person_list.extend(self._get_exif_persons())
-
-            if self.photo.persons:
-                # filter out _UNKNOWN_PERSON
-                person_list.extend(
-                    [p for p in self.photo.persons if p != _UNKNOWN_PERSON]
-                )
-
-            if options.use_persons_as_keywords and person_list:
-                keyword_list.extend(person_list)
-
-        if options.use_albums_as_keywords and self.photo.albums:
-            keyword_list.extend(self.photo.albums)
-
-        if options.keyword_template:
-            rendered_keywords = []
-            render_options = dataclasses.replace(
-                self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
-            )
-            for template_str in options.keyword_template:
-                rendered, unmatched = self.photo.render_template(
-                    template_str, render_options
-                )
-                if unmatched:
-                    logging.warning(
-                        f"Unmatched template substitution for template: {template_str} {unmatched}"
-                    )
-                rendered_keywords.extend(rendered)
-
-            if options.strip:
-                rendered_keywords = [keyword.strip() for keyword in rendered_keywords]
-
-            # filter out any template values that didn't match by looking for sentinel
-            rendered_keywords = [
-                keyword
-                for keyword in rendered_keywords
-                if _OSXPHOTOS_NONE_SENTINEL not in keyword
-            ]
-
-            keyword_list.extend(rendered_keywords)
-
-        # remove duplicates
-        # sorted mainly to make testing the XMP file easier
-        if keyword_list:
-            keyword_list = sorted(list(set(keyword_list)))
-        if options.persons and person_list:
-            person_list = sorted(list(set(person_list)))
-
-        subject_list = keyword_list
-
-        latlon = self.photo.location if options.location else (None, None)
-
-        if options.favorite_rating:
-            rating = 5 if self.photo.favorite else 0
-        else:
-            rating = None
-
-        xmp_str = xmp_template.render(
-            photo=self.photo,
-            description=description,
-            keywords=keyword_list,
-            persons=person_list,
-            subjects=subject_list,
-            extension=extension,
-            location=latlon,
-            version=__version__,
-            rating=rating,
-        )
-
-        # remove extra lines that mako inserts from template
-        xmp_str = "\n".join(line for line in xmp_str.split("\n") if line.strip() != "")
-        return xmp_str
-
-    def _xmp_template(self):
-        """Return the mako template for XMP sidecar, creating it if necessary"""
-        global _global_xmp_template
-        if _global_xmp_template is not None:
-            return _global_xmp_template
-
-        xmp_template_file = (
-            _XMP_TEMPLATE_NAME_BETA if self.photo._db._beta else _XMP_TEMPLATE_NAME
-        )
-        _global_xmp_template = Template(
-            filename=os.path.join(_TEMPLATE_DIR, xmp_template_file)
-        )
-        return _global_xmp_template
-
-    def _write_sidecar(self, filename, sidecar_str):
-        """write sidecar_str to filename
-        used for exporting sidecar info"""
-        if not (filename or sidecar_str):
-            raise (
-                ValueError(
-                    f"filename {filename} and sidecar_str {sidecar_str} must not be None"
-                )
-            )
-
-        # TODO: catch exception?
-        f = open(filename, "w")
-        f.write(sidecar_str)
-        f.close()
 
 
 def _check_export_suffix(src, dest, edited):
