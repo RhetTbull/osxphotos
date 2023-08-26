@@ -32,7 +32,7 @@ from ._constants import (
 )
 from ._version import __version__
 from .exiftool import exiftool_can_write
-from .exifwriter import ExifWriter
+from .exifwriter import ExifWriter, exif_options_from_export_options
 from .export_db import ExportDB, ExportDBTemp
 from .fileutil import FileUtil
 from .phototemplate import RenderOptions
@@ -45,7 +45,6 @@ from .utils import (
     increment_filename,
     increment_filename_with_count,
     lineno,
-    list_directory,
     lock_filename,
     unlock_filename,
 )
@@ -699,8 +698,9 @@ class PhotoExporter:
 
         Returns: dict with exiftool tags / values
         """
+        exif_options = exif_options_from_export_options(options) if options else None
         return self._exifwriter.exiftool_json_sidecar(
-            options=options, tag_groups=tag_groups, filename=filename
+            options=exif_options, tag_groups=tag_groups, filename=filename
         )
 
     def _init_temp_dir(self, options: ExportOptions):

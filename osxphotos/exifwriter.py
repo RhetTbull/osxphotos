@@ -10,14 +10,9 @@ import pathlib
 import re
 from dataclasses import dataclass
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING
 
-from ._constants import (
-    _MAX_IPTC_KEYWORD_LEN,
-    _OSXPHOTOS_NONE_SENTINEL,
-    _UNKNOWN_PERSON,
-    DEFAULT_PREVIEW_SUFFIX,
-)
+from ._constants import _MAX_IPTC_KEYWORD_LEN, _OSXPHOTOS_NONE_SENTINEL, _UNKNOWN_PERSON
 from .datetime_utils import datetime_tz_to_utc
 from .exiftool import ExifTool, ExifToolCaching, get_exiftool_path
 from .phototemplate import RenderOptions
@@ -35,113 +30,55 @@ class ExifOptions:
     """Options class for writing metadata to files using exiftool
 
     Attributes:
-        convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg
         description_template (str): Optional template string that will be rendered for use as photo description
-        download_missing: (bool, default=False): if True will attempt to export photo via applescript interaction with Photos if missing (see also use_photokit, use_photos_export)
-        dry_run: (bool, default=False): set to True to run in "dry run" mode
-        edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
         exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
         exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
-        export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
-        export_db: (ExportDB): instance of a class that conforms to ExportDB with methods for getting/setting data related to exported files to compare update state
         face_regions: (bool, default=True): if True, will export face regions
-        fileutil: (FileUtilABC): class that conforms to FileUtilABC with various file utilities
-        force_update: (bool, default=False): if True, will export photo if any metadata has changed but export otherwise would not be triggered (e.g. metadata changed but not using exiftool)
         ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
-        ignore_signature (bool, default=False): ignore file signature when used with update (look only at filename)
-        increment (bool, default=True): if True, will increment file name until a non-existant name is found if overwrite=False and increment=False, export will fail if destination file already exists
-        jpeg_ext (str): if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
-        jpeg_quality (float in range 0.0 <= jpeg_quality <= 1.0): a value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
         keyword_template (list of str): list of template strings that will be rendered as used as keywords
-        live_photo (bool, default=False): if True, will also export the associated .mov for live photos
         location (bool): if True, include location in exported metadata
         merge_exif_keywords (bool): if True, merged keywords found in file's exif data (requires exiftool)
         merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)
-        overwrite (bool, default=False): if True will overwrite files if they already exist
         persons (bool): if True, include persons in exported metadata
-        preview_suffix (str): Optional string to append to end of filename for preview images
-        preview (bool): if True, also exports preview image
-        raw_photo (bool, default=False): if True, will also export the associated RAW photo
         render_options (RenderOptions): Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
         replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
-        rich (bool): if True, will use rich markup with verbose output
-        export_aae (bool): if True, also exports adjustments as .AAE file
-        sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
-        sidecar: bit field (int): set to one or more of `SIDECAR_XMP`, `SIDECAR_JSON`, `SIDECAR_EXIFTOOL`
-          - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-          includes exiftool tag group names (e.g. `exiftool -G -j`)
-          - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-          does not include exiftool tag group names (e.g. `exiftool -j`)
-          - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
         strip (bool): if True, strip whitespace from rendered templates
-        timeout (int, default=120): timeout in seconds used with use_photos_export
-        touch_file (bool, default=False): if True, sets file's modification time upon photo date
-        update (bool, default=False): if True export will run in update mode, that is, it will not export the photo if the current version already exists in the destination
-        update_errors (bool, default=False): if True photos that previously produced a warning or error will be re-exported; otherwise they will note be
         use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
         use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
-        use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos even if not missing (see also use_photokit, download_missing)
-        use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
-        verbose (callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
-        tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory
         favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
-
     """
 
-    convert_to_jpeg: bool = False
-    description_template: Optional[str] = None
-    download_missing: bool = False
-    dry_run: bool = False
-    edited: bool = False
-    exiftool_flags: Optional[t.List] = None
+    description_template: str | None = None
+    exiftool_flags: list[str] | None = None
     exiftool: bool = False
-    export_as_hardlink: bool = False
-    export_db: Optional[ExportDB] = None
     face_regions: bool = True
-    fileutil: Optional[FileUtil] = None
-    force_update: bool = False
     ignore_date_modified: bool = False
-    ignore_signature: bool = False
-    increment: bool = True
-    jpeg_ext: Optional[str] = None
-    jpeg_quality: float = 1.0
-    keyword_template: Optional[t.List[str]] = None
-    live_photo: bool = False
+    keyword_template: list[str] | None = None
     location: bool = True
     merge_exif_keywords: bool = False
     merge_exif_persons: bool = False
-    overwrite: bool = False
     persons: bool = True
-    preview_suffix: str = DEFAULT_PREVIEW_SUFFIX
-    preview: bool = False
-    raw_photo: bool = False
-    render_options: Optional[RenderOptions] = None
+    render_options: RenderOptions | None = None
     replace_keywords: bool = False
-    rich: bool = False
-    export_aae: bool = False
-    sidecar_drop_ext: bool = False
-    sidecar: int = 0
     strip: bool = False
-    timeout: int = 120
-    touch_file: bool = False
-    update: bool = False
-    update_errors: bool = False
     use_albums_as_keywords: bool = False
     use_persons_as_keywords: bool = False
     use_photokit: bool = False
     use_photos_export: bool = False
-    verbose: Optional[Callable] = None
-    tmpdir: Optional[str] = None
     favorite_rating: bool = False
 
     def asdict(self):
         return dataclasses.asdict(self)
 
-    @property
-    def bit_flags(self):
-        """Return bit flags representing options that affect export"""
-        # currently only exiftool makes a difference
-        return self.exiftool << 1
+
+def exif_options_from_export_options(export_options: ExportOptions) -> ExifOptions:
+    """Given an ExportOptions, which is a partial superset of ExifOptions, return an ExifOptions object"""
+    fields = dataclasses.fields(ExifOptions)
+    exif_options = ExifOptions()
+    for field in fields:
+        if field.name in export_options.__dict__:
+            setattr(exif_options, field.name, export_options.__dict__[field.name])
+    return exif_options
 
 
 class ExifWriter:
@@ -156,7 +93,7 @@ class ExifWriter:
         self.photo = photo
         self._render_options = RenderOptions()
 
-    def write_exif_data(self, filepath: str | pathlib.Path, options: ExportOptions):
+    def write_exif_data(self, filepath: str | pathlib.Path, options: ExifOptions):
         """write exif data to image file at filepath
 
         Args:
@@ -184,14 +121,14 @@ class ExifWriter:
 
     def exiftool_dict(
         self,
-        options: Optional[ExportOptions] = None,
-        filename: Optional[str] = None,
+        options: ExifOptions | None = None,
+        filename: str | None = None,
     ):
         """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
             Does not include all the EXIF fields as those are likely already in the image.
 
         Args:
-            options (ExportOptions): options for export
+            options (ExifOptions): options for export
             filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
         Returns: dict with exiftool tags / values
@@ -494,15 +431,15 @@ class ExifWriter:
 
     def exiftool_json_sidecar(
         self,
-        options: Optional[ExportOptions] = None,
+        options: ExifOptions | None = None,
         tag_groups: bool = True,
-        filename: Optional[str] = None,
+        filename: str | None = None,
     ) -> str:
         """Return JSON dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
             Does not include all the EXIF fields as those are likely already in the image.
 
         Args:
-            options (ExportOptions): options for export
+            options (ExifOptions): options for export
             tag_groups (bool, default=True): if True, include tag groups in the output
             filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
