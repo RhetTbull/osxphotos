@@ -31,13 +31,19 @@ __all__ = ["ExifWriter", "ExifOptions", "exiftool_json_sidecar"]
 class ExifOptions:
     """Options class for writing metadata to files using exiftool
 
+    all keywords location faces date title description favorite
+
     Attributes:
+        datetime (bool): if True, include date/time in exported metadata
+        description (bool): if True, include description in exported metadata
         description_template (str): Optional template string that will be rendered for use as photo description
-        exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
         exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
+        exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
         face_regions: (bool, default=True): if True, will export face regions
+        favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
         ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
         keyword_template (list of str): list of template strings that will be rendered as used as keywords
+        keywords (bool): if True, include keywords in exported metadata
         location (bool): if True, include location in exported metadata
         merge_exif_keywords (bool): if True, merged keywords found in file's exif data (requires exiftool)
         merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)
@@ -45,17 +51,21 @@ class ExifOptions:
         render_options (RenderOptions): Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
         replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
         strip (bool): if True, strip whitespace from rendered templates
+        title (bool): if True, include title in exported metadata
         use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
         use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
-        favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
     """
 
+    datetime: bool = True
+    description: bool = True
     description_template: str | None = None
-    exiftool_flags: list[str] | None = None
     exiftool: bool = False
+    exiftool_flags: list[str] | None = None
     face_regions: bool = True
+    favorite_rating: bool = False
     ignore_date_modified: bool = False
     keyword_template: list[str] | None = None
+    keywords: bool = True
     location: bool = True
     merge_exif_keywords: bool = False
     merge_exif_persons: bool = False
@@ -63,11 +73,9 @@ class ExifOptions:
     render_options: RenderOptions | None = None
     replace_keywords: bool = False
     strip: bool = False
+    title: bool = True
     use_albums_as_keywords: bool = False
     use_persons_as_keywords: bool = False
-    use_photokit: bool = False
-    use_photos_export: bool = False
-    favorite_rating: bool = False
 
     def asdict(self):
         return dataclasses.asdict(self)
@@ -182,36 +190,35 @@ class ExifWriter:
             else {}
         )
 
-        if options.description_template is not None:
-            render_options = dataclasses.replace(
-                self._render_options, expand_inplace=True, inplace_sep=", "
-            )
-            rendered = self.photo.render_template(
-                options.description_template, render_options
-            )[0]
-            description = " ".join(rendered) if rendered else ""
-            if options.strip:
-                description = description.strip()
-            exif["EXIF:ImageDescription"] = description
-            exif["XMP:Description"] = description
-            exif["IPTC:Caption-Abstract"] = description
-        elif self.photo.description:
-            exif["EXIF:ImageDescription"] = self.photo.description
-            exif["XMP:Description"] = self.photo.description
-            exif["IPTC:Caption-Abstract"] = self.photo.description
+        if options.description:
+            description = ""
+            if options.description_template is not None:
+                # render description template and use that
+                render_options = dataclasses.replace(
+                    self._render_options, expand_inplace=True, inplace_sep=", "
+                )
+                rendered = self.photo.render_template(
+                    options.description_template, render_options
+                )[0]
+                description = " ".join(rendered) if rendered else ""
+                if options.strip:
+                    description = description.strip()
+            else:
+                # use photos' description
+                description = self.photo.description
+            if description:
+                exif["EXIF:ImageDescription"] = description
+                exif["XMP:Description"] = description
+                exif["IPTC:Caption-Abstract"] = description
 
-        if self.photo.title:
+        if options.title and self.photo.title:
             exif["XMP:Title"] = self.photo.title
             exif["IPTC:ObjectName"] = self.photo.title
 
-        keyword_list = []
-        if options.merge_exif_keywords:
-            keyword_list.extend(self._get_exif_keywords())
-
-        if self.photo.keywords and not options.replace_keywords:
-            keyword_list.extend(self.photo.keywords)
-
+        # do persons and keywords
+        # keywords can contain persons and albums
         person_list = []
+        keyword_list = []
         if options.persons:
             if options.merge_exif_persons:
                 person_list.extend(self._get_exif_persons())
@@ -225,53 +232,67 @@ class ExifWriter:
             if options.use_persons_as_keywords and person_list:
                 keyword_list.extend(person_list)
 
-        if options.use_albums_as_keywords and self.photo.albums:
-            keyword_list.extend(self.photo.albums)
+        if options.keywords:
+            if options.merge_exif_keywords:
+                keyword_list.extend(self._get_exif_keywords())
 
-        if options.keyword_template:
-            rendered_keywords = []
-            render_options = dataclasses.replace(
-                self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
-            )
-            for template_str in options.keyword_template:
-                rendered, unmatched = self.photo.render_template(
-                    template_str, render_options
+            if self.photo.keywords and not options.replace_keywords:
+                keyword_list.extend(self.photo.keywords)
+
+            if options.use_albums_as_keywords and self.photo.albums:
+                keyword_list.extend(self.photo.albums)
+
+            if options.keyword_template:
+                rendered_keywords = []
+                render_options = dataclasses.replace(
+                    self._render_options,
+                    none_str=_OSXPHOTOS_NONE_SENTINEL,
+                    path_sep="/",
                 )
-                if unmatched:
-                    logger.warning(
-                        f"Unmatched template substitution for template: {template_str} {unmatched}"
+                for template_str in options.keyword_template:
+                    rendered, unmatched = self.photo.render_template(
+                        template_str, render_options
                     )
-                rendered_keywords.extend(rendered)
+                    if unmatched:
+                        logger.warning(
+                            f"Unmatched template substitution for template: {template_str} {unmatched}"
+                        )
+                    rendered_keywords.extend(rendered)
 
-            if options.strip:
-                rendered_keywords = [keyword.strip() for keyword in rendered_keywords]
+                if options.strip:
+                    rendered_keywords = [
+                        keyword.strip() for keyword in rendered_keywords
+                    ]
 
-            # filter out any template values that didn't match by looking for sentinel
-            rendered_keywords = [
-                keyword
-                for keyword in sorted(rendered_keywords)
-                if _OSXPHOTOS_NONE_SENTINEL not in keyword
-            ]
+                # filter out any template values that didn't match by looking for sentinel
+                rendered_keywords = [
+                    keyword
+                    for keyword in sorted(rendered_keywords)
+                    if _OSXPHOTOS_NONE_SENTINEL not in keyword
+                ]
 
-            # check to see if any keywords too long
-            long_keywords = [
-                long_str
-                for long_str in rendered_keywords
-                if len(long_str) > _MAX_IPTC_KEYWORD_LEN
-            ]
-            if long_keywords:
-                logger.warning(
-                    f"Warning: some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN} (exiftool will truncate these): {long_keywords}"
+                # check to see if any keywords too long
+                long_keywords = [
+                    long_str
+                    for long_str in rendered_keywords
+                    if len(long_str) > _MAX_IPTC_KEYWORD_LEN
+                ]
+                if long_keywords:
+                    logger.warning(
+                        f"Warning: some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN} (exiftool will truncate these): {long_keywords}"
+                    )
+
+                keyword_list.extend(rendered_keywords)
+
+            if keyword_list:
+                # remove duplicates
+                keyword_list = sorted(
+                    list(set(str(keyword) for keyword in keyword_list))
                 )
-
-            keyword_list.extend(rendered_keywords)
-
-        if keyword_list:
-            # remove duplicates
-            keyword_list = sorted(list(set(str(keyword) for keyword in keyword_list)))
-            exif["IPTC:Keywords"] = keyword_list.copy()
-            exif["XMP:Subject"] = keyword_list.copy()
-            exif["XMP:TagsList"] = keyword_list.copy()
+                keyword_list = keyword_list.copy()
+                exif["IPTC:Keywords"] = keyword_list
+                exif["XMP:Subject"] = keyword_list
+                exif["XMP:TagsList"] = keyword_list
 
         if options.persons and person_list:
             person_list = sorted(list(set(person_list)))
@@ -311,58 +332,61 @@ class ExifWriter:
         # This code deviates from Photos in one regard:
         # if photo has modification date, use it otherwise use creation date
 
-        date = self.photo.date
-        offsettime = date.strftime("%z")
-        # find timezone offset in format "-04:00"
-        offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
-        offset = offset[0]  # findall returns list of tuples
-        offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
+        if options.datetime:
+            date = self.photo.date
+            offsettime = date.strftime("%z")
+            # find timezone offset in format "-04:00"
+            offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
+            offset = offset[0]  # findall returns list of tuples
+            offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
 
-        # exiftool expects format to "2015:01:18 12:00:00"
-        datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
+            # exiftool expects format to "2015:01:18 12:00:00"
+            datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
 
-        if self.photo.isphoto:
-            exif["EXIF:DateTimeOriginal"] = datetimeoriginal
-            exif["EXIF:CreateDate"] = datetimeoriginal
-            exif["EXIF:OffsetTimeOriginal"] = offsettime
+            if self.photo.isphoto:
+                exif["EXIF:DateTimeOriginal"] = datetimeoriginal
+                exif["EXIF:CreateDate"] = datetimeoriginal
+                exif["EXIF:OffsetTimeOriginal"] = offsettime
 
-            dateoriginal = date.strftime("%Y:%m:%d")
-            exif["IPTC:DateCreated"] = dateoriginal
+                dateoriginal = date.strftime("%Y:%m:%d")
+                exif["IPTC:DateCreated"] = dateoriginal
 
-            timeoriginal = date.strftime(f"%H:%M:%S{offsettime}")
-            exif["IPTC:TimeCreated"] = timeoriginal
+                timeoriginal = date.strftime(f"%H:%M:%S{offsettime}")
+                exif["IPTC:TimeCreated"] = timeoriginal
 
-            if (
-                self.photo.date_modified is not None
-                and not options.ignore_date_modified
-            ):
-                exif["EXIF:ModifyDate"] = self.photo.date_modified.strftime(
-                    "%Y:%m:%d %H:%M:%S"
-                )
-            else:
-                exif["EXIF:ModifyDate"] = self.photo.date.strftime("%Y:%m:%d %H:%M:%S")
-        elif self.photo.ismovie:
-            # QuickTime spec specifies times in UTC
-            # QuickTime:CreateDate and ModifyDate are in UTC w/ no timezone
-            # QuickTime:CreationDate must include time offset or Photos shows invalid values
-            # reference: https://exiftool.org/TagNames/QuickTime.html#Keys
-            #            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369
-            exif["QuickTime:CreationDate"] = f"{datetimeoriginal}{offsettime}"
+                if (
+                    self.photo.date_modified is not None
+                    and not options.ignore_date_modified
+                ):
+                    exif["EXIF:ModifyDate"] = self.photo.date_modified.strftime(
+                        "%Y:%m:%d %H:%M:%S"
+                    )
+                else:
+                    exif["EXIF:ModifyDate"] = self.photo.date.strftime(
+                        "%Y:%m:%d %H:%M:%S"
+                    )
+            elif self.photo.ismovie:
+                # QuickTime spec specifies times in UTC
+                # QuickTime:CreateDate and ModifyDate are in UTC w/ no timezone
+                # QuickTime:CreationDate must include time offset or Photos shows invalid values
+                # reference: https://exiftool.org/TagNames/QuickTime.html#Keys
+                #            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369
+                exif["QuickTime:CreationDate"] = f"{datetimeoriginal}{offsettime}"
 
-            # also add QuickTime:ContentCreateDate
-            # reference: https://github.com/RhetTbull/osxphotos/pull/888
-            # exiftool writes this field with timezone so include it here
-            exif["QuickTime:ContentCreateDate"] = f"{datetimeoriginal}{offsettime}"
+                # also add QuickTime:ContentCreateDate
+                # reference: https://github.com/RhetTbull/osxphotos/pull/888
+                # exiftool writes this field with timezone so include it here
+                exif["QuickTime:ContentCreateDate"] = f"{datetimeoriginal}{offsettime}"
 
-            date_utc = datetime_tz_to_utc(date)
-            creationdate = date_utc.strftime("%Y:%m:%d %H:%M:%S")
-            exif["QuickTime:CreateDate"] = creationdate
-            if self.photo.date_modified is None or options.ignore_date_modified:
-                exif["QuickTime:ModifyDate"] = creationdate
-            else:
-                exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
-                    self.photo.date_modified
-                ).strftime("%Y:%m:%d %H:%M:%S")
+                date_utc = datetime_tz_to_utc(date)
+                creationdate = date_utc.strftime("%Y:%m:%d %H:%M:%S")
+                exif["QuickTime:CreateDate"] = creationdate
+                if self.photo.date_modified is None or options.ignore_date_modified:
+                    exif["QuickTime:ModifyDate"] = creationdate
+                else:
+                    exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
+                        self.photo.date_modified
+                    ).strftime("%Y:%m:%d %H:%M:%S")
 
         return exif
 
