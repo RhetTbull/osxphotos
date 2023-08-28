@@ -530,7 +530,9 @@ class PhotoExporter:
             return ShouldUpdate.UPDATE_ERRORS
 
         if options.exiftool:
-            current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
+            current_exifdata = exiftool_json_sidecar(
+                photo=self.photo, options=options, filepath=self.photo.path
+            )
             rv = current_exifdata != file_record.exifdata
             # if using exiftool, don't need to continue checking edited below
             # as exiftool will be used to update edited file
@@ -1011,7 +1013,9 @@ class PhotoExporter:
             if not options.ignore_signature:
                 rec.dest_sig = fileutil.file_sig(dest)
             if options.exiftool:
-                rec.exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
+                rec.exifdata = exiftool_json_sidecar(
+                    photo=self.photo, options=options, filepath=self.photo.path
+                )
             if self.photo.hexdigest != rec.digest:
                 results.metadata_changed = [dest_str]
             rec.digest = self.photo.hexdigest
@@ -1243,7 +1247,9 @@ class PhotoExporter:
             if old_data is not None:
                 old_data = json.loads(old_data)[0]
                 current_data = json.loads(
-                    exiftool_json_sidecar(photo=self.photo, options=options)
+                    exiftool_json_sidecar(
+                        photo=self.photo, options=options, filepath=self.photo.path
+                    )
                 )
                 current_data = current_data[0]
                 if old_data != current_data:

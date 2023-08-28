@@ -94,7 +94,10 @@ class SidecarWriter:
                 f"{dest.stem}{dest_suffix}.json"
             )
             sidecar_str = exiftool_json_sidecar(
-                photo=self.photo, filename=dest.name, options=exif_options
+                photo=self.photo,
+                filepath=self.photo.path,
+                filename=dest.name,
+                options=exif_options,
             )
             sidecars.append(
                 (
@@ -113,6 +116,7 @@ class SidecarWriter:
             sidecar_str = exiftool_json_sidecar(
                 photo=self.photo,
                 tag_groups=False,
+                filepath=self.photo.path,
                 filename=dest.name,
                 options=exif_options,
             )

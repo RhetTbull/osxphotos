@@ -2728,8 +2728,12 @@ def write_finder_tags(
             merge_exif_keywords=exiftool_merge_keywords,
             rich=True,
         )
+        # TODO: Need a better way to do this
+        # use photo.path as the source for EXIF if merge is used
+        # this means that if file is not present (e.g. export done with photokit)
+        # then the tags won't be available for merging
         exif = ExifWriter(photo).exiftool_dict(
-            options=exif_options_from_options(export_options)
+            options=exif_options_from_options(export_options), filepath=photo.path,
         )
         try:
             if exif["IPTC:Keywords"]:

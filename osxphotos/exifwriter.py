@@ -9,8 +9,7 @@ import os
 import pathlib
 import re
 from dataclasses import dataclass
-from types import SimpleNamespace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ._constants import _MAX_IPTC_KEYWORD_LEN, _OSXPHOTOS_NONE_SENTINEL, _UNKNOWN_PERSON
 from .datetime_utils import datetime_tz_to_utc
@@ -37,7 +36,6 @@ class ExifOptions:
         datetime (bool): if True, include date/time in exported metadata
         description (bool): if True, include description in exported metadata
         description_template (str): Optional template string that will be rendered for use as photo description
-        exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
         exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
         face_regions: (bool, default=True): if True, will export face regions
         favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
@@ -59,7 +57,6 @@ class ExifOptions:
     datetime: bool = True
     description: bool = True
     description_template: str | None = None
-    exiftool: bool = False
     exiftool_flags: list[str] | None = None
     face_regions: bool = True
     favorite_rating: bool = False
@@ -105,6 +102,7 @@ class ExifWriter:
             photo: PhotoInfo instance
         """
         self.photo = photo
+        self.exiftool_path = photo._exiftool_path
         self._render_options = RenderOptions()
 
     def write_exif_data(self, filepath: str | pathlib.Path, options: ExifOptions):
@@ -118,7 +116,7 @@ class ExifWriter:
         """
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Could not find file {filepath}")
-        exif_info = self.exiftool_dict(options=options)
+        exif_info = self.exiftool_dict(options=options, filepath=filepath)
 
         with ExifTool(
             filepath,
@@ -136,6 +134,7 @@ class ExifWriter:
     def exiftool_dict(
         self,
         options: ExifOptions | None = None,
+        filepath: str | None = None,
         filename: str | None = None,
     ):
         """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
@@ -143,6 +142,7 @@ class ExifWriter:
 
         Args:
             options (ExifOptions): options for export
+            filepath (str): optional path to the source file to read EXIF data from; required if options include merge_exif_keywords or merge_exif_persons
             filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
         Returns: dict with exiftool tags / values
@@ -172,6 +172,17 @@ class ExifWriter:
             QuickTime:GPSCoordinates
             UserData:GPSCoordinates
             XMP:Rating
+            XMP:RegionAppliedToDimensionsW
+            XMP:RegionAppliedToDimensionsH
+            XMP:RegionAppliedToDimensionsUnit
+            XMP:RegionName
+            XMP:RegionType
+            XMP:RegionAreaX
+            XMP:RegionAreaY
+            XMP:RegionAreaW
+            XMP:RegionAreaH
+            XMP:RegionAreaUnit
+            XMP:RegionPersonDisplayName
 
         Reference:
             https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-201610_1.pdf
@@ -221,7 +232,7 @@ class ExifWriter:
         keyword_list = []
         if options.persons:
             if options.merge_exif_persons:
-                person_list.extend(self._get_exif_persons())
+                person_list.extend(self._get_exif_persons(filepath))
 
             if self.photo.persons:
                 # filter out _UNKNOWN_PERSON
@@ -234,7 +245,7 @@ class ExifWriter:
 
         if options.keywords:
             if options.merge_exif_keywords:
-                keyword_list.extend(self._get_exif_keywords())
+                keyword_list.extend(self._get_exif_keywords(filepath))
 
             if self.photo.keywords and not options.replace_keywords:
                 keyword_list.extend(self.photo.keywords)
@@ -426,43 +437,49 @@ class ExifWriter:
             # exif["XMP:RegionRectangle"].append(f"{area.x},{area.y},{area.h},{area.w}")
         return exif
 
-    def _get_exif_keywords(self):
-        """returns list of keywords found in the file's exif metadata"""
-        keywords = []
-        exif = exiftool_caching(self.photo)
-        if exif:
-            exifdict = exif.asdict()
-            for field in ["IPTC:Keywords", "XMP:TagsList", "XMP:Subject"]:
-                try:
-                    kw = exifdict[field]
-                    if kw and type(kw) != list:
-                        kw = [kw]
-                    kw = [str(k) for k in kw]
-                    keywords.extend(kw)
-                except KeyError:
-                    pass
-        return keywords
+    def _get_exif_keywords(self, filepath: str | None) -> list[str]:
+        """returns list of keywords found in the file's exif metadata or [] if filepath is None"""
+        if not filepath:
+            return []
+        return self._get_exif_fields_as_list(
+            filepath, ["IPTC:Keywords", "XMP:TagsList", "XMP:Subject"]
+        )
 
-    def _get_exif_persons(self):
-        """returns list of persons found in the file's exif metadata"""
-        persons = []
-        exif = exiftool_caching(self.photo)
-        if exif:
-            exifdict = exif.asdict()
+    def _get_exif_persons(self, filepath: str | None) -> list[str]:
+        """returns list of persons found in the file's exif metadata or [] if filepath is None"""
+        if not filepath:
+            return []
+        return self._get_exif_fields_as_list(filepath, ["XMP:PersonInImage"])
+
+    def _get_exif_fields_as_list(self, filepath: str, fields: list[str]) -> list[str]:
+        """Return list of values matching fields for exifdict
+
+        Args:
+            filepath (str): filepath to read EXIF data from
+            fields (list[str]): list of EXIF field names
+
+        Returns:
+            list of values for fields (combined as a single list)
+        """
+        exif = ExifToolCaching(filepath, self.exiftool_path)
+        exifdict = exif.asdict()
+        values = []
+        for field in fields:
             try:
-                p = exifdict["XMP:PersonInImage"]
-                if p and type(p) != list:
-                    p = [p]
-                p = [str(p_) for p_ in p]
-                persons.extend(p)
+                kw = exifdict[field]
+                if kw and type(kw) != list:
+                    kw = [kw]
+                kw = [str(k) for k in kw]
+                values.extend(kw)
             except KeyError:
                 pass
-        return persons
+        return values
 
     def exiftool_json_sidecar(
         self,
         options: ExifOptions | None = None,
         tag_groups: bool = True,
+        filepath: str | None = None,
         filename: str | None = None,
     ) -> str:
         """Return JSON dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
@@ -471,7 +488,8 @@ class ExifWriter:
         Args:
             options (ExifOptions): options for export
             tag_groups (bool, default=True): if True, include tag groups in the output
-            filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
+            filepath (str): optional path to the source file to read EXIF data from; required if options include merge_exif_keywords or merge_exif_persons
+            filename (str): name of target image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
         Returns: JSON dict with exiftool tags / values
 
@@ -501,7 +519,7 @@ class ExifWriter:
         """
 
         options = options or ExifOptions()
-        exif = self.exiftool_dict(filename=filename, options=options)
+        exif = self.exiftool_dict(options=options, filepath=filepath, filename=filename)
 
         if not tag_groups:
             # strip tag groups
@@ -514,39 +532,11 @@ class ExifWriter:
         return json.dumps([exif])
 
 
-def exiftool_caching(photo: SimpleNamespace) -> ExifToolCaching:
-    """Return ExifToolCaching object for photo
-
-    Args:
-        photo: SimpleNamespace object with photo info
-
-    Returns:
-        ExifToolCaching object
-    """
-    try:
-        return photo._exiftool_caching
-    except AttributeError:
-        try:
-            exiftool_path = photo._exiftool_path or get_exiftool_path()
-            if photo.path is not None and os.path.isfile(photo.path):
-                exiftool = ExifToolCaching(photo.path, exiftool=exiftool_path)
-            else:
-                exiftool = None
-        except FileNotFoundError:
-            # get_exiftool_path raises FileNotFoundError if exiftool not found
-            exiftool = None
-            logger.warning(
-                "exiftool not in path; download and install from https://exiftool.org/"
-            )
-
-        photo._exiftool_caching = exiftool
-        return photo._exiftool_caching
-
-
 def exiftool_json_sidecar(
     photo: PhotoInfo,
     options: ExportOptions | ExifOptions = None,
     tag_groups: bool = True,
+    filepath: str | None = None,
     filename: str | None = None,
 ) -> str:
     """Return JSON dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
@@ -555,7 +545,8 @@ def exiftool_json_sidecar(
     Args:
         options (ExportOptions or ExifOptions): options for export
         tag_groups (bool, default=True): if True, include tag groups in the output
-        filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
+        filepath (str): optional path to the source file to read EXIF data from; required if options include merge_exif_keywords or merge_exif_persons
+        filename (str): name of target image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
     Returns: JSON str with dict of exiftool tags / values
     """
@@ -565,5 +556,8 @@ def exiftool_json_sidecar(
         else options
     )
     return ExifWriter(photo).exiftool_json_sidecar(
-        options=exif_options, tag_groups=tag_groups, filename=filename
+        options=exif_options,
+        tag_groups=tag_groups,
+        filepath=filepath,
+        filename=filename,
     )

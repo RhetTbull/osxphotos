@@ -359,7 +359,7 @@ class RenderOptions:
     dirname: if True, template output will be sanitized to produce valid directory name
     strip: if True, strips leading/trailing whitespace from rendered templates
     edited_version: set to True if you want {edited_version} to resolve to True (e.g. exporting edited version of photo)
-    export_dir: set to the export directory if you want to evalute {export_dir} template
+    export_dir: set to the export directory if you want to evaluate {export_dir} template
     dest_path: set to the destination path of the photo (for use by {function} template), only valid with --filename
     filepath: set to value for filepath of the exported photo if you want to evaluate {filepath} template
     quote: quote path templates for execution in the shell
