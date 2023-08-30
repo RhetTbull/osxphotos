@@ -531,7 +531,7 @@ class PhotoExporter:
 
         if options.exiftool:
             current_exifdata = exiftool_json_sidecar(
-                photo=self.photo, options=options, filepath=self.photo.path
+                photo=self.photo, options=options
             )
             rv = current_exifdata != file_record.exifdata
             # if using exiftool, don't need to continue checking edited below
@@ -1248,7 +1248,7 @@ class PhotoExporter:
                 old_data = json.loads(old_data)[0]
                 current_data = json.loads(
                     exiftool_json_sidecar(
-                        photo=self.photo, options=options, filepath=self.photo.path
+                        photo=self.photo, options=options
                     )
                 )
                 current_data = current_data[0]

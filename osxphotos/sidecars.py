@@ -95,7 +95,6 @@ class SidecarWriter:
             )
             sidecar_str = exiftool_json_sidecar(
                 photo=self.photo,
-                filepath=self.photo.path,
                 filename=dest.name,
                 options=exif_options,
             )
@@ -116,7 +115,6 @@ class SidecarWriter:
             sidecar_str = exiftool_json_sidecar(
                 photo=self.photo,
                 tag_groups=False,
-                filepath=self.photo.path,
                 filename=dest.name,
                 options=exif_options,
             )

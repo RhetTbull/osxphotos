@@ -2736,7 +2736,6 @@ def exiftool_json_sidecar(
     photo: PhotoInfo,
     options: ExportOptions | ExifOptions | None = None,
     tag_groups: bool = True,
-    filepath: str | None = None,
     filename: str | None = None,
 ) -> str:
 ```
@@ -2744,7 +2743,7 @@ def exiftool_json_sidecar(
 ```python
 from osxphotos.exifwriter import exiftool_json_sidecar
 
-sidecar = exiftool_json_sidecar(photo, options, tag_groups, photo.path, filename)
+sidecar = exiftool_json_sidecar(photo, options, tag_groups, filename)
 ```
 
 See source code for full details.

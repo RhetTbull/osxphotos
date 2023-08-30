@@ -2733,7 +2733,7 @@ def write_finder_tags(
         # this means that if file is not present (e.g. export done with photokit)
         # then the tags won't be available for merging
         exif = ExifWriter(photo).exiftool_dict(
-            options=exif_options_from_options(export_options), filepath=photo.path,
+            options=exif_options_from_options(export_options)
         )
         try:
             if exif["IPTC:Keywords"]:

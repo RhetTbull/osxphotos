@@ -8,6 +8,7 @@ import subprocess
 import pytest
 
 from osxphotos import PhotoInfo, PhotosDB
+from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.exifwriter import ExifOptions, ExifWriter
 from osxphotos.phototemplate import RenderOptions
@@ -19,6 +20,7 @@ UUID_ALL_METADATA = "F12384F6-CD17-4151-ACBA-AE0E3688539E"  # Pumkins1.jpg
 UUID_FAVORITE = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
 UUID_NOT_FAVORITE = "F12384F6-CD17-4151-ACBA-AE0E3688539E"  # pumpkins1.jpg
 UUID_LOCATION = "DC99FBDD-7A52-4100-A5BB-344131646C30"  # St James Park.jpg
+UUID_MERGE_KEYWORDS = "1EB2B765-0765-43BA-A90C-0D0580E6172C"  # Pumpkins3.jpg
 
 # options: all keywords location faces date title description favorite
 
@@ -318,13 +320,8 @@ def test_exifwriter_datetime(photosdb: PhotosDB, tmp_path: pathlib.Path):
 
 def test_exifwriter_merge_keywords_persons(photosdb: PhotosDB, tmp_path: pathlib.Path):
     """Test merge_merge_exif_keywords, merge_exif_persons"""
-    photo = photosdb.get_photo(UUID_ALL_METADATA)
+    photo = photosdb.get_photo(UUID_MERGE_KEYWORDS)
     exported = export_and_wipe_metadata(photo, tmp_path)
-
-    # set keywords and persons on the exported file
-    with ExifTool(exported) as exiftool:
-        exiftool.setvalue("IPTC:Keywords", "Foo")
-        exiftool.setvalue("XMP:PersonInImage", "Bar")
 
     # write without merge_*
     exif_writer = ExifWriter(photo)
@@ -338,12 +335,8 @@ def test_exifwriter_merge_keywords_persons(photosdb: PhotosDB, tmp_path: pathlib
 
     persons = exif_data["XMP:PersonInImage"]
     persons = persons if isinstance(persons, list) else [persons]
+    persons.append(_UNKNOWN_PERSON) # this photo has an untagged face
     assert sorted(persons) == sorted(photo.persons)
-
-    # reset keywords and persons on the exported file
-    with ExifTool(exported) as exiftool:
-        exiftool.setvalue("IPTC:Keywords", "Foo")
-        exiftool.setvalue("XMP:PersonInImage", "Bar")
 
     # write with merge_*
     exif_options = ExifOptions(merge_exif_keywords=True, merge_exif_persons=True)
@@ -352,11 +345,11 @@ def test_exifwriter_merge_keywords_persons(photosdb: PhotosDB, tmp_path: pathlib
     exif_data = ExifTool(exported).asdict()
     keywords = exif_data["IPTC:Keywords"]
     keywords = keywords if isinstance(keywords, list) else [keywords]
-    assert sorted(keywords) == sorted(photo.keywords + ["Foo"])
+    assert "Test" in keywords
 
     persons = exif_data["XMP:PersonInImage"]
     persons = persons if isinstance(persons, list) else [persons]
-    assert sorted(persons) == sorted(photo.persons + ["Bar"])
+    assert "Tim" in persons
 
 
 def test_exifwriter_face_regions(photosdb: PhotosDB, tmp_path: pathlib.Path):

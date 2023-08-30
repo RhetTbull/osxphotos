@@ -106,17 +106,17 @@ class ExifWriter:
         self._render_options = RenderOptions()
 
     def write_exif_data(self, filepath: str | pathlib.Path, options: ExifOptions):
-        """write exif data to image file at filepath
+        """Write exif data to image file at filepath
 
         Args:
-            filepath: full path to the image file
+            options (ExifOptions): options controlling what data is written
 
         Returns:
             (warning, error) of warning and error strings if exiftool produces warnings or errors
         """
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Could not find file {filepath}")
-        exif_info = self.exiftool_dict(options=options, filepath=filepath)
+        exif_info = self.exiftool_dict(options=options)
 
         with ExifTool(
             filepath,
@@ -134,7 +134,6 @@ class ExifWriter:
     def exiftool_dict(
         self,
         options: ExifOptions | None = None,
-        filepath: str | None = None,
         filename: str | None = None,
     ):
         """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
@@ -142,7 +141,6 @@ class ExifWriter:
 
         Args:
             options (ExifOptions): options for export
-            filepath (str): optional path to the source file to read EXIF data from; required if options include merge_exif_keywords or merge_exif_persons
             filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
         Returns: dict with exiftool tags / values
@@ -232,7 +230,7 @@ class ExifWriter:
         keyword_list = []
         if options.persons:
             if options.merge_exif_persons:
-                person_list.extend(self._get_exif_persons(filepath))
+                person_list.extend(self._get_exif_persons())
 
             if self.photo.persons:
                 # filter out _UNKNOWN_PERSON
@@ -245,7 +243,7 @@ class ExifWriter:
 
         if options.keywords:
             if options.merge_exif_keywords:
-                keyword_list.extend(self._get_exif_keywords(filepath))
+                keyword_list.extend(self._get_exif_keywords())
 
             if self.photo.keywords and not options.replace_keywords:
                 keyword_list.extend(self.photo.keywords)
@@ -437,19 +435,25 @@ class ExifWriter:
             # exif["XMP:RegionRectangle"].append(f"{area.x},{area.y},{area.h},{area.w}")
         return exif
 
-    def _get_exif_keywords(self, filepath: str | None) -> list[str]:
+    def _get_exif_keywords(self) -> list[str]:
         """returns list of keywords found in the file's exif metadata or [] if filepath is None"""
-        if not filepath:
+        if not self.photo.path:
+            logger.warning(
+                f"photo.path is None for photo {self.photo.uuid}, cannot read exif keywords"
+            )
             return []
         return self._get_exif_fields_as_list(
-            filepath, ["IPTC:Keywords", "XMP:TagsList", "XMP:Subject"]
+            self.photo.path, ["IPTC:Keywords", "XMP:TagsList", "XMP:Subject"]
         )
 
-    def _get_exif_persons(self, filepath: str | None) -> list[str]:
+    def _get_exif_persons(self) -> list[str]:
         """returns list of persons found in the file's exif metadata or [] if filepath is None"""
-        if not filepath:
+        if not self.photo.path:
+            logger.warning(
+                f"photo.path is None for photo {self.photo.uuid}, cannot read exif persons"
+            )
             return []
-        return self._get_exif_fields_as_list(filepath, ["XMP:PersonInImage"])
+        return self._get_exif_fields_as_list(self.photo.path, ["XMP:PersonInImage"])
 
     def _get_exif_fields_as_list(self, filepath: str, fields: list[str]) -> list[str]:
         """Return list of values matching fields for exifdict
@@ -479,7 +483,6 @@ class ExifWriter:
         self,
         options: ExifOptions | None = None,
         tag_groups: bool = True,
-        filepath: str | None = None,
         filename: str | None = None,
     ) -> str:
         """Return JSON dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
@@ -488,7 +491,6 @@ class ExifWriter:
         Args:
             options (ExifOptions): options for export
             tag_groups (bool, default=True): if True, include tag groups in the output
-            filepath (str): optional path to the source file to read EXIF data from; required if options include merge_exif_keywords or merge_exif_persons
             filename (str): name of target image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
         Returns: JSON dict with exiftool tags / values
@@ -519,7 +521,7 @@ class ExifWriter:
         """
 
         options = options or ExifOptions()
-        exif = self.exiftool_dict(options=options, filepath=filepath, filename=filename)
+        exif = self.exiftool_dict(options=options, filename=filename)
 
         if not tag_groups:
             # strip tag groups
@@ -536,7 +538,6 @@ def exiftool_json_sidecar(
     photo: PhotoInfo,
     options: ExportOptions | ExifOptions = None,
     tag_groups: bool = True,
-    filepath: str | None = None,
     filename: str | None = None,
 ) -> str:
     """Return JSON dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
@@ -545,7 +546,6 @@ def exiftool_json_sidecar(
     Args:
         options (ExportOptions or ExifOptions): options for export
         tag_groups (bool, default=True): if True, include tag groups in the output
-        filepath (str): optional path to the source file to read EXIF data from; required if options include merge_exif_keywords or merge_exif_persons
         filename (str): name of target image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
     Returns: JSON str with dict of exiftool tags / values
@@ -558,6 +558,5 @@ def exiftool_json_sidecar(
     return ExifWriter(photo).exiftool_json_sidecar(
         options=exif_options,
         tag_groups=tag_groups,
-        filepath=filepath,
         filename=filename,
     )

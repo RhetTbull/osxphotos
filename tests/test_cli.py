@@ -2509,6 +2509,33 @@ def test_export_exiftool_merge_sidecar():
                 else:
                     assert exif[key] == CLI_EXIFTOOL_MERGE[uuid][key]
 
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_merge_sidecar_xmp():
+    """test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar xmp"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL_MERGE:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--sidecar",
+                    "xmp",
+                    "--uuid",
+                    f"{uuid}",
+                    "--exiftool-merge-keywords",
+                    "--exiftool-merge-persons",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            xmp_file = f"{CLI_EXIFTOOL_MERGE[uuid]['File:FileName']}.xmp"
+            assert xmp_file in files
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_favorite_rating():
