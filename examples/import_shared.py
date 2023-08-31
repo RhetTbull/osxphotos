@@ -218,7 +218,10 @@ def export_import_photo(
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
             exported = photo.export(
-                tmpdir, photo.original_filename, use_photos_export=photo.ismissing
+                tmpdir,
+                photo.original_filename,
+                use_photos_export=photo.ismissing,
+                timeout=300,
             )
             if not exported:
                 echo_error(f"Error exporting {photo.original_filename}")
