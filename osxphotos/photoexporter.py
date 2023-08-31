@@ -13,14 +13,14 @@ from enum import Enum
 
 from ._version import __version__
 from .exiftool import exiftool_can_write
-from .exifwriter import ExifWriter, exif_options_from_options, exiftool_json_sidecar
+from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
 from .exportoptions import ExportOptions, ExportResults
 from .fileutil import FileUtil
 from .phototemplate import RenderOptions
 from .platform import is_macos
 from .rich_utils import add_rich_markup_tag
-from .sidecars import SidecarWriter
+from .sidecars import SidecarWriter, exiftool_json_sidecar
 from .touch_files import touch_files
 from .unicode import normalize_fs_path
 from .uti import get_preferred_uti_extension
@@ -530,9 +530,7 @@ class PhotoExporter:
             return ShouldUpdate.UPDATE_ERRORS
 
         if options.exiftool:
-            current_exifdata = exiftool_json_sidecar(
-                photo=self.photo, options=options
-            )
+            current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
             rv = current_exifdata != file_record.exifdata
             # if using exiftool, don't need to continue checking edited below
             # as exiftool will be used to update edited file
@@ -1013,9 +1011,7 @@ class PhotoExporter:
             if not options.ignore_signature:
                 rec.dest_sig = fileutil.file_sig(dest)
             if options.exiftool:
-                rec.exifdata = exiftool_json_sidecar(
-                    photo=self.photo, options=options, filepath=self.photo.path
-                )
+                rec.exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
             if self.photo.hexdigest != rec.digest:
                 results.metadata_changed = [dest_str]
             rec.digest = self.photo.hexdigest
@@ -1247,9 +1243,7 @@ class PhotoExporter:
             if old_data is not None:
                 old_data = json.loads(old_data)[0]
                 current_data = json.loads(
-                    exiftool_json_sidecar(
-                        photo=self.photo, options=options
-                    )
+                    exiftool_json_sidecar(photo=self.photo, options=options)
                 )
                 current_data = current_data[0]
                 if old_data != current_data:

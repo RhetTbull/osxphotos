@@ -7,7 +7,7 @@
 import pathlib
 
 import osxphotos
-from osxphotos.exifwriter import exiftool_json_sidecar
+from osxphotos.sidecars import exiftool_json_sidecar
 from osxphotos.exportoptions import ExportOptions
 from osxphotos.sidecars import xmp_sidecar
 

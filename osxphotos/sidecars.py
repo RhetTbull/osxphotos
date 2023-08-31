@@ -11,22 +11,22 @@ from typing import TYPE_CHECKING
 from mako.template import Template
 
 from ._constants import (
-    _MAX_IPTC_KEYWORD_LEN,
     _OSXPHOTOS_NONE_SENTINEL,
     _TEMPLATE_DIR,
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
     _XMP_TEMPLATE_NAME_BETA,
-    DEFAULT_PREVIEW_SUFFIX,
-    LIVE_VIDEO_EXTENSIONS,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
 )
 from ._version import __version__
-from .exifwriter import exif_options_from_options, exiftool_json_sidecar
+from .exifwriter import ExifOptions, ExifWriter, _ExifMixin, exif_options_from_options
+from .export_db import ExportDBTemp
 from .exportoptions import ExportOptions, ExportResults
+from .fileutil import FileUtilMacOS, FileUtilShUtil
 from .phototemplate import RenderOptions
+from .platform import is_macos
 from .rich_utils import add_rich_markup_tag
 from .touch_files import touch_files
 from .utils import hexdigest
@@ -40,10 +40,10 @@ _global_xmp_template: Template | None = None
 
 logger = logging.getLogger("osxphotos")
 
-__all__ = ["SidecarWriter", "xmp_sidecar"]
+__all__ = ["SidecarWriter", "exiftool_json_sidecar", "xmp_sidecar"]
 
 
-class SidecarWriter:
+class SidecarWriter(_ExifMixin):
     """Write sidecars for PhotoInfo objects
 
     Can write XMP, JSON, and exiftool sidecars
@@ -56,7 +56,7 @@ class SidecarWriter:
     """
 
     def __init__(self, photo: PhotoInfo):
-        self.photo = photo
+        super().__init__(photo)
         self._verbose = photo._verbose
 
     def write_sidecar_files(
@@ -67,12 +67,33 @@ class SidecarWriter:
         """Write sidecar files for the photo.
 
         Args:
-            dest: destination path for sidecar files
+            dest: destination path for photo that sidecars are being written for
             options: ExportOptions object that configures the sidecars
+
+        Returns:
+            An ExportResults object containing information about the exported sidecar files in the
+            following attributes:
+                - sidecar_json_written: list of JSON sidecar files written
+                - sidecar_json_skipped: list of JSON sidecar files skipped
+                - sidecar_exiftool_written: list of exiftool JSON sidecar files written
+                - sidecar_exiftool_skipped: list of exiftool JSON sidecar files skipped
+                - sidecar_xmp_written: list of XMP sidecar files written
+                - sidecar_xmp_skipped: list of XMP sidecar files skipped
+
+        Note:
+            dest is the path to the the sidecar belongs to. THe sidecar filename will be
+            dest.ext where ext is the extension for sidecar (e.g. xmp or json)
+            If dest is "img_1234.jpg", XMP sidecar would be "img_1234.jpg.xmp"
+            Use ExportOptions(sidecar_drop_ext) to drop the image extension from the sidecar filename
+            (e.g. "img_1234.xmp")
         """
 
-        export_db = options.export_db
-        fileutil = options.fileutil
+        # if ExportDB isn't provided, use a temporary in-memory database
+        # this allows SidecarWriter to be used independently of PhotoExporter
+        export_db = options.export_db or ExportDBTemp()
+
+        # likewise, if FileUtil isn't provided, use default
+        fileutil = options.fileutil or FileUtilMacOS() if is_macos else FileUtilShUtil()
         verbose = options.verbose or self._verbose
 
         # define functions for adding markup
@@ -377,3 +398,31 @@ def xmp_sidecar(
 
     writer = SidecarWriter(photo)
     return writer.xmp_sidecar(options=options, extension=extension)
+
+
+def exiftool_json_sidecar(
+    photo: PhotoInfo,
+    options: ExportOptions | ExifOptions = None,
+    tag_groups: bool = True,
+    filename: str | None = None,
+) -> str:
+    """Return JSON string for EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
+        Does not include all the EXIF fields as those are likely already in the image.
+
+    Args:
+        options (ExportOptions or ExifOptions): options for export
+        tag_groups (bool, default=True): if True, include tag groups in the output
+        filename (str): name of target image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
+
+    Returns: JSON str for dict of exiftool tags / values
+    """
+    exif_options = (
+        exif_options_from_options(options)
+        if isinstance(options, ExportOptions)
+        else options
+    )
+    return ExifWriter(photo).exiftool_json_sidecar(
+        options=exif_options,
+        tag_groups=tag_groups,
+        filename=filename,
+    )

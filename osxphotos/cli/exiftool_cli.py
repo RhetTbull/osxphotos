@@ -11,12 +11,12 @@ from osxphotos import PhotosDB
 from osxphotos._constants import OSXPHOTOS_EXPORT_DB
 from osxphotos._version import __version__
 from osxphotos.configoptions import ConfigOptions, ConfigOptionsLoadError
-from osxphotos.exifwriter import exiftool_json_sidecar
 from osxphotos.export_db import ExportDB, ExportDBInMemory
 from osxphotos.export_db_utils import export_db_get_config
 from osxphotos.exportoptions import ExportOptions, ExportResults
 from osxphotos.fileutil import FileUtil, FileUtilNoOp
 from osxphotos.photoexporter import PhotoExporter
+from osxphotos.sidecars import exiftool_json_sidecar
 from osxphotos.utils import pluralize
 
 from .cli_params import DB_OPTION, THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION

@@ -1,6 +1,7 @@
 """Test ExifWriter class"""
 
 
+import json
 import os
 import pathlib
 import subprocess
@@ -335,7 +336,7 @@ def test_exifwriter_merge_keywords_persons(photosdb: PhotosDB, tmp_path: pathlib
 
     persons = exif_data["XMP:PersonInImage"]
     persons = persons if isinstance(persons, list) else [persons]
-    persons.append(_UNKNOWN_PERSON) # this photo has an untagged face
+    persons.append(_UNKNOWN_PERSON)  # this photo has an untagged face
     assert sorted(persons) == sorted(photo.persons)
 
     # write with merge_*
@@ -387,3 +388,4 @@ def test_exifwriter_render_options(photosdb: PhotosDB, tmp_path: pathlib.Path):
 
     exif_data = ExifTool(exported).asdict()
     assert exif_data["EXIF:ImageDescription"] == "Hello"
+

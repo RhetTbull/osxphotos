@@ -27,6 +27,7 @@ from osxphotos.queryoptions import (
     QueryOptions,
     query_options_from_kwargs,
 )
+from osxphotos.sidecars import exiftool_json_sidecar
 
 if is_macos:
     import photoscript
@@ -68,7 +69,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
 
     from osxphotos import ExifTool, PhotoInfo, PhotosDB
     from osxphotos.albuminfo import AlbumInfo
-    from osxphotos.exifwriter import ExifWriter, exiftool_json_sidecar
+    from osxphotos.exifwriter import ExifWriter
     from osxphotos.exportoptions import ExportOptions, ExportResults
     from osxphotos.momentinfo import MomentInfo
     from osxphotos.photoexporter import PhotoExporter

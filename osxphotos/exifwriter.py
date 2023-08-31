@@ -1,7 +1,9 @@
 """Write metadata to files using exiftool"""
 
+
 from __future__ import annotations
 
+import contextlib
 import dataclasses
 import json
 import logging
@@ -13,17 +15,16 @@ from typing import TYPE_CHECKING, Any
 
 from ._constants import _MAX_IPTC_KEYWORD_LEN, _OSXPHOTOS_NONE_SENTINEL, _UNKNOWN_PERSON
 from .datetime_utils import datetime_tz_to_utc
-from .exiftool import ExifTool, ExifToolCaching, get_exiftool_path
+from .exiftool import ExifTool, ExifToolCaching
 from .exportoptions import ExportOptions
 from .phototemplate import RenderOptions
-from .utils import noop
 
 if TYPE_CHECKING:
     from .photoinfo import PhotoInfo
 
 logger = logging.getLogger("osxphotos")
 
-__all__ = ["ExifWriter", "ExifOptions", "exiftool_json_sidecar"]
+__all__ = ["ExifWriter", "ExifOptions"]
 
 
 @dataclass
@@ -88,7 +89,61 @@ def exif_options_from_options(export_options: ExportOptions) -> ExifOptions:
     return exif_options
 
 
-class ExifWriter:
+class _ExifMixin:
+    """Mixin class to add methods for getting EXIF data about a photo.
+    Must be used in a class that defines self.photo
+    Call _ExifMixin.__init__(self) at end of __init__ of class that uses this mixin
+    """
+
+    def __init__(self, photo: PhotoInfo):
+        self.photo = photo
+        self.exiftool_path = self.photo._exiftool_path
+        super().__init__()
+
+    def _get_exif_keywords(self) -> list[str]:
+        """returns list of keywords found in the file's exif metadata or [] if filepath is None"""
+        if not self.photo.path:
+            logger.warning(
+                f"photo.path is None for photo {self.photo.uuid}, cannot read exif keywords"
+            )
+            return []
+        return self._get_exif_fields_as_list(
+            self.photo.path, ["IPTC:Keywords", "XMP:TagsList", "XMP:Subject"]
+        )
+
+    def _get_exif_persons(self) -> list[str]:
+        """returns list of persons found in the file's exif metadata or [] if filepath is None"""
+        if not self.photo.path:
+            logger.warning(
+                f"photo.path is None for photo {self.photo.uuid}, cannot read exif persons"
+            )
+            return []
+        return self._get_exif_fields_as_list(self.photo.path, ["XMP:PersonInImage"])
+
+    def _get_exif_fields_as_list(self, filepath: str, fields: list[str]) -> list[str]:
+        """Return list of values matching fields for exifdict
+
+        Args:
+            filepath (str): filepath to read EXIF data from
+            fields (list[str]): list of EXIF field names
+
+        Returns:
+            list of values for fields (combined as a single list)
+        """
+        exif = ExifToolCaching(filepath, self.exiftool_path)
+        exifdict = exif.asdict()
+        values = []
+        for field in fields:
+            with contextlib.suppress(KeyError):
+                kw = exifdict[field]
+                if kw and type(kw) != list:
+                    kw = [kw]
+                kw = [str(k) for k in kw]
+                values.extend(kw)
+        return values
+
+
+class ExifWriter(_ExifMixin):
     """Write EXIF & other metadata to files using exiftool for a Photo asset
 
     Args:
@@ -101,8 +156,7 @@ class ExifWriter:
         Args:
             photo: PhotoInfo instance
         """
-        self.photo = photo
-        self.exiftool_path = photo._exiftool_path
+        super().__init__(photo)
         self._render_options = RenderOptions()
 
     def write_exif_data(self, filepath: str | pathlib.Path, options: ExifOptions):
@@ -435,57 +489,13 @@ class ExifWriter:
             # exif["XMP:RegionRectangle"].append(f"{area.x},{area.y},{area.h},{area.w}")
         return exif
 
-    def _get_exif_keywords(self) -> list[str]:
-        """returns list of keywords found in the file's exif metadata or [] if filepath is None"""
-        if not self.photo.path:
-            logger.warning(
-                f"photo.path is None for photo {self.photo.uuid}, cannot read exif keywords"
-            )
-            return []
-        return self._get_exif_fields_as_list(
-            self.photo.path, ["IPTC:Keywords", "XMP:TagsList", "XMP:Subject"]
-        )
-
-    def _get_exif_persons(self) -> list[str]:
-        """returns list of persons found in the file's exif metadata or [] if filepath is None"""
-        if not self.photo.path:
-            logger.warning(
-                f"photo.path is None for photo {self.photo.uuid}, cannot read exif persons"
-            )
-            return []
-        return self._get_exif_fields_as_list(self.photo.path, ["XMP:PersonInImage"])
-
-    def _get_exif_fields_as_list(self, filepath: str, fields: list[str]) -> list[str]:
-        """Return list of values matching fields for exifdict
-
-        Args:
-            filepath (str): filepath to read EXIF data from
-            fields (list[str]): list of EXIF field names
-
-        Returns:
-            list of values for fields (combined as a single list)
-        """
-        exif = ExifToolCaching(filepath, self.exiftool_path)
-        exifdict = exif.asdict()
-        values = []
-        for field in fields:
-            try:
-                kw = exifdict[field]
-                if kw and type(kw) != list:
-                    kw = [kw]
-                kw = [str(k) for k in kw]
-                values.extend(kw)
-            except KeyError:
-                pass
-        return values
-
     def exiftool_json_sidecar(
         self,
         options: ExifOptions | None = None,
         tag_groups: bool = True,
         filename: str | None = None,
     ) -> str:
-        """Return JSON dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
+        """Return JSON string of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
             Does not include all the EXIF fields as those are likely already in the image.
 
         Args:
@@ -493,7 +503,7 @@ class ExifWriter:
             tag_groups (bool, default=True): if True, include tag groups in the output
             filename (str): name of target image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
-        Returns: JSON dict with exiftool tags / values
+        Returns: JSON string for dict with exiftool tags / values
 
         Exports the following:
             EXIF:ImageDescription
@@ -532,31 +542,3 @@ class ExifWriter:
             exif = exif_new
 
         return json.dumps([exif])
-
-
-def exiftool_json_sidecar(
-    photo: PhotoInfo,
-    options: ExportOptions | ExifOptions = None,
-    tag_groups: bool = True,
-    filename: str | None = None,
-) -> str:
-    """Return JSON dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
-        Does not include all the EXIF fields as those are likely already in the image.
-
-    Args:
-        options (ExportOptions or ExifOptions): options for export
-        tag_groups (bool, default=True): if True, include tag groups in the output
-        filename (str): name of target image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
-
-    Returns: JSON str with dict of exiftool tags / values
-    """
-    exif_options = (
-        exif_options_from_options(options)
-        if isinstance(options, ExportOptions)
-        else options
-    )
-    return ExifWriter(photo).exiftool_json_sidecar(
-        options=exif_options,
-        tag_groups=tag_groups,
-        filename=filename,
-    )
