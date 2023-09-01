@@ -13,6 +13,7 @@ from osxphotos._constants import (
     SIDECAR_JSON,
     SIDECAR_XMP,
 )
+from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifOptions
 from osxphotos.exportoptions import ExportOptions
 from osxphotos.sidecars import SidecarWriter, exiftool_json_sidecar, xmp_sidecar
@@ -22,6 +23,12 @@ PHOTOS_DB = "tests/Test-13.0.0.photoslibrary"
 # Pumkins1 has (almost) all metadata fields
 UUID_ALL_METADATA = "F12384F6-CD17-4151-ACBA-AE0E3688539E"  # Pumkins1.jpg
 UUID_MERGE_KEYWORDS = "1EB2B765-0765-43BA-A90C-0D0580E6172C"  # Pumpkins3.jpg
+
+# determine if exiftool installed so exiftool tests can be skipped
+try:
+    exiftool_path = get_exiftool_path()
+except FileNotFoundError:
+    exiftool_path = None
 
 
 @pytest.fixture(scope="module")
@@ -48,6 +55,7 @@ def test_xmp_sidecar_template(photosdb: PhotosDB):
     assert "FooBar" in sidecar
 
 
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
 def test_xmp_sidecar_merge_keywords_persons(photosdb: PhotosDB):
     """Test merge_merge_exif_keywords, merge_exif_persons"""
     photo = photosdb.get_photo(UUID_MERGE_KEYWORDS)
@@ -133,6 +141,7 @@ def test_sidecarwriter_xmp_json(photosdb: PhotosDB, tmp_path: pathlib.Path):
     assert len(results.sidecar_xmp_written) == 1
     assert pathlib.Path(results.sidecar_json_written[0]).name == "test.json"
     assert pathlib.Path(results.sidecar_xmp_written[0]).name == "test.xmp"
+
 
 def test_exiftool_json_sidecar(photosdb: PhotosDB):
     """Test exiftool_json_sidecar()"""
