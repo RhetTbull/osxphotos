@@ -2803,7 +2803,7 @@ def exiftool_json_sidecar(
 ```
 
 ```python
-from osxphotos.exifwriter import exiftool_json_sidecar
+from osxphotos.sidecars import exiftool_json_sidecar
 
 sidecar = exiftool_json_sidecar(photo, options, tag_groups, filename)
 ```
