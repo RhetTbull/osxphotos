@@ -49,10 +49,3 @@ jobs:
           -H "Click: https://github.com/RhetTbull/osxphotos/actions/" \
           -d "osxphotos test failed" \
            ntfy.sh/rhettbull_github_actions
-    - name: Send success notification
-      if: ${{ success() }}
-      run: |
-        curl \
-          -H "Click: https://github.com/RhetTbull/osxphotos/actions/" \
-          -d "osxphotos test succeeded" \
-           ntfy.sh/rhettbull_github_actions
