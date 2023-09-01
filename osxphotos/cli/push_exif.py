@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import os
-
 import click
 from rich.progress import Progress
 
