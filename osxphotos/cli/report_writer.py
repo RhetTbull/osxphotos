@@ -44,7 +44,7 @@ class ReportWriterABC(ABC):
     """Abstract base class for report writers"""
 
     @abstractmethod
-    def write(self, results: ExportResults | SyncResults):
+    def write(self, *args, **kwargs):
         """Write results to the output file"""
         pass
 
@@ -63,7 +63,7 @@ class ReportWriterNoOp(ABC):
     def __init__(self):
         pass
 
-    def write(self, results: ExportResults | SyncResults):
+    def write(self, *args, **kwargs):
         """Write results to the output file"""
         pass
 
@@ -821,18 +821,18 @@ class PushExifReportWriterCSV(ReportWriterABC):
                     "error": errors_by_filename.get(filename, ""),
                 }
             )
-        for filename, warning in push_results.warning:
+        for missing in push_results.missing:
             self._csv_writer.writerow(
                 {
                     "uuid": uuid,
                     "original_filename": original_filename,
                     "datetime": push_results.datetime,
-                    "filename": filename,
+                    "filename": "",
                     "written": False,
                     "updated": False,
                     "skipped": False,
-                    "missing": "",
-                    "warning": warning,
+                    "missing": missing,
+                    "warning": "",
                     "error": "",
                 }
             )

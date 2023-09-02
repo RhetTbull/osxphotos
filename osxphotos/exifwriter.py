@@ -24,7 +24,12 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("osxphotos")
 
-__all__ = ["ExifWriter", "ExifOptions"]
+__all__ = [
+    "ExifWriter",
+    "ExifOptions",
+    "exif_options_from_locals",
+    "exif_options_from_options",
+]
 
 
 @dataclass
@@ -86,6 +91,16 @@ def exif_options_from_options(export_options: ExportOptions) -> ExifOptions:
     for field in fields:
         if field.name in export_options.__dict__:
             setattr(exif_options, field.name, export_options.__dict__[field.name])
+    return exif_options
+
+
+def exif_options_from_locals(locals_dict: dict[str, Any]) -> ExifOptions:
+    """Return ExifOptions object from locals() dict"""
+    fields = dataclasses.fields(ExifOptions)
+    exif_options = ExifOptions()
+    for field in fields:
+        if field.name in locals_dict:
+            setattr(exif_options, field.name, locals_dict[field.name])
     return exif_options
 
 

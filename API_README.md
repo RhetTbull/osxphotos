@@ -1134,6 +1134,14 @@ Returns the date the photo was placed in the trash as a datetime.datetime object
 
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`
 
+#### `latitude`
+
+Returns latitude as a float or `None`.
+
+#### `longitude`
+
+Returns longitude as a float or `None`.
+
 #### `place`
 
 Returns a [PlaceInfo](#placeinfo) object with reverse geolocation data or None if there is the photo has no reverse geolocation information.

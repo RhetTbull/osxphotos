@@ -1,0 +1,130 @@
+"""Test osxphotos push-exif command"""
+
+from __future__ import annotations
+
+import csv
+import json
+import os
+import pathlib
+import shutil
+import sqlite3
+
+import pytest
+from click.testing import CliRunner
+
+from osxphotos.platform import is_macos
+import osxphotos
+
+if not is_macos:
+    pytest.skip("Skipping macos-only tests", allow_module_level=True)
+
+from osxphotos.cli.push_exif import push_exif
+
+PHOTOS_DB = "tests/Test-13.0.0.photoslibrary/"
+CWD = os.getcwd()
+
+UUID_MISSING = "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"  # Pumpkins4.jpg
+UUID_KEYWORDS_PERSONS = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg
+
+
+def copy_photos_library(dest):
+    """Make a copy of the Photos library for testing"""
+    return shutil.copytree(os.path.join(CWD, PHOTOS_DB), dest)
+
+
+def get_keywords(photo: osxphotos.PhotoInfo) -> list[str]:
+    """Get EXIF keywords from a photo's original file"""
+    exif = photo.exiftool.asdict()
+    if "IPTC:Keywords" not in exif:
+        return []
+    if isinstance(exif["IPTC:Keywords"], str):
+        return sorted([exif["IPTC:Keywords"]])
+    return sorted(exif["IPTC:Keywords"])
+
+
+def get_persons(photo: osxphotos.PhotoInfo) -> list[str]:
+    """Get XMP persons from a photo's original file"""
+    exif = photo.exiftool.asdict()
+    if "XMP:PersonInImage" not in exif:
+        return []
+    if isinstance(exif["XMP:PersonInImage"], str):
+        return sorted([exif["XMP:PersonInImage"]])
+    return sorted(exif["XMP:PersonInImage"])
+
+
+def test_cli_push_exif_basic(monkeypatch):
+    """Test push-exif command"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(push_exif, ["-V", "--force", "--library", test_library])
+        assert result.exit_code == 0
+        assert (
+            "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
+            in result.output
+        )
+
+        # verify keywords and persons were pushed
+        photosdb = osxphotos.PhotosDB(test_library)
+        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+        assert sorted(photo.keywords) == get_keywords(photo)
+        assert sorted(photo.persons) == get_persons(photo)
+
+
+def test_cli_push_exif_report_csv(monkeypatch):
+    """Test push-exif command with --report csv"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            ["-V", "--force", "--library", test_library, "--report", "report.csv"],
+        )
+        assert result.exit_code == 0
+        report_data = list(csv.DictReader(open("report.csv")))
+        assert len(report_data) == 17
+        missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
+        assert missing["missing"] == "original"
+
+
+def test_cli_push_exif_report_json(monkeypatch):
+    """Test push-exif command with --report json"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            ["-V", "--force", "--library", test_library, "--report", "report.json"],
+        )
+        assert result.exit_code == 0
+        with open("report.json", "r") as fp:
+            report_data = json.load(fp)
+        assert len(report_data) == 14
+        missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
+        assert missing["missing"] == ["original"]
+
+
+def test_cli_push_exif_report_sqlite(monkeypatch):
+    """Test push-exif command with --report sqlite"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            ["-V", "--force", "--library", test_library, "--report", "report.db"],
+        )
+        assert result.exit_code == 0
+        conn = sqlite3.connect("report.db")
+        conn.row_factory = sqlite3.Row
+        report_data = list(conn.execute("SELECT * FROM report").fetchall())
+        assert len(report_data) == 17
+        missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
+        assert missing["missing"] == "original"
