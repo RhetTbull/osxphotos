@@ -8,6 +8,7 @@ import json
 import os
 import os.path
 import sqlite3
+import sys
 from abc import ABC, abstractmethod
 from contextlib import suppress
 from typing import Any, Dict, Union
@@ -1022,25 +1023,33 @@ class PushExifReportWriterSQLite(ReportWriterABC):
                 about TEXT
                 );"""
         )
+        about_str = f"OSXPhotos push-exif Report. {OSXPHOTOS_ABOUT_STRING}"
         c.execute(
-            "INSERT INTO about(about) VALUES (?);",
-            (f"OSXPhotos push-exif Report. {OSXPHOTOS_ABOUT_STRING}",),
+            """
+            INSERT INTO about(about)
+            SELECT :about_str
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'about'
+            AND (SELECT COUNT(*) FROM about) = 0;""",
+            {"about_str": about_str},
         )
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS report_id (
                 report_id INTEGER PRIMARY KEY,
-                datetime TEXT
+                datetime TEXT,
+                command_line TEXT
             );"""
         )
         self._conn.commit()
 
     def _generate_report_id(self) -> int:
         """Get a new report ID for this report"""
+        command_line = " ".join(sys.argv)
         c = self._conn.cursor()
         c.execute(
-            "INSERT INTO report_id(datetime) VALUES (?);",
-            (datetime.datetime.now().isoformat(),),
+            "INSERT INTO report_id(datetime, command_line) VALUES (?, ?);",
+            (datetime.datetime.now().isoformat(), command_line),
         )
         report_id = c.lastrowid
         self._conn.commit()
