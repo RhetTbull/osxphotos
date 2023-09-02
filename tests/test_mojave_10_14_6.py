@@ -361,7 +361,7 @@ def test_not_burst(photosdb):
     assert not p.burst
 
 
-def test_location_1(photosdb):
+def test_location_has_location(photosdb):
     # test photo with lat/lon info
     photos = photosdb.photos(uuid=[UUID_DICT["location"]])
     assert len(photos) == 1
@@ -371,12 +371,19 @@ def test_location_1(photosdb):
     assert lon == pytest.approx(-0.1318055)
 
 
-def test_location_2(photosdb):
+def test_latitude_longitude_has_location(photosdb):
+    # test photo with lat/lon info
+    photos = photosdb.photos(uuid=[UUID_DICT["location"]])
+    p = photos[0]
+    assert p.latitude == pytest.approx(51.50357167)
+    assert p.longitude == pytest.approx(-0.1318055)
+
+
+def test_latitude_longitude_no_location(photosdb):
     # test photo with no location info
     photos = photosdb.photos(uuid=[UUID_DICT["no_location"]])
-    assert len(photos) == 1
     p = photos[0]
-    lat, lon = p.location
+    lat, lon = p.latitude, p.longitude
     assert lat is None
     assert lon is None
 

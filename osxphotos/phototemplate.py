@@ -733,7 +733,7 @@ class PhotoTemplate:
             pre = ts.pre or ""
             post = ts.post or ""
 
-            rendered = [pre + val + post for val in vals]
+            rendered = [pre + str(val) + post for val in vals]
             results_new = []
             for ren in rendered:
                 for res in results:

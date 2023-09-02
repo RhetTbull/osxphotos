@@ -475,6 +475,7 @@ UUID_MOMENT = {
 
 UUID_EMPTY_TITLE = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
 UUID_EMPTY_TITLE_HAS_DESCRIPTION = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
+UUID_LAT_LON = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
 
 TEMPLATE_VALUES_EMPTY_TITLE = {
     "{title,No Title} and {descr,No Descr}": "No Title and No Descr",
@@ -1373,3 +1374,18 @@ def test_bad_sslice(photosdb):
     # bad function raises ValueError
     with pytest.raises((SyntaxError, ValueError)):
         rendered, _ = photo.render_template("{photo.original_filename|sslice(1:2:3:4)}")
+
+
+def test_location_latitude_longitude(photosdb):
+    """Test {photo.location}, {photo.latitude}, {photo.longitude} #1187"""
+    photo = photosdb.get_photo(UUID_LAT_LON)
+    rendered, _ = photo.render_template("{photo.location}")
+    assert len(rendered) == 2
+    assert float(rendered[0]) == pytest.approx(41.256566)
+    assert float(rendered[1]) == pytest.approx(-95.940257)
+
+    rendered, _ = photo.render_template("{photo.latitude}")
+    assert float(rendered[0]) == pytest.approx(41.256566)
+
+    rendered, _ = photo.render_template("{photo.longitude}")
+    assert float(rendered[0]) == pytest.approx(-95.940257)
