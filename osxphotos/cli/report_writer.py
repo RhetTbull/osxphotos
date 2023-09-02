@@ -10,15 +10,15 @@ import os.path
 import sqlite3
 from abc import ABC, abstractmethod
 from contextlib import suppress
-from typing import Dict, Union
+from typing import Any, Dict, Union
 
 from osxphotos._constants import SQLITE_CHECK_SAME_THREAD
 from osxphotos.export_db import OSXPHOTOS_ABOUT_STRING
 from osxphotos.exportoptions import ExportResults
 from osxphotos.sqlite_utils import sqlite_columns
 
-from .sync_results import SyncResults
 from .push_results import PushResults
+from .sync_results import SyncResults
 
 __all__ = [
     "ExportReportWriterCSV",
@@ -820,18 +820,18 @@ class PushExifReportWriterCSV(ReportWriterABC):
                     "error": errors_by_filename.get(filename, ""),
                 }
             )
-        for missing in push_results.missing:
+        for filename, warning in push_results.warning:
             self._csv_writer.writerow(
                 {
                     "uuid": uuid,
                     "original_filename": original_filename,
                     "datetime": push_results.datetime,
-                    "filename": "",
+                    "filename": filename,
                     "written": False,
                     "updated": False,
                     "skipped": False,
-                    "missing": missing,
-                    "warning": "",
+                    "missing": "",
+                    "warning": warning,
                     "error": "",
                 }
             )
@@ -900,7 +900,7 @@ class PushExifReportWriterJSON(ReportWriterABC):
 
 
 class PushExifReportWriterSQLite(ReportWriterABC):
-    """Write sqlite PushResults report file"""
+    """Write SQLite PushResults report file"""
 
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
@@ -918,26 +918,78 @@ class PushExifReportWriterSQLite(ReportWriterABC):
         self._create_tables()
         self.report_id = self._generate_report_id()
 
-    def write(self, uuid: str, results: SyncResults):
+    def write(self, uuid: str, original_filename: str, results: PushResults):
         """Write results to the output file"""
 
+        errors_by_filename = {e[0]: e[1] for e in results.error}
+        warnings_by_filename = {w[0]: w[1] for w in results.warning}
+
         # insert rows of values into sqlite report table
-        for row in list(results.results_list):
-            report_id = self.report_id
-            data = [str(v) if v else "" for v in row]
-            cursor = self._conn.cursor()
-            cursor.execute(
-                "INSERT INTO report "
-                "(report_id, uuid, filename, fingerprint, updated, "
-                "albums_updated, albums_datetime, albums_before, albums_after, "
-                "description_updated, description_datetime, description_before, description_after, "
-                "favorite_updated, favorite_datetime, favorite_before, favorite_after, "
-                "keywords_updated, keywords_datetime, keywords_before, keywords_after, "
-                "title_updated, title_datetime, title_before, title_after)"
-                "VALUES "
-                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (report_id, *data),
+        for filename in results.written:
+            self._write_row(
+                uuid,
+                original_filename,
+                results.datetime,
+                filename,
+                1,
+                0,
+                0,
+                "",
+                warnings_by_filename.get(filename, ""),
+                errors_by_filename.get(filename, ""),
             )
+        for filename in results.updated:
+            self._write_row(
+                uuid,
+                original_filename,
+                results.datetime,
+                filename,
+                0,
+                1,
+                0,
+                "",
+                warnings_by_filename.get(filename, ""),
+                errors_by_filename.get(filename, ""),
+            )
+        for filename in results.skipped:
+            self._write_row(
+                uuid,
+                original_filename,
+                results.datetime,
+                filename,
+                0,
+                0,
+                1,
+                "",
+                "",
+                "",
+            )
+        for missing in results.missing:
+            self._write_row(
+                uuid,
+                original_filename,
+                results.datetime,
+                "",
+                0,
+                0,
+                0,
+                missing,
+                "",
+                "",
+            )
+
+    def _write_row(self, *data: Any):
+        """Write a row to the report table"""
+        report_id = self.report_id
+        # data = [str(v) if v else "" for v in row]
+        cursor = self._conn.cursor()
+        cursor.execute(
+            "INSERT INTO report "
+            "(report_id, uuid, original_filename, datetime, filename, written, updated, skipped, missing, warning, error)"
+            "VALUES "
+            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (report_id, *data),
+        )
         self._conn.commit()
 
     def close(self):
@@ -951,29 +1003,15 @@ class PushExifReportWriterSQLite(ReportWriterABC):
             CREATE TABLE IF NOT EXISTS report (
                 report_id TEXT, 
                 uuid TEXT,
+                original_filename TEXT,
                 filename TEXT,
-                fingerprint TEXT,
+                datetime TEXT,
+                written INT,
                 updated INT,
-                albums_updated INT,
-                albums_datetime TEXT,
-                albums_before TEXT,
-                albums_after TEXT,
-                description_updated INT,
-                description_datetime TEXT,
-                description_before TEXT,
-                description_after TEXT,
-                favorite_updated INT,
-                favorite_datetime TEXT,
-                favorite_before TEXT,
-                favorite_after TEXT,
-                keywords_updated INT,
-                keywords_datetime TEXT,
-                keywords_before TEXT,
-                keywords_after TEXT,
-                title_updated INT,
-                title_datetime TEXT,
-                title_before TEXT,
-                title_after TEXT
+                skipped INT,
+                missing TEXT,
+                warning TEXT,
+                error TEXT
             );
             """
         )
@@ -986,7 +1024,7 @@ class PushExifReportWriterSQLite(ReportWriterABC):
         )
         c.execute(
             "INSERT INTO about(about) VALUES (?);",
-            (f"OSXPhotos Sync Report. {OSXPHOTOS_ABOUT_STRING}",),
+            (f"OSXPhotos push-exif Report. {OSXPHOTOS_ABOUT_STRING}",),
         )
         c.execute(
             """
@@ -994,28 +1032,6 @@ class PushExifReportWriterSQLite(ReportWriterABC):
                 report_id INTEGER PRIMARY KEY,
                 datetime TEXT
             );"""
-        )
-        self._conn.commit()
-
-        # create report_summary view
-        c.execute("DROP VIEW IF EXISTS report_summary;")
-        c.execute(
-            """
-            CREATE VIEW report_summary AS
-            SELECT
-                r.report_id,
-                i.datetime AS report_datetime,
-                COUNT(r.uuid) as processed,
-                COUNT(CASE r.updated WHEN 'True' THEN 1 ELSE NULL END) as updated,
-                COUNT(case r.albums_updated WHEN 'True' THEN 1 ELSE NULL END) as albums_updated,
-                COUNT(case r.description_updated WHEN 'True' THEN 1 ELSE NULL END) as description_updated,
-                COUNT(case r.favorite_updated WHEN 'True' THEN 1 ELSE NULL END) as favorite_updated,
-                COUNT(case r.keywords_updated WHEN 'True' THEN 1 ELSE NULL END) as keywords_updated,
-                COUNT(case r.title_updated WHEN 'True' THEN 1 ELSE NULL END) as title_updated
-            FROM report as r
-            INNER JOIN report_id as i ON r.report_id = i.report_id
-            GROUP BY r.report_id;
-            """
         )
         self._conn.commit()
 
