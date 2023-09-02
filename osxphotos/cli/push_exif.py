@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import os
+
 import click
 from rich.progress import Progress
 
 from osxphotos import PhotoInfo
+from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifOptions, ExifWriter
+from osxphotos.photoinfo import PhotoInfoNone
+from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import assert_macos
 from osxphotos.sidecars import exiftool_json_sidecar
 from osxphotos.sqlitekvstore import SQLiteKVStore
@@ -14,7 +19,9 @@ from osxphotos.utils import pluralize
 
 from .cli_commands import echo, echo_error, query_command, verbose
 from .kvstore import kvstore
+from .param_types import TemplateString
 from .push_results import PushResults
+from .report_writer import ReportWriterNoOp, push_exif_report_writer_factory
 from .verbose import get_verbose_console
 
 assert_macos()
@@ -26,7 +33,38 @@ assert_macos()
     is_flag=True,
     help="Push EXIF data to edited photos in addition to originals",
 )
-def push_exif(photos: list[PhotoInfo], push_edited: bool, **kwargs):
+@click.option(
+    "--report",
+    metavar="REPORT_FILE",
+    help="Write a report of all files that were processed. "
+    "The extension of the report filename will be used to determine the format. "
+    "Valid extensions are: "
+    ".csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). "
+    "REPORT_FILE may be a template string (see Templating System), for example, "
+    "--report 'push_exif_{today.date}.csv' will write a CSV report file named with today's date. "
+    "See also --append.",
+    type=TemplateString(),
+)
+@click.option(
+    "--append",
+    is_flag=True,
+    help="If used with --report, add data to existing report file instead of overwriting it. "
+    "See also --report.",
+)
+@click.option(
+    "--exiftool-path",
+    metavar="EXIFTOOL_PATH",
+    type=click.Path(exists=True),
+    help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
+)
+def push_exif(
+    photos: list[PhotoInfo],
+    push_edited: bool,
+    report: str,
+    append: bool,
+    exiftool_path: str,
+    **kwargs,
+):
     """Write photo metadata to original files in the Photos library
 
     This command will use exiftool (which must be installed separately)
@@ -50,6 +88,7 @@ def push_exif(photos: list[PhotoInfo], push_edited: bool, **kwargs):
     to automatically update or skip files as needed on subsequent runs of this command.
     """
 
+    # validation
     if not photos:
         echo_error("No photos selected for processing")
         raise click.Abort()
@@ -68,8 +107,20 @@ def push_exif(photos: list[PhotoInfo], push_edited: bool, **kwargs):
         )
         click.confirm("Are you sure you want to continue?", abort=True)
 
+    exiftool_path = exiftool_path or get_exiftool_path()
+    verbose(f"Found exiftool at: [filepath]{exiftool_path}")
+
     update_db = kvstore("push_exif")
     echo(f"Using update database: [filepath]{update_db.path}[/]")
+
+    report_name = render_and_validate_report(report, exiftool_path) if report else None
+    verbose(f"Will write report to: [filepath]{report_name}[/]")
+
+    report_writer = (
+        push_exif_report_writer_factory(report_name, append)
+        if report
+        else ReportWriterNoOp()
+    )
 
     options = ExifOptions()
     results = {}
@@ -85,11 +136,16 @@ def push_exif(photos: list[PhotoInfo], push_edited: bool, **kwargs):
                 f"[filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
             )
             progress.print(f"Processing {photo_str}")
-            results[photo.uuid] = process_photo(photo, options, push_edited, update_db)
+            photo_results = process_photo(photo, options, push_edited, update_db)
+            results[photo.uuid] = photo_results
+            report_writer.write(photo.uuid, photo.original_filename, photo_results)
             progress.advance(task)
 
-    echo("Done.")
     print_results_summary(results)
+    if report:
+        echo(f"Wrote results to report: [filepath]{report_name}[/]")
+        report_writer.close()
+    echo("Done.")
 
 
 def process_photo(
@@ -204,3 +260,32 @@ def print_results_summary(results: dict[str, PushResults]):
     echo(
         f"Summary: {written} written, {updated} updated, {skipped} skipped, {missing} missing, {warnings} warning, {errors} error"
     )
+
+
+def render_and_validate_report(report: str, exiftool_path: str) -> str:
+    """Render a report file template and validate the filename
+
+    Args:
+        report: the template string
+        exiftool_path: the path to the exiftool binary
+
+    Returns:
+        the rendered report filename
+
+    Note:
+        Exits with error if the report filename is invalid
+    """
+    # render report template and validate the filename
+    template = PhotoTemplate(PhotoInfoNone(), exiftool_path=exiftool_path)
+    render_options = RenderOptions()
+    report_file, _ = template.render(report, options=render_options)
+    report = report_file[0]
+
+    if os.path.isdir(report):
+        echo_error(
+            f"[error]Report '{report}' is a directory, must be file name",
+            err=True,
+        )
+        raise click.Abort()
+
+    return report

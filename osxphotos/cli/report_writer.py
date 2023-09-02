@@ -18,17 +18,22 @@ from osxphotos.exportoptions import ExportResults
 from osxphotos.sqlite_utils import sqlite_columns
 
 from .sync_results import SyncResults
+from .push_results import PushResults
 
 __all__ = [
     "ExportReportWriterCSV",
     "ExportReportWriterJSON",
     "ExportReportWriterSqlite",
+    "PushExifReportWriterCSV",
+    "PushExifReportWriterJSON",
+    "PushExifReportWriterSqlite",
     "ReportWriterABC",
     "ReportWriterNoOp",
     "SyncReportWriterCSV",
     "SyncReportWriterJSON",
     "SyncReportWriterSqlite",
     "export_report_writer_factory",
+    "push_exif_report_writer_factory",
     "sync_report_writer_factory",
 ]
 
@@ -740,27 +745,96 @@ def sync_report_writer_factory(
         raise ValueError(f"Unknown report file type: {output_file}")
 
 
-
 class PushExifReportWriterCSV(ReportWriterABC):
     """Write CSV report file"""
 
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
     ):
+        report_columns = [
+            "uuid",
+            "original_filename",
+            "datetime",
+            "filename",
+            "written",
+            "updated",
+            "skipped",
+            "missing",
+            "warning",
+            "error",
+        ]
         self.output_file = output_file
         self.append = append
         mode = "a" if append else "w"
         self._output_fh = open(self.output_file, mode)
-
-    def write(self, sync_results: SyncResults):
-        """Write results to the output file"""
-        report_columns = sync_results.results_header
         self._csv_writer = csv.DictWriter(self._output_fh, fieldnames=report_columns)
-        if not self.append:
+        if not append:
             self._csv_writer.writeheader()
 
-        for data in sync_results.results_list:
-            self._csv_writer.writerow(dict(zip(report_columns, data)))
+    def write(self, uuid: str, original_filename: str, push_results: PushResults):
+        """Write results to the output file"""
+        errors_by_filename = {e[0]: e[1] for e in push_results.error}
+        warnings_by_filename = {w[0]: w[1] for w in push_results.warning}
+        for filename in push_results.written:
+            self._csv_writer.writerow(
+                {
+                    "uuid": uuid,
+                    "original_filename": original_filename,
+                    "datetime": push_results.datetime,
+                    "filename": filename,
+                    "written": True,
+                    "updated": False,
+                    "skipped": False,
+                    "missing": "",
+                    "warning": warnings_by_filename.get(filename, ""),
+                    "error": errors_by_filename.get(filename, ""),
+                }
+            )
+        for filename in push_results.updated:
+            self._csv_writer.writerow(
+                {
+                    "uuid": uuid,
+                    "original_filename": original_filename,
+                    "datetime": push_results.datetime,
+                    "filename": filename,
+                    "written": False,
+                    "updated": True,
+                    "skipped": False,
+                    "missing": "",
+                    "warning": warnings_by_filename.get(filename, ""),
+                    "error": errors_by_filename.get(filename, ""),
+                }
+            )
+        for filename in push_results.skipped:
+            self._csv_writer.writerow(
+                {
+                    "uuid": uuid,
+                    "original_filename": original_filename,
+                    "datetime": push_results.datetime,
+                    "filename": filename,
+                    "written": False,
+                    "updated": False,
+                    "skipped": True,
+                    "missing": "",
+                    "warning": warnings_by_filename.get(filename, ""),
+                    "error": errors_by_filename.get(filename, ""),
+                }
+            )
+        for missing in push_results.missing:
+            self._csv_writer.writerow(
+                {
+                    "uuid": uuid,
+                    "original_filename": original_filename,
+                    "datetime": push_results.datetime,
+                    "filename": "",
+                    "written": False,
+                    "updated": False,
+                    "skipped": False,
+                    "missing": missing,
+                    "warning": "",
+                    "error": "",
+                }
+            )
         self._output_fh.flush()
 
     def close(self):
