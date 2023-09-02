@@ -42,6 +42,7 @@ assert_macos()
 )
 @click.option(
     "--exiftool-option",
+    "exiftool_flags", # match ExifOptions
     multiple=True,
     metavar="OPTION",
     help="Optional flag/option to pass to exiftool. "
@@ -149,7 +150,7 @@ def push_exif(
     photos: list[PhotoInfo],
     push_edited: bool,
     exiftool_path: str,
-    exiftool_option: tuple[str],
+    exiftool_flags: tuple[str],
     merge_exif_keywords: bool,
     merge_exif_persons: bool,
     favorite_rating: bool,
