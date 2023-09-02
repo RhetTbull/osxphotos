@@ -12,8 +12,9 @@ from osxphotos.sidecars import exiftool_json_sidecar
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
-from .cli_commands import echo, echo_error, query_command, selection_command, verbose
+from .cli_commands import echo, echo_error, query_command, verbose
 from .kvstore import kvstore
+from .push_results import PushResults
 from .verbose import get_verbose_console
 
 assert_macos()
@@ -53,15 +54,25 @@ def push_exif(photos: list[PhotoInfo], push_edited: bool, **kwargs):
         echo_error("No photos selected for processing")
         raise click.Abort()
 
+    library_path = photos[0]._db.library_path
+
     echo(f"[num]{len(photos)}[/] photos selected for processing")
     echo(
-        f":warning-emoji: [warning]This command will modify files in the Photos library: [filepath]{photos[0]._db.library_path}[/]"
+        f":warning-emoji: [warning]This command will modify files in the Photos library: [filepath]{library_path}[/]"
     )
     click.confirm("Do you want to continue?", abort=True)
 
+    if any(p.iscloudasset for p in photos):
+        echo(
+            f":warning-emoji: [warning]WARNING: [filepath]{library_path}[/] appears to be an iCloud library"
+        )
+        click.confirm("Are you sure you want to continue?", abort=True)
+
     update_db = kvstore("push_exif")
-    echo(f"Using database: [filepath]{update_db.path}[/]")
+    echo(f"Using update database: [filepath]{update_db.path}[/]")
+
     options = ExifOptions()
+    results = {}
     with Progress(console=get_verbose_console()) as progress:
         num_photos = len(photos)
         task = progress.add_task(
@@ -74,8 +85,11 @@ def push_exif(photos: list[PhotoInfo], push_edited: bool, **kwargs):
                 f"[filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
             )
             progress.print(f"Processing {photo_str}")
-            process_photo(photo, options, push_edited, update_db)
+            results[photo.uuid] = process_photo(photo, options, push_edited, update_db)
             progress.advance(task)
+
+    echo("Done.")
+    print_results_summary(results)
 
 
 def process_photo(
@@ -83,7 +97,7 @@ def process_photo(
     options: ExifOptions,
     push_edited: bool,
     update_db: SQLiteKVStore,
-) -> tuple[list[str], list[str]]:
+) -> PushResults:
     """
     Process a photo, writing metadata to files as needed
 
@@ -94,12 +108,10 @@ def process_photo(
         update_db (SQLiteKVStore): The database to use for storing metadata
 
     Returns:
-        tuple[list[str], list[str]]: A tuple containing two lists: the list of files
-        that were successfully written to, and the list of files that encountered errors
-        during the writing process.
+        PushResults: The results of processing the photo
     """
     files_to_write = []
-    written = []
+    results = PushResults()
     photo_str = f"[filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
     exif_sidecar = exiftool_json_sidecar(photo, options)
 
@@ -108,61 +120,87 @@ def process_photo(
         files_to_write.append(photo.path)
     else:
         verbose(f"Skipping original for {photo_str} (missing path)")
+        results.missing.append("original")
     if photo.live_photo:
         if photo.path_live_photo:
             files_to_write.append(photo.path_live_photo)
         else:
             verbose(f"Skipping live photo for {photo_str} (missing path_live_photo)")
+            results.missing.append("live_photo")
     if push_edited:
         if photo.path_edited:
             files_to_write.append(photo.path_edited)
         else:
             verbose(f"Skipping edited for {photo_str} (missing path_edited)")
+            results.missing.append("edited")
         if photo.live_photo and photo.path_edited_live_photo:
             files_to_write.append(photo.path_edited_live_photo)
         else:
             verbose(
                 f"Skipping edited live photo for {photo_str} (missing path_edited_live_photo)"
             )
+            results.missing.append("edited_live_photo")
     if photo.has_raw:
         if photo.path_raw:
             files_to_write.append(photo.path_raw)
         else:
             verbose(f"Skipping RAW for {photo_str} (missing path_raw)")
+            results.missing.append("raw")
 
-    error = []
     for filepath in files_to_write:
         photo_key = f"{photo.uuid}:{filepath}"
         if photo_key in update_db:
             # already processed this file
             if update_db[photo_key] == exif_sidecar:
                 verbose(f"Skipping [filepath]{filepath}[/] (no update needed)")
+                results.skipped.append(filepath)
                 continue
             else:
                 verbose(f"Updating [filepath]{filepath}[/] (metadata changed)")
+                results.updated.append(filepath)
         else:
             verbose(
                 f"Writing metadata to [filepath]{filepath}[/] (not previously written)"
             )
-        if write_exif(photo, filepath, options):
+            results.written.append(filepath)
+        warnings, errors = write_exif(photo, filepath, options)
+        if not errors:
             update_db[photo_key] = exif_sidecar
-            written.append(filepath)
         else:
-            error.append(filepath)
+            results.error.append((filepath, errors))
+        if warnings:
+            results.warning.append((filepath, warnings))
+    return results
 
-    return written, error
 
-
-def write_exif(photo: PhotoInfo, filepath: str, options: ExifOptions):
+def write_exif(
+    photo: PhotoInfo, filepath: str, options: ExifOptions
+) -> tuple[str | None, str | None]:
     """Write metadata to file with exiftool"""
-    import time
-
-    time.sleep(0.5)
     exif_writer = ExifWriter(photo)
     warnings, error = exif_writer.write_exif_data(filepath, options)
     if warnings:
         echo_error(f":warning-emoji: {warnings}")
     if error:
         echo_error(f":cross_mark-emoji: {error}")
-        return False
-    return True
+    return warnings, error
+
+
+def print_results_summary(results: dict[str, PushResults]):
+    """Print results summary"""
+    written = 0
+    updated = 0
+    skipped = 0
+    missing = 0
+    warnings = 0
+    errors = 0
+    for result in results.values():
+        written += len(result.written)
+        updated += len(result.updated)
+        skipped += len(result.skipped)
+        missing += len(result.missing)
+        warnings += len(result.warning)
+        errors += len(result.error)
+    echo(
+        f"Summary: {written} written, {updated} updated, {skipped} skipped, {missing} missing, {warnings} warning, {errors} error"
+    )

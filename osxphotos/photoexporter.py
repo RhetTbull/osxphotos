@@ -46,8 +46,6 @@ if is_macos:
 
 __all__ = [
     "ExportError",
-    "ExportOptions",
-    "ExportResults",
     "PhotoExporter",
     "rename_jpeg_files",
 ]

@@ -738,3 +738,236 @@ def sync_report_writer_factory(
         return SyncReportWriterSQLite(output_file, append)
     else:
         raise ValueError(f"Unknown report file type: {output_file}")
+
+
+
+class PushExifReportWriterCSV(ReportWriterABC):
+    """Write CSV report file"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        self.output_file = output_file
+        self.append = append
+        mode = "a" if append else "w"
+        self._output_fh = open(self.output_file, mode)
+
+    def write(self, sync_results: SyncResults):
+        """Write results to the output file"""
+        report_columns = sync_results.results_header
+        self._csv_writer = csv.DictWriter(self._output_fh, fieldnames=report_columns)
+        if not self.append:
+            self._csv_writer.writeheader()
+
+        for data in sync_results.results_list:
+            self._csv_writer.writerow(dict(zip(report_columns, data)))
+        self._output_fh.flush()
+
+    def close(self):
+        """Close the output file"""
+        self._output_fh.close()
+
+    def __del__(self):
+        with suppress(Exception):
+            self._output_fh.close()
+
+
+class PushExifReportWriterJSON(ReportWriterABC):
+    """Write JSON PushResults report file"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        self.output_file = output_file
+        self.append = append
+        self.indent = 4
+
+        self._first_record_written = False
+        if append:
+            with open(self.output_file, "r") as fh:
+                existing_data = json.load(fh)
+            self._output_fh = open(self.output_file, "w")
+            self._output_fh.write("[")
+            for data in existing_data:
+                self._output_fh.write(json.dumps(data, indent=self.indent))
+                self._output_fh.write(",\n")
+        else:
+            self._output_fh = open(self.output_file, "w")
+            self._output_fh.write("[")
+
+    def write(self, results: SyncResults):
+        """Write results to the output file"""
+
+        # convert datetimes to strings
+        def default(o):
+            if isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+
+        for data in list(results.results_dict.values()):
+            if self._first_record_written:
+                self._output_fh.write(",\n")
+            else:
+                self._first_record_written = True
+            self._output_fh.write(json.dumps(data, indent=self.indent, default=default))
+        self._output_fh.flush()
+
+    def close(self):
+        """Close the output file"""
+        self._output_fh.write("]")
+        self._output_fh.close()
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
+
+
+class PushExifReportWriterSQLite(ReportWriterABC):
+    """Write sqlite PushResults report file"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        self.output_file = output_file
+        self.append = append
+
+        if not append:
+            with suppress(FileNotFoundError):
+                os.unlink(self.output_file)
+
+        self._conn = sqlite3.connect(
+            self.output_file, check_same_thread=SQLITE_CHECK_SAME_THREAD
+        )
+        self._create_tables()
+        self.report_id = self._generate_report_id()
+
+    def write(self, results: SyncResults):
+        """Write results to the output file"""
+
+        # insert rows of values into sqlite report table
+        for row in list(results.results_list):
+            report_id = self.report_id
+            data = [str(v) if v else "" for v in row]
+            cursor = self._conn.cursor()
+            cursor.execute(
+                "INSERT INTO report "
+                "(report_id, uuid, filename, fingerprint, updated, "
+                "albums_updated, albums_datetime, albums_before, albums_after, "
+                "description_updated, description_datetime, description_before, description_after, "
+                "favorite_updated, favorite_datetime, favorite_before, favorite_after, "
+                "keywords_updated, keywords_datetime, keywords_before, keywords_after, "
+                "title_updated, title_datetime, title_before, title_after)"
+                "VALUES "
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (report_id, *data),
+            )
+        self._conn.commit()
+
+    def close(self):
+        """Close the output file"""
+        self._conn.close()
+
+    def _create_tables(self):
+        c = self._conn.cursor()
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report (
+                report_id TEXT, 
+                uuid TEXT,
+                filename TEXT,
+                fingerprint TEXT,
+                updated INT,
+                albums_updated INT,
+                albums_datetime TEXT,
+                albums_before TEXT,
+                albums_after TEXT,
+                description_updated INT,
+                description_datetime TEXT,
+                description_before TEXT,
+                description_after TEXT,
+                favorite_updated INT,
+                favorite_datetime TEXT,
+                favorite_before TEXT,
+                favorite_after TEXT,
+                keywords_updated INT,
+                keywords_datetime TEXT,
+                keywords_before TEXT,
+                keywords_after TEXT,
+                title_updated INT,
+                title_datetime TEXT,
+                title_before TEXT,
+                title_after TEXT
+            );
+            """
+        )
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS about (
+                id INTEGER PRIMARY KEY,
+                about TEXT
+                );"""
+        )
+        c.execute(
+            "INSERT INTO about(about) VALUES (?);",
+            (f"OSXPhotos Sync Report. {OSXPHOTOS_ABOUT_STRING}",),
+        )
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report_id (
+                report_id INTEGER PRIMARY KEY,
+                datetime TEXT
+            );"""
+        )
+        self._conn.commit()
+
+        # create report_summary view
+        c.execute("DROP VIEW IF EXISTS report_summary;")
+        c.execute(
+            """
+            CREATE VIEW report_summary AS
+            SELECT
+                r.report_id,
+                i.datetime AS report_datetime,
+                COUNT(r.uuid) as processed,
+                COUNT(CASE r.updated WHEN 'True' THEN 1 ELSE NULL END) as updated,
+                COUNT(case r.albums_updated WHEN 'True' THEN 1 ELSE NULL END) as albums_updated,
+                COUNT(case r.description_updated WHEN 'True' THEN 1 ELSE NULL END) as description_updated,
+                COUNT(case r.favorite_updated WHEN 'True' THEN 1 ELSE NULL END) as favorite_updated,
+                COUNT(case r.keywords_updated WHEN 'True' THEN 1 ELSE NULL END) as keywords_updated,
+                COUNT(case r.title_updated WHEN 'True' THEN 1 ELSE NULL END) as title_updated
+            FROM report as r
+            INNER JOIN report_id as i ON r.report_id = i.report_id
+            GROUP BY r.report_id;
+            """
+        )
+        self._conn.commit()
+
+    def _generate_report_id(self) -> int:
+        """Get a new report ID for this report"""
+        c = self._conn.cursor()
+        c.execute(
+            "INSERT INTO report_id(datetime) VALUES (?);",
+            (datetime.datetime.now().isoformat(),),
+        )
+        report_id = c.lastrowid
+        self._conn.commit()
+        return report_id
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
+
+
+def push_exif_report_writer_factory(
+    output_file: Union[str, bytes, os.PathLike], append: bool = False
+) -> ReportWriterABC:
+    """Return a ReportWriter instance appropriate for the output file type"""
+    output_type = os.path.splitext(output_file)[1]
+    output_type = output_type.lower()[1:]
+    if output_type == "csv":
+        return PushExifReportWriterCSV(output_file, append)
+    elif output_type == "json":
+        return PushExifReportWriterJSON(output_file, append)
+    elif output_type in ["sqlite", "db"]:
+        return PushExifReportWriterSQLite(output_file, append)
+    else:
+        raise ValueError(f"Unknown report file type: {output_file}")
