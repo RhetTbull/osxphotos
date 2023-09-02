@@ -770,8 +770,18 @@ class PhotoInfo:
 
     @property
     def location(self):
-        """returns (latitude, longitude) as float in degrees or None"""
+        """Returns (latitude, longitude) as float in degrees or None"""
         return (self._latitude, self._longitude)
+
+    @property
+    def latitude(self):
+        """Returns latitude as float in degrees or None"""
+        return self._latitude
+
+    @property
+    def longitude(self):
+        """Returns longitude as float in degrees or None"""
+        return self._longitude
 
     @property
     def shared(self):
