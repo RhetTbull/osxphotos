@@ -35,6 +35,9 @@ CWD = os.getcwd()
 
 UUID_MISSING = "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"  # Pumpkins4.jpg
 UUID_KEYWORDS_PERSONS = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg
+UUID_FAVORITE = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
+UUID_NOT_FAVORITE = UUID_KEYWORDS_PERSONS
+UUID_DATE_MODIFIED = UUID_FAVORITE
 
 
 def copy_photos_library(dest):
@@ -60,6 +63,12 @@ def get_exiftool_persons(photo: PhotoInfo) -> list[str]:
     if isinstance(exif["XMP:PersonInImage"], str):
         return sorted([exif["XMP:PersonInImage"]])
     return sorted(exif["XMP:PersonInImage"])
+
+
+def get_exiftool_description(photo: PhotoInfo) -> str:
+    """Get EXIF description from a photo's original file"""
+    exif = ExifTool(photo.path).asdict()
+    return exif.get("EXIF:ImageDescription", "")
 
 
 def set_exiftool_keywords(photo: PhotoInfo, keywords: list[str]):
@@ -230,3 +239,150 @@ def test_cli_push_exif_report_sqlite(monkeypatch):
         assert len(report_data) == 17
         missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
         assert missing["missing"] == "original"
+
+
+def test_cli_push_exif_favorite_rating(monkeypatch):
+    """Test push-exif command with --favorite-rating"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            [
+                "-V",
+                "--force",
+                "--library",
+                test_library,
+                "--uuid",
+                UUID_FAVORITE,
+                "--uuid",
+                UUID_NOT_FAVORITE,
+                "--favorite-rating",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # verify XMP:Rating was set to 5 or 0
+        photosdb = PhotosDB(test_library)
+        photo = photosdb.get_photo(UUID_FAVORITE)
+        assert photo.exiftool.asdict()["XMP:Rating"] == 5
+
+        photo = photosdb.get_photo(UUID_NOT_FAVORITE)
+        assert photo.exiftool.asdict()["XMP:Rating"] == 0
+
+
+def test_cli_push_exif_ignore_date_modified(monkeypatch):
+    """Test push-exif command with --ignore-date-modified"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            [
+                "-V",
+                "--force",
+                "--library",
+                test_library,
+                "--uuid",
+                UUID_DATE_MODIFIED,
+                "--ignore-date-modified",
+            ],
+        )
+        assert result.exit_code == 0
+
+        photo = PhotosDB(test_library).get_photo(UUID_DATE_MODIFIED)
+        date_modified = photo.exiftool.asdict()["EXIF:ModifyDate"]
+        assert date_modified == photo.date.strftime("%Y:%m:%d %H:%M:%S")
+
+
+def test_cli_push_exif_person_keyword_album_keyword(monkeypatch):
+    """Test push-exif command with --person-keyword and --album-keyword"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            [
+                "-V",
+                "--force",
+                "--library",
+                test_library,
+                "--uuid",
+                UUID_KEYWORDS_PERSONS,
+                "--person-keyword",
+                "--album-keyword",
+            ],
+        )
+        assert result.exit_code == 0
+
+        photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
+        keywords = get_exiftool_keywords(photo)
+        assert keywords == sorted(photo.keywords + photo.persons + photo.albums)
+
+
+def test_cli_push_exif_keyword_description_template(monkeypatch):
+    """Test push-exif command with --keyword-template and --description-template"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            [
+                "-V",
+                "--force",
+                "--library",
+                test_library,
+                "--uuid",
+                UUID_KEYWORDS_PERSONS,
+                "--keyword-template",
+                "{title}",
+                "--keyword-template",
+                "FOO",
+                "--description-template",
+                "{descr} - {title}",
+            ],
+        )
+        assert result.exit_code == 0
+
+        photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
+        keywords = get_exiftool_keywords(photo)
+        assert keywords == sorted(photo.keywords + [photo.title] + ["FOO"])
+        assert get_exiftool_description(photo) == f"{photo.description} - {photo.title}"
+
+
+def test_cli_push_exif_replace_keywords(monkeypatch):
+    """Test push-exif command with --replace-keywords"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+        monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            [
+                "-V",
+                "--force",
+                "--library",
+                test_library,
+                "--uuid",
+                UUID_KEYWORDS_PERSONS,
+                "--keyword-template",
+                "{title}",
+                "--keyword-template",
+                "FOO",
+                "--replace-keywords",
+            ],
+        )
+        assert result.exit_code == 0
+
+        photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
+        keywords = get_exiftool_keywords(photo)
+        assert keywords == sorted([photo.title] + ["FOO"])
