@@ -847,7 +847,7 @@ class PushExifReportWriterCSV(ReportWriterABC):
 
 
 class PushExifReportWriterJSON(ReportWriterABC):
-    """Write JSON PushResults report file"""
+    """Write JSON report file for push-exif results"""
 
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
@@ -869,20 +869,24 @@ class PushExifReportWriterJSON(ReportWriterABC):
             self._output_fh = open(self.output_file, "w")
             self._output_fh.write("[")
 
-    def write(self, results: SyncResults):
+    def write(self, uuid: str, original_filename: str, push_results: PushResults):
         """Write results to the output file"""
-
-        # convert datetimes to strings
-        def default(o):
-            if isinstance(o, (datetime.date, datetime.datetime)):
-                return o.isoformat()
-
-        for data in list(results.results_dict.values()):
-            if self._first_record_written:
-                self._output_fh.write(",\n")
-            else:
-                self._first_record_written = True
-            self._output_fh.write(json.dumps(data, indent=self.indent, default=default))
+        record = {"uuid": uuid, "original_filename": original_filename}
+        for field in [
+            "datetime",
+            "written",
+            "updated",
+            "skipped",
+            "missing",
+            "warning",
+            "error",
+        ]:
+            record[field] = getattr(push_results, field)
+        if self._first_record_written:
+            self._output_fh.write(",\n")
+        else:
+            self._first_record_written = True
+        self._output_fh.write(json.dumps(record, indent=self.indent))
         self._output_fh.flush()
 
     def close(self):
@@ -914,7 +918,7 @@ class PushExifReportWriterSQLite(ReportWriterABC):
         self._create_tables()
         self.report_id = self._generate_report_id()
 
-    def write(self, results: SyncResults):
+    def write(self, uuid: str, results: SyncResults):
         """Write results to the output file"""
 
         # insert rows of values into sqlite report table
