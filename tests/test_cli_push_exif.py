@@ -13,13 +13,22 @@ import pytest
 from click.testing import CliRunner
 
 from osxphotos import PhotoInfo, PhotosDB
-from osxphotos.exiftool import ExifTool
+from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.platform import is_macos
 
 if not is_macos:
     pytest.skip("Skipping macos-only tests", allow_module_level=True)
 
 from osxphotos.cli.push_exif import push_exif
+
+try:
+    exiftool = get_exiftool_path()
+except Exception:
+    exiftool = None
+
+if exiftool is None:
+    pytest.skip("could not find exiftool in path", allow_module_level=True)
+
 
 PHOTOS_DB = "tests/Test-13.0.0.photoslibrary/"
 CWD = os.getcwd()
@@ -52,17 +61,20 @@ def get_exiftool_persons(photo: PhotoInfo) -> list[str]:
         return sorted([exif["XMP:PersonInImage"]])
     return sorted(exif["XMP:PersonInImage"])
 
+
 def set_exiftool_keywords(photo: PhotoInfo, keywords: list[str]):
     """Set IPTC keywords in a photo's original file"""
     with ExifTool(photo.path) as exiftool:
         for keyword in keywords:
             exiftool.setvalue("IPTC:Keywords", keyword)
 
+
 def set_exiftool_persons(photo: PhotoInfo, persons: list[str]):
     """Set XMP persons in a photo's original file"""
     with ExifTool(photo.path) as exiftool:
         for person in persons:
             exiftool.setvalue("XMP:PersonInImage", person)
+
 
 def test_cli_push_exif_basic(monkeypatch):
     """Test push-exif command"""
@@ -104,6 +116,7 @@ def test_cli_push_exif_exiftool_option(monkeypatch):
             in result.output
         )
 
+
 def test_cli_push_exif_exiftool_merge_keywords(monkeypatch):
     """Test push-exif command with --exiftool-merge-keywords"""
     runner = CliRunner()
@@ -114,11 +127,14 @@ def test_cli_push_exif_exiftool_merge_keywords(monkeypatch):
 
         photosdb = PhotosDB(test_library)
         photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        
+
         set_exiftool_keywords(photo, ["Foo", "Bar"])
         set_exiftool_persons(photo, ["JaneDoe"])
 
-        result = runner.invoke(push_exif, ["-V", "--force", "--library", test_library, "--exiftool-merge-keywords"])
+        result = runner.invoke(
+            push_exif,
+            ["-V", "--force", "--library", test_library, "--exiftool-merge-keywords"],
+        )
         assert result.exit_code == 0
         assert (
             "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
@@ -140,11 +156,14 @@ def test_cli_push_exif_exiftool_merge_persons(monkeypatch):
 
         photosdb = PhotosDB(test_library)
         photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        
+
         set_exiftool_keywords(photo, ["Foo", "Bar"])
         set_exiftool_persons(photo, ["JaneDoe"])
 
-        result = runner.invoke(push_exif, ["-V", "--force", "--library", test_library, "--exiftool-merge-persons"])
+        result = runner.invoke(
+            push_exif,
+            ["-V", "--force", "--library", test_library, "--exiftool-merge-persons"],
+        )
         assert result.exit_code == 0
         assert (
             "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
@@ -154,7 +173,6 @@ def test_cli_push_exif_exiftool_merge_persons(monkeypatch):
         # verify keywords and persons were pushed and merged appropriately
         assert sorted(photo.keywords) == get_exiftool_keywords(photo)
         assert sorted(photo.persons + ["JaneDoe"]) == get_exiftool_persons(photo)
-
 
 
 def test_cli_push_exif_report_csv(monkeypatch):
