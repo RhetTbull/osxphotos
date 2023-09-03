@@ -21,6 +21,8 @@ Some of the export tests rely on photos in my local library and will look for `O
 
 One test for locale does not run on GitHub's automated workflow and will look for `OSXPHOTOS_TEST_LOCALE=1` to determine if it should be run.  If you want to run this test, set the environment variable.  
 
+Some tests require GPU and will look for `OSXPHOTOS_TEST_CONVERT=1`. These will be skipped in GitHub Actions CI which doesn't provide a GPU.
+
 A couple of tests require interaction with Photos and configuring a specific test library. Currently these run only on Catalina.  The tests must be specified by using a pytest flag. Only one of these interactive tests can be run at a time.  The current flags are:
 
 --addalbum: test --add-to-album options (pytest -vv tests/test_photosalbum_unicode.py tests/test_cli_add_to_album.py --addalbum)

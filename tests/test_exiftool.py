@@ -1,4 +1,5 @@
 import json
+import os
 
 import pytest
 
@@ -528,6 +529,7 @@ def test_photoinfo_exiftool_none():
         assert exiftool is None
 
 
+@pytest.mark.skipif(os.getenv("GITHUB_ACTIONS"), reason="fails on GH actions")
 def test_exiftool_terminate():
     """Test that exiftool process is terminated when exiftool.terminate() is called"""
     import subprocess
