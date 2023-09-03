@@ -32,6 +32,7 @@ from osxphotos.sidecars import exiftool_json_sidecar
 if is_macos:
     import photoscript
     from applescript import ScriptError
+    from osxphotos.photos_selection import PhotosSelection
 
 from .cli_params import DB_ARGUMENT, DB_OPTION, DELETED_OPTIONS, QUERY_OPTIONS
 from .common import get_photos_db
@@ -77,7 +78,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     from osxphotos.queryoptions import QueryOptions
     from osxphotos.scoreinfo import ScoreInfo
     from osxphotos.searchinfo import SearchInfo
-    from osxphotos.sidecars import SidecarWriter, xmp_sidecar
+    from osxphotos.sidecars import SidecarWriter, exiftool_json_sidecar, xmp_sidecar
 
     logger = logging.getLogger()
     logger.disabled = True
@@ -105,15 +106,12 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
 
     # shortcut for helper functions
     get_photo = photosdb.get_photo
-    show = _show_photo
-    spotlight = _spotlight_photo
     find = partial(_find_in_library, photosdb)
-    get_selected = _get_selected(photosdb)
-    try:
-        selected = get_selected()
-    except Exception:
-        # get_selected sometimes fails
-        selected = []
+
+    if is_macos:
+        show = _show_photo
+        spotlight = _spotlight_photo
+        selected = PhotosSelection(photosdb)
 
     def inspect(obj):
         """inspect object"""
@@ -134,23 +132,23 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     print(
         f"- all_photos: list of PhotoInfo objects for all photos in photosdb, including those in the trash (len={len(all_photos)})"
     )
-    print(
-        f"- selected: list of PhotoInfo objects for any photos selected in Photos (len={len(selected)})"
-    )
+    if is_macos:
+        print(
+            f"- selected: list of PhotoInfo objects for any photos selected in Photos (len={len(selected)}); "
+            "will dynamically update as photos are selected in Photos"
+        )
     print(f"\nThe following functions may be helpful:")
     print(
         "- get_photo(uuid): return a PhotoInfo object for photo with uuid; e.g. get_photo('B13F4485-94E0-41CD-AF71-913095D62E31')"
     )
-    print(
-        "- get_selected(); return list of PhotoInfo objects for photos selected in Photos"
-    )
-    print(
-        "- show(photo): open a photo object in the default viewer; e.g. show(selected[0])"
-    )
-    print(
-        "- show(path): open a file at path in the default viewer; e.g. show('/path/to/photo.jpg')"
-    )
-    print("- spotlight(photo): open a photo and spotlight it in Photos")
+    if is_macos:
+        print(
+            "- show(photo): open a photo object in the default viewer; e.g. show(selected[0])"
+        )
+        print(
+            "- show(path): open a file at path in the default viewer; e.g. show('/path/to/photo.jpg')"
+        )
+        print("- spotlight(photo): open a photo and spotlight it in Photos")
     # print(
     #     f"- help(object): print help text including list of methods for object; for example, help(PhotosDB)"
     # )
@@ -206,25 +204,6 @@ def _get_all_photos(photosdb):
     photos = photosdb.photos(images=True, movies=True)
     photos.extend(photosdb.photos(images=True, movies=True, intrash=True))
     return photos
-
-
-def _get_selected(photosdb):
-    """get list of PhotoInfo objects for photos selected in Photos"""
-
-    def get_selected():
-        assert_macos()
-        try:
-            selected = photoscript.PhotosLibrary().selection
-        except ScriptError as e:
-            # some photos (e.g. shared items) can't be selected and raise ScriptError:
-            # applescript.ScriptError: Photos got an error: Can’t get media item id "34C26DFA-0CEA-4DB7-8FDA-B87789B3209D/L0/001". (-1728) app='Photos' range=16820-16873
-            # In this case, we can parse the UUID from the error (though this only works for a single selected item)
-            if match := re.match(r".*Can’t get media item id \"(.*)\".*", str(e)):
-                uuid = match[1].split("/")[0]
-                return photosdb.photos(uuid=[uuid])
-        return photosdb.photos(uuid=[p.uuid for p in selected]) if selected else []
-
-    return get_selected
 
 
 def _spotlight_photo(photo: PhotoInfo):
