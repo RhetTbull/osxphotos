@@ -465,6 +465,10 @@ class ExifWriter(_ExifMixin):
                         self.photo.date_modified
                     ).strftime("%Y:%m:%d %H:%M:%S")
 
+        # if photo in PNG remove any IPTC tags (#1031)
+        if self.photo.isphoto and self.photo.uti == "public.png":
+            exif = {k: v for k, v in exif.items() if not k.startswith("IPTC:")}
+
         return exif
 
     def _get_mwg_face_regions_exiftool(self):

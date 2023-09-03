@@ -3,7 +3,7 @@
     1. I wanted something under MIT license (best alternative was licensed under GPL/BSD)
     2. I wanted singleton behavior so only a single exiftool process was ever running
     3. When used as a context manager, I wanted the operations to batch until exiting the context (improved performance)
-    If these aren't important to you, I highly recommend you use Sven Marnach's excellent 
+    If these aren't important to you, I recommend you consider Sven Marnach's excellent 
     pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality """
 
 
@@ -17,7 +17,6 @@ import pathlib
 import re
 import shutil
 import subprocess
-from abc import ABC, abstractmethod
 from functools import lru_cache  # pylint: disable=syntax-error
 
 __all__ = [
@@ -225,7 +224,6 @@ class ExifTool:
         self.file = filepath
         self.overwrite = overwrite
         self.flags = flags or []
-        self.data = {}
         self.warning = None
         self.error = None
         # if running as a context manager, self._context_mgr will be True
@@ -233,7 +231,8 @@ class ExifTool:
         self._exiftoolproc = _ExifToolProc(
             exiftool=exiftool, large_file_support=large_file_support
         )
-        self._read_exif()
+        self.data = self._read_exif()
+        self.is_png = self.data.get("File:FileType") == "PNG"  # 1031
 
     @property
     def _process(self):
@@ -261,8 +260,9 @@ class ExifTool:
         if self.overwrite and not self._context_mgr:
             command.append("-overwrite_original")
 
-        # avoid "Warning: Some character(s) could not be encoded in Latin" warning
-        command.append("-iptc:codedcharacterset=utf8")
+        # avoid "Warning: Some character(s) could not be encoded in Latin" warning #393
+        if not self.is_png:
+            command.append("-iptc:codedcharacterset=utf8")
 
         if self._context_mgr:
             self._commands.extend(command)
@@ -323,7 +323,7 @@ class ExifTool:
                         by default, all commands will be run against self.file
                         use no_file=True to run a command without passing the filename
         Returns:
-            (output, warning, errror)
+            (output, warning, error)
             output: bytes is containing output of exiftool commands
             warning: if exiftool generated warnings, string containing warning otherwise empty string
             error: if exiftool generated errors, string containing otherwise empty string
@@ -437,6 +437,7 @@ class ExifTool:
     def _read_exif(self):
         """read exif data from file"""
         self.data = self.asdict().copy()
+        return self.data
 
     def __str__(self):
         return f"file: {self.file}\nexiftool: {self._exiftoolproc._exiftool}"
