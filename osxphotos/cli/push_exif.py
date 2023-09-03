@@ -20,7 +20,7 @@ from osxphotos.utils import pluralize
 from .cli_commands import echo, echo_error, query_command, verbose
 from .common import OSXPHOTOS_HIDDEN
 from .kvstore import kvstore
-from .param_types import TemplateString
+from .param_types import CSVOptions, TemplateString
 from .push_results import PushResults
 from .report_writer import ReportWriterNoOp, push_exif_report_writer_factory
 from .verbose import get_verbose_console
@@ -42,7 +42,7 @@ assert_macos()
 )
 @click.option(
     "--exiftool-option",
-    "exiftool_flags", # match ExifOptions
+    "exiftool_flags",  # match ExifOptions
     multiple=True,
     metavar="OPTION",
     help="Optional flag/option to pass to exiftool. "
@@ -146,6 +146,23 @@ assert_macos()
     hidden=OSXPHOTOS_HIDDEN,
     help="Force writing metadata to all files and bypass warning.",
 )
+@click.argument(
+    "metadata",
+    required=True,
+    type=CSVOptions(
+        [
+            "all",
+            "keywords",
+            "location",
+            "faces",
+            "persons",
+            "datetime",
+            "title",
+            "description",
+            # "favorite",
+        ]
+    ),
+)
 def push_exif(
     photos: list[PhotoInfo],
     push_edited: bool,
@@ -163,9 +180,35 @@ def push_exif(
     report: str,
     append: bool,
     force: bool,
+    metadata: str,
     **kwargs,
 ):
     """Write photo metadata to original files in the Photos library
+
+    METADATA must be one or more of the following, separated by commas:
+    all keywords location faces date title description favorite
+
+    - all: all metadata
+
+    - keywords: keywords/tags (e.g. IPTC:Keywords, etc.)
+
+    - location: location information (e.g. EXIF:GPSLatitude, EXIF:GPSLongitude, etc.)
+
+    - faces: face region information (e.g. XMP:RegionName, etc.)
+
+    - persons: person in image information (e.g. XMP:PersonInImage, etc.)
+
+    - date: date information (e.g. EXIF:DateTimeOriginal, etc.)
+
+    - title: title information (e.g. XMP:Title, etc.)
+
+    - description: description information (e.g. XMP:Description, etc.)
+
+    For example to push (write) keywords and faces information to the original files:
+    `osxphotos push-exif keywords,faces`
+
+    To write all metadata to the original files:
+    `osxphotos push-exif all`
 
     This command will use exiftool (which must be installed separately)
     to write metadata to the original files in the Photos library.
@@ -229,6 +272,8 @@ def push_exif(
     )
 
     options = exif_options_from_locals(locals())
+    options = set_options_from_metadata(options, metadata)
+
     results = {}
     with Progress(console=get_verbose_console()) as progress:
         num_photos = len(photos)
@@ -395,3 +440,48 @@ def render_and_validate_report(report: str, exiftool_path: str) -> str:
         raise click.Abort()
 
     return report
+
+
+def set_options_from_metadata(options: ExifOptions, metadata: list[str]) -> ExifOptions:
+    """Set options flags for metadata to export for ExifOptions from a list of metadata named flags
+
+    Args:
+        options: ExifOptions to set flags on
+        metadata: list of metadata flags to set
+
+    Note:
+        Valid flags are: all keywords location faces date title description
+    Returns ExifOptions with flags set for metadata to export
+    """
+    if "all" in metadata:
+        _set_exifoptions_metadata_flags(options, True)
+        return options
+
+    _set_exifoptions_metadata_flags(options, False)
+    if "keywords" in metadata:
+        options.keywords = True
+    if "location" in metadata:
+        options.location = True
+    if "faces" in metadata:
+        options.face_regions = True
+    if "datetime" in metadata:
+        options.datetime = True
+    if "title" in metadata:
+        options.title = True
+    if "description" in metadata:
+        options.description = True
+    if "persons" in metadata:
+        options.persons = True
+
+    return options
+
+
+def _set_exifoptions_metadata_flags(options: ExifOptions, value: bool):
+    """Set or clear all metadata flags on ExifOptions to value"""
+    options.datetime = value
+    options.description = value
+    options.face_regions = value
+    options.keywords = value
+    options.location = value
+    options.persons = value
+    options.title = value

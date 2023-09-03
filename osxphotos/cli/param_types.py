@@ -347,6 +347,6 @@ class CSVOptions(click.ParamType):
         for v in values:
             if v not in self._csv_options:
                 self.fail(
-                    f"Invalid option {v}. Must be one of {','.join(self._csv_options)}"
+                    f"Invalid option {v}. Must be one or more (separated by comma) of {','.join(self._csv_options)}"
                 )
         return tuple(values)
