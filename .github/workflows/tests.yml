@@ -33,9 +33,8 @@ jobs:
         pip install -r dev_requirements.txt
         pip install -r requirements.txt
     - name: Install exiftool
-      uses: alexellis/arkade-get@master
-      with:
-        exiftool: latest
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    # - name: Lint with flake8
    #   run: |
        # pip install flake8
