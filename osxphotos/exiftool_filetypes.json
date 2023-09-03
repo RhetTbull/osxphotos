@@ -99,6 +99,22 @@
         "write": true,
         "create": false
     },
+    "7z": {
+        "extension": "7z",
+        "file type": [
+            "7z"
+        ],
+        "support": "R",
+        "description": "7z Archive",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
     "a": {
         "extension": "a",
         "file type": [
@@ -1471,6 +1487,22 @@
         "write": true,
         "create": false
     },
+    "glv": {
+        "extension": "glv",
+        "file type": [
+            "GLV"
+        ],
+        "support": "R/W",
+        "description": "Garmin Low-resolution Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
     "gpr": {
         "extension": "gpr",
         "file type": [
@@ -1732,6 +1764,40 @@
         "read": true,
         "write": true,
         "create": true
+    },
+    "ico": {
+        "extension": "ico",
+        "file type": [
+            "ICO",
+            "CUR"
+        ],
+        "support": "R",
+        "description": "Windows Icon / Cursor",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ICO",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "cur": {
+        "extension": "cur",
+        "file type": [
+            "ICO",
+            "CUR"
+        ],
+        "support": "R",
+        "description": "Windows Icon / Cursor",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ICO",
+        "read": true,
+        "write": false,
+        "create": false
     },
     "ics": {
         "extension": "ics",
@@ -2139,7 +2205,7 @@
             "JXL"
         ],
         "support": "R/W",
-        "description": "JPEG XL (codestream and ISO BMFF)",
+        "description": "JPEG XL (codestream and ISO BMFF) (Jpeg200-based)",
         "exif": "R/W/C",
         "iptc": null,
         "xmp": "R/W/C",
@@ -2327,7 +2393,7 @@
         "iptc": null,
         "xmp": null,
         "icc": null,
-        "other": "R M2TS H264",
+        "other": "R M2TS H264 MISB",
         "read": true,
         "write": false,
         "create": false
@@ -2346,7 +2412,7 @@
         "iptc": null,
         "xmp": null,
         "icc": null,
-        "other": "R M2TS H264",
+        "other": "R M2TS H264 MISB",
         "read": true,
         "write": false,
         "create": false
@@ -2365,7 +2431,7 @@
         "iptc": null,
         "xmp": null,
         "icc": null,
-        "other": "R M2TS H264",
+        "other": "R M2TS H264 MISB",
         "read": true,
         "write": false,
         "create": false
@@ -2384,7 +2450,7 @@
         "iptc": null,
         "xmp": null,
         "icc": null,
-        "other": "R M2TS H264",
+        "other": "R M2TS H264 MISB",
         "read": true,
         "write": false,
         "create": false
@@ -4625,6 +4691,22 @@
         "write": false,
         "create": false
     },
+    "vnt": {
+        "extension": "vnt",
+        "file type": [
+            "VNT"
+        ],
+        "support": "R",
+        "description": "V-Note document",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R VNote",
+        "read": true,
+        "write": false,
+        "create": false
+    },
     "vob": {
         "extension": "vob",
         "file type": [
@@ -4710,15 +4792,15 @@
         "file type": [
             "WEBP"
         ],
-        "support": "R",
+        "support": "R/W",
         "description": "Google Web Picture (RIFF-based)",
-        "exif": "R",
+        "exif": "R/W/C",
         "iptc": null,
-        "xmp": "R",
-        "icc": null,
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
         "other": "R RIFF",
         "read": true,
-        "write": false,
+        "write": true,
         "create": false
     },
     "wma": {
@@ -4751,6 +4833,22 @@
         "xmp": "R",
         "icc": null,
         "other": "R ASF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "wpg": {
+        "extension": "wpg",
+        "file type": [
+            "WPG"
+        ],
+        "support": "R",
+        "description": "WordPerfect Graphics",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R WPG",
         "read": true,
         "write": false,
         "create": false

@@ -1321,7 +1321,7 @@ def test_adjustments(photosdb):
 
 
 def test_no_adjustments(photosdb):
-    """test adjustments when photo has no adjusments"""
+    """test adjustments when photo has no adjustments"""
 
     photo = photosdb.get_photo(UUID_DICT["no_adjustments"])
     assert photo.adjustments is None
