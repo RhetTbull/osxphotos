@@ -91,8 +91,12 @@ class PhotoInfo:
         self._uuid: str = uuid
         self._info: dict[str, Any] = info
         self._db: "osxphotos.PhotosDB" = db
-        self._exiftool_path = self._db._exiftool_path
         self._verbose = self._db._verbose
+
+    @property
+    def _exiftool_path(self) -> str | None:
+        """Path to exiftool as set in PhotosDB instance"""
+        return self._db._exiftool_path
 
     @property
     def filename(self):

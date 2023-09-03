@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 import click
 from rich.progress import Progress
 
 from osxphotos import PhotoInfo
+from osxphotos.exif_datetime_updater import get_exif_date_time_offset
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifOptions, ExifWriter, exif_options_from_locals
 from osxphotos.photoinfo import PhotoInfoNone
@@ -30,9 +32,14 @@ assert_macos()
 
 @query_command(name="push-exif")
 @click.option(
+    "--compare",
+    is_flag=True,
+    help="Compare metadata only; do not push (write) metadata.",
+)
+@click.option(
     "--push-edited",
     is_flag=True,
-    help="Push EXIF data to edited photos in addition to originals",
+    help="Push EXIF data to edited photos in addition to originals.",
 )
 @click.option(
     "--exiftool-path",
@@ -159,12 +166,12 @@ assert_macos()
             "datetime",
             "title",
             "description",
-            # "favorite",
         ]
     ),
 )
 def push_exif(
     photos: list[PhotoInfo],
+    compare: bool,
     push_edited: bool,
     exiftool_path: str,
     exiftool_flags: tuple[str],
@@ -186,7 +193,7 @@ def push_exif(
     """Write photo metadata to original files in the Photos library
 
     METADATA must be one or more of the following, separated by commas:
-    all keywords location faces date title description favorite
+    all keywords location faces persons datetime title description
 
     - all: all metadata
 
@@ -198,7 +205,7 @@ def push_exif(
 
     - persons: person in image information (e.g. XMP:PersonInImage, etc.)
 
-    - date: date information (e.g. EXIF:DateTimeOriginal, etc.)
+    - datetime: date/time information (e.g. EXIF:DateTimeOriginal, etc.)
 
     - title: title information (e.g. XMP:Title, etc.)
 
@@ -233,12 +240,33 @@ def push_exif(
     Several options such as `--keyword-template` allow you to specify a template string
     to use to generate keywords.  See OSXPhotos Template System in `osxphotos docs` for more details
     as well as `osxphotos template` for an interactive template editor.
+
+    If you want to compare metadata between Photos and the original files without
+    writing metadata, use the `--compare` option.  This will print a report of any
+    differences between the metadata in Photos and the original files but will not
+    modify any files.
     """
 
-    # validation
+    # cannot process shared photos so filter them out
+    photos = [p for p in photos if not p.shared]
     if not photos:
         echo_error("No photos selected for processing")
         raise click.Abort()
+
+    exiftool_path = exiftool_path or get_exiftool_path()
+    verbose(f"Found exiftool at: [filepath]{exiftool_path}")
+
+    # monkeypatch exiftool path in the db
+    # TODO: need a more elegant way to do this
+    # maybe a set_exiftool_path() that get_exiftool_path() checks
+    photos[0]._db._exiftool_path = exiftool_path
+
+    options = exif_options_from_locals(locals())
+    options = set_options_from_metadata(options, metadata)
+
+    if compare:
+        compare_exif(photos, options)
+        return
 
     library_path = photos[0]._db.library_path
 
@@ -256,8 +284,18 @@ def push_exif(
         if not force:
             click.confirm("Are you sure you want to continue?", abort=True)
 
-    exiftool_path = exiftool_path or get_exiftool_path()
-    verbose(f"Found exiftool at: [filepath]{exiftool_path}")
+    process_photos(photos, options, push_edited, report, append, exiftool_path)
+
+
+def process_photos(
+    photos: list[PhotoInfo],
+    options: ExifOptions,
+    push_edited: bool,
+    report: str,
+    append: bool,
+    exiftool_path: str,
+):
+    """Process the photos, pushing metadata to files as needed"""
 
     update_db = kvstore("push_exif")
     echo(f"Using update database: [filepath]{update_db.path}[/]")
@@ -270,9 +308,6 @@ def push_exif(
         if report
         else ReportWriterNoOp()
     )
-
-    options = exif_options_from_locals(locals())
-    options = set_options_from_metadata(options, metadata)
 
     results = {}
     with Progress(console=get_verbose_console()) as progress:
@@ -450,7 +485,7 @@ def set_options_from_metadata(options: ExifOptions, metadata: list[str]) -> Exif
         metadata: list of metadata flags to set
 
     Note:
-        Valid flags are: all keywords location faces date title description
+        Valid flags are: all keywords location faces persons datetime title description
     Returns ExifOptions with flags set for metadata to export
     """
     if "all" in metadata:
@@ -485,3 +520,209 @@ def _set_exifoptions_metadata_flags(options: ExifOptions, value: bool):
     options.location = value
     options.persons = value
     options.title = value
+
+
+def compare_exif(photos: list[PhotoInfo], options: ExifOptions):
+    """Compare metadata between Photos and original files"""
+    echo(
+        f"[num]{len(photos)}[/] {pluralize(len(photos), 'photo', 'photos')} selected for processing"
+    )
+
+    for photo in photos:
+        compare_photo(photo, options)
+
+
+def compare_photo(photo: PhotoInfo, options: ExifOptions):
+    """Compare metadata between Photos and original file for a single photo"""
+    if not photo.path:
+        echo(
+            f"Cannot compare [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]): missing original file"
+        )
+        return
+
+    file_data = photo.exiftool.asdict()
+
+    # all keywords location faces persons datetime title description favorite
+    cmp_str = ""
+    if options.keywords:
+        cmp_str += compare_keywords(photo, file_data)
+
+    if options.location:
+        cmp_str += compare_location(photo, file_data)
+
+    if options.face_regions:
+        cmp_str += compare_face_regions(photo, file_data)
+
+    if options.persons:
+        cmp_str += compare_persons(photo, file_data)
+
+    if options.datetime:
+        cmp_str += compare_datetime(photo, file_data)
+
+    if options.title:
+        cmp_str += compare_title(photo, file_data)
+
+    if options.description:
+        cmp_str += compare_description(photo, file_data)
+
+    if cmp_str:
+        echo(
+            f"Metadata differs for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
+        )
+        echo(f"Path: [filepath]{photo.path}[/]")
+        if cmp_str.endswith("\n"):
+            cmp_str = cmp_str[:-1]
+        echo(cmp_str)
+
+
+def get_dict_values_as_list(d: dict[Any, Any], key: Any) -> list[Any]:
+    """Get values from dict as list; if not already a list, convert to list; if key not in dict, return empty list"""
+    if key in d:
+        return d[key] if isinstance(d[key], list) else [d[key]]
+    else:
+        return []
+
+
+def approx(a: float | None, b: float | None, epsilon: float = 0.00001) -> bool:
+    """Return True if a and b are approximately equal"""
+    if a is None and b is None:
+        return True
+    elif a is None or b is None:
+        return False
+    return abs(a - b) < epsilon
+
+
+def compare_keywords(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
+    """Compare keywords between Photos and original file for a single photo"""
+    photo_keywords = set(photo.keywords)
+    exif_keywords = get_dict_values_as_list(file_data, "IPTC:Keywords")
+    exif_keywords += get_dict_values_as_list(file_data, "XMP:Subject")
+    exif_keywords += get_dict_values_as_list(file_data, "XMP:TagsList")
+    exif_keywords = set(exif_keywords)
+    if photo_keywords != exif_keywords:
+        return "\n".join(
+            [
+                "  Keywords do not match",
+                f"    Photos: {list(photo_keywords)}",
+                f"      File: {list(exif_keywords)}\n",
+            ],
+        )
+    return ""
+
+
+def compare_location(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
+    """Compare location between Photos and original file for a single photo"""
+    photo_latitude = photo.latitude
+    photo_longitude = photo.longitude
+    exif_latitude = file_data.get("EXIF:GPSLatitude")
+    exif_longitude = file_data.get("EXIF:GPSLongitude")
+    exif_latitude_ref = file_data.get("EXIF:GPSLatitudeRef")
+    exif_longitude_ref = file_data.get("EXIF:GPSLongitudeRef")
+
+    if exif_longitude and exif_longitude_ref == "W":
+        exif_longitude = -exif_longitude
+    if exif_latitude and exif_latitude_ref == "S":
+        exif_latitude = -exif_latitude
+    if not approx(photo_latitude, exif_latitude) or not approx(
+        photo_longitude, exif_longitude
+    ):
+        return "\n".join(
+            [
+                "  Location does not match",
+                f"    Photos: {photo_latitude}, {photo_longitude}",
+                f"      File: {exif_latitude}, {exif_longitude}\n",
+            ],
+        )
+    return ""
+
+
+def compare_face_regions(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
+    """Compare face regions between Photos and original file for a single photo"""
+    exif_writer = ExifWriter(photo)
+    face_regions_photo = exif_writer._get_mwg_face_regions_exiftool()
+
+    xmp_region_photos = get_dict_values_as_list(face_regions_photo, "XMP:RegionName")
+    xmp_region_files = get_dict_values_as_list(file_data, "XMP:RegionName")
+    if set(xmp_region_photos) != set(xmp_region_files):
+        return "\n".join(
+            [
+                "  Face regions do not match (only XMP:RegionName is compared)",
+                f"    Photos: {xmp_region_photos}",
+                f"      File: {xmp_region_files}\n",
+            ],
+        )
+    return ""
+
+
+def compare_persons(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
+    """Compare persons between Photos and original file for a single photo"""
+    photo_persons = set(photo.persons)
+    exif_persons = set(get_dict_values_as_list(file_data, "XMP:PersonInImage"))
+    if photo_persons != exif_persons:
+        return "\n".join(
+            [
+                "  Persons do not match",
+                f"    Photos: {list(photo_persons)}",
+                f"      File: {list(exif_persons)}\n",
+            ],
+        )
+    return ""
+
+
+def compare_datetime(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
+    """Compare datetime between Photos and original file for a single photo"""
+    photo_datetime = photo.date.strftime("%Y:%m:%d %H:%M:%S")
+    photo_offset = photo.date.tzinfo.utcoffset(photo.date).total_seconds() / 3600
+    photo_offset = f"{photo_offset//1:+03.0f}{photo_offset%1*60:02.0f}"
+
+    exif_dt_offset = get_exif_date_time_offset(file_data)
+    exif_datetime = (
+        exif_dt_offset.datetime.strftime("%Y:%m:%d %H:%M:%S")
+        if exif_dt_offset.datetime
+        else None
+    )
+    exif_offset = exif_dt_offset.offset_str
+
+    if photo_datetime != exif_datetime or photo_offset != exif_offset:
+        return "\n".join(
+            [
+                "  Datetime does not match",
+                f"    Photos: {photo_datetime} {photo_offset}",
+                f"      File: {exif_datetime} {exif_offset}\n",
+            ],
+        )
+    return ""
+
+
+def compare_title(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
+    """Compare title between Photos and original file for a single photo"""
+    photo_title = photo.title
+    exif_title = file_data.get("XMP:Title") or file_data.get("IPTC:ObjectName")
+    if photo_title != exif_title:
+        return "\n".join(
+            [
+                "  Title does not match",
+                f"    Photos: {photo_title}",
+                f"      File: {exif_title}\n",
+            ],
+        )
+    return ""
+
+
+def compare_description(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
+    """Compare description between Photos and original file for a single photo"""
+    photo_description = photo.description
+    exif_description = (
+        file_data.get("EXIF:ImageDescription")
+        or file_data.get("XMP:Description")
+        or file_data.get("IPTC:Caption-Abstract")
+    )
+    if photo_description != exif_description:
+        return "\n".join(
+            [
+                "  Description does not match",
+                f"    Photos: {photo_description}",
+                f"      File: {exif_description}\n",
+            ],
+        )
+    return ""

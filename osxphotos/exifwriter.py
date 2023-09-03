@@ -186,7 +186,6 @@ class ExifWriter(_ExifMixin):
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Could not find file {filepath}")
         exif_info = self.exiftool_dict(options=options)
-
         with ExifTool(
             filepath,
             flags=options.exiftool_flags,
