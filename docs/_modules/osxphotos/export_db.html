@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.export_db - osxphotos 0.61.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
+        <title>osxphotos.export_db - osxphotos 0.62.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.61.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.62.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +146,10 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.61.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.62.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -160,6 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
@@ -246,14 +247,14 @@
 
 
 <span class="k">def</span> <span class="nf">retry_log_error_no_raise</span><span class="p">(</span><span class="n">retry_state</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Log error for retry but don&#39;t raise exception&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log error for retry but don&#39;t raise exception&quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;Error </span><span class="si">{</span><span class="n">retry_state</span><span class="o">.</span><span class="n">outcome</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">retry_state</span><span class="o">.</span><span class="n">fn</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">retry_state</span><span class="o">.</span><span class="n">args</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">retry_state</span><span class="o">.</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">); retrying...&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">pickle_and_zip</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pickle and gzip data.</span>
 
 <span class="sd">    Args:</span>
@@ -267,7 +268,7 @@
 
 
 <span class="k">def</span> <span class="nf">unzip_and_unpickle</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Unzip and unpickle data.</span>
 
 <span class="sd">    Args:</span>
@@ -279,11 +280,13 @@
     <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="ExportDB"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB">[docs]</a><span class="k">class</span> <span class="nc">ExportDB</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Interface to sqlite3 database used to store state information for osxphotos export command&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ExportDB">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB">[docs]</a>
+<span class="k">class</span> <span class="nc">ExportDB</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface to sqlite3 database used to store state information for osxphotos export command&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create a new ExportDB object</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create a new ExportDB object</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dbfile: path to osxphotos export database file</span>
@@ -308,22 +311,24 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns path to export database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns path to export database&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">export_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns path to export directory&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns path to export directory&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">connection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns sqlite3 connection&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns sqlite3 connection&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ExportDB.get_file_record"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_file_record">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_file_record">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_file_record">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_file_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportRecord&quot;</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;get info for filename</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get info for filename</span>
 
 <span class="sd">        Returns: an ExportRecord object or None if filename not found</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -339,14 +344,17 @@
             <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ExportDB.create_file_record"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.create_file_record">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ExportDB.create_file_record">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.create_file_record">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">create_file_record</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportRecord&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;create a new record for filename and uuid</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create a new record for filename and uuid</span>
 
 <span class="sd">        Returns: an ExportRecord object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -363,14 +371,17 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExportDB.create_or_get_file_record"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.create_or_get_file_record">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ExportDB.create_or_get_file_record">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.create_or_get_file_record">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">create_or_get_file_record</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportRecord&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;create a new record for filename and uuid or return existing record</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create a new record for filename and uuid or return existing record</span>
 
 <span class="sd">        Returns: an ExportRecord object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -387,9 +398,12 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExportDB.get_uuid_for_file"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_uuid_for_file">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.get_uuid_for_file">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_uuid_for_file">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_uuid_for_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;query database for filename and return UUID</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;query database for filename and return UUID</span>
 <span class="sd">        returns None if filename not found in database</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filepath_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filepath_relative</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -404,9 +418,12 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">results</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ExportDB.get_files_for_uuid"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_files_for_uuid">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.get_files_for_uuid">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_files_for_uuid">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_files_for_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;query database for UUID and return list of files associated with UUID or empty list&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;query database for UUID and return list of files associated with UUID or empty list&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -417,9 +434,12 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="ExportDB.get_photoinfo_for_uuid"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_photoinfo_for_uuid">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.get_photoinfo_for_uuid">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_photoinfo_for_uuid">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_photoinfo_for_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns the photoinfo JSON string for a UUID or None if not found&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the photoinfo JSON string for a UUID or None if not found&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -427,12 +447,15 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">results</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ExportDB.set_photoinfo_for_uuid"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_photoinfo_for_uuid">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ExportDB.set_photoinfo_for_uuid">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_photoinfo_for_uuid">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">set_photoinfo_for_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;sets the photoinfo JSON string for a UUID&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;sets the photoinfo JSON string for a UUID&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -442,11 +465,14 @@
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ExportDB.get_target_for_file"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_target_for_file">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.get_target_for_file">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_target_for_file">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_target_for_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;query database for file matching file name and return the matching filename if there is one;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;query database for file matching file name and return the matching filename if there is one;</span>
 <span class="sd">           otherwise return None; looks for file.ext, file (1).ext, file (2).ext and so on to find the</span>
 <span class="sd">           actual target name that was used to export filename</span>
 
@@ -475,9 +501,12 @@
 
             <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ExportDB.get_previous_uuids"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_previous_uuids">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.get_previous_uuids">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_previous_uuids">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_previous_uuids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;returns list of UUIDs of previously exported photos found in export database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of UUIDs of previously exported photos found in export database&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -485,12 +514,15 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="ExportDB.set_config"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_config">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ExportDB.set_config">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_config">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">set_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set config in the database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set config in the database&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
@@ -501,12 +533,15 @@
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ExportDB.set_export_results"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_export_results">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ExportDB.set_export_results">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_export_results">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">set_export_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="s2">&quot;osxphotos.photoexporter.ExportResults&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Store export results in database; data is pickled and gzipped for storage&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store export results in database; data is pickled and gzipped for storage&quot;&quot;&quot;</span>
 
         <span class="n">results_data</span> <span class="o">=</span> <span class="n">pickle_and_zip</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
@@ -515,7 +550,7 @@
             <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">                UPDATE export_results_data</span>
 <span class="sd">                SET datetime = ?,</span>
 <span class="sd">                    export_results = ?</span>
@@ -525,11 +560,14 @@
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ExportDB.get_export_results"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_export_results">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.get_export_results">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_export_results">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_export_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;osxphotos.photoexporter.ExportResults&quot;</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Retrieve export results from database</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve export results from database</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            run: which run to retrieve results for;</span>
@@ -546,7 +584,7 @@
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">                SELECT export_results</span>
 <span class="sd">                FROM export_results_data</span>
 <span class="sd">                ORDER BY datetime DESC</span>
@@ -560,9 +598,12 @@
                 <span class="n">results</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="n">results</span></div>
 
-<div class="viewcode-block" id="ExportDB.get_exported_files"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_exported_files">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.get_exported_files">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_exported_files">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_exported_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns tuple of (uuid, filepath) for all paths of all exported files tracked in the database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns tuple of (uuid, filepath) for all paths of all exported files tracked in the database&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -572,9 +613,12 @@
                 <span class="k">yield</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">return</span></div>
 
-<div class="viewcode-block" id="ExportDB.delete_data_for_uuid"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_uuid">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.delete_data_for_uuid">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_uuid">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">delete_data_for_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Delete all exportdb data for given UUID&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete all exportdb data for given UUID&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -586,9 +630,12 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">count</span></div>
 
-<div class="viewcode-block" id="ExportDB.delete_data_for_filepath"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_filepath">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.delete_data_for_filepath">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_filepath">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">delete_data_for_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Delete all exportdb data for given filepath&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete all exportdb data for given filepath&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -599,16 +646,20 @@
             <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
             <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delete_data_for_uuid</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExportDB.close"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.close">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ExportDB.close">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.close">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;close the database connection&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;close the database connection&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="kc">None</span></div>
 
+
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">_open_export_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbfile</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;open export database and return a db connection</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;open export database and return a db connection</span>
 <span class="sd">        if dbfile does not exist, will create and initialize the database</span>
 <span class="sd">        if dbfile needs to be upgraded, will perform needed migrations</span>
 <span class="sd">        returns: connection to the database</span>
@@ -642,12 +693,12 @@
 
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">_get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbfile</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return db connection to dbname&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return db connection to dbname&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dbfile</span><span class="p">,</span> <span class="n">check_same_thread</span><span class="o">=</span><span class="n">SQLITE_CHECK_SAME_THREAD</span><span class="p">)</span>
 
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">_get_database_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;return tuple of (osxphotos, exportdb) versions for database connection conn&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return tuple of (osxphotos, exportdb) versions for database connection conn&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">version_info</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="s2">&quot;SELECT osxphotos, exportdb, max(id) FROM version&quot;</span>
@@ -655,7 +706,7 @@
             <span class="k">return</span> <span class="p">(</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">_create_or_migrate_db_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create (if not already created) the necessary db tables for the export database and apply any needed migrations</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create (if not already created) the necessary db tables for the export database and apply any needed migrations</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            conn: sqlite3 db connection</span>
@@ -667,16 +718,16 @@
 
         <span class="c1"># Current for version 4.3, for anything greater, do a migration after creation</span>
         <span class="n">sql_commands</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS version (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS version (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    osxphotos TEXT,</span>
 <span class="sd">                    exportdb TEXT </span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS about (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS about (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    about TEXT</span>
 <span class="sd">                    );&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS files (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS files (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    filepath TEXT NOT NULL,</span>
 <span class="sd">                    filepath_normalized TEXT NOT NULL,</span>
@@ -688,7 +739,7 @@
 <span class="sd">                    exif_size INTEGER,</span>
 <span class="sd">                    exif_mtime REAL</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS runs (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS runs (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    datetime TEXT,</span>
 <span class="sd">                    python_path TEXT,</span>
@@ -696,31 +747,31 @@
 <span class="sd">                    args TEXT,</span>
 <span class="sd">                    cwd TEXT </span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS info (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS info (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    uuid text NOT NULL,</span>
 <span class="sd">                    json_info JSON </span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS exifdata (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS exifdata (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    filepath_normalized TEXT NOT NULL,</span>
 <span class="sd">                    json_exifdata JSON </span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS edited (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS edited (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    filepath_normalized TEXT NOT NULL,</span>
 <span class="sd">                    mode INTEGER,</span>
 <span class="sd">                    size INTEGER,</span>
 <span class="sd">                    mtime REAL</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS converted (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS converted (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    filepath_normalized TEXT NOT NULL,</span>
 <span class="sd">                    mode INTEGER,</span>
 <span class="sd">                    size INTEGER,</span>
 <span class="sd">                    mtime REAL</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS sidecar (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS sidecar (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    filepath_normalized TEXT NOT NULL,</span>
 <span class="sd">                    sidecar_data TEXT,</span>
@@ -728,18 +779,18 @@
 <span class="sd">                    size INTEGER,</span>
 <span class="sd">                    mtime REAL</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS detected_text (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS detected_text (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    uuid TEXT NOT NULL,</span>
 <span class="sd">                    text_data JSON</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_files_filepath_normalized on files (filepath_normalized); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_info_uuid on info (uuid); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_exifdata_filename on exifdata (filepath_normalized); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_edited_filename on edited (filepath_normalized);&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_converted_filename on converted (filepath_normalized);&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_detected_text on detected_text (uuid);&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_files_filepath_normalized on files (filepath_normalized); &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_info_uuid on info (uuid); &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_exifdata_filename on exifdata (filepath_normalized); &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_edited_filename on edited (filepath_normalized);&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_converted_filename on converted (filepath_normalized);&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_detected_text on detected_text (uuid);&quot;&quot;&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="c1"># create the tables if needed</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -781,7 +832,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;ensure the database connection is closed&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;ensure the database connection is closed&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -802,23 +853,23 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_relative_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return filepath relative to self._path&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return filepath relative to self._path&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_normalize_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;normalize filepath for unicode, lower case&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;normalize filepath for unicode, lower case&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_normalize_filepath_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;normalize filepath for unicode, relative path (to export dir), lower case&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;normalize filepath for unicode, relative path (to export dir), lower case&quot;&quot;&quot;</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_filepath</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_migrate_normalized_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fix all filepath_normalized columns for unicode normalization&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fix all filepath_normalized columns for unicode normalization&quot;&quot;&quot;</span>
         <span class="c1"># Prior to database version 4.3, filepath_normalized was not normalized for unicode</span>
         <span class="n">migration_sql</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS files_migrate (</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS files_migrate (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    filepath TEXT NOT NULL,</span>
 <span class="sd">                    filepath_normalized TEXT NOT NULL,</span>
@@ -831,9 +882,9 @@
 <span class="sd">                    exif_mtime REAL,</span>
 <span class="sd">                    UNIQUE(filepath_normalized)</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; INSERT INTO files_migrate SELECT * FROM files;&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; DROP TABLE files;&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="sd">&quot;&quot;&quot; ALTER TABLE files_migrate RENAME TO files;&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; INSERT INTO files_migrate SELECT * FROM files;&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; DROP TABLE files;&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; ALTER TABLE files_migrate RENAME TO files;&quot;&quot;&quot;</span><span class="p">,</span>
         <span class="p">]</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -856,7 +907,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_migrate_4_3_to_5_0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Migrate database from version 4.3 to 5.0&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Migrate database from version 4.3 to 5.0&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="c1"># add metadata column to files to support --force-update</span>
@@ -868,7 +919,7 @@
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="c1"># add export_data table</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS export_data(</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS export_data(</span>
 <span class="sd">                        id INTEGER PRIMARY KEY,</span>
 <span class="sd">                        filepath_normalized TEXT NOT NULL,</span>
 <span class="sd">                        filepath TEXT NOT NULL,</span>
@@ -886,15 +937,15 @@
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_export_data_filepath_normalized on export_data (filepath_normalized); &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_export_data_filepath_normalized on export_data (filepath_normalized); &quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># migrate data</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; INSERT INTO export_data (filepath_normalized, filepath, uuid) SELECT filepath_normalized, filepath, uuid FROM files;&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; INSERT INTO export_data (filepath_normalized, filepath, uuid) SELECT filepath_normalized, filepath, uuid FROM files;&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; UPDATE export_data </span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data </span>
 <span class="sd">                    SET (src_mode, src_size, src_mtime) = </span>
 <span class="sd">                    (SELECT mode, size, mtime </span>
 <span class="sd">                    FROM edited </span>
@@ -902,7 +953,7 @@
 <span class="sd">                &quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; UPDATE export_data </span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data </span>
 <span class="sd">                    SET (dest_mode, dest_size, dest_mtime) = </span>
 <span class="sd">                    (SELECT orig_mode, orig_size, orig_mtime </span>
 <span class="sd">                    FROM files </span>
@@ -910,13 +961,13 @@
 <span class="sd">                &quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; UPDATE export_data SET digest = </span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data SET digest = </span>
 <span class="sd">                            (SELECT metadata FROM files </span>
 <span class="sd">                            WHERE files.filepath_normalized = export_data.filepath_normalized</span>
 <span class="sd">                            ); &quot;&quot;&quot;</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; UPDATE export_data SET exifdata = </span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data SET exifdata = </span>
 <span class="sd">                            (SELECT json_exifdata FROM exifdata </span>
 <span class="sd">                            WHERE exifdata.filepath_normalized = export_data.filepath_normalized</span>
 <span class="sd">                            ); &quot;&quot;&quot;</span>
@@ -924,7 +975,7 @@
 
             <span class="c1"># create config table</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS config (</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS config (</span>
 <span class="sd">                        id INTEGER PRIMARY KEY,</span>
 <span class="sd">                        datetime TEXT,</span>
 <span class="sd">                        config TEXT </span>
@@ -933,7 +984,7 @@
 
             <span class="c1"># create photoinfo table</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS photoinfo (</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS photoinfo (</span>
 <span class="sd">                        id INTEGER PRIMARY KEY,</span>
 <span class="sd">                        uuid TEXT NOT NULL,</span>
 <span class="sd">                        photoinfo JSON,</span>
@@ -941,10 +992,10 @@
 <span class="sd">                ); &quot;&quot;&quot;</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;CREATE UNIQUE INDEX IF NOT EXISTS idx_photoinfo_uuid on photoinfo (uuid);&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;CREATE UNIQUE INDEX IF NOT EXISTS idx_photoinfo_uuid on photoinfo (uuid);&quot;&quot;&quot;</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot; INSERT INTO photoinfo (uuid, photoinfo) SELECT uuid, json_info FROM info;&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; INSERT INTO photoinfo (uuid, photoinfo) SELECT uuid, json_info FROM info;&quot;&quot;&quot;</span>
             <span class="p">)</span>
 
             <span class="c1"># drop indexes no longer needed</span>
@@ -970,7 +1021,7 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;CREATE TABLE IF NOT EXISTS export_results_data (</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;CREATE TABLE IF NOT EXISTS export_results_data (</span>
 <span class="sd">                        id INTEGER PRIMARY KEY,</span>
 <span class="sd">                        datetime TEXT,</span>
 <span class="sd">                        export_results BLOB</span>
@@ -980,7 +1031,7 @@
             <span class="c1"># ExportDB will use these as circular buffer always writing to the oldest record</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_EXPORT_RESULTS_DATA_ROWS</span><span class="p">):</span>
                 <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="sd">&quot;&quot;&quot;INSERT INTO export_results_data (datetime, export_results) VALUES (?, ?);&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="sd">&quot;&quot;&quot;INSERT INTO export_results_data (datetime, export_results) VALUES (?, ?);&quot;&quot;&quot;</span><span class="p">,</span>
                     <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="c1"># sleep a tiny bit just to ensure time stamps increment</span>
@@ -988,7 +1039,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_migrate_7_0_to_7_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add timestamp column to export_data table and triggers to update it on insert and update.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add timestamp column to export_data table and triggers to update it on insert and update.&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="c1"># timestamp column should not exist but this prevents error if migration is run on an already migrated database</span>
@@ -999,7 +1050,7 @@
             <span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;ALTER TABLE export_data ADD COLUMN timestamp DATETIME;&quot;&quot;&quot;</span><span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">                CREATE TRIGGER IF NOT EXISTS insert_timestamp_trigger</span>
 <span class="sd">                AFTER INSERT ON export_data</span>
 <span class="sd">                BEGIN</span>
@@ -1008,7 +1059,7 @@
 <span class="sd">                &quot;&quot;&quot;</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">                CREATE TRIGGER IF NOT EXISTS update_timestamp_trigger</span>
 <span class="sd">                AFTER UPDATE On export_data</span>
 <span class="sd">                BEGIN</span>
@@ -1019,7 +1070,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_migrate_7_1_to_8_0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add error column to export_data table&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add error column to export_data table&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1030,11 +1081,11 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_perform_db_maintenance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform database maintenance&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform database maintenance&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;DELETE FROM config</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;DELETE FROM config</span>
 <span class="sd">                    WHERE id &lt; (</span>
 <span class="sd">                        SELECT MIN(id)</span>
 <span class="sd">                        FROM (SELECT id FROM config ORDER BY id DESC LIMIT 9)</span>
@@ -1044,14 +1095,15 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
 
+
 <span class="k">class</span> <span class="nc">ExportDBInMemory</span><span class="p">(</span><span class="n">ExportDB</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;In memory version of ExportDB</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;In memory version of ExportDB</span>
 <span class="sd">    Copies the on-disk database into memory so it may be operated on without</span>
 <span class="sd">    modifying the on-disk version</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;Initialize ExportDBInMemory</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;Initialize ExportDBInMemory</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dbfile (str): path to database file</span>
@@ -1075,7 +1127,7 @@
 
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">write_to_disk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Write changes from in-memory database back to disk&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write changes from in-memory database back to disk&quot;&quot;&quot;</span>
 
         <span class="c1"># dump the database</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -1107,14 +1159,14 @@
         <span class="n">retry_error_callback</span><span class="o">=</span><span class="n">retry_log_error_no_raise</span><span class="p">,</span>  <span class="c1"># #999</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;close the database connection&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;close the database connection&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">_open_export_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbfile</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># sourcery skip: raise-specific-error</span>
-        <span class="sd">&quot;&quot;&quot;open export database and return a db connection</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;open export database and return a db connection</span>
 <span class="sd">        returns: connection to the database</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dbfile</span><span class="p">):</span>
@@ -1149,11 +1201,11 @@
         <span class="k">return</span> <span class="n">dst</span>
 
     <span class="k">def</span> <span class="nf">_get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return db connection to in memory database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return db connection to in memory database&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;:memory:&quot;</span><span class="p">,</span> <span class="n">check_same_thread</span><span class="o">=</span><span class="n">SQLITE_CHECK_SAME_THREAD</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_dump_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StringIO</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;dump sqlite db to a string buffer&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dump sqlite db to a string buffer&quot;&quot;&quot;</span>
 
         <span class="n">dbdump</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">iterdump</span><span class="p">():</span>
@@ -1162,13 +1214,15 @@
         <span class="k">return</span> <span class="n">dbdump</span>
 
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;close the database connection&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;close the database connection&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="ExportDBTemp"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDBTemp">[docs]</a><span class="k">class</span> <span class="nc">ExportDBTemp</span><span class="p">(</span><span class="n">ExportDBInMemory</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Temporary in-memory version of ExportDB&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ExportDBTemp">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDBTemp">[docs]</a>
+<span class="k">class</span> <span class="nc">ExportDBTemp</span><span class="p">(</span><span class="n">ExportDBInMemory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Temporary in-memory version of ExportDB&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="s2">&quot;:memory:&quot;</span>
@@ -1183,13 +1237,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_insert_run_info</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_relative_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides _relative_filepath to return a path for use in the temp db&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overrides _relative_filepath to return a path for use in the temp db&quot;&quot;&quot;</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">filepath</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">filepath</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span> <span class="k">else</span> <span class="n">filepath</span></div>
 
 
+
 <span class="k">class</span> <span class="nc">ExportRecord</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;ExportRecord class&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ExportRecord class&quot;&quot;&quot;</span>
 
     <span class="c1"># Implementation note:all properties and setters must be aware of whether or not running</span>
     <span class="c1"># as a context manager. If running as a context manager, the lock is not acquired by the</span>
@@ -1213,19 +1268,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">connection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return connection&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return connection&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return filepath&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return filepath&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return filepath&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return filepath&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1240,19 +1295,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">filepath_normalized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return filepath_normalized&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return filepath_normalized&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return uuid&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return uuid&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;return uuid&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return uuid&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1265,7 +1320,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns the digest value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the digest value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_digest</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -1273,7 +1328,7 @@
 
     <span class="nd">@digest</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">digest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set digest value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set digest value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_digest_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1281,7 +1336,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_digest_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_digest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns the digest value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the digest value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1293,7 +1348,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No digest found in database for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_digest_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set digest value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set digest value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1305,7 +1360,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">exifdata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns exifdata value for record&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns exifdata value for record&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exifdata</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -1313,7 +1368,7 @@
 
     <span class="nd">@exifdata</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">exifdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set exifdata value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set exifdata value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_exifdata_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1321,7 +1376,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_exifdata_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_exifdata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns exifdata value for record&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns exifdata value for record&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1335,7 +1390,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_exifdata_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;set exifdata value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set exifdata value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1350,7 +1405,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">src_sig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;return source file signature value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return source file signature value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_src_sig</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -1358,7 +1413,7 @@
 
     <span class="nd">@src_sig</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">src_sig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;set source file signature value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set source file signature value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_src_sig_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1366,7 +1421,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_src_sig_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_src_sig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;return source file signature value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return source file signature value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1381,7 +1436,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_src_sig_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;set source file signature value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set source file signature value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1398,7 +1453,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dest_sig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;return destination file signature&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return destination file signature&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dest_sig</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -1406,7 +1461,7 @@
 
     <span class="nd">@dest_sig</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">dest_sig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;set destination file signature&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set destination file signature&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dest_sig_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1414,7 +1469,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dest_sig_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_dest_sig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;return destination file signature&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return destination file signature&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1429,7 +1484,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_dest_sig_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;set destination file signature&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set destination file signature&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1446,7 +1501,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">photoinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns info value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns info value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photoinfo</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -1454,7 +1509,7 @@
 
     <span class="nd">@photoinfo</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">photoinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Sets info value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets info value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_photoinfo_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1462,7 +1517,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_photoinfo_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_photoinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns info value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns info value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1481,7 +1536,7 @@
         <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_photoinfo_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Sets info value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets info value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1502,7 +1557,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">export_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get export_options value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get export_options value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_options</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -1510,7 +1565,7 @@
 
     <span class="nd">@export_options</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">export_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set export_options value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set export_options value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_export_options_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1518,7 +1573,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_export_options_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_export_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get export_options value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get export_options value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1528,7 +1583,7 @@
         <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_export_options_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set export_options value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set export_options value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1540,14 +1595,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns the timestamp value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the timestamp value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timestamp</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timestamp</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;returns the timestamp value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the timestamp value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1562,7 +1617,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return error value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return error value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -1570,7 +1625,7 @@
 
     <span class="nd">@error</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set error value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set error value&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_error_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1578,7 +1633,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_error_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return error value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return error value&quot;&quot;&quot;</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1590,7 +1645,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No error found in database for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_error_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set error value&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set error value&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">value</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -1604,7 +1659,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return dict of self&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return dict of self&quot;&quot;&quot;</span>
         <span class="n">exifdata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exifdata</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exifdata</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">photoinfo</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photoinfo</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photoinfo</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -1622,7 +1677,7 @@
         <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return json string of self&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return json string of self&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1657,9 +1712,7 @@
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -1671,14 +1724,11 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/scripts/furo.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
+</div><script src="../../_static/documentation_options.js?v=2a668fdd"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>
 </html>

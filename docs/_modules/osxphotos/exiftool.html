@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.exiftool - osxphotos 0.62.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>osxphotos.exiftool - osxphotos 0.63.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.62.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.63.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +146,10 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.63.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -160,7 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api_readme.html">OSXPhotos Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
@@ -201,7 +201,7 @@
 <span class="sd">    1. I wanted something under MIT license (best alternative was licensed under GPL/BSD)</span>
 <span class="sd">    2. I wanted singleton behavior so only a single exiftool process was ever running</span>
 <span class="sd">    3. When used as a context manager, I wanted the operations to batch until exiting the context (improved performance)</span>
-<span class="sd">    If these aren&#39;t important to you, I highly recommend you use Sven Marnach&#39;s excellent </span>
+<span class="sd">    If these aren&#39;t important to you, I recommend you consider Sven Marnach&#39;s excellent </span>
 <span class="sd">    pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality &quot;&quot;&quot;</span>
 
 
@@ -215,7 +215,6 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>  <span class="c1"># pylint: disable=syntax-error</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -242,7 +241,7 @@
 
 
 <span class="k">def</span> <span class="nf">exiftool_can_write</span><span class="p">(</span><span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Return True if exiftool supports writing to a file with the given suffix, otherwise False&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if exiftool supports writing to a file with the given suffix, otherwise False&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">suffix</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">suffix</span> <span class="o">=</span> <span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -255,7 +254,7 @@
 
 
 <span class="k">def</span> <span class="nf">escape_str</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;escape string for use with exiftool -E&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;escape string for use with exiftool -E&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">s</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -266,7 +265,7 @@
 
 
 <span class="k">def</span> <span class="nf">unescape_str</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;unescape an HTML string returned by exiftool -E&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;unescape an HTML string returned by exiftool -E&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">s</span>
     <span class="c1"># avoid &quot; in values which result in json.loads() throwing an exception, #636</span>
@@ -276,14 +275,14 @@
 
 <span class="nd">@atexit</span><span class="o">.</span><span class="n">register</span>
 <span class="k">def</span> <span class="nf">terminate_exiftool</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Terminate any running ExifTool subprocesses; call this to cleanup when done using ExifTool&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminate any running ExifTool subprocesses; call this to cleanup when done using ExifTool&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">EXIFTOOL_PROCESSES</span><span class="p">:</span>
         <span class="n">proc</span><span class="o">.</span><span class="n">_stop_proc</span><span class="p">()</span>
 
 
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">get_exiftool_path</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;return path of exiftool, cache result&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;return path of exiftool, cache result&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">exiftool_path</span> <span class="o">:=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;exiftool&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">exiftool_path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -294,18 +293,18 @@
 
 
 <span class="k">class</span> <span class="nc">_ExifToolProc</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Runs exiftool in a subprocess via Popen</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Runs exiftool in a subprocess via Popen</span>
 <span class="sd">    Creates a singleton object&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create new object or return instance of already created singleton&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create new object or return instance of already created singleton&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;instance&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">instance</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">instance</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">large_file_support</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;construct _ExifToolProc singleton object or return instance of already created object</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;construct _ExifToolProc singleton object or return instance of already created object</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            exiftool: optional path to exiftool binary (if not provided, will search path to find it)</span>
@@ -327,23 +326,23 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return the exiftool subprocess&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return the exiftool subprocess&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_running</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_start_proc</span><span class="p">(</span><span class="n">large_file_support</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_large_file_support</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return process id (PID) of the exiftool process&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return process id (PID) of the exiftool process&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="o">.</span><span class="n">pid</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">exiftool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return path to exiftool process&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return path to exiftool process&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool</span>
 
     <span class="k">def</span> <span class="nf">_start_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">large_file_support</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;start exiftool in batch mode&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;start exiftool in batch mode&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_running</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;exiftool already running: </span><span class="si">{self._process}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -378,7 +377,7 @@
         <span class="n">EXIFTOOL_PROCESSES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_stop_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;stop the exiftool process if it&#39;s running, otherwise, do nothing&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;stop the exiftool process if it&#39;s running, otherwise, do nothing&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_running</span><span class="p">:</span>
             <span class="k">return</span>
@@ -397,8 +396,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_running</span> <span class="o">=</span> <span class="kc">False</span>
 
 
-<div class="viewcode-block" id="ExifTool"><a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool">[docs]</a><span class="k">class</span> <span class="nc">ExifTool</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Basic exiftool interface for reading and writing EXIF tags&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ExifTool">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool">[docs]</a>
+<span class="k">class</span> <span class="nc">ExifTool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic exiftool interface for reading and writing EXIF tags&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -408,7 +409,7 @@
         <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">large_file_support</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create ExifTool object</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create ExifTool object</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            file: path to image file</span>
@@ -423,7 +424,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">filepath</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="o">=</span> <span class="n">overwrite</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">warning</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># if running as a context manager, self._context_mgr will be True</span>
@@ -431,14 +431,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_exiftoolproc</span> <span class="o">=</span> <span class="n">_ExifToolProc</span><span class="p">(</span>
             <span class="n">exiftool</span><span class="o">=</span><span class="n">exiftool</span><span class="p">,</span> <span class="n">large_file_support</span><span class="o">=</span><span class="n">large_file_support</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_read_exif</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_exif</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_png</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;File:FileType&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;PNG&quot;</span>  <span class="c1"># 1031</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exiftoolproc</span><span class="o">.</span><span class="n">process</span>
 
-<div class="viewcode-block" id="ExifTool.setvalue"><a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.setvalue">[docs]</a>    <span class="k">def</span> <span class="nf">setvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set tag to value(s); if value is None, will delete tag</span>
+<div class="viewcode-block" id="ExifTool.setvalue">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.setvalue">[docs]</a>
+    <span class="k">def</span> <span class="nf">setvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set tag to value(s); if value is None, will delete tag</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            tag: str; name of tag to set</span>
@@ -459,8 +462,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_mgr</span><span class="p">:</span>
             <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-overwrite_original&quot;</span><span class="p">)</span>
 
-        <span class="c1"># avoid &quot;Warning: Some character(s) could not be encoded in Latin&quot; warning</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-iptc:codedcharacterset=utf8&quot;</span><span class="p">)</span>
+        <span class="c1"># avoid &quot;Warning: Some character(s) could not be encoded in Latin&quot; warning #393</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_png</span><span class="p">:</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-iptc:codedcharacterset=utf8&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_mgr</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
@@ -469,8 +473,11 @@
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_commands</span><span class="p">(</span><span class="o">*</span><span class="n">command</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="ExifTool.addvalues"><a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.addvalues">[docs]</a>    <span class="k">def</span> <span class="nf">addvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="o">*</span><span class="n">values</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add one or more value(s) to tag</span>
+
+<div class="viewcode-block" id="ExifTool.addvalues">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.addvalues">[docs]</a>
+    <span class="k">def</span> <span class="nf">addvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="o">*</span><span class="n">values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add one or more value(s) to tag</span>
 <span class="sd">            If more than one value is passed, each value will be added to the tag</span>
 
 <span class="sd">        Args:</span>
@@ -512,8 +519,11 @@
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_commands</span><span class="p">(</span><span class="o">*</span><span class="n">command</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">error</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="ExifTool.run_commands"><a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.run_commands">[docs]</a>    <span class="k">def</span> <span class="nf">run_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">commands</span><span class="p">,</span> <span class="n">no_file</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run commands in the exiftool process and return result.</span>
+
+<div class="viewcode-block" id="ExifTool.run_commands">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.run_commands">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">commands</span><span class="p">,</span> <span class="n">no_file</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run commands in the exiftool process and return result.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">                *commands: exiftool commands to run</span>
@@ -521,7 +531,7 @@
 <span class="sd">                        by default, all commands will be run against self.file</span>
 <span class="sd">                        use no_file=True to run a command without passing the filename</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            (output, warning, errror)</span>
+<span class="sd">            (output, warning, error)</span>
 <span class="sd">            output: bytes is containing output of exiftool commands</span>
 <span class="sd">            warning: if exiftool generated warnings, string containing warning otherwise empty string</span>
 <span class="sd">            error: if exiftool generated errors, string containing otherwise empty string</span>
@@ -581,19 +591,22 @@
 
         <span class="k">return</span> <span class="n">output</span><span class="p">[:</span><span class="o">-</span><span class="n">EXIFTOOL_STAYOPEN_EOF_LEN</span><span class="p">],</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return process id (PID) of the exiftool process&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return process id (PID) of the exiftool process&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="o">.</span><span class="n">pid</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;returns exiftool version&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns exiftool version&quot;&quot;&quot;</span>
         <span class="n">ver</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_commands</span><span class="p">(</span><span class="s2">&quot;-ver&quot;</span><span class="p">,</span> <span class="n">no_file</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ver</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ExifTool.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return dictionary of all EXIF tags and values from exiftool</span>
+<div class="viewcode-block" id="ExifTool.asdict">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.asdict">[docs]</a>
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return dictionary of all EXIF tags and values from exiftool</span>
 <span class="sd">        returns empty dict if no tags</span>
 
 <span class="sd">        Args:</span>
@@ -626,15 +639,20 @@
 
         <span class="k">return</span> <span class="n">exifdict</span></div>
 
-<div class="viewcode-block" id="ExifTool.json"><a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;returns JSON string containing all EXIF tags and values from exiftool&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ExifTool.json">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExifTool.json">[docs]</a>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns JSON string containing all EXIF tags and values from exiftool&quot;&quot;&quot;</span>
         <span class="n">json</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_commands</span><span class="p">(</span><span class="s2">&quot;-json&quot;</span><span class="p">)</span>
         <span class="n">json</span> <span class="o">=</span> <span class="n">unescape_str</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">json</span></div>
 
+
     <span class="k">def</span> <span class="nf">_read_exif</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;read exif data from file&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;read exif data from file&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="se">\n</span><span class="s2">exiftool: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_exiftoolproc</span><span class="o">.</span><span class="n">_exiftool</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -652,8 +670,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">run_commands</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">)</span></div>
 
 
+
 <span class="k">class</span> <span class="nc">ExifToolCaching</span><span class="p">(</span><span class="n">ExifTool</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Basic exiftool interface for reading and writing EXIF tags, with caching.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic exiftool interface for reading and writing EXIF tags, with caching.</span>
 <span class="sd">    Use this only when you know the file&#39;s EXIF data will not be changed by any external process.</span>
 
 <span class="sd">    Creates a singleton cached ExifTool instance&quot;&quot;&quot;</span>
@@ -661,7 +680,7 @@
     <span class="n">_singletons</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;create new object or return instance of already created singleton&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create new object or return instance of already created singleton&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">filepath</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_singletons</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_singletons</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">_ExifToolCaching</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="n">exiftool</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_singletons</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
@@ -669,7 +688,7 @@
 
 <span class="k">class</span> <span class="nc">_ExifToolCaching</span><span class="p">(</span><span class="n">ExifTool</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create read-only ExifTool object that caches values</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create read-only ExifTool object that caches values</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            file: path to image file</span>
@@ -699,7 +718,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json_cache</span>
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return dictionary of all EXIF tags and values from exiftool</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return dictionary of all EXIF tags and values from exiftool</span>
 <span class="sd">        returns empty dict if no tags</span>
 
 <span class="sd">        Args:</span>
@@ -717,7 +736,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asdict_cache</span><span class="p">[</span><span class="n">tag_groups</span><span class="p">][</span><span class="n">normalized</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">flush_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Clear cached data so that calls to json or asdict return fresh data&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear cached data so that calls to json or asdict return fresh data&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json_cache</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_asdict_cache</span> <span class="o">=</span> <span class="p">{}</span>
 </pre></div>
@@ -740,9 +759,7 @@
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -754,14 +771,11 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/scripts/furo.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
+</div><script src="../../_static/documentation_options.js?v=6c4b4fee"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>
 </html>
