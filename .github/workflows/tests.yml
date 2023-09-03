@@ -35,7 +35,17 @@ jobs:
     - name: Install exiftool
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bash_profile
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          echo "mac"
+        else
+          echo "$RUNNER_OS not supported"
+          exit 1
+        fi
         brew install exiftool
+        
    # - name: Lint with flake8
    #   run: |
        # pip install flake8
