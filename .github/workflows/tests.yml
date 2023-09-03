@@ -35,6 +35,7 @@ jobs:
     - name: Install exiftool
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        brew install exiftool
    # - name: Lint with flake8
    #   run: |
        # pip install flake8
