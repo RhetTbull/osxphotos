@@ -8,8 +8,9 @@ import pytest
 import osxphotos
 from osxphotos._constants import SIDECAR_XMP
 from osxphotos.exiftool import ExifTool, get_exiftool_path
+from osxphotos.exportoptions import ExportOptions
 from osxphotos.fileutil import FileUtil
-from osxphotos.photoexporter import ExportOptions, PhotoExporter
+from osxphotos.photoexporter import PhotoExporter
 
 PHOTOS_DB_15_7 = "tests/Test-10.15.7.photoslibrary"
 

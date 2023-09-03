@@ -8,6 +8,7 @@ pyinstaller==5.6.2
 pytest-cov==4.0.0 
 pytest-mock
 pytest==7.4.0
+ruff==0.0.286
 Sphinx
 sphinx_click
 sphinx_rtd_theme

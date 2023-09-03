@@ -55,9 +55,10 @@ from .adjustmentsinfo import AdjustmentsInfo
 from .albuminfo import AlbumInfo, ImportInfo, ProjectInfo
 from .exifinfo import ExifInfo
 from .exiftool import ExifToolCaching, get_exiftool_path
+from .exportoptions import ExportOptions
 from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
-from .photoexporter import ExportOptions, PhotoExporter
+from .photoexporter import PhotoExporter
 from .phototables import PhotoTables
 from .phototemplate import PhotoTemplate, RenderOptions
 from .placeinfo import PlaceInfo4, PlaceInfo5
@@ -90,8 +91,12 @@ class PhotoInfo:
         self._uuid: str = uuid
         self._info: dict[str, Any] = info
         self._db: "osxphotos.PhotosDB" = db
-        self._exiftool_path = self._db._exiftool_path
         self._verbose = self._db._verbose
+
+    @property
+    def _exiftool_path(self) -> str | None:
+        """Path to exiftool as set in PhotosDB instance"""
+        return self._db._exiftool_path
 
     @property
     def filename(self):
@@ -1591,7 +1596,7 @@ class PhotoInfo:
         return exif_info
 
     @property
-    def exiftool(self):
+    def exiftool(self) -> ExifToolCaching:
         """Returns a ExifToolCaching (read-only instance of ExifTool) object for the photo.
         Requires that exiftool (https://exiftool.org/) be installed
         If exiftool not installed, logs warning and returns None

@@ -44,6 +44,7 @@ if is_macos:
     from .batch_edit import batch_edit
     from .import_cli import import_cli
     from .photo_inspect import photo_inspect
+    from .push_exif import push_exif
     from .show_command import show
     from .sync import sync
     from .timewarp import timewarp
@@ -145,6 +146,7 @@ if is_macos:
         batch_edit,
         import_cli,
         photo_inspect,
+        push_exif,
         show,
         sync,
         timewarp,

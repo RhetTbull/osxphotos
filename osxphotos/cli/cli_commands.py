@@ -29,7 +29,7 @@ from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
 from .click_rich_echo import set_rich_theme
 from .color_themes import get_theme
-from .verbose import verbose, verbose_print
+from .verbose import get_verbose_level, verbose, verbose_print
 
 logger = logging.getLogger("osxphotos")
 
@@ -59,6 +59,19 @@ def config_verbose_callback(ctx: click.Context, param: click.Parameter, value: t
     theme = ctx.params.get("theme")
     timestamp = ctx.params.get("timestamp")
     verbose_print(verbose=value, timestamp=timestamp, theme=theme)
+    return value
+
+
+def config_theme_callback(ctx: click.Context, param: click.Parameter, value: t.Any):
+    """Callback for --theme option"""
+    # calling verbose_print() will set the verbose level for the verbose() function
+    # if --verbose is passed after --theme, this callback won't have access it to
+    # and verbose_option will be None
+    # set to zero and if --verbose is passed, it will be set correctly by the
+    # config_verbose_callback (#1186)
+    verbose = ctx.params.get("verbose_option") or get_verbose_level()
+    timestamp = ctx.params.get("timestamp")
+    verbose_print(verbose=verbose, timestamp=timestamp, theme=value)
     return value
 
 
@@ -125,6 +138,7 @@ class QueryCommand(click.Command):
                 type=click.Choice(
                     ["dark", "light", "mono", "plain"], case_sensitive=False
                 ),
+                callback=config_theme_callback,
                 help="Specify the color theme to use for output. "
                 "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
                 "Defaults to 'dark' or 'light' depending on system dark mode setting.",
@@ -217,6 +231,7 @@ class SelectionCommand(click.Command):
                 type=click.Choice(
                     ["dark", "light", "mono", "plain"], case_sensitive=False
                 ),
+                callback=config_theme_callback,
                 help="Specify the color theme to use for output. "
                 "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
                 "Defaults to 'dark' or 'light' depending on system dark mode setting.",

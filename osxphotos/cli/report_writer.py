@@ -8,27 +8,33 @@ import json
 import os
 import os.path
 import sqlite3
+import sys
 from abc import ABC, abstractmethod
 from contextlib import suppress
-from typing import Dict, Union
+from typing import Any, Dict, Union
 
 from osxphotos._constants import SQLITE_CHECK_SAME_THREAD
 from osxphotos.export_db import OSXPHOTOS_ABOUT_STRING
-from osxphotos.photoexporter import ExportResults
+from osxphotos.exportoptions import ExportResults
 from osxphotos.sqlite_utils import sqlite_columns
 
+from .push_results import PushResults
 from .sync_results import SyncResults
 
 __all__ = [
     "ExportReportWriterCSV",
     "ExportReportWriterJSON",
     "ExportReportWriterSqlite",
+    "PushExifReportWriterCSV",
+    "PushExifReportWriterJSON",
+    "PushExifReportWriterSqlite",
     "ReportWriterABC",
     "ReportWriterNoOp",
     "SyncReportWriterCSV",
     "SyncReportWriterJSON",
     "SyncReportWriterSqlite",
     "export_report_writer_factory",
+    "push_exif_report_writer_factory",
     "sync_report_writer_factory",
 ]
 
@@ -38,7 +44,7 @@ class ReportWriterABC(ABC):
     """Abstract base class for report writers"""
 
     @abstractmethod
-    def write(self, results: ExportResults | SyncResults):
+    def write(self, *args, **kwargs):
         """Write results to the output file"""
         pass
 
@@ -57,7 +63,7 @@ class ReportWriterNoOp(ABC):
     def __init__(self):
         pass
 
-    def write(self, results: ExportResults | SyncResults):
+    def write(self, *args, **kwargs):
         """Write results to the output file"""
         pass
 
@@ -736,5 +742,335 @@ def sync_report_writer_factory(
         return SyncReportWriterJSON(output_file, append)
     elif output_type in ["sqlite", "db"]:
         return SyncReportWriterSQLite(output_file, append)
+    else:
+        raise ValueError(f"Unknown report file type: {output_file}")
+
+
+class PushExifReportWriterCSV(ReportWriterABC):
+    """Write CSV report file"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        report_columns = [
+            "uuid",
+            "original_filename",
+            "datetime",
+            "filename",
+            "written",
+            "updated",
+            "skipped",
+            "missing",
+            "warning",
+            "error",
+        ]
+        self.output_file = output_file
+        self.append = append
+        mode = "a" if append else "w"
+        self._output_fh = open(self.output_file, mode)
+        self._csv_writer = csv.DictWriter(self._output_fh, fieldnames=report_columns)
+        if not append:
+            self._csv_writer.writeheader()
+
+    def write(self, uuid: str, original_filename: str, push_results: PushResults):
+        """Write results to the output file"""
+        errors_by_filename = {e[0]: e[1] for e in push_results.error}
+        warnings_by_filename = {w[0]: w[1] for w in push_results.warning}
+        for filename in push_results.written:
+            self._csv_writer.writerow(
+                {
+                    "uuid": uuid,
+                    "original_filename": original_filename,
+                    "datetime": push_results.datetime,
+                    "filename": filename,
+                    "written": True,
+                    "updated": False,
+                    "skipped": False,
+                    "missing": "",
+                    "warning": warnings_by_filename.get(filename, ""),
+                    "error": errors_by_filename.get(filename, ""),
+                }
+            )
+        for filename in push_results.updated:
+            self._csv_writer.writerow(
+                {
+                    "uuid": uuid,
+                    "original_filename": original_filename,
+                    "datetime": push_results.datetime,
+                    "filename": filename,
+                    "written": False,
+                    "updated": True,
+                    "skipped": False,
+                    "missing": "",
+                    "warning": warnings_by_filename.get(filename, ""),
+                    "error": errors_by_filename.get(filename, ""),
+                }
+            )
+        for filename in push_results.skipped:
+            self._csv_writer.writerow(
+                {
+                    "uuid": uuid,
+                    "original_filename": original_filename,
+                    "datetime": push_results.datetime,
+                    "filename": filename,
+                    "written": False,
+                    "updated": False,
+                    "skipped": True,
+                    "missing": "",
+                    "warning": warnings_by_filename.get(filename, ""),
+                    "error": errors_by_filename.get(filename, ""),
+                }
+            )
+        for missing in push_results.missing:
+            self._csv_writer.writerow(
+                {
+                    "uuid": uuid,
+                    "original_filename": original_filename,
+                    "datetime": push_results.datetime,
+                    "filename": "",
+                    "written": False,
+                    "updated": False,
+                    "skipped": False,
+                    "missing": missing,
+                    "warning": "",
+                    "error": "",
+                }
+            )
+        self._output_fh.flush()
+
+    def close(self):
+        """Close the output file"""
+        self._output_fh.close()
+
+    def __del__(self):
+        with suppress(Exception):
+            self._output_fh.close()
+
+
+class PushExifReportWriterJSON(ReportWriterABC):
+    """Write JSON report file for push-exif results"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        self.output_file = output_file
+        self.append = append
+        self.indent = 4
+
+        self._first_record_written = False
+        if append:
+            with open(self.output_file, "r") as fh:
+                existing_data = json.load(fh)
+            self._output_fh = open(self.output_file, "w")
+            self._output_fh.write("[")
+            for data in existing_data:
+                self._output_fh.write(json.dumps(data, indent=self.indent))
+                self._output_fh.write(",\n")
+        else:
+            self._output_fh = open(self.output_file, "w")
+            self._output_fh.write("[")
+
+    def write(self, uuid: str, original_filename: str, push_results: PushResults):
+        """Write results to the output file"""
+        record = {"uuid": uuid, "original_filename": original_filename}
+        for field in [
+            "datetime",
+            "written",
+            "updated",
+            "skipped",
+            "missing",
+            "warning",
+            "error",
+        ]:
+            record[field] = getattr(push_results, field)
+        if self._first_record_written:
+            self._output_fh.write(",\n")
+        else:
+            self._first_record_written = True
+        self._output_fh.write(json.dumps(record, indent=self.indent))
+        self._output_fh.flush()
+
+    def close(self):
+        """Close the output file"""
+        self._output_fh.write("]")
+        self._output_fh.close()
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
+
+
+class PushExifReportWriterSQLite(ReportWriterABC):
+    """Write SQLite PushResults report file"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        self.output_file = output_file
+        self.append = append
+
+        if not append:
+            with suppress(FileNotFoundError):
+                os.unlink(self.output_file)
+
+        self._conn = sqlite3.connect(
+            self.output_file, check_same_thread=SQLITE_CHECK_SAME_THREAD
+        )
+        self._create_tables()
+        self.report_id = self._generate_report_id()
+
+    def write(self, uuid: str, original_filename: str, results: PushResults):
+        """Write results to the output file"""
+
+        errors_by_filename = {e[0]: e[1] for e in results.error}
+        warnings_by_filename = {w[0]: w[1] for w in results.warning}
+
+        # insert rows of values into sqlite report table
+        for filename in results.written:
+            self._write_row(
+                uuid,
+                original_filename,
+                results.datetime,
+                filename,
+                1,
+                0,
+                0,
+                "",
+                warnings_by_filename.get(filename, ""),
+                errors_by_filename.get(filename, ""),
+            )
+        for filename in results.updated:
+            self._write_row(
+                uuid,
+                original_filename,
+                results.datetime,
+                filename,
+                0,
+                1,
+                0,
+                "",
+                warnings_by_filename.get(filename, ""),
+                errors_by_filename.get(filename, ""),
+            )
+        for filename in results.skipped:
+            self._write_row(
+                uuid,
+                original_filename,
+                results.datetime,
+                filename,
+                0,
+                0,
+                1,
+                "",
+                "",
+                "",
+            )
+        for missing in results.missing:
+            self._write_row(
+                uuid,
+                original_filename,
+                results.datetime,
+                "",
+                0,
+                0,
+                0,
+                missing,
+                "",
+                "",
+            )
+
+    def _write_row(self, *data: Any):
+        """Write a row to the report table"""
+        report_id = self.report_id
+        # data = [str(v) if v else "" for v in row]
+        cursor = self._conn.cursor()
+        cursor.execute(
+            "INSERT INTO report "
+            "(report_id, uuid, original_filename, datetime, filename, written, updated, skipped, missing, warning, error)"
+            "VALUES "
+            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (report_id, *data),
+        )
+        self._conn.commit()
+
+    def close(self):
+        """Close the output file"""
+        self._conn.close()
+
+    def _create_tables(self):
+        c = self._conn.cursor()
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report (
+                report_id TEXT, 
+                uuid TEXT,
+                original_filename TEXT,
+                filename TEXT,
+                datetime TEXT,
+                written INT,
+                updated INT,
+                skipped INT,
+                missing TEXT,
+                warning TEXT,
+                error TEXT
+            );
+            """
+        )
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS about (
+                id INTEGER PRIMARY KEY,
+                about TEXT
+                );"""
+        )
+        about_str = f"OSXPhotos push-exif Report. {OSXPHOTOS_ABOUT_STRING}"
+        c.execute(
+            """
+            INSERT INTO about(about)
+            SELECT :about_str
+            FROM sqlite_master
+            WHERE type = 'table' AND name = 'about'
+            AND (SELECT COUNT(*) FROM about) = 0;""",
+            {"about_str": about_str},
+        )
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report_id (
+                report_id INTEGER PRIMARY KEY,
+                datetime TEXT,
+                command_line TEXT
+            );"""
+        )
+        self._conn.commit()
+
+    def _generate_report_id(self) -> int:
+        """Get a new report ID for this report"""
+        command_line = " ".join(sys.argv)
+        c = self._conn.cursor()
+        c.execute(
+            "INSERT INTO report_id(datetime, command_line) VALUES (?, ?);",
+            (datetime.datetime.now().isoformat(), command_line),
+        )
+        report_id = c.lastrowid
+        self._conn.commit()
+        return report_id
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
+
+
+def push_exif_report_writer_factory(
+    output_file: Union[str, bytes, os.PathLike], append: bool = False
+) -> ReportWriterABC:
+    """Return a ReportWriter instance appropriate for the output file type"""
+    output_type = os.path.splitext(output_file)[1]
+    output_type = output_type.lower()[1:]
+    if output_type == "csv":
+        return PushExifReportWriterCSV(output_file, append)
+    elif output_type == "json":
+        return PushExifReportWriterJSON(output_file, append)
+    elif output_type in ["sqlite", "db"]:
+        return PushExifReportWriterSQLite(output_file, append)
     else:
         raise ValueError(f"Unknown report file type: {output_file}")

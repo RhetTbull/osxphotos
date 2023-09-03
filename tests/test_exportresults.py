@@ -2,7 +2,7 @@
 
 import pytest
 
-from osxphotos.photoexporter import ExportResults
+from osxphotos.exportoptions import ExportResults
 
 EXPORT_RESULT_ATTRIBUTES = ExportResults().attributes
 

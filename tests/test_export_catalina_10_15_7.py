@@ -1,14 +1,20 @@
 """ Test export for 10.15.7 """
 
 import json
+import os
+import os.path
 import pathlib
+import tempfile
+import time
 
 import pytest
 
 import osxphotos
-from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos._constants import _MAX_IPTC_KEYWORD_LEN, _UNKNOWN_PERSON
 from osxphotos.exiftool import get_exiftool_path
-from osxphotos.photoexporter import ExportOptions, PhotoExporter
+from osxphotos.sidecars import exiftool_json_sidecar
+from osxphotos.exportoptions import ExportOptions
+from osxphotos.sidecars import xmp_sidecar
 from osxphotos.utils import dd_to_dms_str
 
 # determine if exiftool installed so exiftool tests can be skipped
@@ -88,9 +94,6 @@ EXIF_JSON_UUID = UUID_DICT["has_adjustments"]
 def test_export_1(photosdb):
     # test basic export
     # get an unedited image and export it using default filename
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -106,10 +109,6 @@ def test_export_1(photosdb):
 
 def test_export_2(photosdb):
     # test export with user provided filename
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -126,10 +125,6 @@ def test_export_2(photosdb):
 
 def test_export_3(photosdb):
     # test file already exists and test increment=True (default)
-    import os
-    import os.path
-    import pathlib
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -149,11 +144,6 @@ def test_export_3(photosdb):
 
 def test_export_4(photosdb):
     # test user supplied file already exists and test increment=True (default)
-    import os
-    import os.path
-    import pathlib
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -174,9 +164,6 @@ def test_export_4(photosdb):
 def test_export_5(photosdb):
     # test file already exists and test increment=True (default)
     # and overwrite = True
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -196,11 +183,6 @@ def test_export_5(photosdb):
 def test_export_6(photosdb):
     # test user supplied file already exists and test increment=True (default)
     # and overwrite = True
-    import os
-    import os.path
-    import pathlib
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -221,9 +203,6 @@ def test_export_6(photosdb):
 def test_export_7(photosdb):
     # test file already exists and test increment=False (not default), overwrite=False (default)
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -241,9 +220,6 @@ def test_export_7(photosdb):
 
 def test_export_8(photosdb):
     # try to export missing file
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -255,9 +231,6 @@ def test_export_8(photosdb):
 def test_export_9(photosdb):
     # try to export edited file that's not edited
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -271,10 +244,6 @@ def test_export_9(photosdb):
 def test_export_10(photosdb):
     # try to export edited file that's not edited and name provided
     # should raise exception
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -291,10 +260,6 @@ def test_export_10(photosdb):
 
 def test_export_11(photosdb):
     # export edited file with name provided
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -310,10 +275,6 @@ def test_export_11(photosdb):
 
 def test_export_12(photosdb):
     # export edited file with default name
-    import os
-    import os.path
-    import pathlib
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -333,9 +294,6 @@ def test_export_12(photosdb):
 def test_export_13(photosdb):
     # export to invalid destination
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -399,7 +357,7 @@ def test_exiftool_json_sidecar(photosdb):
     with open(str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.json"), "r") as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = PhotoExporter(photo).exiftool_json_sidecar()
+    json_got = exiftool_json_sidecar(photo)
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected
@@ -414,16 +372,15 @@ def test_exiftool_json_sidecar_ignore_date_modified(photosdb):
     ) as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = PhotoExporter(photo).exiftool_json_sidecar(
-        ExportOptions(ignore_date_modified=True)
-    )
+    json_got = exiftool_json_sidecar(photo, ExportOptions(ignore_date_modified=True))
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected
 
 
-def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
-    from osxphotos._constants import _MAX_IPTC_KEYWORD_LEN
+def test_exiftool_json_sidecar_keyword_template_long(caplog, photosdb):
+    """Test that long keywords generate a warning"""
+    caplog.set_level("WARNING")
 
     photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
 
@@ -447,13 +404,12 @@ def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
 
     long_str = "x" * (_MAX_IPTC_KEYWORD_LEN + 1)
     photos[0]._verbose = print
-    json_got = PhotoExporter(photos[0]).exiftool_json_sidecar(
-        ExportOptions(keyword_template=[long_str])
+    json_got = exiftool_json_sidecar(
+        photos[0], ExportOptions(keyword_template=[long_str])
     )
     json_got = json.loads(json_got)[0]
 
-    captured = capsys.readouterr()
-    assert "some keywords exceed max IPTC Keyword length" in captured.out
+    assert "some keywords exceed max IPTC Keyword length" in caplog.text
 
     # some gymnastics to account for different sort order in different pythons
     for k, v in json_expected.items():
@@ -471,8 +427,8 @@ def test_exiftool_json_sidecar_keyword_template(photosdb):
         str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.json"), "r"
     ) as fp:
         json_expected = json.load(fp)
-    json_got = PhotoExporter(photo).exiftool_json_sidecar(
-        ExportOptions(keyword_template=["{folder_album}"])
+    json_got = exiftool_json_sidecar(
+        photo, ExportOptions(keyword_template=["{folder_album}"])
     )
     json_got = json.loads(json_got)
 
@@ -488,9 +444,7 @@ def test_exiftool_json_sidecar_use_persons_keyword(photosdb):
     ) as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = PhotoExporter(photo).exiftool_json_sidecar(
-        ExportOptions(use_persons_as_keywords=True)
-    )
+    json_got = exiftool_json_sidecar(photo, ExportOptions(use_persons_as_keywords=True))
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected
@@ -505,9 +459,7 @@ def test_exiftool_json_sidecar_use_albums_keywords(photosdb):
     ) as fp:
         json_expected = json.load(fp)
 
-    json_got = PhotoExporter(photo).exiftool_json_sidecar(
-        ExportOptions(use_albums_as_keywords=True)
-    )
+    json_got = exiftool_json_sidecar(photo, ExportOptions(use_albums_as_keywords=True))
     json_got = json.loads(json_got)
 
     assert json_got == json_expected
@@ -520,7 +472,7 @@ def test_exiftool_sidecar(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_no_tag_groups.json", "r") as fp:
         json_expected = fp.read()
 
-    json_got = PhotoExporter(photo).exiftool_json_sidecar(tag_groups=False)
+    json_got = exiftool_json_sidecar(photo, tag_groups=False)
 
     assert json_got == json_expected
 
@@ -545,7 +497,7 @@ def test_xmp_sidecar(photosdb):
 
     with open(f"tests/sidecars/{uuid}.xmp", "r") as file:
         xmp_expected = file.read()
-    xmp_got = PhotoExporter(photos[0])._xmp_sidecar(extension="jpg")
+    xmp_got = xmp_sidecar(photos[0], extension="jpg")
     assert xmp_got == xmp_expected
 
 
@@ -559,7 +511,7 @@ def test_xmp_sidecar_extension(photosdb):
         xmp_expected = file.read()
         xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
-    xmp_got = PhotoExporter(photos[0])._xmp_sidecar()
+    xmp_got = xmp_sidecar(photos[0])
     assert xmp_got == xmp_expected
 
 
@@ -570,8 +522,8 @@ def test_xmp_sidecar_use_persons_keyword(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_persons_as_keywords.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = PhotoExporter(photo)._xmp_sidecar(
-        ExportOptions(use_persons_as_keywords=True), extension="jpg"
+    xmp_got = xmp_sidecar(
+        photo, ExportOptions(use_persons_as_keywords=True), extension="jpg"
     )
     assert xmp_got == xmp_expected
 
@@ -583,8 +535,8 @@ def test_xmp_sidecar_use_albums_keyword(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_albums_as_keywords.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = PhotoExporter(photo)._xmp_sidecar(
-        ExportOptions(use_albums_as_keywords=True), extension="jpg"
+    xmp_got = xmp_sidecar(
+        photo, ExportOptions(use_albums_as_keywords=True), extension="jpg"
     )
     assert xmp_got == xmp_expected
 
@@ -598,7 +550,7 @@ def test_xmp_sidecar_gps(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = PhotoExporter(photo)._xmp_sidecar()
+    xmp_got = xmp_sidecar(photo)
     assert xmp_got == xmp_expected
 
 
@@ -609,7 +561,8 @@ def test_xmp_sidecar_keyword_template(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = PhotoExporter(photo)._xmp_sidecar(
+    xmp_got = xmp_sidecar(
+        photo,
         ExportOptions(keyword_template=["{created.year}", "{folder_album}"]),
         extension="jpg",
     )

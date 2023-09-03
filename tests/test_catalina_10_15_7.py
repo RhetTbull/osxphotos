@@ -13,8 +13,9 @@ from collections import Counter, namedtuple
 import pytest
 
 import osxphotos
+from osxphotos import PhotosDB
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.photoexporter import PhotoExporter
+from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
@@ -279,12 +280,12 @@ UUID_FINGERPRINT = {
 
 
 @pytest.fixture(scope="module")
-def photosdb():
+def photosdb() -> PhotosDB:
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
 
 @pytest.fixture(scope="module")
-def photosdb_local():
+def photosdb_local() -> PhotosDB:
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB_LOCAL)
 
 
@@ -1394,12 +1395,12 @@ def test_no_adjustments(photosdb):
     assert photo.adjustments is None
 
 
-def test_exiftool_newlines_in_description(photosdb):
-    """Test that exiftool handles newlines embedded in description, issue #393"""
+def test_exiftool_newlines_in_description(photosdb: PhotosDB):
+    """Test that exiftool sidecar handles newlines embedded in description, issue #393"""
 
     photo = photosdb.get_photo(UUID_DICT["description_newlines"])
-    exif = PhotoExporter(photo)._exiftool_dict()
     assert photo.description.find("\n") > 0
+    exif = ExifWriter(photo).exiftool_dict()
     assert exif["EXIF:ImageDescription"].find("\n") > 0
 
 

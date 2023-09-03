@@ -27,6 +27,7 @@ from osxphotos.queryoptions import (
     QueryOptions,
     query_options_from_kwargs,
 )
+from osxphotos.sidecars import exiftool_json_sidecar
 
 if is_macos:
     import photoscript
@@ -68,12 +69,15 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
 
     from osxphotos import ExifTool, PhotoInfo, PhotosDB
     from osxphotos.albuminfo import AlbumInfo
+    from osxphotos.exifwriter import ExifWriter
+    from osxphotos.exportoptions import ExportOptions, ExportResults
     from osxphotos.momentinfo import MomentInfo
-    from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
+    from osxphotos.photoexporter import PhotoExporter
     from osxphotos.placeinfo import PlaceInfo
     from osxphotos.queryoptions import QueryOptions
     from osxphotos.scoreinfo import ScoreInfo
     from osxphotos.searchinfo import SearchInfo
+    from osxphotos.sidecars import SidecarWriter, xmp_sidecar
 
     logger = logging.getLogger()
     logger.disabled = True
@@ -118,7 +122,9 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds\n")
     print("The following classes have been imported from osxphotos:")
     print(
-        "- AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportOptions, ExportResults, PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo\n"
+        "- AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportOptions, ExportResults, "
+        "PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo, "
+        "SidecarWriter, ExifWriter\n"
     )
     print("The following variables are defined:")
     print(f"- photosdb: PhotosDB() instance for '{photosdb.library_path}'")

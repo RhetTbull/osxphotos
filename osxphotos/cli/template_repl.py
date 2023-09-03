@@ -101,9 +101,9 @@ def template_repl(
     mode: str | None, template: tuple[str, ...], uuid: str | None, db: str | None
 ):
     """Interactively render templates for selected photo.
-    
+
     Launches a REPL (Read-Eval-Print-Loop) to interactively render a template for the selected photo.
-    
+
     Select a photo in Photos then run `osxphotos template` to start the REPL.
     """
     configure_readline(mode)

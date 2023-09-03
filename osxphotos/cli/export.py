@@ -7,7 +7,6 @@ import inspect
 import os
 import pathlib
 import platform
-import shlex
 import subprocess
 import sys
 import time
@@ -42,10 +41,12 @@ from osxphotos.crash_reporter import crash_reporter, set_crash_data
 from osxphotos.datetime_formatter import DateTimeFormatter
 from osxphotos.debug import is_debug
 from osxphotos.exiftool import get_exiftool_path
+from osxphotos.exifwriter import ExifWriter, exif_options_from_options
 from osxphotos.export_db import ExportDB, ExportDBInMemory
+from osxphotos.exportoptions import ExportOptions, ExportResults
 from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
-from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
+from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos
@@ -2727,7 +2728,13 @@ def write_finder_tags(
             merge_exif_keywords=exiftool_merge_keywords,
             rich=True,
         )
-        exif = PhotoExporter(photo)._exiftool_dict(options=export_options)
+        # TODO: Need a better way to do this
+        # use photo.path as the source for EXIF if merge is used
+        # this means that if file is not present (e.g. export done with photokit)
+        # then the tags won't be available for merging
+        exif = ExifWriter(photo).exiftool_dict(
+            options=exif_options_from_options(export_options)
+        )
         try:
             if exif["IPTC:Keywords"]:
                 tags.extend(exif["IPTC:Keywords"])

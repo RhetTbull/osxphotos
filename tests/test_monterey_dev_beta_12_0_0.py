@@ -13,7 +13,7 @@ import pytest
 
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.photoexporter import PhotoExporter
+from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
@@ -1331,8 +1331,8 @@ def test_exiftool_newlines_in_description(photosdb):
     """Test that exiftool handles newlines embedded in description, issue #393"""
 
     photo = photosdb.get_photo(UUID_DICT["description_newlines"])
-    exif = PhotoExporter(photo)._exiftool_dict()
     assert photo.description.find("\n") > 0
+    exif = ExifWriter(photo).exiftool_dict()
     assert exif["EXIF:ImageDescription"].find("\n") > 0
 
 

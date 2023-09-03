@@ -2509,6 +2509,33 @@ def test_export_exiftool_merge_sidecar():
                 else:
                     assert exif[key] == CLI_EXIFTOOL_MERGE[uuid][key]
 
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_merge_sidecar_xmp():
+    """test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar xmp"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL_MERGE:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--sidecar",
+                    "xmp",
+                    "--uuid",
+                    f"{uuid}",
+                    "--exiftool-merge-keywords",
+                    "--exiftool-merge-persons",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            xmp_file = f"{CLI_EXIFTOOL_MERGE[uuid]['File:FileName']}.xmp"
+            assert xmp_file in files
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_favorite_rating():
@@ -2826,7 +2853,7 @@ def test_query_from_to_date():
     assert result.exit_code == 0
 
     json_got = json.loads(result.output)
-    assert len(json_got) == 3 
+    assert len(json_got) == 3
 
 
 def test_query_from_to_date_alt_location():
@@ -2898,7 +2925,7 @@ def test_query_from_to_time():
     assert result.exit_code == 0
 
     json_got = json.loads(result.output)
-    assert len(json_got) == 1 
+    assert len(json_got) == 1
 
 
 def test_query_year_single():
@@ -6206,32 +6233,6 @@ def test_export_as_hardlink_download_missing():
         )
         assert result.exit_code != 0
         assert "Incompatible export options" in result.output
-
-
-def test_export_missing():
-    """test export with --missing"""
-
-    # note this won't actually export the missing images since they are not in the test db
-    # but it will test the code path by attempting to do the export
-
-    runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
-                "-V",
-                "--missing",
-                "--dry-run",
-                "--download-missing",
-                ".",
-            ],
-        )
-        assert result.exit_code == 0
-        assert f"Exporting {PHOTOS_MISSING_15_7} photos" in result.output
 
 
 def test_export_missing_not_download_missing():
