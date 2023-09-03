@@ -32,8 +32,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r dev_requirements.txt
         pip install -r requirements.txt
-    - uses: alexellis/arkade-get@master
     - name: Install exiftool
+      uses: alexellis/arkade-get@master
       with:
         exiftool: latest
    # - name: Lint with flake8
