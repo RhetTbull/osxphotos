@@ -27,7 +27,6 @@ from osxphotos.queryoptions import (
     QueryOptions,
     query_options_from_kwargs,
 )
-from osxphotos.sidecars import exiftool_json_sidecar
 
 if is_macos:
     import photoscript
