@@ -74,13 +74,11 @@ TEMPLATE_VALUES_MULTI_KEYWORDS = {
     "{keyword|titlecase}": ["Flowers", "Wedding"],
     "{keyword|capitalize}": ["Flowers", "Wedding"],
     "{keyword|shell_quote}": ["flowers", "wedding"],
-    "{+keyword}": ["flowerswedding"],
-    "{+keyword|titlecase}": ["Flowerswedding"],
-    "{+keyword|capitalize}": ["Flowerswedding"],
-    "{;+keyword}": ["flowers;wedding"],
-    "{; +keyword}": ["flowers; wedding"],
-    "{; +keyword|titlecase}": ["Flowers; Wedding"],
-    "{; +keyword|titlecase|parens}": ["(Flowers; Wedding)"],
+    "{var:kw,{keyword|sort}}{%kw|join(,)}": ["flowers,wedding"],
+    "{var:kw,{keyword|sort}}{%kw|titlecase|join(;)}": ["Flowers;Wedding"],
+    "{,+keyword}": ["flowers,wedding"],  # test keywords in sorted order
+    "{,+keyword|titlecase}": ["Flowers,Wedding"],  # test keywords in sorted order
+    "{,+keyword|upper}": ["FLOWERS,WEDDING"],  # test keywords in sorted order
     "{keyword|appends(:keyword)}": ["flowers:keyword", "wedding:keyword"],
     "{keyword|prepends(keyword:)}": ["keyword:flowers", "keyword:wedding"],
 }
@@ -1389,3 +1387,11 @@ def test_location_latitude_longitude(photosdb):
 
     rendered, _ = photo.render_template("{photo.longitude}")
     assert float(rendered[0]) == pytest.approx(-95.940257)
+
+
+def test_float_concatenation(photosdb):
+    """Test {,+photo.location} #1197"""
+    photo = photosdb.get_photo(UUID_LAT_LON)
+    rendered, _ = photo.render_template("{,+photo.location}")
+    assert len(rendered) == 1
+    assert rendered[0] == f"{photo.location[0]},{photo.location[1]}"
