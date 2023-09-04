@@ -626,7 +626,7 @@ class PhotoTemplate:
 
             if self.expand_inplace or delim is not None:
                 sep = delim if delim is not None else self.inplace_sep
-                vals = [sep.join(sorted(vals))] if vals else []
+                vals = [sep.join(vals)] if vals else []
 
             for filter_ in filters:
                 vals = self.get_filter_values(filter_, vals)
@@ -1211,15 +1211,19 @@ class PhotoTemplate:
             values = self.photo.burst_albums if self.photo.burst else self.photo.albums
             values += [p.title for p in self.photo.project_info]
         elif field == "keyword":
-            values = self.photo.keywords
+            values = sorted(self.photo.keywords) if self.photo.keywords else []
         elif field == "person":
-            values = self.photo.persons
+            values = sorted(self.photo.persons) if self.photo.persons else []
             # remove any _UNKNOWN_PERSON values
             values = [val for val in values if val != _UNKNOWN_PERSON]
         elif field == "label":
-            values = self.photo.labels
+            values = sorted(self.photo.labels) if self.photo.labels else []
         elif field == "label_normalized":
-            values = self.photo.labels_normalized
+            values = (
+                sorted(self.photo.labels_normalized)
+                if self.photo.labels_normalized
+                else []
+            )
         elif field in ["folder_album", "folder_album_project"]:
             values = []
             # photos must be in an album to be in a folder
@@ -1246,6 +1250,7 @@ class PhotoTemplate:
                     values.append(sanitize_dirname(album.title))
                 else:
                     values.append(album.title)
+            values = sorted(values)
         elif field == "comment":
             values = [
                 f"{comment.user}: {comment.text}" for comment in self.photo.comments
@@ -1292,7 +1297,10 @@ class PhotoTemplate:
             elif isinstance(obj, (str, int, float)):
                 values = [str(obj)]
             else:
-                values = list(obj)
+                try:
+                    values = [str(o) for o in obj]
+                except TypeError:
+                    values = [str(obj)]
         elif field == "detected_text":
             values = _get_detected_text(self.photo, confidence=subfield)
         else:

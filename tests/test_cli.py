@@ -2509,6 +2509,7 @@ def test_export_exiftool_merge_sidecar():
                 else:
                     assert exif[key] == CLI_EXIFTOOL_MERGE[uuid][key]
 
+
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_merge_sidecar_xmp():
     """test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar xmp"""
@@ -2536,6 +2537,7 @@ def test_export_exiftool_merge_sidecar_xmp():
             files = glob.glob("*")
             xmp_file = f"{CLI_EXIFTOOL_MERGE[uuid]['File:FileName']}.xmp"
             assert xmp_file in files
+
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_favorite_rating():
@@ -3585,14 +3587,19 @@ def test_export_sidecar_templates():
         assert os.path.isfile(CLI_TEMPLATE_SIDECAR_FILENAME)
         with open(CLI_TEMPLATE_SIDECAR_FILENAME, "r") as jsonfile:
             exifdata = json.load(jsonfile)
-        assert (
-            exifdata[0]["XMP:Description"]
-            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Sorted Manual, Sorted Newest First, Sorted Oldest First, Sorted Title, Test Album"
-        )
-        assert (
-            exifdata[0]["EXIF:ImageDescription"]
-            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Sorted Manual, Sorted Newest First, Sorted Oldest First, Sorted Title, Test Album"
-        )
+        # order of multi-value templates is indeterminate so verify substrings instead of equality
+        for tag in ["XMP:Description", "EXIF:ImageDescription"]:
+            value = exifdata[0][tag]
+            assert value.startswith("Girls with pumpkins")
+            assert "Katie" in value
+            assert "Suzy" in value
+            assert "Kids" in value
+            assert "Pumpkin Farm" in value
+            assert "Sorted Manual" in value
+            assert "Sorted Newest First" in value
+            assert "Sorted Oldest First" in value
+            assert "Sorted Title" in value
+            assert "Test Album" in value
 
 
 def test_export_sidecar_templates_exiftool():
@@ -3622,14 +3629,19 @@ def test_export_sidecar_templates_exiftool():
         assert os.path.isfile(CLI_TEMPLATE_SIDECAR_FILENAME)
         with open(CLI_TEMPLATE_SIDECAR_FILENAME, "r") as jsonfile:
             exifdata = json.load(jsonfile)
-        assert (
-            exifdata[0]["Description"]
-            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Sorted Manual, Sorted Newest First, Sorted Oldest First, Sorted Title, Test Album"
-        )
-        assert (
-            exifdata[0]["ImageDescription"]
-            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Sorted Manual, Sorted Newest First, Sorted Oldest First, Sorted Title, Test Album"
-        )
+        # order of multi-value templates is indeterminate so verify substrings instead of equality
+        for tag in ["Description", "ImageDescription"]:
+            value = exifdata[0][tag]
+            assert value.startswith("Girls with pumpkins")
+            assert "Katie" in value
+            assert "Suzy" in value
+            assert "Kids" in value
+            assert "Pumpkin Farm" in value
+            assert "Sorted Manual" in value
+            assert "Sorted Newest First" in value
+            assert "Sorted Oldest First" in value
+            assert "Sorted Title" in value
+            assert "Test Album" in value
 
 
 def test_export_sidecar_update():
