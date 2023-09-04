@@ -245,12 +245,19 @@ def push_exif(
     writing metadata, use the `--compare` option.  This will print a report of any
     differences between the metadata in Photos and the original files but will not
     modify any files.
+
+    push-exif cannot be used on photos in classic shared albums. These photos will
+    be automatically skipped.
     """
 
-    # cannot process shared photos so filter them out
+    if shared := [p for p in photos if p.shared]:
+        echo_error(
+            f"[warning]Found {len(shared)} shared {pluralize(len(shared), 'photo', 'photos')} "
+            "which cannot be processed by push-exif. Shared photos will be skipped."
+        )
     photos = [p for p in photos if not p.shared]
     if not photos:
-        echo_error("No photos selected for processing")
+        echo_error("[error]No photos selected for processing")
         raise click.Abort()
 
     exiftool_path = exiftool_path or get_exiftool_path()

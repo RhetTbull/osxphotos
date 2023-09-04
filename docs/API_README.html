@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Reference" href="reference.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>OSXPhotos Python API - osxphotos 0.62.3 documentation</title>
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>OSXPhotos Python API - osxphotos 0.63.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.62.3 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.63.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.63.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -228,6 +228,8 @@
 <li><p><a class="reference external" href="#template-system">Template System</a></p></li>
 <li><p><a class="reference external" href="#exiftoolExifTool">ExifTool</a></p></li>
 <li><p><a class="reference external" href="#photoexporter">PhotoExporter</a></p></li>
+<li><p><a class="reference external" href="#exifwriter">ExifWriter</a></p></li>
+<li><p><a class="reference external" href="#sidecarwriter">SidecarWriter</a></p></li>
 <li><p><a class="reference external" href="#textdetection">Text Detection</a></p></li>
 <li><p><a class="reference external" href="#utility-functions">Utility Functions</a></p></li>
 </ul>
@@ -1252,6 +1254,14 @@ Python &lt; 3.11.</p>
 <section id="location">
 <h4><code class="docutils literal notranslate"><span class="pre">location</span></code><a class="headerlink" href="#location" title="Link to this heading">#</a></h4>
 <p>Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</section>
+<section id="latitude">
+<h4><code class="docutils literal notranslate"><span class="pre">latitude</span></code><a class="headerlink" href="#latitude" title="Link to this heading">#</a></h4>
+<p>Returns latitude as a float or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</section>
+<section id="longitude">
+<h4><code class="docutils literal notranslate"><span class="pre">longitude</span></code><a class="headerlink" href="#longitude" title="Link to this heading">#</a></h4>
+<p>Returns longitude as a float or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </section>
 <section id="place">
 <h4><code class="docutils literal notranslate"><span class="pre">place</span></code><a class="headerlink" href="#place" title="Link to this heading">#</a></h4>
@@ -2778,7 +2788,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.62.3’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.63.0’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -3013,20 +3023,106 @@ cog.out("\n"+get_template_field_table()+"\n")
 </ul>
 </section>
 </section>
+<section id="a-name-exifwriter-exifwriter-a">
+<h3><span class="raw-html-m2r"><a name="exifwriter">ExifWriter</a></span><a class="headerlink" href="#a-name-exifwriter-exifwriter-a" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos.exifwriter.ExifWriter</span></code> provides a way to write EXIF metadata (using <a class="reference external" href="https://exiftool.org/">exiftool</a>) to files. It is used by <code class="docutils literal notranslate"><span class="pre">PhotoExporter</span></code> to write metadata to exported files.  It can also be used independently of <code class="docutils literal notranslate"><span class="pre">PhotoExporter</span></code> to write metadata to files.  <code class="docutils literal notranslate"><span class="pre">ExifWriter</span></code> uses an <code class="docutils literal notranslate"><span class="pre">ExifOptions</span></code> options class to configure the output metadata. For example, <code class="docutils literal notranslate"><span class="pre">ExifOptions.description_template</span></code> allows you to specify a template to use for writing the <code class="docutils literal notranslate"><span class="pre">XMP:Description</span></code> field.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ExifWriter</span></code> usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.exifwriter</span> <span class="kn">import</span> <span class="n">ExifOptions</span><span class="p">,</span> <span class="n">ExifWriter</span>
+<span class="c1"># photo is a PhotoInfo object</span>
+<span class="n">writer</span> <span class="o">=</span> <span class="n">ExifWriter</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">ExifOptions</span><span class="p">(</span><span class="n">merge_exif_keywords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># filepath is the path to the file you want to write the metadata to</span>
+<span class="n">writer</span><span class="o">.</span><span class="n">write_exif_data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also retrieve the dictionary that will be used to write the metadata without actually writing to file using <code class="docutils literal notranslate"><span class="pre">ExifWriter().exiftool_dict()</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ExifOptions</span></code> has the following properties:</p>
+<ul class="simple">
+<li><p>description_template (str): Optional template string that will be rendered for use as photo description</p></li>
+<li><p>exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g [“-m”, “-F”]</p></li>
+<li><p>exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file</p></li>
+<li><p>face_regions: (bool, default=True): if True, will export face regions</p></li>
+<li><p>ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set</p></li>
+<li><p>keyword_template (list of str): list of template strings that will be rendered as used as keywords</p></li>
+<li><p>location (bool): if True, include location in exported metadata</p></li>
+<li><p>merge_exif_keywords (bool): if True, merged keywords found in file’s exif data (requires exiftool)</p></li>
+<li><p>merge_exif_persons (bool): if True, merged persons found in file’s exif data (requires exiftool)</p></li>
+<li><p>persons (bool): if True, include persons in exported metadata</p></li>
+<li><p>render_options (RenderOptions): Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates</p></li>
+<li><p>replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it’s additive</p></li>
+<li><p>strip (bool): if True, strip whitespace from rendered templates</p></li>
+<li><p>use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar</p></li>
+<li><p>use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar</p></li>
+<li><p>favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites</p></li>
+</ul>
+</section>
+<section id="a-name-sidecarwriter-sidecarwriter-a">
+<h3><span class="raw-html-m2r"><a name="sidecarwriter">SidecarWriter</a></span><a class="headerlink" href="#a-name-sidecarwriter-sidecarwriter-a" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos.sidecars.SidecarWriter</span></code> is a utility class used by <a class="reference external" href="#photoexporter">PhotoExporter</a> to write the sidecars (XMP, JSON, exiftool) for exported images. You can use this yourself to write sidecars if needed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.sidecars</span> <span class="kn">import</span> <span class="n">SidecarWriter</span>
+
+<span class="c1"># photo is a PhotoInfo object</span>
+<span class="n">writer</span> <span class="o">=</span> <span class="n">SidecarWriter</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
+
+<span class="c1"># dest is destination folder for sidecar files, options is an ExportOptions</span>
+<span class="c1"># returns ExportResults of sidecars written or skipped</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">write_sidecar_files</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can get the string for the XMP sidecar with <code class="docutils literal notranslate"><span class="pre">xmp_sidecar()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">xmp_sidecar</span><span class="p">(</span>
+    <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns string for XMP sidecar</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        photo (PhotoInfo): photo to generate sidecars</span>
+<span class="sd">        options (ExportOptions): options for export</span>
+<span class="sd">        extension (Optional[str]): which extension to use for SidecarForExtension property</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: string containing XMP sidecar</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.sidecars</span> <span class="kn">import</span> <span class="n">xmp_sidecar</span>
+
+<span class="n">sidecar</span> <span class="o">=</span> <span class="n">xmp_sidecar</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">extension</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See implementation for more information.</p>
+<p>The JSON string for the exiftool sidecar can be retrieved using the function <code class="docutils literal notranslate"><span class="pre">exiftool_json_sidecar</span></code> which has the following signature:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">exiftool_json_sidecar</span><span class="p">(</span>
+    <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span> <span class="o">|</span> <span class="n">ExifOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tag_groups</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.sidecars</span> <span class="kn">import</span> <span class="n">exiftool_json_sidecar</span>
+
+<span class="n">sidecar</span> <span class="o">=</span> <span class="n">exiftool_json_sidecar</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">tag_groups</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See source code for full details.</p>
+</section>
 <section id="a-name-textdetection-text-detection-a">
 <h3><span class="raw-html-m2r"><a name="textdetection">Text Detection</a></span><a class="headerlink" href="#a-name-textdetection-text-detection-a" title="Link to this heading">#</a></h3>
 <p>The <a class="reference external" href="#photoinfo_detected_text">PhotoInfo.detected_text()</a> and the <code class="docutils literal notranslate"><span class="pre">{detected_text}</span></code> template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named <code class="docutils literal notranslate"><span class="pre">osxphotos.metadata:detected_text</span></code> and can be viewed using the built-in <a class="reference external" href="https://ss64.com/osx/xattr.html">xattr</a> command or my <a class="reference external" href="https://github.com/RhetTbull/osxmetadata">osxmetadata</a> tool.  If you want to remove the cached attribute, you can do so with <code class="docutils literal notranslate"><span class="pre">xattr</span></code> as follows:</p>
 <p><code class="docutils literal notranslate"><span class="pre">find</span> <span class="pre">~/Pictures/Photos\</span> <span class="pre">Library.photoslibrary</span> <span class="pre">|</span> <span class="pre">xargs</span> <span class="pre">-I{}</span> <span class="pre">xattr</span> <span class="pre">-c</span> <span class="pre">osxphotos.metadata:detected_text</span> <span class="pre">'{}'</span></code></p>
 </section>
-<section id="id165">
-<h3>Utility Functions<a class="headerlink" href="#id165" title="Link to this heading">#</a></h3>
+<section id="id167">
+<h3>Utility Functions<a class="headerlink" href="#id167" title="Link to this heading">#</a></h3>
 <p>The following functions are located in osxphotos.utils</p>
-<section id="id166">
-<h4><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code><a class="headerlink" href="#id166" title="Link to this heading">#</a></h4>
+<section id="id168">
+<h4><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code><a class="headerlink" href="#id168" title="Link to this heading">#</a></h4>
 <p><strong>MacOS 10.15 Only</strong> Returns path to System Photo Library as string.  On MacOS version &lt; 10.15, returns None.</p>
 </section>
-<section id="id167">
-<h4><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code><a class="headerlink" href="#id167" title="Link to this heading">#</a></h4>
+<section id="id169">
+<h4><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code><a class="headerlink" href="#id169" title="Link to this heading">#</a></h4>
 <p>Returns path to last opened Photo Library as string.</p>
 </section>
 <section id="list-photo-libraries">
@@ -3035,8 +3131,8 @@ cog.out("\n"+get_template_field_table()+"\n")
 </section>
 </section>
 </section>
-<section id="id168">
-<h2>Additional Examples<a class="headerlink" href="#id168" title="Link to this heading">#</a></h2>
+<section id="id170">
+<h2>Additional Examples<a class="headerlink" href="#id170" title="Link to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -3233,6 +3329,8 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#intrash"><code class="docutils literal notranslate"><span class="pre">intrash</span></code></a></li>
 <li><a class="reference internal" href="#date-trashed"><code class="docutils literal notranslate"><span class="pre">date_trashed</span></code></a></li>
 <li><a class="reference internal" href="#location"><code class="docutils literal notranslate"><span class="pre">location</span></code></a></li>
+<li><a class="reference internal" href="#latitude"><code class="docutils literal notranslate"><span class="pre">latitude</span></code></a></li>
+<li><a class="reference internal" href="#longitude"><code class="docutils literal notranslate"><span class="pre">longitude</span></code></a></li>
 <li><a class="reference internal" href="#place"><code class="docutils literal notranslate"><span class="pre">place</span></code></a></li>
 <li><a class="reference internal" href="#id50"><code class="docutils literal notranslate"><span class="pre">shared</span></code></a></li>
 <li><a class="reference internal" href="#owner"><code class="docutils literal notranslate"><span class="pre">owner</span></code></a></li>
@@ -3434,16 +3532,18 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#exportresults"><code class="docutils literal notranslate"><span class="pre">ExportResults</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#a-name-exifwriter-exifwriter-a"><span class="raw-html-m2r"><a name="exifwriter">ExifWriter</a></span></a></li>
+<li><a class="reference internal" href="#a-name-sidecarwriter-sidecarwriter-a"><span class="raw-html-m2r"><a name="sidecarwriter">SidecarWriter</a></span></a></li>
 <li><a class="reference internal" href="#a-name-textdetection-text-detection-a"><span class="raw-html-m2r"><a name="textdetection">Text Detection</a></span></a></li>
-<li><a class="reference internal" href="#id165">Utility Functions</a><ul>
-<li><a class="reference internal" href="#id166"><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code></a></li>
-<li><a class="reference internal" href="#id167"><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code></a></li>
+<li><a class="reference internal" href="#id167">Utility Functions</a><ul>
+<li><a class="reference internal" href="#id168"><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code></a></li>
+<li><a class="reference internal" href="#id169"><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code></a></li>
 <li><a class="reference internal" href="#list-photo-libraries"><code class="docutils literal notranslate"><span class="pre">list_photo_libraries()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id168">Additional Examples</a></li>
+<li><a class="reference internal" href="#id170">Additional Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -3455,7 +3555,7 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=2a668fdd"></script>
+</div><script src="_static/documentation_options.js?v=6c4b4fee"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

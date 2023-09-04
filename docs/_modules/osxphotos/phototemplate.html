@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>osxphotos.phototemplate - osxphotos 0.62.2 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.63.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.62.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.63.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.63.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -557,7 +557,7 @@
 <span class="sd">    dirname: if True, template output will be sanitized to produce valid directory name</span>
 <span class="sd">    strip: if True, strips leading/trailing whitespace from rendered templates</span>
 <span class="sd">    edited_version: set to True if you want {edited_version} to resolve to True (e.g. exporting edited version of photo)</span>
-<span class="sd">    export_dir: set to the export directory if you want to evalute {export_dir} template</span>
+<span class="sd">    export_dir: set to the export directory if you want to evaluate {export_dir} template</span>
 <span class="sd">    dest_path: set to the destination path of the photo (for use by {function} template), only valid with --filename</span>
 <span class="sd">    filepath: set to value for filepath of the exported photo if you want to evaluate {filepath} template</span>
 <span class="sd">    quote: quote path templates for execution in the shell</span>
@@ -936,7 +936,7 @@
             <span class="n">pre</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">pre</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
             <span class="n">post</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">post</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
 
-            <span class="n">rendered</span> <span class="o">=</span> <span class="p">[</span><span class="n">pre</span> <span class="o">+</span> <span class="n">val</span> <span class="o">+</span> <span class="n">post</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">]</span>
+            <span class="n">rendered</span> <span class="o">=</span> <span class="p">[</span><span class="n">pre</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">+</span> <span class="n">post</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">]</span>
             <span class="n">results_new</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">ren</span> <span class="ow">in</span> <span class="n">rendered</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
@@ -2010,7 +2010,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8e1e0bc4"></script>
+</div><script src="../../_static/documentation_options.js?v=6c4b4fee"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

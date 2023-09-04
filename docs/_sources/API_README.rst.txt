@@ -36,6 +36,8 @@ Table of Contents
   * `Template System <#template-system>`_
   * `ExifTool <#exiftoolExifTool>`_
   * `PhotoExporter <#photoexporter>`_
+  * `ExifWriter <#exifwriter>`_
+  * `SidecarWriter <#sidecarwriter>`_
   * `Text Detection <#textdetection>`_
   * `Utility Functions <#utility-functions>`_
 
@@ -1257,6 +1259,16 @@ Returns the date the photo was placed in the trash as a datetime.datetime object
 ~~~~~~~~~~~~~~~~
 
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as ``None``
+
+``latitude``
+~~~~~~~~~~~~~~~~
+
+Returns latitude as a float or ``None``.
+
+``longitude``
+~~~~~~~~~~~~~~~~~
+
+Returns longitude as a float or ``None``.
 
 ``place``
 ~~~~~~~~~~~~~
@@ -2979,7 +2991,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.62.3'
+     - The osxphotos version, e.g. '0.63.0'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
@@ -3215,6 +3227,107 @@ Attributes:
 * exported_album: reserved for use by osxphotos CLI
 * skipped_album: reserved for use by osxphotos CLI
 * missing_album: reserved for use by osxphotos CLI
+
+:raw-html-m2r:`<a name="exifwriter">ExifWriter</a>`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``osxphotos.exifwriter.ExifWriter`` provides a way to write EXIF metadata (using `exiftool <https://exiftool.org/>`_\ ) to files. It is used by ``PhotoExporter`` to write metadata to exported files.  It can also be used independently of ``PhotoExporter`` to write metadata to files.  ``ExifWriter`` uses an ``ExifOptions`` options class to configure the output metadata. For example, ``ExifOptions.description_template`` allows you to specify a template to use for writing the ``XMP:Description`` field.
+
+``ExifWriter`` usage:
+
+.. code-block:: python
+
+   from osxphotos.exifwriter import ExifOptions, ExifWriter
+   # photo is a PhotoInfo object
+   writer = ExifWriter(photo)
+   options = ExifOptions(merge_exif_keywords=True)
+   # filepath is the path to the file you want to write the metadata to
+   writer.write_exif_data(filepath, options)
+
+You can also retrieve the dictionary that will be used to write the metadata without actually writing to file using ``ExifWriter().exiftool_dict()``.
+
+``ExifOptions`` has the following properties:
+
+
+* description_template (str): Optional template string that will be rendered for use as photo description
+* exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
+* exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
+* face_regions: (bool, default=True): if True, will export face regions
+* ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+* keyword_template (list of str): list of template strings that will be rendered as used as keywords
+* location (bool): if True, include location in exported metadata
+* merge_exif_keywords (bool): if True, merged keywords found in file's exif data (requires exiftool)
+* merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)
+* persons (bool): if True, include persons in exported metadata
+* render_options (RenderOptions): Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
+* replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
+* strip (bool): if True, strip whitespace from rendered templates
+* use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
+* use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
+* favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
+
+:raw-html-m2r:`<a name="sidecarwriter">SidecarWriter</a>`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``osxphotos.sidecars.SidecarWriter`` is a utility class used by `PhotoExporter <#photoexporter>`_ to write the sidecars (XMP, JSON, exiftool) for exported images. You can use this yourself to write sidecars if needed.
+
+.. code-block:: python
+
+   from osxphotos.sidecars import SidecarWriter
+
+   # photo is a PhotoInfo object
+   writer = SidecarWriter(photo)
+
+   # dest is destination folder for sidecar files, options is an ExportOptions
+   # returns ExportResults of sidecars written or skipped
+   results = writer.write_sidecar_files(dest, options)
+
+You can get the string for the XMP sidecar with ``xmp_sidecar()``\ :
+
+.. code-block:: python
+
+   def xmp_sidecar(
+       photo: PhotoInfo,
+       options: ExportOptions | None = None,
+       extension: str | None = None,
+   ) -> str:
+       """Returns string for XMP sidecar
+
+       Args:
+           photo (PhotoInfo): photo to generate sidecars
+           options (ExportOptions): options for export
+           extension (Optional[str]): which extension to use for SidecarForExtension property
+
+       Returns:
+           str: string containing XMP sidecar
+       """
+
+.. code-block:: python
+
+   from osxphotos.sidecars import xmp_sidecar
+
+   sidecar = xmp_sidecar(photo, options, extension)
+
+See implementation for more information.
+
+The JSON string for the exiftool sidecar can be retrieved using the function ``exiftool_json_sidecar`` which has the following signature:
+
+.. code-block:: python
+
+   def exiftool_json_sidecar(
+       photo: PhotoInfo,
+       options: ExportOptions | ExifOptions | None = None,
+       tag_groups: bool = True,
+       filename: str | None = None,
+   ) -> str:
+
+.. code-block:: python
+
+   from osxphotos.sidecars import exiftool_json_sidecar
+
+   sidecar = exiftool_json_sidecar(photo, options, tag_groups, filename)
+
+See source code for full details.
 
 :raw-html-m2r:`<a name="textdetection">Text Detection</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

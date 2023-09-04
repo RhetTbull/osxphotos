@@ -167,6 +167,7 @@ Commands:
   orphans        Find orphaned photos in a Photos library
   persons        Print out persons (faces) found in the Photos library.
   places         Print out places found in the Photos library.
+  push-exif      Write photo metadata to original files in the Photos library
   query          Query the Photos database using 1 or more search options;...
   repl           Run interactive osxphotos REPL shell (useful for...
   run            Run a python file using same environment as osxphotos.
@@ -2225,7 +2226,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.62.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.63.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2713,7 +2714,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.62.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.63.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
