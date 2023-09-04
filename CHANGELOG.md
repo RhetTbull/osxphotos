@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.63.0](https://github.com/RhetTbull/osxphotos/compare/v0.62.3...v0.63.0)
+
+Added push-exif command
+
+### [v0.63.0] - 2023-09-03
+
+#### Fixed
+
+- Fixed exiftool warning for PNG images when using `--exiftool` (#1031)
+
+#### Added
+
+- `osxphotos push-exif` command to push metadata changes from Photos to the original files. (#160)
+- Added `PhotoInfo.latitude` and `PhotoInfo.longitude` properties to get the latitude and longitude of a photo (`PhotoInfo.location` still works to return tuple of lat, lon)
+
+#### Removed
+
+- Removed `get_selected()` from `osxphotos repl` (#1179)
+
+#### Changed
+
+- In `osxphotos repl`, `selected` is now an instance of of `PhotosSelection` which dynamically updates when selection changes.
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code
+
 ## [v0.62.3](https://github.com/RhetTbull/osxphotos/compare/v0.62.2...v0.62.3)
 
 Added macOS 13.5 to compatibility matrix.
