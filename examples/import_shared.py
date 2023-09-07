@@ -269,7 +269,7 @@ def import_photos(
     # metadata
     for imported_photo in imported_photos:
         if person_keywords:
-            imported_photo.keywords = photo.persons
+            imported_photo.keywords = [photo.owner] if photo.owner else []
         if comments:
             description = ", ".join(
                 f"{comment.text} ({comment.user})" for comment in photo.comments
