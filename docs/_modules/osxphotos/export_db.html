@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>osxphotos.export_db - osxphotos 0.62.3 documentation</title>
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>osxphotos.export_db - osxphotos 0.63.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.62.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.63.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.63.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -225,6 +225,11 @@
 <span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="n">OSXPHOTOS_EXPORT_DB</span><span class="p">,</span> <span class="n">SQLITE_CHECK_SAME_THREAD</span>
 <span class="kn">from</span> <span class="nn">._version</span> <span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">.fileutil</span> <span class="kn">import</span> <span class="n">FileUtil</span>
+<span class="kn">from</span> <span class="nn">.sqlite_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">sqlite_backup_dbfiles</span><span class="p">,</span>
+    <span class="n">sqlite_delete_backup_files</span><span class="p">,</span>
+    <span class="n">sqlite_delete_dbfiles</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.unicode</span> <span class="kn">import</span> <span class="n">normalize_fs_path</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -1133,26 +1138,26 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-            <span class="n">dbdump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dump_db</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
-            <span class="c1"># cleanup the old on-disk database</span>
-            <span class="c1"># also unlink the wal and shm files if needed</span>
-            <span class="n">dbfile</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">dbfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="n">dbfile</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-            <span class="n">wal</span> <span class="o">=</span> <span class="n">dbfile</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.db-wal&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">wal</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="n">wal</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-            <span class="n">shm</span> <span class="o">=</span> <span class="n">dbfile</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.db-shm&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">shm</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="n">shm</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="c1"># backup the old database to disk</span>
+            <span class="c1"># this is just in case the write fails</span>
+            <span class="c1"># so the user can recover the database</span>
+            <span class="n">sqlite_backup_dbfiles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
 
+            <span class="c1"># delete the old database if it exists</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">):</span>
+                <span class="n">sqlite_delete_dbfiles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
+
+            <span class="c1"># write the new database to disk</span>
             <span class="n">conn_on_disk</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">dbfile</span><span class="p">),</span> <span class="n">check_same_thread</span><span class="o">=</span><span class="n">SQLITE_CHECK_SAME_THREAD</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">),</span> <span class="n">check_same_thread</span><span class="o">=</span><span class="n">SQLITE_CHECK_SAME_THREAD</span>
             <span class="p">)</span>
-            <span class="n">conn_on_disk</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">executescript</span><span class="p">(</span><span class="n">dbdump</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">backup</span><span class="p">(</span><span class="n">conn_on_disk</span><span class="p">,</span> <span class="n">pages</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">conn_on_disk</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
             <span class="n">conn_on_disk</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="c1"># delete the backup</span>
+            <span class="n">sqlite_delete_backup_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
 
     <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
@@ -1724,7 +1729,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=2a668fdd"></script>
+</div><script src="../../_static/documentation_options.js?v=c833cbf7"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

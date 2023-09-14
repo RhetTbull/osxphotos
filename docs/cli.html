@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.63.0 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.63.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.63.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.63.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.63.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.63.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2919,6 +2919,8 @@ as well as <cite>osxphotos template</cite> for an interactive template editor.</
 writing metadata, use the <cite>–compare</cite> option.  This will print a report of any
 differences between the metadata in Photos and the original files but will not
 modify any files.</p>
+<p>push-exif cannot be used on photos in classic shared albums. These photos will
+be automatically skipped.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>push-exif<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>METADATA
 </pre></div>
 </div>
@@ -5905,7 +5907,7 @@ Commands:
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=6c4b4fee"></script>
+</div><script src="_static/documentation_options.js?v=c833cbf7"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
