@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.63.1](https://github.com/RhetTbull/osxphotos/compare/v0.63.0...v0.63.1)
+
+Fixes a bug with --ramdb for certain configurations.
+
+### [v0.63.1] - 2023-09-14
+
+#### Fixed
+
+- Bug with --ramdb that would cause osxphotos to crash if export database was too large
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code
+- [@hydrrrrr](https://github.com/hydrrrrr) for reporting the --ramdb bug
+
 ## [v0.63.0](https://github.com/RhetTbull/osxphotos/compare/v0.62.3...v0.63.0)
 
 Added push-exif command
