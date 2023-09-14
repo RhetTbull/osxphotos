@@ -27,6 +27,11 @@ import osxphotos
 from ._constants import OSXPHOTOS_EXPORT_DB, SQLITE_CHECK_SAME_THREAD
 from ._version import __version__
 from .fileutil import FileUtil
+from .sqlite_utils import (
+    sqlite_backup_dbfiles,
+    sqlite_delete_backup_files,
+    sqlite_delete_dbfiles,
+)
 from .unicode import normalize_fs_path
 
 __all__ = [
@@ -884,26 +889,26 @@ class ExportDBInMemory(ExportDB):
         with self.lock:
             conn = self.connection
             conn.commit()
-            dbdump = self._dump_db(conn)
 
-            # cleanup the old on-disk database
-            # also unlink the wal and shm files if needed
-            dbfile = pathlib.Path(self._dbfile)
-            if dbfile.exists():
-                dbfile.unlink()
-            wal = dbfile.with_suffix(".db-wal")
-            if wal.exists():
-                wal.unlink()
-            shm = dbfile.with_suffix(".db-shm")
-            if shm.exists():
-                shm.unlink()
+            # backup the old database to disk
+            # this is just in case the write fails
+            # so the user can recover the database
+            sqlite_backup_dbfiles(self._dbfile)
 
+            # delete the old database if it exists
+            if os.path.isfile(self._dbfile):
+                sqlite_delete_dbfiles(self._dbfile)
+
+            # write the new database to disk
             conn_on_disk = sqlite3.connect(
-                str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD
+                str(self._dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD
             )
-            conn_on_disk.cursor().executescript(dbdump.read())
+            conn.backup(conn_on_disk, pages=1)
             conn_on_disk.commit()
             conn_on_disk.close()
+
+            # delete the backup
+            sqlite_delete_backup_files(self._dbfile)
 
     @retry(
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),

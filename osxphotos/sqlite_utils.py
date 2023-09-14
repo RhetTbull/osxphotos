@@ -1,13 +1,27 @@
 """sqlite utils for use by osxphotos"""
 
+from __future__ import annotations
+
 import logging
 import pathlib
 import sqlite3
 from typing import List, Tuple
 
 from ._constants import SQLITE_CHECK_SAME_THREAD
+from .fileutil import FileUtil, FileUtilMacOS
+from .platform import is_macos
 
 logger = logging.getLogger("osxphotos")
+
+__all__ = [
+    "sqlite_backup_dbfiles",
+    "sqlite_columns",
+    "sqlite_db_is_locked",
+    "sqlite_delete_backup_files",
+    "sqlite_delete_dbfiles",
+    "sqlite_open_ro",
+    "sqlite_tables",
+]
 
 
 def sqlite_open_ro(dbname: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
@@ -59,3 +73,73 @@ def sqlite_columns(conn: sqlite3.Connection, table: str) -> List[str]:
     """Returns list of column names found in table in sqlite database"""
     results = conn.execute(f"PRAGMA table_info({table});")
     return [row[1] for row in results]
+
+
+def sqlite_backup_dbfiles(dbpath: str) -> list[str]:
+    """Create a .bak copy of all files associated with a sqlite database
+
+    Args:
+        dbpath: path to sqlite database file
+
+    Returns:
+        list of files copied
+
+    Note:
+        Uses the OS to copy the files, not sqlite3 backup API; database should be closed before calling this function
+        If an existing backup file is found, it is overwritten
+    """
+    fileutil = FileUtilMacOS if is_macos else FileUtil
+    backup_files = []
+    for suffix in ["", "-wal", "-shm"]:
+        src = pathlib.Path(dbpath + suffix)
+        if not src.exists():
+            continue
+        dst = pathlib.Path(dbpath + suffix + ".bak")
+        if dst.exists():
+            dst.unlink()
+        fileutil.copy(src, dst)
+        backup_files.append(dst)
+    return [str(b) for b in backup_files]
+
+
+def sqlite_delete_dbfiles(dbpath: str) -> list[str]:
+    """Delete all files associated with a sqlite file at dbpath
+
+    Args:
+        dbpath: path to sqlite database file
+
+    Returns:
+        list of files deleted
+
+    Raises:
+        FileNotFoundError if dbpath does not exist
+    """
+    if not pathlib.Path(dbpath).exists():
+        raise FileNotFoundError(f"sqlite database file not found: {dbpath}")
+
+    deleted_files = []
+    for suffix in ["", "-wal", "-shm"]:
+        src = pathlib.Path(dbpath + suffix)
+        if not src.exists():
+            continue
+        src.unlink()
+        deleted_files.append(src)
+    return [str(d) for d in deleted_files]
+
+
+def sqlite_delete_backup_files(dbpath: str) -> list[str]:
+    """Delete all .bak files associated with a sqlite file at dbpath
+
+    Args:
+        dbpath: path to sqlite database file
+
+    Returns: list of files deleted
+    """
+    deleted_files = []
+    for suffix in ["", "-wal", "-shm"]:
+        src = pathlib.Path(dbpath + suffix + ".bak")
+        if not src.exists():
+            continue
+        src.unlink()
+        deleted_files.append(src)
+    return [str(d) for d in deleted_files]
