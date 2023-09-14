@@ -606,6 +606,15 @@
       "contributions": [
         "userTesting"
       ]
+    },
+    {
+      "login": "hydrrrrr",
+      "name": "hydrrrrr",
+      "avatar_url": "https://avatars.githubusercontent.com/u/144631381?v=4",
+      "profile": "https://github.com/hydrrrrr",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
