@@ -624,6 +624,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "catap",
+      "name": "Kirill A. Korinsky",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37775?v=4",
+      "profile": "http://catap.ru/blog/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
