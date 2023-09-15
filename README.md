@@ -19,6 +19,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 * [Supported operating systems](#supported-operating-systems)
 * [Installation](#installation)
 * [Documentation](#documentation)
+* [Getting Help](#getting-help)
 * [Command Line Usage](#command-line-usage)
   * [Command Line Examples](#command-line-examples)
   * [Tutorial](#tutorial)
