@@ -9,8 +9,13 @@ import sys
 from datetime import datetime
 
 import click
-import xdg_base_dirs
 from packaging import version
+
+if sys.version_info[0:2] <= (3, 9):
+    # xdg was deprecated and renamed xdg_base_dirs but only for python >= 3.10
+    import xdg as xdg_base_dirs
+else:
+    import xdg_base_dirs
 
 import osxphotos
 from osxphotos._constants import APP_NAME
