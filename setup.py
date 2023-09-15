@@ -107,7 +107,7 @@ setup(
         "toml>=0.10.2,<0.11.0",
         "wrapt>=1.14.1,<2.0.0",
         "wurlitzer>=3.0.2,<4.0.0",
-        "xdg==5.1.1, python_version <= '3.9'",
+        "xdg==5.1.1; python_version <= '3.9'",
         "xdg-base-dirs>=6.0.0; python_version >= '3.10'",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli_main"]},
