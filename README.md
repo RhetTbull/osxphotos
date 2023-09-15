@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-67-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-68-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -2856,6 +2856,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/devlarosa"><img src="https://avatars.githubusercontent.com/u/3469731?v=4?s=75" width="75px;" alt="Javier"/><br /><sub><b>Javier</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Adevlarosa" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://catap.ru/blog/"><img src="https://avatars.githubusercontent.com/u/37775?v=4?s=75" width="75px;" alt="Kirill A. Korinsky"/><br /><sub><b>Kirill A. Korinsky</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=catap" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://breun.nl/"><img src="https://avatars.githubusercontent.com/u/102921?v=4?s=75" width="75px;" alt="Nils Breunese"/><br /><sub><b>Nils Breunese</b></sub></a><br /><a href="#maintenance-breun" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/420gofOGKush"><img src="https://avatars.githubusercontent.com/u/144961214?v=4?s=75" width="75px;" alt="420gofOGKush"/><br /><sub><b>420gofOGKush</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3A420gofOGKush" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
