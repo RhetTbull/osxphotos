@@ -2991,7 +2991,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.63.1'
+     - The osxphotos version, e.g. '0.63.2'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
