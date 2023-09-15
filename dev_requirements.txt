@@ -4,7 +4,7 @@ cogapp>=3.3.0,<4.0.0
 furo
 m2r2==0.3.3.post2
 pdbpp
-pyinstaller==5.6.2
+pyinstaller==5.13.2
 pytest-cov==4.0.0 
 pytest-mock
 pytest==7.4.0
