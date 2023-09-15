@@ -18,6 +18,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 * [Supported operating systems](#supported-operating-systems)
 * [Installation](#installation)
+* [Documentation](#documentation)
 * [Command Line Usage](#command-line-usage)
   * [Command Line Examples](#command-line-examples)
   * [Tutorial](#tutorial)
@@ -116,9 +117,13 @@ Once you've installed osxphotos via the git repository, to upgrade to the latest
 
 You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page.  Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x64_v0.42.9.zip`.  In this case `v0.42.9` specifies version 0.42.9.  Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not signed or notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings.  It's also likely this executable will not run on M1 Macs.  If you don't know how to do this, I recommend using `pipx` as described above.
 
+## Documentation
+
+See the [documentation](https://rhettbull.github.io/osxphotos/) for more information on using osxphotos.
+
 ## Getting Help
 
-OSXPhotos is well documented.  See the [tutorial](#tutorial) for a description of key features.  The tutorial can be accessed using the command `osxphotos tutorial` via the command line.  If you are interested in using OSXPhotos in your own code, see [API_README.md](https://github.com/RhetTbull/osxphotos/blob/master/API_README.md) for a description of the API as well as the [example](https://github.com/RhetTbull/osxphotos/tree/master/examples) programs. The full documentation is [available online](https://rhettbull.github.io/osxphotos/) and can also be accessed using the command `osxphotos docs` via the command line.
+OSXPhotos is well documented.  See the [tutorial](#tutorial) for a description of key features.  The tutorial can be accessed using the command `osxphotos tutorial` via the command line.  If you are interested in using OSXPhotos in your own code, see [API_README.md](https://github.com/RhetTbull/osxphotos/blob/master/API_README.md) for a description of the API as well as the [example](https://github.com/RhetTbull/osxphotos/tree/master/examples) programs. The full documentation is [available online](https://rhettbull.github.io/osxphotos/) and can also be accessed using the command `osxphotos docs` via the command line. Running `osxphotos help` will show help in the terminal. You can use `osxphotos help COMMAND` to get help on a command. For example, `osxphotos help export`. To search within the help of a specific command, use `osxphotos help COMMAND TOPIC`, for example, `osxphotos help export sidecar`.
 
 If you have questions, would like to show off projects created with OSXPhotos, or if you just want to say hello, please use the [GitHub discussions forum](https://github.com/RhetTbull/osxphotos/discussions) or the [osxphotos subreddit](https://www.reddit.com/r/osxphotos/) on Reddit.
 
@@ -185,9 +190,9 @@ Commands:
 ```
 <!--[[[end]]] -->
 
-To get help on a specific command, use `osxphotos help command_name`, for example, `osxphotos help export` to get help on the `export` command.
+To get help on a specific command, use `osxphotos help COMMAND`, for example, `osxphotos help export` to get help on the `export` command.
 
-Some of the commands such as `export` and `query` have a large number of options.  To search for options related to a specific topic, you can use `osxphotos help command_name topic_name`.  For example, `osxphotos help export raw` finds the options related to RAW files (search is case-insensitive):
+Some of the commands such as `export` and `query` have a large number of options.  To search for options related to a specific topic, you can use `osxphotos help COMMAND TOPIC`.  For example, `osxphotos help export raw` finds the options related to RAW files (search is case-insensitive):
 
 ```
 Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
