@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.63.3](https://github.com/RhetTbull/osxphotos/compare/v0.63.1...v0.63.3)
+
+Fix for install problems with pipx
+
+### [v0.63.3] - 2023-09-15
+
+#### Fixed
+
+- Fixed problems with install with pipx and python 3.11 (#1203)
+- Fixed issue where PyPI source package was including unneeded screencast assets
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code
+- [@ZarK](https://github.com/ZarK) for reporting bug with pipx
+- [@420gofOGKush](https://github.com/420gofOGKush) for reporting bug with pipx and user testing
+- [@breun](https://github.com/breun) for finding @catap to create MacPorts port for osxphotos
+- [@catap](https://github.com/catap) for doing the work to add an osxphotos port to MacPorts
+- [@devlarosa](https://github.com/devlarosa) for reporting a bug
+
 ## [v0.63.1](https://github.com/RhetTbull/osxphotos/compare/v0.63.0...v0.63.1)
 
 Fixes a bug with --ramdb for certain configurations.
