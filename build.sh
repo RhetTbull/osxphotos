@@ -17,6 +17,9 @@ cog -r README.md
 echo "Updating API_README.md"
 cog -r API_README.md
 
+echo "Updating overview.rst"
+cog -d -o docsrc/source/overview.rst docsrc/source/overview.cog.rst
+
 # stage and convert markdown to rst
 echo "Copying osxphotos/tutorial.md to docsrc/source/tutorial.md"
 cp osxphotos/tutorial.md docsrc/source/tutorial.md
@@ -43,7 +46,7 @@ echo "Building docs"
 # copy docs to osxphotos/docs/docs.zip for use with `osxphotos docs` command
 echo "Zipping docs to osxphotos/docs/docs.zip"
 rm osxphotos/docs/docs.zip
-zip -r osxphotos/docs/docs.zip docs/*
+zip -r osxphotos/docs/docs.zip docs/* -x "docs/screencast/*"
 
 # build the package
 echo "Building package"
