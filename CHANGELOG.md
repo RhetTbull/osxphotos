@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.63.4](https://github.com/RhetTbull/osxphotos/compare/v0.63.3...v0.63.4)
+
+Internal fix for get_system_library_path on Ventura. No changes to user interface.
+
+### [v0.63.4] - 2023-09-15
+
+#### Fixed
+
+- Fix to internal function get_system_library_path
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- [@RhetTbull](https://github.com/RhetTbull) for code
+
 ## [v0.63.3](https://github.com/RhetTbull/osxphotos/compare/v0.63.1...v0.63.3)
 
 Fix for install problems with pipx
