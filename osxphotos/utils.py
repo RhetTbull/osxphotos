@@ -150,14 +150,14 @@ def dd_to_dms_str(lat, lon):
 
 def get_system_library_path():
     """return the path to the system Photos library as string"""
-    """ only works on MacOS 10.15 """
+    """ only works on MacOS 10.15+ """
     """ on earlier versions, returns None """
     if not is_macos:
         return None
-    _, major, _ = get_macos_version()
-    if int(major) < 15:
+    ver, major, minor = get_macos_version()
+    if (int(ver), int(major)) < (10, 15):
         logger.debug(
-            f"get_system_library_path not implemented for MacOS < 10.15: you have {major}"
+            f"get_system_library_path not implemented for MacOS < 10.15: you have {ver}.{major}.{minor}"
         )
         return None
 
