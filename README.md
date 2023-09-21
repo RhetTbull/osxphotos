@@ -96,6 +96,12 @@ Once you've installed osxphotos with pip, to upgrade to the latest version:
 
     pip install --upgrade osxphotos
 
+### Installation via MacPorts
+
+If you use the [MacPorts](https://www.macports.org) package manager on a Mac:
+
+    sudo port install osxphotos
+
 ### Installation from git repository
 
 OSXPhotos uses setuptools, thus simply run:
