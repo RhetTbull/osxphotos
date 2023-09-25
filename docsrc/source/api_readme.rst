@@ -705,7 +705,8 @@ Returns a list of `PhotoInfo <#photoinfo>`_ objects matching the query options. 
    # assumes photosdb is a PhotosDB object (see above)
    keywords = photosdb.keywords
 
-Returns a list of the keywords found in the Photos library
+Returns a list of the keywords found in the Photos library that are associated with at least one photo.
+See also `keywords_as_dict <#keywords_as_dict>`_. 
 
 :raw-html-m2r:`<a name="photosdb_albuminfo">`album_info`</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -806,6 +807,11 @@ Returns a list of `PersonInfo <#personinfo>`_ objects representing persons who a
    keyword_dict = photosdb.keywords_as_dict
 
 Returns a dictionary of keywords found in the Photos library where key is the keyword and value is the count of how many times that keyword appears in the library (ie. how many photos are tagged with the keyword).  Resulting dictionary is in reverse sorted order (e.g. keyword with the highest count is first).
+
+``keywords_without_photo``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns a list of keywords that are not associated with any photos in the library.
 
 ``persons_as_dict``
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -2991,7 +2997,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.63.4'
+     - The osxphotos version, e.g. '0.63.5'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}

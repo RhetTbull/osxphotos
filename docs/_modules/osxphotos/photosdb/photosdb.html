@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.63.0 documentation</title>
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.63.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.63.0 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.63.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.63.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.63.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -589,17 +589,32 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">keywords_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return keywords as dict of keyword, count in reverse sorted order (descending)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Teturn keywords as dict of keyword: count in reverse sorted order (descending)&quot;&quot;&quot;</span>
         <span class="n">keywords</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">k</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="p">}</span>
-
+        <span class="n">keywords</span> <span class="o">|=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords_without_photo</span><span class="p">}</span>
         <span class="n">keywords</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">keywords</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">kv</span><span class="p">:</span> <span class="n">kv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">keywords</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">keywords_without_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return keywords that exist in the database but are not assined to any photo (Photos 5+ only)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
+            <span class="c1"># not implemented for Photos &lt;= 4</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT ZTITLE FROM ZKEYWORD&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">keywords</span> <span class="o">=</span> <span class="p">[</span><span class="n">normalize_unicode</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+        <span class="n">no_photo_keywords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">kw</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="p">:</span>
+                <span class="n">no_photo_keywords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">no_photo_keywords</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">persons_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return persons as dict of person, count in reverse sorted order (descending)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return persons as dict of person, count in reverse sorted order (descending)&quot;&quot;&quot;</span>
         <span class="n">persons</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">pk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfaces_pk</span><span class="p">:</span>
             <span class="n">fullname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbpersons_pk</span><span class="p">[</span><span class="n">pk</span><span class="p">][</span><span class="s2">&quot;fullname&quot;</span><span class="p">]</span>
@@ -612,7 +627,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">albums_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return albums as dict of albums, count in reverse sorted order (descending)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return albums as dict of albums, count in reverse sorted order (descending)&quot;&quot;&quot;</span>
         <span class="n">albums</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">album_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_album_uuids</span><span class="p">(</span><span class="n">shared</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">album_keys</span><span class="p">:</span>
@@ -629,7 +644,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">albums_shared_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns shared albums as dict of albums, count in reverse sorted order (descending)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns shared albums as dict of albums, count in reverse sorted order (descending)</span>
 <span class="sd">        valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict&quot;&quot;&quot;</span>
 
         <span class="n">albums</span> <span class="o">=</span> <span class="p">{}</span>
@@ -648,19 +663,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of keywords found in photos database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of keywords found in photos database and associated with at least one photo&quot;&quot;&quot;</span>
         <span class="n">keywords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">persons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of persons found in photos database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of persons found in photos database and associated with at least one photo&quot;&quot;&quot;</span>
         <span class="n">persons</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbpersons_pk</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;fullname&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfaces_pk</span><span class="p">}</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">persons</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">person_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of PersonInfo objects for each person in the photos database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of PersonInfo objects for each person in the photos database&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_person_info</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -671,7 +686,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">folder_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list FolderInfo objects representing top-level folders in the photos database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list FolderInfo objects representing top-level folders in the photos database&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">FolderInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">folder</span><span class="p">)</span>
@@ -692,7 +707,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">folders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of top-level folder names in the photos database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of top-level folder names in the photos database&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="n">folder_names</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">folder</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
@@ -713,7 +728,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of AlbumInfo objects for each album in the photos database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of AlbumInfo objects for each album in the photos database&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_info</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -725,7 +740,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">album_info_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of AlbumInfo objects for each shared album in the photos database</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of AlbumInfo objects for each shared album in the photos database</span>
 <span class="sd">        only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># if _dbalbum_details[key][&quot;cloudownerhashedpersonid&quot;] is not None, then it&#39;s a shared album</span>
@@ -740,7 +755,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">albums</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of albums found in photos database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of albums found in photos database&quot;&quot;&quot;</span>
 
         <span class="c1"># Could be more than one album with same name</span>
         <span class="c1"># Right now, they are treated as same album and photos are combined from albums with same name</span>
@@ -753,7 +768,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">albums_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of shared albums found in photos database</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of shared albums found in photos database</span>
 <span class="sd">        only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -770,7 +785,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">import_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of ImportInfo objects for each import session in the database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of ImportInfo objects for each import session in the database&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_info</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -782,7 +797,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">project_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of AlbumInfo projects for each project in the database&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of AlbumInfo projects for each project in the database&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_info</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -794,22 +809,22 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">db_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return the database version as stored in LiGlobals table&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the database version as stored in LiGlobals table&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns path to the Photos library database PhotosDB was initialized with&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the Photos library database PhotosDB was initialized with&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">library_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns path to the Photos library PhotosDB was initialized with&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the Photos library PhotosDB was initialized with&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_library_path</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">photos_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns version of Photos app that created the library&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns version of Photos app that created the library&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span>
 
 <div class="viewcode-block" id="PhotosDB.get_db_connection">
@@ -1810,7 +1825,7 @@
         <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Done processing details from Photos library.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_build_album_folder_hierarchy_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;recursively build folder/album hierarchy</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively build folder/album hierarchy</span>
 <span class="sd">        uuid: parent uuid of the album being processed</span>
 <span class="sd">             (parent uuid is a folder in RKFolders)</span>
 <span class="sd">        folders: dict holding the folder hierarchy</span>
@@ -2869,7 +2884,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_moment_pk</span><span class="p">[</span><span class="n">moment_info</span><span class="p">[</span><span class="s2">&quot;pk&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">moment_info</span>
 
     <span class="k">def</span> <span class="nf">_build_album_folder_hierarchy_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;recursively build folder/album hierarchy</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively build folder/album hierarchy</span>
 <span class="sd">        uuid: uuid of the album/folder being processed</span>
 <span class="sd">        folders: dict holding the folder hierarchy&quot;&quot;&quot;</span>
 
@@ -2892,14 +2907,14 @@
         <span class="k">return</span> <span class="n">folders</span>
 
     <span class="k">def</span> <span class="nf">_album_folder_hierarchy_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return appropriate album_folder_hierarchy_list for the _db_version&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return appropriate album_folder_hierarchy_list for the _db_version&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_folder_hierarchy_list_4</span><span class="p">(</span><span class="n">album_uuid</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_folder_hierarchy_list_5</span><span class="p">(</span><span class="n">album_uuid</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_album_folder_hierarchy_list_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return hierarchical list of folder names album_uuid is contained in</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of folder names album_uuid is contained in</span>
 <span class="sd">        the folder list is in form:</span>
 <span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;]</span>
 <span class="sd">        returns empty list of album is not in any folders&quot;&quot;&quot;</span>
@@ -2910,7 +2925,7 @@
             <span class="k">return</span> <span class="p">[]</span>
 
         <span class="k">def</span> <span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
                 <span class="c1"># empty folder dict (album has no folder hierarchy)</span>
                 <span class="k">return</span> <span class="p">[]</span>
@@ -2936,7 +2951,7 @@
         <span class="k">return</span> <span class="n">hierarchy</span>
 
     <span class="k">def</span> <span class="nf">_album_folder_hierarchy_list_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return hierarchical list of folder names album_uuid is contained in</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of folder names album_uuid is contained in</span>
 <span class="sd">        the folder list is in form:</span>
 <span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;]</span>
 <span class="sd">        returns empty list of album is not in any folders&quot;&quot;&quot;</span>
@@ -2947,7 +2962,7 @@
             <span class="k">return</span> <span class="p">[]</span>
 
         <span class="k">def</span> <span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
                 <span class="c1"># empty folder dict (album has no folder hierarchy)</span>
@@ -2979,7 +2994,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_folder_hierarchy_folderinfo_5</span><span class="p">(</span><span class="n">album_uuid</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_album_folder_hierarchy_folderinfo_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return hierarchical list of FolderInfo objects album_uuid is contained in</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of FolderInfo objects album_uuid is contained in</span>
 <span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;]</span>
 <span class="sd">        returns empty list of album is not in any folders&quot;&quot;&quot;</span>
         <span class="c1"># title = photosdb._dbalbum_details[album_uuid][&quot;title&quot;]</span>
@@ -2987,7 +3002,7 @@
         <span class="c1"># logging.warning(f&quot;uuid = {album_uuid}, folder = {folders}&quot;)</span>
 
         <span class="k">def</span> <span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
             <span class="c1"># logging.warning(f&quot;folders={folders},hierarchy = {hierarchy}&quot;)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
                 <span class="c1"># empty folder dict (album has no folder hierarchy)</span>
@@ -3013,14 +3028,14 @@
         <span class="k">return</span> <span class="n">hierarchy</span>
 
     <span class="k">def</span> <span class="nf">_album_folder_hierarchy_folderinfo_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return hierarchical list of FolderInfo objects album_uuid is contained in</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of FolderInfo objects album_uuid is contained in</span>
 <span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;]</span>
 <span class="sd">        returns empty list of album is not in any folders&quot;&quot;&quot;</span>
         <span class="c1"># title = photosdb._dbalbum_details[album_uuid][&quot;title&quot;]</span>
         <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbalbum_folders</span><span class="p">[</span><span class="n">album_uuid</span><span class="p">]</span>
 
         <span class="k">def</span> <span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
                 <span class="c1"># empty folder dict (album has no folder hierarchy)</span>
@@ -3914,7 +3929,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=6c4b4fee"></script>
+</div><script src="../../../_static/documentation_options.js?v=3442d150"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
