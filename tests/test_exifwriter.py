@@ -388,4 +388,3 @@ def test_exifwriter_render_options(photosdb: PhotosDB, tmp_path: pathlib.Path):
 
     exif_data = ExifTool(exported).asdict()
     assert exif_data["EXIF:ImageDescription"] == "Hello"
-

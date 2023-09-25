@@ -649,7 +649,8 @@ Returns a list of [PhotoInfo](#photoinfo) objects matching the query options. Th
 keywords = photosdb.keywords
 ```
 
-Returns a list of the keywords found in the Photos library
+Returns a list of the keywords found in the Photos library that are associated with at least one photo.
+See also [keywords_as_dict](#keywords_as_dict). 
 
 #### <a name="photosdb_albuminfo">`album_info`</a>
 
@@ -739,6 +740,10 @@ keyword_dict = photosdb.keywords_as_dict
 ```
 
 Returns a dictionary of keywords found in the Photos library where key is the keyword and value is the count of how many times that keyword appears in the library (ie. how many photos are tagged with the keyword).  Resulting dictionary is in reverse sorted order (e.g. keyword with the highest count is first).
+
+#### `keywords_without_photo`
+
+Returns a list of keywords that are not associated with any photos in the library.
 
 #### `persons_as_dict`
 
