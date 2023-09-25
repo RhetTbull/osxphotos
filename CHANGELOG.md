@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.63.5](https://github.com/RhetTbull/osxphotos/compare/v0.63.4...v0.63.5)
+
+Fixed `osxphotos keywords` to also show keywords with no associated photos.
+
+### [v0.63.5] - 2023-09-24
+
+#### Fixed
+
+#### Added
+
+- Added instructions for MacPorts install
+
+### Removed
+
+#### Changed
+
+- `osxphotos keywords` now shows keywords with no associated photos which may be useful for pruning keywords in Photos.
+
+#### Contributors
+
+- @RhetTbull [https://github.com/RhetTbull](https://github.com/RhetTbull) for code
+- @dmd [https://github.com/dmd](https://github.com/dmd) for feature suggestion
+- @breun [https://github.com/breun](https://github.com/breun) for docs explaining how to use MacPorts to install
+
 ## [v0.63.4](https://github.com/RhetTbull/osxphotos/compare/v0.63.3...v0.63.4)
 
 Internal fix for get_system_library_path on Ventura. No changes to user interface.
