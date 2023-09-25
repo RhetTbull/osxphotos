@@ -389,17 +389,32 @@ class PhotosDB:
 
     @property
     def keywords_as_dict(self):
-        """return keywords as dict of keyword, count in reverse sorted order (descending)"""
+        """Teturn keywords as dict of keyword: count in reverse sorted order (descending)"""
         keywords = {
             k: len(self._dbkeywords_keyword[k]) for k in self._dbkeywords_keyword.keys()
         }
-
+        keywords |= {k: 0 for k in self.keywords_without_photo}
         keywords = dict(sorted(keywords.items(), key=lambda kv: kv[1], reverse=True))
         return keywords
 
     @property
+    def keywords_without_photo(self):
+        """Return keywords that exist in the database but are not assined to any photo (Photos 5+ only)"""
+        if self._db_version <= _PHOTOS_4_VERSION:
+            # not implemented for Photos <= 4
+            return {}
+
+        results = self.execute("SELECT ZTITLE FROM ZKEYWORD").fetchall()
+        keywords = [normalize_unicode(r[0]) for r in results]
+        no_photo_keywords = []
+        for kw in keywords:
+            if kw not in self._dbkeywords_keyword:
+                no_photo_keywords.append(kw)
+        return no_photo_keywords
+
+    @property
     def persons_as_dict(self):
-        """return persons as dict of person, count in reverse sorted order (descending)"""
+        """Return persons as dict of person, count in reverse sorted order (descending)"""
         persons = {}
         for pk in self._dbfaces_pk:
             fullname = self._dbpersons_pk[pk]["fullname"]
@@ -412,7 +427,7 @@ class PhotosDB:
 
     @property
     def albums_as_dict(self):
-        """return albums as dict of albums, count in reverse sorted order (descending)"""
+        """Return albums as dict of albums, count in reverse sorted order (descending)"""
         albums = {}
         album_keys = self._get_album_uuids(shared=False)
         for album in album_keys:
@@ -429,7 +444,7 @@ class PhotosDB:
 
     @property
     def albums_shared_as_dict(self):
-        """returns shared albums as dict of albums, count in reverse sorted order (descending)
+        """Returns shared albums as dict of albums, count in reverse sorted order (descending)
         valid only on Photos 5; on Photos <= 4, prints warning and returns empty dict"""
 
         albums = {}
@@ -448,19 +463,19 @@ class PhotosDB:
 
     @property
     def keywords(self):
-        """return list of keywords found in photos database"""
+        """Return list of keywords found in photos database and associated with at least one photo"""
         keywords = self._dbkeywords_keyword.keys()
         return list(keywords)
 
     @property
     def persons(self):
-        """return list of persons found in photos database"""
+        """Return list of persons found in photos database and associated with at least one photo"""
         persons = {self._dbpersons_pk[k]["fullname"] for k in self._dbfaces_pk}
         return list(persons)
 
     @property
     def person_info(self):
-        """return list of PersonInfo objects for each person in the photos database"""
+        """Return list of PersonInfo objects for each person in the photos database"""
         try:
             return self._person_info
         except AttributeError:
@@ -471,7 +486,7 @@ class PhotosDB:
 
     @property
     def folder_info(self):
-        """return list FolderInfo objects representing top-level folders in the photos database"""
+        """Return list FolderInfo objects representing top-level folders in the photos database"""
         if self._db_version <= _PHOTOS_4_VERSION:
             folders = [
                 FolderInfo(db=self, uuid=folder)
@@ -492,7 +507,7 @@ class PhotosDB:
 
     @property
     def folders(self):
-        """return list of top-level folder names in the photos database"""
+        """Return list of top-level folder names in the photos database"""
         if self._db_version <= _PHOTOS_4_VERSION:
             folder_names = [
                 folder["name"]
@@ -513,7 +528,7 @@ class PhotosDB:
 
     @property
     def album_info(self):
-        """return list of AlbumInfo objects for each album in the photos database"""
+        """Return list of AlbumInfo objects for each album in the photos database"""
         try:
             return self._album_info
         except AttributeError:
@@ -525,7 +540,7 @@ class PhotosDB:
 
     @property
     def album_info_shared(self):
-        """return list of AlbumInfo objects for each shared album in the photos database
+        """Return list of AlbumInfo objects for each shared album in the photos database
         only valid for Photos 5; on Photos <= 4, prints warning and returns empty list
         """
         # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
@@ -540,7 +555,7 @@ class PhotosDB:
 
     @property
     def albums(self):
-        """return list of albums found in photos database"""
+        """Return list of albums found in photos database"""
 
         # Could be more than one album with same name
         # Right now, they are treated as same album and photos are combined from albums with same name
@@ -553,7 +568,7 @@ class PhotosDB:
 
     @property
     def albums_shared(self):
-        """return list of shared albums found in photos database
+        """Return list of shared albums found in photos database
         only valid for Photos 5; on Photos <= 4, prints warning and returns empty list
         """
 
@@ -570,7 +585,7 @@ class PhotosDB:
 
     @property
     def import_info(self):
-        """return list of ImportInfo objects for each import session in the database"""
+        """Return list of ImportInfo objects for each import session in the database"""
         try:
             return self._import_info
         except AttributeError:
@@ -582,7 +597,7 @@ class PhotosDB:
 
     @property
     def project_info(self):
-        """return list of AlbumInfo projects for each project in the database"""
+        """Return list of AlbumInfo projects for each project in the database"""
         try:
             return self._project_info
         except AttributeError:
@@ -594,22 +609,22 @@ class PhotosDB:
 
     @property
     def db_version(self):
-        """return the database version as stored in LiGlobals table"""
+        """Return the database version as stored in LiGlobals table"""
         return self._db_version
 
     @property
     def db_path(self):
-        """returns path to the Photos library database PhotosDB was initialized with"""
+        """Returns path to the Photos library database PhotosDB was initialized with"""
         return os.path.abspath(self._dbfile)
 
     @property
     def library_path(self):
-        """returns path to the Photos library PhotosDB was initialized with"""
+        """Returns path to the Photos library PhotosDB was initialized with"""
         return self._library_path
 
     @property
     def photos_version(self):
-        """returns version of Photos app that created the library"""
+        """Returns version of Photos app that created the library"""
         return self._photos_ver
 
     def get_db_connection(self):
@@ -1607,7 +1622,7 @@ class PhotosDB:
         verbose("Done processing details from Photos library.")
 
     def _build_album_folder_hierarchy_4(self, uuid, folders=None):
-        """recursively build folder/album hierarchy
+        """Recursively build folder/album hierarchy
         uuid: parent uuid of the album being processed
              (parent uuid is a folder in RKFolders)
         folders: dict holding the folder hierarchy
@@ -2666,7 +2681,7 @@ class PhotosDB:
             self._db_moment_pk[moment_info["pk"]] = moment_info
 
     def _build_album_folder_hierarchy_5(self, uuid, folders=None):
-        """recursively build folder/album hierarchy
+        """Recursively build folder/album hierarchy
         uuid: uuid of the album/folder being processed
         folders: dict holding the folder hierarchy"""
 
@@ -2689,14 +2704,14 @@ class PhotosDB:
         return folders
 
     def _album_folder_hierarchy_list(self, album_uuid):
-        """return appropriate album_folder_hierarchy_list for the _db_version"""
+        """Return appropriate album_folder_hierarchy_list for the _db_version"""
         if self._db_version <= _PHOTOS_4_VERSION:
             return self._album_folder_hierarchy_list_4(album_uuid)
         else:
             return self._album_folder_hierarchy_list_5(album_uuid)
 
     def _album_folder_hierarchy_list_4(self, album_uuid):
-        """return hierarchical list of folder names album_uuid is contained in
+        """Return hierarchical list of folder names album_uuid is contained in
         the folder list is in form:
         ["Top level folder", "sub folder 1", "sub folder 2"]
         returns empty list of album is not in any folders"""
@@ -2707,7 +2722,7 @@ class PhotosDB:
             return []
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):
-            """recursively walk the folders dict to build list of folder hierarchy"""
+            """Recursively walk the folders dict to build list of folder hierarchy"""
             if not folders:
                 # empty folder dict (album has no folder hierarchy)
                 return []
@@ -2733,7 +2748,7 @@ class PhotosDB:
         return hierarchy
 
     def _album_folder_hierarchy_list_5(self, album_uuid):
-        """return hierarchical list of folder names album_uuid is contained in
+        """Return hierarchical list of folder names album_uuid is contained in
         the folder list is in form:
         ["Top level folder", "sub folder 1", "sub folder 2"]
         returns empty list of album is not in any folders"""
@@ -2744,7 +2759,7 @@ class PhotosDB:
             return []
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):
-            """recursively walk the folders dict to build list of folder hierarchy"""
+            """Recursively walk the folders dict to build list of folder hierarchy"""
 
             if not folders:
                 # empty folder dict (album has no folder hierarchy)
@@ -2776,7 +2791,7 @@ class PhotosDB:
             return self._album_folder_hierarchy_folderinfo_5(album_uuid)
 
     def _album_folder_hierarchy_folderinfo_4(self, album_uuid):
-        """return hierarchical list of FolderInfo objects album_uuid is contained in
+        """Return hierarchical list of FolderInfo objects album_uuid is contained in
         ["Top level folder", "sub folder 1", "sub folder 2"]
         returns empty list of album is not in any folders"""
         # title = photosdb._dbalbum_details[album_uuid]["title"]
@@ -2784,7 +2799,7 @@ class PhotosDB:
         # logging.warning(f"uuid = {album_uuid}, folder = {folders}")
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):
-            """recursively walk the folders dict to build list of folder hierarchy"""
+            """Recursively walk the folders dict to build list of folder hierarchy"""
             # logging.warning(f"folders={folders},hierarchy = {hierarchy}")
             if not folders:
                 # empty folder dict (album has no folder hierarchy)
@@ -2810,14 +2825,14 @@ class PhotosDB:
         return hierarchy
 
     def _album_folder_hierarchy_folderinfo_5(self, album_uuid):
-        """return hierarchical list of FolderInfo objects album_uuid is contained in
+        """Return hierarchical list of FolderInfo objects album_uuid is contained in
         ["Top level folder", "sub folder 1", "sub folder 2"]
         returns empty list of album is not in any folders"""
         # title = photosdb._dbalbum_details[album_uuid]["title"]
         folders = self._dbalbum_folders[album_uuid]
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):
-            """recursively walk the folders dict to build list of folder hierarchy"""
+            """Recursively walk the folders dict to build list of folder hierarchy"""
 
             if not folders:
                 # empty folder dict (album has no folder hierarchy)
