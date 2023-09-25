@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python API" href="API_README.html" />
 
     <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>OSXPhotos Python Reference - osxphotos 0.63.4 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.63.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.63.4 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.63.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.63.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.63.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2699,52 +2699,52 @@ Enforce that the expanded value is a single value, raises ValueError if not.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.album_info">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">album_info</span></span><a class="headerlink" href="#osxphotos.PhotosDB.album_info" title="Link to this definition">#</a></dt>
-<dd><p>return list of AlbumInfo objects for each album in the photos database</p>
+<dd><p>Return list of AlbumInfo objects for each album in the photos database</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.album_info_shared">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">album_info_shared</span></span><a class="headerlink" href="#osxphotos.PhotosDB.album_info_shared" title="Link to this definition">#</a></dt>
-<dd><p>return list of AlbumInfo objects for each shared album in the photos database
+<dd><p>Return list of AlbumInfo objects for each shared album in the photos database
 only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.albums">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">albums</span></span><a class="headerlink" href="#osxphotos.PhotosDB.albums" title="Link to this definition">#</a></dt>
-<dd><p>return list of albums found in photos database</p>
+<dd><p>Return list of albums found in photos database</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.albums_as_dict">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">albums_as_dict</span></span><a class="headerlink" href="#osxphotos.PhotosDB.albums_as_dict" title="Link to this definition">#</a></dt>
-<dd><p>return albums as dict of albums, count in reverse sorted order (descending)</p>
+<dd><p>Return albums as dict of albums, count in reverse sorted order (descending)</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.albums_shared">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">albums_shared</span></span><a class="headerlink" href="#osxphotos.PhotosDB.albums_shared" title="Link to this definition">#</a></dt>
-<dd><p>return list of shared albums found in photos database
+<dd><p>Return list of shared albums found in photos database
 only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.albums_shared_as_dict">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">albums_shared_as_dict</span></span><a class="headerlink" href="#osxphotos.PhotosDB.albums_shared_as_dict" title="Link to this definition">#</a></dt>
-<dd><p>returns shared albums as dict of albums, count in reverse sorted order (descending)
+<dd><p>Returns shared albums as dict of albums, count in reverse sorted order (descending)
 valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.db_path">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">db_path</span></span><a class="headerlink" href="#osxphotos.PhotosDB.db_path" title="Link to this definition">#</a></dt>
-<dd><p>returns path to the Photos library database PhotosDB was initialized with</p>
+<dd><p>Returns path to the Photos library database PhotosDB was initialized with</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.db_version">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">db_version</span></span><a class="headerlink" href="#osxphotos.PhotosDB.db_version" title="Link to this definition">#</a></dt>
-<dd><p>return the database version as stored in LiGlobals table</p>
+<dd><p>Return the database version as stored in LiGlobals table</p>
 </dd></dl>
 
 <dl class="py method">
@@ -2756,13 +2756,13 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.folder_info">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">folder_info</span></span><a class="headerlink" href="#osxphotos.PhotosDB.folder_info" title="Link to this definition">#</a></dt>
-<dd><p>return list FolderInfo objects representing top-level folders in the photos database</p>
+<dd><p>Return list FolderInfo objects representing top-level folders in the photos database</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.folders">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">folders</span></span><a class="headerlink" href="#osxphotos.PhotosDB.folders" title="Link to this definition">#</a></dt>
-<dd><p>return list of top-level folder names in the photos database</p>
+<dd><p>Return list of top-level folder names in the photos database</p>
 </dd></dl>
 
 <dl class="py method">
@@ -2793,19 +2793,30 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.import_info">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">import_info</span></span><a class="headerlink" href="#osxphotos.PhotosDB.import_info" title="Link to this definition">#</a></dt>
-<dd><p>return list of ImportInfo objects for each import session in the database</p>
+<dd><p>Return list of ImportInfo objects for each import session in the database</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.keywords">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">keywords</span></span><a class="headerlink" href="#osxphotos.PhotosDB.keywords" title="Link to this definition">#</a></dt>
-<dd><p>return list of keywords found in photos database</p>
+<dd><p>Return list of keywords found in photos database and associated with at least one photo</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.keywords_as_dict">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">keywords_as_dict</span></span><a class="headerlink" href="#osxphotos.PhotosDB.keywords_as_dict" title="Link to this definition">#</a></dt>
-<dd><p>return keywords as dict of keyword, count in reverse sorted order (descending)</p>
+<dd><p>count in reverse sorted order (descending)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Teturn keywords as dict of keyword</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotosDB.keywords_without_photo">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">keywords_without_photo</span></span><a class="headerlink" href="#osxphotos.PhotosDB.keywords_without_photo" title="Link to this definition">#</a></dt>
+<dd><p>Return keywords that exist in the database but are not assined to any photo (Photos 5+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -2845,25 +2856,25 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.library_path">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">library_path</span></span><a class="headerlink" href="#osxphotos.PhotosDB.library_path" title="Link to this definition">#</a></dt>
-<dd><p>returns path to the Photos library PhotosDB was initialized with</p>
+<dd><p>Returns path to the Photos library PhotosDB was initialized with</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.person_info">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">person_info</span></span><a class="headerlink" href="#osxphotos.PhotosDB.person_info" title="Link to this definition">#</a></dt>
-<dd><p>return list of PersonInfo objects for each person in the photos database</p>
+<dd><p>Return list of PersonInfo objects for each person in the photos database</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.persons">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">persons</span></span><a class="headerlink" href="#osxphotos.PhotosDB.persons" title="Link to this definition">#</a></dt>
-<dd><p>return list of persons found in photos database</p>
+<dd><p>Return list of persons found in photos database and associated with at least one photo</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.persons_as_dict">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">persons_as_dict</span></span><a class="headerlink" href="#osxphotos.PhotosDB.persons_as_dict" title="Link to this definition">#</a></dt>
-<dd><p>return persons as dict of person, count in reverse sorted order (descending)</p>
+<dd><p>Return persons as dict of person, count in reverse sorted order (descending)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -2920,13 +2931,13 @@ Returns photos regardless of intrash state.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.photos_version">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">photos_version</span></span><a class="headerlink" href="#osxphotos.PhotosDB.photos_version" title="Link to this definition">#</a></dt>
-<dd><p>returns version of Photos app that created the library</p>
+<dd><p>Returns version of Photos app that created the library</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.project_info">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_info</span></span><a class="headerlink" href="#osxphotos.PhotosDB.project_info" title="Link to this definition">#</a></dt>
-<dd><p>return list of AlbumInfo projects for each project in the database</p>
+<dd><p>Return list of AlbumInfo projects for each project in the database</p>
 </dd></dl>
 
 <dl class="py method">
@@ -4674,6 +4685,7 @@ Use ExportOptions(sidecar_drop_ext) to drop the image extension from the sidecar
 <li><a class="reference internal" href="#osxphotos.PhotosDB.import_info"><code class="docutils literal notranslate"><span class="pre">PhotosDB.import_info</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.keywords"><code class="docutils literal notranslate"><span class="pre">PhotosDB.keywords</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.keywords_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.keywords_as_dict</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotosDB.keywords_without_photo"><code class="docutils literal notranslate"><span class="pre">PhotosDB.keywords_without_photo</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.labels"><code class="docutils literal notranslate"><span class="pre">PhotosDB.labels</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.labels_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.labels_as_dict</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.labels_normalized"><code class="docutils literal notranslate"><span class="pre">PhotosDB.labels_normalized</span></code></a></li>
@@ -4846,7 +4858,7 @@ Use ExportOptions(sidecar_drop_ext) to drop the image extension from the sidecar
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=903a5549"></script>
+</div><script src="_static/documentation_options.js?v=3442d150"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
