@@ -415,7 +415,7 @@ class iPhotoDB:
                         row["full_name"] = ""
                         break
                 else:
-                    logger.warning(
+                    logger.debug(
                         f"Didn't find person for edited photo face {face_key}"
                     )
                     row["name"] = ""
@@ -893,7 +893,7 @@ class iPhotoPersonInfo:
                 self._person = person
                 break
         else:
-            logger.warning(f"Didn't find person for face {face_key}")
+            logger.debug(f"Didn't find person for face {face_key}")
             self._person = None
 
     @property
@@ -987,7 +987,7 @@ class iPhotoFaceInfo:
                 self._person = person
                 break
         else:
-            logger.warning(f"Didn't find person for face {face_key}")
+            logger.debug(f"Didn't find person for face {face_key}")
             self._person = None
 
     @property
