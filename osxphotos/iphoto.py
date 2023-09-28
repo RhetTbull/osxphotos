@@ -415,9 +415,7 @@ class iPhotoDB:
                         row["full_name"] = ""
                         break
                 else:
-                    logger.debug(
-                        f"Didn't find person for edited photo face {face_key}"
-                    )
+                    logger.debug(f"Didn't find person for edited photo face {face_key}")
                     row["name"] = ""
                     row["full_name"] = ""
                     row["email"] = ""
@@ -444,7 +442,7 @@ class iPhotoDB:
             parentFolderUuid,
             folderPath
             FROM RKFolder
-            WHERE folderType = 1
+            -- WHERE folderType = 1
         """
         logger.debug(f"Executing query: {query}")
 
