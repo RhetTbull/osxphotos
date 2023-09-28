@@ -5,11 +5,20 @@ who kindly gave permission to use the derived code under the MIT license.
 
 from __future__ import annotations
 
+import datetime
+import functools
+import inspect
+import json
 import logging
 import pathlib
+import shutil
 import sqlite3
-from typing import Any, Callable
+from typing import Any, Callable, get_type_hints
+from zoneinfo import ZoneInfo
 
+from ._constants import TIME_DELTA
+from .photoinfo import PhotoInfo
+from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
 from .utils import noop
 
@@ -34,7 +43,8 @@ class iPhotoDB:
         self._db_places = {}  # mapping of modelId to places
         self._db_properties = {}  # mapping of versionId to properties
         self._db_persons = {}  # mapping of modelId to persons
-        self._db_faces_face_key = {}  # mapping of face_key to face info
+        self._db_faces = {}  # mapping of modelID to face info
+        self._db_faces_edited = {}  # mapping of modelID to face info for edited photos
         self._db_library_folders = {}  # mapping of modelId to folders
         self._db_library_albums = {}  # mapping of modelId to albums
         self._db_volumes = {}  # mapping of volume uuid to volume name
@@ -60,6 +70,8 @@ class iPhotoDB:
         logger.debug(f"{self._db_places=}")
         logger.debug(f"{self._db_properties=}")
         logger.debug(f"{self._db_persons=}")
+        logger.debug(f"{self._db_faces=}")
+        logger.debug(f"{self._db_faces_edited=}")
         logger.debug(f"{self._db_library_folders=}")
         logger.debug(f"{self._db_library_albums=}")
         logger.debug(f"{self._db_volumes=}")
@@ -127,7 +139,7 @@ class iPhotoDB:
         RKVersion.hasAdjustments as hasadjustments,
         RKVersion.fileName as filename,
         RKMaster.fileVolumeUuid AS volume_uuid,
-        RKMaster.isMissing AS missing,
+        RKMaster.isMissing AS ismissing,
         RKMaster.isTrulyRaw AS truly_raw,
         RKMaster.isInTrash as in_trash,
         RKMaster.fileIsReference AS is_reference
@@ -249,7 +261,7 @@ class iPhotoDB:
 
         for version_id, data in self._db_properties.items():
             if uuid := version_id_to_uuid.get(version_id):
-                self._db_photos[uuid]["descripton"] = data["string"]
+                self._db_photos[uuid]["description"] = data["string"]
 
         # orientation
         query = """
@@ -338,7 +350,7 @@ class iPhotoDB:
             WHERE RKDetectedFace.masterUuid = ? -- master_uuid
             AND RKDetectedFace.ignore = 0
             AND RKDetectedFace.rejected = 0
-            ORDER BY RKDetectedFace.modelId
+            -- ORDER BY RKDetectedFace.modelId
     """
         logger.debug(f"Executing query: {query}")
 
@@ -358,7 +370,7 @@ class iPhotoDB:
                 row["email"] = normalize_unicode(row["email"])
                 # assign to library data for matching uuid
                 self._db_photos[uuid]["faces"].append(row)
-                self._db_faces_face_key[row["face_key"]] = row
+                self._db_faces[row["modelId"]] = row
         conn.close()
 
     def _load_edited_face_info(self):
@@ -394,23 +406,24 @@ class iPhotoDB:
             results = cursor.execute(query, (version_id,)).fetchall()
             photo["edited_faces"] = []
             for row in results:
-                # normalize unicode
                 row = dict(row)
                 face_key = row["face_key"]
-                if face_key in self._db_faces_face_key:
-                    face_info = self._db_faces_face_key[face_key]
-                    row["name"] = face_info["name"]
-                    row["full_name"] = face_info["full_name"]
-                    row["email"] = face_info["email"]
+                for person in self._db_persons.values():
+                    if face_key == person["face_key"]:
+                        row["name"] = person["name"]
+                        row["email"] = person["email"]
+                        row["full_name"] = ""
+                        break
                 else:
-                    logging.debug(
-                        f"Face key {face_key} not found in _db_faces_face_key"
+                    logger.warning(
+                        f"Didn't find person for edited photo face {face_key}"
                     )
                     row["name"] = ""
                     row["full_name"] = ""
                     row["email"] = ""
                 # assign to library data for matching uuid
                 photo["edited_faces"].append(row)
+                self._db_faces_edited[row["id"]] = row
         conn.close()
 
     def _load_folders(self):
@@ -630,3 +643,539 @@ class iPhotoDB:
                     persons[face_name] = 0
                 persons[face_name] += 1
         return persons
+
+    def photos(
+        self, uuid: list[str] | None = None, images: bool = True, movies: bool = True
+    ) -> list[iPhotoPhotoInfo]:
+        """Return list of photos in library"""
+        photos = [iPhotoPhotoInfo(uuid, self) for uuid in self._db_photos]
+        if uuid:
+            photos = [photo for photo in photos if photo.uuid in uuid]
+        if not images:
+            photos = [photo for photo in photos if not photo.isphoto]
+        if not movies:
+            photos = [photo for photo in photos if not photo.ismovie]
+        return photos
+
+    def get_photo(self, uuid: str) -> iPhotoPhotoInfo:
+        """Return photo by uuid"""
+        if uuid not in self._db_photos:
+            raise ValueError(f"Photo with uuid {uuid} not found")
+        return iPhotoPhotoInfo(uuid, self)
+
+
+class iPhotoPhotoInfo:
+    """PhotoInfo implementation for iPhoto"""
+
+    def __init__(self, uuid: str, db: iPhotoDB):
+        self._uuid = uuid
+        self._db = db
+        self._info = self._db._db_photos[self._uuid]
+        self._attributes = get_user_attributes(PhotoInfo)
+
+    @property
+    def uuid(self) -> str:
+        """UUID of photo"""
+        return self._uuid
+
+    @property
+    def filename(self) -> str:
+        """Filename of photo"""
+        return self._db._db_photos[self._uuid]["filename"]
+
+    @property
+    def original_filename(self) -> str:
+        """Original filename of photo"""
+        return self._db._db_photos[self._uuid]["filename"]
+
+    @property
+    def isphoto(self) -> bool:
+        """Return True if asset is a photo"""
+        return self._db._db_photos[self._uuid]["mediatype"] == "IMGT"
+
+    @property
+    def ismovie(self) -> bool:
+        """Return True if asset is a movie"""
+        return self._db._db_photos[self._uuid]["mediatype"] == "VIDT"
+
+    @property
+    def ismissing(self) -> bool:
+        """Return True if asset is missing"""
+        return self._db._db_photos[self._uuid]["ismissing"]
+
+    @property
+    def date(self) -> datetime.datetime:
+        """Date photo was taken"""
+        return iphoto_date_to_datetime(
+            self._db._db_photos[self._uuid]["date_taken"],
+            self._db._db_photos[self._uuid]["timezone"],
+        )
+
+    @property
+    def date_modified(self) -> datetime.datetime:
+        """Date modified in library"""
+        return iphoto_date_to_datetime(
+            self._db._db_photos[self._uuid]["date_modified"],
+            self._db._db_photos[self._uuid]["timezone"],
+        )
+
+    @property
+    def date_added(self) -> datetime.datetime:
+        """Date added to library"""
+        return iphoto_date_to_datetime(
+            self._db._db_photos[self._uuid]["date_imported"],
+            self._db._db_photos[self._uuid]["timezone"],
+        )
+
+    @property
+    def tzoffset(self) -> int:
+        """TZ Offset from GMT in seconds"""
+        tzname = self._db._db_photos[self._uuid]["timezone"]
+        if not tzname:
+            return 0
+        tz = ZoneInfo(tzname)
+        return int(tz.utcoffset(datetime.datetime.now()).total_seconds())
+
+    @property
+    def path(self) -> str | None:
+        """Path to original photo asset in library"""
+        path = self._db._db_photos[self._uuid]["photo_path"]
+        if pathlib.Path(path).exists():
+            return path
+        logger.debug(f"Photo path {path} does not exist")
+        return None
+
+    @property
+    def path_edited(self) -> str | None:
+        """Path to edited asset in library"""
+        path = self._db._db_photos[self._uuid]["path_edited"]
+        if pathlib.Path(path).exists():
+            return path
+        logger.debug(f"Edited photo path {path} does not exist")
+        return None
+
+    @property
+    def description(self) -> str:
+        """Description of photo"""
+        return self._db._db_photos[self._uuid].get("description", "")
+
+    @property
+    def title(self) -> str | None:
+        """Title of photo"""
+        return self._db._db_photos[self._uuid].get("title", None)
+
+    @property
+    def persons(self) -> list[str]:
+        """List of persons in photo"""
+        faces = self._get_faces()
+        return [face["name"] for face in faces]
+
+    @property
+    def person_info(self) -> list[iPhotoPersonInfo]:
+        """List of PersonInfo objects for photo"""
+        faces = self._get_faces()
+        return [iPhotoPersonInfo(face, self._db) for face in faces]
+
+    @property
+    def face_info(self) -> list[iPhotoFaceInfo]:
+        """List of FaceInfo objects for photo"""
+        faces = self._get_faces()
+        return [iPhotoFaceInfo(self, face, self._db) for face in faces]
+
+    @property
+    def keywords(self) -> list[str]:
+        """Keywords for photo"""
+        return self._db._db_photos[self._uuid].get("keywords", [])
+
+    @property
+    def hasadjustments(self) -> bool:
+        """True if photo has adjustments"""
+        return bool(self._db._db_photos[self._uuid]["hasadjustments"])
+
+    @property
+    def width(self) -> int:
+        """Width of photo in pixels"""
+        return self._db._db_photos[self._uuid]["processed_width"]
+
+    @property
+    def height(self) -> int:
+        """Height of photo in pixels"""
+        return self._db._db_photos[self._uuid]["processed_height"]
+
+    @property
+    def original_width(self) -> int:
+        """Original width of photo in pixels"""
+        return self._db._db_photos[self._uuid]["master_width"]
+
+    @property
+    def original_height(self) -> int:
+        """Original height of photo in pixels"""
+        return self._db._db_photos[self._uuid]["master_height"]
+
+    @property
+    def hexdigest(self) -> str:
+        """Hexdigest of photo"""
+        return ""
+
+    @property
+    def score(self) -> ScoreInfo:
+        return ScoreInfo(
+            overall=0.0,
+            curation=0.0,
+            promotion=0.0,
+            highlight_visibility=0.0,
+            behavioral=0.0,
+            failure=0.0,
+            harmonious_color=0.0,
+            immersiveness=0.0,
+            interaction=0.0,
+            interesting_subject=0.0,
+            intrusive_object_presence=0.0,
+            lively_color=0.0,
+            low_light=0.0,
+            noise=0.0,
+            pleasant_camera_tilt=0.0,
+            pleasant_composition=0.0,
+            pleasant_lighting=0.0,
+            pleasant_pattern=0.0,
+            pleasant_perspective=0.0,
+            pleasant_post_processing=0.0,
+            pleasant_reflection=0.0,
+            pleasant_symmetry=0.0,
+            sharply_focused_subject=0.0,
+            tastefully_blurred=0.0,
+            well_chosen_subject=0.0,
+            well_framed_subject=0.0,
+            well_timed_shot=0.0,
+        )
+
+    def export(
+        self, dest: str, filename: str | None = None, edited: bool = False
+    ) -> list[str]:
+        """Export photo"""
+        if not filename:
+            filename = self.original_filename
+        path = self.path_edited if edited else self.path
+        if not path:
+            raise ValueError(f"Photo {self.uuid} does not have a path")
+        dest = pathlib.Path(dest)
+        dest.mkdir(parents=True, exist_ok=True)
+        dest_path = dest.joinpath(filename)
+        shutil.copy(path, dest_path)
+        return [str(dest_path)]
+
+    def _get_faces(self) -> list[dict[str, Any]]:
+        """Get faces for photo"""
+        if self.hasadjustments:
+            faces = self._db._db_photos[self._uuid].get("edited_faces", [])
+        else:
+            faces = self._db._db_photos[self._uuid].get("faces", [])
+        return faces
+
+    def __getattr__(self, name: str):
+        """If attribute is not found in iPhotoPhotoInfo, look at PhotoInfo and return default type"""
+        if name in self._attributes:
+            return default_return_value(self._attributes[name])
+        else:
+            raise AttributeError(f"Invalid attribute: {name}")
+
+
+class iPhotoPersonInfo:
+    """PersonInfo implementation for iPhoto"""
+
+    def __init__(self, face: dict[str, Any], db: iPhotoDB):
+        self._face = face
+        self._db = db
+
+        face_key = self._face["face_key"]
+        for person in self._db._db_persons.values():
+            if face_key == person["face_key"]:
+                self._person = person
+                break
+        else:
+            logger.warning(f"Didn't find person for face {face_key}")
+            self._person = None
+
+    @property
+    def uuid(self) -> str:
+        """UUID of person"""
+        return self._person["uuid"]
+
+    @property
+    def name(self) -> str:
+        """Name of person"""
+        return self._person["name"]
+
+    @property
+    def keyphoto(self) -> iPhotoPhotoInfo | None:
+        """Key photo for person"""
+        logger.debug("Not implemented for iPhoto")
+        return None
+
+    @property
+    def keyface(self) -> iPhotoFaceInfo | None:
+        """Key face for person"""
+        logger.debug("Not implemented for iPhoto")
+        return None
+
+    @property
+    def photos(self) -> list[iPhotoPhotoInfo]:
+        """List of photos face is contained in"""
+        photos = []
+        for uuid, photo in self._db._db_photos:
+            for face in photo["faces"]:
+                if face["face_key"] == self._face["face_key"]:
+                    photos.append(iPhotoPhotoInfo(uuid, self._db))
+        return photos
+
+    @property
+    def facecount(self) -> int:
+        """Count of faces for person"""
+        faces = 0
+        for photo in self._db._db_photos.values():
+            for face in photo["faces"]:
+                if face["face_key"] == self._face["face_key"]:
+                    faces += 1
+        return faces
+
+    @property
+    def favorite(self) -> bool:
+        """Returns False for iPhoto"""
+        logger.debug("Not implemented for iPhoto")
+        return False
+
+    @property
+    def sort_order(self) -> int:
+        """Always returns 0 for iPhoto"""
+        logger.debug("Not implemented for iPhoto")
+        return 0
+
+    @property
+    def feature_less(self) -> bool:
+        """Always returns False for iPhoto"""
+        logger.debug("Not implemented for iPhoto")
+        return False
+
+    def asdict(self) -> dict[str, Any]:
+        """Return person as dict"""
+        return {
+            "uuid": self.uuid,
+            "name": self.name,
+            "displayname": self.name,
+            "keyface": self.keyface,
+            "facecount": self.facecount,
+            "keyphoto": self.keyphoto,
+            "favorite": self.favorite,
+            "sort_order": self.sort_order,
+            "feature_less": self.feature_less,
+        }
+
+    def json(self) -> str:
+        """Return person as json"""
+        return json.dumps(self.asdict())
+
+
+class iPhotoFaceInfo:
+    def __init__(self, photo: iPhotoPhotoInfo, face: dict[str, Any], db: iPhotoDB):
+        self._face = face
+        self._db = db
+        self.photo = photo
+
+        face_key = self._face["face_key"]
+        for person in self._db._db_persons.values():
+            if face_key == person["face_key"]:
+                self._person = person
+                break
+        else:
+            logger.warning(f"Didn't find person for face {face_key}")
+            self._person = None
+
+    @property
+    def center(self) -> tuple[int, int]:
+        """Coordinates, in PIL format, for center of face
+
+        Returns:
+            tuple of coordinates in form (x, y)
+        """
+        return self._make_point((self.center_x, self.center_y))
+
+    @property
+    def center_x(self) -> float:
+        """X coordinate for center of face as percent of width"""
+        return self._face["topLeftX"] + self._face["width"] / 2
+
+    @property
+    def center_y(self) -> float:
+        """Y coordinate for center of face as percent of height"""
+        if self.photo._info["orientation"] == "portrait":
+            # y coords are reversed for portraits
+            return self._face["bottomRightY"] + self._face["height"] / 2
+        return self._face["topLeftY"] + self._face["height"] / 2
+
+    @property
+    def quality(self) -> float:
+        """Quality (confidence) of face detection"""
+        return self._face["confidence"]
+
+    def _make_point(self, xy: tuple[int, int]) -> tuple[int, int]:
+        """Translate an (x, y) tuple based on image orientation
+            and convert to image coordinates
+
+        Arguments:
+            xy: tuple of (x, y) coordinates for point to translate
+                in format used by Photos (percent of height/width)
+
+        Returns:
+            (x, y) tuple of translated coordinates in pixels in PIL format/reference frame
+        """
+
+        # orientation = self.photo.orientation
+        # x, y = self._fix_orientation(xy)
+        x, y = xy
+
+        photo = self.photo
+        if photo.hasadjustments:
+            # edited version
+            dx = photo.width
+            dy = photo.height
+        else:
+            # original version
+            dx = photo.original_width
+            dy = photo.original_height
+        return (int(x * dx), int(y * dy))
+
+    @property
+    def size(self) -> int:
+        ...
+
+    @property
+    def size_pixels(self) -> int:
+        """Size of face in pixels (centered around center_x, center_y)
+
+        Returns:
+            size, in int pixels, of a circle drawn around the center of the face
+        """
+        photo = self.photo
+        size_reference = photo.width if photo.width > photo.height else photo.height
+        return self.size * size_reference
+
+    @property
+    def person_info(self) -> iPhotoPersonInfo:
+        """PersonInfo object for face"""
+        return iPhotoPersonInfo(self._face, self._db)
+
+    def face_rect(self) -> list[tuple[int, int], tuple[int, int]]:
+        """Get face rectangle coordinates for current version of the associated image
+            If image has been edited, rectangle applies to edited version, otherwise original version
+            Coordinates in format and reference frame used by PIL
+
+        Returns:
+            list [(x0, x1), (y0, y1)] of coordinates in reference frame used by PIL
+        """
+        photo = self.photo
+        if photo.hasadjustments:
+            # edited version
+            image_width = photo.width
+            image_height = photo.height
+        else:
+            # original version
+            image_width = photo.original_width
+            image_height = photo.original_height
+
+        # convert to PIL format
+        if self.photo._info["orientation"] == "portrait":
+            # y coordinates are reversed
+            x0 = int(self._face["topLeftX"] * image_width)
+            y0 = int(self._face["bottomRightY"] * image_height)
+            x1 = int(self._face["bottomRightX"] * image_width)
+            y1 = int(self._face["topLeftY"] * image_height)
+        else:
+            x0 = int(self._face["topLeftX"] * image_width)
+            y0 = int(self._face["topLeftY"] * image_height)
+            x1 = int(self._face["bottomRightX"] * image_width)
+            y1 = int(self._face["bottomRightY"] * image_height)
+        return [(x0, y0), (x1, y1)]
+
+
+def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.datetime:
+    """ "Convert iPhoto date to datetime; if tz provided, will be timezone aware
+
+    Args:
+        date: iPhoto date
+        tz: timezone name
+
+    Returns:
+        datetime.datetime
+
+    Note:
+        If date is invalid, will return 1970-01-01 00:00:00
+    """
+    try:
+        date = datetime.datetime.fromtimestamp(date + TIME_DELTA)
+    except ValueError:
+        date = datetime.datetime(1970, 1, 1)
+    if tz:
+        date = date.replace(tzinfo=ZoneInfo(tz))
+    return date
+
+
+def default_return_value(name):
+    """Inspect name and return default value if there is one otherwis None
+    optimized for PhotoInfo may not work for other classes
+    """
+    if isinstance(name, property):
+        hints = get_type_hints(name.fget)
+    elif isinstance(name, functools.cached_property):
+        hints = get_type_hints(name.func)
+    else:
+        hints = get_type_hints(name)
+    return_type = hints.get("return")
+
+    # inspect return_type and take best guess at default value
+    # needs to run on Python 3.9 so can't depend on types.UnionType (3.10)
+    return_type = str(return_type)
+    if "| None" in return_type:
+        return None
+    elif return_type == str(bool):
+        return False
+    elif return_type == str(str):
+        return ""
+    elif return_type == str(int):
+        return 0
+    elif return_type == str(float):
+        return 0.0
+    elif return_type.startswith("list[") or return_type.startswith("List["):
+        return []
+    elif "tuple[None, None]" in return_type:
+        return (None, None)
+    elif return_type.startswith("tuple[") or return_type.startswith("Tuple["):
+        return ()
+    elif return_type.startswith("dict[") or return_type.startswith("Dict["):
+        return dict()
+    elif return_type.startswith("set[") or return_type.startswith("Set["):
+        return set()
+    else:
+        logger.warning(f"Unknown return type: {return_type}")
+    return None
+
+
+def get_user_attributes(cls):
+    """Get user attributes from a class"""
+    # reference: https://stackoverflow.com/questions/4241171/inspect-python-class-attributes
+    builtin_attributes = dir(type("dummy", (object,), {}))
+    attrs = {}
+    bases = reversed(inspect.getmro(cls))
+    for base in bases:
+        if hasattr(base, "__dict__"):
+            attrs.update(base.__dict__)
+        elif hasattr(base, "__slots__"):
+            if hasattr(base, base.__slots__[0]):
+                # We're dealing with a non-string sequence or one char string
+                for item in base.__slots__:
+                    attrs[item] = getattr(base, item)
+            else:
+                # We're dealing with a single identifier as a string
+                attrs[base.__slots__] = getattr(base, base.__slots__)
+    for key in builtin_attributes:
+        del attrs[key]  # we can be sure it will be present so no need to guard this
+    return attrs
