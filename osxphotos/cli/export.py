@@ -70,6 +70,8 @@ if is_macos:
     )
     from osxphotos.photosalbum import PhotosAlbum
 
+from osxphotos.iphoto import iPhotoDB, is_iphoto_library
+
 from .cli_commands import logger
 from .cli_params import (
     DB_ARGUMENT,
@@ -1466,9 +1468,14 @@ def export(
     query_kwargs["burst_photos"] = export_bursts
     query_options = query_options_from_kwargs(**query_kwargs)
 
-    photosdb = osxphotos.PhotosDB(
-        dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=True
-    )
+    if is_iphoto_library(db):
+        photosdb = iPhotoDB(
+            dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=False
+        )
+    else:
+        photosdb = osxphotos.PhotosDB(
+            dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=True
+        )
 
     # enable beta features if requested
     photosdb._beta = beta

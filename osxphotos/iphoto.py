@@ -28,6 +28,7 @@ an iPhoto library.
 
 from __future__ import annotations
 
+import dataclasses
 import datetime
 import functools
 import inspect
@@ -41,6 +42,8 @@ from zoneinfo import ZoneInfo
 
 from ._constants import TIME_DELTA
 from .photoinfo import PhotoInfo
+from .phototemplate import PhotoTemplate, RenderOptions
+from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
 from .utils import noop
@@ -51,14 +54,48 @@ logger = logging.getLogger("osxphotos")
 class iPhotoDB:
     """Read an iPhoto library database"""
 
-    def __init__(self, library_path: str, verbose: Callable[..., None] = None):
-        """Initialize iPhotoDB object"""
-        self.library_path: pathlib.Path = pathlib.Path(library_path).absolute()
+    def __init__(
+        self,
+        dbfile: str,
+        verbose: Callable[..., None] = None,
+        exiftool: str | None = None,
+        rich: bool = False,
+        _skip_searchinfo: bool = True,
+    ):
+        """Create a new iPhotoDB object.
+
+        Args:
+            dbfile: specify full path to iPhoto library
+            verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+            exiftool: optional path to exiftool for methods that require this (e.g. PhotoInfo.exiftool); if not provided, will search PATH
+            rich: use rich with verbose output
+            _skip_searchinfo: if True, will not process search data from psi.sqlite; useful for processing standalone Photos.sqlite file
+
+        Raises:
+            PhotosDBReadError if dbfile is not a valid Photos library.
+            TypeError if verbose is not None and not callable.
+
+        Note:
+            Unlike PhotosDB, you must specify only the path to the root library in dbfile, not the database file
+            rich is not used with iPhoto
+            _skip_searchinfo is not used with iPhoto
+        """
+        self.library_path: pathlib.Path = pathlib.Path(dbfile).absolute()
         if not self.library_path.is_dir():
             raise FileNotFoundError(f"Invalid iPhoto library path: {self.library_path}")
         if not self.library_path.joinpath("Database").is_dir():
             raise FileNotFoundError(f"Invalid iPhoto library path: {self.library_path}")
-        self.verbose = verbose or noop
+        self._library_path = str(self.library_path)  # compatibility with PhotosDB
+
+        if verbose is None:
+            verbose = noop
+        elif not callable(verbose):
+            raise TypeError("verbose must be callable")
+        self.verbose = verbose
+        self._verbose = self.verbose  # compatibility with PhotosDB
+
+        self._rich = rich  # currently unused, compatibility with PhotosDB
+        self._exiftool_path = exiftool
 
         # initialize database dictionaries
         self._db_photos = {}  # mapping of uuid to photo data
@@ -361,7 +398,7 @@ class iPhotoDB:
             RKDetectedFace.height AS image_height,
             RKDetectedFace.faceDirectionAngle AS face_dir_angle,
             RKDetectedFace.faceAngle AS face_angle, -- always 0?
-            RKDetectedFace.confidence,
+            RKDetectedFace.confidence AS confidence,
             RKDetectedFace.rejected AS rejected,
             RKDetectedFace.ignore AS ignore,
             RKFaceName.uuid AS name_uuid,
@@ -430,6 +467,9 @@ class iPhotoDB:
             photo["edited_faces"] = []
             for row in results:
                 row = dict(row)
+                row[
+                    "confidence"
+                ] = 0.0  # TODO: figure out original face and use those values
                 face_key = row["face_key"]
                 for person in self._db_persons.values():
                     if face_key == person["face_key"]:
@@ -686,6 +726,17 @@ class iPhotoDB:
             raise ValueError(f"Photo with uuid {uuid} not found")
         return iPhotoPhotoInfo(uuid, self)
 
+    def query(self, options: QueryOptions) -> list[iPhotoPhotoInfo]:
+        """Run a query against PhotosDB to extract the photos based on user supplied options
+
+        Args:
+            options: a QueryOptions instance
+
+        Returns:
+            a list of PhotoInfo instances
+        """
+        return self.photos()
+
 
 class iPhotoPhotoInfo:
     """PhotoInfo implementation for iPhoto"""
@@ -695,6 +746,7 @@ class iPhotoPhotoInfo:
         self._db = db
         self._info = self._db._db_photos[self._uuid]
         self._attributes = get_user_attributes(PhotoInfo)
+        self._verbose = db._verbose  # compatibility with PhotoInfo
 
     @property
     def uuid(self) -> str:
@@ -903,6 +955,185 @@ class iPhotoPhotoInfo:
         shutil.copy(path, dest_path)
         return [str(dest_path)]
 
+    def render_template(
+        self, template_str: str, options: RenderOptions | None = None
+    ) -> tuple[list[str], list[str]]:
+        """Renders a template string for PhotoInfo instance using PhotoTemplate
+
+        Args:
+            template_str: a template string with fields to render
+            options: a RenderOptions instance
+
+        Returns:
+            ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
+        """
+        options = options or RenderOptions()
+        template = PhotoTemplate(self, exiftool_path=self._db._exiftool_path)
+        return template.render(template_str, options)
+
+    def asdict(self, shallow: bool = True) -> dict[str, Any]:
+        """Return dict representation of PhotoInfo object.
+
+        Args:
+            shallow: if True, return shallow representation (does not contain folder_info, person_info, etc.)
+
+        Returns:
+            dict representation of PhotoInfo object
+
+        Note:
+            The shallow representation is used internally by export as it contains only the subset of data needed for export.
+        """
+
+        comments = [comment.asdict() for comment in self.comments]
+        exif_info = dataclasses.asdict(self.exif_info) if self.exif_info else {}
+        face_info = [face.asdict() for face in self.face_info]
+        folders = {album.title: album.folder_names for album in self.album_info}
+        likes = [like.asdict() for like in self.likes]
+        place = self.place.asdict() if self.place else {}
+        score = dataclasses.asdict(self.score) if self.score else {}
+
+        # do not add any new properties to data_dict as this is used by export to determine
+        # if a photo needs to be re-exported and adding new properties may cause all photos
+        # to be re-exported
+        # see below `if not shallow:`
+        dict_data = {
+            "albums": self.albums,
+            "burst": self.burst,
+            "cloud_guid": self.cloud_guid,
+            "cloud_owner_hashed_id": self.cloud_owner_hashed_id,
+            "comments": comments,
+            "date_added": self.date_added,
+            "date_modified": self.date_modified,
+            "date_trashed": self.date_trashed,
+            "date": self.date,
+            "description": self.description,
+            "exif_info": exif_info,
+            "external_edit": self.external_edit,
+            "face_info": face_info,
+            "favorite": self.favorite,
+            "filename": self.filename,
+            "fingerprint": self.fingerprint,
+            "folders": folders,
+            "has_raw": self.has_raw,
+            "hasadjustments": self.hasadjustments,
+            "hdr": self.hdr,
+            "height": self.height,
+            "hidden": self.hidden,
+            "incloud": self.incloud,
+            "intrash": self.intrash,
+            "iscloudasset": self.iscloudasset,
+            "ismissing": self.ismissing,
+            "ismovie": self.ismovie,
+            "isphoto": self.isphoto,
+            "israw": self.israw,
+            "isreference": self.isreference,
+            "keywords": self.keywords,
+            "labels": self.labels,
+            "latitude": self._latitude,
+            "library": self._db._library_path,
+            "likes": likes,
+            "live_photo": self.live_photo,
+            "location": self.location,
+            "longitude": self._longitude,
+            "orientation": self.orientation,
+            "original_filename": self.original_filename,
+            "original_filesize": self.original_filesize,
+            "original_height": self.original_height,
+            "original_orientation": self.original_orientation,
+            "original_width": self.original_width,
+            "owner": self.owner,
+            "panorama": self.panorama,
+            "path_edited_live_photo": self.path_edited_live_photo,
+            "path_edited": self.path_edited,
+            "path_live_photo": self.path_live_photo,
+            "path_raw": self.path_raw,
+            "path": self.path,
+            "persons": self.persons,
+            "place": place,
+            "portrait": self.portrait,
+            "raw_original": self.raw_original,
+            "score": score,
+            "screenshot": self.screenshot,
+            "selfie": self.selfie,
+            "shared": self.shared,
+            "slow_mo": self.slow_mo,
+            "time_lapse": self.time_lapse,
+            "title": self.title,
+            "tzoffset": self.tzoffset,
+            "uti_edited": self.uti_edited,
+            "uti_original": self.uti_original,
+            "uti_raw": self.uti_raw,
+            "uti": self.uti,
+            "uuid": self.uuid,
+            "visible": self.visible,
+            "width": self.width,
+        }
+
+        # non-shallow keys
+        # add any new properties here
+        if not shallow:
+            dict_data["album_info"] = [album.asdict() for album in self.album_info]
+            dict_data["path_derivatives"] = self.path_derivatives
+            dict_data["adjustments"] = (
+                self.adjustments.asdict() if self.adjustments else {}
+            )
+            dict_data["burst_album_info"] = [a.asdict() for a in self.burst_album_info]
+            dict_data["burst_albums"] = self.burst_albums
+            dict_data["burst_default_pick"] = self.burst_default_pick
+            dict_data["burst_key"] = self.burst_key
+            dict_data["burst_photos"] = [p.uuid for p in self.burst_photos]
+            dict_data["burst_selected"] = self.burst_selected
+            dict_data["cloud_metadata"] = self.cloud_metadata
+            dict_data["import_info"] = (
+                self.import_info.asdict() if self.import_info else {}
+            )
+            dict_data["labels_normalized"] = self.labels_normalized
+            dict_data["person_info"] = [p.asdict() for p in self.person_info]
+            dict_data["project_info"] = [p.asdict() for p in self.project_info]
+            dict_data["search_info"] = (
+                self.search_info.asdict() if self.search_info else {}
+            )
+            dict_data["search_info_normalized"] = (
+                self.search_info_normalized.asdict()
+                if self.search_info_normalized
+                else {}
+            )
+            dict_data["syndicated"] = self.syndicated
+            dict_data["saved_to_library"] = self.saved_to_library
+            dict_data["shared_moment"] = self.shared_moment
+            dict_data["shared_library"] = self.shared_library
+
+        return dict_data
+
+    def json(self, indent: int | None = None, shallow: bool = True) -> str:
+        """Return JSON representation
+
+        Args:
+            indent: indent level for JSON, if None, no indent
+            shallow: if True, return shallow JSON representation (does not contain folder_info, person_info, etc.)
+
+        Returns:
+            JSON string
+
+        Note:
+            The shallow representation is used internally by export as it contains only the subset of data needed for export.
+        """
+
+        def default(o):
+            if isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+
+        dict_data = self.asdict(shallow=True) if shallow else self.asdict(shallow=False)
+
+        for k, v in dict_data.items():
+            # sort lists such as keywords so JSON is consistent
+            # but do not sort certain items like location
+            if k in ["location"]:
+                continue
+            if v and isinstance(v, (list, tuple)) and not isinstance(v[0], dict):
+                dict_data[k] = sorted(v, key=lambda v: v if v is not None else "")
+        return json.dumps(dict_data, sort_keys=True, default=default, indent=indent)
+
     def _get_faces(self) -> list[dict[str, Any]]:
         """Get faces for photo"""
         if self.hasadjustments:
@@ -1084,8 +1315,9 @@ class iPhotoFaceInfo:
         return (int(x * dx), int(y * dy))
 
     @property
-    def size(self) -> int:
-        ...
+    def size(self) -> float:
+        """Size of face as percent of image width"""
+        return self._face["width"]
 
     @property
     def size_pixels(self) -> int:
@@ -1094,9 +1326,10 @@ class iPhotoFaceInfo:
         Returns:
             size, in int pixels, of a circle drawn around the center of the face
         """
-        photo = self.photo
-        size_reference = photo.width if photo.width > photo.height else photo.height
-        return self.size * size_reference
+        width = (
+            self.photo.width if self.photo.hasadjustments else self.photo.original_width
+        )
+        return self._face["width"] * width
 
     @property
     def person_info(self) -> iPhotoPersonInfo:
@@ -1135,6 +1368,28 @@ class iPhotoFaceInfo:
             y1 = int(self._face["bottomRightY"] * image_height)
         return [(x0, y0), (x1, y1)]
 
+    def asdict(self):
+        """Returns dict representation of class instance"""
+        # roll, pitch, yaw = self.roll_pitch_yaw()
+        return {
+            # "uuid": self.uuid,
+            # "name": self.name,
+            "center_x": self.center_x,
+            "center_y": self.center_y,
+            "center": self.center,
+            "size": self.size,
+            "face_rect": self.face_rect(),
+            # "mpri_reg_rect": self.mpri_reg_rect._asdict(),
+            # "mwg_rs_area": self.mwg_rs_area._asdict(),
+            "quality": self.quality,
+            # "source_width": self.source_width,
+            # "source_height": self.source_height,
+        }
+
+    def json(self):
+        """Return JSON representation of FaceInfo instance"""
+        return json.dumps(self.asdict())
+
 
 class iPhotoAlbumInfo:
     """AlbumInfo class for iPhoto"""
@@ -1172,7 +1427,10 @@ class iPhotoAlbumInfo:
         ["Top level folder", "sub folder 1", "sub folder 2", ...]
         or empty list if album is not in any folders
         """
-        return self._album["path"]
+        path = self._album["path"]
+        if path:
+            path = path[:-1]  # remove album name from end of path
+        return path
 
     @property
     def folder_list(self) -> list[iPhotoFolderInfo]:
@@ -1206,7 +1464,7 @@ class iPhotoAlbumInfo:
         logger.debug("Not implemented for iPhoto")
         return 0
 
-    def asdict(self):
+    def asdict(self) -> dict[str, Any]:
         """Return album info as a dict; does not include photos"""
         return {
             "uuid": self.uuid,
@@ -1216,6 +1474,10 @@ class iPhotoAlbumInfo:
             "sort_order": self.sort_order,
             "parent": self.parent.uuid if self.parent else None,
         }
+
+    def json(self) -> str:
+        """JSON representation of album"""
+        return json.dumps(self.asdict())
 
     def __len__(self):
         """return number of photos contained in album"""
@@ -1288,6 +1550,10 @@ class iPhotoFolderInfo:
             "subfolders": [f.uuid for f in self.subfolders],
             "albums": [a.uuid for a in self.album_info],
         }
+
+    def json(self):
+        """Return folder info as json"""
+        return json.dumps(self.asdict())
 
     def __len__(self):
         """returns count of folders + albums contained in the folder"""
@@ -1376,3 +1642,15 @@ def get_user_attributes(cls):
     for key in builtin_attributes:
         del attrs[key]  # we can be sure it will be present so no need to guard this
     return attrs
+
+
+def is_iphoto_library(library: str | pathlib.Path) -> bool:
+    """Return True if library is an iPhoto library, else False"""
+    library = pathlib.Path(library)
+    if not library.is_dir():
+        return False
+    if not library.joinpath("AlbumData.xml").is_file():
+        return False
+    if not library.joinpath("Database", "Library.apdb").is_file():
+        return False
+    return True

@@ -53,6 +53,7 @@ from .._version import __version__
 from ..albuminfo import AlbumInfo, FolderInfo, ImportInfo, ProjectInfo
 from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
 from ..fileutil import FileUtil
+from ..iphoto import is_iphoto_library
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
 from ..phototemplate import RenderOptions
@@ -73,11 +74,17 @@ if is_macos:
 
 logger = logging.getLogger("osxphotos")
 
-__all__ = ["PhotosDB"]
+__all__ = ["PhotosDB", "PhotosDBReadError"]
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Add test for __str__
 # TODO: Add special albums and magic albums
+
+
+class PhotosDBReadError(Exception):
+    """Generic error when reading the Photos database"""
+
+    pass
 
 
 class PhotosDB:
@@ -116,9 +123,13 @@ class PhotosDB:
             _skip_searchinfo: if True, will not process search data from psi.sqlite; useful for processing standalone Photos.sqlite file
 
         Raises:
-            FileNotFoundError if dbfile is not a valid Photos library.
+            PhotosDBReadError if dbfile is not a valid Photos library.
             TypeError if verbose is not None and not callable.
         """
+
+        # Check that we're not trying to open an iPhoto library
+        if is_iphoto_library(dbfile):
+            raise PhotosDBReadError(f"{dbfile} is an iPhoto library, not Photos")
 
         # Check OS version
         system = platform.system()
