@@ -68,8 +68,8 @@ class iPhotoDB:
         self._db_persons = {}  # mapping of modelId to persons
         self._db_faces = {}  # mapping of modelID to face info
         self._db_faces_edited = {}  # mapping of modelID to face info for edited photos
-        self._db_library_folders = {}  # mapping of modelId to folders
-        self._db_library_albums = {}  # mapping of modelId to albums
+        self._db_folders = {}  # mapping of modelId to folders
+        self._db_albums = {}  # mapping of modelId to albums
         self._db_volumes = {}  # mapping of volume uuid to volume name
 
         self._load_library()
@@ -95,8 +95,8 @@ class iPhotoDB:
         logger.debug(f"{self._db_persons=}")
         logger.debug(f"{self._db_faces=}")
         logger.debug(f"{self._db_faces_edited=}")
-        logger.debug(f"{self._db_library_folders=}")
-        logger.debug(f"{self._db_library_albums=}")
+        logger.debug(f"{self._db_folders=}")
+        logger.debug(f"{self._db_albums=}")
         logger.debug(f"{self._db_volumes=}")
 
     def _load_library_db(self):
@@ -475,34 +475,34 @@ class iPhotoDB:
         self.verbose("Loading folders from iPhoto library")
         results = cursor.execute(query).fetchall()
         for row in results:
-            self._db_library_folders[row["modelID"]] = dict(row)
+            self._db_folders[row["modelID"]] = dict(row)
 
         # normalize unicode
-        for model_id in self._db_library_folders:
-            self._db_library_folders[model_id]["name"] = normalize_unicode(
-                self._db_library_folders[model_id]["name"]
+        for model_id in self._db_folders:
+            self._db_folders[model_id]["name"] = normalize_unicode(
+                self._db_folders[model_id]["name"]
             )
-            self._db_library_folders[model_id]["folderPath"] = normalize_unicode(
-                self._db_library_folders[model_id]["folderPath"]
+            self._db_folders[model_id]["folderPath"] = normalize_unicode(
+                self._db_folders[model_id]["folderPath"]
             )
 
         # folderPath is a string like "modelId1/modelId2/...".
         # convert these using the real folder names to get the path strings.
         # the top level libray folder is always modelId 1 and has name ''
-        for model_id, folder_data in self._db_library_folders.items():
+        for model_id, folder_data in self._db_folders.items():
             folder_list = []
             for folder_id in folder_data["folderPath"].split("/"):
                 if folder_id == "":
                     continue
                 folder_id = int(folder_id)
-                folder_name = self._db_library_folders[folder_id]["name"]
-                ismagic = bool(self._db_library_folders[folder_id]["isMagic"])
+                folder_name = self._db_folders[folder_id]["name"]
+                ismagic = bool(self._db_folders[folder_id]["isMagic"])
                 if folder_name == "" or ismagic:
                     # skip magic folders like "TopLevelAlbums"
                     # if someone has a folder with no name, it will be skipped
                     continue
                 folder_list.append(folder_name)
-            self._db_library_folders[model_id]["folderlist"] = folder_list
+            self._db_folders[model_id]["folderlist"] = folder_list
 
         conn.close()
 
@@ -516,8 +516,9 @@ class iPhotoDB:
             RKAlbumVersion.versionId, -- -->Library::RKVersion::modelId
             RKAlbumVersion.albumId,
             RKAlbum.name,
-            RKFolder.modelId AS f_id,
-            RKFolder.uuid AS f_uuid
+            RKAlbum.uuid,
+            RKFolder.modelId AS folder_id,
+            RKFolder.uuid AS folder_uuid
             FROM RKAlbumVersion
             LEFT JOIN RKAlbum ON RKAlbumVersion.albumId = RKAlbum.modelId
             LEFT JOIN RKFolder ON RKFolder.uuid = RKAlbum.folderUuid
@@ -533,23 +534,21 @@ class iPhotoDB:
             row = dict(row)
             row["name"] = normalize_unicode(row["name"])
             version_id = row["versionId"]
-            if version_id not in self._db_library_albums:
-                self._db_library_albums[version_id] = []
-            self._db_library_albums[version_id].append(row)
+            if version_id not in self._db_albums:
+                self._db_albums[version_id] = []
+            self._db_albums[version_id].append(row)
 
         # get album hierarchy
-        for albums in self._db_library_albums.values():
+        for albums in self._db_albums.values():
             for album in albums:
                 album["path"] = [
-                    *self._db_library_folders[album["f_id"]]["folderlist"],
+                    *self._db_folders[album["folder_id"]]["folderlist"],
                     album["name"],
                 ]
 
         # add album data to library data
         for uuid, library in self._db_photos.items():
-            self._db_photos[uuid]["albums"] = self._db_library_albums.get(
-                library["id"], []
-            )
+            self._db_photos[uuid]["albums"] = self._db_albums.get(library["id"], [])
 
         conn.close()
 
@@ -1146,6 +1145,11 @@ class iPhotoAlbumInfo:
         self._album_id = album["albumId"]
 
     @property
+    def uuid(self) -> str:
+        """UUID of album"""
+        return self._album["uuid"]
+
+    @property
     def title(self) -> str:
         """Title of album"""
         return self._album["name"]
@@ -1171,14 +1175,25 @@ class iPhotoAlbumInfo:
         return self._album["path"]
 
     @property
-    def folder_list(self):
-        """Returns list of iPhotoFolderInfo objects for each folder the album is contained in
+    def folder_list(self) -> list[iPhotoFolderInfo]:
+        """Returns hierachical list of iPhotoFolderInfo objects for each folder the album is contained in
         or empty list if album is not in any folders
         """
+        folder_list = []
+        parent = self.parent
+        while parent:
+            folder_list.insert(0, parent)
+            parent = parent.parent
+        return folder_list
 
     @property
     def parent(self):
         """returns iPhotoFolderInfo object for parent folder or None if no parent (e.g. top-level album)"""
+        parent_id = self._album["folder_id"]
+        parent_folder = self._db._db_folders[parent_id]
+        if bool(parent_folder["isMagic"]):
+            return None
+        return iPhotoFolderInfo(parent_folder, self._db)
 
     @property
     def sort_order(self) -> int:
@@ -1190,6 +1205,93 @@ class iPhotoAlbumInfo:
         """Return index of photo in album; not implemented, always 0"""
         logger.debug("Not implemented for iPhoto")
         return 0
+
+    def asdict(self):
+        """Return album info as a dict; does not include photos"""
+        return {
+            "uuid": self.uuid,
+            "title": self.title,
+            "folder_names": self.folder_names,
+            "folder_list": [f.uuid for f in self.folder_list],
+            "sort_order": self.sort_order,
+            "parent": self.parent.uuid if self.parent else None,
+        }
+
+    def __len__(self):
+        """return number of photos contained in album"""
+        return len(self.photos)
+
+
+class iPhotoFolderInfo:
+    """
+    Info about a specific folder, contains all the details about the folder
+    including folders, albums, etc
+    """
+
+    def __init__(self, folder: dict[Any, Any], db: iPhotoDB):
+        self._folder = folder
+        self._folderid = folder["modelId"]
+        self._db = db
+
+    @property
+    def title(self) -> str:
+        """Title of folder"""
+        return self._folder["name"]
+
+    @property
+    def uuid(self) -> str:
+        """UUID of folder"""
+        return self._folder["uuid"]
+
+    @property
+    def album_info(self):
+        """Return list of albums (as AlbumInfo objects) contained in the folder"""
+        folder_albums = []
+        for albums in self._db._db_albums.values():
+            for album in albums:
+                if album["folder_id"] == self._folderid:
+                    folder_albums.append(iPhotoAlbumInfo(album, self._db))
+        return folder_albums
+
+    @property
+    def parent(self):
+        """Return FolderInfo object for parent or None if no parent (e.g. top-level folder)"""
+        parent_uuid = self._folder["parentFolderUuid"]
+        if not parent_uuid:
+            return None
+        for folder in self._db._db_folders.values():
+            if folder["uuid"] == parent_uuid:
+                if bool(folder["isMagic"]):
+                    # skip magic folders like "TopLevelAlbums"
+                    return None
+                return iPhotoFolderInfo(folder, self._db)
+        return None
+
+    @property
+    def subfolders(self):
+        """Return list of folders (as FolderInfo objects) contained in the folder"""
+        subfolders = []
+        for folder in self._db._db_folders.values():
+            if folder["parentFolderUuid"] == self.uuid:
+                if bool(folder["isMagic"]):
+                    # skip magic folders like "TopLevelAlbums"
+                    continue
+                subfolders.append(iPhotoFolderInfo(folder, self._db))
+        return subfolders
+
+    def asdict(self):
+        """Return folder info as a dict"""
+        return {
+            "title": self.title,
+            "uuid": self.uuid,
+            "parent": self.parent.uuid if self.parent is not None else None,
+            "subfolders": [f.uuid for f in self.subfolders],
+            "albums": [a.uuid for a in self.album_info],
+        }
+
+    def __len__(self):
+        """returns count of folders + albums contained in the folder"""
+        return len(self.subfolders) + len(self.album_info)
 
 
 def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.datetime:
