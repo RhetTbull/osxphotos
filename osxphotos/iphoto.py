@@ -1143,11 +1143,23 @@ class iPhotoAlbumInfo:
     def __init__(self, album: dict[str, Any], db: iPhotoDB):
         self._album = album
         self._db = db
+        self._album_id = album["albumId"]
 
     @property
     def title(self) -> str:
         """Title of album"""
         return self._album["name"]
+
+    @property
+    def photos(self) -> list[iPhotoPhotoInfo]:
+        """Return list of photos contained in the album"""
+        photos = []
+        for uuid, photo in self._db._db_photos.items():
+            for album in photo["albums"]:
+                if album["albumId"] == self._album_id:
+                    photos.append(iPhotoPhotoInfo(uuid, self._db))
+                    break
+        return photos
 
     @property
     def folder_names(self) -> list[str]:
@@ -1157,6 +1169,27 @@ class iPhotoAlbumInfo:
         or empty list if album is not in any folders
         """
         return self._album["path"]
+
+    @property
+    def folder_list(self):
+        """Returns list of iPhotoFolderInfo objects for each folder the album is contained in
+        or empty list if album is not in any folders
+        """
+
+    @property
+    def parent(self):
+        """returns iPhotoFolderInfo object for parent folder or None if no parent (e.g. top-level album)"""
+
+    @property
+    def sort_order(self) -> int:
+        """Return sort order; not implemented, always 0"""
+        logger.debug("Not implemented for iPhoto")
+        return 0
+
+    def photo_index(self, photo: iPhotoPhotoInfo) -> int:
+        """Return index of photo in album; not implemented, always 0"""
+        logger.debug("Not implemented for iPhoto")
+        return 0
 
 
 def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.datetime:
