@@ -1,6 +1,29 @@
-"""Support for iPhoto libraries;
-This code is based on https://github.com/jensb/iphoto2xmp to by @jensb
+"""Support for iPhoto libraries
+
+This code is based on https://github.com/jensb/iphoto2xmp by @jensb
 who kindly gave permission to use the derived code under the MIT license.
+The original iphoto2xmp is licensed under the GPL v3 license.
+
+The following code largely follows the structure of the original iphoto2xmp code
+with adaptaptions to convert it to python, break into functions for readability,
+and add additional queries needed by osxphotos.
+
+The code is not optimized. For example, redundant data is stored in multiple
+data structures and the various database files used by iPhoto are opened & closed
+multiple times as needed. This was a deliberate design choice to make the code
+match the original as closely as possible and to make it easier to follow the
+logic of the original code. I also optimized for implementation speed over execution
+speed. iPhoto has not been supported by Apple since 2015 so the expected use case
+for this code is to convert an iPhoto library to a Photos library or to export the
+iPhoto library. Unlike the rest of the osxphotos code, it is not expected the user
+will be using this code repeatedly.
+
+The iPhotoDB, iPhotoPhotoInfo, iPhotoAlbumInfo, etc. classes are minimal implementations
+of the corresponding classes in osxphotos and are designed to be drop-in replacements
+for the osxphotos classes.  This was done to minimize changes to the rest of the
+osxphotos codebase. These iPhoto implementations do not implement all the methods
+of the corresponding osxphotos classes, only those needed to export or convert
+an iPhoto library.
 """
 
 from __future__ import annotations
@@ -475,6 +498,8 @@ class iPhotoDB:
                 folder_name = self._db_library_folders[folder_id]["name"]
                 ismagic = bool(self._db_library_folders[folder_id]["isMagic"])
                 if folder_name == "" or ismagic:
+                    # skip magic folders like "TopLevelAlbums"
+                    # if someone has a folder with no name, it will be skipped
                     continue
                 folder_list.append(folder_name)
             self._db_library_folders[model_id]["folderlist"] = folder_list
