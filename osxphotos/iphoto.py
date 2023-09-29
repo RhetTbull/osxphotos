@@ -440,9 +440,9 @@ class iPhotoDB:
             folderType,
             name,
             parentFolderUuid,
-            folderPath
+            folderPath,
+            isMagic
             FROM RKFolder
-            -- WHERE folderType = 1
         """
         logger.debug(f"Executing query: {query}")
 
@@ -466,15 +466,15 @@ class iPhotoDB:
         # folderPath is a string like "modelId1/modelId2/...".
         # convert these using the real folder names to get the path strings.
         # the top level libray folder is always modelId 1 and has name ''
-        for model_id in self._db_library_folders:
+        for model_id, folder_data in self._db_library_folders.items():
             folder_list = []
-            for folder_id in self._db_library_folders[model_id]["folderPath"].split(
-                "/"
-            ):
+            for folder_id in folder_data["folderPath"].split("/"):
                 if folder_id == "":
                     continue
-                folder_name = self._db_library_folders[int(folder_id)]["name"]
-                if folder_name == "":
+                folder_id = int(folder_id)
+                folder_name = self._db_library_folders[folder_id]["name"]
+                ismagic = bool(self._db_library_folders[folder_id]["isMagic"])
+                if folder_name == "" or ismagic:
                     continue
                 folder_list.append(folder_name)
             self._db_library_folders[model_id]["folderlist"] = folder_list
