@@ -14,6 +14,14 @@ from .exifwriter import ExifWriter
 from .export_db import ExportDB, ExportDBTemp
 from .exportoptions import ExportOptions, ExportResults
 from .fileutil import FileUtil, FileUtilNoOp
+from .iphoto import (
+    iPhotoAlbumInfo,
+    iPhotoDB,
+    iPhotoFaceInfo,
+    iPhotoFolderInfo,
+    iPhotoPersonInfo,
+    iPhotoPhotoInfo,
+)
 from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
 from .photoexporter import PhotoExporter
@@ -74,6 +82,12 @@ __all__ = [
     "SearchInfo",
     "SidecarWriter",
     "__version__",
+    "iPhotoAlbumInfo",
+    "iPhotoDB",
+    "iPhotoFaceInfo",
+    "iPhotoFolderInfo",
+    "iPhotoPersonInfo",
+    "iPhotoPhotoInfo",
     "is_debug",
     "logger",
     "set_debug",

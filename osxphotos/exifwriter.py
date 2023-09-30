@@ -381,6 +381,10 @@ class ExifWriter(_ExifMixin):
         if options.favorite_rating:
             exif["XMP:Rating"] = 5 if self.photo.favorite else 0
 
+        if self.photo._db._source == "iPhoto":
+            # iPhoto (but not Photos) has star rating so use those
+            exif["XMP:Rating"] = self.photo.rating
+
         if options.location:
             (lat, lon) = self.photo.location
             if lat is not None and lon is not None:

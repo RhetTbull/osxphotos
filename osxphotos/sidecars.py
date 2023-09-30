@@ -333,6 +333,8 @@ class SidecarWriter(_ExifMixin):
 
         if options.favorite_rating:
             rating = 5 if self.photo.favorite else 0
+        elif self.photo._db._source == "iPhoto":
+            rating = self.photo.rating
         else:
             rating = None
 

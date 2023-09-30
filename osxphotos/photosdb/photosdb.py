@@ -398,6 +398,8 @@ class PhotosDB:
 
         self._db_connection, _ = self.get_db_connection()
 
+        self._source = "Photos"
+
     @property
     def keywords_as_dict(self):
         """Teturn keywords as dict of keyword: count in reverse sorted order (descending)"""

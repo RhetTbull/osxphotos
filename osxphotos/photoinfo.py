@@ -729,6 +729,16 @@ class PhotoInfo:
         return self._info["favorite"] == 1
 
     @property
+    def flagged(self) -> bool:
+        """Returns True if photo is flagged; iPhoto only; on Photos always returns False"""
+        return False
+
+    @property
+    def rating(self) -> int:
+        """Star rating of photo as int from 0 to 5; for iPhoto, returns star rating; for Photos, returns 5 if favorite, else 0"""
+        return 5 if self.favorite else 0
+
+    @property
     def hidden(self) -> bool:
         """True if picture is hidden"""
         return self._info["hidden"] == 1

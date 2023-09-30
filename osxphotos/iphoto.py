@@ -37,16 +37,18 @@ import logging
 import pathlib
 import shutil
 import sqlite3
+from functools import cached_property
 from typing import Any, Callable, get_type_hints
 from zoneinfo import ZoneInfo
 
 from ._constants import TIME_DELTA
+from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoinfo import PhotoInfo
 from .phototemplate import PhotoTemplate, RenderOptions
 from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
-from .utils import noop
+from .utils import hexdigest, noop
 
 logger = logging.getLogger("osxphotos")
 
@@ -110,6 +112,8 @@ class iPhotoDB:
         self._db_volumes = {}  # mapping of volume uuid to volume name
 
         self._load_library()
+
+        self._source = "iPhoto"
 
     def _load_library(self):
         """Load iPhoto library"""
@@ -679,6 +683,35 @@ class iPhotoDB:
             else:
                 photo["path_edited"] = ""
 
+    @cached_property
+    def photos_version(self):
+        """Returns version of the library as a string"""
+        library_db = self.library_path.joinpath("Database/apdb/Library.apdb")
+        query = """
+            SELECT
+            propertyValue
+            FROM RKAdminData
+            WHERE propertyName IN ('applicationIdentifier', 'versionMajor', 'versionMinor');
+        """
+        logger.debug(f"Executing query: {query}")
+
+        conn = sqlite3.connect(library_db)
+        cursor = conn.cursor()
+        results = cursor.execute(query).fetchall()
+        version = " ".join(row[0] for row in results)
+        return version
+
+    def get_db_connection(self):
+        """Get connection to the working copy of the Photos database
+
+        Returns:
+            tuple of (connection, cursor) to sqlite3 database
+
+        Raises:
+            NotImplementedError on iPhoto
+        """
+        raise NotImplementedError("get_db_connection not implemented for iPhoto")
+
     @property
     def keywords_as_dict(self) -> dict[str, int]:
         """Return keywords as dict of list of keywords keyed by count of photos"""
@@ -840,6 +873,21 @@ class iPhotoPhotoInfo:
         return self._db._db_photos[self._uuid].get("title", None)
 
     @property
+    def favorite(self) -> bool:
+        """Returns True if photo is favorite; iPhoto doesn't have favorite so always returns False"""
+        return False
+
+    @property
+    def flagged(self) -> bool:
+        """Returns True if photo is flagged"""
+        return bool(self._db._db_photos[self._uuid].get("flagged", False))
+
+    @property
+    def rating(self) -> int:
+        """Rating of photo as int from 0 to 5"""
+        return self._db._db_photos[self._uuid]["rating"]
+
+    @property
     def persons(self) -> list[str]:
         """List of persons in photo"""
         faces = self._get_faces()
@@ -903,10 +951,11 @@ class iPhotoPhotoInfo:
             albums.append(iPhotoAlbumInfo(album, self._db))
         return albums
 
-    @property
+    @cached_property
     def hexdigest(self) -> str:
-        """Hexdigest of photo"""
-        return ""
+        """Returns a unique digest of the photo's properties and metadata;
+        useful for detecting changes in any property/metadata of the photo"""
+        return hexdigest(self._json_hexdigest())
 
     @property
     def score(self) -> ScoreInfo:
@@ -1134,6 +1183,32 @@ class iPhotoPhotoInfo:
                 dict_data[k] = sorted(v, key=lambda v: v if v is not None else "")
         return json.dumps(dict_data, sort_keys=True, default=default, indent=indent)
 
+    def _json_hexdigest(self) -> str:
+        """JSON for use by hexdigest()"""
+
+        # This differs from json() because hexdigest must not change if metadata changed
+        # With json(), sort order of lists of dicts is not consistent but these aren't needed
+        # for computing hexdigest so we can ignore them
+        # also don't use visible because it changes based on Photos UI state
+
+        def default(o):
+            if isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+
+        dict_data = self.asdict(shallow=True)
+
+        for k in ["face_info", "visible"]:
+            del dict_data[k]
+
+        for k, v in dict_data.items():
+            # sort lists such as keywords so JSON is consistent
+            # but do not sort certain items like location
+            if k in ["location"]:
+                continue
+            if v and isinstance(v, (list, tuple)) and not isinstance(v[0], dict):
+                dict_data[k] = sorted(v, key=lambda v: v if v is not None else "")
+        return json.dumps(dict_data, sort_keys=True, default=default)
+
     def _get_faces(self) -> list[dict[str, Any]]:
         """Get faces for photo"""
         if self.hasadjustments:
@@ -1261,6 +1336,13 @@ class iPhotoFaceInfo:
             self._person = None
 
     @property
+    def name(self) -> str | None:
+        """Name of person in the photo or None"""
+        if self._person:
+            return self._person["name"]
+        return None
+
+    @property
     def center(self) -> tuple[int, int]:
         """Coordinates, in PIL format, for center of face
 
@@ -1335,6 +1417,86 @@ class iPhotoFaceInfo:
     def person_info(self) -> iPhotoPersonInfo:
         """PersonInfo object for face"""
         return iPhotoPersonInfo(self._face, self._db)
+
+    def roll_pitch_yaw(self):
+        """Roll, pitch, yaw of face in radians as tuple"""
+        return (0, 0, 0)
+
+    @property
+    def roll(self):
+        """Return roll angle in radians of the face region"""
+        roll, _, _ = self.roll_pitch_yaw()
+        return roll
+
+    @property
+    def pitch(self):
+        """Return pitch angle in radians of the face region"""
+        _, pitch, _ = self.roll_pitch_yaw()
+        return pitch
+
+    @property
+    def yaw(self):
+        """Return yaw angle in radians of the face region"""
+        _, _, yaw = self.roll_pitch_yaw()
+        return yaw
+
+    @property
+    def mwg_rs_area(self):
+        """Get coordinates for Metadata Working Group Region Area.
+
+        Returns:
+            MWG_RS_Area named tuple with x, y, h, w where:
+            x = stArea:x
+            y = stArea:y
+            h = stArea:h
+            w = stArea:w
+
+        Reference:
+            https://photo.stackexchange.com/questions/106410/how-does-xmp-define-the-face-region
+        """
+        x, y = self.center_x, self.center_y
+        w = self._face["width"]
+        h = self._face["height"]
+
+        return MWG_RS_Area(x, y, h, w)
+
+    @property
+    def mpri_reg_rect(self):
+        """Get coordinates for Microsoft Photo Region Rectangle.
+
+        Returns:
+            MPRI_Reg_Rect named tuple with x, y, h, w where:
+            x = x coordinate of top left corner of rectangle
+            y = y coordinate of top left corner of rectangle
+            h = height of rectangle
+            w = width of rectangle
+
+        Reference:
+            https://docs.microsoft.com/en-us/windows/win32/wic/-wic-people-tagging
+        """
+        # x, y = self.center_x, self.center_y
+
+        photo = self.photo
+        if photo.hasadjustments:
+            # edited version
+            image_width = photo.width
+            image_height = photo.height
+        else:
+            # original version
+            image_width = photo.original_width
+            image_height = photo.original_height
+
+        h = self.size_pixels / image_width
+        w = self.size_pixels / image_height
+        x = int(self._face["topLeftX"] * image_width)
+
+        if photo._info["orientation"] == "portrait":
+            # y coords are reversed for portraits
+            y = int(self._face["bottomRightY"] * image_height)
+        else:
+            y = int(self._face["topLeftY"] * image_height)
+
+        return MPRI_Reg_Rect(x, y, h, w)
 
     def face_rect(self) -> list[tuple[int, int], tuple[int, int]]:
         """Get face rectangle coordinates for current version of the associated image
