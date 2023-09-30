@@ -5,8 +5,9 @@ import json
 import click
 import yaml
 
-import osxphotos
+from osxphotos import PhotosDB
 from osxphotos._constants import _PHOTOS_4_VERSION
+from osxphotos.iphoto import iPhotoDB, is_iphoto_library
 
 from .cli_params import DB_ARGUMENT, DB_OPTION, JSON_OPTION
 from .common import get_photos_db
@@ -29,7 +30,9 @@ def info(ctx, cli_obj, db, json_, photos_library):
         _list_libraries()
         return
 
-    photosdb = osxphotos.PhotosDB(dbfile=db)
+    click.echo(f"Loading library: {db}", err=True)
+
+    photosdb = iPhotoDB(db) if is_iphoto_library(db) else PhotosDB(dbfile=db)
     info = {"database_path": photosdb.db_path, "database_version": photosdb.db_version}
     photos = photosdb.photos(movies=False)
     not_shared_photos = [p for p in photos if not p.shared]

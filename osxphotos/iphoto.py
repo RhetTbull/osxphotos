@@ -5,7 +5,7 @@ who kindly gave permission to use the derived code under the MIT license.
 The original iphoto2xmp is licensed under the GPL v3 license.
 
 The following code largely follows the structure of the original iphoto2xmp code
-with adaptaptions to convert it to python, break into functions for readability,
+with adaptations to convert it to python, break into functions for readability,
 and add additional queries needed by osxphotos.
 
 The code is not optimized. For example, redundant data is stored in multiple
@@ -24,6 +24,10 @@ for the osxphotos classes.  This was done to minimize changes to the rest of the
 osxphotos codebase. These iPhoto implementations do not implement all the methods
 of the corresponding osxphotos classes, only those needed to export or convert
 an iPhoto library.
+
+All the iPhoto code is contained in this single file. I didn't want to mess with creating
+a separate package and dealing with the type-hint hell from circular dependencies as all
+the classes are tightly coupled.
 """
 
 from __future__ import annotations
@@ -54,7 +58,7 @@ logger = logging.getLogger("osxphotos")
 
 
 class iPhotoDB:
-    """Read an iPhoto library database"""
+    """Read an iPhoto library database; interface matches osxphotos.PhotosDB"""
 
     def __init__(
         self,
@@ -88,6 +92,9 @@ class iPhotoDB:
         if not self.library_path.joinpath("Database").is_dir():
             raise FileNotFoundError(f"Invalid iPhoto library path: {self.library_path}")
         self._library_path = str(self.library_path)  # compatibility with PhotosDB
+
+        # for compatibility with PhotosDB but not a 1:1 mapping as iPhoto uses several databases
+        self.db_path = str(self.library_path.joinpath("Database/apdb/Library.apdb"))
 
         if verbose is None:
             verbose = noop
@@ -205,7 +212,6 @@ class iPhotoDB:
         RKMaster.fileVolumeUuid AS volume_uuid,
         RKMaster.isMissing AS ismissing,
         RKMaster.isTrulyRaw AS truly_raw,
-        RKMaster.isInTrash as in_trash,
         RKMaster.fileIsReference AS is_reference
         FROM RKVersion
         LEFT JOIN RKFolder ON RKVersion.projectUuid = RKFolder.uuid
@@ -684,6 +690,23 @@ class iPhotoDB:
                 photo["path_edited"] = ""
 
     @cached_property
+    def db_version(self):
+        """Return the database version as stored in Library.apdb RKAdminData table"""
+        library_db = self.library_path.joinpath("Database/apdb/Library.apdb")
+        query = """
+            SELECT
+            propertyValue
+            FROM RKAdminData
+            WHERE propertyName IN ('versionMajor', 'versionMinor');
+        """
+        logger.debug(f"Executing query: {query}")
+
+        conn = sqlite3.connect(library_db)
+        cursor = conn.cursor()
+        results = cursor.execute(query).fetchall()
+        return ".".join(row[0] for row in results)
+
+    @cached_property
     def photos_version(self):
         """Returns version of the library as a string"""
         library_db = self.library_path.joinpath("Database/apdb/Library.apdb")
@@ -691,15 +714,14 @@ class iPhotoDB:
             SELECT
             propertyValue
             FROM RKAdminData
-            WHERE propertyName IN ('applicationIdentifier', 'versionMajor', 'versionMinor');
+            WHERE propertyName IN ('applicationIdentifier');
         """
         logger.debug(f"Executing query: {query}")
 
         conn = sqlite3.connect(library_db)
         cursor = conn.cursor()
         results = cursor.execute(query).fetchall()
-        version = " ".join(row[0] for row in results)
-        return version
+        return f"{results[0][0]} - {self.db_version}"
 
     def get_db_connection(self):
         """Get connection to the working copy of the Photos database
@@ -739,6 +761,18 @@ class iPhotoDB:
                     persons[face_name] = 0
                 persons[face_name] += 1
         return persons
+
+    @property
+    def albums_as_dict(self) -> dict[str, int]:
+        """Return albums as dict of list of albums keyed by count of photos"""
+        albums = {}
+        for photo in self._db_photos.values():
+            for album in photo["albums"]:
+                album_name = album["name"]
+                if album_name not in albums:
+                    albums[album_name] = 0
+                albums[album_name] += 1
+        return albums
 
     def photos(
         self, uuid: list[str] | None = None, images: bool = True, movies: bool = True
@@ -886,6 +920,22 @@ class iPhotoPhotoInfo:
     def rating(self) -> int:
         """Rating of photo as int from 0 to 5"""
         return self._db._db_photos[self._uuid]["rating"]
+
+    @property
+    def hidden(self) -> bool:
+        """True if photo is hidden"""
+        return bool(self._db._db_photos[self._uuid]["hidden"])
+
+    @property
+    def visible(self) ->bool:
+        """True if photo is visible in Photos; always returns False for iPhoto"""
+        logger.debug("visible not implemented for iPhoto")
+        return False
+    
+    @property
+    def intrash(self) -> bool:
+        """True if photo is in the Photos trash"""
+        return self._db._db_photos[self._uuid]["in_trash"]
 
     @property
     def persons(self) -> list[str]:
