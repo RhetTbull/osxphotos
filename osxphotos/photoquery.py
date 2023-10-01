@@ -14,7 +14,6 @@ from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import bitmath
-import photoscript
 
 from ._constants import _PHOTOS_5_VERSION, UUID_PATTERN
 from .datetime_utils import datetime_has_tz, datetime_naive_to_local
