@@ -52,6 +52,7 @@ from .photoquery import QueryOptions, photo_query
 from .phototemplate import PhotoTemplate, RenderOptions
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
+from .uti import get_uti_for_path
 from .utils import hexdigest, noop
 
 logger = logging.getLogger("osxphotos")
@@ -838,6 +839,43 @@ class iPhotoPhotoInfo:
         return self._db._db_photos[self._uuid]["mediatype"] == "VIDT"
 
     @property
+    def israw(self) -> bool:
+        """Return True if asset is a raw image"""
+        return bool(self._db._db_photos[self._uuid]["truly_raw"])
+
+    @property
+    def raw_original(self):
+        """Return True if asset original is a raw image"""
+        return bool(self._db._db_photos[self._uuid]["truly_raw"])
+
+    @property
+    def uti(self) -> str | None:
+        """UTI of current version of photo (edited if hasadjustments, otherwise original)"""
+        # this isn't stored in the database so we have to determine from filename
+        if self.hasadjustments and self.path_edited:
+            return get_uti_for_path(self.path_edited)
+        return get_uti_for_path(self.filename)
+
+    @property
+    def uti_original(self) -> str | None:
+        """UTI of original version of photo"""
+        return get_uti_for_path(self.filename)
+
+    @property
+    def uti_edited(self) -> str | None:
+        """UTI of edited version of photo"""
+        return (
+            get_uti_for_path(self.path_edited)
+            if self.hasadjustments and self.path_edited
+            else None
+        )
+
+    @property
+    def uti_raw(self) -> str | None:
+        """UTI of raw version of photo"""
+        return get_uti_for_path(self.path) if self.israw else None
+
+    @property
     def ismissing(self) -> bool:
         """Return True if asset is missing"""
         return self._db._db_photos[self._uuid]["ismissing"]
@@ -985,18 +1023,17 @@ class iPhotoPhotoInfo:
     @property
     def albums(self) -> list[str]:
         """List of albums photo is contained in"""
-        albums = []
-        for album in self._db._db_photos[self._uuid].get("albums", []):
-            albums.append(album["name"])
-        return albums
+        return [
+            album["name"] for album in self._db._db_photos[self._uuid].get("albums", [])
+        ]
 
     @property
     def album_info(self) -> list[iPhotoAlbumInfo]:
         """ "Return list of AlbumInfo objects for photo"""
-        albums = []
-        for album in self._db._db_photos[self._uuid].get("albums", []):
-            albums.append(iPhotoAlbumInfo(album, self._db))
-        return albums
+        return [
+            iPhotoAlbumInfo(album, self._db)
+            for album in self._db._db_photos[self._uuid].get("albums", [])
+        ]
 
     @property
     def latitude(self) -> float | None:

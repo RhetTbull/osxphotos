@@ -44,6 +44,12 @@ def test_get_uti_for_extension_no_objc():
     osxphotos.uti.OS_VER = OLD_VER
 
 
+def test_get_uti_for_path():
+    """test get_uti_for_path"""
+    for ext in EXT_DICT:
+        assert osxphotos.uti.get_uti_for_path(f"test.{ext}") == EXT_DICT[ext]
+
+
 @pytest.mark.skipif(not is_macos, reason="Only works on macOS")
 def test_get_uti_from_mdls():
     """get _get_uti_from_mdls"""
