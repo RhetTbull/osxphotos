@@ -998,6 +998,21 @@ class iPhotoPhotoInfo:
             albums.append(iPhotoAlbumInfo(album, self._db))
         return albums
 
+    @property
+    def latitude(self) -> float | None:
+        """Latitude of photo"""
+        return self._db._db_photos[self._uuid]["latitude"]
+
+    @property
+    def longitude(self) -> float | None:
+        """Longitude of photo"""
+        return self._db._db_photos[self._uuid]["longitude"]
+
+    @property
+    def location(self) -> tuple[float, float] | tuple[None, None]:
+        """Location of photo as (latitude, longitude)"""
+        return (self.latitude, self.longitude)
+
     @cached_property
     def hexdigest(self) -> str:
         """Returns a unique digest of the photo's properties and metadata;
