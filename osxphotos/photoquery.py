@@ -20,11 +20,15 @@ from ._constants import _PHOTOS_5_VERSION, UUID_PATTERN
 from .datetime_utils import datetime_has_tz, datetime_naive_to_local
 from .photoinfo import PhotoInfo
 from .phototemplate import RenderOptions
+from .platform import is_macos
 from .unicode import normalize_unicode
 
 if TYPE_CHECKING:
     from .iphoto import iPhotoDB
     from .photosdb import PhotosDB
+
+if is_macos:
+    import photoscript
 
 __all__ = [
     "IncompatibleQueryOptions",
@@ -768,6 +772,10 @@ def photo_query(
 
     if options.selected:
         # photos selected in Photos app
+        if not is_macos:
+            raise NotImplementedError(
+                "Query option --selected is only available on macOS"
+            )
         try:
             # catch AppleScript errors as the scripting interfce to Photos is flaky
             selected = photoscript.PhotosLibrary().selection
