@@ -26,13 +26,13 @@ from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
 from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
+from .photoquery import QueryOptions
 from .photosdb import PhotosDB
 from .photosdb._photosdb_process_comments import CommentInfo, LikeInfo
 from .phototables import PhotoTables
 from .phototemplate import PhotoTemplate
 from .placeinfo import PlaceInfo
 from .platform import is_macos
-from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 from .sidecars import SidecarWriter

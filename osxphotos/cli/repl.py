@@ -19,14 +19,14 @@ import osxphotos
 from osxphotos._constants import _PHOTOS_4_VERSION
 from osxphotos.cli.click_rich_echo import rich_echo_error as echo_error
 from osxphotos.photoinfo import PhotoInfo
-from osxphotos.photosdb import PhotosDB
-from osxphotos.platform import assert_macos, is_macos
-from osxphotos.pyrepl import embed_repl
-from osxphotos.queryoptions import (
+from osxphotos.photoquery import (
     IncompatibleQueryOptions,
     QueryOptions,
     query_options_from_kwargs,
 )
+from osxphotos.photosdb import PhotosDB
+from osxphotos.platform import assert_macos, is_macos
+from osxphotos.pyrepl import embed_repl
 
 if is_macos:
     import photoscript
@@ -73,8 +73,8 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     from osxphotos.exportoptions import ExportOptions, ExportResults
     from osxphotos.momentinfo import MomentInfo
     from osxphotos.photoexporter import PhotoExporter
+    from osxphotos.photoquery import QueryOptions
     from osxphotos.placeinfo import PlaceInfo
-    from osxphotos.queryoptions import QueryOptions
     from osxphotos.scoreinfo import ScoreInfo
     from osxphotos.searchinfo import SearchInfo
     from osxphotos.sidecars import SidecarWriter, exiftool_json_sidecar, xmp_sidecar

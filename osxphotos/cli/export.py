@@ -48,9 +48,9 @@ from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
+from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos
-from osxphotos.queryoptions import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.unicode import normalize_fs_path
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import format_sec_to_hhmmss, pluralize, under_test

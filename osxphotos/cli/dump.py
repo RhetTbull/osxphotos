@@ -8,8 +8,8 @@ from osxphotos.cli.click_rich_echo import (
     set_rich_console,
     set_rich_theme,
 )
+from osxphotos.photoquery import QueryOptions
 from osxphotos.phototemplate import RenderOptions
-from osxphotos.queryoptions import QueryOptions
 
 from .cli_params import (
     DB_ARGUMENT,

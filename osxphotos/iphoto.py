@@ -48,8 +48,8 @@ from zoneinfo import ZoneInfo
 from ._constants import TIME_DELTA
 from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoinfo import PhotoInfo
+from .photoquery import QueryOptions
 from .phototemplate import PhotoTemplate, RenderOptions
-from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
 from .utils import hexdigest, noop
@@ -927,11 +927,11 @@ class iPhotoPhotoInfo:
         return bool(self._db._db_photos[self._uuid]["hidden"])
 
     @property
-    def visible(self) ->bool:
+    def visible(self) -> bool:
         """True if photo is visible in Photos; always returns False for iPhoto"""
         logger.debug("visible not implemented for iPhoto")
         return False
-    
+
     @property
     def intrash(self) -> bool:
         """True if photo is in the Photos trash"""

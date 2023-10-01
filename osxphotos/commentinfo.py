@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-import datetime
 import dataclasses
+import datetime
+from dataclasses import dataclass
 
 
 @dataclass

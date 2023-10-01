@@ -13,8 +13,8 @@ import typing as t  # match style used in Click source code
 
 import click
 
+from osxphotos.photoquery import QueryOptions, query_options_from_kwargs
 from osxphotos.photosdb import PhotosDB
-from osxphotos.queryoptions import QueryOptions, query_options_from_kwargs
 from osxphotos.sqlitekvstore import SQLiteKVStore
 
 from .cli_params import (

@@ -23,7 +23,7 @@ from osxphotos import AlbumInfo, PhotoInfo
 from osxphotos.cli import echo, echo_error
 from osxphotos.cli.verbose import verbose_print
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
-from osxphotos.queryoptions import QueryOptions
+from osxphotos.photoquery import QueryOptions
 from osxphotos.utils import pluralize
 
 

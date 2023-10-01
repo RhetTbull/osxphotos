@@ -6,9 +6,9 @@ import datetime
 from dataclasses import dataclass
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION, TIME_DELTA
+from ..commentinfo import CommentInfo, LikeInfo
 from ..sqlite_utils import sqlite_open_ro
 from ..unicode import normalize_unicode
-from ..commentinfo import CommentInfo, LikeInfo
 
 
 def _process_comments(self):
