@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import dataclasses
-import datetime
 import io
 import pathlib
 import re
@@ -12,12 +11,14 @@ from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import bitmath
+import photoscript
 
 from ._constants import _PHOTOS_5_VERSION, UUID_PATTERN
 from .datetime_utils import datetime_has_tz, datetime_naive_to_local
+from .photoinfo import PhotoInfo
 from .phototemplate import RenderOptions
 from .unicode import normalize_unicode
 

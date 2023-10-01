@@ -48,7 +48,7 @@ from zoneinfo import ZoneInfo
 from ._constants import TIME_DELTA
 from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoinfo import PhotoInfo
-from .photoquery import QueryOptions
+from .photoquery import QueryOptions, photo_query
 from .phototemplate import PhotoTemplate, RenderOptions
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
@@ -798,11 +798,8 @@ class iPhotoDB:
 
         Args:
             options: a QueryOptions instance
-
-        Returns:
-            a list of PhotoInfo instances
         """
-        return self.photos()
+        return photo_query(self, options)
 
 
 class iPhotoPhotoInfo:
