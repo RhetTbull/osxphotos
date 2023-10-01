@@ -46,6 +46,7 @@ from typing import Any, Callable, get_type_hints
 from zoneinfo import ZoneInfo
 
 from ._constants import TIME_DELTA
+from .datetime_utils import datetime_naive_to_local
 from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
@@ -160,7 +161,6 @@ class iPhotoDB:
         RKFolder.name AS rollname,
         RKFolder.modelId AS roll,
         RKFolder.minImageDate AS roll_min_image_date,
-        -- will be written to SQL script to optionally update digikam4.db
         RKFolder.maxImageDate AS roll_max_image_date,
         RKFolder.minImageTimeZoneName AS roll_min_image_tz,
         RKFolder.maxImageTimeZoneName AS roll_max_image_tz,
@@ -213,7 +213,8 @@ class iPhotoDB:
         RKMaster.fileVolumeUuid AS volume_uuid,
         RKMaster.isMissing AS ismissing,
         RKMaster.isTrulyRaw AS truly_raw,
-        RKMaster.fileIsReference AS is_reference
+        RKMaster.fileIsReference AS is_reference,
+        RKMaster.originalFileSize as original_filesize
         FROM RKVersion
         LEFT JOIN RKFolder ON RKVersion.projectUuid = RKFolder.uuid
         LEFT JOIN RKMaster ON RKMaster.uuid = RKVersion.masterUuid
@@ -245,7 +246,9 @@ class iPhotoDB:
             SELECT
             RKNote.modelId AS modelId,
             RKNote.note AS note,
-            RKFolder.name AS name
+            RKFolder.name AS name,
+            RKFolder.uuid AS folder_uuid,
+            RKFolder.modelId AS folder_model_id
             FROM RKNote
             LEFT JOIN RKFolder on RKNote.attachedToUuid = RKFolder.uuid
             WHERE RKFolder.name IS NOT NULL AND RKFolder.name != ''
@@ -256,17 +259,11 @@ class iPhotoDB:
         self.verbose("Loading event notes from iPhoto library")
         results = cursor.execute(query).fetchall()
         for row in results:
-            self._db_event_notes[int(row["modelId"])] = dict(row)
+            row = dict(row)
+            row["note"] = normalize_unicode(row["note"])
+            row["name"] = normalize_unicode(row["name"])
+            self._db_event_notes[int(row["folder_model_id"])] = dict(row)
         conn.close()
-
-        # normalize unicode
-        for model_id in self._db_event_notes:
-            self._db_event_notes[model_id]["note"] = normalize_unicode(
-                self._db_event_notes[model_id]["note"]
-            )
-            self._db_event_notes[model_id]["name"] = normalize_unicode(
-                self._db_event_notes[model_id]["name"]
-            )
 
     def _load_properties_db(self):
         """Load the Properties.apdb database"""
@@ -515,7 +512,12 @@ class iPhotoDB:
             name,
             parentFolderUuid,
             folderPath,
-            isMagic
+            isMagic,
+            createDate as date,
+            minImageDate AS min_image_date,
+            maxImageDate AS max_image_date,
+            minImageTimeZoneName AS min_image_tz,
+            maxImageTimeZoneName AS max_image_tz
             FROM RKFolder
         """
         logger.debug(f"Executing query: {query}")
@@ -1021,6 +1023,26 @@ class iPhotoPhotoInfo:
         return self._db._db_photos[self._uuid]["master_height"]
 
     @property
+    def latitude(self) -> float | None:
+        """Latitude of photo"""
+        return self._db._db_photos[self._uuid]["latitude"]
+
+    @property
+    def longitude(self) -> float | None:
+        """Longitude of photo"""
+        return self._db._db_photos[self._uuid]["longitude"]
+
+    @property
+    def location(self) -> tuple[float, float] | tuple[None, None]:
+        """Location of photo as (latitude, longitude)"""
+        return (self.latitude, self.longitude)
+
+    @property
+    def original_filesize(self) -> int:
+        """Size of original file in bytes"""
+        return self._db._db_photos[self._uuid]["original_filesize"]
+
+    @property
     def albums(self) -> list[str]:
         """List of albums photo is contained in"""
         return [
@@ -1036,19 +1058,21 @@ class iPhotoPhotoInfo:
         ]
 
     @property
-    def latitude(self) -> float | None:
-        """Latitude of photo"""
-        return self._db._db_photos[self._uuid]["latitude"]
+    def event_info(self) -> iPhotoEventInfo | None:
+        """Return iPhotoEventInfo object for photo or None if photo is not in an event"""
+        if event := self._db._db_photos[self._uuid].get("roll"):
+            if event_data := self._db._db_folders.get(event):
+                return iPhotoEventInfo(event_data, self._db)
+        return None
 
     @property
-    def longitude(self) -> float | None:
-        """Longitude of photo"""
-        return self._db._db_photos[self._uuid]["longitude"]
-
-    @property
-    def location(self) -> tuple[float, float] | tuple[None, None]:
-        """Location of photo as (latitude, longitude)"""
-        return (self.latitude, self.longitude)
+    def moment_info(self) -> iPhotoMomentInfo | None:
+        """Return iPhotoMomentInfo object for photo or None if photo is not in a moment; for iPhoto returns event as moment"""
+        # iPhoto doesn't actually have moment so use event
+        if event := self._db._db_photos[self._uuid].get("roll"):
+            if event_data := self._db._db_folders.get(event):
+                return iPhotoMomentInfo(event_data, self._db)
+        return None
 
     @cached_property
     def hexdigest(self) -> str:
@@ -1821,6 +1845,108 @@ class iPhotoFolderInfo:
         return len(self.subfolders) + len(self.album_info)
 
 
+class iPhotoEventInfo:
+    """iPhoto Event info"""
+
+    def __init__(self, event: dict[Any, Any], db: iPhotoDB):
+        self._event = event
+        # self._folderid = folder["modelId"]
+        self._db = db
+
+    @property
+    def pk(self) -> int:
+        """Primary key of the event."""
+        return self._event.get("modelId")
+
+    @property
+    def location(self) -> tuple[None, None]:
+        """Location of the event."""
+        logger.debug("Not implemented for iPhoto")
+        return None, None
+
+    @property
+    def title(self) -> str:
+        """Title of the event."""
+        return self._event.get("name")
+
+    @property
+    def subtitle(self) -> str:
+        """Subtitle of the event."""
+        logger.debug("Not implemented for iPhoto")
+        return ""
+
+    @property
+    def start_date(self) -> datetime.datetime | None:
+        """Start date of the event."""
+        return iphoto_date_to_datetime(
+            self._event["min_image_date"],
+            self._event["min_image_tz"],
+        )
+
+    @property
+    def end_date(self) -> datetime.datetime | None:
+        """Stop date of the event."""
+        return iphoto_date_to_datetime(
+            self._event["max_image_date"],
+            self._event["max_image_tz"],
+        )
+
+    @property
+    def date(self) -> datetime.datetime | None:
+        """Date of the event."""
+        # use end_date as iPhoto doesn't record a separate date
+        return self.end_date
+
+    @property
+    def _date_created(self) -> datetime.datetime | None:
+        """Date the event created in iPhoto."""
+        # not common with Photos MomentInfo so leave private
+        return naive_iphoto_date_to_datetime(self._event["date"])
+
+    @property
+    def modification_date(self) -> datetime.datetime | None:
+        """Modification date of the event."""
+        logger.debug("Not implemented for iPhoto")
+        return None
+
+    @property
+    def photos(self):
+        """All photos in this moment"""
+        roll = self._event.get("modelId")
+        photos = [p for p in self._db._db_photos.values() if p.get("roll") == roll]
+        return [iPhotoPhotoInfo(p["uuid"], self._db) for p in photos]
+
+    @property
+    def note(self) -> str:
+        """Return note associated with event"""
+        roll = self._event.get("modelId")
+        if note := self._db._db_event_notes.get(roll):
+            return note.get("note", "")
+
+    def asdict(self):
+        """Returns all moment info as dictionary"""
+        return {
+            "pk": self.pk,
+            "location": self.location,
+            "title": self.title,
+            "subtitle": self.subtitle,
+            "start_date": self.start_date.isoformat() if self.start_date else None,
+            "end_date": self.end_date.isoformat() if self.end_date else None,
+            "date": self.date.isoformat() if self.date else None,
+            "modification_date": self.modification_date.isoformat()
+            if self.modification_date
+            else None,
+            "note": self.note,
+            # "photos": self.photos,
+        }
+
+
+class iPhotoMomentInfo(iPhotoEventInfo):
+    """Info about a photo moment; iPhoto doesn't have moments but Events are close"""
+
+    ...
+
+
 def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.datetime:
     """ "Convert iPhoto date to datetime; if tz provided, will be timezone aware
 
@@ -1841,6 +1967,25 @@ def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.dateti
     if tz:
         date = date.replace(tzinfo=ZoneInfo(tz))
     return date
+
+
+def naive_iphoto_date_to_datetime(date: int) -> datetime.datetime:
+    """ "Convert iPhoto date to datetime with local timezone
+
+    Args:
+        date: iPhoto date
+
+    Returns:
+        timezone aware datetime.datetime in local timezone
+
+    Note:
+        If date is invalid, will return 1970-01-01 00:00:00
+    """
+    try:
+        date = datetime.datetime.fromtimestamp(date + TIME_DELTA)
+    except ValueError:
+        date = datetime.datetime(1970, 1, 1)
+    return datetime_naive_to_local(date)
 
 
 def default_return_value(name):
