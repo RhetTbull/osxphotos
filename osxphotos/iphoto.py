@@ -660,6 +660,7 @@ class iPhotoDB:
     def _build_photo_paths(self):
         """Build photo paths for each photo in the library"""
 
+        # original path
         for uuid, photo in self._db_photos.items():
             if photo["is_reference"]:
                 volume_uuid = photo["volume_uuid"]
@@ -672,8 +673,18 @@ class iPhotoDB:
                     "Masters", photo["imagepath"]
                 )
 
+            # derivative paths
+            image_path = pathlib.Path(photo["imagepath"])
+            path_previews = self.library_path.joinpath(
+                "Thumbnails", image_path.parent, photo["uuid"]
+            )
+            derivatives = list(path_previews.glob("*"))
+            # sort by size, largest first
+            derivatives.sort(key=lambda x: x.stat().st_size, reverse=True)
+            photo["path_derivatives"] = [str(x) for x in derivatives]
+
+            # edited path
             if photo["hasadjustments"]:
-                # build edited path
                 image_path = pathlib.Path(photo["imagepath"])
                 path_edited = self.library_path.joinpath(
                     "Previews", image_path.parent, uuid
@@ -943,6 +954,11 @@ class iPhotoPhotoInfo:
         return self._db._db_photos[self._uuid]["ismissing"]
 
     @property
+    def isreference(self) -> bool:
+        """Return True if asset is a referenced file"""
+        return self._db._db_photos[self._uuid]["is_reference"]
+
+    @property
     def date(self) -> datetime.datetime:
         """Date photo was taken"""
         return iphoto_date_to_datetime(
@@ -980,7 +996,7 @@ class iPhotoPhotoInfo:
         """Path to original photo asset in library"""
         path = self._db._db_photos[self._uuid]["photo_path"]
         if pathlib.Path(path).exists():
-            return path
+            return str(path)
         logger.debug(f"Photo path {path} does not exist")
         return None
 
@@ -989,9 +1005,15 @@ class iPhotoPhotoInfo:
         """Path to edited asset in library"""
         path = self._db._db_photos[self._uuid]["path_edited"]
         if pathlib.Path(path).exists():
-            return path
+            return str(path)
         logger.debug(f"Edited photo path {path} does not exist")
         return None
+
+    @property
+    def path_derivatives(self) -> list[str]:
+        """Path to derivatives in library"""
+        # don't need to check for existence since we just globbed the directory
+        return self._db._db_photos[self._uuid]["path_derivatives"]
 
     @property
     def description(self) -> str:
