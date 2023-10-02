@@ -2993,7 +2993,7 @@ class PhotosDB:
             images: if True, returns image files, if False, does not return images; default is True
             movies: if True, returns movie files, if False, does not return movies; default is True
             from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
-            to_date: return photos with creation date <= to_date (datetime.datetime object, default None)
+            to_date: return photos with creation date < to_date (datetime.datetime object, default None)
             intrash: if True, returns only images in "Recently deleted items" folder,
                      if False returns only photos that aren't deleted; default is False
 

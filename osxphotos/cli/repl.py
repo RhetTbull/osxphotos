@@ -18,6 +18,7 @@ from rich import pretty, print
 import osxphotos
 from osxphotos._constants import _PHOTOS_4_VERSION
 from osxphotos.cli.click_rich_echo import rich_echo_error as echo_error
+from osxphotos.iphoto import is_iphoto_library
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.photoquery import (
     IncompatibleQueryOptions,
@@ -191,7 +192,11 @@ def _show_photo(photo: PhotoInfo):
 def _load_photos_db(dbpath):
     print("Loading database")
     tic = time.perf_counter()
-    photosdb = osxphotos.PhotosDB(dbfile=dbpath, verbose=print)
+    photosdb = (
+        osxphotos.iPhotoDB(dbpath)
+        if is_iphoto_library(dbpath)
+        else osxphotos.PhotosDB(dbfile=dbpath, verbose=print)
+    )
     toc = time.perf_counter()
     tictoc = toc - tic
     print(f"Done: took {tictoc:0.2f} seconds")

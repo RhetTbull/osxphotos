@@ -8,6 +8,7 @@ from osxphotos.cli.click_rich_echo import (
     set_rich_console,
     set_rich_theme,
 )
+from osxphotos.iphoto import is_iphoto_library
 from osxphotos.photoquery import QueryOptions
 from osxphotos.phototemplate import RenderOptions
 
@@ -83,7 +84,11 @@ def dump(
     set_rich_console(get_verbose_console())
     set_rich_theme(get_default_theme())
 
-    photosdb = osxphotos.PhotosDB(dbfile=db)
+    photosdb = (
+        osxphotos.iPhotoDB(db)
+        if is_iphoto_library(db)
+        else osxphotos.PhotosDB(dbfile=db)
+    )
     if deleted or deleted_only:
         photos = photosdb.photos(movies=True, intrash=True)
     else:

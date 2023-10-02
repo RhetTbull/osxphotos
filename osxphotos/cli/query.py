@@ -10,7 +10,7 @@ from osxphotos.cli.click_rich_echo import (
     set_rich_console,
     set_rich_theme,
 )
-from osxphotos.debug import set_debug
+from osxphotos.iphoto import is_iphoto_library
 from osxphotos.photoquery import query_options_from_kwargs
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.platform import assert_macos, is_macos
@@ -125,7 +125,11 @@ def query(
     except Exception as e:
         raise click.BadOptionUsage("query", str(e)) from e
 
-    photosdb = osxphotos.PhotosDB(dbfile=db)
+    photosdb = (
+        osxphotos.iPhotoDB(db)
+        if is_iphoto_library(db)
+        else osxphotos.PhotosDB(dbfile=db)
+    )
 
     try:
         photos = photosdb.query(query_options)

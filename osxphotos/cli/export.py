@@ -70,7 +70,7 @@ if is_macos:
     )
     from osxphotos.photosalbum import PhotosAlbum
 
-from osxphotos.iphoto import iPhotoDB, is_iphoto_library
+from osxphotos.iphoto import is_iphoto_library
 
 from .cli_commands import logger
 from .cli_params import (
@@ -1469,7 +1469,7 @@ def export(
     query_options = query_options_from_kwargs(**query_kwargs)
 
     if is_iphoto_library(db):
-        photosdb = iPhotoDB(
+        photosdb = osxphotos.iPhotoDB(
             dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=False
         )
     else:

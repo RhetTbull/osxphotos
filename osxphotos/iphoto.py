@@ -778,9 +778,42 @@ class iPhotoDB:
         return albums
 
     def photos(
-        self, uuid: list[str] | None = None, images: bool = True, movies: bool = True
+        self,
+        keywords: list[str] | None = None,
+        uuid: list[str] | None = None,
+        persons: list[str] | None = None,
+        albums: list[str] | None = None,
+        images: bool = True,
+        movies: bool = True,
+        from_date: datetime.datetime | None = None,
+        to_date: datetime.datetime | None = None,
+        intrash: bool = False,
     ) -> list[iPhotoPhotoInfo]:
-        """Return list of photos in library"""
+        """Return a list of PhotoInfo objects
+        If called with no args, returns the entire database of photos
+        If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
+        If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
+        If more than one keyword, uuid, persons, albums is passed, they are treated as "OR" criteria
+        e.g. keywords=["wedding","vacation"] returns photos matching either keyword
+        from_date and to_date may be either naive or timezone-aware datetime.datetime objects.
+        If naive, timezone will be assumed to be local timezone.
+
+        Args:
+            keywords: list of keywords to search for
+            uuid: list of UUIDs to search for
+            persons: list of persons to search for
+            albums: list of album names to search for
+            images: if True, returns image files, if False, does not return images; default is True
+            movies: if True, returns movie files, if False, does not return movies; default is True
+            from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
+            to_date: return photos with creation date < to_date (datetime.datetime object, default None)
+            intrash: if True, returns only images in "Recently deleted items" folder,
+                     if False returns only photos that aren't deleted; default is False
+
+        Returns:
+            list of PhotoInfo objects
+        """
+
         photos = [iPhotoPhotoInfo(uuid, self) for uuid in self._db_photos]
         if uuid:
             photos = [photo for photo in photos if photo.uuid in uuid]
@@ -788,6 +821,33 @@ class iPhotoDB:
             photos = [photo for photo in photos if not photo.isphoto]
         if not movies:
             photos = [photo for photo in photos if not photo.ismovie]
+        if keywords:
+            for keyword in keywords:
+                photos = [
+                    photo
+                    for photo in photos
+                    if photo.keywords and keyword in photo.keywords
+                ]
+        if persons:
+            for person in persons:
+                photos = [
+                    photo
+                    for photo in photos
+                    if photo.persons and person in photo.persons
+                ]
+        if albums:
+            for album in albums:
+                photos = [
+                    photo for photo in photos if photo.albums and album in photo.albums
+                ]
+        if from_date:
+            photos = [photo for photo in photos if photo.date >= from_date]
+        if to_date:
+            photos = [photo for photo in photos if photo.date < to_date]
+        if intrash:
+            photos = [photo for photo in photos if photo.intrash]
+        else:
+            photos = [photo for photo in photos if not photo.intrash]
         return photos
 
     def get_photo(self, uuid: str) -> iPhotoPhotoInfo:

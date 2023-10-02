@@ -6,6 +6,7 @@ import click
 import yaml
 
 import osxphotos
+from osxphotos.iphoto import is_iphoto_library
 
 from .cli_params import DB_ARGUMENT, DB_OPTION, JSON_OPTION
 from .common import get_photos_db
@@ -30,7 +31,11 @@ def keywords(ctx, cli_obj, db, json_, photos_library):
         _list_libraries()
         return
 
-    photosdb = osxphotos.PhotosDB(dbfile=db)
+    photosdb = (
+        osxphotos.iPhotoDB(db)
+        if is_iphoto_library(db)
+        else osxphotos.PhotosDB(dbfile=db)
+    )
     keywords = {"keywords": photosdb.keywords_as_dict}
     if json_ or cli_obj.json:
         click.echo(json.dumps(keywords, ensure_ascii=False))
