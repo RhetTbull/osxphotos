@@ -39,21 +39,23 @@ import inspect
 import json
 import logging
 import pathlib
-import shutil
 import sqlite3
 from functools import cached_property
 from typing import Any, Callable, get_type_hints
 from zoneinfo import ZoneInfo
 
-from ._constants import TIME_DELTA
+from ._constants import SIDECAR_EXIFTOOL, SIDECAR_JSON, SIDECAR_XMP, TIME_DELTA
 from .datetime_utils import datetime_naive_to_local
+from .exiftool import ExifToolCaching, get_exiftool_path
+from .exportoptions import ExportOptions
 from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
+from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
 from .phototemplate import PhotoTemplate, RenderOptions
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
-from .uti import get_uti_for_path
+from .uti import get_preferred_uti_extension, get_uti_for_extension, get_uti_for_path
 from .utils import hexdigest, noop
 
 logger = logging.getLogger("osxphotos")
@@ -1195,19 +1197,109 @@ class iPhotoPhotoInfo:
         )
 
     def export(
-        self, dest: str, filename: str | None = None, edited: bool = False
+        self,
+        dest: str,
+        filename: str | None = None,
+        edited: bool = False,
+        raw_photo: bool = False,
+        export_as_hardlink: bool = False,
+        overwrite: bool = False,
+        increment: bool = True,
+        sidecar_json: bool = False,
+        sidecar_exiftool: bool = False,
+        sidecar_xmp: bool = False,
+        exiftool: bool = False,
+        use_albums_as_keywords: bool = False,
+        use_persons_as_keywords: bool = False,
+        keyword_template: bool = None,
+        description_template: bool = None,
+        render_options: RenderOptions | None = None,
+        **kwargs,
     ) -> list[str]:
-        """Export photo"""
+        """Export a photo
+
+        Args:
+            dest: must be valid destination path (or exception raised)
+            filename: (optional): name of exported picture; if not provided, will use current filename
+              **NOTE**: if provided, user must ensure file extension (suffix) is correct.
+              For example, if photo is .CR2 file, edited image may be .jpeg.
+              If you provide an extension different than what the actual file is,
+              export will print a warning but will export the photo using the
+              incorrect file extension (unless use_photos_export is true, in which case export will
+              use the extension provided by Photos upon export; in this case, an incorrect extension is
+              silently ignored).
+              e.g. to get the extension of the edited photo,
+              reference PhotoInfo.path_edited
+            edited: (boolean, default=False); if True will export the edited version of the photo, otherwise exports the original version
+              (or raise exception if no edited version)
+            raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
+            export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
+            overwrite: (boolean, default=False); if True will overwrite files if they already exist
+            increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
+              if overwrite=False and increment=False, export will fail if destination file already exists
+            sidecar_json: if set will write a json sidecar with data in format readable by exiftool
+              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+            sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
+              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+            sidecar_xmp: if set will write an XMP sidecar with IPTC data
+              sidecar filename will be dest/filename.xmp
+            exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
+            returns list of full paths to the exported files
+            use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
+            when exporting metadata with exiftool or sidecar
+            use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
+            when exporting metadata with exiftool or sidecar
+            keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
+            description_template: string; optional template string that will be rendered for use as photo description
+            render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer
+
+        Returns: list of paths to photos exported
+        """
+
+        if kwargs:
+            raise NotImplementedError(
+                f"Unsupported export options: {', '.join(kwargs.keys())}"
+            )
+
+        exporter = PhotoExporter(self)
+        sidecar = 0
+        if sidecar_json:
+            sidecar |= SIDECAR_JSON
+        if sidecar_exiftool:
+            sidecar |= SIDECAR_EXIFTOOL
+        if sidecar_xmp:
+            sidecar |= SIDECAR_XMP
+
         if not filename:
-            filename = self.original_filename
-        path = self.path_edited if edited else self.path
-        if not path:
-            raise ValueError(f"Photo {self.uuid} does not have a path")
-        dest = pathlib.Path(dest)
-        dest.mkdir(parents=True, exist_ok=True)
-        dest_path = dest.joinpath(filename)
-        shutil.copy(path, dest_path)
-        return [str(dest_path)]
+            if not edited:
+                filename = self.original_filename
+            else:
+                original_name = pathlib.Path(self.original_filename)
+                if self.path_edited:
+                    ext = pathlib.Path(self.path_edited).suffix
+                else:
+                    uti = self.uti_edited if edited and self.uti_edited else self.uti
+                    ext = get_preferred_uti_extension(uti)
+                    ext = f".{ext}"
+                filename = f"{original_name.stem}_edited{ext}"
+
+        options = ExportOptions(
+            description_template=description_template,
+            edited=edited,
+            exiftool=exiftool,
+            export_as_hardlink=export_as_hardlink,
+            increment=increment,
+            keyword_template=keyword_template,
+            overwrite=overwrite,
+            raw_photo=raw_photo,
+            render_options=render_options,
+            sidecar=sidecar,
+            use_albums_as_keywords=use_albums_as_keywords,
+            use_persons_as_keywords=use_persons_as_keywords,
+        )
+
+        results = exporter.export(dest, filename=filename, options=options)
+        return results.exported
 
     def render_template(
         self, template_str: str, options: RenderOptions | None = None
@@ -1224,6 +1316,27 @@ class iPhotoPhotoInfo:
         options = options or RenderOptions()
         template = PhotoTemplate(self, exiftool_path=self._db._exiftool_path)
         return template.render(template_str, options)
+
+    @cached_property
+    def exiftool(self) -> ExifToolCaching | None:
+        """Returns a ExifToolCaching (read-only instance of ExifTool) object for the photo.
+        Requires that exiftool (https://exiftool.org/) be installed
+        If exiftool not installed, logs warning and returns None
+        If photo path is missing, returns None
+        """
+        try:
+            exiftool_path = self._db._exiftool_path or get_exiftool_path()
+            if self.path is not None and pathlib.Path(self.path).is_file():
+                exiftool = ExifToolCaching(self.path, exiftool=exiftool_path)
+            else:
+                exiftool = None
+        except FileNotFoundError:
+            # get_exiftool_path raises FileNotFoundError if exiftool not found
+            exiftool = None
+            logging.warning(
+                "exiftool not in path; download and install from https://exiftool.org/"
+            )
+        return exiftool
 
     def asdict(self, shallow: bool = True) -> dict[str, Any]:
         """Return dict representation of PhotoInfo object.
