@@ -193,7 +193,7 @@ def _load_photos_db(dbpath):
     print("Loading database")
     tic = time.perf_counter()
     photosdb = (
-        osxphotos.iPhotoDB(dbpath)
+        osxphotos.iPhotoDB(dbpath, verbose=print)
         if is_iphoto_library(dbpath)
         else osxphotos.PhotosDB(dbfile=dbpath, verbose=print)
     )

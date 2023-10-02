@@ -7,7 +7,7 @@ from typing import Callable
 
 import click
 
-from osxphotos import PhotosDB
+from osxphotos import PhotosDB, iPhotoDB
 from osxphotos._constants import OSXPHOTOS_EXPORT_DB
 from osxphotos._version import __version__
 from osxphotos.configoptions import ConfigOptions, ConfigOptionsLoadError
@@ -15,6 +15,7 @@ from osxphotos.export_db import ExportDB, ExportDBInMemory
 from osxphotos.export_db_utils import export_db_get_config
 from osxphotos.exportoptions import ExportOptions, ExportResults
 from osxphotos.fileutil import FileUtil, FileUtilNoOp
+from osxphotos.iphoto import is_iphoto_library
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.sidecars import exiftool_json_sidecar
 from osxphotos.utils import pluralize
@@ -304,7 +305,11 @@ def process_files(
     else:
         report_writer = ReportWriterNoOp()
 
-    photosdb = PhotosDB(options.db, verbose=verbose)
+    photosdb = (
+        iPhotoDB(options.db, verbose=verbose)
+        if is_iphoto_library(options.db)
+        else PhotosDB(options.db, verbose=verbose)
+    )
     if options.dry_run:
         export_db = ExportDBInMemory(exportdb, export_dir)
         fileutil = FileUtilNoOp
