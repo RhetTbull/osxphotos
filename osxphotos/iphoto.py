@@ -53,10 +53,14 @@ from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
 from .phototemplate import PhotoTemplate, RenderOptions
+from .platform import is_macos
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
 from .uti import get_preferred_uti_extension, get_uti_for_extension, get_uti_for_path
 from .utils import hexdigest, noop
+
+if is_macos:
+    from .fingerprint import fingerprint
 
 logger = logging.getLogger("osxphotos")
 
@@ -1157,6 +1161,19 @@ class iPhotoPhotoInfo:
             if event_data := self._db._db_folders.get(event):
                 return iPhotoMomentInfo(event_data, self._db)
         return None
+
+    @cached_property
+    def fingerprint(self) -> str | None:
+        """Returns fingerprint of original photo as a string; returns None if not available"""
+        if not is_macos:
+            logger.warning("fingerprint only supported on macOS")
+            return None
+
+        if not self.path:
+            logger.debug(f"Missing path, cannot compute fingerprint for {self.uuid}")
+            return None
+
+        return fingerprint(self.path)
 
     @cached_property
     def hexdigest(self) -> str:
