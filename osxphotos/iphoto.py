@@ -119,6 +119,7 @@ class iPhotoDB:
         self._db_event_notes = {}  # mapping of modelId to event notes
         self._db_places = {}  # mapping of modelId to places
         self._db_properties = {}  # mapping of versionId to properties
+        self._db_exif_info = {}  # mapping of versionId to EXIF info
         self._db_persons = {}  # mapping of modelId to persons
         self._db_faces = {}  # mapping of modelID to face info
         self._db_faces_edited = {}  # mapping of modelID to face info for edited photos
@@ -148,6 +149,7 @@ class iPhotoDB:
         logger.debug(f"{self._db_event_notes=}")
         logger.debug(f"{self._db_places=}")
         logger.debug(f"{self._db_properties=}")
+        logger.debug(f"{self._db_exif_info=}")
         logger.debug(f"{self._db_persons=}")
         logger.debug(f"{self._db_faces=}")
         logger.debug(f"{self._db_faces_edited=}")
@@ -220,7 +222,8 @@ class iPhotoDB:
         RKMaster.isMissing AS ismissing,
         RKMaster.isTrulyRaw AS truly_raw,
         RKMaster.fileIsReference AS is_reference,
-        RKMaster.originalFileSize as original_filesize
+        RKMaster.originalFileSize as original_filesize,
+        RKMaster.burstUuid as burst_uuid
         FROM RKVersion
         LEFT JOIN RKFolder ON RKVersion.projectUuid = RKFolder.uuid
         LEFT JOIN RKMaster ON RKMaster.uuid = RKVersion.masterUuid
@@ -353,6 +356,42 @@ class iPhotoDB:
         for row in results:
             if uuid := version_id_to_uuid.get(row["version_id"]):
                 self._db_photos[uuid]["orientation"] = row["str"].lower()
+
+        # EXIF Properties
+        query = """
+            SELECT
+            RKExifStringProperty.versionId as versionId,
+            RKExifStringProperty.propertyKey AS property,
+            RKUniqueString.stringProperty AS value
+            FROM RKExifStringProperty
+            INNER JOIN RKUniqueString ON RKUniqueString.modelId = RKExifStringProperty.stringId
+        """
+        logger.debug(f"Executing query: {query}")
+        self.verbose("Loading EXIF properties from iPhoto library")
+        results = cursor.execute(query).fetchall()
+        for row in results:
+            row = dict(row)
+            row["value"] = normalize_unicode(row["value"])
+            if row["versionId"] not in self._db_exif_info:
+                self._db_exif_info[row["versionId"]] = {}
+            self._db_exif_info[row["versionId"]][row["property"]] = row["value"]
+
+        # EXIF data is stored separately whether string or numerical
+        query = """
+            SELECT
+            RKExifNumberProperty.versionId AS versionId,
+            RKExifNumberProperty.propertyKey AS property,
+            RKExifNumberProperty.numberProperty AS value
+            FROM RKExifNumberProperty
+        """
+        logger.debug(f"Executing query: {query}")
+        results = cursor.execute(query).fetchall()
+        for row in results:
+            row = dict(row)
+            if row["versionId"] not in self._db_exif_info:
+                self._db_exif_info[row["versionId"]] = {}
+            self._db_exif_info[row["versionId"]][row["property"]] = row["value"]
+
         conn.close()
 
     def _load_persons(self):
