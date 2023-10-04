@@ -928,6 +928,7 @@ class iPhotoPhotoInfo:
         self._uuid = uuid
         self._db = db
         self._info = self._db._db_photos[self._uuid]
+        self._id = self._info["id"]  # modelID / versionId
         self._attributes = get_user_attributes(PhotoInfo)
         self._verbose = db._verbose  # compatibility with PhotoInfo
 
@@ -1213,6 +1214,35 @@ class iPhotoPhotoInfo:
             return None
 
         return fingerprint(self.path)
+
+    @cached_property
+    def exif_info(self) -> iPhotoExifInfo:
+        """Return ExifInfo object for photo"""
+
+        exif_info = self._db._db_exif_info.get(self._id, {})
+        return iPhotoExifInfo(
+            flash_fired=bool(exif_info.get("Flash", False)),
+            iso=exif_info.get("ISOSpeedRating", 0),
+            metering_mode=exif_info.get("MeteringMode", 0),
+            sample_rate=0,
+            track_format=0,
+            white_balance=exif_info.get("WhiteBalance", 0),
+            aperture=exif_info.get("ApertureValue", 0.0),
+            bit_rate=exif_info.get("DataRate", 0.0),
+            duration=exif_info.get("MovieDuration", 0.0),
+            exposure_bias=exif_info.get("ExposureBiasValue", 0.0),
+            focal_length=exif_info.get("FocalLength", 0.0),
+            fps=exif_info.get("FPS", 0.0),
+            latitude=exif_info.get("Latitude", 0.0),
+            longitude=exif_info.get("Longitude", 0.0),
+            shutter_speed=exif_info.get("ShutterSpeed", 0.0),
+            camera_make=exif_info.get("Make", ""),
+            camera_model=exif_info.get("Model", ""),
+            codec="",
+            lens_model=exif_info.get("LensModel", ""),
+            software=exif_info.get("Software", ""),
+            dict=exif_info,
+        )
 
     @cached_property
     def hexdigest(self) -> str:
@@ -2196,6 +2226,33 @@ class iPhotoMomentInfo(iPhotoEventInfo):
     """Info about a photo moment; iPhoto doesn't have moments but Events are close"""
 
     ...
+
+
+@dataclasses.dataclass(frozen=True)
+class iPhotoExifInfo:
+    """EXIF info associated with a photo from the iPhoto library"""
+
+    flash_fired: bool
+    iso: int
+    metering_mode: int
+    sample_rate: int
+    track_format: int
+    white_balance: int
+    aperture: float
+    bit_rate: float
+    duration: float
+    exposure_bias: float
+    focal_length: float
+    fps: float
+    latitude: float
+    longitude: float
+    shutter_speed: float
+    camera_make: str
+    camera_model: str
+    codec: str
+    lens_model: str
+    software: str
+    dict: dict[str, Any]
 
 
 def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.datetime:
