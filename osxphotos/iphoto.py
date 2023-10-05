@@ -1328,8 +1328,8 @@ class iPhotoPhotoInfo:
         exiftool: bool = False,
         use_albums_as_keywords: bool = False,
         use_persons_as_keywords: bool = False,
-        keyword_template: bool = None,
-        description_template: bool = None,
+        keyword_template: list[str] | None = None,
+        description_template: str | None = None,
         render_options: RenderOptions | None = None,
         **kwargs,
     ) -> list[str]:
@@ -1936,7 +1936,7 @@ class iPhotoFaceInfo:
 
         return MPRI_Reg_Rect(x, y, h, w)
 
-    def face_rect(self) -> list[tuple[int, int], tuple[int, int]]:
+    def face_rect(self) -> list[tuple[int, int]]:
         """Get face rectangle coordinates for current version of the associated image
             If image has been edited, rectangle applies to edited version, otherwise original version
             Coordinates in format and reference frame used by PIL
@@ -2171,7 +2171,7 @@ class iPhotoEventInfo:
     @property
     def pk(self) -> int:
         """Primary key of the event."""
-        return self._event.get("modelId")
+        return int(self._event.get("modelId", 0))
 
     @property
     def location(self) -> tuple[None, None]:
@@ -2182,7 +2182,7 @@ class iPhotoEventInfo:
     @property
     def title(self) -> str:
         """Title of the event."""
-        return self._event.get("name")
+        return str(self._event.get("name", ""))
 
     @property
     def subtitle(self) -> str:
@@ -2237,6 +2237,7 @@ class iPhotoEventInfo:
         roll = self._event.get("modelId")
         if note := self._db._db_event_notes.get(roll):
             return note.get("note", "")
+        return ""
 
     def asdict(self) -> dict[str, Any]:
         """Returns all moment info as dictionary"""
@@ -2303,12 +2304,12 @@ def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.dateti
         If date is invalid, will return 1970-01-01 00:00:00
     """
     try:
-        date = datetime.datetime.fromtimestamp(date + TIME_DELTA)
+        dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
     except ValueError:
-        date = datetime.datetime(1970, 1, 1)
+        dt = datetime.datetime(1970, 1, 1)
     if tz:
-        date = date.replace(tzinfo=ZoneInfo(tz))
-    return date
+        dt = dt.replace(tzinfo=ZoneInfo(tz))
+    return dt
 
 
 def naive_iphoto_date_to_datetime(date: int) -> datetime.datetime:
@@ -2324,10 +2325,10 @@ def naive_iphoto_date_to_datetime(date: int) -> datetime.datetime:
         If date is invalid, will return 1970-01-01 00:00:00
     """
     try:
-        date = datetime.datetime.fromtimestamp(date + TIME_DELTA)
+        dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
     except ValueError:
-        date = datetime.datetime(1970, 1, 1)
-    return datetime_naive_to_local(date)
+        dt = datetime.datetime(1970, 1, 1)
+    return datetime_naive_to_local(dt)
 
 
 def default_return_value(name: str) -> Any:
