@@ -38,13 +38,20 @@ import functools
 import inspect
 import json
 import logging
+import os
 import pathlib
 import sqlite3
 from functools import cached_property
 from typing import Any, Callable, get_type_hints
 from zoneinfo import ZoneInfo
 
-from ._constants import SIDECAR_EXIFTOOL, SIDECAR_JSON, SIDECAR_XMP, TIME_DELTA
+from ._constants import (
+    _UNKNOWN_PERSON,
+    SIDECAR_EXIFTOOL,
+    SIDECAR_JSON,
+    SIDECAR_XMP,
+    TIME_DELTA,
+)
 from .datetime_utils import datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .exportoptions import ExportOptions
@@ -57,7 +64,7 @@ from .platform import is_macos
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
 from .uti import get_preferred_uti_extension, get_uti_for_extension, get_uti_for_path
-from .utils import hexdigest, noop
+from .utils import hexdigest, noop, path_exists
 
 if is_macos:
     from .fingerprint import fingerprint
@@ -145,17 +152,17 @@ class iPhotoDB:
         self._load_volumes()
         self._build_photo_paths()
 
-        logger.debug(f"{self._db_photos=}")
-        logger.debug(f"{self._db_event_notes=}")
-        logger.debug(f"{self._db_places=}")
-        logger.debug(f"{self._db_properties=}")
-        logger.debug(f"{self._db_exif_info=}")
-        logger.debug(f"{self._db_persons=}")
-        logger.debug(f"{self._db_faces=}")
-        logger.debug(f"{self._db_faces_edited=}")
-        logger.debug(f"{self._db_folders=}")
-        logger.debug(f"{self._db_albums=}")
-        logger.debug(f"{self._db_volumes=}")
+        # logger.debug(f"{self._db_photos=}")
+        # logger.debug(f"{self._db_event_notes=}")
+        # logger.debug(f"{self._db_places=}")
+        # logger.debug(f"{self._db_properties=}")
+        # logger.debug(f"{self._db_exif_info=}")
+        # logger.debug(f"{self._db_persons=}")
+        # logger.debug(f"{self._db_faces=}")
+        # logger.debug(f"{self._db_faces_edited=}")
+        # logger.debug(f"{self._db_folders=}")
+        # logger.debug(f"{self._db_albums=}")
+        # logger.debug(f"{self._db_volumes=}")
 
     def _load_library_db(self):
         """Load the Library.apdb database"""
@@ -531,7 +538,6 @@ class iPhotoDB:
                         row["full_name"] = ""
                         break
                 else:
-                    logger.debug(f"Didn't find person for edited photo face {face_key}")
                     row["name"] = ""
                     row["full_name"] = ""
                     row["email"] = ""
@@ -1041,7 +1047,7 @@ class iPhotoPhotoInfo:
     def path(self) -> str | None:
         """Path to original photo asset in library"""
         path = self._db._db_photos[self._uuid]["photo_path"]
-        if pathlib.Path(path).exists():
+        if path_exists(path):
             return str(path)
         logger.debug(f"Photo path {path} does not exist")
         return None
@@ -1050,7 +1056,7 @@ class iPhotoPhotoInfo:
     def path_edited(self) -> str | None:
         """Path to edited asset in library"""
         path = self._db._db_photos[self._uuid]["path_edited"]
-        if pathlib.Path(path).exists():
+        if path_exists(path):
             return str(path)
         logger.debug(f"Edited photo path {path} does not exist")
         return None
@@ -1106,7 +1112,13 @@ class iPhotoPhotoInfo:
     def persons(self) -> list[str]:
         """List of persons in photo"""
         faces = self._get_faces()
-        return [face["name"] for face in faces]
+        persons = []
+        for face in faces:
+            if person := face["name"]:
+                persons.append(person)
+            else:
+                persons.append(_UNKNOWN_PERSON)
+        return persons
 
     @property
     def person_info(self) -> list[iPhotoPersonInfo]:
@@ -1677,17 +1689,18 @@ class iPhotoPersonInfo:
                 break
         else:
             logger.debug(f"Didn't find person for face {face_key}")
-            self._person = None
+            self._person = {}
 
     @property
     def uuid(self) -> str:
         """UUID of person"""
-        return self._person["uuid"]
+        return self._person.get("uuid", "")
 
     @property
     def name(self) -> str:
         """Name of person"""
-        return self._person["name"]
+        # self._person["name"] could be None
+        return self._person.get("name") or _UNKNOWN_PERSON
 
     @property
     def keyphoto(self) -> iPhotoPhotoInfo | None:
@@ -1706,9 +1719,11 @@ class iPhotoPersonInfo:
         """List of photos face is contained in"""
         photos = []
         for uuid, photo in self._db._db_photos:
-            for face in photo["faces"]:
-                if face["face_key"] == self._face["face_key"]:
-                    photos.append(iPhotoPhotoInfo(uuid, self._db))
+            photos.extend(
+                iPhotoPhotoInfo(uuid, self._db)
+                for face in photo["faces"]
+                if face["face_key"] == self._face["face_key"]
+            )
         return photos
 
     @property
@@ -1773,14 +1788,13 @@ class iPhotoFaceInfo:
                 break
         else:
             logger.debug(f"Didn't find person for face {face_key}")
-            self._person = None
+            self._person = {}
 
     @property
     def name(self) -> str | None:
         """Name of person in the photo or None"""
-        if self._person:
-            return self._person["name"]
-        return None
+        # self._person["name"] could be None
+        return self._person.get("name") or _UNKNOWN_PERSON
 
     @property
     def center(self) -> tuple[int, int]:
@@ -2110,24 +2124,29 @@ class iPhotoFolderInfo:
         """Return list of albums (as iPhotoAlbumInfo objects) contained in the folder"""
         folder_albums = []
         for albums in self._db._db_albums.values():
-            for album in albums:
-                if album["folder_id"] == self._folderid:
-                    folder_albums.append(iPhotoAlbumInfo(album, self._db))
+            folder_albums.extend(
+                iPhotoAlbumInfo(album, self._db)
+                for album in albums
+                if album["folder_id"] == self._folderid
+            )
         return folder_albums
 
     @property
     def parent(self) -> iPhotoFolderInfo | None:
         """Return iPhotoFolderInfo object for parent or None if no parent (e.g. top-level folder)"""
-        parent_uuid = self._folder["parentFolderUuid"]
-        if not parent_uuid:
+        if parent_uuid := self._folder["parentFolderUuid"]:
+            return next(
+                (
+                    None
+                    if bool(folder["isMagic"])
+                    else iPhotoFolderInfo(folder, self._db)
+                    for folder in self._db._db_folders.values()
+                    if folder["uuid"] == parent_uuid
+                ),
+                None,
+            )
+        else:
             return None
-        for folder in self._db._db_folders.values():
-            if folder["uuid"] == parent_uuid:
-                if bool(folder["isMagic"]):
-                    # skip magic folders like "TopLevelAlbums"
-                    return None
-                return iPhotoFolderInfo(folder, self._db)
-        return None
 
     @property
     def subfolders(self) -> list[iPhotoFolderInfo]:
@@ -2290,7 +2309,12 @@ class iPhotoExifInfo:
     dict: dict[str, Any]
 
 
-def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.datetime:
+### Utility functions ###
+
+
+def iphoto_date_to_datetime(
+    date: int | None, tz: str | None = None
+) -> datetime.datetime:
     """ "Convert iPhoto date to datetime; if tz provided, will be timezone aware
 
     Args:
@@ -2301,11 +2325,11 @@ def iphoto_date_to_datetime(date: int, tz: str | None = None) -> datetime.dateti
         datetime.datetime
 
     Note:
-        If date is invalid, will return 1970-01-01 00:00:00
+        If date is None or invalid, will return 1970-01-01 00:00:00
     """
     try:
         dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
-    except ValueError:
+    except (ValueError, TypeError):
         dt = datetime.datetime(1970, 1, 1)
     if tz:
         dt = dt.replace(tzinfo=ZoneInfo(tz))
@@ -2393,13 +2417,11 @@ def get_user_attributes(cls: Any) -> dict[str, Any]:
     return attrs
 
 
-def is_iphoto_library(library: str | pathlib.Path) -> bool:
+def is_iphoto_library(library: str | pathlib.Path | os.PathLike) -> bool:
     """Return True if library is an iPhoto library, else False"""
-    library = pathlib.Path(library)
+    library = library if isinstance(library, pathlib.Path) else pathlib.Path(library)
     if not library.is_dir():
         return False
     if not library.joinpath("AlbumData.xml").is_file():
         return False
-    if not library.joinpath("Database", "Library.apdb").is_file():
-        return False
-    return True
+    return bool(library.joinpath("Database", "Library.apdb").is_file())

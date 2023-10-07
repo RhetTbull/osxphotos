@@ -519,3 +519,35 @@ def shortuuid_to_uuid(short_uuid: str) -> str:
 def under_test() -> bool:
     """Return True if running under pytest"""
     return "pytest" in sys.modules
+
+
+def is_mounted_volume(path: str | pathlib.Path | os.PathLike) -> bool:
+    """Return True if path is on a mounted volume, else False"""
+    path = path if isinstance(path, pathlib.Path) else pathlib.Path(path)
+    if path.is_dir():
+        path = path.resolve()
+        root = path.root
+        while str(path) != str(root):
+            if path.is_symlink():
+                path = path.resolve()
+            if str(path) != str(root) and path.is_mount():
+                return True
+            path = path.parent
+    return False
+
+
+def path_exists(path: str | pathlib.Path | os.PathLike) -> bool:
+    """Return True if path exists and can be accessed, else False
+
+    Args:
+        path: path to check
+
+    Returns: True if path exists, else False
+
+    Note: will catch errors and return False (for example, permission denied)
+    """
+    path = path if isinstance(path, pathlib.Path) else pathlib.Path(path)
+    try:
+        return path.exists()
+    except Exception:
+        return False

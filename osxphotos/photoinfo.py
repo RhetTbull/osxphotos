@@ -70,7 +70,7 @@ from .searchinfo import SearchInfo
 from .shareinfo import ShareInfo, get_moment_share_info, get_share_info
 from .shareparticipant import ShareParticipant, get_share_participants
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _get_resource_loc, hexdigest, list_directory
+from .utils import _get_resource_loc, hexdigest, list_directory, path_exists
 
 if is_macos:
     from osxmetadata import OSXMetaData
@@ -994,7 +994,7 @@ class PhotoInfo:
         photopath = self._path_5_shared()
         if photopath:
             photopath = pathlib.Path(photopath).with_suffix(".MOV")
-            if not photopath.exists():
+            if not path_exists(photopath):
                 photopath = None
         return photopath
 
@@ -1100,7 +1100,7 @@ class PhotoInfo:
 
         # previews may be missing from derivatives path
         # there are what appear to be low res thumbnails in the "masters" subfolder
-        if thumb_path.exists():
+        if path_exists(thumb_path):
             files.append(thumb_path)
 
         # sort by file size, largest first
@@ -1157,7 +1157,7 @@ class PhotoInfo:
             / derivative_path
             / f"{directory}/{self.uuid}_4_5005_c.jpeg"
         )
-        return [str(derivative_path)] if derivative_path.exists() else []
+        return [str(derivative_path)] if path_exists(derivative_path) else []
 
     @property
     def panorama(self) -> bool:
