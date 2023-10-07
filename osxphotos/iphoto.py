@@ -63,7 +63,7 @@ from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 from .scoreinfo import ScoreInfo
 from .unicode import normalize_unicode
-from .uti import get_preferred_uti_extension, get_uti_for_extension, get_uti_for_path
+from .uti import get_preferred_uti_extension, get_uti_for_path
 from .utils import hexdigest, noop, path_exists
 
 if is_macos:
