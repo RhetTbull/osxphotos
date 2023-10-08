@@ -122,7 +122,7 @@ class PhotosDB:
         """
 
         # Check that we're not trying to open an iPhoto library
-        if is_iphoto_library(dbfile):
+        if dbfile and is_iphoto_library(dbfile):
             raise PhotosDBReadError(f"{dbfile} is an iPhoto library, not Photos")
 
         # Check OS version
