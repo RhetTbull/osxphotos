@@ -19,18 +19,19 @@
 from __future__ import annotations
 
 import csv
+import os
+import pathlib
 import re
 import subprocess
-import sys
 import tempfile
 
-from .platform import assert_macos, get_macos_version, is_macos
+from .platform import get_macos_version, is_macos
 
 if is_macos:
     import CoreServices
     import objc
 
-__all__ = ["get_preferred_uti_extension", "get_uti_for_extension"]
+__all__ = ["get_preferred_uti_extension", "get_uti_for_extension", "get_uti_for_path"]
 
 # cached values of all the UTIs (< 6 chars long) known to my Mac running macOS 10.15.7
 UTI_CSV = """extension,UTI,preferred_extension,MIME_type
@@ -599,7 +600,7 @@ def get_preferred_uti_extension(uti: str) -> str | None:
     return _get_ext_from_uti_dict(uti)
 
 
-def get_uti_for_extension(extension):
+def get_uti_for_extension(extension: str) -> str | None:
     """get UTI for a given file extension"""
 
     if not extension:
@@ -636,3 +637,9 @@ def get_uti_for_extension(extension):
         return uti
 
     return None
+
+
+def get_uti_for_path(path: str | pathlib.Path | os.PathLike) -> str | None:
+    """Get UTI for a file at given path or None if UTI cannot be determined"""
+    path = path if isinstance(path, pathlib.Path) else pathlib.Path(path)
+    return get_uti_for_extension(path.suffix)

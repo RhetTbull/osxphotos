@@ -48,12 +48,17 @@ from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
+from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos
-from osxphotos.queryoptions import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.unicode import normalize_fs_path
 from osxphotos.uti import get_preferred_uti_extension
-from osxphotos.utils import format_sec_to_hhmmss, pluralize, under_test
+from osxphotos.utils import (
+    format_sec_to_hhmmss,
+    is_mounted_volume,
+    pluralize,
+    under_test,
+)
 
 if is_macos:
     from osxmetadata import (
@@ -69,6 +74,8 @@ if is_macos:
         request_photokit_authorization,
     )
     from osxphotos.photosalbum import PhotosAlbum
+
+from osxphotos.iphoto import is_iphoto_library
 
 from .cli_commands import logger
 from .cli_params import (
@@ -1328,7 +1335,7 @@ def export(
     preview_suffix = (
         DEFAULT_PREVIEW_SUFFIX if preview_suffix is None else preview_suffix
     )
-    retry = 0 if not retry else retry
+    retry = retry or 0
 
     if not os.path.isdir(dest):
         rich_click_echo(f"[error]DEST {dest} must be valid path", err=True)
@@ -1379,14 +1386,6 @@ def export(
 
     if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]):
         verbose(f"exiftool path: [filepath]{exiftool_path}")
-
-    # default searches for everything
-    photos = True
-    movies = True
-    if only_movies:
-        photos = False
-    if only_photos:
-        movies = False
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
@@ -1442,7 +1441,15 @@ def export(
             if ramdb
             else ExportDB(dbfile=export_db_path, export_dir=dest)
         )
-        fileutil = FileUtilShUtil if alt_copy or not is_macos else FileUtilMacOS
+        if alt_copy or not is_macos or (exiftool and is_mounted_volume(dest)):
+            # if alt_copy or not on macOS, use shutil for copying files
+            # also, if destination appears to be on a mounted volume and using exiftool, use shutil
+            # as the copy used in FileUtilMacOS may cause exiftool to fail if permissions are wrong
+            # this shouldn't impact performance as exiftool removes the benefit of copy-on-write
+            fileutil = FileUtilShUtil
+        else:
+            # on macOS, FileUtilMacOS will take advantage of copy-on-write for APFS volumes
+            fileutil = FileUtilMacOS
 
     if verbose:
         if export_db.was_created:
@@ -1466,9 +1473,14 @@ def export(
     query_kwargs["burst_photos"] = export_bursts
     query_options = query_options_from_kwargs(**query_kwargs)
 
-    photosdb = osxphotos.PhotosDB(
-        dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=True
-    )
+    if is_iphoto_library(db):
+        photosdb = osxphotos.iPhotoDB(
+            dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=False
+        )
+    else:
+        photosdb = osxphotos.PhotosDB(
+            dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=True
+        )
 
     # enable beta features if requested
     photosdb._beta = beta
@@ -1509,6 +1521,7 @@ def export(
         # though the command line option is current_name, internally all processing
         # logic uses original_name which is the boolean inverse of current_name
         # because the original code used --original-name as an option
+        # appears to be unused but is used in export_photo and passed via kwargs
         original_name = not current_name
 
         # set up for --add-export-to-album if needed

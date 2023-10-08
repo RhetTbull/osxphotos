@@ -2,7 +2,7 @@
 
 import pytest
 
-from osxphotos.queryoptions import load_uuid_from_file
+from osxphotos.photoquery import load_uuid_from_file
 
 UUID_FILE = "tests/uuid_from_file.txt"
 MISSING_UUID_FILE = "tests/uuid_not_found.txt"

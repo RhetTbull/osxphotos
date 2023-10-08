@@ -496,6 +496,27 @@ def test_not_favorite(photosdb):
     assert not p.favorite
 
 
+def test_rating(photosdb):
+    photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.rating == 5
+
+
+def test_rating_not_starred(photosdb):
+    photos = photosdb.photos(uuid=[UUID_DICT["not_favorite"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.rating == 0
+
+
+def test_flagged(photosdb):
+    photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert not p.flagged
+
+
 def test_hidden(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["hidden"]])
     assert len(photos) == 1

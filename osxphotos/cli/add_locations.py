@@ -7,8 +7,8 @@ import datetime
 import click
 
 import osxphotos
+from osxphotos.photoquery import IncompatibleQueryOptions, query_options_from_kwargs
 from osxphotos.platform import assert_macos
-from osxphotos.queryoptions import IncompatibleQueryOptions, query_options_from_kwargs
 from osxphotos.utils import pluralize
 
 from .cli_params import QUERY_OPTIONS, THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION

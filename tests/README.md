@@ -26,11 +26,11 @@ Some tests require GPU and will look for `OSXPHOTOS_TEST_CONVERT=1`. These will 
 A couple of tests require interaction with Photos and configuring a specific test library. Currently these run only on Catalina.  The tests must be specified by using a pytest flag. Only one of these interactive tests can be run at a time.  The current flags are:
 
 --addalbum: test --add-to-album options (pytest -vv tests/test_photosalbum_unicode.py tests/test_cli_add_to_album.py --addalbum)
---timewarp: test `osxphotos timewarp`
---test-import: test `osxphotos import`
---test-sync: test `osxphotos sync`
---test-add-locations: test `osxphotos add-locations`
---test-batch-edit: test `osxphotos batch-edit`
+--timewarp: test `osxphotos timewarp` (pytest -vv --timewarp tests/test_cli_timewarp.py)
+--test-import: test `osxphotos import` (pytest -vv --test-import tests/test_cli_import.py)
+--test-sync: test `osxphotos sync` (pytest -vv --test-sync tests/test_cli_sync.py)
+--test-add-locations: test `osxphotos add-locations` (pytest -vv --test-add-locations tests/test_cli_add_locations.py)
+--test-batch-edit: test `osxphotos batch-edit` (pytest -vv --test-batch-edit -k batch)
 
 ## Test Photo Libraries
 **Important**: The test code uses several test photo libraries created on various version of MacOS.  If you need to inspect one of these or modify one for a test, make a copy of the library (for example, copy it to your ~/Pictures folder) then open the copy in Photos.  Once done, copy the revised library back to the tests/ folder.  If you do not do this, the Photos background process photoanalysisd will forever try to process the library resulting in updates to the database which will cause git to see changes to the file you didn't intend.  I'm not aware of any way to disassociate photoanalysisd from the library once you've opened it in Photos.

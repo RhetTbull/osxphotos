@@ -221,7 +221,7 @@ class ExifTool:
         Returns:
             ExifTool instance
         """
-        self.file = filepath
+        self.file = filepath if isinstance(filepath, str) else str(filepath)
         self.overwrite = overwrite
         self.flags = flags or []
         self.warning = None

@@ -1117,7 +1117,15 @@ Returns `True` if the picture was edited in an external editor (outside Photos.a
 
 #### `favorite`
 
-Returns `True` if the picture has been marked as a favorite, otherwise `False`
+Returns `True` if the picture has been marked as a favorite, otherwise `False`; for iPhoto always returns False
+
+#### `flagged`
+
+Returns `True` if the picture has been marked as flagged otherwise `False` (iPhoto only, returns False for Photos)
+
+#### `rating`
+
+Returns star rating of photo as int from 0 to 5 (iPhoto only); for Photos, returns 5 if photo is favorite, else 0
 
 #### `hidden`
 

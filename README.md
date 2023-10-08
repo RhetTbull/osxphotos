@@ -10,7 +10,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-69-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
+OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
 
 <p align="center"><img src="docs/screencast/demo.gif?raw=true" width="713" height="430"/></p>
 
@@ -41,8 +41,7 @@ On Linux, macOS-specific features of the CLI will not be available (these will n
 The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos
 from a Photos library on a Linux machine.
 
-Tested on macOS Sierra (10.12.6) through macOS Ventura (13.4). Tested on both x86 and Apple silicon (M1).
-macOS Sonoma (14.0) is currently supported but is still in alpha testing.
+Tested on macOS Sierra (10.12.6) through macOS Ventura (13.5). Tested on both x86 and Apple silicon (M1). macOS Sonoma (14.0) is currently supported but is still in alpha testing.
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
@@ -55,13 +54,15 @@ macOS Sonoma (14.0) is currently supported but is still in alpha testing.
 | 10.13.6           | High Sierra| 3.0 ✅             |
 | 10.12.6           | Sierra     | 2.0 ✅             |
 
+Limited support is also provided for exporting photos and metadata from iPhoto libraries. Only iPhoto 9.6.1 (the final release) has been tested.
+
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
-Requires python >= `3.9`.
+Requires python >= `3.9`, <= `3.11`.
 
 ## Installation
 
-If you are new to python, I recommend you to install using pipx. See other advanced options below.
+If you are new to python, I recommend you install osxphotos using pipx. See other options below.
 
 ### Installation using pipx
 
@@ -122,7 +123,7 @@ Once you've installed osxphotos via the git repository, to upgrade to the latest
 
 ### Installing pre-built executable
 
-You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page.  Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x64_v0.42.9.zip`.  In this case `v0.42.9` specifies version 0.42.9.  Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not signed or notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings.  It's also likely this executable will not run on M1 Macs.  If you don't know how to do this, I recommend using `pipx` as described above.
+You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page. Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x86_64_v0.63.5.zip`. In this case `v0.63.5` specifies version 0.63.5 and `x86_64` specifies Intel x86 platform; you should download the latest version available. For Apple Silicon, there is an equivalent `arm64` version of the executable. Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings. If you don't know how to do this, I recommend using `pipx` as described above.
 
 ## Documentation
 

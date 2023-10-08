@@ -6,6 +6,7 @@ import datetime
 from dataclasses import dataclass
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION, TIME_DELTA
+from ..commentinfo import CommentInfo, LikeInfo
 from ..sqlite_utils import sqlite_open_ro
 from ..unicode import normalize_unicode
 
@@ -21,31 +22,6 @@ def _process_comments(self):
         _process_comments_4(self)
     else:
         _process_comments_5(self)
-
-
-@dataclass
-class CommentInfo:
-    """Class for shared photo comments"""
-
-    datetime: datetime.datetime
-    user: str
-    ismine: bool
-    text: str
-
-    def asdict(self):
-        return dataclasses.asdict(self)
-
-
-@dataclass
-class LikeInfo:
-    """Class for shared photo likes"""
-
-    datetime: datetime.datetime
-    user: str
-    ismine: bool
-
-    def asdict(self):
-        return dataclasses.asdict(self)
 
 
 # The following methods do not get imported into PhotosDB
