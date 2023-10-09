@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Reference" href="reference.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
-    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>OSXPhotos Python API - osxphotos 0.63.5 documentation</title>
+    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
+        <title>OSXPhotos Python API - osxphotos 0.64.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.63.5 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.64.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.63.5 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.64.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1238,7 +1238,15 @@ See also <a class="reference external" href="#keywords_as_dict">keywords_as_dict
 </section>
 <section id="favorite">
 <h4><code class="docutils literal notranslate"><span class="pre">favorite</span></code><a class="headerlink" href="#favorite" title="Link to this heading">#</a></h4>
-<p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the picture has been marked as a favorite, otherwise <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the picture has been marked as a favorite, otherwise <code class="docutils literal notranslate"><span class="pre">False</span></code>; for iPhoto always returns False</p>
+</section>
+<section id="flagged">
+<h4><code class="docutils literal notranslate"><span class="pre">flagged</span></code><a class="headerlink" href="#flagged" title="Link to this heading">#</a></h4>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the picture has been marked as flagged otherwise <code class="docutils literal notranslate"><span class="pre">False</span></code> (iPhoto only, returns False for Photos)</p>
+</section>
+<section id="rating">
+<h4><code class="docutils literal notranslate"><span class="pre">rating</span></code><a class="headerlink" href="#rating" title="Link to this heading">#</a></h4>
+<p>Returns star rating of photo as int from 0 to 5 (iPhoto only); for Photos, returns 5 if photo is favorite, else 0</p>
 </section>
 <section id="id49">
 <h4><code class="docutils literal notranslate"><span class="pre">hidden</span></code><a class="headerlink" href="#id49" title="Link to this heading">#</a></h4>
@@ -2793,7 +2801,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.63.5’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.64.0’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -3330,6 +3338,8 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#adjustments"><code class="docutils literal notranslate"><span class="pre">adjustments</span></code></a></li>
 <li><a class="reference internal" href="#external-edit"><code class="docutils literal notranslate"><span class="pre">external_edit</span></code></a></li>
 <li><a class="reference internal" href="#favorite"><code class="docutils literal notranslate"><span class="pre">favorite</span></code></a></li>
+<li><a class="reference internal" href="#flagged"><code class="docutils literal notranslate"><span class="pre">flagged</span></code></a></li>
+<li><a class="reference internal" href="#rating"><code class="docutils literal notranslate"><span class="pre">rating</span></code></a></li>
 <li><a class="reference internal" href="#id49"><code class="docutils literal notranslate"><span class="pre">hidden</span></code></a></li>
 <li><a class="reference internal" href="#visible"><code class="docutils literal notranslate"><span class="pre">visible</span></code></a></li>
 <li><a class="reference internal" href="#intrash"><code class="docutils literal notranslate"><span class="pre">intrash</span></code></a></li>
@@ -3561,7 +3571,7 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=3442d150"></script>
+</div><script src="_static/documentation_options.js?v=e210be20"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
