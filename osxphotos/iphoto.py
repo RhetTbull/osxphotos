@@ -1689,13 +1689,15 @@ class iPhotoPhotoInfo:
 
     def __getattr__(self, name: str) -> Any:
         """If attribute is not found in iPhotoPhotoInfo, look at PhotoInfo and return default type"""
-        if name in self._attributes:
-            logger.debug(
-                f"Returning default value for {name}; not implemented for iPhoto"
-            )
-            return default_return_value(self._attributes[name])
-        else:
+        if name not in self._attributes:
             raise AttributeError(f"Invalid attribute: {name}")
+        logger.debug(f"Returning default value for {name}; not implemented for iPhoto")
+        try:
+            return default_return_value(self._attributes[name])
+        except Exception as e:
+            # on <= Python 3.9, default_return_value can raise exception for Union types
+            logger.warning("Error getting default value for {name}: {e}")
+            return None
 
 
 class iPhotoPersonInfo:
@@ -2380,7 +2382,11 @@ def naive_iphoto_date_to_datetime(date: int) -> datetime.datetime:
 
 def default_return_value(name: str) -> Any:
     """Inspect name and return default value if there is one otherwise None
-    optimized for PhotoInfo may not work for other classes
+    optimized for PhotoInfo may not work for other classes.
+
+    If used to inspect a method or function that uses '|' to indicate a UnionType,
+    requires Python 3.10 or greater because get_type_hints will fail on union types
+    in earlier versions of Python.
     """
     if isinstance(name, property):
         hints = get_type_hints(name.fget)
