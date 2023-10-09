@@ -62,6 +62,7 @@ PHOTOS_DB_15_7 = "tests/Test-10.15.7.photoslibrary"
 PHOTOS_DB_TOUCH = PHOTOS_DB_15_7
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
 PHOTOS_DB_MOVIES = "tests/Test-Movie-5_0.photoslibrary"
+IPHOTO_LIBRARY = "tests/Test-iPhoto-9.6.1.photolibrary"
 
 # my personal library which some tests require
 LOCAL_PHOTOSDB = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")

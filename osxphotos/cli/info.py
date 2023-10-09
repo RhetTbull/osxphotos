@@ -23,7 +23,9 @@ from .list import _list_libraries
 def info(ctx, cli_obj, db, json_, photos_library):
     """Print out descriptive info of the Photos library database."""
 
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+    # needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
     if db is None:
         click.echo(ctx.obj.group.commands["info"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)
@@ -70,7 +72,7 @@ def info(ctx, cli_obj, db, json_, photos_library):
     info["persons_count"] = len(persons)
     info["persons"] = persons
 
-    if cli_obj.json or json_:
+    if json_ or (cli_obj and cli_obj.json):
         click.echo(json.dumps(info, ensure_ascii=False))
     else:
         click.echo(yaml.dump(info, sort_keys=False, allow_unicode=True))
