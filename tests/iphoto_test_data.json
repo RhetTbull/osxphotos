@@ -106,7 +106,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -122,12 +122,12 @@
         "original_width": 6000,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/DSC03584.dng",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/DSC03584.dng",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584_1024.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584_1024.jpg"
         ],
-        "path_edited": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg",
+        "path_edited": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg",
         "path_edited_live_photo": null,
         "path_live_photo": null,
         "path_raw": null,
@@ -292,7 +292,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -308,12 +308,12 @@
         "original_width": 4416,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.cr2",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.cr2",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994_1024.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994_1024.jpg"
         ],
-        "path_edited": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg",
+        "path_edited": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg",
         "path_edited_live_photo": null,
         "path_live_photo": null,
         "path_raw": null,
@@ -479,7 +479,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -495,10 +495,10 @@
         "original_width": 4416,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.JPG",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.JPG",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/ReMuru2aQOWFGSt0%%j7pg/IMG_1994_1024_2.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/ReMuru2aQOWFGSt0%%j7pg/IMG_1994_2.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/ReMuru2aQOWFGSt0%%j7pg/IMG_1994_1024_2.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/ReMuru2aQOWFGSt0%%j7pg/IMG_1994_2.jpg"
         ],
         "path_edited": "",
         "path_edited_live_photo": null,
@@ -665,7 +665,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -681,12 +681,12 @@
         "original_width": 4416,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.cr2",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.cr2",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997_1024.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997_1024.jpg"
         ],
-        "path_edited": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg",
+        "path_edited": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg",
         "path_edited_live_photo": null,
         "path_live_photo": null,
         "path_raw": null,
@@ -852,7 +852,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -868,10 +868,10 @@
         "original_width": 4416,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.JPG",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.JPG",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_1024_2.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_2.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_1024_2.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_2.jpg"
         ],
         "path_edited": "",
         "path_edited_live_photo": null,
@@ -1034,7 +1034,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -1050,10 +1050,10 @@
         "original_width": 3024,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_3092.heic",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_3092.heic",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/WvY%8CN+RLaDKrD0GQCRoQ/IMG_3092.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/WvY%8CN+RLaDKrD0GQCRoQ/IMG_3092_1024.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/WvY%8CN+RLaDKrD0GQCRoQ/IMG_3092.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/WvY%8CN+RLaDKrD0GQCRoQ/IMG_3092_1024.jpg"
         ],
         "path_edited": "",
         "path_edited_live_photo": null,
@@ -1330,7 +1330,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -1346,12 +1346,12 @@
         "original_width": 2048,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins1.jpg",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins1.jpg",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1_1024.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1_face0.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1_face1.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1_1024.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1_face0.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1_face1.jpg"
         ],
         "path_edited": "",
         "path_edited_live_photo": null,
@@ -1600,7 +1600,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -1616,11 +1616,11 @@
         "original_width": 1365,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins2.jpg",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins2.jpg",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2_1024.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2_face0.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2_1024.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2_face0.jpg"
         ],
         "path_edited": "",
         "path_edited_live_photo": null,
@@ -1824,7 +1824,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -1840,10 +1840,10 @@
         "original_width": 1365,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumpkins3.jpg",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumpkins3.jpg",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TeSYQT5HRJ6R6uGZRm+VOQ/Pumpkins3.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TeSYQT5HRJ6R6uGZRm+VOQ/Pumpkins3_1024.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TeSYQT5HRJ6R6uGZRm+VOQ/Pumpkins3.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TeSYQT5HRJ6R6uGZRm+VOQ/Pumpkins3_1024.jpg"
         ],
         "path_edited": "",
         "path_edited_live_photo": null,
@@ -2021,7 +2021,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -2037,12 +2037,12 @@
         "original_width": 2047,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/St James Park.jpg",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/St James Park.jpg",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St James Park.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St James Park_1024.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St James Park.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St James Park_1024.jpg"
         ],
-        "path_edited": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St. James's Park.jpg",
+        "path_edited": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St. James's Park.jpg",
         "path_edited_live_photo": null,
         "path_live_photo": null,
         "path_raw": null,
@@ -2222,7 +2222,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -2238,10 +2238,10 @@
         "original_width": 2047,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Tulips.jpg",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Tulips.jpg",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/E5FQ%pg4SRyKPi4dk6rUrg/Tulips.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/E5FQ%pg4SRyKPi4dk6rUrg/Tulips_1024.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/E5FQ%pg4SRyKPi4dk6rUrg/Tulips.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/E5FQ%pg4SRyKPi4dk6rUrg/Tulips_1024.jpg"
         ],
         "path_edited": "",
         "path_edited_live_photo": null,
@@ -2439,7 +2439,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -2455,13 +2455,13 @@
         "original_width": 2048,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/wedding.jpg",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/wedding.jpg",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding_1024.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding_face0.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding_1024.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding_face0.jpg"
         ],
-        "path_edited": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg",
+        "path_edited": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg",
         "path_edited_live_photo": null,
         "path_live_photo": null,
         "path_raw": null,
@@ -2698,7 +2698,7 @@
         "labels": [],
         "labels_normalized": [],
         "latitude": 0.0,
-        "library": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary",
+        "library": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary",
         "likes": [],
         "live_photo": false,
         "location": [
@@ -2714,10 +2714,10 @@
         "original_width": 2754,
         "owner": null,
         "panorama": false,
-        "path": "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064945/IMG_4547.jpg",
+        "path": "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064945/IMG_4547.jpg",
         "path_derivatives": [
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064945/QwWcnIjYRUOOiAt0h6RYWg/IMG_4547.jpg",
-            "IPHOTO_LIBRARY_ROOT/tests/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064945/QwWcnIjYRUOOiAt0h6RYWg/IMG_4547_1024.jpg"
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064945/QwWcnIjYRUOOiAt0h6RYWg/IMG_4547.jpg",
+            "IPHOTO_LIBRARY_ROOT/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064945/QwWcnIjYRUOOiAt0h6RYWg/IMG_4547_1024.jpg"
         ],
         "path_edited": "",
         "path_edited_live_photo": null,
