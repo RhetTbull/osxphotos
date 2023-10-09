@@ -7,6 +7,8 @@ import pytest
 import osxphotos
 from osxphotos import CommentInfo, LikeInfo
 
+from .conftest import set_timezone
+
 PHOTOS_DB = "tests/Test-Cloud-10.15.6.photoslibrary"
 
 COMMENT_UUID_DICT = {
@@ -69,6 +71,12 @@ LIKE_UUID_ASDICT = {
         "ismine": False,
     }
 }
+
+
+@pytest.fixture(scope="module", autouse=True)
+def set_timezone_pacific():
+    with set_timezone("US/Pacific"):
+        yield
 
 
 @pytest.fixture(scope="module")

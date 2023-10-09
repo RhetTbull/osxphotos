@@ -1056,11 +1056,9 @@ def test_photosinfo_repr(photosdb):
     }
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_from_to_date(photosdb):
     """test from_date / to_date"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 12
@@ -1074,11 +1072,9 @@ def test_from_to_date(photosdb):
     assert len(photos) == 4
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_from_to_date_tz(photosdb):
     """Test from_date / to_date with and without timezone"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     photos = photosdb.photos(
         from_date=datetime.datetime(2018, 9, 28, 13, 7, 0),

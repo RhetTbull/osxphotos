@@ -1078,13 +1078,9 @@ def test_photosinfo_repr(photosdb):
     }
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_from_to_date(photosdb):
     import datetime as dt
-    import os
-    import time
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 7
@@ -1098,6 +1094,7 @@ def test_from_to_date(photosdb):
     assert len(photos) == 4
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_date_invalid():
     """Test date is invalid"""
     # doesn't run correctly with the module-level fixture

@@ -1028,11 +1028,6 @@ def test_photosinfo_repr(photosdb):
 
 def test_from_to_date(photosdb):
     import datetime as dt
-    import os
-    import time
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 7

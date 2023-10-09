@@ -2856,11 +2856,9 @@ def test_export_duplicate_unicode_filenames():
         assert sorted(files) == sorted(EXPORT_UNICODE_TITLE_FILENAMES)
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_query_from_to_date():
     """Test --from-date and --to-date #590"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2880,11 +2878,9 @@ def test_query_from_to_date():
     assert len(json_got) == 3
 
 
+@pytest.mark.usefixtures("set_tz_jerusalem")
 def test_query_from_to_date_alt_location():
     """Test --from-date and --to-date in a different timezone"""
-
-    os.environ["TZ"] = "Asia/Jerusalem"
-    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2904,11 +2900,9 @@ def test_query_from_to_date_alt_location():
     assert len(json_got) == 2
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_query_from_to_date_timezone():
     """Test --from-date, --to-date with ISO 8601 timezone"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2928,11 +2922,9 @@ def test_query_from_to_date_timezone():
     assert len(json_got) == 4
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_query_from_to_time():
     """Test --from-time, --to-time"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2952,11 +2944,9 @@ def test_query_from_to_time():
     assert len(json_got) == 1
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_query_year_single():
     """Test --year"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2976,11 +2966,9 @@ def test_query_year_single():
     assert len(json_got) == 1
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_query_year_mulitple():
     """Test --year with multiple years"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3002,11 +2990,9 @@ def test_query_year_mulitple():
     assert len(json_got) == 6
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_query_year_3():
     """Test --year with invalid year"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5169,11 +5155,9 @@ def test_export_update_edits():
         )
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_export_update_only_new():
     """test --update --only-new"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5397,11 +5381,9 @@ def test_export_directory_template_1_dry_run():
             assert not os.path.isfile(os.path.join(workdir, filepath))
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_export_touch_files():
     """test export with --touch-files"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     setup_touch_tests()
 
@@ -5441,11 +5423,9 @@ def test_export_touch_files():
             assert int(st.st_mtime) == int(mtime)
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_export_touch_files_update():
     """test complex export scenario with --update and --touch-files"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     setup_touch_tests()
 
@@ -5588,13 +5568,11 @@ def test_export_touch_files_update():
         )
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
 @pytest.mark.skip("TODO: This fails on some machines but not all")
 # @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_touch_files_exiftool_update():
     """test complex export scenario with --update, --exiftool, and --touch-files"""
-
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
 
     setup_touch_tests()
 

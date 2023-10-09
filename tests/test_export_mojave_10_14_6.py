@@ -5,9 +5,8 @@ import pytest
 
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.sidecars import exiftool_json_sidecar
 from osxphotos.exportoptions import ExportOptions
-from osxphotos.sidecars import xmp_sidecar
+from osxphotos.sidecars import exiftool_json_sidecar, xmp_sidecar
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.14.6.photoslibrary/database/photos.db"

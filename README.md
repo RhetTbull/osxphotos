@@ -58,7 +58,7 @@ Limited support is also provided for exporting photos and metadata from iPhoto l
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
-Requires python >= `3.9`, <= `3.11`.
+Requires python >= `3.9`, <= `3.11`. Reading iPhoto libraries requires python >= `3.10`.
 
 ## Installation
 

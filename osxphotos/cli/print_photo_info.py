@@ -13,7 +13,7 @@ def print_photo_info(
 ):
     dump = []
     if json:
-        dump.extend(p.json() for p in photos)
+        dump.extend(p.json(shallow=False) for p in photos)
         print_func(f"[{', '.join(dump)}]")
     else:
         # dump as CSV

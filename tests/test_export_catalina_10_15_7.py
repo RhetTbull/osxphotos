@@ -12,9 +12,8 @@ import pytest
 import osxphotos
 from osxphotos._constants import _MAX_IPTC_KEYWORD_LEN, _UNKNOWN_PERSON
 from osxphotos.exiftool import get_exiftool_path
-from osxphotos.sidecars import exiftool_json_sidecar
 from osxphotos.exportoptions import ExportOptions
-from osxphotos.sidecars import xmp_sidecar
+from osxphotos.sidecars import exiftool_json_sidecar, xmp_sidecar
 from osxphotos.utils import dd_to_dms_str
 
 # determine if exiftool installed so exiftool tests can be skipped

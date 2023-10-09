@@ -52,7 +52,7 @@ from ._constants import (
     SIDECAR_XMP,
     TIME_DELTA,
 )
-from .datetime_utils import datetime_naive_to_local
+from .datetime_utils import datetime_has_tz, datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .exportoptions import ExportOptions
 from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
@@ -620,7 +620,7 @@ class iPhotoDB:
             RKAlbumVersion.versionId, -- -->Library::RKVersion::modelId
             RKAlbumVersion.albumId,
             RKAlbum.name,
-            RKAlbum.uuid,
+            RKAlbum.uuid as album_uuid,
             RKFolder.modelId AS folder_id,
             RKFolder.uuid AS folder_uuid
             FROM RKAlbumVersion
@@ -742,12 +742,11 @@ class iPhotoDB:
                 )
                 edited_files = list(path_edited.glob("*"))
                 # edited image named with Photo's title not imagepath.stem
-                edited_files = [
+                if edited_files := [
                     x
                     for x in edited_files
                     if normalize_unicode(x.stem) == photo["title"]
-                ]
-                if edited_files:
+                ]:
                     photo["path_edited"] = edited_files[0]
                 else:
                     photo["path_edited"] = ""
@@ -839,6 +838,21 @@ class iPhotoDB:
                 albums[album_name] += 1
         return albums
 
+    @property
+    def album_info(self) -> list[iPhotoAlbumInfo]:
+        """Return list of iPhotoAlbumInfo objects for each album in the library"""
+        album_info = {}
+        for albums in self._db_albums.values():
+            for album in albums:
+                if album["album_uuid"] not in album_info:
+                    album_info[album["album_uuid"]] = iPhotoAlbumInfo(album, self)
+        return list(album_info.values())
+
+    @property
+    def albums(self) -> list[str]:
+        """Return list of album names"""
+        return list(self.albums_as_dict.keys())
+
     def photos(
         self,
         keywords: list[str] | None = None,
@@ -903,8 +917,12 @@ class iPhotoDB:
                     photo for photo in photos if photo.albums and album in photo.albums
                 ]
         if from_date:
+            if not datetime_has_tz(from_date):
+                from_date = datetime_naive_to_local(from_date)
             photos = [photo for photo in photos if photo.date >= from_date]
         if to_date:
+            if not datetime_has_tz(to_date):
+                to_date = datetime_naive_to_local(to_date)
             photos = [photo for photo in photos if photo.date < to_date]
         if intrash:
             photos = [photo for photo in photos if photo.intrash]
@@ -925,6 +943,10 @@ class iPhotoDB:
             options: a QueryOptions instance
         """
         return photo_query(self, options)
+
+    def __len__(self) -> int:
+        """Return number of photos in the library"""
+        return len(self.photos())
 
 
 class iPhotoPhotoInfo:
@@ -1658,21 +1680,23 @@ class iPhotoPhotoInfo:
 
     def _get_faces(self) -> list[dict[str, Any]]:
         """Get faces for photo"""
-        if self.hasadjustments:
-            faces = self._db._db_photos[self._uuid].get("edited_faces", [])
-        else:
-            faces = self._db._db_photos[self._uuid].get("faces", [])
-        return faces
+        return (
+            self._db._db_photos[self._uuid].get("edited_faces", [])
+            if self.hasadjustments
+            else self._db._db_photos[self._uuid].get("faces", [])
+        )
 
     def __getattr__(self, name: str) -> Any:
         """If attribute is not found in iPhotoPhotoInfo, look at PhotoInfo and return default type"""
-        if name in self._attributes:
-            logger.debug(
-                f"Returning default value for {name}; not implemented for iPhoto"
-            )
-            return default_return_value(self._attributes[name])
-        else:
+        if name not in self._attributes:
             raise AttributeError(f"Invalid attribute: {name}")
+        logger.debug(f"Returning default value for {name}; not implemented for iPhoto")
+        try:
+            return default_return_value(self._attributes[name])
+        except Exception as e:
+            # on <= Python 3.9, default_return_value can raise exception for Union types
+            logger.warning("Error getting default value for {name}: {e}")
+            return None
 
 
 class iPhotoPersonInfo:
@@ -1969,6 +1993,7 @@ class iPhotoFaceInfo:
             image_height = photo.original_height
 
         # convert to PIL format
+        # sourcery skip: hoist-statement-from-if
         if self.photo._info["orientation"] == "portrait":
             # y coordinates are reversed
             x0 = int(self._face["topLeftX"] * image_width)
@@ -2016,7 +2041,7 @@ class iPhotoAlbumInfo:
     @property
     def uuid(self) -> str:
         """UUID of album"""
-        return self._album["uuid"]
+        return self._album["album_uuid"]
 
     @property
     def title(self) -> str:
@@ -2357,7 +2382,11 @@ def naive_iphoto_date_to_datetime(date: int) -> datetime.datetime:
 
 def default_return_value(name: str) -> Any:
     """Inspect name and return default value if there is one otherwise None
-    optimized for PhotoInfo may not work for other classes
+    optimized for PhotoInfo may not work for other classes.
+
+    If used to inspect a method or function that uses '|' to indicate a UnionType,
+    requires Python 3.10 or greater because get_type_hints will fail on union types
+    in earlier versions of Python.
     """
     if isinstance(name, property):
         hints = get_type_hints(name.fget)

@@ -4,6 +4,7 @@ import pathlib
 import shutil
 import tempfile
 import time
+from contextlib import contextmanager
 
 import pytest
 
@@ -363,3 +364,39 @@ def output_file():
     os.close(fd)
     yield filename
     os.remove(filename)
+
+
+@contextmanager
+def set_timezone(timezone):
+    try:
+        old_tz = os.environ.get("TZ")
+        os.environ["TZ"] = timezone
+        time.tzset()
+        yield
+    finally:
+        if old_tz is None:
+            del os.environ["TZ"]
+        else:
+            os.environ["TZ"] = old_tz
+        time.tzset()
+
+
+@pytest.fixture
+def set_tz_pacific():
+    timezone = "US/Pacific"
+    with set_timezone(timezone):
+        yield
+
+
+@pytest.fixture
+def set_tz_cest():
+    timezone = "CEST"
+    with set_timezone(timezone):
+        yield
+
+
+@pytest.fixture
+def set_tz_jerusalem():
+    timezone = "Asia/Jerusalem"
+    with set_timezone(timezone):
+        yield
