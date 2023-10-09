@@ -75,7 +75,8 @@ LIKE_UUID_ASDICT = {
 
 @pytest.fixture(scope="module", autouse=True)
 def set_timezone_pacific():
-    set_timezone("US/Pacific")
+    with set_timezone("US/Pacific"):
+        yield
 
 
 @pytest.fixture(scope="module")
