@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>osxphotos.photosalbum - osxphotos 0.62.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>osxphotos.photosalbum - osxphotos 0.61.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.62.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.61.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +146,10 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.62.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.61.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -160,7 +160,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
 </ul>
 
@@ -218,7 +217,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_unicode_variants</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all unicode variants of string&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Get all unicode variants of string&quot;&quot;&quot;</span>
     <span class="n">variants</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;NFC&quot;</span><span class="p">,</span> <span class="s2">&quot;NFD&quot;</span><span class="p">,</span> <span class="s2">&quot;NFKC&quot;</span><span class="p">,</span> <span class="s2">&quot;NFKD&quot;</span><span class="p">]:</span>
         <span class="n">normalized</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
@@ -226,8 +225,8 @@
     <span class="k">return</span> <span class="n">variants</span>
 
 
-<span class="k">def</span> <span class="nf">folder_by_path</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Folder</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get (and create if necessary) a Photos Folder by path (passed as list of folder names)&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">folder_by_path</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Folder</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get (and create if necessary) a Photos Folder by path (passed as list of folder names)&quot;&quot;&quot;</span>
     <span class="n">library</span> <span class="o">=</span> <span class="n">PhotosLibrary</span><span class="p">()</span>
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="n">noop</span>
     <span class="n">top_folder_name</span> <span class="o">=</span> <span class="n">folders</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -254,9 +253,9 @@
 
 
 <span class="k">def</span> <span class="nf">album_by_path</span><span class="p">(</span>
-    <span class="n">folders_album</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">folders_album</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Album</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get (and create if necessary) a Photos Album by path (pass as list of folders, album name)&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Get (and create if necessary) a Photos Album by path (pass as list of folders, album name)&quot;&quot;&quot;</span>
     <span class="n">library</span> <span class="o">=</span> <span class="n">PhotosLibrary</span><span class="p">()</span>
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="n">noop</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">folders_album</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -287,19 +286,17 @@
     <span class="k">return</span> <span class="n">album</span>
 
 
-<div class="viewcode-block" id="PhotosAlbum">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbum">[docs]</a>
-<span class="k">class</span> <span class="nc">PhotosAlbum</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add osxphotos.photoinfo.PhotoInfo objects to album&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PhotosAlbum"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbum">[docs]</a><span class="k">class</span> <span class="nc">PhotosAlbum</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add osxphotos.photoinfo.PhotoInfo objects to album&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">split_folder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">rich</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a PhotosAlbum object, creating the album if necessary</span>
+        <span class="sd">&quot;&quot;&quot;Return a PhotosAlbum object, creating the album if necessary</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            name: Name of album</span>
@@ -338,34 +335,31 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">album</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">photolist</span><span class="p">)</span>
         <span class="n">photo_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">photo_list</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_num</span><span class="p">(</span><span class="n">photo_len</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pluralize</span><span class="p">(</span><span class="n">photo_len</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;photo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;photos&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to album </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_album</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_num</span><span class="p">(</span><span class="n">photo_len</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pluralize</span><span class="p">(</span><span class="n">photo_len</span><span class="p">,</span> <span class="s1">&#39;photo&#39;</span><span class="p">,</span> <span class="s1">&#39;photos&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to album </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_album</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_format_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;Format uuid for verbose output&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;Format uuid for verbose output&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[uuid]</span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2">[/uuid]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rich</span> <span class="k">else</span> <span class="n">uuid</span>
 
     <span class="k">def</span> <span class="nf">_format_album</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;Format album name for verbose output&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;Format album name for verbose output&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[filepath]</span><span class="si">{</span><span class="n">album</span><span class="si">}</span><span class="s2">[/filepath]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rich</span> <span class="k">else</span> <span class="n">album</span>
 
     <span class="k">def</span> <span class="nf">_format_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;Format name for verbose output&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;Format name for verbose output&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[filename]</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">[/filename]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rich</span> <span class="k">else</span> <span class="n">name</span>
 
     <span class="k">def</span> <span class="nf">_format_num</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;Format number for verbose output&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; &quot;Format number for verbose output&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[num]</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">[/num]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rich</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="PhotosAlbumPhotoScript">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbumPhotoScript">[docs]</a>
-<span class="k">class</span> <span class="nc">PhotosAlbumPhotoScript</span><span class="p">(</span><span class="n">PhotosAlbum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add photoscript.Photo objects to album&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PhotosAlbumPhotoScript"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbumPhotoScript">[docs]</a><span class="k">class</span> <span class="nc">PhotosAlbumPhotoScript</span><span class="p">(</span><span class="n">PhotosAlbum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add photoscript.Photo objects to album&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">Photo</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">album</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">photo</span><span class="p">])</span>
@@ -378,9 +372,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">album</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">photolist</span><span class="p">)</span>
         <span class="n">photo_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">photo_list</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_num</span><span class="p">(</span><span class="n">photo_len</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pluralize</span><span class="p">(</span><span class="n">photo_len</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;photo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;photos&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to album </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_album</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_num</span><span class="p">(</span><span class="n">photo_len</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pluralize</span><span class="p">(</span><span class="n">photo_len</span><span class="p">,</span> <span class="s1">&#39;photo&#39;</span><span class="p">,</span> <span class="s1">&#39;photos&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to album </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_album</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span></div>
-
 </pre></div>
         </article>
       </div>
@@ -401,7 +394,9 @@
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              
+            </div>
           </div>
         </div>
         
@@ -413,11 +408,14 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=2a668fdd"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
     </body>
 </html>

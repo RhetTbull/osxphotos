@@ -1239,7 +1239,17 @@ Returns ``True`` if the picture was edited in an external editor (outside Photos
 ``favorite``
 ~~~~~~~~~~~~~~~~
 
-Returns ``True`` if the picture has been marked as a favorite, otherwise ``False``
+Returns ``True`` if the picture has been marked as a favorite, otherwise ``False``\ ; for iPhoto always returns False
+
+``flagged``
+~~~~~~~~~~~~~~~
+
+Returns ``True`` if the picture has been marked as flagged otherwise ``False`` (iPhoto only, returns False for Photos)
+
+``rating``
+~~~~~~~~~~~~~~
+
+Returns star rating of photo as int from 0 to 5 (iPhoto only); for Photos, returns 5 if photo is favorite, else 0
 
 ``hidden``
 ~~~~~~~~~~~~~~
@@ -2997,7 +3007,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.63.5'
+     - The osxphotos version, e.g. '0.64.0'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
