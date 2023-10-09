@@ -742,12 +742,11 @@ class iPhotoDB:
                 )
                 edited_files = list(path_edited.glob("*"))
                 # edited image named with Photo's title not imagepath.stem
-                edited_files = [
+                if edited_files := [
                     x
                     for x in edited_files
                     if normalize_unicode(x.stem) == photo["title"]
-                ]
-                if edited_files:
+                ]:
                     photo["path_edited"] = edited_files[0]
                 else:
                     photo["path_edited"] = ""
@@ -1681,11 +1680,11 @@ class iPhotoPhotoInfo:
 
     def _get_faces(self) -> list[dict[str, Any]]:
         """Get faces for photo"""
-        if self.hasadjustments:
-            faces = self._db._db_photos[self._uuid].get("edited_faces", [])
-        else:
-            faces = self._db._db_photos[self._uuid].get("faces", [])
-        return faces
+        return (
+            self._db._db_photos[self._uuid].get("edited_faces", [])
+            if self.hasadjustments
+            else self._db._db_photos[self._uuid].get("faces", [])
+        )
 
     def __getattr__(self, name: str) -> Any:
         """If attribute is not found in iPhotoPhotoInfo, look at PhotoInfo and return default type"""
@@ -1994,6 +1993,7 @@ class iPhotoFaceInfo:
             image_height = photo.original_height
 
         # convert to PIL format
+        # sourcery skip: hoist-statement-from-if
         if self.photo._info["orientation"] == "portrait":
             # y coordinates are reversed
             x0 = int(self._face["topLeftX"] * image_width)
