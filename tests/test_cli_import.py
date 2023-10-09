@@ -78,9 +78,20 @@ TEST_DATA = {
     },
 }
 
+
 # set timezone to avoid issues with comparing dates
-os.environ["TZ"] = "US/Pacific"
-time.tzset()
+@pytest.fixture(scope="module", autouse=True)
+def set_timezone():
+    """Set timezone to US/Pacific for all tests"""
+    old_tz = os.environ.get("TZ")
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
+    yield
+    if old_tz:
+        os.environ["TZ"] = old_tz
+    else:
+        del os.environ["TZ"]
+    time.tzset()
 
 
 # determine if exiftool installed so exiftool tests can be skipped

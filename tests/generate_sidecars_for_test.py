@@ -7,9 +7,8 @@
 import pathlib
 
 import osxphotos
-from osxphotos.sidecars import exiftool_json_sidecar
 from osxphotos.exportoptions import ExportOptions
-from osxphotos.sidecars import xmp_sidecar
+from osxphotos.sidecars import exiftool_json_sidecar, xmp_sidecar
 
 PHOTOS_DB_15_7 = "./tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_14_6 = "./tests/Test-10.14.6.photoslibrary/database/photos.db"

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DatabaseCompatibleBackToMinorVersion</key>
+	<integer>220</integer>
+	<key>DatabaseMinorVersion</key>
+	<integer>226</integer>
+	<key>DatabaseVersion</key>
+	<integer>110</integer>
+	<key>adminProperties</key>
+	<dict>
+		<key>GeneralPreferences|FacesEnabled</key>
+		<true/>
+		<key>database.iPhoto|generatedHiResThumbnails</key>
+		<true/>
+		<key>database.iPhoto|lastImportEventUuid</key>
+		<string>SoE36cWDQySqSs2MTZNnHA</string>
+		<key>database.iPhoto|lastNMonthsValue</key>
+		<integer>12</integer>
+		<key>database.iPhoto|showLastNMonths</key>
+		<true/>
+		<key>database|RKXMLExportManagerMode</key>
+		<string>RKXMLExportManagerExportAlwaysKey</string>
+		<key>database|UseEmbeddedJPEGv2</key>
+		<true/>
+		<key>database|applicationIdentifier</key>
+		<string>com.apple.iPhoto9</string>
+		<key>database|automaticallyGenerateFullSizePreviews</key>
+		<true/>
+		<key>database|createDate</key>
+		<date>2023-09-27T13:40:01Z</date>
+		<key>database|databaseUuid</key>
+		<string>z0rrkR0cTPyjp%KffPNRNA</string>
+		<key>database|imageIOVersion</key>
+		<string>2387.6.3</string>
+		<key>database|isIPhotoLibrary</key>
+		<true/>
+		<key>database|previewQuality</key>
+		<real>0.83333333333333304</real>
+		<key>database|previewSizeLimit</key>
+		<integer>1</integer>
+		<key>database|rawCameraBundleVersion</key>
+		<string>910.42-1650.2</string>
+		<key>sharingActivity|facebookIdentifierNamespace</key>
+		<string>oid</string>
+		<key>touchedBy|com.apple.iPhoto9</key>
+		<integer>1</integer>
+	</dict>
+	<key>createDate</key>
+	<date>2023-09-27T13:40:01Z</date>
+	<key>databaseUuid</key>
+	<string>z0rrkR0cTPyjp%KffPNRNA</string>
+	<key>isIPhotoLibrary</key>
+	<true/>
+	<key>masterCount</key>
+	<integer>13</integer>
+	<key>projectCompatibleBackToVersion</key>
+	<integer>8</integer>
+	<key>projectVersion</key>
+	<integer>8</integer>
+	<key>versionCount</key>
+	<integer>15</integer>
+</dict>
+</plist>

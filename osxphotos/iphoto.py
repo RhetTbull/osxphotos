@@ -52,7 +52,7 @@ from ._constants import (
     SIDECAR_XMP,
     TIME_DELTA,
 )
-from .datetime_utils import datetime_naive_to_local
+from .datetime_utils import datetime_has_tz, datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .exportoptions import ExportOptions
 from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
@@ -620,7 +620,7 @@ class iPhotoDB:
             RKAlbumVersion.versionId, -- -->Library::RKVersion::modelId
             RKAlbumVersion.albumId,
             RKAlbum.name,
-            RKAlbum.uuid,
+            RKAlbum.uuid as album_uuid,
             RKFolder.modelId AS folder_id,
             RKFolder.uuid AS folder_uuid
             FROM RKAlbumVersion
@@ -839,6 +839,21 @@ class iPhotoDB:
                 albums[album_name] += 1
         return albums
 
+    @property
+    def album_info(self) -> list[iPhotoAlbumInfo]:
+        """Return list of iPhotoAlbumInfo objects for each album in the library"""
+        album_info = {}
+        for albums in self._db_albums.values():
+            for album in albums:
+                if album["album_uuid"] not in album_info:
+                    album_info[album["album_uuid"]] = iPhotoAlbumInfo(album, self)
+        return list(album_info.values())
+
+    @property
+    def albums(self) -> list[str]:
+        """Return list of album names"""
+        return list(self.albums_as_dict.keys())
+
     def photos(
         self,
         keywords: list[str] | None = None,
@@ -903,8 +918,12 @@ class iPhotoDB:
                     photo for photo in photos if photo.albums and album in photo.albums
                 ]
         if from_date:
+            if not datetime_has_tz(from_date):
+                from_date = datetime_naive_to_local(from_date)
             photos = [photo for photo in photos if photo.date >= from_date]
         if to_date:
+            if not datetime_has_tz(to_date):
+                to_date = datetime_naive_to_local(to_date)
             photos = [photo for photo in photos if photo.date < to_date]
         if intrash:
             photos = [photo for photo in photos if photo.intrash]
@@ -925,6 +944,10 @@ class iPhotoDB:
             options: a QueryOptions instance
         """
         return photo_query(self, options)
+
+    def __len__(self) -> int:
+        """Return number of photos in the library"""
+        return len(self.photos())
 
 
 class iPhotoPhotoInfo:
@@ -2016,7 +2039,7 @@ class iPhotoAlbumInfo:
     @property
     def uuid(self) -> str:
         """UUID of album"""
-        return self._album["uuid"]
+        return self._album["album_uuid"]
 
     @property
     def title(self) -> str:

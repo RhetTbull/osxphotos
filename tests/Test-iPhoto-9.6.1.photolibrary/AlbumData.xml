@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+	<key>Application Version</key>
+	<string>9.4</string>
+	<key>Archive Path</key>
+	<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary</string>
+	<key>ArchiveId</key>
+	<string>1</string>
+	<key>Major Version</key>
+	<integer>2</integer>
+	<key>Minor Version</key>
+	<integer>0</integer>
+	<key>List of Albums</key>
+	<array>
+		<dict>
+			<key>AlbumId</key>
+			<integer>4</integer>
+			<key>AlbumName</key>
+			<string>Photos</string>
+			<key>Album Type</key>
+			<string>99</string>
+			<key>GUID</key>
+			<string>allPhotosAlbum</string>
+			<key>Master</key><true/>
+			<key>KeyList</key>
+			<array>
+				<string>29</string>
+				<string>13</string>
+				<string>15</string>
+				<string>17</string>
+				<string>21</string>
+				<string>25</string>
+				<string>23</string>
+				<string>1</string>
+				<string>3</string>
+				<string>5</string>
+				<string>7</string>
+				<string>9</string>
+				<string>11</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>13</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>10</integer>
+			<key>AlbumName</key>
+			<string>Flagged</string>
+			<key>Album Type</key>
+			<string>Flagged</string>
+			<key>GUID</key>
+			<string>flaggedAlbum</string>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyList</key>
+			<array>
+				<string>25</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>7</integer>
+			<key>AlbumName</key>
+			<string>Last 12 Months</string>
+			<key>Album Type</key>
+			<string>Special Month</string>
+			<key>GUID</key>
+			<string>lastNMonthsAlbum</string>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyList</key>
+			<array>
+			</array>
+			<key>PhotoCount</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>8</integer>
+			<key>AlbumName</key>
+			<string>Last Import</string>
+			<key>Album Type</key>
+			<string>Regular</string>
+			<key>GUID</key>
+			<string>lastImportAlbum</string>
+			<key>TransitionSpeed</key>
+			<real>1.000000</real>
+			<key>ShuffleSlides</key><false/>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyList</key>
+			<array>
+				<string>29</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>28</integer>
+			<key>GUID</key>
+			<string>5gqya268TcaLUBBto3K9Lg</string>
+			<key>AlbumName</key>
+			<string>Elder Park</string>
+			<key>Album Type</key>
+			<string>Event</string>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyPhotoKey</key>
+			<string>29</string>
+			<key>ProjectEarliestDateAsTimerInterval</key>
+			<real>519671936.00</real>
+			<key>KeyList</key>
+			<array>
+				<string>29</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>14</integer>
+			<key>GUID</key>
+			<string>gVyaF9l9SC6ykOj2Q3Qhvw</string>
+			<key>AlbumName</key>
+			<string>Import</string>
+			<key>Album Type</key>
+			<string>Event</string>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyPhotoKey</key>
+			<string>13</string>
+			<key>ProjectEarliestDateAsTimerInterval</key>
+			<real>559841749.00</real>
+			<key>KeyList</key>
+			<array>
+				<string>13</string>
+				<string>15</string>
+				<string>17</string>
+				<string>21</string>
+				<string>25</string>
+				<string>23</string>
+				<string>1</string>
+				<string>3</string>
+				<string>5</string>
+				<string>7</string>
+				<string>9</string>
+				<string>11</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>12</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>18</integer>
+			<key>AlbumName</key>
+			<string>Empty Album</string>
+			<key>Album Type</key>
+			<string>Regular</string>
+			<key>GUID</key>
+			<string>80wTqlRyTiu79bKjUTGYIA</string>
+			<key>SongPath</key>
+			<string>/Applications/iPhoto.app/Contents/Resources/Music/Minuet in G.mp3</string>
+			<key>TransitionSpeed</key>
+			<real>1.000000</real>
+			<key>ShuffleSlides</key><false/>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyList</key>
+			<array>
+			</array>
+			<key>PhotoCount</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>19</integer>
+			<key>AlbumName</key>
+			<string>Test Album</string>
+			<key>Album Type</key>
+			<string>Regular</string>
+			<key>GUID</key>
+			<string>Tn%h%CuhQruD8VQ5zVgy8g</string>
+			<key>SongPath</key>
+			<string>/Applications/iPhoto.app/Contents/Resources/Music/Minuet in G.mp3</string>
+			<key>TransitionSpeed</key>
+			<real>1.000000</real>
+			<key>ShuffleSlides</key><false/>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyList</key>
+			<array>
+				<string>13</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>22</integer>
+			<key>AlbumName</key>
+			<string>Folder1</string>
+			<key>GUID</key>
+			<string>dmCBXs4sSXaZ8nEJV+AM%A</string>
+			<key>Album Type</key>
+			<string>Folder</string>
+			<key>KeyList</key>
+			<array>
+			<string>29</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>24</integer>
+			<key>AlbumName</key>
+			<string>SubFolder1</string>
+			<key>GUID</key>
+			<string>g90M0P4jQqiZWIHrRTqw3g</string>
+			<key>Parent</key>
+			<integer>22</integer>
+			<key>Album Type</key>
+			<string>Folder</string>
+			<key>KeyList</key>
+			<array>
+			</array>
+			<key>PhotoCount</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>26</integer>
+			<key>AlbumName</key>
+			<string>SubFolder2</string>
+			<key>GUID</key>
+			<string>NtsvmxOMR6WM3nYJy5X3ow</string>
+			<key>Parent</key>
+			<integer>22</integer>
+			<key>Album Type</key>
+			<string>Folder</string>
+			<key>KeyList</key>
+			<array>
+			<string>29</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>29</integer>
+			<key>AlbumName</key>
+			<string>AlbumInFolder</string>
+			<key>Parent</key>
+			<integer>26</integer>
+			<key>Album Type</key>
+			<string>Regular</string>
+			<key>GUID</key>
+			<string>dtiURL7dQ%+oltqjyqD3pQ</string>
+			<key>SongPath</key>
+			<string>/Applications/iPhoto.app/Contents/Resources/Music/Minuet in G.mp3</string>
+			<key>TransitionSpeed</key>
+			<real>1.000000</real>
+			<key>ShuffleSlides</key><false/>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyList</key>
+			<array>
+				<string>29</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AlbumId</key>
+			<integer>30</integer>
+			<key>AlbumName</key>
+			<string>Pumpkin Farm</string>
+			<key>Album Type</key>
+			<string>Regular</string>
+			<key>GUID</key>
+			<string>pDZqrEDNTc2Rt9Q1hdvStQ</string>
+			<key>SongPath</key>
+			<string>/Applications/iPhoto.app/Contents/Resources/Music/Minuet in G.mp3</string>
+			<key>TransitionSpeed</key>
+			<real>1.000000</real>
+			<key>ShuffleSlides</key><false/>
+			<key>Sort Order</key>
+			<string>1</string>
+			<key>KeyList</key>
+			<array>
+				<string>13</string>
+				<string>15</string>
+				<string>17</string>
+			</array>
+			<key>PhotoCount</key>
+			<integer>3</integer>
+		</dict>
+	</array>
+	<key>List of Rolls</key>
+	<array>
+		<dict>
+			<key>RollID</key>
+			<integer>19</integer>
+			<key>ProjectUuid</key>
+			<string>5gqya268TcaLUBBto3K9Lg</string>
+			<key>RollName</key>
+			<string>Elder Park</string>
+			<key>RollDateAsTimerInterval</key>
+			<real>519697136.000000</real>
+			<key>KeyPhotoKey</key>
+			<string>29</string>
+			<key>PhotoCount</key>
+			<integer>1</integer>
+			<key>KeyList</key>
+			<array>
+			<string>29</string>
+			</array>
+		</dict>
+		<dict>
+			<key>RollID</key>
+			<integer>8</integer>
+			<key>ProjectUuid</key>
+			<string>gVyaF9l9SC6ykOj2Q3Qhvw</string>
+			<key>RollName</key>
+			<string>Import</string>
+			<key>RollDateAsTimerInterval</key>
+			<real>559866949.000000</real>
+			<key>KeyPhotoKey</key>
+			<string>13</string>
+			<key>PhotoCount</key>
+			<integer>12</integer>
+			<key>KeyList</key>
+			<array>
+			<string>13</string>
+			<string>15</string>
+			<string>17</string>
+			<string>21</string>
+			<string>25</string>
+			<string>23</string>
+			<string>1</string>
+			<string>3</string>
+			<string>5</string>
+			<string>7</string>
+			<string>9</string>
+			<string>11</string>
+			</array>
+		</dict>
+	</array>
+	<key>List of Faces</key>
+	<dict>
+		<key>13</key>
+			<dict>
+			<key>key</key>
+			<string>13</string>
+			<key>name</key>
+			<string>Katie</string>
+			<key>key image</key>
+			<string>7NGbu3h6RkGXxBGa9lfMVQ</string>
+			<key>key image face index</key>
+			<integer>1</integer>
+			<key>PhotoCount</key>
+			<string>2</string>
+			<key>Order</key>
+			<integer>0</integer>
+			</dict>
+		<key>9</key>
+			<dict>
+			<key>key</key>
+			<string>9</string>
+			<key>name</key>
+			<string>Maria</string>
+			<key>key image</key>
+			<string>RgISIEPbThGVoco5LyiLjQ</string>
+			<key>key image face index</key>
+			<integer>0</integer>
+			<key>PhotoCount</key>
+			<string>1</string>
+			<key>Order</key>
+			<integer>1</integer>
+			</dict>
+		<key>14</key>
+			<dict>
+			<key>key</key>
+			<string>14</string>
+			<key>name</key>
+			<string>Suzy</string>
+			<key>key image</key>
+			<string>7NGbu3h6RkGXxBGa9lfMVQ</string>
+			<key>key image face index</key>
+			<integer>0</integer>
+			<key>PhotoCount</key>
+			<string>1</string>
+			<key>Order</key>
+			<integer>2</integer>
+			</dict>
+	</dict>
+	<key>Master Image List</key>
+	<dict>
+		<key>29</key>
+		<dict>
+			<key>Caption</key>
+			<string>Elder Park</string>
+			<key>Comment</key>
+			<string>Elder Park⁩, ⁨Adelaide⁩, ⁨Australia</string>
+			<key>GUID</key>
+			<string>QwWcnIjYRUOOiAt0h6RYWg</string>
+			<key>Roll</key>
+			<integer>19</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064945/IMG_4547.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>711954315.073773</real>
+			<key>DateAsTimerInterval</key>
+			<real>519697136.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>519671936.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717515388.623018</real>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064945/QwWcnIjYRUOOiAt0h6RYWg/IMG_4547.jpg</string>
+			<key>latitude</key><real>-34.91889167</real>
+			<key>longitude</key><real>138.5968617</real>
+		</dict>
+		<key>13</key>
+		<dict>
+			<key>Caption</key>
+			<string>Can we carry this?</string>
+			<key>Comment</key>
+			<string>Girls with pumpkins</string>
+			<key>GUID</key>
+			<string>7NGbu3h6RkGXxBGa9lfMVQ</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins1.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>711954315.024575</real>
+			<key>DateAsTimerInterval</key>
+			<real>559866949.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>559841749.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717515001.379778</real>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1.jpg</string>
+			<key>Faces</key>
+				<array>
+					<dict>
+						<key>face key</key><string>13</string>						<key>rectangle</key><string>{{0.676758, 0.531868}, {0.049805, 0.074725}}</string>
+						<key>face index</key><integer>1</integer>
+					</dict>
+					<dict>
+						<key>face key</key><string>14</string>						<key>rectangle</key><string>{{0.289551, 0.622711}, {0.061523, 0.092308}}</string>
+						<key>face index</key><integer>0</integer>
+					</dict>
+					</array>
+		</dict>
+		<key>15</key>
+		<dict>
+			<key>Caption</key>
+			<string>I found one!</string>
+			<key>Comment</key>
+			<string>Girl holding pumpkin</string>
+			<key>GUID</key>
+			<string>L0ddFwSDTmGwDZBWpnLF4A</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>4</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins2.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>711954315.024885</real>
+			<key>DateAsTimerInterval</key>
+			<real>559868827.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>559843627.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717515112.573878</real>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2.jpg</string>
+			<key>Faces</key>
+				<array>
+					<dict>
+						<key>face key</key><string>13</string>						<key>rectangle</key><string>{{0.467399, 0.650879}, {0.272527, 0.181641}}</string>
+						<key>face index</key><integer>0</integer>
+					</dict>
+					</array>
+		</dict>
+		<key>17</key>
+		<dict>
+			<key>Caption</key>
+			<string>Pumpkins3</string>
+			<key>Comment</key>
+			<string>Kids in pumpkin field</string>
+			<key>GUID</key>
+			<string>TeSYQT5HRJ6R6uGZRm+VOQ</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/Pumpkins3.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>711954315.025223</real>
+			<key>DateAsTimerInterval</key>
+			<real>559868973.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>559843773.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717515001.383062</real>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/TeSYQT5HRJ6R6uGZRm+VOQ/Pumpkins3.jpg</string>
+		</dict>
+		<key>21</key>
+		<dict>
+			<key>Caption</key>
+			<string>St. James&apos;s Park</string>
+			<key>Comment</key>
+			<string> </string>
+			<key>GUID</key>
+			<string>QtE4HvHhSnO2W8bmbzWRSg</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St. James&apos;s Park.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>717515163.293684</real>
+			<key>DateAsTimerInterval</key>
+			<real>561140292.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>561115092.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717515162.632193</real>
+			<key>OriginalPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/St James Park.jpg</string>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St James Park.jpg</string>
+			<key>latitude</key><real>51.50357167</real>
+			<key>longitude</key><real>-0.1318055</real>
+		</dict>
+		<key>25</key>
+		<dict>
+			<key>Caption</key>
+			<string>wedding</string>
+			<key>Flagged</key>
+			<true/>
+			<key>Comment</key>
+			<string>Bride Wedding day</string>
+			<key>GUID</key>
+			<string>RgISIEPbThGVoco5LyiLjQ</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>5</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>718493301.569424</real>
+			<key>DateAsTimerInterval</key>
+			<real>577057224.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>577032024.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>718493284.553226</real>
+			<key>OriginalPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/wedding.jpg</string>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg</string>
+			<key>Faces</key>
+				<array>
+					<dict>
+						<key>face key</key><string>9</string>						<key>rectangle</key><string>{{0.264214, 0.412582}, {0.318395, 0.348208}}</string>
+						<key>face index</key><integer>0</integer>
+					</dict>
+					</array>
+		</dict>
+		<key>23</key>
+		<dict>
+			<key>Caption</key>
+			<string>Tulips tied together at a flower shop</string>
+			<key>Comment</key>
+			<string>Wedding tulips</string>
+			<key>GUID</key>
+			<string>E5FQ%pg4SRyKPi4dk6rUrg</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/Tulips.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>711954315.033957</real>
+			<key>DateAsTimerInterval</key>
+			<real>583975441.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>583950241.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717515004.461551</real>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/E5FQ%pg4SRyKPi4dk6rUrg/Tulips.jpg</string>
+		</dict>
+		<key>1</key>
+		<dict>
+			<key>Caption</key>
+			<string>DSC03584</string>
+			<key>Comment</key>
+			<string> </string>
+			<key>GUID</key>
+			<string>UD3w1wufQy6UcuzQ31ZF1w</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>717514987.885464</real>
+			<key>DateAsTimerInterval</key>
+			<real>608405423.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>608380223.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717514995.116733</real>
+			<key>OriginalPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/DSC03584.dng</string>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg</string>
+		</dict>
+		<key>3</key>
+		<dict>
+			<key>Caption</key>
+			<string>IMG_1994</string>
+			<key>Comment</key>
+			<string> </string>
+			<key>GUID</key>
+			<string>TiiIk8KsQn+ZUVyBGno4iA</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>712977382.000000</real>
+			<key>DateAsTimerInterval</key>
+			<real>608664351.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>608639151.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717514998.240107</real>
+			<key>OriginalPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.cr2</string>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg</string>
+		</dict>
+		<key>5</key>
+		<dict>
+			<key>Caption</key>
+			<string>IMG_1994</string>
+			<key>Comment</key>
+			<string> </string>
+			<key>GUID</key>
+			<string>ReMuru2aQOWFGSt0%%j7pg</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.JPG</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>712977381.000000</real>
+			<key>DateAsTimerInterval</key>
+			<real>608664351.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>608639151.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717514998.237012</real>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/ReMuru2aQOWFGSt0%%j7pg/IMG_1994_2.jpg</string>
+		</dict>
+		<key>7</key>
+		<dict>
+			<key>Caption</key>
+			<string>IMG_1997</string>
+			<key>Comment</key>
+			<string> </string>
+			<key>GUID</key>
+			<string>UaL9+WGLTRSpqLbgUoUsIQ</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>1</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>717514987.899301</real>
+			<key>DateAsTimerInterval</key>
+			<real>608751778.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>608726578.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717515192.570160</real>
+			<key>OriginalPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.cr2</string>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg</string>
+		</dict>
+		<key>9</key>
+		<dict>
+			<key>Caption</key>
+			<string>IMG_1997</string>
+			<key>Comment</key>
+			<string> </string>
+			<key>GUID</key>
+			<string>wOCT+bugTx2I9gKyidlKUg</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>1</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_2.jpg</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>717514987.902325</real>
+			<key>DateAsTimerInterval</key>
+			<real>608751778.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>608726578.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717515192.569412</real>
+			<key>OriginalPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.JPG</string>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_2.jpg</string>
+		</dict>
+		<key>11</key>
+		<dict>
+			<key>Caption</key>
+			<string>IMG_3092</string>
+			<key>Comment</key>
+			<string> </string>
+			<key>GUID</key>
+			<string>WvY%8CN+RLaDKrD0GQCRoQ</string>
+			<key>Roll</key>
+			<integer>8</integer>
+			<key>Rating</key>
+			<integer>0</integer>
+			<key>ImagePath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_3092.heic</string>
+			<key>MediaType</key>
+			<string>Image</string>
+			<key>ModDateAsTimerInterval</key>
+			<real>711954315.012613</real>
+			<key>DateAsTimerInterval</key>
+			<real>622244186.000000</real>
+			<key>DateAsTimerIntervalGMT</key>
+			<real>622218986.000000</real>
+			<key>MetaModDateAsTimerInterval</key>
+			<real>717514998.238968</real>
+			<key>ThumbPath</key>
+			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/WvY%8CN+RLaDKrD0GQCRoQ/IMG_3092.jpg</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
