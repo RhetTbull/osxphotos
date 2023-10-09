@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.64.0](https://github.com/RhetTbull/osxphotos/compare/v0.63.5...v0.64.0)
+
+Adds support for exporting and querying iPhoto databases. iPhoto support only works on Python >= 3.10.
+
+### [v0.64.0] - 2023-10-09
+
+#### Fixed
+
+#### Added
+
+- osxphotos export, query, dump, info, persons, keywords, and albums commands now work with iPhoto libraries.
+
+#### Removed
+
+#### Changed
+
+#### Contributors
+
+- Special thanks to @jensb ([@jensb](https://github.com/jensb)) who kindly allowed me to use code from his [iphoto2xmp](https://github.com/jensb/iphoto2xmp) as a starting point for the osxphotos iPhoto support and allowed me to relicense this code under MIT License to be compatible with osxphotos.
+- @RhetTbull ([@RhetTbull]((https://github.com/RhetTbull)) for code and tests.
+
 ## [v0.63.5](https://github.com/RhetTbull/osxphotos/compare/v0.63.4...v0.63.5)
 
 Fixed `osxphotos keywords` to also show keywords with no associated photos.
@@ -14,7 +35,7 @@ Fixed `osxphotos keywords` to also show keywords with no associated photos.
 
 - Added instructions for MacPorts install
 
-### Removed
+#### Removed
 
 #### Changed
 
