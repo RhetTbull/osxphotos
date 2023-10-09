@@ -36,7 +36,7 @@ def persons(ctx, cli_obj, db, json_, photos_library):
         else osxphotos.PhotosDB(dbfile=db)
     )
     persons = {"persons": photosdb.persons_as_dict}
-    if json_ or cli_obj.json:
+    if json_ or (cli_obj and cli_obj.json):
         click.echo(json.dumps(persons, ensure_ascii=False))
     else:
         click.echo(yaml.dump(persons, sort_keys=False, allow_unicode=True))
