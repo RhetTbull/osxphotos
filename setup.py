@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # -*- coding: utf-8 -*-
 #
 # setup.py script for osxphotos
@@ -62,6 +63,7 @@ setup(
     packages=find_packages(exclude=["tests", "examples", "utils"])
     + ["osxphotos.docs", "osxphotos.templates", "osxphotos.queries"],
     license="License :: OSI Approved :: MIT License",
+    python_requires=">=3.9,<3.12",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: MacOS X",
