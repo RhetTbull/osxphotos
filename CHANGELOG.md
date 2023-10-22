@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.64.2](https://github.com/RhetTbull/osxphotos/compare/v0.64.0...v0.64.2)
+
+Updated dependencies for Python 3.12
+
+### [v0.64.2] - 2023-10-21
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+#### Fixed
+
+- Support for Python 3.12, #1254
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code and testing
+
 ## [v0.64.0](https://github.com/RhetTbull/osxphotos/compare/v0.63.5...v0.64.0)
 
 Adds support for exporting and querying iPhoto databases. iPhoto support only works on Python >= 3.10.
