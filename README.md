@@ -58,7 +58,7 @@ Limited support is also provided for exporting photos and metadata from iPhoto l
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
-Requires python >= `3.9`, <= `3.11`. Reading iPhoto libraries requires python >= `3.10`.
+Requires python >= `3.9`, <= `3.12`. Reading iPhoto libraries requires python >= `3.10`.
 
 ## Installation
 
@@ -72,8 +72,7 @@ If you aren't familiar with installing python applications, I recommend you inst
 * Install `homebrew` according to instructions at [https://brew.sh/](https://brew.sh/)
 * Type the following into Terminal: `brew install pipx`
 * Ensure that pipx installed packages are accessible in your PATH by typing: `pipx ensurepath`
-* osxphotos doesn't run on Python 3.12 so you'll need to install Python 3.11: `brew install python@3.11`
-* Then type this: `pipx install --python python3.11 osxphotos`
+* Then type this: `pipx install osxphotos`
 * Now you should be able to run `osxphotos` by typing: `osxphotos`
 
 Once you've installed osxphotos with pipx, to upgrade to the latest version:
