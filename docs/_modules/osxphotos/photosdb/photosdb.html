@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.64.2 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.64.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.64.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.64.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.64.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.64.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -305,6 +305,7 @@
         <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">exiftool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">rich</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">library_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">_skip_searchinfo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new PhotosDB object.</span>
@@ -314,11 +315,29 @@
 <span class="sd">            verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.</span>
 <span class="sd">            exiftool: optional path to exiftool for methods that require this (e.g. PhotoInfo.exiftool); if not provided, will search PATH</span>
 <span class="sd">            rich: use rich with verbose output</span>
+<span class="sd">            library_path: path to Photos library root if different than where the database is stored; see Notes</span>
 <span class="sd">            _skip_searchinfo: if True, will not process search data from psi.sqlite; useful for processing standalone Photos.sqlite file</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            PhotosDBReadError if dbfile is not a valid Photos library.</span>
 <span class="sd">            TypeError if verbose is not None and not callable.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            dbfile can be either the path to the Photos library (e.g. ~/Pictures/Photos Library.photoslibrary)</span>
+<span class="sd">            or the path to the photos.db file (e.g. ~/Pictures/Photos Library.photoslibrary/database/photos.db)</span>
+<span class="sd">            or the path to the Photos.sqlite file (e.g. ~/Pictures/Photos Library.photoslibrary/database/Photos.sqlite)</span>
+<span class="sd">            If dbfile is None, will attempt to locate last opened Photos library.</span>
+<span class="sd">            In some cases, it may be useful to copy the database to a different location than the library</span>
+<span class="sd">            (e.g. if the library is on a slow drive or an iPhone).</span>
+<span class="sd">            In that case, set dbfile to the path to the database and set library_path to the path to the library root.</span>
+<span class="sd">            For example:</span>
+
+<span class="sd">            ```python</span>
+<span class="sd">            photosdb = PhotosDB(dbfile=&quot;/path/to/database/Photos.sqlite&quot;, library_path=&quot;/path/to/Photos Library.photoslibrary&quot;)</span>
+<span class="sd">            ```</span>
+
+<span class="sd">            If library_path is not provided, PhotosDB determine the library path from the database path. In most cases you should</span>
+<span class="sd">            not provide the library_path argument.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Check that we&#39;re not trying to open an iPhoto library</span>
@@ -573,8 +592,11 @@
                 <span class="sa">f</span><span class="s2">&quot;_dbfile = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="si">}</span><span class="s2">, _dbfile_actual = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
-        <span class="n">library_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dbfile</span><span class="p">))</span>
-        <span class="p">(</span><span class="n">library_path</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">library_path</span><span class="p">)</span>  <span class="c1"># drop /database from path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">library_path</span><span class="p">:</span>
+            <span class="c1"># library_path not provided as argument (this is the normal case)</span>
+            <span class="c1"># determine library path relative to the database path</span>
+            <span class="n">library_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dbfile</span><span class="p">))</span>
+            <span class="p">(</span><span class="n">library_path</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">library_path</span><span class="p">)</span>  <span class="c1"># drop /database from path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_library_path</span> <span class="o">=</span> <span class="n">library_path</span>
         <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_PHOTOS_4_VERSION</span><span class="p">):</span>
             <span class="n">masters_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">library_path</span><span class="p">,</span> <span class="s2">&quot;Masters&quot;</span><span class="p">)</span>
@@ -3428,7 +3450,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=7190b053"></script>
+</div><script src="../../../_static/documentation_options.js?v=d5e8344a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
