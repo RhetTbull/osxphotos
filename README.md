@@ -1519,6 +1519,19 @@ Options:
                                   --alt-copy does not support copy-on-write on
                                   APFS volumes nor does it preserve filesystem
                                   metadata.
+  --alt-db PATH                   Specify alternate path to Photos library
+                                  database. This is an advanced feature you
+                                  probably don't need. This may be useful when
+                                  exporting from a library on a very slow
+                                  external disk. In this case, you could copy
+                                  the `/database` folder from the Photos library
+                                  to the internal diskand use `--alt-db` to
+                                  specify the path to the database file on the
+                                  internal disk. then use `--library` to specify
+                                  the path to the Photos library root on the
+                                  external disk. For example: `--library
+                                  /Volumes/ExternalDisk/Photos.photoslibrary
+                                  --alt-db /path/to/database/Photos.sqlite`
   --load-config CONFIG_FILE       Load options from file as written with --save-
                                   config. This allows you to save a complex
                                   export command to file for later reuse. For
@@ -2239,7 +2252,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.64.2'
+{osxphotos_version}             The osxphotos version, e.g. '0.64.3'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2727,7 +2740,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.64.2'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.64.3'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
