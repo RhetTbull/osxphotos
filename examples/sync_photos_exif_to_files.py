@@ -322,7 +322,9 @@ def sync_metadata_for_file(
         exif_writer = ExifWriter(photo)
         exif_writer.write_exif_data(filepath, options)
     if touch:
-        echo(f"Touching file [filepath]{filepath}[/] to sync Finder dates to EXIF dates")
+        echo(
+            f"Touching file [filepath]{filepath}[/] to sync Finder dates to EXIF dates"
+        )
         if not dry_run:
             # borrow the touch_files code from PhotoExporter as it does what we need
             touch_files(photo, [filepath], ExportOptions(fileutil=FileUtil))

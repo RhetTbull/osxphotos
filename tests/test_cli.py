@@ -1615,6 +1615,29 @@ def test_export_alt_copy():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
+def test_export_alt_db():
+    """test export with --alt-db"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        cwd_temp = os.getcwd()
+        database_temp = os.path.join(cwd_temp, "database")
+        shutil.copytree(
+            os.path.join(cwd, CLI_PHOTOS_DB, "database"),
+            database_temp,
+        )
+        library_root = os.path.join(cwd, CLI_PHOTOS_DB)
+        alt_db = os.path.join(database_temp, "Photos.sqlite")
+        result = runner.invoke(
+            export,
+            ["--library", library_root, "--alt-db", alt_db, ".", "-V"],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES + ["database"])
+
+
 def test_export_tmpdir():
     """test basic export with --tmpdir"""
     runner = CliRunner()

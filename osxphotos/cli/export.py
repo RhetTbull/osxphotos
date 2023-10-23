@@ -759,6 +759,18 @@ from .verbose import get_verbose_console, verbose_print
     "copy-on-write on APFS volumes nor does it preserve filesystem metadata.",
 )
 @click.option(
+    "--alt-db",
+    metavar="PATH",
+    help="Specify alternate path to Photos library database. "
+    "This is an advanced feature you probably don't need. "
+    "This may be useful when exporting from a library on a very slow external disk. "
+    "In this case, you could copy the `/database` folder from the Photos library to the internal disk"
+    "and use `--alt-db` to specify the path to the database file on the internal disk. "
+    "then use `--library` to specify the path to the Photos library root on the external disk. "
+    "For example: `--library /Volumes/ExternalDisk/Photos.photoslibrary --alt-db /path/to/database/Photos.sqlite` ",
+    type=click.Path(exists=True),
+)
+@click.option(
     "--load-config",
     required=False,
     metavar="CONFIG_FILE",
@@ -830,6 +842,7 @@ def export(
     added_in_last,
     album,
     album_keyword,
+    alt_db,
     alt_copy,
     append,
     beta,
@@ -1062,6 +1075,7 @@ def export(
         added_in_last = cfg.added_in_last
         album = cfg.album
         album_keyword = cfg.album_keyword
+        alt_db = cfg.alt_db
         alt_copy = cfg.alt_copy
         append = cfg.append
         beta = cfg.beta
@@ -1474,12 +1488,23 @@ def export(
     query_options = query_options_from_kwargs(**query_kwargs)
 
     if is_iphoto_library(db):
+        if alt_db:
+            click.echo("--alt-db is not supported for iPhoto libraries", err=True)
+            raise click.Abort()
         photosdb = osxphotos.iPhotoDB(
             dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=False
         )
     else:
+        library_path = pathlib.Path(db)
+        if library_path.is_file():
+            # get the Photos library path from the database path
+            library_path = library_path.parent.parent
         photosdb = osxphotos.PhotosDB(
-            dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=True
+            dbfile=alt_db if alt_db else db,
+            verbose=verbose,
+            exiftool=exiftool_path,
+            rich=True,
+            library_path=library_path if alt_db else None,
         )
 
     # enable beta features if requested
