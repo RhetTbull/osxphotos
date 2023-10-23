@@ -105,6 +105,7 @@ class PhotosDB:
         verbose=None,
         exiftool=None,
         rich=None,
+        library_path=None,
         _skip_searchinfo=False,
     ):
         """Create a new PhotosDB object.
@@ -114,11 +115,29 @@ class PhotosDB:
             verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
             exiftool: optional path to exiftool for methods that require this (e.g. PhotoInfo.exiftool); if not provided, will search PATH
             rich: use rich with verbose output
+            library_path: path to Photos library root if different than where the database is stored; see Notes
             _skip_searchinfo: if True, will not process search data from psi.sqlite; useful for processing standalone Photos.sqlite file
 
         Raises:
             PhotosDBReadError if dbfile is not a valid Photos library.
             TypeError if verbose is not None and not callable.
+
+        Notes:
+            dbfile can be either the path to the Photos library (e.g. ~/Pictures/Photos Library.photoslibrary)
+            or the path to the photos.db file (e.g. ~/Pictures/Photos Library.photoslibrary/database/photos.db)
+            or the path to the Photos.sqlite file (e.g. ~/Pictures/Photos Library.photoslibrary/database/Photos.sqlite)
+            If dbfile is None, will attempt to locate last opened Photos library.
+            In some cases, it may be useful to copy the database to a different location than the library
+            (e.g. if the library is on a slow drive or an iPhone).
+            In that case, set dbfile to the path to the database and set library_path to the path to the library root.
+            For example:
+
+            ```python
+            photosdb = PhotosDB(dbfile="/path/to/database/Photos.sqlite", library_path="/path/to/Photos Library.photoslibrary")
+            ```
+
+            If library_path is not provided, PhotosDB determine the library path from the database path. In most cases you should
+            not provide the library_path argument.
         """
 
         # Check that we're not trying to open an iPhoto library
@@ -373,8 +392,11 @@ class PhotosDB:
                 f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
             )
 
-        library_path = os.path.dirname(os.path.abspath(dbfile))
-        (library_path, _) = os.path.split(library_path)  # drop /database from path
+        if not library_path:
+            # library_path not provided as argument (this is the normal case)
+            # determine library path relative to the database path
+            library_path = os.path.dirname(os.path.abspath(dbfile))
+            (library_path, _) = os.path.split(library_path)  # drop /database from path
         self._library_path = library_path
         if int(self._db_version) <= int(_PHOTOS_4_VERSION):
             masters_path = os.path.join(library_path, "Masters")

@@ -1,6 +1,9 @@
 """Test macOS 13.0 Photos library"""
 
 import json
+import os
+import shutil
+import tempfile
 from collections import namedtuple
 
 import pytest
@@ -9,8 +12,8 @@ import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "tests/Test-13.0.0.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-13.0.0.photoslibrary/database/photos.db"
-PHOTOS_LIBRARY_PATH = "/Test-13.0.0.photoslibrary"
+PHOTOS_DB_PATH = "tests/Test-13.0.0.photoslibrary/database/photos.db"
+PHOTOS_LIBRARY_PATH = "tests/Test-13.0.0.photoslibrary"
 
 PHOTOS_DB_LEN = 16
 PHOTOS_NOT_IN_TRASH_LEN = 14
@@ -1373,3 +1376,20 @@ def test_tables(photosdb: osxphotos.PhotosDB):
     assert tables.ZADDITIONALASSETATTRIBUTES.ZTITLE[0] == photo.title
     assert len(tables.ZASSET.rows()) == 1
     assert tables.ZASSET.rows_dict()[0]["ZUUID"] == photo.uuid
+
+
+def test_photosdb_library_path():
+    """Test the library_path argument to PhotosDB"""
+
+    # copy the /database directory of PHOTOS_LIBRARY_PATH to a temp dir
+    # and use that as the dbpath
+    with tempfile.TemporaryDirectory() as tmpdir:
+        shutil.copytree(
+            os.path.join(PHOTOS_LIBRARY_PATH, "database"),
+            os.path.join(tmpdir, "database"),
+        )
+        dbpath = os.path.join(tmpdir, "database", "Photos.sqlite")
+        photosdb = osxphotos.PhotosDB(dbpath, library_path=PHOTOS_LIBRARY_PATH)
+        assert photosdb.library_path == PHOTOS_LIBRARY_PATH
+        assert photosdb.db_path == dbpath
+        assert len(photosdb) == PHOTOS_DB_LEN
