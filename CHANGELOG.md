@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.64.3](https://github.com/RhetTbull/osxphotos/compare/v0.64.2...v0.64.3)
+
+Adds `--alt-db` option to export. You probably (almost certainly) don't need this.
+
+### [v0.64.3] - 2023-10-22
+
+#### Added
+
+- `--alt-db` option to export to specify a different database than the one in the Photos library. This is a niche option you likely don't need but enables certain use cases that previously weren't possible. 
+
+#### Removed
+
+#### Changed
+
+#### Fixed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code and testing
+
 ## [v0.64.2](https://github.com/RhetTbull/osxphotos/compare/v0.64.0...v0.64.2)
 
 Updated dependencies for Python 3.12
