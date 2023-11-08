@@ -736,8 +736,19 @@ from .verbose import get_verbose_console, verbose_print
     "--ramdb",
     is_flag=True,
     help="Copy export database to memory during export; "
-    "may improve performance when exporting over a network or slow disk but could result in "
-    "losing update state information if the program is interrupted or crashes.",
+    "will improve performance when exporting over a network or slow disk but could result in "
+    "losing update state information if the program is interrupted or crashes. "
+    "See also --checkpoint.",
+)
+@click.option(
+    "--checkpoint",
+    metavar="NUMBER_OF_PHOTOS",
+    help="When used with --ramdb, periodically save the export database "
+    "back to disk after processing NUMBER_OF_PHOTOS "
+    "to avoid data loss if export is cancelled or crashes. "
+    "Default is 1000; to prevent checkpointing of database, use `--checkpoint 0`",
+    type=click.IntRange(min=0),
+    default=1000,
 )
 @click.option(
     "--tmpdir",
@@ -847,6 +858,7 @@ def export(
     append,
     beta,
     burst,
+    checkpoint,
     cleanup,
     cloudasset,
     config_only,
@@ -1080,6 +1092,7 @@ def export(
         append = cfg.append
         beta = cfg.beta
         burst = cfg.burst
+        checkpoint = cfg.checkpoint
         cleanup = cfg.cleanup
         cloudasset = cfg.cloudasset
         convert_to_jpeg = cfg.convert_to_jpeg
@@ -1289,6 +1302,7 @@ def export(
     ]
     dependent_options = [
         ("append", ("report")),
+        ("checkpoint", ("ramdb")),
         ("exiftool_merge_keywords", ("exiftool", "sidecar")),
         ("exiftool_merge_persons", ("exiftool", "sidecar")),
         ("exiftool_option", ("exiftool")),
@@ -1752,6 +1766,13 @@ def export(
                             rich_click_echo(rendered_template)
 
                 progress.advance(task)
+
+                # handle checkpoint
+                if checkpoint and not dry_run and photo_num % checkpoint == 0:
+                    verbose(
+                        f"Checkpoint: saving export database state to {export_db_path}"
+                    )
+                    export_db.write_to_disk()
 
                 # handle limit
                 if export_results.exported:

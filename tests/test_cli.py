@@ -1654,6 +1654,43 @@ def test_export_tmpdir():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
+def test_export_checkpoint():
+    """test basic export with --checkpoint"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # check that database is not checkpointed with --dry-run
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--ramdb",
+                "--checkpoint",
+                5,
+                "--dry-run",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Checkpoint" not in result.output
+
+        # check that database does get checkpointed without --dry-run
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--ramdb", "--checkpoint", 5],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        num_checkpoints_expected = PHOTOS_NOT_IN_TRASH_LEN_15_7 // 5
+        num_checkpoints_got = len(
+            [x for x in result.output.split("\n") if "Checkpoint" in x]
+        )
+        assert num_checkpoints_expected == num_checkpoints_got
+
+
 def test_export_uuid_from_file():
     """Test export with --uuid-from-file"""
 
