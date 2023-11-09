@@ -63,6 +63,7 @@ from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
     format_sec_to_hhmmss,
     is_mounted_volume,
+    is_photoslibrary_path,
     pluralize,
     under_test,
 )
@@ -1382,11 +1383,20 @@ def export(
     retry = retry or 0
     checkpoint = DEFAULT_CHECKPOINT if checkpoint is None else checkpoint
 
+    dest = str(pathlib.Path(dest).resolve())
+
+    # validate the destination path
     if not os.path.isdir(dest):
-        rich_click_echo(f"[error]DEST {dest} must be valid path", err=True)
+        rich_click_echo(f"[error]Error: DEST {dest} must be valid path", err=True)
         sys.exit(1)
 
-    dest = str(pathlib.Path(dest).resolve())
+    if is_photoslibrary_path(dest):
+        rich_click_echo(
+            f"[error]Error: DEST {dest} appears to be a Photos library. "
+            "You should not export into a Photos library.",
+            err=True,
+        )
+        sys.exit(1)
 
     if report:
         report = render_and_validate_report(report, exiftool_path, dest)

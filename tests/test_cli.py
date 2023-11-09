@@ -1713,6 +1713,22 @@ def test_export_checkpoint_on_crash():
         assert "Writing export database" in result.output
 
 
+def test_export_into_photos_library():
+    """Test attempt to export into a photos library, #1268"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        src = os.path.join(cwd, CLI_PHOTOS_DB)
+        dest = os.path.join(os.getcwd(), "export_test.photoslibrary")
+        photos_db_path = copy_photos_library_to_path(src, dest)
+
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), photos_db_path, "-V"]
+        )
+        assert result.exit_code != 0
+        assert "appears to be a Photos library" in result.output
+
+
 def test_export_uuid_from_file():
     """Test export with --uuid-from-file"""
 
