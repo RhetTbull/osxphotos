@@ -7,6 +7,7 @@ import inspect
 import os
 import pathlib
 import platform
+import signal
 import subprocess
 import sys
 import time
@@ -1491,6 +1492,16 @@ def export(
             export_db_callback = register_crash_callback(
                 export_db.write_to_disk, f"Writing export database to {export_db_path}"
             )
+
+            # install SIGINT handler to write database on Ctrl+C
+            def sigint_handler(signal, frame):
+                print("Aborted!", file=sys.stderr)
+                print(f"Writing export database to {export_db_path}")
+                export_db.write_to_disk()
+                sys.exit(1)
+
+            signal.signal(signal.SIGINT, sigint_handler)
+
         if alt_copy or not is_macos or (exiftool and is_mounted_volume(dest)):
             # if alt_copy or not on macOS, use shutil for copying files
             # also, if destination appears to be on a mounted volume and using exiftool, use shutil
