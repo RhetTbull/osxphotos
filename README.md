@@ -203,7 +203,7 @@ To get help on a specific command, use `osxphotos help COMMAND`, for example, `o
 Some of the commands such as `export` and `query` have a large number of options.  To search for options related to a specific topic, you can use `osxphotos help COMMAND TOPIC`.  For example, `osxphotos help export raw` finds the options related to RAW files (search is case-insensitive):
 
 ```
-Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
+Usage: osxphotos export [OPTIONS] ... DEST
 
   Export photos from the Photos database. Export path DEST is required.
   Optionally, query the Photos database using 1 or more search options; if
@@ -238,17 +238,13 @@ Options that match 'raw':
 
 #### export all photos to ~/Desktop/export group in folders by date created
 
-`osxphotos export --export-by-date ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
-
-**Note**: Photos library/database path can also be specified using `--db` option:
-
-`osxphotos export --export-by-date --db ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
+`osxphotos export --export-by-date --library ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
 
 #### find all photos with keyword "Kids" and output results to json file named results.json
 
-`osxphotos query --keyword Kids --json ~/Pictures/Photos\ Library.photoslibrary >results.json`
+`osxphotos query --keyword Kids --json --library ~/Pictures/Photos\ Library.photoslibrary >results.json`
 
-#### Find all videos larger than 200MB and add them to an album named "Big Videos" in Photos, creating the album if necessary
+#### Find all videos larger than 200MB and add them to an album named "Big Videos" in Photos, creating the album if necessary. Use the last opened library (do not explicitely specify a library)
 
 `osxphotos query --only-movies --min-size 200MB --add-to-album "Big Videos"`
 
@@ -391,9 +387,9 @@ As mentioned above, Photos renames JPEG images that have been edited with the ".
 
 #### Specifying the Photos library
 
-All the above commands operate on the default Photos library.  Most users only use a single Photos library which is also known as the System Photo Library.  It is possible to use Photos with more than one library.  For example, if you hold down the "Option" key while opening Photos, you can select an alternate Photos library.  If you don't specify which library to use, osxphotos will try find the last opened library.  Occasionally it can't determine this and in that case, it will use the System Photos Library.  If you use more than one Photos library and want to explicitly specify which library to use, you can do so with the `--db` option. (db is short for database and is so named because osxphotos operates on the database that Photos uses to manage your Photos library).
+All the above commands operate on the default Photos library.  Most users only use a single Photos library which is also known as the System Photo Library.  It is possible to use Photos with more than one library.  For example, if you hold down the "Option" key while opening Photos, you can select an alternate Photos library.  If you don't specify which library to use, osxphotos will try find the last opened library.  Occasionally it can't determine this and in that case, it will use the System Photos Library.  If you use more than one Photos library and want to explicitly specify which library to use, you can do so with the `--library` option.
 
-`osxphotos export /path/to/export --db ~/Pictures/MyAlternateLibrary.photoslibrary`
+`osxphotos export /path/to/export --library ~/Pictures/MyAlternateLibrary.photoslibrary`
 
 #### Missing photos
 
@@ -668,7 +664,7 @@ Here's a comprehensive use case from an actual osxphotos user that integrates ma
     Finally, use `--strip` to remove any leading or trailing whitespace from processed
     template fields.
 
-`osxphotos export ~/Desktop/folder for exported videos/ --keyword Quik --only-movies --db /path to my.photoslibrary --touch-file --finder-tag-keywords --person-keyword --xattr-template findercomment "{title}{title?{descr?{newline},},}{descr}" --exiftool-merge-keywords --exiftool-merge-persons --exiftool --strip`
+`osxphotos export ~/Desktop/folder for exported videos/ --keyword Quik --only-movies --library /path to my.photoslibrary --touch-file --finder-tag-keywords --person-keyword --xattr-template findercomment "{title}{title?{descr?{newline},},}{descr}" --exiftool-merge-keywords --exiftool-merge-persons --exiftool --strip`
 
 #### Color Themes
 
@@ -684,7 +680,7 @@ osxphotos is very flexible.  If you merely want to backup your Photos library, t
 `osxphotos help export`
 <!-- OSXPHOTOS-EXPORT-USAGE:START - Do not remove or modify this section -->
 ```
-Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
+Usage: osxphotos export [OPTIONS] DEST
 
   Export photos from the Photos database. Export path DEST is required.
 
@@ -1499,10 +1495,17 @@ Options:
                                   directory.  If --exportdb is specified, it
                                   will be saved to the specified file.
   --ramdb                         Copy export database to memory during export;
-                                  may improve performance when exporting over a
+                                  will improve performance when exporting over a
                                   network or slow disk but could result in
                                   losing update state information if the program
-                                  is interrupted or crashes.
+                                  is interrupted or crashes. See also
+                                  --checkpoint.
+  --checkpoint NUMBER_OF_PHOTOS   When used with --ramdb, periodically save the
+                                  export database back to disk after processing
+                                  NUMBER_OF_PHOTOS to avoid data loss if export
+                                  is cancelled or crashes. Default is 1000; to
+                                  prevent checkpointing of database, use
+                                  `--checkpoint 0`  [x>=0]
   --tmpdir DIR                    Specify alternate temporary directory. Default
                                   is system temporary directory. osxphotos needs
                                   to create a number of temporary files during

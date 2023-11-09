@@ -43,7 +43,6 @@ from .verbose import get_verbose_console
     "and only the rendered TEMPLATE values are printed. "
     "May be repeated to print multiple template strings. ",
 )
-@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def dump(
@@ -54,7 +53,6 @@ def dump(
     deleted_only,
     field,
     json_,
-    photos_library,
     print_template,
 ):
     """Print list of all photos & associated info from the Photos library.
@@ -67,7 +65,7 @@ def dump(
     cli_db = cli_obj.db if cli_obj is not None else None
     cli_json = cli_obj.json if cli_obj is not None else None
 
-    db = get_photos_db(*photos_library, db, cli_db)
+    db = get_photos_db(db, cli_db)
     if db is None:
         click.echo(ctx.obj.group.commands["dump"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)

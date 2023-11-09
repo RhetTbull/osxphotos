@@ -1596,7 +1596,9 @@ def test_export():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
@@ -1609,7 +1611,8 @@ def test_export_alt_copy():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--alt-copy", "-V"]
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--alt-copy", "-V"],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -1648,7 +1651,14 @@ def test_export_tmpdir():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--tmpdir", tmpdir.name],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--tmpdir",
+                tmpdir.name,
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -1665,6 +1675,7 @@ def test_export_checkpoint():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1680,7 +1691,15 @@ def test_export_checkpoint():
         # check that database does get checkpointed without --dry-run
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--ramdb", "--checkpoint", 5],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--ramdb",
+                "--checkpoint",
+                5,
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -1701,6 +1720,7 @@ def test_export_checkpoint_on_crash():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1723,7 +1743,8 @@ def test_export_into_photos_library():
         photos_db_path = copy_photos_library_to_path(src, dest)
 
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), photos_db_path, "-V"]
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), photos_db_path, "-V"],
         )
         assert result.exit_code != 0
         assert "appears to be a Photos library" in result.output
@@ -1739,6 +1760,7 @@ def test_export_uuid_from_file():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -1761,6 +1783,7 @@ def test_export_skip_uuid_from_file():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -1789,6 +1812,7 @@ def test_export_skip_uuid():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -1810,6 +1834,7 @@ def test_export_year():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1833,6 +1858,7 @@ def test_export_preview():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1856,6 +1882,7 @@ def test_export_preview_file_exists():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1870,6 +1897,7 @@ def test_export_preview_file_exists():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1892,6 +1920,7 @@ def test_export_preview_suffix():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1920,6 +1949,7 @@ def test_export_preview_if_missing():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1945,6 +1975,7 @@ def test_export_preview_overwrite():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1959,6 +1990,7 @@ def test_export_preview_overwrite():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1983,6 +2015,7 @@ def test_export_preview_update():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -1997,6 +2030,7 @@ def test_export_preview_update():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -2031,7 +2065,13 @@ def test_export_as_hardlink():
     with isolated_filesystem_here():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--export-as-hardlink", "-V"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--export-as-hardlink",
+                "-V",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -2052,6 +2092,7 @@ def test_export_as_hardlink_samefile():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 f"--uuid={CLI_EXPORT_UUID}",
@@ -2077,6 +2118,7 @@ def test_export_using_hardlinks_incompat_options():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 f"--uuid={CLI_EXPORT_UUID}",
@@ -2095,7 +2137,14 @@ def test_export_current_name():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--current-name", "-V"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--current-name",
+                "-V",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -2108,7 +2157,8 @@ def test_export_skip_edited():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--skip-edited", "-V"]
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--skip-edited", "-V"],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -2121,7 +2171,8 @@ def test_export_edited():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--edited", "-V"]
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--edited", "-V"],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -2137,7 +2188,8 @@ def test_export_not_edited():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--not-edited", "-V"]
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--not-edited", "-V"],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -2161,7 +2213,13 @@ def test_export_skip_original_if_edited():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--skip-original-if-edited", "-V"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--skip-original-if-edited",
+                "-V",
+            ],
         )
         assert result.exit_code == 0
         assert "Skipping original version of wedding.jpg" in result.output
@@ -2193,6 +2251,7 @@ def test_export_exiftool():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2225,6 +2284,7 @@ def test_export_exiftool_tmpdir():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2260,6 +2320,7 @@ def test_export_exiftool_template_change():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2274,6 +2335,7 @@ def test_export_exiftool_template_change():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2290,6 +2352,7 @@ def test_export_exiftool_template_change():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2308,6 +2371,7 @@ def test_export_exiftool_template_change():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2336,6 +2400,7 @@ def test_export_exiftool_path():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2377,6 +2442,7 @@ def test_export_exiftool_path_render_template():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2404,6 +2470,7 @@ def test_export_exiftool_ignore_date_modified():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2439,6 +2506,7 @@ def test_export_exiftool_quicktime():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2474,6 +2542,7 @@ def test_export_exiftool_duplicate_keywords():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2500,6 +2569,7 @@ def test_export_exiftool_error():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2530,7 +2600,8 @@ def test_export_exiftool_option():
     with runner.isolated_filesystem():
         # first export with --exiftool, one file produces a warning
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--exiftool"]
+            export,
+            ["--library", os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--exiftool"],
         )
         assert result.exit_code == 0
         assert "exiftool warning" in result.output
@@ -2540,6 +2611,7 @@ def test_export_exiftool_option():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -2564,6 +2636,7 @@ def test_export_exiftool_merge():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2598,6 +2671,7 @@ def test_export_exiftool_merge_sidecar():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2643,6 +2717,7 @@ def test_export_exiftool_merge_sidecar_xmp():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -2671,6 +2746,7 @@ def test_export_exiftool_favorite_rating():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -2699,6 +2775,7 @@ def test_export_exiftool_update_errors():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -2710,6 +2787,7 @@ def test_export_exiftool_update_errors():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -2724,6 +2802,7 @@ def test_export_exiftool_update_errors():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -2746,6 +2825,7 @@ def test_export_edited_suffix():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "--edited-suffix",
@@ -2768,6 +2848,7 @@ def test_export_edited_suffix_template():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "--edited-suffix",
@@ -2790,6 +2871,7 @@ def test_export_original_suffix():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "--original-suffix",
@@ -2812,6 +2894,7 @@ def test_export_original_suffix_template():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "--original-suffix",
@@ -2836,7 +2919,14 @@ def test_export_convert_to_jpeg():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--convert-to-jpeg"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--convert-to-jpeg",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -2859,6 +2949,7 @@ def test_export_convert_to_jpeg_quality():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -2888,6 +2979,7 @@ def test_export_convert_to_jpeg_skip_raw():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -2909,7 +3001,14 @@ def test_export_duplicate():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--duplicate", "--skip-raw"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--duplicate",
+                "--skip-raw",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -2930,6 +3029,7 @@ def test_export_duplicate_unicode_filenames():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "--convert-to-jpeg",
@@ -3261,7 +3361,7 @@ def test_query_person_4():
         query,
         [
             "--json",
-            "--db",
+            "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--person",
             "Katie",
@@ -3282,11 +3382,11 @@ def test_query_album_1():
     result = runner.invoke(
         query,
         [
-            "--json",
-            "--db",
+            "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
             "Pumpkin Farm",
+            "--json",
         ],
     )
     assert result.exit_code == 0
@@ -3303,7 +3403,7 @@ def test_query_album_2():
         query,
         [
             "--json",
-            "--db",
+            "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
             "pumpkin farm",
@@ -3323,7 +3423,7 @@ def test_query_album_3():
         query,
         [
             "--json",
-            "--db",
+            "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
             "pumpkin farm",
@@ -3344,7 +3444,7 @@ def test_query_album_4():
         query,
         [
             "--json",
-            "--db",
+            "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
             "Pumpkin Farm",
@@ -3678,7 +3778,7 @@ def test_export_sidecar_templates():
             cli_main,
             [
                 "export",
-                "--db",
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--sidecar=json",
@@ -3720,7 +3820,7 @@ def test_export_sidecar_templates_exiftool():
             cli_main,
             [
                 "export",
-                "--db",
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--sidecar=exiftool",
@@ -3909,7 +4009,8 @@ def test_export_live():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, LIVE_PHOTOS_DB), ".", "--live", "-V"]
+            export,
+            ["--library", os.path.join(cwd, LIVE_PHOTOS_DB), ".", "--live", "-V"],
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_LIVE_ORIGINAL)
@@ -3921,7 +4022,8 @@ def test_export_skip_live():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, LIVE_PHOTOS_DB), ".", "--skip-live", "-V"]
+            export,
+            ["--library", os.path.join(cwd, LIVE_PHOTOS_DB), ".", "--skip-live", "-V"],
         )
         files = glob.glob("*")
         assert "img_0728.mov" not in [f.lower() for f in files]
@@ -3935,6 +4037,7 @@ def test_export_raw():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, RAW_PHOTOS_DB),
                 ".",
                 "--current-name",
@@ -3953,7 +4056,7 @@ def test_export_raw():
 #     # pylint: disable=not-context-manager
 #     with runner.isolated_filesystem():
 #         result = runner.invoke(
-#             export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--skip-raw", "-V"]
+#             export, ["--library", os.path.join(cwd, RAW_PHOTOS_DB), ".", "--skip-raw", "-V"]
 #         )
 #         files = glob.glob("*")
 #         for rawname in CLI_EXPORT_RAW:
@@ -3966,7 +4069,8 @@ def test_export_raw_original():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--skip-edited", "-V"]
+            export,
+            ["--library", os.path.join(cwd, RAW_PHOTOS_DB), ".", "--skip-edited", "-V"],
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_ORIGINAL)
@@ -3978,7 +4082,14 @@ def test_export_raw_edited():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--current-name", "-V"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, RAW_PHOTOS_DB),
+                ".",
+                "--current-name",
+                "-V",
+            ],
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED)
@@ -3989,7 +4100,9 @@ def test_export_raw_edited_original():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, RAW_PHOTOS_DB), ".", "-V"]
+        )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED_ORIGINAL)
 
@@ -4006,6 +4119,7 @@ def test_export_directory_template_1():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -4029,6 +4143,7 @@ def test_export_directory_template_2():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -4052,6 +4167,7 @@ def test_export_directory_template_3():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -4072,7 +4188,14 @@ def test_export_directory_template_album_1():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--directory", "{album}"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--directory",
+                "{album}",
+            ],
         )
         assert result.exit_code == 0
         workdir = os.getcwd()
@@ -4091,6 +4214,7 @@ def test_export_directory_template_album_2():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -4146,6 +4270,7 @@ def test_export_filename_template_1():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -4171,6 +4296,7 @@ def test_export_filename_template_2():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -4196,6 +4322,7 @@ def test_export_filename_template_strip():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -4222,6 +4349,7 @@ def test_export_filename_template_pathsep_in_name_1():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -4249,6 +4377,7 @@ def test_export_filename_template_pathsep_in_name_2():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -4277,6 +4406,7 @@ def test_export_filename_template_long_description():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -4302,6 +4432,7 @@ def test_export_filename_template_3():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -4322,7 +4453,14 @@ def test_export_album():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--album", "Pumpkin Farm", "-V"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--album",
+                "Pumpkin Farm",
+                "-V",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -4339,6 +4477,7 @@ def test_export_album_unicode_name():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--album",
@@ -4361,6 +4500,7 @@ def test_export_album_deleted_twin():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--album",
@@ -4382,7 +4522,8 @@ def test_export_deleted_1():
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--deleted", *skip]
+            export,
+            ["--library", os.path.join(cwd, PHOTOS_DB_15_7), ".", "--deleted", *skip],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -4403,7 +4544,8 @@ def test_export_deleted_2():
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_14_6), ".", "--deleted", *skip]
+            export,
+            ["--library", os.path.join(cwd, PHOTOS_DB_14_6), ".", "--deleted", *skip],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -4423,7 +4565,9 @@ def test_export_not_deleted_1():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
-        result = runner.invoke(export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", *skip])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, PHOTOS_DB_15_7), ".", *skip]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert len(files) == PHOTOS_NOT_IN_TRASH_LEN_15_7 - PHOTOS_MISSING_15_7
@@ -4437,7 +4581,9 @@ def test_export_not_deleted_2():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
-        result = runner.invoke(export, [os.path.join(cwd, PHOTOS_DB_14_6), ".", *skip])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, PHOTOS_DB_14_6), ".", *skip]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert len(files) == PHOTOS_NOT_IN_TRASH_LEN_14_6 - PHOTOS_MISSING_14_6
@@ -4452,7 +4598,14 @@ def test_export_deleted_only_1():
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--deleted-only", *skip]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--deleted-only",
+                *skip,
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -4468,7 +4621,14 @@ def test_export_deleted_only_2():
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_14_6), ".", "--deleted-only", *skip]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_14_6),
+                ".",
+                "--deleted-only",
+                *skip,
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -4492,7 +4652,14 @@ def test_export_error(monkeypatch):
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--uuid", CLI_EXPORT_UUID],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--uuid",
+                CLI_EXPORT_UUID,
+            ],
         )
         assert result.exit_code == 0
         assert "Error exporting" in result.output
@@ -4509,7 +4676,15 @@ def test_export_exif(exiftag, exifvalue, files_expected):
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--exif", exiftag, exifvalue, "-V"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--exif",
+                exiftag,
+                exifvalue,
+                "-V",
+            ],
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(files_expected)
@@ -4647,7 +4822,7 @@ def test_no_folder_1_15():
         result = runner.invoke(
             query,
             [
-                "--db",
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 "--json",
                 "--folder",
@@ -4851,7 +5026,9 @@ def test_export_update_basic():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # basic export
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
@@ -4859,7 +5036,7 @@ def test_export_update_basic():
 
         # update
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
         )
         assert result.exit_code == 0
         assert (
@@ -4876,7 +5053,9 @@ def test_export_force_update():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # basic export
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
@@ -4888,7 +5067,7 @@ def test_export_force_update():
 
         # update
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), ".", "--update"]
+            export, ["--library", os.path.join(cwd, photos_db_path), ".", "--update"]
         )
         assert result.exit_code == 0
         assert (
@@ -4899,7 +5078,8 @@ def test_export_force_update():
         # force update must be run once to set the metadata digest info
         # in practice, this means that first time user uses --force-update, most files will likely be re-exported
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
+            export,
+            ["--library", os.path.join(cwd, photos_db_path), ".", "--force-update"],
         )
         assert result.exit_code == 0
 
@@ -4919,7 +5099,8 @@ def test_export_force_update():
 
         # run --force-update to see if updated metadata forced update
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
+            export,
+            ["--library", os.path.join(cwd, photos_db_path), ".", "--force-update"],
         )
         assert result.exit_code == 0
         assert (
@@ -4929,7 +5110,7 @@ def test_export_force_update():
 
         # update, nothing should export
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), ".", "--update"]
+            export, ["--library", os.path.join(cwd, photos_db_path), ".", "--update"]
         )
         assert result.exit_code == 0
         assert (
@@ -4939,7 +5120,8 @@ def test_export_force_update():
 
         # run --force-update, nothing should export
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
+            export,
+            ["--library", os.path.join(cwd, photos_db_path), ".", "--force-update"],
         )
         assert result.exit_code == 0
         assert (
@@ -4957,7 +5139,9 @@ def test_export_update_complex():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # basic export
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
@@ -4993,7 +5177,8 @@ def test_export_update_complex():
         ]
         # update
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+            export,
+            ["--library", os.path.join(cwd, photos_db_path), tempdir.name, *options],
         )
         assert result.exit_code == 0
         assert (
@@ -5002,7 +5187,8 @@ def test_export_update_complex():
         )
 
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+            export,
+            ["--library", os.path.join(cwd, photos_db_path), tempdir.name, *options],
         )
         assert result.exit_code == 0
         assert "exported: 0" in result.output
@@ -5023,7 +5209,8 @@ def test_export_update_complex():
 
         # run --update to see if updated metadata forced update
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+            export,
+            ["--library", os.path.join(cwd, photos_db_path), tempdir.name, *options],
         )
         assert result.exit_code == 0
         assert (
@@ -5033,7 +5220,8 @@ def test_export_update_complex():
 
         # update, nothing should export
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+            export,
+            ["--library", os.path.join(cwd, photos_db_path), tempdir.name, *options],
         )
         assert result.exit_code == 0
         assert (
@@ -5046,7 +5234,8 @@ def test_export_update_complex():
 
         # run update and all photos should be updated
         result = runner.invoke(
-            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+            export,
+            ["--library", os.path.join(cwd, photos_db_path), tempdir.name, *options],
         )
         assert result.exit_code == 0
         assert (
@@ -5091,14 +5280,18 @@ def test_export_update_child_folder():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # basic export
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         os.mkdir("foo")
 
         # update into foo
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), "foo", "--update"], input="N\n"
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), "foo", "--update"],
+            input="N\n",
         )
         assert result.exit_code != 0
         assert "WARNING: found other export database files" in result.output
@@ -5113,12 +5306,16 @@ def test_export_update_parent_folder():
     with runner.isolated_filesystem():
         # basic export
         os.mkdir("foo")
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), "foo", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), "foo", "-V"]
+        )
         assert result.exit_code == 0
 
         # update into "."
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"], input="N\n"
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"],
+            input="N\n",
         )
         assert result.exit_code != 0
         assert "WARNING: found other export database files" in result.output
@@ -5133,14 +5330,23 @@ def test_export_update_exiftool():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # basic export
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
         # update with exiftool
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update", "--exiftool"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--update",
+                "--exiftool",
+            ],
         )
         assert result.exit_code == 0
         assert (
@@ -5150,7 +5356,14 @@ def test_export_update_exiftool():
 
         # update with exiftool again, should be no changes
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update", "--exiftool"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--update",
+                "--exiftool",
+            ],
         )
         assert result.exit_code == 0
         assert (
@@ -5172,7 +5385,13 @@ def test_export_update_hardlink():
         # basic export
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--export-as-hardlink"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--export-as-hardlink",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -5181,7 +5400,7 @@ def test_export_update_hardlink():
 
         # update, should replace the hardlink files with new copies
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
         )
         assert result.exit_code == 0
         assert (
@@ -5205,7 +5424,13 @@ def test_export_update_hardlink_exiftool():
         # basic export
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--export-as-hardlink"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--export-as-hardlink",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -5214,7 +5439,14 @@ def test_export_update_hardlink_exiftool():
 
         # update, should replace the hardlink files with new copies
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update", "--exiftool"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--update",
+                "--exiftool",
+            ],
         )
         assert result.exit_code == 0
         assert (
@@ -5233,7 +5465,14 @@ def test_export_update_edits():
     with runner.isolated_filesystem():
         # basic export
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--export-by-date"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--export-by-date",
+            ],
         )
         assert result.exit_code == 0
 
@@ -5245,7 +5484,13 @@ def test_export_update_edits():
         # update
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update", "--export-by-date"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--update",
+                "--export-by-date",
+            ],
         )
         assert result.exit_code == 0
         assert (
@@ -5266,6 +5511,7 @@ def test_export_update_only_new():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -5279,6 +5525,7 @@ def test_export_update_only_new():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -5293,7 +5540,14 @@ def test_export_update_only_new():
         # --update with --only-new
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update", "--only-new"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--only-new",
+            ],
         )
         assert result.exit_code == 0
         assert "exported: 7" in result.output
@@ -5301,7 +5555,14 @@ def test_export_update_only_new():
         # --update with --only-new, should export nothing
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update", "--only-new"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--only-new",
+            ],
         )
         assert result.exit_code == 0
         assert "exported: 0" in result.output
@@ -5315,7 +5576,9 @@ def test_export_update_no_db():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # basic export
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
@@ -5324,7 +5587,7 @@ def test_export_update_no_db():
 
         # update, will re-export all files with different names
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
         )
         assert result.exit_code == 0
 
@@ -5346,7 +5609,9 @@ def test_export_then_hardlink():
     # pylint: disable=not-context-manager
     with isolated_filesystem_here():
         # basic export
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
@@ -5355,6 +5620,7 @@ def test_export_then_hardlink():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "--export-as-hardlink",
@@ -5377,7 +5643,8 @@ def test_export_dry_run():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--dry-run"]
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--dry-run"],
         )
         assert result.exit_code == 0
         assert (
@@ -5398,7 +5665,14 @@ def test_export_dry_run_alt_copy():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--alt-copy", "--dry-run"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--alt-copy",
+                "--dry-run",
+            ],
         )
         assert result.exit_code == 0
         assert (
@@ -5419,7 +5693,14 @@ def test_export_update_edits_dry_run():
     with runner.isolated_filesystem():
         # basic export
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--export-by-date"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--export-by-date",
+            ],
         )
         assert result.exit_code == 0
 
@@ -5432,6 +5713,7 @@ def test_export_update_edits_dry_run():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "--update",
@@ -5461,6 +5743,7 @@ def test_export_directory_template_1_dry_run():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -5493,6 +5776,7 @@ def test_export_touch_files():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "-V",
@@ -5535,7 +5819,13 @@ def test_export_touch_files_update():
         # basic export with dry-run
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--dry-run"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
+                ".",
+                "--export-by-date",
+                "--dry-run",
+            ],
         )
         assert result.exit_code == 0
 
@@ -5548,7 +5838,8 @@ def test_export_touch_files_update():
 
         # without dry-run
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date"]
+            export,
+            ["--library", os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date"],
         )
         assert result.exit_code == 0
 
@@ -5562,7 +5853,13 @@ def test_export_touch_files_update():
         # --update
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--update"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
+                ".",
+                "--export-by-date",
+                "--update",
+            ],
         )
         assert result.exit_code == 0
 
@@ -5575,6 +5872,7 @@ def test_export_touch_files_update():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
@@ -5609,6 +5907,7 @@ def test_export_touch_files_update():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
@@ -5636,6 +5935,7 @@ def test_export_touch_files_update():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
@@ -5657,7 +5957,13 @@ def test_export_touch_files_update():
         # run update without --touch-file
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--update"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
+                ".",
+                "--export-by-date",
+                "--update",
+            ],
         )
         assert result.exit_code == 0
 
@@ -5682,7 +5988,13 @@ def test_export_touch_files_exiftool_update():
         # basic export with dry-run
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--dry-run"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
+                ".",
+                "--export-by-date",
+                "--dry-run",
+            ],
         )
         assert result.exit_code == 0
 
@@ -5692,7 +6004,8 @@ def test_export_touch_files_exiftool_update():
 
         # without dry-run
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date"]
+            export,
+            ["--library", os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date"],
         )
         assert result.exit_code == 0
 
@@ -5703,7 +6016,13 @@ def test_export_touch_files_exiftool_update():
         # --update
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--update"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
+                ".",
+                "--export-by-date",
+                "--update",
+            ],
         )
         assert result.exit_code == 0
 
@@ -5845,7 +6164,9 @@ def test_export_ignore_signature():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # first, export some files
-        result = runner.invoke(export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # modify a couple of files
@@ -5857,6 +6178,7 @@ def test_export_ignore_signature():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -5870,14 +6192,16 @@ def test_export_ignore_signature():
         # export with --update and not --ignore-signature
         # which should updated the two modified files
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update"]
+            export,
+            ["--library", os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update"],
         )
         assert result.exit_code == 0
         assert "updated: 2" in result.output
 
         # run --update again, should be 0 files exported
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update"]
+            export,
+            ["--library", os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update"],
         )
         assert result.exit_code == 0
         assert "exported: 0, updated: 0" in result.output
@@ -5899,7 +6223,15 @@ def test_export_ignore_signature_sidecar():
     with runner.isolated_filesystem():
         # first, export some files
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--sidecar", "XMP"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--sidecar",
+                "XMP",
+            ],
         )
         assert result.exit_code == 0
 
@@ -5907,6 +6239,7 @@ def test_export_ignore_signature_sidecar():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -5930,6 +6263,7 @@ def test_export_ignore_signature_sidecar():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -5957,6 +6291,7 @@ def test_export_ignore_signature_sidecar():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -5976,6 +6311,7 @@ def test_export_ignore_signature_sidecar():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -5996,6 +6332,7 @@ def test_export_ignore_signature_sidecar():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -6079,6 +6416,7 @@ def test_export_report():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6101,6 +6439,7 @@ def test_export_report():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6121,6 +6460,7 @@ def test_export_report():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6153,6 +6493,7 @@ def test_export_report_json():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6174,6 +6515,7 @@ def test_export_report_json():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6193,6 +6535,7 @@ def test_export_report_json():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6225,6 +6568,7 @@ def test_export_report_sqlite(report_file):
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6247,6 +6591,7 @@ def test_export_report_sqlite(report_file):
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6267,6 +6612,7 @@ def test_export_report_sqlite(report_file):
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6298,6 +6644,7 @@ def test_export_report_template():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6318,7 +6665,8 @@ def test_export_report_not_a_file():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--report", "."]
+            export,
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--report", "."],
         )
         assert result.exit_code != 0
         assert "is a directory, must be file name" in result.output
@@ -6334,12 +6682,12 @@ def test_export_as_hardlink_download_missing():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
                 "--download-missing",
                 "--export-as-hardlink",
-                ".",
             ],
         )
         assert result.exit_code != 0
@@ -6356,12 +6704,12 @@ def test_export_missing_not_download_missing():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
                 "--missing",
                 "--dry-run",
-                ".",
             ],
         )
         assert result.exit_code != 0
@@ -6376,7 +6724,14 @@ def test_export_not_missing():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--not-missing", "--dry-run"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--not-missing",
+                "--dry-run",
+            ],
         )
         assert result.exit_code == 0
         assert f"Exporting {PHOTOS_NOT_MISSING_15_7} photos" in result.output
@@ -6389,7 +6744,9 @@ def test_export_cleanup():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # create 2 files and a directory
@@ -6404,6 +6761,7 @@ def test_export_cleanup():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6420,7 +6778,14 @@ def test_export_cleanup():
         # run cleanup without dry-run
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--update", "--cleanup"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--cleanup",
+            ],
         )
         assert "Deleted: 2 files, 1 directory" in result.output
         assert not pathlib.Path("./delete_me.txt").is_file()
@@ -6434,7 +6799,9 @@ def test_export_cleanup_report():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         tmpdir = os.getcwd()
@@ -6443,6 +6810,7 @@ def test_export_cleanup_report():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6463,7 +6831,9 @@ def test_export_cleanup_empty_album():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # run cleanup with dry-run
@@ -6471,6 +6841,7 @@ def test_export_cleanup_empty_album():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, CLI_PHOTOS_DB),
                     tempdir,
                     "-V",
@@ -6483,6 +6854,7 @@ def test_export_cleanup_empty_album():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, CLI_PHOTOS_DB),
                     tempdir,
                     "-V",
@@ -6506,6 +6878,7 @@ def test_export_cleanup_accented_album_name():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 tempdir,
                 "-V",
@@ -6521,6 +6894,7 @@ def test_export_cleanup_accented_album_name():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 tempdir,
                 "-V",
@@ -6549,6 +6923,7 @@ def test_export_cleanup_exiftool_accented_album_name_same_filenames():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, CLI_PHOTOS_DB),
                     tempdir,
                     "-V",
@@ -6574,6 +6949,7 @@ def test_export_cleanup_exiftool_accented_album_name_same_filenames():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, CLI_PHOTOS_DB),
                     tempdir,
                     "-V",
@@ -6606,7 +6982,9 @@ def test_export_cleanup_keep():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         tmpdir = os.getcwd()
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # create file and a directory that should be deleted
@@ -6631,6 +7009,7 @@ def test_export_cleanup_keep():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6654,6 +7033,7 @@ def test_export_cleanup_keep():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6686,7 +7066,9 @@ def test_export_cleanup_keep_leading_slash():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         tmpdir = os.getcwd()
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # create file and a directory that should be deleted
@@ -6711,6 +7093,7 @@ def test_export_cleanup_keep_leading_slash():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6734,6 +7117,7 @@ def test_export_cleanup_keep_leading_slash():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6765,7 +7149,9 @@ def test_export_cleanup_keep_relative_path():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # create file and a directory that should be deleted
@@ -6794,6 +7180,7 @@ def test_export_cleanup_keep_relative_path():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6819,6 +7206,7 @@ def test_export_cleanup_keep_relative_path():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -6853,7 +7241,9 @@ def test_export_cleanup_exportdb_report():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # create 2 files and a directory
@@ -6866,7 +7256,14 @@ def test_export_cleanup_exportdb_report():
         assert pathlib.Path("./delete_me.txt").is_file()
         results = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--update", "--cleanup"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--cleanup",
+            ],
         )
         assert "Deleted: 2 files, 1 directory" in results.output
         assert not pathlib.Path("./delete_me.txt").is_file()
@@ -6893,7 +7290,9 @@ def test_export_cleanup_osxphotos_keep():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         tmpdir = os.getcwd()
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # create file and a directory that should be deleted
@@ -6968,7 +7367,9 @@ def test_export_cleanup_osxphotos_keep_keep():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         tmpdir = os.getcwd()
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
 
         # create file and a directory that should be deleted
@@ -7049,6 +7450,7 @@ def test_save_load_config():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7069,6 +7471,7 @@ def test_save_load_config():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7084,6 +7487,7 @@ def test_save_load_config():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7105,6 +7509,7 @@ def test_save_load_config():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7120,6 +7525,7 @@ def test_save_load_config():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7145,6 +7551,7 @@ def test_config_only():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7241,6 +7648,7 @@ def test_export_exportdb():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7253,7 +7661,9 @@ def test_export_exportdb():
         assert re.search(r"Using export database.*export\.db", result.output)
 
         # export again w/o --exportdb
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
         assert result.exit_code == 0
         assert re.search(
             r"Created export database.*\.osxphotos_export\.db", result.output
@@ -7264,7 +7674,14 @@ def test_export_exportdb():
         # now try again with --exportdb, should generate warning
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--exportdb", "export.db"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--exportdb",
+                "export.db",
+            ],
         )
         assert result.exit_code == 0
         assert (
@@ -7283,6 +7700,7 @@ def test_export_exportdb_ramdb():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7299,6 +7717,7 @@ def test_export_exportdb_ramdb():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7322,14 +7741,21 @@ def test_export_ramdb():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--ramdb"],
+            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--ramdb"],
         )
         assert result.exit_code == 0
 
         # run again, update should update no files if db written back to disk
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--update", "--ramdb"],
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--ramdb",
+            ],
         )
         assert result.exit_code == 0
         assert "exported: 0" in result.output
@@ -7338,6 +7764,7 @@ def test_export_ramdb():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
@@ -7359,6 +7786,7 @@ def test_export_finder_tag_keywords_dry_run():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7383,6 +7811,7 @@ def test_export_finder_tag_keywords():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7403,6 +7832,7 @@ def test_export_finder_tag_keywords():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7427,6 +7857,7 @@ def test_export_finder_tag_keywords():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7458,6 +7889,7 @@ def test_export_finder_tag_template():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7479,6 +7911,7 @@ def test_export_finder_tag_template():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7504,6 +7937,7 @@ def test_export_finder_tag_template():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7536,6 +7970,7 @@ def test_export_finder_tag_template_multiple():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7570,6 +8005,7 @@ def test_export_finder_tag_template_keywords():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7603,6 +8039,7 @@ def test_export_finder_tag_template_multi_field():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7638,6 +8075,7 @@ def test_export_xattr_template_dry_run():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7674,6 +8112,7 @@ def test_export_xattr_template():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7695,6 +8134,7 @@ def test_export_xattr_template():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7721,6 +8161,7 @@ def test_export_xattr_template():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7747,7 +8188,15 @@ def test_export_jpeg_ext():
     with runner.isolated_filesystem():
         for uuid, fileinfo in UUID_JPEGS_DICT.items():
             result = runner.invoke(
-                export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--uuid", uuid]
+                export,
+                [
+                    "--library",
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--uuid",
+                    uuid,
+                ],
             )
             assert result.exit_code == 0
             files = glob.glob("*")
@@ -7760,6 +8209,7 @@ def test_export_jpeg_ext():
                 result = runner.invoke(
                     export,
                     [
+                        "--library",
                         os.path.join(cwd, PHOTOS_DB_15_7),
                         ".",
                         "-V",
@@ -7784,7 +8234,15 @@ def test_export_jpeg_ext_not_jpeg():
     with runner.isolated_filesystem():
         for uuid, fileinfo in UUID_JPEGS_DICT.items():
             result = runner.invoke(
-                export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--uuid", uuid]
+                export,
+                [
+                    "--library",
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--uuid",
+                    uuid,
+                ],
             )
             assert result.exit_code == 0
             files = glob.glob("*")
@@ -7797,6 +8255,7 @@ def test_export_jpeg_ext_not_jpeg():
                 result = runner.invoke(
                     export,
                     [
+                        "--library",
                         os.path.join(cwd, PHOTOS_DB_15_7),
                         ".",
                         "-V",
@@ -7821,7 +8280,15 @@ def test_export_jpeg_ext_edited_movie():
     with runner.isolated_filesystem():
         for uuid, fileinfo in UUID_MOVIES_NOT_JPEGS_DICT.items():
             result = runner.invoke(
-                export, [os.path.join(cwd, PHOTOS_DB_MOVIES), ".", "-V", "--uuid", uuid]
+                export,
+                [
+                    "--library",
+                    os.path.join(cwd, PHOTOS_DB_MOVIES),
+                    ".",
+                    "-V",
+                    "--uuid",
+                    uuid,
+                ],
             )
             assert result.exit_code == 0
             files = glob.glob("*")
@@ -7835,6 +8302,7 @@ def test_export_jpeg_ext_edited_movie():
                 result = runner.invoke(
                     export,
                     [
+                        "--library",
                         os.path.join(cwd, PHOTOS_DB_MOVIES),
                         ".",
                         "-V",
@@ -7867,6 +8335,7 @@ def test_export_jpeg_ext_convert_to_jpeg():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
@@ -7897,6 +8366,7 @@ def test_export_jpeg_ext_convert_to_jpeg_movie():
             result = runner.invoke(
                 export,
                 [
+                    "--library",
                     os.path.join(cwd, PHOTOS_DB_MOVIES),
                     ".",
                     "-V",
@@ -8227,7 +8697,15 @@ def test_export_name():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--name", "DSC03584"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--name",
+                "DSC03584",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -8244,6 +8722,7 @@ def test_query_eval():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -8266,6 +8745,7 @@ def test_bad_query_eval():
         result = runner.invoke(
             export,
             [
+                "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
@@ -8577,6 +9057,7 @@ def test_query_added_in_last():
     results = runner.invoke(
         query,
         [
+            "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--json",
             "--added-in-last",

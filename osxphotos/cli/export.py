@@ -844,7 +844,6 @@ from .verbose import get_verbose_console, verbose_print
     "obviously this is only for testing and debugging crash handling.",
 )
 @THEME_OPTION
-@DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
 @click.pass_context
@@ -859,7 +858,6 @@ def export(
     ctx,
     cli_obj,
     db,
-    photos_library,
     add_exported_to_album,
     add_missing_to_album,
     add_skipped_to_album,
@@ -1029,9 +1027,6 @@ def export(
     shared_library,
     not_shared_library,
     selected=False,  # Isn't provided on unsupported platforms
-    # debug,  # debug, watch, breakpoint handled in cli/__init__.py
-    # watch,
-    # breakpoint,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1207,7 +1202,6 @@ def export(
         panorama = cfg.panorama
         person = cfg.person
         person_keyword = cfg.person_keyword
-        photos_library = cfg.photos_library
         place = cfg.place
         portrait = cfg.portrait
         post_command = cfg.post_command
@@ -1444,7 +1438,7 @@ def export(
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
+    db = get_photos_db(db, cli_db)
     if not db:
         rich_click_echo(get_help_msg(export), err=True)
         rich_click_echo(

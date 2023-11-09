@@ -142,9 +142,9 @@ As mentioned above, Photos renames JPEG images that have been edited with the ".
 
 ## Specifying the Photos library
 
-All the above commands operate on the default Photos library.  Most users only use a single Photos library which is also known as the System Photo Library.  It is possible to use Photos with more than one library.  For example, if you hold down the "Option" key while opening Photos, you can select an alternate Photos library.  If you don't specify which library to use, osxphotos will try find the last opened library.  Occasionally it can't determine this and in that case, it will use the System Photos Library.  If you use more than one Photos library and want to explicitly specify which library to use, you can do so with the `--db` option. (db is short for database and is so named because osxphotos operates on the database that Photos uses to manage your Photos library).
+All the above commands operate on the default Photos library.  Most users only use a single Photos library which is also known as the System Photo Library.  It is possible to use Photos with more than one library.  For example, if you hold down the "Option" key while opening Photos, you can select an alternate Photos library.  If you don't specify which library to use, osxphotos will try find the last opened library.  Occasionally it can't determine this and in that case, it will use the System Photos Library.  If you use more than one Photos library and want to explicitly specify which library to use, you can do so with the `--library` option.
 
-`osxphotos export /path/to/export --db ~/Pictures/MyAlternateLibrary.photoslibrary`
+`osxphotos export /path/to/export --library ~/Pictures/MyAlternateLibrary.photoslibrary`
 
 ## Missing photos
 
@@ -419,7 +419,7 @@ Here's a comprehensive use case from an actual osxphotos user that integrates ma
     Finally, use `--strip` to remove any leading or trailing whitespace from processed
     template fields.
 
-`osxphotos export ~/Desktop/folder for exported videos/ --keyword Quik --only-movies --db /path to my.photoslibrary --touch-file --finder-tag-keywords --person-keyword --xattr-template findercomment "{title}{title?{descr?{newline},},}{descr}" --exiftool-merge-keywords --exiftool-merge-persons --exiftool --strip`
+`osxphotos export ~/Desktop/folder for exported videos/ --keyword Quik --only-movies --library /path to my.photoslibrary --touch-file --finder-tag-keywords --person-keyword --xattr-template findercomment "{title}{title?{descr?{newline},},}{descr}" --exiftool-merge-keywords --exiftool-merge-persons --exiftool --strip`
 
 ## Color Themes
 
