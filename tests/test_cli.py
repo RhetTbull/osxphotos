@@ -1691,6 +1691,27 @@ def test_export_checkpoint():
         assert num_checkpoints_expected == num_checkpoints_got
 
 
+def test_export_checkpoint_on_crash():
+    """test export will write the database when using --ramdb and a crash occurs"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--ramdb",
+                "--crash-after",
+                5,
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Writing export database" in result.output
+
+
 def test_export_uuid_from_file():
     """Test export with --uuid-from-file"""
 

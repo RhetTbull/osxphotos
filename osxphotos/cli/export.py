@@ -19,6 +19,7 @@ import osxphotos.gitignorefile
 from osxphotos._constants import (
     _EXIF_TOOL_URL,
     _OSXPHOTOS_NONE_SENTINEL,
+    DEFAULT_CHECKPOINT,
     DEFAULT_EDITED_SUFFIX,
     DEFAULT_JPEG_QUALITY,
     DEFAULT_ORIGINAL_SUFFIX,
@@ -37,7 +38,12 @@ from osxphotos.configoptions import (
     ConfigOptionsInvalidError,
     ConfigOptionsLoadError,
 )
-from osxphotos.crash_reporter import crash_reporter, set_crash_data
+from osxphotos.crash_reporter import (
+    crash_reporter,
+    register_crash_callback,
+    set_crash_data,
+    unregister_crash_callback,
+)
 from osxphotos.datetime_formatter import DateTimeFormatter
 from osxphotos.debug import is_debug
 from osxphotos.exiftool import get_exiftool_path
@@ -746,9 +752,8 @@ from .verbose import get_verbose_console, verbose_print
     help="When used with --ramdb, periodically save the export database "
     "back to disk after processing NUMBER_OF_PHOTOS "
     "to avoid data loss if export is cancelled or crashes. "
-    "Default is 1000; to prevent checkpointing of database, use `--checkpoint 0`",
+    f"Default is {DEFAULT_CHECKPOINT}; to prevent checkpointing of database, use `--checkpoint 0`",
     type=click.IntRange(min=0),
-    default=1000,
 )
 @click.option(
     "--tmpdir",
@@ -828,6 +833,14 @@ from .verbose import get_verbose_console, verbose_print
     hidden=OSXPHOTOS_HIDDEN,
     help="Enable beta options.",
 )
+@click.option(
+    "--crash-after",
+    metavar="NUM_PHOTOS",
+    type=click.IntRange(min=1),
+    hidden=OSXPHOTOS_HIDDEN,
+    help="Force osxphotos to crash after processing NUM_PHOTOS; "
+    "obviously this is only for testing and debugging crash handling.",
+)
 @THEME_OPTION
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
@@ -863,6 +876,7 @@ def export(
     cloudasset,
     config_only,
     convert_to_jpeg,
+    crash_after,
     current_name,
     deleted,
     deleted_only,
@@ -1096,6 +1110,7 @@ def export(
         cleanup = cfg.cleanup
         cloudasset = cfg.cloudasset
         convert_to_jpeg = cfg.convert_to_jpeg
+        crash_after = cfg.crash_after
         current_name = cfg.current_name
         db = cfg.db
         deleted = cfg.deleted
@@ -1364,6 +1379,7 @@ def export(
         DEFAULT_PREVIEW_SUFFIX if preview_suffix is None else preview_suffix
     )
     retry = retry or 0
+    checkpoint = DEFAULT_CHECKPOINT if checkpoint is None else checkpoint
 
     if not os.path.isdir(dest):
         rich_click_echo(f"[error]DEST {dest} must be valid path", err=True)
@@ -1460,6 +1476,7 @@ def export(
         if not click.confirm("Do you want to continue?"):
             sys.exit(1)
 
+    export_db_callback = None
     if dry_run:
         export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
         fileutil = FileUtilNoOp
@@ -1469,6 +1486,11 @@ def export(
             if ramdb
             else ExportDB(dbfile=export_db_path, export_dir=dest)
         )
+        if ramdb:
+            # if using ramdb, ensure database is written in case of crash
+            export_db_callback = register_crash_callback(
+                export_db.write_to_disk, f"Writing export database to {export_db_path}"
+            )
         if alt_copy or not is_macos or (exiftool and is_mounted_volume(dest)):
             # if alt_copy or not on macOS, use shutil for copying files
             # also, if destination appears to be on a mounted volume and using exiftool, use shutil
@@ -1783,6 +1805,17 @@ def export(
                     # advance progress to end
                     progress.advance(task, num_photos - photo_num)
                     break
+
+                # handle crash_after
+                # this is used only for testing/debugging crash handling code
+                if crash_after and photo_num == crash_after:
+                    raise ValueError(
+                        f"Oh no! osxphotos has crashed after processing {photo_num} photos"
+                    )
+
+        # export completed, unregister the crash callback if needed
+        if ramdb and not dry_run:
+            unregister_crash_callback(export_db_callback)
 
         photo_str_total = pluralize(len(photos), "photo", "photos")
         if update or force_update:
