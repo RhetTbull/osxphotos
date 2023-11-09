@@ -551,3 +551,24 @@ def path_exists(path: str | pathlib.Path | os.PathLike) -> bool:
         return path.exists()
     except Exception:
         return False
+
+
+def is_photoslibrary_path(path: str | pathlib.Path | os.PathLike) -> bool:
+    """Return True if path is a Photos library or contained in a Photos library, else False
+
+    Args:
+        path: path to check
+
+    Returns: True if path is a Photos library or contained in a Photos library, else False
+
+    Note: This is a very simplistic implementation that just checks for the .photoslibrary directory
+    """
+    path = path if isinstance(path, pathlib.Path) else pathlib.Path(path)
+    path = path.resolve()
+    if not path.exists():
+        return False
+    if path.is_dir() and path.name.endswith(".photoslibrary"):
+        return True
+    if path.parent == path:
+        return False
+    return is_photoslibrary_path(path.parent)
