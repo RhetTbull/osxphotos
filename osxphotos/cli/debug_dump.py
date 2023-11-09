@@ -25,7 +25,6 @@ from .verbose import verbose_print
 
 @click.command(hidden=OSXPHOTOS_HIDDEN)
 @DB_OPTION
-@DB_ARGUMENT
 @click.option(
     "--dump",
     metavar="ATTR",
@@ -38,9 +37,7 @@ from .verbose import verbose_print
 @QUERY_OPTIONS
 @click.pass_obj
 @click.pass_context
-def debug_dump(
-    ctx, cli_obj, db, photos_library, dump, verbose_flag, timestamp, **kwargs
-):
+def debug_dump(ctx, cli_obj, db, dump, verbose_flag, timestamp, **kwargs):
     """Print out debug info.
 
     When run with --dump photos, any of the query options can be used to limit the
@@ -50,7 +47,7 @@ def debug_dump(
     """
 
     verbose = verbose_print(verbose_flag, timestamp)
-    db = get_photos_db(*photos_library, db, cli_obj.db if cli_obj else None)
+    db = get_photos_db(db, cli_obj.db if cli_obj else None)
     if db is None:
         click.echo(ctx.obj.group.commands["debug-dump"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)

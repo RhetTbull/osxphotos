@@ -203,7 +203,7 @@ To get help on a specific command, use `osxphotos help COMMAND`, for example, `o
 Some of the commands such as `export` and `query` have a large number of options.  To search for options related to a specific topic, you can use `osxphotos help COMMAND TOPIC`.  For example, `osxphotos help export raw` finds the options related to RAW files (search is case-insensitive):
 
 ```
-Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
+Usage: osxphotos export [OPTIONS] ... DEST
 
   Export photos from the Photos database. Export path DEST is required.
   Optionally, query the Photos database using 1 or more search options; if
@@ -238,17 +238,13 @@ Options that match 'raw':
 
 #### export all photos to ~/Desktop/export group in folders by date created
 
-`osxphotos export --export-by-date ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
-
-**Note**: Photos library/database path can also be specified using `--db` option:
-
-`osxphotos export --export-by-date --db ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
+`osxphotos export --export-by-date --library ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
 
 #### find all photos with keyword "Kids" and output results to json file named results.json
 
-`osxphotos query --keyword Kids --json ~/Pictures/Photos\ Library.photoslibrary >results.json`
+`osxphotos query --keyword Kids --json --library ~/Pictures/Photos\ Library.photoslibrary >results.json`
 
-#### Find all videos larger than 200MB and add them to an album named "Big Videos" in Photos, creating the album if necessary
+#### Find all videos larger than 200MB and add them to an album named "Big Videos" in Photos, creating the album if necessary. Use the last opened library (do not explicitely specify a library)
 
 `osxphotos query --only-movies --min-size 200MB --add-to-album "Big Videos"`
 

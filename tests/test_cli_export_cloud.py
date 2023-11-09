@@ -25,7 +25,14 @@ def test_export_cloud_asset():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_CLOUD), ".", "-V", "--cloudasset"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_CLOUD),
+                ".",
+                "-V",
+                "--cloudasset",
+            ],
         )
         assert result.exit_code == 0
         assert UUID_CLOUDASSET in result.output
@@ -38,7 +45,14 @@ def test_export_not_cloud_asset():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_CLOUD), ".", "-V", "--not-cloudasset"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_CLOUD),
+                ".",
+                "-V",
+                "--not-cloudasset",
+            ],
         )
         assert result.exit_code == 0
         assert "Did not find any photos to export" in result.output
@@ -52,7 +66,13 @@ def test_export_not_cloud_asset_2():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_NOT_CLOUD), ".", "-V", "--not-cloudasset"],
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_NOT_CLOUD),
+                ".",
+                "-V",
+                "--not-cloudasset",
+            ],
         )
         assert result.exit_code == 0
         assert UUID_NOT_CLOUDASSET in result.output
@@ -65,7 +85,8 @@ def test_export_in_cloud():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_CLOUD), ".", "-V", "--incloud"]
+            export,
+            ["--library", os.path.join(cwd, PHOTOS_DB_CLOUD), ".", "-V", "--incloud"],
         )
         assert result.exit_code == 0
         assert UUID_INCLOUD in result.output
@@ -79,7 +100,14 @@ def test_export_not_in_cloud():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_CLOUD), ".", "-V", "--not-incloud"]
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_CLOUD),
+                ".",
+                "-V",
+                "--not-incloud",
+            ],
         )
         assert result.exit_code == 0
         assert UUID_INCLOUD not in result.output

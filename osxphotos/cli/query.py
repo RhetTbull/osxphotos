@@ -76,7 +76,6 @@ MACOS_OPTIONS = make_click_option_decorator(
     "Most useful with --quiet. "
     "May be repeated to print multiple template strings. ",
 )
-@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def query(
@@ -88,7 +87,6 @@ def query(
     count,
     print_template,
     quiet,
-    photos_library,
     add_to_album=False,
     **kwargs,
 ):
@@ -113,7 +111,7 @@ def query(
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
+    db = get_photos_db(db, cli_db)
     if db is None:
         click.echo(ctx.obj.group.commands["query"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)

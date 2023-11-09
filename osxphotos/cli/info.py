@@ -17,15 +17,14 @@ from .list import _list_libraries
 @click.command()
 @DB_OPTION
 @JSON_OPTION
-@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
-def info(ctx, cli_obj, db, json_, photos_library):
+def info(ctx, cli_obj, db, json_):
     """Print out descriptive info of the Photos library database."""
 
     # needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
+    db = get_photos_db(db, cli_db)
     if db is None:
         click.echo(ctx.obj.group.commands["info"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)
