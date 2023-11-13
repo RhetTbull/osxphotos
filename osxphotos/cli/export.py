@@ -1057,6 +1057,7 @@ def export(
 
     # config expects --verbose to be named "verbose" not "verbose_flag"
     locals_["verbose"] = verbose_flag
+    locals_["library"] = None  # synynom for --db
     del locals_["verbose_flag"]
 
     # NOTE: because of the way ConfigOptions works, Click options must not
@@ -1086,6 +1087,14 @@ def export(
             )
             sys.exit(1)
 
+        if cfg.library and cfg.db:
+            # library & db are synonyms but library takes precedence over db
+            # warn user if both options are used
+            rich_click_echo(
+                f"[warning]:warning-emoji: both --db and --library were specified; --library will be used ({cfg.library}) ",
+                err=True,
+            )
+
         # re-set the local vars to the corresponding config value
         # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
         # the query options appear to be unaccessed but they are used below by query_options_from_kwargs
@@ -1109,7 +1118,9 @@ def export(
         convert_to_jpeg = cfg.convert_to_jpeg
         crash_after = cfg.crash_after
         current_name = cfg.current_name
-        db = cfg.db
+        db = (
+            cfg.library or cfg.db
+        )  # if both db and library are specified, library takes precedence
         deleted = cfg.deleted
         deleted_only = cfg.deleted_only
         description = cfg.description
