@@ -138,7 +138,7 @@ def rich_echo_error(
     highlight=False,
     **kwargs: t.Any,
 ) -> None:
-    """Echo text to the console with rich formatting and if stdout is redirected, echo to stderr
+    """Echo text to stderr with rich formatting
 
     Args:
         message: The string or bytes to output. Other objects are converted to strings.
@@ -157,25 +157,14 @@ def rich_echo_error(
         elif "[warning]" in message:
             message = f":warning-emoji:  {message}"
 
-    console = get_rich_console() or Console(theme=theme or get_rich_theme())
-    if not console.is_terminal:
-        # if stdout is redirected, echo to stderr
-        rich_click_echo(
-            message,
-            theme=theme or get_rich_theme(),
-            markdown=markdown,
-            highlight=highlight,
-            **kwargs,
-            err=True,
-        )
-    else:
-        rich_echo(
-            message,
-            theme=theme or get_rich_theme(),
-            markdown=markdown,
-            highlight=highlight,
-            **kwargs,
-        )
+    rich_click_echo(
+        message,
+        theme=theme or get_rich_theme(),
+        markdown=markdown,
+        highlight=highlight,
+        **kwargs,
+        err=True,
+    )
 
 
 def rich_click_echo(

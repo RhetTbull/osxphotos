@@ -1538,12 +1538,15 @@ def export(
     query_kwargs["burst_photos"] = export_bursts
     query_options = query_options_from_kwargs(**query_kwargs)
 
+    # if not verbose, set photosdb verbose to print to stderr
+    # so that user can still see progress as database is loaded
+    db_verbose = verbose if verbose_flag else rich_echo_error
     if is_iphoto_library(db):
         if alt_db:
             click.echo("--alt-db is not supported for iPhoto libraries", err=True)
             raise click.Abort()
         photosdb = osxphotos.iPhotoDB(
-            dbfile=db, verbose=verbose, exiftool=exiftool_path, rich=False
+            dbfile=db, verbose=db_verbose, exiftool=exiftool_path, rich=False
         )
     else:
         library_path = pathlib.Path(db)
@@ -1552,7 +1555,7 @@ def export(
             library_path = library_path.parent.parent
         photosdb = osxphotos.PhotosDB(
             dbfile=alt_db if alt_db else db,
-            verbose=verbose,
+            verbose=db_verbose,
             exiftool=exiftool_path,
             rich=True,
             library_path=library_path if alt_db else None,

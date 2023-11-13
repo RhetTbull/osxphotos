@@ -1236,6 +1236,7 @@ def test_query_uuid():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--uuid",
@@ -1271,6 +1272,7 @@ def test_query_uuid_from_file_1():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--uuid-from-file",
@@ -1293,7 +1295,14 @@ def test_query_uuid_from_file_stdin():
     input_text = open(UUID_FILE, "r").read()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--uuid-from-file", "-"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--uuid-from-file",
+            "-",
+        ],
         input=input_text,
     )
     assert result.exit_code == 0
@@ -1311,7 +1320,13 @@ def test_query_has_comment():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--has-comment"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, COMMENTS_PHOTOS_DB),
+            "--has-comment",
+        ],
     )
     assert result.exit_code == 0
 
@@ -1327,7 +1342,14 @@ def test_query_no_comment():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--no-comment"]
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, COMMENTS_PHOTOS_DB),
+            "--no-comment",
+        ],
     )
     assert result.exit_code == 0
 
@@ -1346,7 +1368,14 @@ def test_query_has_likes():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--has-likes"]
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, COMMENTS_PHOTOS_DB),
+            "--has-likes",
+        ],
     )
     assert result.exit_code == 0
 
@@ -1362,7 +1391,14 @@ def test_query_no_likes():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--no-likes"]
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, COMMENTS_PHOTOS_DB),
+            "--no-likes",
+        ],
     )
     assert result.exit_code == 0
 
@@ -1381,7 +1417,14 @@ def test_query_is_reference():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--is-reference"]
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--is-reference",
+        ],
     )
     assert result.exit_code == 0
 
@@ -1397,7 +1440,8 @@ def test_query_edited():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--edited"]
+        query,
+        ["--json", "--mute", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--edited"],
     )
     assert result.exit_code == 0
 
@@ -1413,7 +1457,8 @@ def test_query_not_edited():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--not-edited"]
+        query,
+        ["--json", "--mute", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--not-edited"],
     )
     assert result.exit_code == 0
 
@@ -1429,7 +1474,8 @@ def test_query_in_album():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--in-album"]
+        query,
+        ["--json", "--mute", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--in-album"],
     )
     assert result.exit_code == 0
 
@@ -1445,7 +1491,14 @@ def test_query_not_in_album():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--not-in-album"]
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--not-in-album",
+        ],
     )
     assert result.exit_code == 0
 
@@ -1462,7 +1515,7 @@ def test_query_duplicate():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--duplicate"],
+        ["--json", "--mute", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--duplicate"],
     )
     assert result.exit_code == 0
 
@@ -1479,7 +1532,7 @@ def test_query_location():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--location"],
+        ["--json", "--mute", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--location"],
     )
     assert result.exit_code == 0
 
@@ -1497,7 +1550,7 @@ def test_query_no_location():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--no-location"],
+        ["--json", "--mute", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--no-location"],
     )
     assert result.exit_code == 0
 
@@ -1519,6 +1572,7 @@ def test_query_exif(exiftag, exifvalue, uuid_expected):
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--exif",
@@ -1547,6 +1601,7 @@ def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--exif",
@@ -1573,6 +1628,7 @@ def test_query_exif_multiple():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--exif",
@@ -3065,6 +3121,7 @@ def test_query_from_to_date():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--from-date=2018-09-28",
@@ -3087,6 +3144,7 @@ def test_query_from_to_date_alt_location():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--from-date=2018-09-28",
@@ -3109,6 +3167,7 @@ def test_query_from_to_date_timezone():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--from-date=2018-09-28T00:00:00-07:00",
@@ -3131,6 +3190,7 @@ def test_query_from_to_time():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--from-time=16:00",
@@ -3153,6 +3213,7 @@ def test_query_year_single():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--year",
@@ -3175,6 +3236,7 @@ def test_query_year_mulitple():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--year",
@@ -3199,6 +3261,7 @@ def test_query_year_3():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--year",
@@ -3218,7 +3281,14 @@ def test_query_keyword_1():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--keyword", "Kids"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--keyword",
+            "Kids",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3232,7 +3302,14 @@ def test_query_keyword_2():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--keyword", "kids"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--keyword",
+            "kids",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3248,6 +3325,7 @@ def test_query_keyword_3():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--keyword",
@@ -3269,6 +3347,7 @@ def test_query_keyword_4():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--keyword",
@@ -3291,6 +3370,7 @@ def test_query_no_keyword():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--no-keyword",
@@ -3310,7 +3390,14 @@ def test_query_person_1():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--person", "Katie"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--person",
+            "Katie",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3324,7 +3411,14 @@ def test_query_person_2():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--person", "katie"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--person",
+            "katie",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3340,6 +3434,7 @@ def test_query_person_3():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--person",
@@ -3361,6 +3456,7 @@ def test_query_person_4():
         query,
         [
             "--json",
+            "--mute",
             "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--person",
@@ -3387,6 +3483,7 @@ def test_query_album_1():
             "--album",
             "Pumpkin Farm",
             "--json",
+            "--mute",
         ],
     )
     assert result.exit_code == 0
@@ -3403,6 +3500,7 @@ def test_query_album_2():
         query,
         [
             "--json",
+            "--mute",
             "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
@@ -3423,6 +3521,7 @@ def test_query_album_3():
         query,
         [
             "--json",
+            "--mute",
             "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
@@ -3444,6 +3543,7 @@ def test_query_album_4():
         query,
         [
             "--json",
+            "--mute",
             "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
@@ -3464,7 +3564,14 @@ def test_query_label_1():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--label", "Bouquet"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--label",
+            "Bouquet",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3478,7 +3585,14 @@ def test_query_label_2():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--label", "bouquet"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--label",
+            "bouquet",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3494,6 +3608,7 @@ def test_query_label_3():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--label",
@@ -3515,6 +3630,7 @@ def test_query_label_4():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--label",
@@ -3537,6 +3653,7 @@ def test_query_deleted_deleted_only():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--deleted",
@@ -3552,7 +3669,8 @@ def test_query_deleted_1():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted"]
+        query,
+        ["--json", "--mute", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3565,7 +3683,8 @@ def test_query_deleted_2():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted"]
+        query,
+        ["--json", "--mute", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3578,7 +3697,14 @@ def test_query_deleted_3():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted-only"]
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--deleted-only",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -3592,7 +3718,14 @@ def test_query_deleted_4():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted-only"]
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--deleted-only",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -4703,7 +4836,7 @@ def test_places():
         assert json_got == json.loads(CLI_PLACES_JSON)
 
 
-def test_place_13():
+def test_query_place_13():
     # test --place on 10.13
 
     runner = CliRunner()
@@ -4716,6 +4849,7 @@ def test_place_13():
                 "--db",
                 os.path.join(cwd, PLACES_PHOTOS_DB_13),
                 "--json",
+                "--mute",
                 "--place",
                 "Adelaide",
             ],
@@ -4727,7 +4861,7 @@ def test_place_13():
         assert json_got[0]["uuid"] == "2L6X2hv3ROWRSCU3WRRAGQ"
 
 
-def test_no_place_13():
+def test_query_no_place_13():
     # test --no-place on 10.13
 
     runner = CliRunner()
@@ -4736,7 +4870,13 @@ def test_no_place_13():
     with runner.isolated_filesystem():
         result = runner.invoke(
             query,
-            ["--db", os.path.join(cwd, PLACES_PHOTOS_DB_13), "--json", "--no-place"],
+            [
+                "--db",
+                os.path.join(cwd, PLACES_PHOTOS_DB_13),
+                "--json",
+                "--mute",
+                "--no-place",
+            ],
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -4745,7 +4885,7 @@ def test_no_place_13():
         assert json_got[0]["uuid"] == "pERZk5T1Sb+XcKDFRCsGpA"
 
 
-def test_place_15_1():
+def test_query_place_15_1():
     # test --place on 10.15
 
     runner = CliRunner()
@@ -4758,6 +4898,7 @@ def test_place_15_1():
                 "--db",
                 os.path.join(cwd, PLACES_PHOTOS_DB),
                 "--json",
+                "--mute",
                 "--place",
                 "Washington",
             ],
@@ -4769,7 +4910,7 @@ def test_place_15_1():
         assert json_got[0]["uuid"] == "128FB4C6-0B16-4E7D-9108-FB2E90DA1546"
 
 
-def test_place_15_2():
+def test_query_place_15_2():
     # test --place on 10.15
 
     runner = CliRunner()
@@ -4782,6 +4923,7 @@ def test_place_15_2():
                 "--db",
                 os.path.join(cwd, PLACES_PHOTOS_DB),
                 "--json",
+                "--mute",
                 "--place",
                 "United States",
             ],
@@ -4795,7 +4937,7 @@ def test_place_15_2():
         assert "FF7AFE2C-49B0-4C9B-B0D7-7E1F8B8F2F0C" in uuid
 
 
-def test_no_place_15():
+def test_query_no_place_15():
     # test --no-place on 10.15
 
     runner = CliRunner()
@@ -4803,7 +4945,14 @@ def test_no_place_15():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            query, ["--db", os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--no-place"]
+            query,
+            [
+                "--db",
+                os.path.join(cwd, PLACES_PHOTOS_DB),
+                "--json",
+                "--mute",
+                "--no-place",
+            ],
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -4812,7 +4961,7 @@ def test_no_place_15():
         assert json_got[0]["uuid"] == "A9B73E13-A6F2-4915-8D67-7213B39BAE9F"
 
 
-def test_no_folder_1_15():
+def test_query_no_folder_1_15():
     # test --folder on 10.15
 
     runner = CliRunner()
@@ -4825,6 +4974,7 @@ def test_no_folder_1_15():
                 "--library",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 "--json",
+                "--mute",
                 "--folder",
                 "Folder1",
             ],
@@ -4852,7 +5002,7 @@ def test_no_folder_1_15():
                 ]
 
 
-def test_no_folder_2_15():
+def test_query_no_folder_2_15():
     # test --folder with --uuid on 10.15
 
     runner = CliRunner()
@@ -4865,6 +5015,7 @@ def test_no_folder_2_15():
                 "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 "--json",
+                "--mute",
                 "--folder",
                 "Folder1",
                 "--uuid",
@@ -4882,7 +5033,7 @@ def test_no_folder_2_15():
             )
 
 
-def test_no_folder_1_14():
+def test_query_no_folder_1_14():
     # test --folder on 10.14
 
     runner = CliRunner()
@@ -4895,6 +5046,7 @@ def test_no_folder_1_14():
                 "--db",
                 os.path.join(cwd, PHOTOS_DB_14_6),
                 "--json",
+                "--mute",
                 "--folder",
                 "Folder1",
             ],
@@ -8609,7 +8761,14 @@ def test_query_name():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "DSC03584"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--name",
+            "DSC03584",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -8625,7 +8784,14 @@ def test_query_name_unicode():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "Frítest"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--name",
+            "Frítest",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -8645,6 +8811,7 @@ def test_query_name_i():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--name",
@@ -8666,7 +8833,7 @@ def test_query_name_original_filename():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "AA"],
+        ["--json", "--mute", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "AA"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -8681,7 +8848,15 @@ def test_query_name_original_filename_i():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "aa", "-i"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--name",
+            "aa",
+            "-i",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -8764,7 +8939,14 @@ def test_query_min_size_1():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--min-size", "10MB"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--min-size",
+            "10MB",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -8781,6 +8963,7 @@ def test_query_min_size_2():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--min-size",
@@ -8800,7 +8983,14 @@ def test_query_max_size_1():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--max-size", "500 kB"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--max-size",
+            "500 kB",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -8815,7 +9005,14 @@ def test_query_max_size_2():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--max-size", "500_000"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--max-size",
+            "500_000",
+        ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -8832,6 +9029,7 @@ def test_query_min_max_size():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--min-size",
@@ -8853,7 +9051,14 @@ def test_query_min_size_error():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--min-size", "500 foo"],
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--min-size",
+            "500 foo",
+        ],
     )
     assert result.exit_code != 0
 
@@ -8867,6 +9072,7 @@ def test_query_regex_1():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--regex",
@@ -8889,6 +9095,7 @@ def test_query_regex_2():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--regex",
@@ -8911,6 +9118,7 @@ def test_query_regex_3():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--regex",
@@ -8934,6 +9142,7 @@ def test_query_regex_4():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--regex",
@@ -8956,6 +9165,7 @@ def test_query_regex_multiple():
         query,
         [
             "--json",
+            "--mute",
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--regex",
@@ -8995,6 +9205,7 @@ def test_query_function():
                 "--query-function",
                 f"{tmpdir}/query1.py::query",
                 "--json",
+                "--mute",
             ],
         )
         assert result.exit_code == 0
@@ -9015,6 +9226,7 @@ def test_query_added_after():
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--json",
+            "--mute",
             "--added-after",
             "2022-02-03",
         ],
@@ -9036,6 +9248,7 @@ def test_query_added_before():
             "--db",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--json",
+            "--mute",
             "--added-before",
             "2019-07-28",
         ],
@@ -9060,6 +9273,7 @@ def test_query_added_in_last():
             "--library",
             os.path.join(cwd, PHOTOS_DB_15_7),
             "--json",
+            "--mute",
             "--added-in-last",
             "10 years",
         ],
@@ -9081,6 +9295,7 @@ def test_query_count():
             "--added-before",
             "2019-07-28",
             "--count",
+            "--mute",
         ],
     )
     assert results.exit_code == 0
@@ -9101,6 +9316,7 @@ def test_query_count_0():
             "--added-before",
             "1900-01-01",
             "--count",
+            "--mute",
         ],
     )
     assert results.exit_code == 0
@@ -9905,6 +10121,7 @@ def test_query_print_quiet():
                 "--uuid",
                 UUID_FAVORITE,
                 "--quiet",
+                "--mute",
             ],
         )
         assert result.exit_code == 0
@@ -9930,6 +10147,7 @@ def test_query_field():
                 "{photo.original_filename}",
                 "--uuid",
                 UUID_FAVORITE,
+                "--mute",
             ],
         )
         assert result.exit_code == 0
@@ -9956,6 +10174,7 @@ def test_query_field_json():
                 "--uuid",
                 UUID_FAVORITE,
                 "--json",
+                "--mute",
             ],
         )
         assert result.exit_code == 0

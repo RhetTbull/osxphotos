@@ -7,6 +7,7 @@ import click
 import osxphotos
 from osxphotos.cli.click_rich_echo import (
     rich_click_echo,
+    rich_echo_error,
     set_rich_console,
     set_rich_theme,
 )
@@ -76,6 +77,9 @@ MACOS_OPTIONS = make_click_option_decorator(
     "Most useful with --quiet. "
     "May be repeated to print multiple template strings. ",
 )
+@click.option(
+    "--mute", is_flag=True, help="Mute status output while loading Photos library."
+)
 @click.pass_obj
 @click.pass_context
 def query(
@@ -87,6 +91,7 @@ def query(
     count,
     print_template,
     quiet,
+    mute,
     add_to_album=False,
     **kwargs,
 ):
@@ -123,10 +128,11 @@ def query(
     except Exception as e:
         raise click.BadOptionUsage("query", str(e)) from e
 
+    verbose = None if mute else rich_echo_error
     photosdb = (
-        osxphotos.iPhotoDB(db)
+        osxphotos.iPhotoDB(db, verbose=verbose)
         if is_iphoto_library(db)
-        else osxphotos.PhotosDB(dbfile=db)
+        else osxphotos.PhotosDB(dbfile=db, verbose=verbose)
     )
 
     try:
