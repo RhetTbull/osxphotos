@@ -7692,6 +7692,32 @@ def test_save_load_config():
         assert "Writing XMP sidecar" not in result.output
 
 
+def test_load_config_library():
+    """Test --load-config with libary option, #1274"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        with open("test.toml", "w") as fd:
+            fd.write("[export]\n")
+            fd.write(f'library = "{os.path.join(cwd, CLI_PHOTOS_DB)}"\n')
+
+        # test load config file
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--verbose",
+                "--load-config",
+                "test.toml",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Loaded options from file" in result.output
+        assert "Processed" in result.output
+
+
 def test_config_only():
     """test --save-config, --config-only"""
 
