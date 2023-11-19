@@ -178,6 +178,24 @@ def test_import_dup_check():
 
 
 @pytest.mark.test_import
+def test_import_skip_dups():
+    """Test basic import with --skip_dups"""
+
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", "--skip-dups", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Skipping duplicate" in result.output
+    assert "1 skipped" in result.output
+
+
+@pytest.mark.test_import
 def test_import_album():
     """Test basic import to an album"""
     cwd = os.getcwd()
