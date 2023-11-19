@@ -217,6 +217,7 @@ def add_photo_to_albums(
     split_folder: str,
     exiftool_path: Path,
     verbose: Callable[..., None],
+    dry_run: bool,
 ) -> list[str]:
     """Add photo to one or more albums"""
     albums = []
@@ -231,24 +232,33 @@ def add_photo_to_albums(
     # add photo to albums
     for a in albums:
         verbose(f"Adding photo [filename]{filepath.name}[/] to album [filepath]{a}[/]")
-        photos_album = PhotosAlbumPhotoScript(
-            a, verbose=verbose, split_folder=split_folder, rich=True
-        )
-        photos_album.add(photo)
+        if not dry_run:
+            photos_album = PhotosAlbumPhotoScript(
+                a, verbose=verbose, split_folder=split_folder, rich=True
+            )
+            photos_album.add(photo)
     return albums
 
 
-def clear_photo_metadata(photo: Photo, filepath: Path, verbose: Callable[..., None]):
+def clear_photo_metadata(
+    photo: Photo, filepath: Path, verbose: Callable[..., None], dry_run: bool
+):
     """Clear any metadata (title, description, keywords) associated with Photo in the Photos Library"""
     verbose(f"Clearing metadata for [filename]{filepath.name}[/]")
+    if dry_run:
+        return
     photo.title = ""
     photo.description = ""
     photo.keywords = []
 
 
-def clear_photo_location(photo: Photo, filepath: Path, verbose: Callable[..., None]):
+def clear_photo_location(
+    photo: Photo, filepath: Path, verbose: Callable[..., None], dry_run: bool
+):
     """Clear any location (latitude, longitude) associated with Photo in the Photos Library"""
     verbose(f"Clearing location for [filename]{filepath.name}[/]")
+    if dry_run:
+        return
     photo.location = (None, None)
 
 
@@ -363,8 +373,11 @@ def set_photo_metadata(
     photo: Photo,
     metadata: MetaData,
     merge_keywords: bool,
+    dry_run: bool,
 ) -> MetaData:
     """Set metadata (title, description, keywords) for a Photo object"""
+    if dry_run:
+        return metadata
     photo.title = normalize_unicode(metadata.title)
     photo.description = normalize_unicode(metadata.description)
     keywords = metadata.keywords.copy()
@@ -383,12 +396,13 @@ def set_photo_metadata_from_exiftool(
     exiftool_path: str,
     merge_keywords: bool,
     verbose: Callable[..., None],
+    dry_run: bool,
 ) -> MetaData:
     """Set photo's metadata by reading metadata form file with exiftool"""
     verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
     metadata = metadata_from_file(filepath, exiftool_path)
     if any([metadata.title, metadata.description, metadata.keywords]):
-        metadata = set_photo_metadata(photo, metadata, merge_keywords)
+        metadata = set_photo_metadata(photo, metadata, merge_keywords, dry_run)
         verbose(f"Set metadata for [filename]{filepath.name}[/]:")
         verbose(
             f"title='{metadata.title}', description='{metadata.description}', keywords={metadata.keywords}"
@@ -397,7 +411,8 @@ def set_photo_metadata_from_exiftool(
         verbose(f"No metadata to set for [filename]{filepath.name}[/]")
     if metadata.location[0] is not None and metadata.location[1] is not None:
         # location will be set to None, None if latitude or longitude is missing
-        photo.location = metadata.location
+        if not dry_run:
+            photo.location = metadata.location
         verbose(
             f"Set location for [filename]{filepath.name}[/]: "
             f"[num]{metadata.location[0]}[/], [num]{metadata.location[1]}[/]"
@@ -414,6 +429,7 @@ def set_photo_title(
     title_template: str,
     exiftool_path: str,
     verbose: Callable[..., None],
+    dry_run: bool,
 ) -> str:
     """Set title of photo"""
     title_text = render_photo_template(
@@ -429,7 +445,8 @@ def set_photo_title(
         verbose(
             f"Setting title of photo [filename]{filepath.name}[/] to '{title_text[0]}'"
         )
-        photo.title = normalize_unicode(title_text[0])
+        if not dry_run:
+            photo.title = normalize_unicode(title_text[0])
         return title_text[0]
     else:
         return ""
@@ -442,6 +459,7 @@ def set_photo_description(
     description_template: str,
     exiftool_path: str,
     verbose: Callable[..., None],
+    dry_run: bool,
 ) -> str:
     """Set description of photo"""
     description_text = render_photo_template(
@@ -457,7 +475,8 @@ def set_photo_description(
         verbose(
             f"Setting description of photo [filename]{filepath.name}[/] to '{description_text[0]}'"
         )
-        photo.description = normalize_unicode(description_text[0])
+        if not dry_run:
+            photo.description = normalize_unicode(description_text[0])
         return description_text[0]
     else:
         return ""
@@ -471,6 +490,7 @@ def set_photo_keywords(
     exiftool_path: str,
     merge: bool,
     verbose: Callable[..., None],
+    dry_run: bool,
 ) -> list[str]:
     """Set keywords of photo"""
     keywords = []
@@ -484,7 +504,8 @@ def set_photo_keywords(
                 keywords.extend(old_keywords)
                 keywords = list(set(keywords))
         verbose(f"Setting keywords of photo [filename]{filepath.name}[/] to {keywords}")
-        photo.keywords = keywords
+        if not dry_run:
+            photo.keywords = keywords
     return keywords
 
 
@@ -493,17 +514,23 @@ def set_photo_location(
     filepath: Path,
     location: Tuple[float, float],
     verbose: Callable[..., None],
+    dry_run: bool,
 ) -> tuple[float, float]:
     """Set location of photo"""
     verbose(
         f"Setting location of photo [filename]{filepath.name}[/] to {location[0]}, {location[1]}"
     )
-    photo.location = location
+    if not dry_run:
+        photo.location = location
     return location
 
 
 def set_photo_date_from_filename(
-    photo: Photo, filepath: Path, parse_date: str, verbose: Callable[..., None]
+    photo: Photo,
+    filepath: Path,
+    parse_date: str,
+    verbose: Callable[..., None],
+    dry_run: bool,
 ) -> datetime.datetime | None:
     """Set date of photo from filename"""
     # TODO: handle timezone (use code from timewarp), for now convert timezone to local timezone
@@ -526,7 +553,8 @@ def set_photo_date_from_filename(
     verbose(
         f"Setting date of photo [filename]{filepath.name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
     )
-    photo.date = date
+    if not dry_run:
+        photo.date = date
     return date
 
 
@@ -1014,7 +1042,8 @@ class ImportCommand(click.Command):
             to skip or import the duplicate file.
 
             If you use the `--verbose` option, osxphotos will report on any duplicates it finds
-            even if you don't use `--skip-dups` or `--dup-check`.
+            even if you don't use `--skip-dups` or `--dup-check`.  This is useful with --dry-run
+            to see if any duplicates exist in the Photos library before importing.
 
             ## Metadata
 
@@ -1371,6 +1400,11 @@ class ImportCommand(click.Command):
     "GLOB may be repeated to import multiple patterns.",
 )
 @click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Dry run; do not actually import. Useful with --verbose to see what would be imported.",
+)
+@click.option(
     "--report",
     metavar="REPORT_FILE",
     help="Write a report of all files that were imported. "
@@ -1441,6 +1475,7 @@ def import_cli(
     clear_location,
     clear_metadata,
     description,
+    dry_run,
     dup_check,
     exiftool,
     exiftool_path,
@@ -1571,27 +1606,26 @@ def import_cli(
                 report_record.imported = False
                 continue
 
-            photo, error = import_photo(filepath, dup_check, verbose)
-            if error:
-                error_count += 1
-                report_record.error = True
-                continue
+            if not dry_run:
+                photo, error = import_photo(filepath, dup_check, verbose)
+                if error:
+                    error_count += 1
+                    report_record.error = True
+                    continue
+            else:
+                photo = None
             report_record.imported = True
             imported_count += 1
 
             if clear_metadata:
-                clear_photo_metadata(photo, filepath, verbose)
+                clear_photo_metadata(photo, filepath, verbose, dry_run)
 
             if clear_location:
-                clear_photo_location(photo, filepath, verbose)
+                clear_photo_location(photo, filepath, verbose, dry_run)
 
             if exiftool:
                 set_photo_metadata_from_exiftool(
-                    photo,
-                    filepath,
-                    exiftool_path,
-                    merge_keywords,
-                    verbose,
+                    photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
                 )
 
             if title:
@@ -1602,6 +1636,7 @@ def import_cli(
                     title,
                     exiftool_path,
                     verbose,
+                    dry_run,
                 )
 
             if description:
@@ -1612,6 +1647,7 @@ def import_cli(
                     description,
                     exiftool_path,
                     verbose,
+                    dry_run,
                 )
 
             if keyword:
@@ -1623,13 +1659,16 @@ def import_cli(
                     exiftool_path,
                     merge_keywords,
                     verbose,
+                    dry_run,
                 )
 
             if location:
-                set_photo_location(photo, filepath, location, verbose)
+                set_photo_location(photo, filepath, location, verbose, dry_run)
 
             if parse_date:
-                set_photo_date_from_filename(photo, filepath, parse_date, verbose)
+                set_photo_date_from_filename(
+                    photo, filepath, parse_date, verbose, dry_run
+                )
                 # TODO: ReportRecord doesn't currently record date
 
             if album:
@@ -1641,28 +1680,31 @@ def import_cli(
                     split_folder,
                     exiftool_path,
                     verbose,
+                    dry_run,
                 )
 
             if post_function:
                 for function in post_function:
                     # post function is tuple of (function, filename.py::function_name)
                     verbose(f"Calling post-function [bold]{function[1]}")
-                    try:
-                        function[0](photo, filepath, verbose, report_record)
-                    except Exception as e:
-                        rich_echo_error(
-                            f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
-                        )
+                    if not dry_run:
+                        try:
+                            function[0](photo, filepath, verbose, report_record)
+                        except Exception as e:
+                            rich_echo_error(
+                                f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
+                            )
 
             # update report data
-            update_report_record(report_record, photo, filepath)
-            import_db.set(str(filepath), report_record)
+            if not dry_run:
+                update_report_record(report_record, photo, filepath)
+                import_db.set(str(filepath), report_record)
 
             progress.advance(task)
 
     import_db.close()
 
-    if report:
+    if report and not dry_run:
         write_report(report_file, report_data, append)
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
 

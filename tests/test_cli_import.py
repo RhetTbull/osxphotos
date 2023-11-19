@@ -154,6 +154,37 @@ def test_import():
 
 
 @pytest.mark.test_import
+def test_import_dry_run():
+    """Test import with --dry-run"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--dry-run",
+            "--album",
+            "Foo",
+            "--keyword",
+            "Foo",
+            "--title",
+            "Foo",
+            "--description",
+            "Foo",
+            "--location",
+            "0.0",
+            "0.0",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "imported 1" in result.output
+
+
+@pytest.mark.test_import
 def test_import_dup_check():
     """Test basic import with --dup-check"""
     say("Please click Import when prompted by Photos to import duplicate photo.")
@@ -161,12 +192,20 @@ def test_import_dup_check():
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
+
+    # import first to ensure photo is in library
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    # now import again with --dup-check
     result = runner.invoke(
         import_cli,
         ["--verbose", "--dup-check", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
-
     assert result.exit_code == 0
 
     import_data = parse_import_output(result.output)
@@ -184,6 +223,14 @@ def test_import_skip_dups():
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
+    # import first to ensure photo is in library
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    # now import again with --skip-dups
     result = runner.invoke(
         import_cli,
         ["--verbose", "--skip-dups", test_image_1],
