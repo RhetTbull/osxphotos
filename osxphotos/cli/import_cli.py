@@ -24,6 +24,13 @@ from rich.console import Console
 from rich.markdown import Markdown
 from strpdatetime import strpdatetime
 
+from osxphotos.platform import assert_macos
+
+assert_macos()
+
+from photoscript import Photo, PhotosLibrary
+
+import osxphotos.sqlite3_datetime as sqlite3_datetime
 from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL, SQLITE_CHECK_SAME_THREAD
 from osxphotos._version import __version__
 from osxphotos.cli.cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
@@ -38,17 +45,14 @@ from osxphotos.datetime_utils import (
     datetime_utc_to_local,
 )
 from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
+from osxphotos.fingerprint import fingerprint
+from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
-from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.unicode import normalize_unicode
-from osxphotos.utils import pluralize
-
-assert_macos()
-
-from photoscript import Photo, PhotosLibrary
+from osxphotos.utils import get_last_library_path, pluralize
 
 from .cli_params import THEME_OPTION
 from .click_rich_echo import rich_click_echo, rich_echo_error
@@ -60,6 +64,8 @@ from .verbose import get_verbose_console, verbose_print
 # functions vs ReportWriter class used by export) and I've kept everything for import
 # self-contained in this one file
 
+# register datetime adapters/converters for sqlite3
+sqlite3_datetime.register()
 
 MetaData = namedtuple("MetaData", ["title", "description", "keywords", "location"])
 
@@ -998,6 +1004,18 @@ class ImportCommand(click.Command):
             Note: in Photos, only albums can contain photos and folders
             may contain albums or other folders. 
 
+            ## Duplicate Checking
+
+            By default, `osxphotos import` will import all files passed to it even if duplicates
+            exist in the Photos library. If you want to skip duplicate files, you can use the
+            `--skip-dups` option which will cause osxphotos to check for exact duplicates (based on file fingerprint)
+            and skip those files. Alternatively, you can use `--dup-check` to enable Photos' own duplicate
+            checking. If a duplicate is encountered with `--dup-check`, Photos will prompt you
+            to skip or import the duplicate file.
+
+            If you use the `--verbose` option, osxphotos will report on any duplicates it finds
+            even if you don't use `--skip-dups` or `--dup-check`.
+
             ## Metadata
 
             `osxphotos import` can set metadata (title, description, keywords, and location) for 
@@ -1060,7 +1078,7 @@ class ImportCommand(click.Command):
             - `{exiftool}`: Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org)
             to extract metadata, in form GROUP:TAGNAME, from image.
             E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract
-            keywords. See https://exiftool.org/TagNames/ for list of valid tag names.
+            keywords. See https://exiftooip=l.org/TagNames/ for list of valid tag names.
             You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`.
             exiftool must be installed in the path to use this template (alternatively, you can use
             `--exiftool-path` to specify the path to exiftool.)
@@ -1317,7 +1335,21 @@ class ImportCommand(click.Command):
     "If you set '--relative-to /Volumes/photos/import' "
     "then '{filepath}' will be set to 'album/img_1234.jpg'",
 )
-@click.option("--dup-check", "-D", is_flag=True, help="Check for duplicates on import.")
+@click.option(
+    "--dup-check",
+    "-D",
+    is_flag=True,
+    help="Use Photos' built-in duplicate checkign to check for duplicates on import. "
+    "Using --dup-check will cause Photos to display a dialog box for each duplicate photo found, "
+    "requesting confirmation to import the duplicate. See also --skip-dups.",
+)
+@click.option(
+    "--skip-dups",
+    is_flag=True,
+    help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. "
+    "Unlike --dup-check, this does not use Photos' built in duplicate checking feature and "
+    "does not display a dialog box for each duplicate found. See also --dup-check.",
+)
 @click.option(
     "--split-folder",
     "-f",
@@ -1388,6 +1420,14 @@ class ImportCommand(click.Command):
     "You can run more than one function by repeating the '--post-function' option with different arguments. "
     "See Post Function below.",
 )
+@click.option(
+    "--library",
+    metavar="LIBRARY_PATH",
+    type=click.Path(exists=True),
+    help="Path to the Photos library you are importing into. This is not usually needed. "
+    "You will only need to specify this if osxphotos cannot determine the path to the library "
+    "in which case osxphotos will tell you to use the --library option when you run the import command.",
+)
 @THEME_OPTION
 @click.argument("files", nargs=-1)
 @click.pass_obj
@@ -1407,6 +1447,7 @@ def import_cli(
     files,
     glob,
     keyword,
+    library,
     location,
     merge_keywords,
     no_progress,
@@ -1415,6 +1456,7 @@ def import_cli(
     relative_to,
     report,
     resume,
+    skip_dups,
     split_folder,
     theme,
     timestamp,
@@ -1474,6 +1516,15 @@ def import_cli(
     )
     import_db.about = f"osxphotos import database\n{OSXPHOTOS_ABOUT_STRING}"
 
+    # need to get the library path to initialize FingerprintQuery
+    last_library = library or get_last_library_path()
+    if not last_library:
+        rich_echo_error(
+            "[error]Could not determine path to Photos library. "
+            "Please specify path to library with --library option."
+        )
+    fq = FingerprintQuery(last_library)
+
     imported_count = 0
     error_count = 0
     skipped_count = 0
@@ -1502,10 +1553,24 @@ def import_cli(
                         continue
 
             verbose(f"Importing [filepath]{filepath}[/]")
+            if duplicates := fq.photos_by_fingerprint(fingerprint(filepath)):
+                # duplicate of file already in Photos library
+                verbose(
+                    f"File [filepath]{filepath}[/] is a duplicate of photos in the library: "
+                    f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/])' for u, f in duplicates])}"
+                )
+
             report_data[filepath] = ReportRecord(
                 filepath=filepath, filename=filepath.name
             )
             report_record = report_data[filepath]
+
+            if skip_dups:
+                verbose(f"Skipping duplicate [filepath]{filepath}[/]")
+                skipped_count += 1
+                report_record.imported = False
+                continue
+
             photo, error = import_photo(filepath, dup_check, verbose)
             if error:
                 error_count += 1
@@ -1601,10 +1666,10 @@ def import_cli(
         write_report(report_file, report_data, append)
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
 
-    skipped_str = f"[num]{skipped_count}[/] skipped" if resume else ""
+    skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
     echo(
         f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file', 'files')}, "
         f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
-        f", {skipped_str}",
+        f"{skipped_str}",
         emoji=False,
     )
