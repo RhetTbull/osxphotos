@@ -72,7 +72,7 @@ UUID_SKIP_LIVE_PHOTOKIT = {
     "14B8DE1D-4113-4948-BC11-C7046656C58C": ["IMG_4179.jpeg"],
 }
 
-UUID_DOWNLOAD_MISSING = "C07BB1E1-2F61-4263-AB8E-943FD47CF013" # IMG_8844.JPG
+UUID_DOWNLOAD_MISSING = "C07BB1E1-2F61-4263-AB8E-943FD47CF013"  # IMG_8844.JPG
 
 UUID_FILE = "tests/uuid_from_file.txt"
 SKIP_UUID_FILE = "tests/skip_uuid_from_file.txt"
@@ -1652,7 +1652,7 @@ def test_export():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+            export, [".", "--library", os.path.join(cwd, CLI_PHOTOS_DB), "-V"]
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -1667,7 +1667,7 @@ def test_export_alt_copy():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "--alt-copy", "-V"],
+            [".", "--library", os.path.join(cwd, CLI_PHOTOS_DB), "--alt-copy", "-V"],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -1690,11 +1690,28 @@ def test_export_alt_db():
         alt_db = os.path.join(database_temp, "Photos.sqlite")
         result = runner.invoke(
             export,
-            ["--library", library_root, "--alt-db", alt_db, ".", "-V"],
+            [".", "--library", library_root, "--alt-db", alt_db, "-V"],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES + ["database"])
+
+
+def test_export_no_exportdb():
+    """test basic export with --no-exportdb"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [".", "--library", os.path.join(cwd, CLI_PHOTOS_DB), "-V", "--no-exportdb"],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert not os.path.exists(OSXPHOTOS_EXPORT_DB)
+        assert "Created export database" not in result.output
 
 
 def test_export_tmpdir():
@@ -1707,9 +1724,9 @@ def test_export_tmpdir():
         result = runner.invoke(
             export,
             [
+                ".",
                 "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
-                ".",
                 "-V",
                 "--tmpdir",
                 tmpdir.name,

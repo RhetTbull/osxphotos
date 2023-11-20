@@ -1579,16 +1579,18 @@ def export(
             # on macOS, FileUtilMacOS will take advantage of copy-on-write for APFS volumes
             fileutil = FileUtilMacOS
 
-    if verbose:
+    if no_exportdb:
+        verbose("Using temporary export database, no state information will be saved.")
+    else:
         if export_db.was_created:
             verbose(f"Created export database [filepath]{export_db_path}")
         else:
             verbose(f"Using export database [filepath]{export_db_path}")
-        upgraded = export_db.was_upgraded
-        if upgraded:
-            verbose(
-                f"Upgraded export database [filepath]{export_db_path}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
-            )
+    upgraded = export_db.was_upgraded
+    if upgraded:
+        verbose(
+            f"Upgraded export database [filepath]{export_db_path}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
+        )
 
     # save config to export_db
     export_db.set_config(cfg.write_to_str())
