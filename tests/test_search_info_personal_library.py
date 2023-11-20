@@ -17,7 +17,7 @@ pytestmark = pytest.mark.skipif(
 
 PHOTOS_DB = "/Users/rhet/Pictures/Photos Library.photoslibrary"
 
-with open("tests/search_info_test_data_10_15_7.json") as fp:
+with open("tests/search_info_test_data_13.json") as fp:
     test_data = json.load(fp)
 
 UUID_SEARCH_INFO = test_data["UUID_SEARCH_INFO"]

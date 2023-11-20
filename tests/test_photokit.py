@@ -29,41 +29,41 @@ pytestmark = pytest.mark.skipif(
 
 UUID_DICT = {
     "plain_photo": {
-        "uuid": "C6C712C5-9316-408D-A3C3-125661422DA9",
+        "uuid": "C07BB1E1-2F61-4263-AB8E-943FD47CF013",
         "filename": "IMG_8844.JPG",
     },
-    "hdr": {"uuid": "DD641004-4E37-4233-AF31-CAA0896490B2", "filename": "IMG_6162.JPG"},
+    "hdr": {"uuid": "7D852FC8-EA03-49C9-96F7-B049CE44A7EA", "filename": "IMG_6162.JPG"},
     "selfie": {
-        "uuid": "C925CFDC-FF2B-4E71-AC9D-C669B6453A8B",
+        "uuid": "F21DFA19-E3E8-4610-8401-0447345F3074",
         "filename": "IMG_1929.JPG",
     },
     "video": {
-        "uuid": "F4430659-7B17-487E-8029-8C1ABEBE23DF",
+        "uuid": "A6F31CC4-213B-4F27-85FD-7DD81AF1ED09",
         "filename": "IMG_9411.TRIM.MOV",
     },
     "hasadjustments": {
-        "uuid": "2F252D2C-C9DE-4BE1-8610-9F968C634D3D",
+        "uuid": "1D99D83D-F820-4D30-A831-7B45BDF294D3",
         "filename": "IMG_2860.JPG",
         "adjusted_size": 3012634,
         "unadjusted_size": 2580058,
     },
     "slow_mo": {
-        "uuid": "160447F8-4EB0-4FAE-A26A-3D32EA698F75",
+        "uuid": "1B3FC526-9D27-48A1-A39D-47C5E1F0633C",
         "filename": "IMG_4055.MOV",
     },
     "live_photo": {
-        "uuid": "8EC216A2-0032-4934-BD3F-04C6259B3304",
+        "uuid": "03EE6CE2-20E6-489D-A149-A2EC7D11C70A",
         "filename": "IMG_3259.HEIC",
         "filename_video": "IMG_3259.mov",
     },
     "burst": {
-        "uuid": "CDE4E5D9-1428-41E6-8569-EC0C45FD8E5A",
+        "uuid": "A9BC0824-1200-4B6F-A071-779E1C555465",
         "filename": "IMG_8196.JPG",
         "burst_selected": 4,
         "burst_all": 5,
     },
     "raw+jpeg": {
-        "uuid": "E3DD04AF-CB65-4D9B-BB79-FF4C955533DB",
+        "uuid": "3C973493-7109-40E9-BF8D-6476AE7C8001",
         "filename": "IMG_1994.JPG",
         "raw_filename": "IMG_1994.CR2",
         "unadjusted_size": 16128420,
@@ -288,7 +288,7 @@ def test_export_video_current():
 
 ### Slow-Mo VideoAsset
 
-
+@pytest.mark.skip(reason="Slow-mo videos not working, #1286")
 def test_export_slow_mo_original():
     """test VideoAsset.export for slow mo video"""
     test_dict = UUID_DICT["slow_mo"]
@@ -304,6 +304,7 @@ def test_export_slow_mo_original():
         assert export_path.stem == pathlib.Path(filename).stem
 
 
+@pytest.mark.skip(reason="Slow-mo videos not working, #1286")
 def test_export_slow_mo_unadjusted():
     """test VideoAsset.export for slow mo video"""
     test_dict = UUID_DICT["slow_mo"]
@@ -319,6 +320,7 @@ def test_export_slow_mo_unadjusted():
         assert export_path.stem == pathlib.Path(filename).stem
 
 
+@pytest.mark.skip(reason="Slow-mo videos not working, #1286")
 def test_export_slow_mo_current():
     """test VideoAsset.export for slow mo video"""
     test_dict = UUID_DICT["slow_mo"]

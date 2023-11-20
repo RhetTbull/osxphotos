@@ -9,7 +9,6 @@ import os.path
 import pathlib
 import re
 import shutil
-import signal
 import sqlite3
 import subprocess
 import tempfile
@@ -69,11 +68,11 @@ IPHOTO_LIBRARY = "tests/Test-iPhoto-9.6.1.photolibrary"
 LOCAL_PHOTOSDB = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 UUID_SKIP_LIVE_PHOTOKIT = {
-    "54A01B04-16D7-4FDE-8860-19F2A641E433": ["IMG_3203_edited.jpeg"],
-    "1F3DF341-B822-4531-999E-724D642FD8E7": ["IMG_4179.jpeg"],
+    "D3FA21AA-62B0-41BA-A45E-B9E09369908B": ["IMG_3203_edited.jpeg"],
+    "14B8DE1D-4113-4948-BC11-C7046656C58C": ["IMG_4179.jpeg"],
 }
 
-UUID_DOWNLOAD_MISSING = "C6C712C5-9316-408D-A3C3-125661422DA9"  # IMG_8844.JPG
+UUID_DOWNLOAD_MISSING = "C07BB1E1-2F61-4263-AB8E-943FD47CF013" # IMG_8844.JPG
 
 UUID_FILE = "tests/uuid_from_file.txt"
 SKIP_UUID_FILE = "tests/skip_uuid_from_file.txt"
@@ -1096,7 +1095,7 @@ QUERY_EXIF_DATA_CASE_INSENSITIVE = [
 ]
 EXPORT_EXIF_DATA = [("EXIF:Make", "FUJIFILM", ["Tulips.jpg", "Tulips_edited.jpeg"])]
 
-UUID_LIVE_EDITED = "136A78FA-1B90-46CC-88A7-CCA3331F0353"  # IMG_4813.HEIC
+UUID_LIVE_EDITED = "029A1751-8A59-48FE-B636-E73E760ECDA6"  # IMG_4813.HEIC
 CLI_EXPORT_LIVE_EDITED = _normalize_fs_paths(
     [
         "IMG_4813.HEIC",
@@ -1957,6 +1956,7 @@ def test_export_preview_file_exists():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--preview",
                 "--uuid",
                 CLI_EXPORT_UUID_MISSING,
@@ -2054,6 +2054,7 @@ def test_export_preview_overwrite():
                 "--uuid",
                 CLI_EXPORT_UUID,
                 "--overwrite",
+                "-F",
             ],
         )
         assert result.exit_code == 0
@@ -2569,6 +2570,7 @@ def test_export_exiftool_quicktime():
                     "--exiftool",
                     "--uuid",
                     f"{uuid}",
+                    "-F",
                 ],
             )
             assert result.exit_code == 0
@@ -2671,6 +2673,7 @@ def test_export_exiftool_option():
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
+                "-F",
                 "--exiftool",
                 "--exiftool-option",
                 "-m",
@@ -2696,6 +2699,7 @@ def test_export_exiftool_merge():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--exiftool",
                     "--uuid",
                     f"{uuid}",
@@ -2731,6 +2735,7 @@ def test_export_exiftool_merge_sidecar():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--sidecar",
                     "json",
                     "--uuid",
@@ -2777,6 +2782,7 @@ def test_export_exiftool_merge_sidecar_xmp():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--sidecar",
                     "xmp",
                     "--uuid",
@@ -2806,6 +2812,7 @@ def test_export_exiftool_favorite_rating():
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
+                "-F",
                 "--exiftool",
                 "--uuid",
                 UUID_FAVORITE,
@@ -5411,8 +5418,9 @@ def test_export_live_edited():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
+                "--library",
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 "-V",
                 "--uuid",
                 UUID_LIVE_EDITED,
@@ -5777,6 +5785,7 @@ def test_export_then_hardlink():
                 ".",
                 "--export-as-hardlink",
                 "--overwrite",
+                "-F",
             ],
         )
         assert result.exit_code == 0
@@ -6572,6 +6581,7 @@ def test_export_report():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[0]["uuid"],
                 "--report",
@@ -6595,6 +6605,7 @@ def test_export_report():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[1]["uuid"],
                 "--report",
@@ -6616,6 +6627,7 @@ def test_export_report():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[0]["uuid"],
                 "--report",
@@ -6649,6 +6661,7 @@ def test_export_report_json():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[0]["uuid"],
                 "--report",
@@ -6671,6 +6684,7 @@ def test_export_report_json():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[1]["uuid"],
                 "--report",
@@ -6691,6 +6705,7 @@ def test_export_report_json():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[0]["uuid"],
                 "--report",
@@ -6724,6 +6739,7 @@ def test_export_report_sqlite(report_file):
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[0]["uuid"],
                 "--report",
@@ -6747,6 +6763,7 @@ def test_export_report_sqlite(report_file):
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[1]["uuid"],
                 "--report",
@@ -6768,6 +6785,7 @@ def test_export_report_sqlite(report_file):
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_REPORT[0]["uuid"],
                 "--report",
@@ -7772,6 +7790,7 @@ def test_config_command_line_precedence():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--load-config",
                 "config.toml",
             ],
@@ -7788,6 +7807,7 @@ def test_config_command_line_precedence():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_NOT_FROM_FILE,
                 "--load-config",
@@ -7857,6 +7877,7 @@ def test_export_exportdb():
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "-V",
+                "-F",
                 "--exportdb",
                 "export.db",
             ],
@@ -7968,6 +7989,7 @@ def test_export_finder_tag_keywords_dry_run():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--finder-tag-keywords",
                     "--uuid",
                     f"{uuid}",
@@ -7993,6 +8015,7 @@ def test_export_finder_tag_keywords():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--finder-tag-keywords",
                     "--uuid",
                     f"{uuid}",
@@ -8071,6 +8094,7 @@ def test_export_finder_tag_template():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--finder-tag-template",
                     "{person}",
                     "--uuid",
@@ -8152,6 +8176,7 @@ def test_export_finder_tag_template_multiple():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--finder-tag-template",
                     "{keyword}",
                     "--finder-tag-template",
@@ -8187,6 +8212,7 @@ def test_export_finder_tag_template_keywords():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--finder-tag-keywords",
                     "--finder-tag-template",
                     "{person}",
@@ -8221,6 +8247,7 @@ def test_export_finder_tag_template_multi_field():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--finder-tag-template",
                     "{title};{descr}",
                     "--uuid",
@@ -8257,6 +8284,7 @@ def test_export_xattr_template_dry_run():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--xattr-template",
                     "copyright",
                     "osxphotos 2022",
@@ -8294,6 +8322,7 @@ def test_export_xattr_template():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--xattr-template",
                     "copyright",
                     "osxphotos 2022",
@@ -8372,6 +8401,7 @@ def test_export_jpeg_ext():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--uuid",
                     uuid,
                 ],
@@ -8391,6 +8421,7 @@ def test_export_jpeg_ext():
                         os.path.join(cwd, PHOTOS_DB_15_7),
                         ".",
                         "-V",
+                        "-F",
                         "--uuid",
                         uuid,
                         "--jpeg-ext",
@@ -8418,6 +8449,7 @@ def test_export_jpeg_ext_not_jpeg():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--uuid",
                     uuid,
                 ],
@@ -8437,6 +8469,7 @@ def test_export_jpeg_ext_not_jpeg():
                         os.path.join(cwd, PHOTOS_DB_15_7),
                         ".",
                         "-V",
+                        "-F",
                         "--uuid",
                         uuid,
                         "--jpeg-ext",
@@ -8581,8 +8614,9 @@ def test_export_burst_folder_album(local_photosdb):
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     ".",
+                    "--library",
+                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     "-V",
                     "--directory",
                     "{folder_album}",
@@ -8590,6 +8624,7 @@ def test_export_burst_folder_album(local_photosdb):
                     photo.uuid,
                     "--download-missing",
                     "--use-photokit",
+                    "-F",
                 ],
             )
             assert result.exit_code == 0
@@ -8618,9 +8653,11 @@ def test_export_burst_uuid(local_photosdb: osxphotos.PhotosDB):
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     ".",
+                    "--library",
+                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     "-V",
+                    "-F",
                     "--uuid",
                     photo.uuid,
                 ],
@@ -8633,9 +8670,11 @@ def test_export_burst_uuid(local_photosdb: osxphotos.PhotosDB):
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     ".",
+                    "--library",
+                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     "-V",
+                    "-F",
                     "--uuid",
                     photo.uuid,
                     "--skip-bursts",
@@ -8660,9 +8699,11 @@ def test_export_download_missing_file_exists():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
+                "--library",
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_DOWNLOAD_MISSING,
                 "--download-missing",
@@ -8675,8 +8716,9 @@ def test_export_download_missing_file_exists():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
+                "--library",
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 "-V",
                 "--uuid",
                 UUID_DOWNLOAD_MISSING,
@@ -8704,9 +8746,11 @@ def test_export_download_missing_preview():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
+                "--library",
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_DOWNLOAD_MISSING,
                 "--download-missing",
@@ -8734,9 +8778,11 @@ def test_export_download_missing_preview_applescript():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, LOCAL_PHOTOSDB),
                 ".",
+                "--library",
+                os.path.join(cwd, LOCAL_PHOTOSDB),
                 "-V",
+                "-F",
                 "--uuid",
                 UUID_DOWNLOAD_MISSING,
                 "--download-missing",
@@ -8763,9 +8809,11 @@ def test_export_skip_live_photokit():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     ".",
+                    "--library",
+                    os.path.join(cwd, LOCAL_PHOTOSDB),
                     "-V",
+                    "-F",
                     "--uuid",
                     uuid,
                     "--use-photos-export",
@@ -9826,6 +9874,7 @@ def test_export_album_seq():
                     os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
+                    "-F",
                     "--album",
                     UUID_DICT_FOLDER_ALBUM_SEQ[uuid]["album"],
                     "--directory",

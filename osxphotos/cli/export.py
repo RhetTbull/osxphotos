@@ -49,7 +49,7 @@ from osxphotos.datetime_formatter import DateTimeFormatter
 from osxphotos.debug import is_debug
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifWriter, exif_options_from_options
-from osxphotos.export_db import ExportDB, ExportDBInMemory
+from osxphotos.export_db import ExportDB, ExportDBInMemory, ExportDBTemp
 from osxphotos.exportoptions import ExportOptions, ExportResults
 from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
@@ -758,6 +758,31 @@ from .verbose import get_verbose_console, verbose_print
     type=click.IntRange(min=0),
 )
 @click.option(
+    "--ignore-exportdb",
+    "-F",
+    is_flag=True,
+    help="If exporting to a directory that already contains an export database "
+    "and --update is not specified, do not prompt to continue but instead continue "
+    "the export. "
+    "Normally, if you export to a directory that already contains an export database "
+    "and do not specify --update, osxphotos will prompt you to continue. "
+    "This is because you may be inadvertently merging two export sets. "
+    "Use --ignore-exportdb to skip this prompt and continue the export. "
+    "The resulting export database will contain the combined state of both export sets. "
+    "Short option is '-F' (mnemonic: force export). "
+    "See also --update.",
+)
+@click.option(
+    "--no-exportdb",
+    is_flag=True,
+    help="Do not create an export database. "
+    "This exports all photos in the export set but does not save any state information "
+    "in the osxphotos export database. If you use --no-exportdb, you will not be able to use "
+    "--update on subsequent exports. "
+    "It is recommended that you do not use this option unless you are certain you understand "
+    "the implications. ",
+)
+@click.option(
     "--tmpdir",
     metavar="DIR",
     help="Specify alternate temporary directory. Default is system temporary directory. "
@@ -915,6 +940,7 @@ def export(
     hidden,
     ignore_case,
     ignore_date_modified,
+    ignore_exportdb,
     ignore_signature,
     in_album,
     incloud,
@@ -935,6 +961,7 @@ def export(
     name,
     no_comment,
     no_description,
+    no_exportdb,
     no_keyword,
     no_likes,
     no_location,
@@ -1158,6 +1185,7 @@ def export(
         hidden = cfg.hidden
         ignore_case = cfg.ignore_case
         ignore_date_modified = cfg.ignore_date_modified
+        ignore_exportdb = cfg.ignore_exportdb
         ignore_signature = cfg.ignore_signature
         in_album = cfg.in_album
         incloud = cfg.incloud
@@ -1177,6 +1205,7 @@ def export(
         name = cfg.name
         no_comment = cfg.no_comment
         no_description = cfg.no_description
+        no_exportdb = cfg.no_exportdb
         no_keyword = cfg.no_keyword
         no_likes = cfg.no_likes
         no_location = cfg.no_location
@@ -1321,6 +1350,9 @@ def export(
         ("syndicated", "not_syndicated"),
         ("saved_to_library", "not_saved_to_library"),
         ("shared_moment", "not_shared_moment"),
+        ("ignore_exportdb", "update"),
+        ("no_exportdb", "update"),
+        ("no_exportdb", "force_update"),
     ]
     dependent_options = [
         ("append", ("report")),
@@ -1459,8 +1491,9 @@ def export(
         return
 
     # sanity check exportdb
-    if exportdb and exportdb != OSXPHOTOS_EXPORT_DB:
-        if pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB).exists():
+    expected_exportdb = pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB)
+    if not no_exportdb and exportdb and exportdb != str(expected_exportdb):
+        if expected_exportdb.exists():
             rich_click_echo(
                 f"[warning]Warning: export database is '{exportdb}' but found '{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
                 err=True,
@@ -1471,14 +1504,28 @@ def export(
                 err=True,
             )
 
-    # open export database
-    export_db_path = exportdb or os.path.join(dest, OSXPHOTOS_EXPORT_DB)
+    # sanity check export into previous export dest without --update or --exportdb
+    if (
+        not update
+        and not force_update
+        and not exportdb
+        and not no_exportdb
+        and pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB).exists()
+    ):
+        rich_click_echo(
+            f"[warning]Warning: found previous export database in '{dest}' but --update not specified; "
+            "osxphotos will not consider state of previous export which may result in duplicate files. "
+            "Please confirm that you want to continue without using --update",
+            err=True,
+        )
+        if not ignore_exportdb and not click.confirm("Do you want to continue?"):
+            sys.exit(1)
 
     # check that export isn't in the parent or child of a previously exported library
     other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
     if other_db_files:
         rich_click_echo(
-            "[warning]WARNING: found other export database files in this destination directory branch.  "
+            "[warning]WARNING: found other export database files in this destination directory branch. "
             + "This likely means you are attempting to export files into a directory "
             + "that is either the parent or a child directory of a previous export. "
             + "Proceeding may cause your exported files to be overwritten.",
@@ -1492,13 +1539,18 @@ def export(
         if not click.confirm("Do you want to continue?"):
             sys.exit(1)
 
+    # open export database
+    export_db_path = exportdb or os.path.join(dest, OSXPHOTOS_EXPORT_DB)
+
     export_db_callback = None
     if dry_run:
         export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
         fileutil = FileUtilNoOp
     else:
         export_db = (
-            ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
+            ExportDBTemp()
+            if no_exportdb
+            else ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
             if ramdb
             else ExportDB(dbfile=export_db_path, export_dir=dest)
         )
