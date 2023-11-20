@@ -32,11 +32,6 @@ assert_macos()
 
 @query_command(name="push-exif")
 @click.option(
-    "--compare",
-    is_flag=True,
-    help="Compare metadata only; do not push (write) metadata.",
-)
-@click.option(
     "--push-edited",
     is_flag=True,
     help="Push EXIF data to edited photos in addition to originals.",
@@ -153,6 +148,16 @@ assert_macos()
     hidden=OSXPHOTOS_HIDDEN,
     help="Force writing metadata to all files and bypass warning.",
 )
+@click.option(
+    "--compare",
+    is_flag=True,
+    help="Compare metadata only; do not push (write) metadata.",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Dry run mode; show what would be done but do not actually write to any files.",
+)
 @click.argument(
     "metadata",
     required=True,
@@ -171,23 +176,24 @@ assert_macos()
 )
 def push_exif(
     photos: list[PhotoInfo],
+    append: bool,
     compare: bool,
-    push_edited: bool,
-    exiftool_path: str,
+    description_template: str,
+    dry_run: bool,
     exiftool_flags: tuple[str],
+    exiftool_path: str,
+    favorite_rating: bool,
+    force: bool,
+    ignore_date_modified: bool,
+    keyword_template: tuple[str],
     merge_exif_keywords: bool,
     merge_exif_persons: bool,
-    favorite_rating: bool,
-    ignore_date_modified: bool,
-    use_persons_as_keywords: bool,
-    use_albums_as_keywords: bool,
-    keyword_template: tuple[str],
-    replace_keywords: bool,
-    description_template: str,
-    report: str,
-    append: bool,
-    force: bool,
     metadata: str,
+    push_edited: bool,
+    replace_keywords: bool,
+    report: str,
+    use_albums_as_keywords: bool,
+    use_persons_as_keywords: bool,
     **kwargs,
 ):
     """Write photo metadata to original files in the Photos library
@@ -244,7 +250,9 @@ def push_exif(
     If you want to compare metadata between Photos and the original files without
     writing metadata, use the `--compare` option.  This will print a report of any
     differences between the metadata in Photos and the original files but will not
-    modify any files.
+    modify any files. You may also use the `--dry-run` option to see what would be
+    done without actually writing any files. This is useful for testing the command
+    before actually writing metadata to files.
 
     push-exif cannot be used on photos in classic shared albums. These photos will
     be automatically skipped.
@@ -291,7 +299,7 @@ def push_exif(
         if not force:
             click.confirm("Are you sure you want to continue?", abort=True)
 
-    process_photos(photos, options, push_edited, report, append, exiftool_path)
+    process_photos(photos, options, push_edited, report, append, exiftool_path, dry_run)
 
 
 def process_photos(
@@ -301,6 +309,7 @@ def process_photos(
     report: str,
     append: bool,
     exiftool_path: str,
+    dry_run: bool,
 ):
     """Process the photos, pushing metadata to files as needed"""
 
@@ -312,7 +321,7 @@ def process_photos(
 
     report_writer = (
         push_exif_report_writer_factory(report_name, append)
-        if report
+        if report and not dry_run
         else ReportWriterNoOp()
     )
 
@@ -329,7 +338,9 @@ def process_photos(
                 f"[filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
             )
             progress.print(f"Processing {photo_str}")
-            photo_results = process_photo(photo, options, push_edited, update_db)
+            photo_results = process_photo(
+                photo, options, push_edited, update_db, dry_run
+            )
             results[photo.uuid] = photo_results
             report_writer.write(photo.uuid, photo.original_filename, photo_results)
             progress.advance(task)
@@ -346,6 +357,7 @@ def process_photo(
     options: ExifOptions,
     push_edited: bool,
     update_db: SQLiteKVStore,
+    dry_run: bool,
 ) -> PushResults:
     """
     Process a photo, writing metadata to files as needed
@@ -355,6 +367,7 @@ def process_photo(
         options (ExifOptions): The options to use when writing metadata
         push_edited (bool): Whether to write metadata to edited photos
         update_db (SQLiteKVStore): The database to use for storing metadata
+        dry_run (bool): Whether to do a dry run (don't actually write metadata)
 
     Returns:
         PushResults: The results of processing the photo
@@ -412,13 +425,14 @@ def process_photo(
                 f"Writing metadata to [filepath]{filepath}[/] (not previously written)"
             )
             results.written.append(filepath)
-        warnings, errors = write_exif(photo, filepath, options)
-        if not errors:
-            update_db[photo_key] = exif_sidecar
-        else:
-            results.error.append((filepath, errors))
-        if warnings:
-            results.warning.append((filepath, warnings))
+        if not dry_run:
+            warnings, errors = write_exif(photo, filepath, options)
+            if not errors:
+                update_db[photo_key] = exif_sidecar
+            else:
+                results.error.append((filepath, errors))
+            if warnings:
+                results.warning.append((filepath, warnings))
     return results
 
 

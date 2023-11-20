@@ -141,6 +141,34 @@ def test_cli_push_exif_basic(monkeypatch):
         assert sorted(photo.persons) == get_exiftool_persons(photo)
 
 
+def test_cli_push_exif_dry_run(monkeypatch):
+    """Test push-exif command with --dry-run"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+
+        if sys.version_info[0:2] <= (3, 9):
+            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        else:
+            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif, ["all", "-V", "--force", "--library", test_library, "--dry-run"]
+        )
+        assert result.exit_code == 0
+        assert (
+            "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
+            in result.output
+        )
+
+        # verify keywords and persons were not pushed
+        photosdb = PhotosDB(test_library)
+        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+        assert sorted(photo.keywords) != get_exiftool_keywords(photo)
+        assert sorted(photo.persons) != get_exiftool_persons(photo)
+
+
 def test_cli_push_exif_exiftool_option(monkeypatch):
     """Test push-exif command with --exiftool-option"""
     # NOTE: Currently no photos that generate warnings in exiftool so can't test that
