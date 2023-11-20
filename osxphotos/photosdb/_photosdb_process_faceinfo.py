@@ -153,6 +153,7 @@ def _process_faceinfo_4(photosdb):
         face["intrash"] = None
         face["lipmakeuptype"] = None
         face["smiletype"] = None
+        face["masteridentifier"] = None
 
         photosdb._db_faceinfo_pk[modelid] = face
 
@@ -311,6 +312,7 @@ def _process_faceinfo_5(photosdb):
         face["righteyey"] = row[34]
         face["roll"] = row[35]
         face["size"] = row[36]
+        face["masteridentifier"] = row[38]
         face[
             "yaw"
         ] = 0  # Photos 4 only (this is in Photos 5-7, but dropped in Ventura so just don't support it)
