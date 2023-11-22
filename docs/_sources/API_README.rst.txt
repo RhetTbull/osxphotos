@@ -1644,7 +1644,7 @@ Returns a dictionary representation of all photo info.
 ``export()``
 ~~~~~~~~~~~~~~~~
 
-``export(dest, filename=None, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_exiftool=False, sidecar_xmp=False, download_missing=False, use_photos_export=False, use_photokit=True, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)``
+``export(dest, filename=None, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_exiftool=False, sidecar_xmp=False, use_photos_export=False, use_photokit=True, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)``
 
 Export photo from the Photos library to another destination on disk.  
 
@@ -1661,8 +1661,7 @@ Export photo from the Photos library to another destination on disk.
 * sidecar_exiftool: (bool, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name; resulting json file will not include tag group names (e.g. ``exiftool -j``\ )
 * sidecar_xmp: (bool, default = False); if True will also write a XMP sidecar with metadata; sidecar filename will be dest/filename.xmp where filename is the stem of the photo name
 * use_photos_export: (bool, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos
-* download_missing: (bool, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos if missing
-* use_photokit: (bool, default=True); if True will attempt to export photo via photokit instead of AppleScript when used with use_photos_export or download_missing
+* use_photokit: (bool, default=True); if True will attempt to export photo via photokit instead of AppleScript when used with use_photos_export
 * timeout: (int, default=120) timeout in seconds used with use_photos_export
 * exiftool: (bool, default = False) if True, will use `exiftool <https://exiftool.org/>`_ to write metadata directly to the exported photo; exiftool must be installed and in the system path
 * use_albums_as_keywords: (bool, default = False); if True, will use album names as keywords when exporting metadata with exiftool or sidecar

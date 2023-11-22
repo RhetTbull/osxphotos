@@ -1506,6 +1506,28 @@ Options:
                                   is cancelled or crashes. Default is 1000; to
                                   prevent checkpointing of database, use
                                   `--checkpoint 0`  [x>=0]
+  -F, --ignore-exportdb           If exporting to a directory that already
+                                  contains an export database and --update is
+                                  not specified, do not prompt to continue but
+                                  instead continue the export. Normally, if you
+                                  export to a directory that already contains an
+                                  export database and do not specify --update,
+                                  osxphotos will prompt you to continue. This is
+                                  because you may be inadvertently merging two
+                                  export sets. Use --ignore-exportdb to skip
+                                  this prompt and continue the export. The
+                                  resulting export database will contain the
+                                  combined state of both export sets. Short
+                                  option is '-F' (mnemonic: force export). See
+                                  also --update.
+  --no-exportdb                   Do not create an export database. This exports
+                                  all photos in the export set but does not save
+                                  any state information in the osxphotos export
+                                  database. If you use --no-exportdb, you will
+                                  not be able to use --update on subsequent
+                                  exports. It is recommended that you do not use
+                                  this option unless you are certain you
+                                  understand the implications.
   --tmpdir DIR                    Specify alternate temporary directory. Default
                                   is system temporary directory. osxphotos needs
                                   to create a number of temporary files during
