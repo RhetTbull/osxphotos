@@ -689,6 +689,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "nicad",
+      "name": "nicad",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1311134?v=4",
+      "profile": "https://github.com/nicad",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
