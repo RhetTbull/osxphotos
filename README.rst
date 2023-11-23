@@ -47,29 +47,7 @@ You can also install directly from `pypi <https://pypi.org/project/osxphotos/>`_
 
 .. code-block::
 
-   pip install osxphotos
-
-
-Installation from git repository
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-osxphotos uses setuptools, thus simply run:
-
-.. code-block::
-
-   git clone https://github.com/RhetTbull/osxphotos.git
-   cd osxphotos
-   python3 setup.py install
-
-
-I recommend you create a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_ before installing osxphotos.
-
-**WARNING** The git repo for this project is very large (> 1GB) because it contains multiple Photos libraries used for testing 
-on different versions of macOS.  If you just want to use the osxphotos package in your own code, 
-I recommend you install the latest version from `PyPI <https://pypi.org/project/osxphotos/>`_ which does not include all the test 
-libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest 
-`release <https://github.com/RhetTbull/osxphotos/releases>`_ or you can install via ``pip`` which also installs the command line app.  
-If you aren't comfortable with running python on your Mac, start with the pre-built executable or ``pipx`` as described above.
+   python3 -m pip install osxphotos
 
 Command Line Usage
 ------------------
