@@ -680,11 +680,13 @@ _QUERY_PARAMETERS_DICT = {
         multiple=True,
         type=FunctionCall(),
         help="Run function to filter photos. Use this in format: --query-function filename.py::function where filename.py is a python "
-        + "file you've created and function is the name of the function in the python file you want to call. "
-        + "Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. "
-        + "You may use more than one function by repeating the --query-function option with a different value. "
-        + "Your query function will be called after all other query options have been evaluated. "
-        + "See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of how to use this option.",
+        "file you've created and function is the name of the function in the python file you want to call. "
+        "Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. "
+        "You may use more than one function by repeating the --query-function option with a different value. "
+        "Your query function will be called after all other query options have been evaluated. "
+        "You may also specify a URL to a python file in the format: "
+        "--query-function https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/find_unnamed_faces.py::unnamed_faces "
+        "See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of a query function.",
     ),
 }
 

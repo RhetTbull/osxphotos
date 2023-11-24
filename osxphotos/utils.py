@@ -572,3 +572,19 @@ def is_photoslibrary_path(path: str | pathlib.Path | os.PathLike) -> bool:
     if path.parent == path:
         return False
     return is_photoslibrary_path(path.parent)
+
+
+def is_http_url(url: str) -> bool:
+    """Return True if url is a valid http/https URL, else False"""
+    try:
+        result = urllib.parse.urlparse(url)
+        if result.scheme in ["http", "https"] and result.netloc:
+            return True
+    except Exception:
+        return False
+    return False
+
+
+def get_filename_from_url(url: str) -> str:
+    """Return filename from url"""
+    return os.path.basename(urllib.parse.urlparse(url).path)

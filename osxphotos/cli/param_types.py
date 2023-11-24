@@ -6,10 +6,12 @@ import datetime
 import os
 import pathlib
 import re
+import tempfile
 
 import bitmath
 import click
 import pytimeparse2
+import requests
 from strpdatetime import strpdatetime
 
 from osxphotos.export_db_utils import export_db_get_version
@@ -17,7 +19,12 @@ from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.timeutils import time_string_to_datetime, utc_offset_string_to_seconds
 from osxphotos.timezones import Timezone
-from osxphotos.utils import expand_and_validate_filepath, load_function
+from osxphotos.utils import (
+    expand_and_validate_filepath,
+    get_filename_from_url,
+    is_http_url,
+    load_function,
+)
 
 __all__ = [
     "BitMathSize",
@@ -129,6 +136,20 @@ class FunctionCall(click.ParamType):
             )
 
         filename, funcname = value.split("::")
+
+        if is_http_url(filename):
+            # need to retrieve file from URL and save it in a temp directory
+            tmpdir = tempfile.TemporaryDirectory()
+            basename = get_filename_from_url(filename)
+            tmp_filename = os.path.join(tmpdir.name, basename)
+            try:
+                r = requests.get(filename)
+                r.raise_for_status()
+                with open(tmp_filename, "wb") as f:
+                    f.write(r.content)
+            except Exception as e:
+                self.fail(f"Could not retrieve {filename} from URL: {e}")
+            filename = tmp_filename
 
         filename_validated = expand_and_validate_filepath(filename)
         if not filename_validated:
