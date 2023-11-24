@@ -2913,7 +2913,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/santiagoGPNC"><img src="https://avatars.githubusercontent.com/u/143808451?v=4?s=75" width="75px;" alt="santiagoGPNC"/><br /><sub><b>santiagoGPNC</b></sub></a><br /><a href="#ideas-santiagoGPNC" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/nkxco"><img src="https://avatars.githubusercontent.com/u/147254285?v=4?s=75" width="75px;" alt="nkxco"/><br /><sub><b>nkxco</b></sub></a><br /><a href="#ideas-nkxco" title="Ideas, Planning, & Feedback">🤔</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nicad"><img src="https://avatars.githubusercontent.com/u/1311134?v=4?s=75" width="75px;" alt="nicad"/><br /><sub><b>nicad</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=nicad" title="Documentation">📖</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=nicad" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nicad"><img src="https://avatars.githubusercontent.com/u/1311134?v=4?s=75" width="75px;" alt="nicad"/><br /><sub><b>nicad</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=nicad" title="Documentation">📖</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=nicad" title="Tests">⚠️</a> <a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Anicad" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
