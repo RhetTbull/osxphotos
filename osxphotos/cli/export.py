@@ -2092,7 +2092,7 @@ def export_cli(
                 progress.advance(task)
 
                 # handle checkpoint
-                if checkpoint and not dry_run and photo_num % checkpoint == 0:
+                if ramdb and checkpoint and not dry_run and photo_num % checkpoint == 0:
                     verbose(
                         f"Checkpoint: saving export database state to {export_db_path}"
                     )
