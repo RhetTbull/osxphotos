@@ -1095,7 +1095,8 @@ def export(
     to modify this behavior.
     """
 
-    export_cli(**locals())
+    return_code = export_cli(**locals())
+    sys.exit(return_code or 0)
 
 
 def export_cli(
@@ -1276,7 +1277,7 @@ def export_cli(
     selected: bool = False,  # Isn't provided on unsupported platforms
     ctx: click.Context | None = None,  # reserved for use by export() CLI command
     cli_obj: CLI_Obj | None = None,  # reserved for use by export() CLI command
-):
+) -> int:
     """Export photos from the Photos database.
 
     This is intended to be called by export() which handles command line arguments.
@@ -1286,6 +1287,8 @@ def export_cli(
     CLI argument `--from-date` converts user input in form `2023-01-01` to a
     datetime.datetime object. If passing `from_date`, you will be responsible for
     passing a datetime.datetime not the ISO string as is done on the command line.
+
+    Returns: 1 if error or 0 if no error
     """
 
     # capture locals for use with ConfigOptions before changing any of them
@@ -1323,7 +1326,7 @@ def export_cli(
             rich_click_echo(
                 f"[error]Error parsing {load_config} config file: {e.message}", err=True
             )
-            sys.exit(1)
+            return 1
 
         if cfg.library and cfg.db:
             # library & db are synonyms but library takes precedence over db
@@ -1586,21 +1589,21 @@ def export_cli(
             f"[error]Incompatible export options: {e.message}",
             err=True,
         )
-        sys.exit(1)
+        return 1
 
     if config_only and not save_config:
         rich_click_echo(
             "[error]Incompatible export options: --config-only must be used with --save-config",
             err=True,
         )
-        sys.exit(1)
+        return 1
 
     if all(x in [s.lower() for s in sidecar] for x in ["json", "exiftool"]):
         rich_click_echo(
             "[error]Incompatible export options:: cannot use --sidecar json with --sidecar exiftool due to name collisions",
             err=True,
         )
-        sys.exit(1)
+        return 1
 
     if xattr_template:
         for attr, _ in xattr_template:
@@ -1610,14 +1613,14 @@ def export_cli(
                     f"valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
                     err=True,
                 )
-                sys.exit(1)
+                return 1
 
     if save_config:
         verbose(f"Saving options to config file '[filepath]{save_config}'")
         cfg.write_to_file(save_config)
         if config_only:
             rich_echo(f"Saved config file to '[filepath]{save_config}'")
-            sys.exit(0)
+            return 0
 
     # set defaults for options that need them
     jpeg_quality = DEFAULT_JPEG_QUALITY if jpeg_quality is None else jpeg_quality
@@ -1636,7 +1639,7 @@ def export_cli(
     # validate the destination path
     if not os.path.isdir(dest):
         rich_click_echo(f"[error]Error: DEST {dest} must be valid path", err=True)
-        sys.exit(1)
+        return 1
 
     if is_photoslibrary_path(dest):
         rich_click_echo(
@@ -1644,10 +1647,14 @@ def export_cli(
             "You should not export into a Photos library.",
             err=True,
         )
-        sys.exit(1)
+        return 1
 
     if report:
-        report = render_and_validate_report(report, exiftool_path, dest)
+        try:
+            report = render_and_validate_report(report, exiftool_path, dest)
+        except ValueError as e:
+            rich_click_echo(f"[error]Error: {e}", err=True)
+            return 1
         report_writer = export_report_writer_factory(report, append)
     else:
         report_writer = ReportWriterNoOp()
@@ -1685,7 +1692,7 @@ def export_cli(
                 " from https://exiftool.org/",
                 err=True,
             )
-            sys.exit(1)
+            return 1
 
     if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]):
         verbose(f"exiftool path: [filepath]{exiftool_path}")
@@ -1699,7 +1706,7 @@ def export_cli(
             "\n\nLocated the following Photos library databases: ", err=True
         )
         _list_libraries()
-        return
+        return 1
 
     # sanity check exportdb
     expected_exportdb = pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB)
@@ -1730,7 +1737,7 @@ def export_cli(
             err=True,
         )
         if not ignore_exportdb and not click.confirm("Do you want to continue?"):
-            sys.exit(1)
+            return 1
 
     # check that export isn't in the parent or child of a previously exported library
     other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
@@ -1748,7 +1755,7 @@ def export_cli(
         for other_db in other_db_files:
             rich_click_echo(f"{other_db}")
         if not click.confirm("Do you want to continue?"):
-            sys.exit(1)
+            return 1
 
     # open export database
     export_db_path = exportdb or os.path.join(dest, OSXPHOTOS_EXPORT_DB)
@@ -1776,7 +1783,7 @@ def export_cli(
                 print("Aborted!", file=sys.stderr)
                 print(f"Writing export database to {export_db_path}")
                 export_db.write_to_disk()
-                sys.exit(1)
+                return 1
 
             signal.signal(signal.SIGINT, sigint_handler)
 
@@ -2210,6 +2217,8 @@ def export_cli(
         verbose(f"Writing export database changes back to [filepath]{export_db.path}")
         export_db.write_to_disk()
     export_db.close()
+
+    return 0
 
 
 def export_photo(
@@ -3358,8 +3367,7 @@ def render_and_validate_report(report: str, exiftool_path: str, export_dir: str)
             f"[error]Report '{report}' is a directory, must be file name",
             err=True,
         )
-        sys.exit(1)
-
+        raise ValueError(f"Report '{report}' is a directory, must be file name")
     return report
 
 
