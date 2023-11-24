@@ -697,7 +697,8 @@
       "profile": "https://github.com/nicad",
       "contributions": [
         "doc",
-        "test"
+        "test",
+        "bug"
       ]
     }
   ],
