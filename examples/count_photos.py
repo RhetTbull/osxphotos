@@ -1,8 +1,8 @@
 """Simple example to show count of photos in library using osxphotos; used for testing `osxphotos run`"""
 
-import osxphotos
-
 import click
+
+import osxphotos
 
 
 @click.command()

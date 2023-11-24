@@ -1189,13 +1189,13 @@ def test_function(photosdb):
     assert rendered == [f"{photo.original_filename}-FOO"]
 
 
-# def test_function_url(photosdb):
-#     """Test {function}"""
-#     photo = photosdb.get_photo(UUID_DICT["favorite"])
-#     rendered, _ = photo.render_template(
-#         "{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}"
-#     )
-#     assert rendered == [f"{pathlib.Path(photo.original_filename).stem}#!"]
+def test_function_url(photosdb):
+    """Test {function}"""
+    photo = photosdb.get_photo(UUID_DICT["favorite"])
+    rendered, _ = photo.render_template(
+        "{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}"
+    )
+    assert rendered == [f"{pathlib.Path(photo.original_filename).stem}#!"]
 
 
 def test_function_bad(photosdb):
