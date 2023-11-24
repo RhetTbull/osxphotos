@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import atexit
+import datetime
 import inspect
 import os
 import pathlib
@@ -11,7 +12,16 @@ import signal
 import subprocess
 import sys
 import time
-from typing import Any, Callable, Iterable, List, Literal, Optional, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+)
 
 import click
 
@@ -112,6 +122,11 @@ from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
 from .sidecar import generate_user_sidecar
 from .verbose import get_verbose_console, verbose_print
+
+if TYPE_CHECKING:
+    import bitmath
+
+    from .cli import CLI_Obj
 
 
 @click.command(cls=ExportCommand)
@@ -880,180 +895,183 @@ from .verbose import get_verbose_console, verbose_print
     f"osxphotos version: {__version__}",
 )
 def export(
-    ctx,
-    cli_obj,
-    db,
-    add_exported_to_album,
-    add_missing_to_album,
-    add_skipped_to_album,
-    added_after,
-    added_before,
-    added_in_last,
-    album,
-    album_keyword,
-    alt_db,
-    alt_copy,
-    append,
-    beta,
-    burst,
-    checkpoint,
-    cleanup,
-    cloudasset,
-    config_only,
-    convert_to_jpeg,
-    crash_after,
-    current_name,
-    deleted,
-    deleted_only,
-    description,
-    description_template,
-    dest,
-    directory,
-    download_missing,
-    dry_run,
-    duplicate,
-    edited,
-    edited_suffix,
-    exif,
-    exiftool,
-    exiftool_merge_keywords,
-    exiftool_merge_persons,
-    exiftool_option,
-    exiftool_path,
-    export_as_hardlink,
-    export_by_date,
-    exportdb,
-    external_edit,
-    favorite,
-    favorite_rating,
-    filename_template,
-    finder_tag_keywords,
-    finder_tag_template,
-    folder,
-    force_update,
-    from_date,
-    from_time,
-    has_comment,
-    has_likes,
-    has_raw,
-    hdr,
-    hidden,
-    ignore_case,
-    ignore_date_modified,
-    ignore_exportdb,
-    ignore_signature,
-    in_album,
-    incloud,
-    is_reference,
-    jpeg_ext,
-    jpeg_quality,
-    keep,
-    keyword,
-    keyword_template,
-    label,
-    limit,
-    live,
-    load_config,
-    location,
-    max_size,
-    min_size,
-    missing,
-    name,
-    no_comment,
-    no_description,
-    no_exportdb,
-    no_keyword,
-    no_likes,
-    no_location,
-    no_place,
-    no_progress,
-    no_title,
-    not_burst,
-    not_cloudasset,
-    not_edited,
-    not_favorite,
-    not_hdr,
-    not_hidden,
-    not_in_album,
-    not_incloud,
-    not_live,
-    not_missing,
-    not_panorama,
-    not_portrait,
-    not_reference,
-    not_screenshot,
-    not_selfie,
-    not_shared,
-    not_slow_mo,
-    not_time_lapse,
-    only_movies,
-    only_new,
-    only_photos,
-    original_suffix,
-    overwrite,
-    panorama,
-    person,
-    person_keyword,
-    place,
-    portrait,
-    post_command,
-    post_command_error,
-    post_function,
-    preview,
-    preview_if_missing,
-    preview_suffix,
-    print_template,
-    query_eval,
-    query_function,
-    ramdb,
-    regex,
-    replace_keywords,
-    report,
-    retry,
-    save_config,
-    screenshot,
-    selfie,
-    shared,
-    export_aae,
-    sidecar,
-    sidecar_drop_ext,
-    sidecar_template,
-    skip_bursts,
-    skip_edited,
-    skip_live,
-    skip_original_if_edited,
-    skip_raw,
-    skip_uuid,
-    skip_uuid_from_file,
-    slow_mo,
-    strip,
-    theme,
-    time_lapse,
-    timestamp,
-    title,
-    tmpdir,
-    to_date,
-    to_time,
-    touch_file,
-    update,
-    update_errors,
-    use_photokit,
-    use_photos_export,
-    uti,
-    uuid,
-    uuid_from_file,
-    verbose_flag,
-    xattr_template,
-    year,
-    syndicated,
-    not_syndicated,
-    saved_to_library,
-    not_saved_to_library,
-    shared_moment,
-    not_shared_moment,
-    shared_library,
-    not_shared_library,
-    selected=False,  # Isn't provided on unsupported platforms
+    ctx: click.Context,
+    cli_obj: CLI_Obj,
+    db: str | None,
+    add_exported_to_album: str | None,
+    add_missing_to_album: str | None,
+    add_skipped_to_album: str | None,
+    added_after: datetime.datetime | None,
+    added_before: datetime.datetime | None,
+    added_in_last: datetime.timedelta | None,
+    album: tuple[str, ...],
+    album_keyword: bool,
+    alt_db: str | None,
+    alt_copy: bool,
+    append: bool,
+    beta: bool,
+    burst: bool,
+    checkpoint: int | None,
+    cleanup: bool,
+    cloudasset: bool,
+    config_only: bool,
+    convert_to_jpeg: bool,
+    crash_after: int | None,
+    current_name: bool,
+    deleted: bool,
+    deleted_only: bool,
+    description: tuple[str, ...] | None,
+    description_template: str | None,
+    dest: str,
+    directory: str | None,
+    download_missing: bool,
+    dry_run: bool,
+    duplicate: bool,
+    edited: bool,
+    edited_suffix: str | None,
+    exif: tuple[tuple[str, str], ...] | None,
+    exiftool: bool,
+    exiftool_merge_keywords: bool,
+    exiftool_merge_persons: bool,
+    exiftool_option: tuple[str, ...] | None,
+    exiftool_path: str | None,
+    export_as_hardlink: bool,
+    export_by_date: bool,
+    exportdb: str | None,
+    external_edit: bool,
+    favorite: bool,
+    favorite_rating: bool,
+    filename_template: str | None,
+    finder_tag_keywords: bool,
+    finder_tag_template: tuple[str, ...],
+    folder: tuple[str, ...],
+    force_update: bool,
+    from_date: datetime.datetime | None,
+    from_time: datetime.time | None,
+    has_comment: bool,
+    has_likes: bool,
+    has_raw: bool,
+    hdr: bool,
+    hidden: bool,
+    ignore_case: bool,
+    ignore_date_modified: bool,
+    ignore_exportdb: bool,
+    ignore_signature: bool,
+    in_album: bool,
+    incloud: bool,
+    is_reference: bool,
+    jpeg_ext: str | None,
+    jpeg_quality: float | None,
+    keep: tuple[str, ...],
+    keyword: tuple[str, ...],
+    keyword_template: tuple[str, ...],
+    label: tuple[str, ...],
+    limit: int | None,
+    live: bool,
+    load_config: str | None,
+    location: bool,
+    max_size: bitmath.Bitmath | None,
+    min_size: bitmath.Bitmath | None,
+    missing: bool,
+    name: tuple[str, ...],
+    no_comment: bool,
+    no_description: bool,
+    no_exportdb: bool,
+    no_keyword: bool,
+    no_likes: bool,
+    no_location: bool,
+    no_place: bool,
+    no_progress: bool,
+    no_title: bool,
+    not_burst: bool,
+    not_cloudasset: bool,
+    not_edited: bool,
+    not_favorite: bool,
+    not_hdr: bool,
+    not_hidden: bool,
+    not_in_album: bool,
+    not_incloud: bool,
+    not_live: bool,
+    not_missing: bool,
+    not_panorama: bool,
+    not_portrait: bool,
+    not_reference: bool,
+    not_screenshot: bool,
+    not_selfie: bool,
+    not_shared: bool,
+    not_slow_mo: bool,
+    not_time_lapse: bool,
+    only_movies: bool,
+    only_new: bool,
+    only_photos: bool,
+    original_suffix: str | None,
+    overwrite: bool,
+    panorama: bool,
+    person: tuple[str, ...],
+    person_keyword: bool,
+    place: tuple[str, ...],
+    portrait: bool,
+    post_command: tuple[tuple[str, str], ...],
+    post_command_error: Literal["continue", "break"] | None,
+    post_function: tuple[tuple[Callable, str], ...],
+    preview: bool,
+    preview_if_missing: bool,
+    preview_suffix: str | None,
+    print_template: tuple[str, ...],
+    query_eval: tuple[str, ...],
+    query_function: tuple[tuple[Callable, str], ...],
+    ramdb: bool,
+    regex: tuple[tuple[str, str], ...],
+    replace_keywords: bool,
+    report: str | None,
+    retry: int | None,
+    save_config: bool,
+    screenshot: bool,
+    selfie: bool,
+    shared: bool,
+    export_aae: bool,
+    sidecar: tuple[str, ...],
+    sidecar_drop_ext: bool,
+    sidecar_template: tuple[
+        tuple[str, str, str],
+        ...,
+    ],
+    skip_bursts: bool,
+    skip_edited: bool,
+    skip_live: bool,
+    skip_original_if_edited: bool,
+    skip_raw: bool,
+    skip_uuid: bool,
+    skip_uuid_from_file: bool,
+    slow_mo: bool,
+    strip: bool,
+    theme: str | None,
+    time_lapse: bool,
+    timestamp: bool,
+    title: tuple[str, ...],
+    tmpdir: str | None,
+    to_date: datetime.datetime | None,
+    to_time: datetime.time | None,
+    touch_file: bool,
+    update: bool,
+    update_errors: bool,
+    use_photokit: bool,
+    use_photos_export: bool,
+    uti: str | None,
+    uuid: tuple[str, ...],
+    uuid_from_file: str | None,
+    verbose_flag: bool,
+    xattr_template: tuple[tuple[str, str], ...],
+    year: tuple[int, ...],
+    syndicated: bool,
+    not_syndicated: bool,
+    saved_to_library: bool,
+    not_saved_to_library: bool,
+    shared_moment: bool,
+    not_shared_moment: bool,
+    shared_library: bool,
+    not_shared_library: bool,
+    selected: bool = False,  # Isn't provided on unsupported platforms
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1075,6 +1093,202 @@ def export(
     versions, live photo movies, burst photos, and associated raw images.
     See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
     to modify this behavior.
+    """
+
+    return_code = export_cli(**locals())
+    sys.exit(return_code or 0)
+
+
+def export_cli(
+    dest: str,
+    db: str | None = None,
+    add_exported_to_album: str | None = None,
+    add_missing_to_album: str | None = None,
+    add_skipped_to_album: str | None = None,
+    added_after: datetime.datetime | None = None,
+    added_before: datetime.datetime | None = None,
+    added_in_last: datetime.timedelta | None = None,
+    album: tuple[str, ...] = (),
+    album_keyword: bool = False,
+    alt_db: str | None = None,
+    alt_copy: bool = False,
+    append: bool = False,
+    beta: bool = False,
+    burst: bool = False,
+    checkpoint: int | None = None,
+    cleanup: bool = False,
+    cloudasset: bool = False,
+    config_only: bool = False,
+    convert_to_jpeg: bool = False,
+    crash_after: int | None = None,
+    current_name: bool = False,
+    deleted: bool = False,
+    deleted_only: bool = False,
+    description: tuple[str, ...] | None = None,
+    description_template: str | None = None,
+    directory: str | None = None,
+    download_missing: bool = False,
+    dry_run: bool = False,
+    duplicate: bool = False,
+    edited: bool = False,
+    edited_suffix: str | None = None,
+    exif: tuple[tuple[str, str], ...] | None = None,
+    exiftool: bool = False,
+    exiftool_merge_keywords: bool = False,
+    exiftool_merge_persons: bool = False,
+    exiftool_option: tuple[str, ...] | None = None,
+    exiftool_path: str | None = None,
+    export_as_hardlink: bool = False,
+    export_by_date: bool = False,
+    exportdb: str | None = None,
+    external_edit: bool = False,
+    favorite: bool = False,
+    favorite_rating: bool = False,
+    filename_template: str | None = None,
+    finder_tag_keywords: bool = False,
+    finder_tag_template: tuple[str, ...] = (),
+    folder: tuple[str, ...] = (),
+    force_update: bool = False,
+    from_date: datetime.datetime | None = None,
+    from_time: datetime.time | None = None,
+    has_comment: bool = False,
+    has_likes: bool = False,
+    has_raw: bool = False,
+    hdr: bool = False,
+    hidden: bool = False,
+    ignore_case: bool = False,
+    ignore_date_modified: bool = False,
+    ignore_exportdb: bool = False,
+    ignore_signature: bool = False,
+    in_album: bool = False,
+    incloud: bool = False,
+    is_reference: bool = False,
+    jpeg_ext: str | None = None,
+    jpeg_quality: float | None = None,
+    keep: tuple[str, ...] = (),
+    keyword: tuple[str, ...] = (),
+    keyword_template: tuple[str, ...] = (),
+    label: tuple[str, ...] = (),
+    limit: int | None = None,
+    live: bool = False,
+    load_config: str | None = None,
+    location: bool = False,
+    max_size: bitmath.Bitmath | None = None,
+    min_size: bitmath.Bitmath | None = None,
+    missing: bool = False,
+    name: tuple[str, ...] = (),
+    no_comment: bool = False,
+    no_description: bool = False,
+    no_exportdb: bool = False,
+    no_keyword: bool = False,
+    no_likes: bool = False,
+    no_location: bool = False,
+    no_place: bool = False,
+    no_progress: bool = False,
+    no_title: bool = False,
+    not_burst: bool = False,
+    not_cloudasset: bool = False,
+    not_edited: bool = False,
+    not_favorite: bool = False,
+    not_hdr: bool = False,
+    not_hidden: bool = False,
+    not_in_album: bool = False,
+    not_incloud: bool = False,
+    not_live: bool = False,
+    not_missing: bool = False,
+    not_panorama: bool = False,
+    not_portrait: bool = False,
+    not_reference: bool = False,
+    not_screenshot: bool = False,
+    not_selfie: bool = False,
+    not_shared: bool = False,
+    not_slow_mo: bool = False,
+    not_time_lapse: bool = False,
+    only_movies: bool = False,
+    only_new: bool = False,
+    only_photos: bool = False,
+    original_suffix: str | None = None,
+    overwrite: bool = False,
+    panorama: bool = False,
+    person: tuple[str, ...] = (),
+    person_keyword: bool = False,
+    place: tuple[str, ...] = (),
+    portrait: bool = False,
+    post_command: tuple[tuple[str, str], ...] = (),
+    post_command_error: Literal["continue", "break"] | None = None,
+    post_function: tuple[tuple[Callable, str], ...] = (),
+    preview: bool = False,
+    preview_if_missing: bool = False,
+    preview_suffix: str | None = None,
+    print_template: tuple[str, ...] = (),
+    query_eval: tuple[str, ...] = (),
+    query_function: tuple[tuple[Callable, str], ...] = (),
+    ramdb: bool = False,
+    regex: tuple[tuple[str, str], ...] = (),
+    replace_keywords: bool = False,
+    report: str | None = None,
+    retry: int | None = None,
+    save_config: bool = False,
+    screenshot: bool = False,
+    selfie: bool = False,
+    shared: bool = False,
+    export_aae: bool = False,
+    sidecar: tuple[str, ...] = (),
+    sidecar_drop_ext: bool = False,
+    sidecar_template: tuple[
+        tuple[str, str, str],
+        ...,
+    ] = (),
+    skip_bursts: bool = False,
+    skip_edited: bool = False,
+    skip_live: bool = False,
+    skip_original_if_edited: bool = False,
+    skip_raw: bool = False,
+    skip_uuid: bool = False,
+    skip_uuid_from_file: bool = False,
+    slow_mo: bool = False,
+    strip: bool = False,
+    theme: str | None = None,
+    time_lapse: bool = False,
+    timestamp: bool = False,
+    title: tuple[str, ...] = (),
+    tmpdir: str | None = None,
+    to_date: datetime.datetime | None = None,
+    to_time: datetime.time | None = None,
+    touch_file: bool = False,
+    update: bool = False,
+    update_errors: bool = False,
+    use_photokit: bool = False,
+    use_photos_export: bool = False,
+    uti: str | None = None,
+    uuid: tuple[str, ...] = (),
+    uuid_from_file: str | None = None,
+    verbose_flag: bool = False,
+    xattr_template: tuple[tuple[str, str], ...] = (),
+    year: tuple[int, ...] = (),
+    syndicated: bool = False,
+    not_syndicated: bool = False,
+    saved_to_library: bool = False,
+    not_saved_to_library: bool = False,
+    shared_moment: bool = False,
+    not_shared_moment: bool = False,
+    shared_library: bool = False,
+    not_shared_library: bool = False,
+    selected: bool = False,  # Isn't provided on unsupported platforms
+    ctx: click.Context | None = None,  # reserved for use by export() CLI command
+    cli_obj: CLI_Obj | None = None,  # reserved for use by export() CLI command
+) -> int:
+    """Export photos from the Photos database.
+
+    This is intended to be called by export() which handles command line arguments.
+    If you want to call the export function directly in your own code, you may call
+    export_cli() directly. In this case you will be responsible for ensuring that all
+    arguments are passed and all arguments are of the correct type. For example, the
+    CLI argument `--from-date` converts user input in form `2023-01-01` to a
+    datetime.datetime object. If passing `from_date`, you will be responsible for
+    passing a datetime.datetime not the ISO string as is done on the command line.
+
+    Returns: 1 if error or 0 if no error
     """
 
     # capture locals for use with ConfigOptions before changing any of them
@@ -1112,7 +1326,7 @@ def export(
             rich_click_echo(
                 f"[error]Error parsing {load_config} config file: {e.message}", err=True
             )
-            sys.exit(1)
+            return 1
 
         if cfg.library and cfg.db:
             # library & db are synonyms but library takes precedence over db
@@ -1375,21 +1589,21 @@ def export(
             f"[error]Incompatible export options: {e.message}",
             err=True,
         )
-        sys.exit(1)
+        return 1
 
     if config_only and not save_config:
         rich_click_echo(
             "[error]Incompatible export options: --config-only must be used with --save-config",
             err=True,
         )
-        sys.exit(1)
+        return 1
 
     if all(x in [s.lower() for s in sidecar] for x in ["json", "exiftool"]):
         rich_click_echo(
             "[error]Incompatible export options:: cannot use --sidecar json with --sidecar exiftool due to name collisions",
             err=True,
         )
-        sys.exit(1)
+        return 1
 
     if xattr_template:
         for attr, _ in xattr_template:
@@ -1399,14 +1613,14 @@ def export(
                     f"valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
                     err=True,
                 )
-                sys.exit(1)
+                return 1
 
     if save_config:
         verbose(f"Saving options to config file '[filepath]{save_config}'")
         cfg.write_to_file(save_config)
         if config_only:
             rich_echo(f"Saved config file to '[filepath]{save_config}'")
-            sys.exit(0)
+            return 0
 
     # set defaults for options that need them
     jpeg_quality = DEFAULT_JPEG_QUALITY if jpeg_quality is None else jpeg_quality
@@ -1425,7 +1639,7 @@ def export(
     # validate the destination path
     if not os.path.isdir(dest):
         rich_click_echo(f"[error]Error: DEST {dest} must be valid path", err=True)
-        sys.exit(1)
+        return 1
 
     if is_photoslibrary_path(dest):
         rich_click_echo(
@@ -1433,10 +1647,14 @@ def export(
             "You should not export into a Photos library.",
             err=True,
         )
-        sys.exit(1)
+        return 1
 
     if report:
-        report = render_and_validate_report(report, exiftool_path, dest)
+        try:
+            report = render_and_validate_report(report, exiftool_path, dest)
+        except ValueError as e:
+            rich_click_echo(f"[error]Error: {e}", err=True)
+            return 1
         report_writer = export_report_writer_factory(report, append)
     else:
         report_writer = ReportWriterNoOp()
@@ -1474,7 +1692,7 @@ def export(
                 " from https://exiftool.org/",
                 err=True,
             )
-            ctx.exit(1)
+            return 1
 
     if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]):
         verbose(f"exiftool path: [filepath]{exiftool_path}")
@@ -1488,7 +1706,7 @@ def export(
             "\n\nLocated the following Photos library databases: ", err=True
         )
         _list_libraries()
-        return
+        return 1
 
     # sanity check exportdb
     expected_exportdb = pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB)
@@ -1519,7 +1737,7 @@ def export(
             err=True,
         )
         if not ignore_exportdb and not click.confirm("Do you want to continue?"):
-            sys.exit(1)
+            return 1
 
     # check that export isn't in the parent or child of a previously exported library
     other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
@@ -1537,7 +1755,7 @@ def export(
         for other_db in other_db_files:
             rich_click_echo(f"{other_db}")
         if not click.confirm("Do you want to continue?"):
-            sys.exit(1)
+            return 1
 
     # open export database
     export_db_path = exportdb or os.path.join(dest, OSXPHOTOS_EXPORT_DB)
@@ -1565,7 +1783,7 @@ def export(
                 print("Aborted!", file=sys.stderr)
                 print(f"Writing export database to {export_db_path}")
                 export_db.write_to_disk()
-                sys.exit(1)
+                return 1
 
             signal.signal(signal.SIGINT, sigint_handler)
 
@@ -1999,6 +2217,8 @@ def export(
         verbose(f"Writing export database changes back to [filepath]{export_db.path}")
         export_db.write_to_disk()
     export_db.close()
+
+    return 0
 
 
 def export_photo(
@@ -3147,8 +3367,7 @@ def render_and_validate_report(report: str, exiftool_path: str, export_dir: str)
             f"[error]Report '{report}' is a directory, must be file name",
             err=True,
         )
-        sys.exit(1)
-
+        raise ValueError(f"Report '{report}' is a directory, must be file name")
     return report
 
 
