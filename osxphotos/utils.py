@@ -15,6 +15,7 @@ import re
 import subprocess
 import sys
 import urllib.parse
+import uuid
 from functools import cache
 from plistlib import load as plistload
 from typing import Callable, List, Optional, Tuple, TypeVar, Union
@@ -592,12 +593,13 @@ def get_filename_from_url(url: str) -> str:
     return os.path.basename(urllib.parse.urlparse(url).path)
 
 
-def download_url_to_dir(url: str, dir_path: str) -> str:
+def download_url_to_dir(url: str, dir_path: str, unique=False) -> str:
     """Download file from url to a directory path and return path to downloaded file
 
     Args:
         url: url to download
         dir_path: path to directory where file should be downloaded (must exist)
+        unique: if True, ensure filename is unique which is necessary when file is a python module intended to be imported
 
     Returns: path to downloaded file
 
@@ -607,8 +609,21 @@ def download_url_to_dir(url: str, dir_path: str) -> str:
     if not os.path.isdir(dir_path):
         raise ValueError(f"dir_path {dir_path} must be a valid directory")
 
-    basename = get_filename_from_url(url)
-    filename = os.path.join(dir_path, basename)
+    filename = pathlib.Path(get_filename_from_url(url))
+    if unique:
+        # append a unique uuid to filename to ensure uniqueness
+        # this is necessary when downloading a python module intended for import
+        # as if user has two modules with the same name, python will only import the first one
+        filename = (
+            filename.stem + f"_{uuid_to_shortuuid(str(uuid.uuid4()))}" + filename.suffix
+        )
+        while (pathlib.Path(dir_path) / filename).exists():
+            filename = (
+                filename.stem
+                + f"_{uuid_to_shortuuid(str(uuid.uuid4()))}"
+                + filename.suffix
+            )
+    filename = pathlib.Path(dir_path) / filename
     try:
         r = requests.get(url)
         r.raise_for_status()
@@ -640,4 +655,4 @@ def download_url_to_temp_dir(url: str) -> str:
     # so use the system temp directory instead
     # these files will be deleted when the system cleans the temp directory (usually on reboot)
     tmpdir = tempdir.tempdir("downloads")
-    return download_url_to_dir(url, tmpdir)
+    return download_url_to_dir(url, tmpdir, unique=True)
