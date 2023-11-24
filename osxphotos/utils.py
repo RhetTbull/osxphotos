@@ -15,14 +15,15 @@ import re
 import subprocess
 import sys
 import urllib.parse
+from functools import cache
 from plistlib import load as plistload
 from typing import Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
-import tempfile
 
 import requests
 import shortuuid
 
+import osxphotos.tempdir as tempdir
 from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.unicode import normalize_fs_path
 
@@ -593,11 +594,11 @@ def get_filename_from_url(url: str) -> str:
 
 def download_url_to_dir(url: str, dir_path: str) -> str:
     """Download file from url to a directory path and return path to downloaded file
-    
+
     Args:
         url: url to download
         dir_path: path to directory where file should be downloaded (must exist)
-        
+
     Returns: path to downloaded file
 
     Raises:
@@ -616,3 +617,27 @@ def download_url_to_dir(url: str, dir_path: str) -> str:
     except Exception as e:
         raise ValueError(f"Could not download {filename}: {e}") from e
     return str(filename)
+
+
+@cache
+def download_url_to_temp_dir(url: str) -> str:
+    """Download file from url to a temporary directory path and return path to downloaded file
+
+    Args:
+        url: url to download
+
+    Returns: path to downloaded file
+
+    Raises:
+        ValueError if download fails
+
+    Note: this function caches the result so that if called multiple times with the same URL,
+    the file will only be downloaded once.
+    """
+
+    # need to retrieve file from URL and save it in a temp directory
+    # can't use TemporaryDirectory because it deletes the directory when it goes out of scope
+    # so use the system temp directory instead
+    # these files will be deleted when the system cleans the temp directory (usually on reboot)
+    tmpdir = tempdir.tempdir("downloads")
+    return download_url_to_dir(url, tmpdir)

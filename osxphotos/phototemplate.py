@@ -21,7 +21,13 @@ from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
-from .utils import expand_and_validate_filepath, load_function, uuid_to_shortuuid
+from .utils import (
+    download_url_to_temp_dir,
+    expand_and_validate_filepath,
+    is_http_url,
+    load_function,
+    uuid_to_shortuuid,
+)
 
 __all__ = [
     "RenderOptions",
@@ -254,7 +260,8 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "using Python string formatting codes specified by FORMAT; TYPE is one of: 'int', 'float', or 'str'. "
     "For example, '{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1 decimal place (e.g. '100.0'). ",
     "{function}": "Execute a python function from an external file and use return value as template substitution. "
-    + "Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. "
+    + "Use in format: {function:file.py::function_name} where 'file.py' is the path/name of the python file and 'function_name' is the name of the function to call. "
+    + "The file name may also be url to a python file, e.g. '{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}'. "
     + "The function will be passed the PhotoInfo object for the photo. "
     + "See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.",
 }
@@ -826,7 +833,7 @@ class PhotoTemplate:
         elif field == "function":
             if subfield is None:
                 raise ValueError(
-                    "SyntaxError: filename and function must not be null with {function::filename.py:function_name}"
+                    "SyntaxError: filename and function must not be null with {function:filename.py::function_name}"
                 )
             vals = self.get_template_value_function(
                 subfield, field_arg, self.options.caller
@@ -1393,6 +1400,8 @@ class PhotoTemplate:
 
         filename, funcname = subfield.split("::")
 
+        if is_http_url(filename):
+            filename = download_url_to_temp_dir(filename)
         filename_validated = expand_and_validate_filepath(filename)
         if not filename_validated:
             raise ValueError(f"'{filename}' does not appear to be a file")

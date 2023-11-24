@@ -7,9 +7,7 @@ from runpy import run_module, run_path
 
 import click
 
-from osxphotos.utils import is_http_url, download_url_to_dir
 from .param_types import PathOrURL
-import tempfile
 
 
 class RunCommand(click.Command):

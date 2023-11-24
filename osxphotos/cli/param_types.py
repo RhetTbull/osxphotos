@@ -13,16 +13,17 @@ import click
 import pytimeparse2
 from strpdatetime import strpdatetime
 
+import osxphotos.tempdir as tempdir
 from osxphotos.export_db_utils import export_db_get_version
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.timeutils import time_string_to_datetime, utc_offset_string_to_seconds
 from osxphotos.timezones import Timezone
 from osxphotos.utils import (
+    download_url_to_temp_dir,
     expand_and_validate_filepath,
     is_http_url,
     load_function,
-    download_url_to_dir,
 )
 
 __all__ = [
@@ -92,10 +93,7 @@ class PathOrURL(click.Path):
             # can't use TemporaryDirectory because it deletes the directory when it goes out of scope
             # so use the system temp directory instead
             try:
-                tmpdir = pathlib.Path(tempfile.gettempdir()) / "osxphotos"
-                tmpdir.mkdir(parents=True, exist_ok=True)
-                tmpdir = tempfile.mkdtemp(dir=tmpdir)
-                value = download_url_to_dir(value, tmpdir)
+                value = download_url_to_temp_dir(value)
             except Exception as e:
                 self.fail(f"Could not download file from {value}: {e}")
         else:
@@ -164,8 +162,7 @@ class FunctionCall(click.ParamType):
         if is_http_url(filename):
             # need to retrieve file from URL and save it in a temp directory
             try:
-                tmpdir = tempfile.TemporaryDirectory()
-                filename = download_url_to_dir(filename, tmpdir.name)
+                filename = download_url_to_temp_dir(filename)
             except Exception as e:
                 self.fail(f"Could not download file from {filename}: {e}")
 
