@@ -5,6 +5,9 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
 ## Table of Contents
 
 * [Example uses of the Python package](#example-uses-of-the-python-package)
+* [Building simple command line tools](#building-simple-command-line-tools)
+* [Concurrency](#concurrency)
+* [Calling CLI commands from Python](#calling-cli-commands-from-python)
 * [Package Interface](#package-interface)
   * [PhotosDB](#photosdb)
   * [QueryOptions](#queryoptions)
@@ -444,6 +447,17 @@ def export(workers, export_dir, photos: list[osxphotos.PhotoInfo], **kwargs):
 if __name__ == "__main__":
     export()
 ```
+
+## Calling CLI commands from Python
+
+The `osxphotos.cli` module contains the code for the `osxphotos` command line tool. If you want to call the `osxphotos export` command from within your own code, you can do so by calling `export_cli()`:
+
+```pycon
+>>> from osxphotos.cli.export import export_cli
+>>> export_cli(dest="/private/tmp", update=True)
+```
+
+The `export_cli()` function takes the same arguments as the `osxphotos export` command. See `osxphotos help export` for more information. You can also refernced the implementation [here](https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292).
 
 ## Package Interface
 
