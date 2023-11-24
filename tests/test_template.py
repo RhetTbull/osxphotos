@@ -1,5 +1,6 @@
 """ Test template.py """
 import os
+import pathlib
 import re
 
 import pytest
@@ -1186,6 +1187,16 @@ def test_function(photosdb):
     photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
     rendered, _ = photo.render_template("{function:tests/template_function.py::foo}")
     assert rendered == [f"{photo.original_filename}-FOO"]
+
+
+def test_function_url(photosdb):
+    """Test {function}"""
+    # NOTE: this currently fails on Linux. I don't know. It works on macOS.
+    photo = photosdb.get_photo(UUID_DICT["favorite"])
+    rendered, _ = photo.render_template(
+        "{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}"
+    )
+    assert rendered == [f"{pathlib.Path(photo.original_filename).stem}#!"]
 
 
 def test_function_bad(photosdb):

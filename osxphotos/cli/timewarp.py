@@ -315,6 +315,7 @@ command which can be used to change the time zone of photos after import.
     "file you've created and function is the name of the function in the python file you want to call.  The function will be "
     "passed information about the photo being processed and is expected to return "
     "a naive datetime.datetime object with time in local time and UTC timezone offset in seconds. "
+    "You may also specify a function using a URL in format --function 'https://path/to/module.py::function' "
     "See example function at https://github.com/RhetTbull/osxphotos/blob/master/examples/timewarp_function_example.py",
 )
 @click.option(

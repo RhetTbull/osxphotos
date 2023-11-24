@@ -742,6 +742,7 @@ if TYPE_CHECKING:
     "file you've created and function is the name of the function in the python file you want to call.  The function will be "
     "passed information about the photo that's been exported and a list of all exported files associated with the photo. "
     "You can run more than one function by repeating the '--post-function' option with different arguments. "
+    "You may also specify a post function using a URL in format --post-function 'https://path/to/module.py::function' "
     "See Post Function below.",
 )
 @click.option(

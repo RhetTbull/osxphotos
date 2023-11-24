@@ -15,6 +15,8 @@ import re
 import subprocess
 import sys
 import urllib.parse
+import uuid
+from functools import cache
 from plistlib import load as plistload
 from typing import Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
@@ -22,6 +24,7 @@ from uuid import UUID
 import requests
 import shortuuid
 
+import osxphotos.tempdir as tempdir
 from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.unicode import normalize_fs_path
 
@@ -572,3 +575,84 @@ def is_photoslibrary_path(path: str | pathlib.Path | os.PathLike) -> bool:
     if path.parent == path:
         return False
     return is_photoslibrary_path(path.parent)
+
+
+def is_http_url(url: str) -> bool:
+    """Return True if url is a valid http/https URL, else False"""
+    try:
+        result = urllib.parse.urlparse(url)
+        if result.scheme in ["http", "https"] and result.netloc:
+            return True
+    except Exception:
+        return False
+    return False
+
+
+def get_filename_from_url(url: str) -> str:
+    """Return filename from url"""
+    return os.path.basename(urllib.parse.urlparse(url).path)
+
+
+def download_url_to_dir(url: str, dir_path: str, unique=False) -> str:
+    """Download file from url to a directory path and return path to downloaded file
+
+    Args:
+        url: url to download
+        dir_path: path to directory where file should be downloaded (must exist)
+        unique: if True, ensure filename is unique which is necessary when file is a python module intended to be imported
+
+    Returns: path to downloaded file
+
+    Raises:
+        ValueError if download fails or dir_path is not a valid directory
+    """
+    if not os.path.isdir(dir_path):
+        raise ValueError(f"dir_path {dir_path} must be a valid directory")
+
+    filename = pathlib.Path(get_filename_from_url(url))
+    if unique:
+        # append a unique uuid to filename to ensure uniqueness
+        # this is necessary when downloading a python module intended for import
+        # as if user has two modules with the same name, python will only import the first one
+        filename = (
+            filename.stem + f"_{uuid_to_shortuuid(str(uuid.uuid4()))}" + filename.suffix
+        )
+        while (pathlib.Path(dir_path) / filename).exists():
+            filename = (
+                filename.stem
+                + f"_{uuid_to_shortuuid(str(uuid.uuid4()))}"
+                + filename.suffix
+            )
+    filename = pathlib.Path(dir_path) / filename
+    try:
+        r = requests.get(url)
+        r.raise_for_status()
+        with open(filename, "wb") as f:
+            f.write(r.content)
+    except Exception as e:
+        raise ValueError(f"Could not download {filename}: {e}") from e
+    return str(filename)
+
+
+@cache
+def download_url_to_temp_dir(url: str) -> str:
+    """Download file from url to a temporary directory path and return path to downloaded file
+
+    Args:
+        url: url to download
+
+    Returns: path to downloaded file
+
+    Raises:
+        ValueError if download fails
+
+    Note: this function caches the result so that if called multiple times with the same URL,
+    the file will only be downloaded once.
+    """
+
+    # need to retrieve file from URL and save it in a temp directory
+    # can't use TemporaryDirectory because it deletes the directory when it goes out of scope
+    # so use the system temp directory instead
+    # these files will be deleted when the system cleans the temp directory (usually on reboot)
+    tmpdir = tempdir.tempdir("downloads")
+    return download_url_to_dir(url, tmpdir, unique=True)

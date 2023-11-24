@@ -6,18 +6,25 @@ import datetime
 import os
 import pathlib
 import re
+import tempfile
 
 import bitmath
 import click
 import pytimeparse2
 from strpdatetime import strpdatetime
 
+import osxphotos.tempdir as tempdir
 from osxphotos.export_db_utils import export_db_get_version
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.timeutils import time_string_to_datetime, utc_offset_string_to_seconds
 from osxphotos.timezones import Timezone
-from osxphotos.utils import expand_and_validate_filepath, load_function
+from osxphotos.utils import (
+    download_url_to_temp_dir,
+    expand_and_validate_filepath,
+    is_http_url,
+    load_function,
+)
 
 __all__ = [
     "BitMathSize",
@@ -70,6 +77,28 @@ class PathOrStdin(click.Path):
 
     def convert(self, value, param, ctx):
         return value if value == "-" else super().convert(value, param, ctx)
+
+
+class PathOrURL(click.Path):
+    """A click.Path a file or a URL; if URL is provided, file will be downloaded to a temp directory"""
+
+    name = "PATH_OR_URL"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def convert(self, value, param, ctx):
+        if is_http_url(value):
+            # need to retrieve file from URL and save it in a temp directory
+            # can't use TemporaryDirectory because it deletes the directory when it goes out of scope
+            # so use the system temp directory instead
+            try:
+                value = download_url_to_temp_dir(value)
+            except Exception as e:
+                self.fail(f"Could not download file from {value}: {e}")
+        else:
+            value = super().convert(value, param, ctx)
+        return value
 
 
 class DateTimeISO8601(click.ParamType):
@@ -129,6 +158,13 @@ class FunctionCall(click.ParamType):
             )
 
         filename, funcname = value.split("::")
+
+        if is_http_url(filename):
+            # need to retrieve file from URL and save it in a temp directory
+            try:
+                filename = download_url_to_temp_dir(filename)
+            except Exception as e:
+                self.fail(f"Could not download file from {filename}: {e}")
 
         filename_validated = expand_and_validate_filepath(filename)
         if not filename_validated:

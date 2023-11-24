@@ -9305,6 +9305,30 @@ def test_query_function():
         assert json_got[0]["original_filename"] == "DSC03584.dng"
 
 
+def test_query_function_url():
+    """test query --query-function from a URL"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--query-function",
+                "https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/find_unnamed_faces.py::unnamed_faces",
+                "--json",
+                "--mute",
+            ],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+        assert len(json_got) == 1
+        assert json_got[0]["original_filename"] == "Pumpkins3.jpg"
+
+
 def test_query_added_after():
     """test query --added-after"""
 
