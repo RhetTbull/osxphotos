@@ -11,7 +11,6 @@ import tempfile
 import bitmath
 import click
 import pytimeparse2
-import requests
 from strpdatetime import strpdatetime
 
 from osxphotos.export_db_utils import export_db_get_version
@@ -21,9 +20,9 @@ from osxphotos.timeutils import time_string_to_datetime, utc_offset_string_to_se
 from osxphotos.timezones import Timezone
 from osxphotos.utils import (
     expand_and_validate_filepath,
-    get_filename_from_url,
     is_http_url,
     load_function,
+    download_url_to_dir,
 )
 
 __all__ = [
@@ -77,6 +76,31 @@ class PathOrStdin(click.Path):
 
     def convert(self, value, param, ctx):
         return value if value == "-" else super().convert(value, param, ctx)
+
+
+class PathOrURL(click.Path):
+    """A click.Path a file or a URL; if URL is provided, file will be downloaded to a temp directory"""
+
+    name = "PATH_OR_URL"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def convert(self, value, param, ctx):
+        if is_http_url(value):
+            # need to retrieve file from URL and save it in a temp directory
+            # can't use TemporaryDirectory because it deletes the directory when it goes out of scope
+            # so use the system temp directory instead
+            try:
+                tmpdir = pathlib.Path(tempfile.gettempdir()) / "osxphotos"
+                tmpdir.mkdir(parents=True, exist_ok=True)
+                tmpdir = tempfile.mkdtemp(dir=tmpdir)
+                value = download_url_to_dir(value, tmpdir)
+            except Exception as e:
+                self.fail(f"Could not download file from {value}: {e}")
+        else:
+            value = super().convert(value, param, ctx)
+        return value
 
 
 class DateTimeISO8601(click.ParamType):
@@ -139,17 +163,11 @@ class FunctionCall(click.ParamType):
 
         if is_http_url(filename):
             # need to retrieve file from URL and save it in a temp directory
-            tmpdir = tempfile.TemporaryDirectory()
-            basename = get_filename_from_url(filename)
-            tmp_filename = os.path.join(tmpdir.name, basename)
             try:
-                r = requests.get(filename)
-                r.raise_for_status()
-                with open(tmp_filename, "wb") as f:
-                    f.write(r.content)
+                tmpdir = tempfile.TemporaryDirectory()
+                filename = download_url_to_dir(filename, tmpdir.name)
             except Exception as e:
-                self.fail(f"Could not retrieve {filename} from URL: {e}")
-            filename = tmp_filename
+                self.fail(f"Could not download file from {filename}: {e}")
 
         filename_validated = expand_and_validate_filepath(filename)
         if not filename_validated:

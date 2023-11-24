@@ -18,6 +18,7 @@ import urllib.parse
 from plistlib import load as plistload
 from typing import Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
+import tempfile
 
 import requests
 import shortuuid
@@ -588,3 +589,30 @@ def is_http_url(url: str) -> bool:
 def get_filename_from_url(url: str) -> str:
     """Return filename from url"""
     return os.path.basename(urllib.parse.urlparse(url).path)
+
+
+def download_url_to_dir(url: str, dir_path: str) -> str:
+    """Download file from url to a directory path and return path to downloaded file
+    
+    Args:
+        url: url to download
+        dir_path: path to directory where file should be downloaded (must exist)
+        
+    Returns: path to downloaded file
+
+    Raises:
+        ValueError if download fails or dir_path is not a valid directory
+    """
+    if not os.path.isdir(dir_path):
+        raise ValueError(f"dir_path {dir_path} must be a valid directory")
+
+    basename = get_filename_from_url(url)
+    filename = os.path.join(dir_path, basename)
+    try:
+        r = requests.get(url)
+        r.raise_for_status()
+        with open(filename, "wb") as f:
+            f.write(r.content)
+    except Exception as e:
+        raise ValueError(f"Could not download {filename}: {e}") from e
+    return str(filename)

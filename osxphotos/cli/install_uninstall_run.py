@@ -7,6 +7,10 @@ from runpy import run_module, run_path
 
 import click
 
+from osxphotos.utils import is_http_url, download_url_to_dir
+from .param_types import PathOrURL
+import tempfile
+
 
 class RunCommand(click.Command):
     """Custom command that ignores unknown options so options can be passed to the run script"""
@@ -66,17 +70,24 @@ def uninstall(packages, yes):
 
 @click.command(name="run", cls=RunCommand)
 @click.option("--help", "-h", is_flag=True, help="Show this message and exit.")
-@click.argument("python_file", nargs=1, type=click.Path(exists=True))
+@click.argument("python_file", nargs=1, type=PathOrURL(exists=True))
 @click.argument("args", metavar="ARGS", nargs=-1)
 def run(python_file, help, args):
     """Run a python file using same environment as osxphotos.
-    Any args are made available to the python file."""
+    Any args are made available to the python file.
+
+    The python file may be a path on disk, `osxphotos run /path/to/file.py`
+    or a URL to a python file, for example,
+
+    `osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/count_photos.py`
+    """
 
     # Need to drop all the args from sys.argv up to and including the run command
     # For example, command could be one of the following:
     # osxphotos run example.py --help
     # osxphotos --debug run example.py --verbose --db /path/to/photos.db
     # etc.
+
     with contextlib.suppress(ValueError):
         index = sys.argv.index("run")
         sys.argv = sys.argv[index + 1 :]
