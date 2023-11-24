@@ -147,10 +147,16 @@ class PhotosDB:
         # Check OS version
         system = platform.system()
         (ver, major, _) = get_macos_version() if is_macos else (None, None, None)
-        if system == "Darwin" and ((ver, major) not in _TESTED_OS_VERSIONS):
+        if system == "Darwin" and (
+            ((ver, major) not in _TESTED_OS_VERSIONS)
+            and (ver, None) not in _TESTED_OS_VERSIONS
+        ):
+            tested_versions = ", ".join(
+                f"{v}.{m}" for (v, m) in _TESTED_OS_VERSIONS if m is not None
+            )
             logging.warning(
                 f"WARNING: This module has only been tested with macOS versions "
-                f"[{', '.join(f'{v}.{m}' for (v, m) in _TESTED_OS_VERSIONS)}]: "
+                f"[{tested_versions}]: "
                 f"you have {system}, OS version: {ver}.{major}"
             )
 

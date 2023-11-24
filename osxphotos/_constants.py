@@ -132,13 +132,20 @@ _DB_TABLE_NAMES = {
     },
 }
 
-# which version operating systems have been tested
+# Which version operating systems have been tested
+# After Big Sur (macOS 11), once I am comfortable that
+# Apple isn't making any schema changes to Photos for that
+# version, add a new entry here with (ver, None) where ver
+# is the version number of the OS
+# This will prevent osxphotos from issuing a warning about
+# an untested OS version
 _TESTED_OS_VERSIONS = [
     ("10", "12"),
     ("10", "13"),
     ("10", "14"),
     ("10", "15"),
     ("10", "16"),
+    ("11", None),
     ("11", "0"),
     ("11", "1"),
     ("11", "2"),
@@ -147,6 +154,7 @@ _TESTED_OS_VERSIONS = [
     ("11", "5"),
     ("11", "6"),
     ("11", "7"),
+    ("12", None),
     ("12", "0"),
     ("12", "1"),
     ("12", "2"),
@@ -155,6 +163,7 @@ _TESTED_OS_VERSIONS = [
     ("12", "5"),
     ("12", "6"),
     ("12", "7"),
+    ("13", None),
     ("13", "0"),
     ("13", "1"),
     ("13", "2"),
@@ -163,6 +172,7 @@ _TESTED_OS_VERSIONS = [
     ("13", "5"),
     ("13", "6"),
     ("14", "0"),
+    ("14", "1"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face

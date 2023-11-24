@@ -41,14 +41,14 @@ On Linux, macOS-specific features of the CLI will not be available (these will n
 The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos
 from a Photos library on a Linux machine.
 
-Tested on macOS Sierra (10.12.6) through macOS Ventura (13.5). Tested on both x86 and Apple silicon (M1). macOS Sonoma (14.0) is currently supported but is still in alpha testing.
+Tested on macOS Sierra (10.12.6) through macOS Sonoma (14.1). Tested on both x86 and Apple silicon (M1).
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
-| 14.0              | Sonoma     | 9.0 ✅ (alpha support) |
-| 13.0 - 13.4       | Ventura    | 8.0 ✅             |
-| 12.0 - 12.6       | Monterey   | 7.0 ✅             |
-| 10.16, 11.0-11.4  | Big Sur    | 6.0 ✅             |
+| 14.0 - 14.1       | Sonoma     | 9.0 ✅             |
+| 13.0 - 13.6       | Ventura    | 8.0 ✅             |
+| 12.0 - 12.7       | Monterey   | 7.0 ✅             |
+| 10.16, 11.0-11.7  | Big Sur    | 6.0 ✅             |
 | 10.15.1 - 10.15.7 | Catalina   | 5.0 ✅             |
 | 10.14.5, 10.14.6  | Mojave     | 4.0 ✅             |
 | 10.13.6           | High Sierra| 3.0 ✅             |
