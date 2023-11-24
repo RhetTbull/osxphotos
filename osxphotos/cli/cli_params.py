@@ -685,7 +685,7 @@ _QUERY_PARAMETERS_DICT = {
         "You may use more than one function by repeating the --query-function option with a different value. "
         "Your query function will be called after all other query options have been evaluated. "
         "You may also specify a URL to a python file in the format: "
-        "--query-function https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/find_unnamed_faces.py::unnamed_faces "
+        "--query-function https://path/to/module.py::function "
         "See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of a query function.",
     ),
 }
