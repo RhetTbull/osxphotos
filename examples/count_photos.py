@@ -2,9 +2,18 @@
 
 import osxphotos
 
+import click
 
-def main():
-    photosdb = osxphotos.PhotosDB()
+
+@click.command()
+@click.option(
+    "--library",
+    default=None,
+    metavar="PHOTOS_LIBRARY",
+    help="Path to Photos library, default to last used library",
+)
+def main(library):
+    photosdb = osxphotos.PhotosDB(dbfile=library)
     photos = [p for p in photosdb.photos(movies=False) if not p.shared and not p.hidden]
     videos = [p for p in photosdb.photos(images=False) if not p.shared and not p.hidden]
     print(f"{len(photos)} Photos, {len(videos)} Videos")
