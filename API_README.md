@@ -457,7 +457,7 @@ The `osxphotos.cli` module contains the code for the `osxphotos` command line to
 >>> export_cli(dest="/private/tmp", update=True)
 ```
 
-The `export_cli()` function takes the same arguments as the `osxphotos export` command. See `osxphotos help export` for more information. You can also refernced the implementation [here](https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292).
+The `export_cli()` function takes the same arguments as the `osxphotos export` command. See `osxphotos help export` for more information. You can also reference the implementation [here](https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292).
 
 ## Package Interface
 
