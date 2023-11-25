@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>osxphotos.phototemplate - osxphotos 0.63.1 documentation</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>osxphotos.phototemplate - osxphotos 0.64.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.63.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.64.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.63.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.64.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -158,6 +158,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../cli_commands.html">osxphotos command line tools</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of osxphotos command line tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
@@ -219,7 +222,13 @@
 <span class="kn">from</span> <span class="nn">.datetime_formatter</span> <span class="kn">import</span> <span class="n">DateTimeFormatter</span>
 <span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifToolCaching</span>
 <span class="kn">from</span> <span class="nn">.path_utils</span> <span class="kn">import</span> <span class="n">sanitize_dirname</span><span class="p">,</span> <span class="n">sanitize_filename</span><span class="p">,</span> <span class="n">sanitize_pathpart</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">expand_and_validate_filepath</span><span class="p">,</span> <span class="n">load_function</span><span class="p">,</span> <span class="n">uuid_to_shortuuid</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">download_url_to_temp_dir</span><span class="p">,</span>
+    <span class="n">expand_and_validate_filepath</span><span class="p">,</span>
+    <span class="n">is_http_url</span><span class="p">,</span>
+    <span class="n">load_function</span><span class="p">,</span>
+    <span class="n">uuid_to_shortuuid</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;RenderOptions&quot;</span><span class="p">,</span>
@@ -452,7 +461,8 @@
     <span class="o">+</span> <span class="s2">&quot;using Python string formatting codes specified by FORMAT; TYPE is one of: &#39;int&#39;, &#39;float&#39;, or &#39;str&#39;. &quot;</span>
     <span class="s2">&quot;For example, &#39;{format:float:.1f,{exiftool:EXIF:FocalLength}}&#39; will format focal length to 1 decimal place (e.g. &#39;100.0&#39;). &quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{function}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Execute a python function from an external file and use return value as template substitution. &quot;</span>
-    <span class="o">+</span> <span class="s2">&quot;Use in format: {function:file.py::function_name} where &#39;file.py&#39; is the name of the python file and &#39;function_name&#39; is the name of the function to call. &quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;Use in format: {function:file.py::function_name} where &#39;file.py&#39; is the path/name of the python file and &#39;function_name&#39; is the name of the function to call. &quot;</span>
+    <span class="o">+</span> <span class="s2">&quot;The file name may also be url to a python file, e.g. &#39;{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}&#39;. &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;The function will be passed the PhotoInfo object for the photo. &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.&quot;</span><span class="p">,</span>
 <span class="p">}</span>
@@ -1037,7 +1047,7 @@
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">subfield</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;SyntaxError: filename and function must not be null with {function::filename.py:function_name}&quot;</span>
+                    <span class="s2">&quot;SyntaxError: filename and function must not be null with {function:filename.py::function_name}&quot;</span>
                 <span class="p">)</span>
             <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_function</span><span class="p">(</span>
                 <span class="n">subfield</span><span class="p">,</span> <span class="n">field_arg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">caller</span>
@@ -1628,6 +1638,8 @@
 
         <span class="n">filename</span><span class="p">,</span> <span class="n">funcname</span> <span class="o">=</span> <span class="n">subfield</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">is_http_url</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">download_url_to_temp_dir</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="n">filename_validated</span> <span class="o">=</span> <span class="n">expand_and_validate_filepath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">filename_validated</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; does not appear to be a file&quot;</span><span class="p">)</span>
@@ -2018,7 +2030,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=c833cbf7"></script>
+</div><script src="../../_static/documentation_options.js?v=d5e8344a"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

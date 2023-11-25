@@ -12,6 +12,9 @@ Table of Contents
 
 
 * `Example uses of the Python package <#example-uses-of-the-python-package>`_
+* `Building simple command line tools <#building-simple-command-line-tools>`_
+* `Concurrency <#concurrency>`_
+* `Calling CLI commands from Python <#calling-cli-commands-from-python>`_
 * `Package Interface <#package-interface>`_
 
   * `PhotosDB <#photosdb>`_
@@ -489,6 +492,18 @@ For example, the following code will work on Python >= 3.11. This code is availa
 
    if __name__ == "__main__":
        export()
+
+Calling CLI commands from Python
+--------------------------------
+
+The ``osxphotos.cli`` module contains the code for the ``osxphotos`` command line tool. If you want to call the ``osxphotos export`` command from within your own code, you can do so by calling ``export_cli()``\ :
+
+.. code-block:: pycon
+
+   >>> from osxphotos.cli.export import export_cli
+   >>> export_cli(dest="/private/tmp", update=True)
+
+The ``export_cli()`` function takes the same arguments as the ``osxphotos export`` command. See ``osxphotos help export`` for more information. You can also refernced the implementation `here <https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292>`_.
 
 Package Interface
 -----------------
@@ -3006,7 +3021,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.64.3'
+     - The osxphotos version, e.g. '0.65.0'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
@@ -3050,7 +3065,7 @@ The following template field substitutions are availabe for use the templating s
    * - {format}
      - Use in form, '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then formats the value using Python string formatting codes specified by FORMAT; TYPE is one of: 'int', 'float', or 'str'. For example, '{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1 decimal place (e.g. '100.0').
    * - {function}
-     - Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.
+     - Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the path/name of the python file and 'function_name' is the name of the function to call. The file name may also be url to a python file, e.g. '{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}'. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.
 
 
 

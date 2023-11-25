@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos" href="overview.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos 0.64.3 documentation</title>
+        <title>osxphotos 0.65.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">osxphotos 0.64.3 documentation</div></a>
+      <a href="#"><div class="brand">osxphotos 0.65.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.64.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.65.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -289,11 +289,12 @@
 <li class="toctree-l2"><a class="reference internal" href="API_README.html#table-of-contents">Table of Contents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_README.html#id1">Example uses of the Python package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#print-filename-date-created-title-and-keywords-for-all-photos-in-a-library">Print filename, date created, title, and keywords for all photos in a library</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#building-simple-command-line-tools">Building simple command line tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id6">Building simple command line tools</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="API_README.html#concurrency">Concurrency</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_README.html#id6">Package Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="API_README.html#id7">Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_README.html#id8">Calling CLI commands from Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_README.html#id9">Package Interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-photosdb-photosdb-a"><span class="raw-html-m2r"><a name="photosdb">PhotosDB</a></span></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#read-a-photos-library-database">Read a Photos library database</a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#open-the-default-last-opened-photos-library">Open the default (last opened) Photos library</a></li>
@@ -313,7 +314,7 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photosdb-folders-folders-a"><span class="raw-html-m2r"><a name="photosdb_folders">`folders`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photosdb-persons-persons-a"><span class="raw-html-m2r"><a name="photosdb_persons">`persons`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photosdb-person-info-person-info-a"><span class="raw-html-m2r"><a name="photosdb_person_info">`person_info`</a></span></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id18"><code class="docutils literal notranslate"><span class="pre">keywords_as_dict</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id21"><code class="docutils literal notranslate"><span class="pre">keywords_as_dict</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#keywords-without-photo"><code class="docutils literal notranslate"><span class="pre">keywords_without_photo</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#persons-as-dict"><code class="docutils literal notranslate"><span class="pre">persons_as_dict</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#albums-as-dict"><code class="docutils literal notranslate"><span class="pre">albums_as_dict</span></code></a></li>
@@ -321,7 +322,7 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photosdb-labels-labels-a"><span class="raw-html-m2r"><a name="photosdb_labels">`labels`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photosdb-labels-normalized-labels-normalized-a"><span class="raw-html-m2r"><a name="photosdb_labels_normalized">`labels_normalized`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#labels-as-dict"><code class="docutils literal notranslate"><span class="pre">labels_as_dict</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id20"><code class="docutils literal notranslate"><span class="pre">labels_normalized_as_dict</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id23"><code class="docutils literal notranslate"><span class="pre">labels_normalized_as_dict</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#library-path"><code class="docutils literal notranslate"><span class="pre">library_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#db-path"><code class="docutils literal notranslate"><span class="pre">db_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#db-version"><code class="docutils literal notranslate"><span class="pre">db_version</span></code></a></li>
@@ -330,22 +331,22 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#execute-sql"><code class="docutils literal notranslate"><span class="pre">execute(sql)</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id22">QueryOptions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id25">QueryOptions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#attributes">Attributes</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-photoinfo-photoinfo-a"><span class="raw-html-m2r"><a name="photoinfo">PhotoInfo</a></span></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#uuid"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#filename"><code class="docutils literal notranslate"><span class="pre">filename</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id23"><code class="docutils literal notranslate"><span class="pre">original_filename</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id26"><code class="docutils literal notranslate"><span class="pre">original_filename</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#date"><code class="docutils literal notranslate"><span class="pre">date</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#date-added"><code class="docutils literal notranslate"><span class="pre">date_added</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#date-modified"><code class="docutils literal notranslate"><span class="pre">date_modified</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#description"><code class="docutils literal notranslate"><span class="pre">description</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#title"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#keywords"><code class="docutils literal notranslate"><span class="pre">keywords</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id25"><code class="docutils literal notranslate"><span class="pre">albums</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id27"><code class="docutils literal notranslate"><span class="pre">album_info</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id28"><code class="docutils literal notranslate"><span class="pre">albums</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id30"><code class="docutils literal notranslate"><span class="pre">album_info</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#import-info"><code class="docutils literal notranslate"><span class="pre">import_info</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#project-info"><code class="docutils literal notranslate"><span class="pre">project_info</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#persons"><code class="docutils literal notranslate"><span class="pre">persons</span></code></a></li>
@@ -361,18 +362,18 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#height"><code class="docutils literal notranslate"><span class="pre">height</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#width"><code class="docutils literal notranslate"><span class="pre">width</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#orientation"><code class="docutils literal notranslate"><span class="pre">orientation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id39"><code class="docutils literal notranslate"><span class="pre">original_height</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id41"><code class="docutils literal notranslate"><span class="pre">original_width</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id43"><code class="docutils literal notranslate"><span class="pre">original_orientation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id42"><code class="docutils literal notranslate"><span class="pre">original_height</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id44"><code class="docutils literal notranslate"><span class="pre">original_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id46"><code class="docutils literal notranslate"><span class="pre">original_orientation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#original-filesize"><code class="docutils literal notranslate"><span class="pre">original_filesize</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id45"><code class="docutils literal notranslate"><span class="pre">ismissing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id47"><code class="docutils literal notranslate"><span class="pre">hasadjustments</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id48"><code class="docutils literal notranslate"><span class="pre">ismissing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id50"><code class="docutils literal notranslate"><span class="pre">hasadjustments</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#adjustments"><code class="docutils literal notranslate"><span class="pre">adjustments</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#external-edit"><code class="docutils literal notranslate"><span class="pre">external_edit</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#favorite"><code class="docutils literal notranslate"><span class="pre">favorite</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#flagged"><code class="docutils literal notranslate"><span class="pre">flagged</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#rating"><code class="docutils literal notranslate"><span class="pre">rating</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id49"><code class="docutils literal notranslate"><span class="pre">hidden</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id52"><code class="docutils literal notranslate"><span class="pre">hidden</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#visible"><code class="docutils literal notranslate"><span class="pre">visible</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#intrash"><code class="docutils literal notranslate"><span class="pre">intrash</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#date-trashed"><code class="docutils literal notranslate"><span class="pre">date_trashed</span></code></a></li>
@@ -380,7 +381,7 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#latitude"><code class="docutils literal notranslate"><span class="pre">latitude</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#longitude"><code class="docutils literal notranslate"><span class="pre">longitude</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#place"><code class="docutils literal notranslate"><span class="pre">place</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id51"><code class="docutils literal notranslate"><span class="pre">shared</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id54"><code class="docutils literal notranslate"><span class="pre">shared</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#owner"><code class="docutils literal notranslate"><span class="pre">owner</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#comments"><code class="docutils literal notranslate"><span class="pre">comments</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#likes"><code class="docutils literal notranslate"><span class="pre">likes</span></code></a></li>
@@ -388,7 +389,7 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#isphoto"><code class="docutils literal notranslate"><span class="pre">isphoto</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#ismovie"><code class="docutils literal notranslate"><span class="pre">ismovie</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#iscloudasset"><code class="docutils literal notranslate"><span class="pre">iscloudasset</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id62"><code class="docutils literal notranslate"><span class="pre">incloud</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id65"><code class="docutils literal notranslate"><span class="pre">incloud</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#syndicated"><code class="docutils literal notranslate"><span class="pre">syndicated</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#saved-to-library"><code class="docutils literal notranslate"><span class="pre">saved_to_library</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#shared-moment"><code class="docutils literal notranslate"><span class="pre">shared_moment</span></code></a></li>
@@ -399,15 +400,15 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#uti-original"><code class="docutils literal notranslate"><span class="pre">uti_original</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#uti-edited"><code class="docutils literal notranslate"><span class="pre">uti_edited</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#uti-raw"><code class="docutils literal notranslate"><span class="pre">uti_raw</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id65"><code class="docutils literal notranslate"><span class="pre">burst</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id68"><code class="docutils literal notranslate"><span class="pre">burst</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#burst-selected"><code class="docutils literal notranslate"><span class="pre">burst_selected</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#burst-key"><code class="docutils literal notranslate"><span class="pre">burst_key</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#burst-default-pick"><code class="docutils literal notranslate"><span class="pre">burst_default_pick</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id66"><code class="docutils literal notranslate"><span class="pre">burst_photos</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id68"><code class="docutils literal notranslate"><span class="pre">burst_albums</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id71"><code class="docutils literal notranslate"><span class="pre">burst_album_info</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id69"><code class="docutils literal notranslate"><span class="pre">burst_photos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id71"><code class="docutils literal notranslate"><span class="pre">burst_albums</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id74"><code class="docutils literal notranslate"><span class="pre">burst_album_info</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#live-photo"><code class="docutils literal notranslate"><span class="pre">live_photo</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id75"><code class="docutils literal notranslate"><span class="pre">path_live_photo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id78"><code class="docutils literal notranslate"><span class="pre">path_live_photo</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#path-edited-live-photo"><code class="docutils literal notranslate"><span class="pre">path_edited_live_photo</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#portrait"><code class="docutils literal notranslate"><span class="pre">portrait</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#hdr"><code class="docutils literal notranslate"><span class="pre">hdr</span></code></a></li>
@@ -415,8 +416,8 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#time-lapse"><code class="docutils literal notranslate"><span class="pre">time_lapse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#panorama"><code class="docutils literal notranslate"><span class="pre">panorama</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#slow-mo"><code class="docutils literal notranslate"><span class="pre">slow_mo</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id79"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id81"><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id82"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id84"><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photoinfo-searchinfo-search-info-a"><span class="raw-html-m2r"><a name="photoinfo_searchinfo">`search_info`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photoinfo-search-info-normalized-search-info-normalized-a"><span class="raw-html-m2r"><a name="photoinfo_search_info_normalized">`search_info_normalized`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photoinfo-exif-info-exif-info-a"><span class="raw-html-m2r"><a name="photoinfo_exif_info">`exif_info`</a></span></a></li>
@@ -435,10 +436,10 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-photoinfo-detected-text-detected-text-confidence-threshold-text-detection-confidence-threshold-a"><span class="raw-html-m2r"><a name="photoinfo_detected_text">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a></span></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id95">ExifInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id96">AlbumInfo</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id97"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id98"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id98">ExifInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id99">AlbumInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id100"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id101"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-albumphotos-photos-a"><span class="raw-html-m2r"><a name="albumphotos">`photos`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#creation-date"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#start-date"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
@@ -446,53 +447,53 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#folder-list"><code class="docutils literal notranslate"><span class="pre">folder_list</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#folder-names"><code class="docutils literal notranslate"><span class="pre">folder_names</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#parent"><code class="docutils literal notranslate"><span class="pre">parent</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id102"><code class="docutils literal notranslate"><span class="pre">owner</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id105"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id105"><code class="docutils literal notranslate"><span class="pre">owner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id108"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id106">ImportInfo</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id107"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id109">ImportInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id110"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-importphotos-photos-a"><span class="raw-html-m2r"><a name="importphotos">`photos`</a></span></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id109"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id110"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id111"><code class="docutils literal notranslate"><span class="pre">end_date</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id112"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id112"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id113"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id114"><code class="docutils literal notranslate"><span class="pre">end_date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id115"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id113">ProjectInfo</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id114"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id115"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id116">ProjectInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id117"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id118"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-projectphotos-photos-a"><span class="raw-html-m2r"><a name="projectphotos">`photos`</a></span></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id117"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id118"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id120"><code class="docutils literal notranslate"><span class="pre">creation_date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id121"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id119">MomentInfo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id122">MomentInfo</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#pk"><code class="docutils literal notranslate"><span class="pre">pk</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id120"><code class="docutils literal notranslate"><span class="pre">location</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id121"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id123"><code class="docutils literal notranslate"><span class="pre">location</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id124"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#subtitle"><code class="docutils literal notranslate"><span class="pre">subtitle</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id122"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id123"><code class="docutils literal notranslate"><span class="pre">end_date</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id124"><code class="docutils literal notranslate"><span class="pre">date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id125"><code class="docutils literal notranslate"><span class="pre">start_date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id126"><code class="docutils literal notranslate"><span class="pre">end_date</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id127"><code class="docutils literal notranslate"><span class="pre">date</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#modification-date"><code class="docutils literal notranslate"><span class="pre">modification_date</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id125"><code class="docutils literal notranslate"><span class="pre">photos</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id126"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id128"><code class="docutils literal notranslate"><span class="pre">photos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id129"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id127">FolderInfo</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id128"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id129"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id130">FolderInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id131"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id132"><code class="docutils literal notranslate"><span class="pre">title</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-folderinfo-album-info-album-info-a"><span class="raw-html-m2r"><a name="folderinfo_album_info">`album_info`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-folderinfo-album-info-shared-album-info-shared-a"><span class="raw-html-m2r"><a name="folderinfo_album_info_shared">`album_info_shared`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#subfolders"><code class="docutils literal notranslate"><span class="pre">subfolders</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id133"><code class="docutils literal notranslate"><span class="pre">parent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id136"><code class="docutils literal notranslate"><span class="pre">parent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#sort-order"><code class="docutils literal notranslate"><span class="pre">sort_order</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#photo-index-photo"><code class="docutils literal notranslate"><span class="pre">photo_index(photo)</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id135"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id138"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id136">PlaceInfo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id139">PlaceInfo</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#ishome"><code class="docutils literal notranslate"><span class="pre">ishome</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#name"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#names"><code class="docutils literal notranslate"><span class="pre">names</span></code></a></li>
@@ -501,9 +502,9 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#address"><code class="docutils literal notranslate"><span class="pre">address</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id137">ScoreInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id138">SearchInfo</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id139"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id140">ScoreInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id141">SearchInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id142"><code class="docutils literal notranslate"><span class="pre">labels</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#place-names"><code class="docutils literal notranslate"><span class="pre">place_names</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#streets"><code class="docutils literal notranslate"><span class="pre">streets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#neighborhoods"><code class="docutils literal notranslate"><span class="pre">neighborhoods</span></code></a></li>
@@ -522,24 +523,24 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#venue-types"><code class="docutils literal notranslate"><span class="pre">venue_types</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#media-types"><code class="docutils literal notranslate"><span class="pre">media_types</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#all"><code class="docutils literal notranslate"><span class="pre">all</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id140"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id143"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id141">PersonInfo</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id142"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id144">PersonInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id145"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#display-name"><code class="docutils literal notranslate"><span class="pre">display_name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id143"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id146"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#keyphoto"><code class="docutils literal notranslate"><span class="pre">keyphoto</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#facecount"><code class="docutils literal notranslate"><span class="pre">facecount</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-personphotos-photos-a"><span class="raw-html-m2r"><a name="personphotos">`photos`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-personfaceinfo-face-info-a"><span class="raw-html-m2r"><a name="personfaceinfo">`face_info`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-personfavorite-favorite-a"><span class="raw-html-m2r"><a name="personfavorite">`favorite`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-personsortorder-sort-order-a"><span class="raw-html-m2r"><a name="personsortorder">`sort_order`</a></span></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id145"><code class="docutils literal notranslate"><span class="pre">json()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id146"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id148"><code class="docutils literal notranslate"><span class="pre">json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id149"><code class="docutils literal notranslate"><span class="pre">asdict()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id147">FaceInfo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id150">FaceInfo</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-faceinfo-uuid-uuid-a"><span class="raw-html-m2r"><a name="faceinfo_uuid">`uuid`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-faceinfo-name-name-a"><span class="raw-html-m2r"><a name="faceinfo_name">`name`</a></span></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#asset-uuid"><code class="docutils literal notranslate"><span class="pre">asset_uuid</span></code></a></li>
@@ -559,16 +560,16 @@
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#a-name-faceinfo-json-json-a"><span class="raw-html-m2r"><a name="faceinfo_json">`json()`</a></span></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id150">CommentInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id151">LikeInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id152">AdjustmentsInfo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id153">PhotoTables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id154">Raw Photos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id153">CommentInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id154">LikeInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id155">AdjustmentsInfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id156">PhotoTables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id157">Raw Photos</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#raw-related-attributes">Raw-Related Attributes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#example">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id163">Template System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id166">Template System</a></li>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-exiftoolexiftool-exiftool-a"><span class="raw-html-m2r"><a name="exiftoolExifTool">ExifTool</a></span></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#exiftool-methods">ExifTool methods</a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#implementation-note">Implementation Note</a></li>
@@ -583,15 +584,15 @@
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-exifwriter-exifwriter-a"><span class="raw-html-m2r"><a name="exifwriter">ExifWriter</a></span></a></li>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-sidecarwriter-sidecarwriter-a"><span class="raw-html-m2r"><a name="sidecarwriter">SidecarWriter</a></span></a></li>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-textdetection-text-detection-a"><span class="raw-html-m2r"><a name="textdetection">Text Detection</a></span></a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_README.html#id168">Utility Functions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id169"><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="API_README.html#id170"><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#id171">Utility Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id172"><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="API_README.html#id173"><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#list-photo-libraries"><code class="docutils literal notranslate"><span class="pre">list_photo_libraries()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="API_README.html#id171">Additional Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_README.html#id174">Additional Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos Python Reference</a><ul>
@@ -1268,7 +1269,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=d5e8344a"></script>
+</div><script src="_static/documentation_options.js?v=93c5f479"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
