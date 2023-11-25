@@ -949,9 +949,12 @@ Options:
                                   --query-function option with a different
                                   value. Your query function will be called
                                   after all other query options have been
-                                  evaluated. See https://github.com/RhetTbull/os
-                                  xphotos/blob/master/examples/query_function.py
-                                  for example of how to use this option.
+                                  evaluated. You may also specify a URL to a
+                                  python file in the format: --query-function
+                                  https://path/to/module.py::function See https:
+                                  //github.com/RhetTbull/osxphotos/blob/master/e
+                                  xamples/query_function.py for example of a
+                                  query function.
   --deleted-only                  Include only photos from the 'Recently
                                   Deleted' folder.
   --deleted                       Include photos from the 'Recently Deleted'
@@ -1429,28 +1432,19 @@ Options:
                                   doesn't exist.  All exported photos will be
                                   added to this album. This only works if the
                                   Photos library being exported is the last-
-                                  opened (default) library in Photos. This
-                                  feature is currently experimental.  I don't
-                                  know how well it will work on large export
-                                  sets.
+                                  opened (default) library in Photos.
   --add-skipped-to-album ALBUM    Add all skipped photos to album ALBUM in
                                   Photos. Album ALBUM will be created if it
                                   doesn't exist.  All skipped photos will be
                                   added to this album. This only works if the
                                   Photos library being exported is the last-
-                                  opened (default) library in Photos. This
-                                  feature is currently experimental.  I don't
-                                  know how well it will work on large export
-                                  sets.
+                                  opened (default) library in Photos.
   --add-missing-to-album ALBUM    Add all missing photos to album ALBUM in
                                   Photos. Album ALBUM will be created if it
                                   doesn't exist.  All missing photos will be
                                   added to this album. This only works if the
                                   Photos library being exported is the last-
-                                  opened (default) library in Photos. This
-                                  feature is currently experimental.  I don't
-                                  know how well it will work on large export
-                                  sets.
+                                  opened (default) library in Photos.
   --post-command CATEGORY COMMAND
                                   Run COMMAND on exported files of category
                                   CATEGORY.  CATEGORY can be one of: exported,
@@ -1490,7 +1484,10 @@ Options:
                                   all exported files associated with the photo.
                                   You can run more than one function by
                                   repeating the '--post-function' option with
-                                  different arguments. See Post Function below.
+                                  different arguments. You may also specify a
+                                  post function using a URL in format --post-
+                                  function 'https://path/to/module.py::function'
+                                  See Post Function below.
   --exportdb EXPORTDB_FILE        Specify alternate path for database file which
                                   stores state information for export and
                                   --update. If --exportdb is not specified,
@@ -2281,7 +2278,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.64.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.65.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2383,13 +2380,16 @@ Substitution             Description
 {function}               Execute a python function from an external file and
                          use return value as template substitution. Use in
                          format: {function:file.py::function_name} where
-                         'file.py' is the name of the python file and
+                         'file.py' is the path/name of the python file and
                          'function_name' is the name of the function to
-                         call. The function will be passed the PhotoInfo
-                         object for the photo. See https://github.com/RhetTb
-                         ull/osxphotos/blob/master/examples/template_functio
-                         n.py for an example of how to implement a template
-                         function.
+                         call. The file name may also be url to a python
+                         file, e.g. '{function:https://raw.githubusercontent
+                         .com/RhetTbull/osxphotos/main/examples/template_fun
+                         ction.py::example}'. The function will be passed
+                         the PhotoInfo object for the photo. See https://git
+                         hub.com/RhetTbull/osxphotos/blob/master/examples/te
+                         mplate_function.py for an example of how to
+                         implement a template function.
 
 The following substitutions are file or directory paths. You can access
 various parts of the path using the following modifiers:
@@ -2769,7 +2769,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.64.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.65.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -2791,7 +2791,7 @@ The following template field substitutions are availabe for use the templating s
 |{shell_quote}|Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.|
 |{strip}|Use in form '{strip,TEMPLATE}'; strips whitespace from begining and end of rendered TEMPLATE value(s).|
 |{format}|Use in form, '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then formats the value using Python string formatting codes specified by FORMAT; TYPE is one of: 'int', 'float', or 'str'. For example, '{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1 decimal place (e.g. '100.0'). |
-|{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
+|{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the path/name of the python file and 'function_name' is the name of the function to call. The file name may also be url to a python file, e.g. '{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}'. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
 <!-- OSXPHOTOS-TEMPLATE-TABLE:END -->
 
 ## Related Projects

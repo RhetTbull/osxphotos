@@ -158,6 +158,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../cli_commands.html">osxphotos command line tools</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of osxphotos command line tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../reference.html">OSXPhotos Python Reference</a></li>
@@ -346,10 +350,16 @@
         <span class="c1"># Check OS version</span>
         <span class="n">system</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
         <span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="n">major</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">get_macos_version</span><span class="p">()</span> <span class="k">if</span> <span class="n">is_macos</span> <span class="k">else</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span> <span class="ow">and</span> <span class="p">((</span><span class="n">ver</span><span class="p">,</span> <span class="n">major</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_TESTED_OS_VERSIONS</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="p">((</span><span class="n">ver</span><span class="p">,</span> <span class="n">major</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_TESTED_OS_VERSIONS</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_TESTED_OS_VERSIONS</span>
+        <span class="p">):</span>
+            <span class="n">tested_versions</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_TESTED_OS_VERSIONS</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;WARNING: This module has only been tested with macOS versions &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s1">&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_TESTED_OS_VERSIONS</span><span class="p">)</span><span class="si">}</span><span class="s2">]: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">tested_versions</span><span class="si">}</span><span class="s2">]: &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;you have </span><span class="si">{</span><span class="n">system</span><span class="si">}</span><span class="s2">, OS version: </span><span class="si">{</span><span class="n">ver</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">major</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 

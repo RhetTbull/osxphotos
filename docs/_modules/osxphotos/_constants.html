@@ -158,6 +158,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../cli_commands.html">osxphotos command line tools</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of osxphotos command line tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
@@ -329,13 +333,20 @@
     <span class="p">},</span>
 <span class="p">}</span>
 
-<span class="c1"># which version operating systems have been tested</span>
+<span class="c1"># Which version operating systems have been tested</span>
+<span class="c1"># After Big Sur (macOS 11), once I am comfortable that</span>
+<span class="c1"># Apple isn&#39;t making any schema changes to Photos for that</span>
+<span class="c1"># version, add a new entry here with (ver, None) where ver</span>
+<span class="c1"># is the version number of the OS</span>
+<span class="c1"># This will prevent osxphotos from issuing a warning about</span>
+<span class="c1"># an untested OS version</span>
 <span class="n">_TESTED_OS_VERSIONS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;12&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;13&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;14&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;16&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">),</span>
@@ -344,6 +355,7 @@
     <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">),</span>
@@ -352,6 +364,7 @@
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;13&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;13&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;13&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;13&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">),</span>
@@ -360,6 +373,7 @@
     <span class="p">(</span><span class="s2">&quot;13&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;13&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="c1"># Photos 5 has persons who are empty string if unidentified face</span>
