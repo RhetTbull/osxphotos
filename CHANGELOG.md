@@ -2,6 +2,90 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.65.0](https://github.com/RhetTbull/osxphotos/compare/v0.64.3...v0.65.0)
+
+Thanksgiving Release: A cornucopia of new features and bug fixes for the Thanksgiving holiday. Thanks to all the contributors who helped make this release possible. Please note there are some breaking changes in this release, see notes below. If you have scripts or workflows that use `osxphotos` CLI commands, you may need to update them to specify the library with `--library` or `--db` instead of as a positional argument.
+
+### [v0.65.0] - 2023-11-25
+
+#### Added
+
+- `osxphotos batch-edit --album` to add photos to an album (#1009)
+
+This allows `batch-edit` to be used to sync albums between iCloud shared libraries (Photos does not sync albums between shared libraries). For example:
+
+```bash
+ osxphotos batch-edit --verbose --keyword "{album?album:{folder_album}}"
+```
+
+will write the album name in form `album:Folder/Album` to the keyword field.  Then on the other user's machine:
+
+```bash
+osxphotos batch-edit --verbose --album "{keyword|filter(startswith album:)|sslice(6:)}" --split-folder "/" 
+```
+
+reads the album name from the keyword field and splits it into folder and album name and adds the photo to the album, creating album and folders as necessary.
+
+Both commands can be run on each user's machine to sync albums between shared libraries. The commands can also be combined into a single command:
+
+```bash
+osxphotos batch-edit --verbose --album "{keyword|filter(startswith album:)|sslice(6:)}" --split-folder "/" --keyword "{album?album:{folder_album}}"
+```
+
+- `osxphotos export --checkpoint` to auto-save the export database during export when using `--ramdb`. This prevents data loss if the export is interrupted or crashes. If using `--ramdb` and `--checkpoint` is not identified, export database will be auto-saved every 1000 photos (#1051)
+- `osxphotos push-exif --dry-run` to show what will be pushed without updating metadata (#1259)
+- `osxphotos export --ignore-exportdb` to ignore warnings about exporting into a folder with an existing export database without using `--update` (#1285)
+- `osxphotos import --dry-run` to `osxphotos import` to show what would be imported without actually importing
+- `osxphotos import --skip-dups` to skip importing photos that are already in the library (#1262, #1264)
+
+#### Removed
+
+- Removed photos library argument from CLI commands which had previously been deprecated; library must now be specified with `--library` or `--db`
+
+**WARNING**: This is a breaking change if you have scripts that use `osxphotos` CLI commands and specify the library as a positional argument.  You must now specify the library with `--library` or `--db`.  For example, if you have a script that looks like this:
+
+```bash
+osxphotos export ~/Pictures/Photos\ Library.photoslibrary /path/to/export
+```
+
+you must now change it to:
+
+```bash
+
+osxphotos export --library ~/Pictures/Photos\ Library.photoslibrary /path/to/export
+```
+
+#### Changed
+
+- `osxphotos import` now prints a message if the photo is already in the library (#1264)
+- `osxphotos export` now checks if the destination is a Photos library and warns if it is (#1268)
+- `osxphotos export` now checks if the destination is a folder with an existing export database and warns if exporting without `--update` (#1285)
+- `export_cli()` can now be used to run the `osxphotos export` command as a stand-alone function in your own code (#1253):
+
+```pycon
+>>> from osxphotos.cli.export import export_cli
+>>> export_cli(dest="/private/tmp", update=True)
+```
+
+- `--query-function` (`query`, `export`), `--post-function` (`export`), `--function` (`timewarp`), `osxphotos run`, and `{function}` template now all support providing a URL to a Python file containing the function (#1224).  This allows sharing of functions and makes it easier to give examples to new users. For example:
+  - `osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/count_photos.py`
+  - `osxphotos query --quiet --print "{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}"`
+  - `osxphotos query --query-function https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/find_unnamed_faces.py::unnamed_faces --count`
+
+- CLI commands now show progress when loading the Photos library to stderr. This is useful when running commands against a large database on a slow disk
+
+#### Fixed
+
+- Allow `library` to be specified in config TOML file (#1274)
+
+#### Contributors
+
+- Rhet Turnbull ([@RhetTbull](https://github.com/RhetTbull)) for code, documentation, and testing
+- Added @nicad ([@nicad](https://github.com/nicad)) as a contributor for bug, test, and documentation
+- Added @nkxco ([@nkxco](https://github.com/nkxco)) as a contributor for ideas
+- Added @santiagoGPNC ([@santiagoGPNC](https://github.com/santiagoGPNC)) as a contributor for ideas
+- Added @mikapietrus ([@mikapietrus](https://github.com/mikapietrus)) as a contributor for ideas
+
 ## [v0.64.3](https://github.com/RhetTbull/osxphotos/compare/v0.64.2...v0.64.3)
 
 Adds `--alt-db` option to export. You probably (almost certainly) don't need this.
