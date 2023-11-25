@@ -687,24 +687,21 @@ if TYPE_CHECKING:
     metavar="ALBUM",
     help="Add all exported photos to album ALBUM in Photos. Album ALBUM will be created "
     "if it doesn't exist.  All exported photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. "
-    "This feature is currently experimental.  I don't know how well it will work on large export sets.",
+    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--add-skipped-to-album",
     metavar="ALBUM",
     help="Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created "
     "if it doesn't exist.  All skipped photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. "
-    "This feature is currently experimental.  I don't know how well it will work on large export sets.",
+    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--add-missing-to-album",
     metavar="ALBUM",
     help="Add all missing photos to album ALBUM in Photos. Album ALBUM will be created "
     "if it doesn't exist.  All missing photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. "
-    "This feature is currently experimental.  I don't know how well it will work on large export sets.",
+    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--post-command",

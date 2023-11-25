@@ -244,10 +244,8 @@ class SelectionCommand(click.Command):
                 metavar="PHOTOS_LIBRARY_PATH",
                 default=None,
                 help=(
-                    "Specify Photos database path. "
-                    "Path to Photos library/database can be specified using either --db "
-                    "or directly as PHOTOS_LIBRARY positional argument. "
-                    "If neither --db or PHOTOS_LIBRARY provided, will attempt to find the library "
+                    "Specify Photos library path. "
+                    "If not provided, osxphotos will attempt to find the library "
                     "to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary"
                 ),
                 type=click.Path(exists=True),

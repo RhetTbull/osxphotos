@@ -234,3 +234,34 @@ def test_batch_edit_replace_keywords_error(photoslib):
             ],
         )
         assert result.exit_code != 0
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_album(photoslib):
+    """Test batch-edit with --album"""
+    photo = photoslib.selection[0]
+    assert photo.uuid == TEST_DATA_BATCH_EDIT["uuid"]
+
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            batch_edit,
+            [
+                "--album",
+                "Folder/Subfolder/{keyword}",
+                "--split-folder",
+                "/",
+            ],
+        )
+        assert result.exit_code == 0
+
+        photo = osxphotos.PhotosDB().get_photo(TEST_DATA_BATCH_EDIT["uuid"])
+        album_paths = []
+        for album in photo.album_info:
+            folders = album.folder_names
+            if folders:
+                album_paths.append("/".join(folders) + "/" + album.title)
+            else:
+                album_paths.append(album.title)
+
+        for keyword in photo.keywords:
+            assert f"Folder/Subfolder/{keyword}" in album_paths
