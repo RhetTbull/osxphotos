@@ -35,6 +35,7 @@ osxphotos batch-edit --verbose --album "{keyword|filter(startswith album:)|sslic
 - `osxphotos export --checkpoint` to auto-save the export database during export when using `--ramdb`. This prevents data loss if the export is interrupted or crashes. If using `--ramdb` and `--checkpoint` is not identified, export database will be auto-saved every 1000 photos (#1051)
 - `osxphotos push-exif --dry-run` to show what will be pushed without updating metadata (#1259)
 - `osxphotos export --ignore-exportdb` to ignore warnings about exporting into a folder with an existing export database without using `--update` (#1285)
+- `osxphotos export --no-exportdb` to export without creating an export database; use with caution as this is a "one time" export that will not work with `--update` in the future
 - `osxphotos import --dry-run` to `osxphotos import` to show what would be imported without actually importing
 - `osxphotos import --skip-dups` to skip importing photos that are already in the library (#1262, #1264)
 
