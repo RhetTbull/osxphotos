@@ -41,8 +41,7 @@ MACOS_OPTIONS = make_click_option_decorator(
             metavar="ALBUM",
             help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
             "if it doesn't exist.  All photos in the query results will be added to this album. "
-            "This only works if the Photos library being queried is the last-opened (default) library in Photos. "
-            "This feature is currently experimental.  I don't know how well it will work on large query sets.",
+            "This only works if the Photos library being queried is the last-opened (default) library in Photos. ",
         ),
     ]
     if is_macos

@@ -7,17 +7,22 @@ from __future__ import annotations
 import functools
 import json
 import sys
+from typing import Any
 
 import click
 
 import osxphotos
+from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
+from osxphotos.utils import pluralize
 
 assert_macos()
 
 import photoscript
+
+from osxphotos.photosalbum import PhotosAlbumPhotoScript
 
 from .cli_commands import echo, echo_error, selection_command, verbose
 from .kvstore import kvstore
@@ -27,18 +32,21 @@ from .param_types import Latitude, Longitude, TemplateString
 @selection_command(name="batch-edit")
 @click.option(
     "--title",
+    "-t",
     metavar="TITLE_TEMPLATE",
     type=TemplateString(),
     help="Set title of photo.",
 )
 @click.option(
     "--description",
+    "-d",
     metavar="DESCRIPTION_TEMPLATE",
     type=TemplateString(),
     help="Set description of photo.",
 )
 @click.option(
     "--keyword",
+    "-k",
     metavar="KEYWORD_TEMPLATE",
     type=TemplateString(),
     multiple=True,
@@ -46,34 +54,62 @@ from .param_types import Latitude, Longitude, TemplateString
 )
 @click.option(
     "--replace-keywords",
+    "-K",
     is_flag=True,
     help="When specified with --keyword, replace existing keywords. "
     "Default is to add to existing keywords.",
 )
 @click.option(
     "--location",
+    "-l",
     metavar="LATITUDE LONGITUDE",
     type=click.Tuple([Latitude(), Longitude()]),
     help="Set location of photo. "
     "Must be specified as a pair of numbers with latitude in the range -90 to 90 and longitude in the range -180 to 180.",
 )
+@click.option(
+    "--album",
+    "-a",
+    metavar="ALBUM_TEMPLATE",
+    multiple=True,
+    type=TemplateString(),
+    help="Add photo to album ALBUM_TEMPLATE. "
+    "ALBUM_TEMPLATE is an osxphotos template string. "
+    "Photos may be added to more than one album by repeating --album. "
+    "See also, --split-folder. "
+    "See Template System in help (`osxphotos docs`) for additional information.",
+)
+@click.option(
+    "--split-folder",
+    "-f",
+    help="When used with --album, automatically create hierarchal folders for albums "
+    "as needed by splitting album name into folders and album. "
+    "You must specify the character used to split folders and albums. "
+    "For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
+    "into folder 'Folder' and album 'Album'. ",
+)
 @click.option("--dry-run", is_flag=True, help="Don't actually change anything.")
 @click.option(
     "--undo",
+    "-u",
     is_flag=True,
     help="Restores photo metadata to what it was prior to the last batch edit. "
-    "May be combined with --dry-run.",
+    "May be combined with --dry-run to see what will be undone. "
+    "Note: --undo cannot undo album changes at this time; "
+    "photos added to an album with --album will remain in the album after --undo.",
 )
 def batch_edit(
     photos: list[osxphotos.PhotoInfo],
-    title,
-    description,
-    keyword,
-    replace_keywords,
-    location,
-    dry_run,
-    undo,
-    **kwargs,
+    title: str | None,
+    description: str | None,
+    keyword: tuple[str, ...],
+    replace_keywords: bool,
+    location: tuple[float, float],
+    album: tuple[str, ...],
+    split_folder: str | None,
+    dry_run: bool,
+    undo: bool,
+    **kwargs: Any,
 ):
     """
     Batch edit photo metadata such as title, description, keywords, etc.
@@ -99,30 +135,20 @@ def batch_edit(
     or `osxphotos docs` for more information on the osxphotos template system.
     """
 
-    if not title and not description and not keyword and not location and not undo:
-        echo_error(
-            "[error] Must specify at least one of: "
-            " --title, --description, --keyword, --location, --undo. "
-            "Use --help for more information."
+    try:
+        validate_options(
+            photos=photos,
+            title=title,
+            description=description,
+            keyword=keyword,
+            replace_keywords=replace_keywords,
+            location=location,
+            album=album,
+            split_folder=split_folder,
+            undo=undo,
         )
-        sys.exit(1)
-
-    if undo and (title or description or keyword or location):
-        echo_error(
-            "[error] Cannot specify --undo and any options other than --dry-run. "
-            "Use --help for more information."
-        )
-        sys.exit(1)
-
-    if replace_keywords and not keyword:
-        echo_error(
-            "[error] Cannot specify --replace-keywords without --keyword. "
-            "Use --help for more information."
-        )
-        sys.exit(1)
-
-    if not photos:
-        echo_error("[error] No photos selected")
+    except ValueError as e:
+        echo_error(f"[error] {e} Use --help for more information.")
         sys.exit(1)
 
     # sort photos by date so that {counter} order is correct
@@ -144,14 +170,46 @@ def batch_edit(
         set_photo_description_from_template(photo, description, dry_run)
         set_photo_keywords_from_template(photo, keyword, replace_keywords, dry_run)
         set_photo_location(photo, location, dry_run)
+        set_photo_albums_from_template(photo, album, split_folder, dry_run)
 
 
-# cache photoscript Photo object to avoid re-creating it for each photo
-# maxsize=1 as this function is called repeatedly for each photo then
-# the next photo is processed
+def validate_options(
+    photos: list[osxphotos.PhotoInfo],
+    title: str | None,
+    description: str | None,
+    keyword: tuple[str, ...],
+    replace_keywords: bool,
+    location: tuple[float, float],
+    album: tuple[str, ...],
+    split_folder: str | None,
+    undo: bool,
+):
+    """Validate options; raises ValueError if options are invalid"""
+    if not any([title, description, keyword, location, album, undo]):
+        raise ValueError(
+            "Must specify at least one of: "
+            " --title, --description, --keyword, --location, --album, --undo."
+        )
+
+    if undo and any([title, description, keyword, location, album]):
+        raise ValueError("Cannot specify --undo and any options other than --dry-run.")
+
+    if replace_keywords and not keyword:
+        raise ValueError("Cannot specify --replace-keywords without --keyword.")
+
+    if split_folder and not album:
+        raise ValueError("Cannot specify --split-folder without --album.")
+
+    if not photos:
+        raise ValueError("No photos selected")
+
+
 @functools.lru_cache(maxsize=1)
 def photoscript_photo(photo: osxphotos.PhotoInfo) -> photoscript.Photo:
     """Return photoscript Photo object for photo"""
+    # cache photoscript Photo object to avoid re-creating it for each photo
+    # maxsize=1 as this function is called repeatedly for each photo then
+    # the next photo is processed
     return photoscript.Photo(photo.uuid)
 
 
@@ -313,3 +371,45 @@ def set_photo_location(
     if not dry_run:
         ps_photo = photoscript_photo(photo)
         ps_photo.location = (latitude, longitude)
+
+
+def set_photo_albums_from_template(
+    photo: osxphotos.PhotoInfo,
+    album: tuple[str, ...],
+    split_folder: str | None,
+    dry_run: bool,
+):
+    """Add photo to album(s) based on album template"""
+    if not album:
+        return
+
+    albums = []
+    for a in album:
+        albums.extend(render_album_template(photo, a))
+    verbose(
+        f"Adding photo to [num]{len(albums)}[/] [i]{pluralize(len(albums), 'album', 'albums')}[/]"
+    )
+
+    # add photo to albums
+    for a in albums:
+        verbose(f"Adding photo to [i]album[/] [bold]{a}[/]")
+        if not dry_run:
+            photos_album = PhotosAlbumPhotoScript(
+                a, split_folder=split_folder, rich=True
+            )
+            ps_photo = photoscript_photo(photo)
+            photos_album.add(ps_photo)
+
+
+def render_album_template(
+    photo: osxphotos.PhotoInfo,
+    album_template: str,
+):
+    """Render template string for a photo"""
+    options = RenderOptions(none_str=_OSXPHOTOS_NONE_SENTINEL, caller="batch_edit")
+    template_values, _ = photo.render_template(album_template, options=options)
+
+    # filter out empty strings
+    template_values = [v.replace(_OSXPHOTOS_NONE_SENTINEL, "") for v in template_values]
+    template_values = [v for v in template_values if v]
+    return template_values
