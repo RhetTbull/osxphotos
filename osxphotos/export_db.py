@@ -1399,11 +1399,11 @@ class ExportRecord:
 
     def _error_setter(self, value: dict[str, str] | None):
         """Set error value"""
-        value = value or {}
+        value = value or None
         conn = self.connection
         c = conn.cursor()
         # use default=str because some of the values are Path objects
-        error = json.dumps(value, default=str)
+        error = json.dumps(value, default=str) if value else None
         c.execute(
             "UPDATE export_data SET error = ? WHERE filepath_normalized = ?;",
             (error, self._filepath_normalized),
