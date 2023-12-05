@@ -34,7 +34,11 @@ def main(export_path, export_db_path):
 
     export_path = pathlib.Path(export_path)
     # assume it's the export folder
-    export_db_path = pathlib.Path(export_db_path) or export_path / OSXPHOTOS_EXPORT_DB
+    export_db_path = (
+        pathlib.Path(export_db_path)
+        if export_db_path
+        else export_path / OSXPHOTOS_EXPORT_DB
+    )
     if not export_db_path.is_file():
         echo_error(
             f"[error]Error: could not find export database at {export_db_path}[/]"
