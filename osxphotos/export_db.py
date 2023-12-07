@@ -40,7 +40,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "8.0"
+OSXPHOTOS_EXPORTDB_VERSION = "9.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -584,6 +584,10 @@ class ExportDB:
             # add error to export_data
             self._migrate_7_1_to_8_0(conn)
 
+        if version[1] < "9.0":
+            # add history table
+            self._migrate_8_0_to_9_0(conn)
+
         with self.lock:
             conn.execute("VACUUM;")
             conn.commit()
@@ -835,6 +839,32 @@ class ExportDB:
             ).fetchone()
             if results[0] == 0:
                 c.execute("""ALTER TABLE export_data ADD COLUMN error JSON;""")
+            conn.commit()
+
+    def _migrate_8_0_to_9_0(self, conn: sqlite3.Connection):
+        """Add history table"""
+        with self.lock:
+            c = conn.cursor()
+            c.execute(
+                """
+            CREATE TABLE IF NOT EXISTS history (
+                      id INTEGER PRIMARY KEY,
+                      export_data_id INTEGER,
+                      timestamp DATETIME,
+                      action TEXT,
+                      diff JSON
+                    );
+            """
+            )
+            c.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS insert_history_timestamp_trigger
+                AFTER INSERT ON history
+                BEGIN
+                    UPDATE history SET timestamp = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;
+                END;
+                """
+            )
             conn.commit()
 
     def _perform_db_maintenance(self, conn: sqlite3.Connection):
@@ -1367,6 +1397,61 @@ class ExportRecord:
         raise ValueError(
             f"No timestamp found in database for {self._filepath_normalized}"
         )
+
+    @property
+    def history(self) -> tuple[str, str, str]:
+        """returns the history value"""
+        if self._context_manager:
+            return self._history()
+        with self.lock:
+            return self._history()
+
+    @history.setter
+    def history(self, value: tuple[str, str, str]):
+        """Set history value"""
+        if self._context_manager:
+            self._history_setter(value)
+        else:
+            with self.lock:
+                self._history_setter(value)
+
+    def _history(self) -> tuple[str, str, str]:
+        """returns the history value"""
+        conn = self.connection
+        c = conn.cursor()
+        if export_data_id := c.execute(
+            "SELECT id FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            export_data_id = export_data_id[0]
+        else:
+            raise ValueError("No export_data_id found in database")
+        if row := c.execute(
+            "SELECT id, timestamp, action, diff FROM history WHERE export_data_id = ?;",
+            (export_data_id,),
+        ).fetchone():
+            return row
+        raise ValueError(
+            f"No history found in database for {self._filepath_normalized}"
+        )
+
+    def _history_setter(self, value: tuple[str, str]):
+        """Set history value"""
+        conn = self.connection
+        c = conn.cursor()
+        if export_data_id := c.execute(
+            "SELECT id FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            export_data_id = export_data_id[0]
+        else:
+            raise ValueError("No export_data_id found in database")
+        c.execute(
+            "INSERT INTO history (export_data_id, action, diff) VALUES (?, ?, ?);",
+            (export_data_id, value[0], value[1]),
+        )
+        if not self._context_manager:
+            conn.commit()
 
     @property
     def error(self) -> dict[str, Any] | None:

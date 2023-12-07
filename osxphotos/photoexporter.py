@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import dataclasses
+import datetime
 import json
 import os
 import pathlib
@@ -11,6 +12,7 @@ import typing as t
 from enum import Enum
 
 from ._version import __version__
+from .dictdiff import dictdiff
 from .exiftool import exiftool_can_write
 from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
@@ -1010,6 +1012,22 @@ class PhotoExporter:
 
         # set data in the database
         with export_db.create_or_get_file_record(dest_str, self.photo.uuid) as rec:
+            if rec.photoinfo:
+                last_data = json.loads(rec.photoinfo)
+                # to avoid issues with datetime comparisons, list order
+                # need to deserialize from photo.json() instead of using photo.asdict()
+                current_data = json.loads(self.photo.json(shallow=True))
+                diff = dictdiff(last_data, current_data)
+
+                def _json_default(o):
+                    if isinstance(o, (datetime.date, datetime.datetime)):
+                        return o.isoformat()
+                    if isinstance(o, pathlib.Path):
+                        return str(o)
+
+                diff = json.dumps(diff, default=_json_default) if diff else None
+            else:
+                diff = None
             rec.photoinfo = self.photo.json(shallow=True)
             rec.export_options = options.bit_flags
             # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
@@ -1033,6 +1051,7 @@ class PhotoExporter:
                 }
             else:
                 rec.error = None
+            rec.history = ("action", diff)
 
         # clean up lock file
         unlock_filename(dest_str)
