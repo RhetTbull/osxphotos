@@ -1406,3 +1406,24 @@ def test_float_concatenation(photosdb):
     rendered, _ = photo.render_template("{,+photo.location}")
     assert len(rendered) == 1
     assert rendered[0] == f"{photo.location[0]},{photo.location[1]}"
+
+
+def test_var_eval(photosdb):
+    """Test {%varname?True,False} #1318"""
+    photo = [p for p in photosdb.photos() if not p.title][0]
+    template = "{var:test,{title,}}{%test?True,False}"
+    rendered, _ = photo.render_template(template)
+    assert rendered[0] == "False"
+
+    photo = [p for p in photosdb.photos() if p.title][0]
+    template = "{var:test,{title,}}{%test?True,False}"
+    rendered, _ = photo.render_template(template)
+    assert rendered[0] == "True"
+
+
+def test_null_template(photosdb):
+    """Test that template with null value renders correctly, #1319"""
+    photo = [p for p in photosdb.photos() if not p.title][0]
+    template = "{var:test,{title,}}Foo-{%test,}-Bar"
+    rendered, _ = photo.render_template(template)
+    assert rendered[0] == "Foo--Bar"
