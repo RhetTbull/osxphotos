@@ -75,18 +75,6 @@
     <rdf:Bag>
      <rdf:li rdf:parseType="Resource">
       <mwg-rs:Area rdf:parseType="Resource">
-      <stArea:h>0.111174</stArea:h>
-      <stArea:w>0.074098</stArea:w>
-      <stArea:x>0.320504</stArea:x>
-      <stArea:y>0.335665</stArea:y>
-      <stArea:unit>normalized</stArea:unit>
-      </mwg-rs:Area>
-      <mwg-rs:Name>Suzy</mwg-rs:Name>
-      <mwg-rs:Rotation>0.0</mwg-rs:Rotation>
-      <mwg-rs:Type>Face</mwg-rs:Type>
-     </rdf:li>
-     <rdf:li rdf:parseType="Resource">
-      <mwg-rs:Area rdf:parseType="Resource">
       <stArea:h>0.093038</stArea:h>
       <stArea:w>0.062010</stArea:w>
       <stArea:x>0.715818</stArea:x>
@@ -95,6 +83,18 @@
       </mwg-rs:Area>
       <mwg-rs:Name>Katie</mwg-rs:Name>
       <mwg-rs:Rotation>0.5235987901687622</mwg-rs:Rotation>
+      <mwg-rs:Type>Face</mwg-rs:Type>
+     </rdf:li>
+     <rdf:li rdf:parseType="Resource">
+      <mwg-rs:Area rdf:parseType="Resource">
+      <stArea:h>0.111174</stArea:h>
+      <stArea:w>0.074098</stArea:w>
+      <stArea:x>0.320504</stArea:x>
+      <stArea:y>0.335665</stArea:y>
+      <stArea:unit>normalized</stArea:unit>
+      </mwg-rs:Area>
+      <mwg-rs:Name>Suzy</mwg-rs:Name>
+      <mwg-rs:Rotation>0.0</mwg-rs:Rotation>
       <mwg-rs:Type>Face</mwg-rs:Type>
      </rdf:li>
     </rdf:Bag>
@@ -109,12 +109,12 @@
      <MPRI:Regions>
       <rdf:Bag>
        <rdf:li rdf:parseType="Resource">
-       <MPReg:PersonDisplayName>Suzy</MPReg:PersonDisplayName>
-       <MPReg:Rectangle>0.283455, 0.280079, 0.074098, 0.111174</MPReg:Rectangle>
-       </rdf:li>
-       <rdf:li rdf:parseType="Resource">
        <MPReg:PersonDisplayName>Katie</MPReg:PersonDisplayName>
        <MPReg:Rectangle>0.684813, 0.374384, 0.062010, 0.093038</MPReg:Rectangle>
+       </rdf:li>
+       <rdf:li rdf:parseType="Resource">
+       <MPReg:PersonDisplayName>Suzy</MPReg:PersonDisplayName>
+       <MPReg:Rectangle>0.283455, 0.280079, 0.074098, 0.111174</MPReg:Rectangle>
        </rdf:li>
       </rdf:Bag>
      </MPRI:Regions>

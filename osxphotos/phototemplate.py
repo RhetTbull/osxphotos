@@ -1213,12 +1213,17 @@ class PhotoTemplate:
 
         values = []
         if field == "album":
-            values = self.photo.burst_albums if self.photo.burst else self.photo.albums
+            values = (
+                sorted(self.photo.burst_albums)
+                if self.photo.burst
+                else sorted(self.photo.albums)
+            )
         elif field == "project":
-            values = [p.title for p in self.photo.project_info]
+            values = sorted([p.title for p in self.photo.project_info])
         elif field == "album_project":
             values = self.photo.burst_albums if self.photo.burst else self.photo.albums
             values += [p.title for p in self.photo.project_info]
+            values = sorted(values)
         elif field == "keyword":
             values = sorted(self.photo.keywords) if self.photo.keywords else []
         elif field == "person":
@@ -1261,18 +1266,30 @@ class PhotoTemplate:
                     values.append(album.title)
             values = sorted(values)
         elif field == "comment":
-            values = [
-                f"{comment.user}: {comment.text}" for comment in self.photo.comments
-            ]
+            values = sorted(
+                [f"{comment.user}: {comment.text}" for comment in self.photo.comments]
+            )
         elif field == "searchinfo.holiday":
-            values = self.photo.search_info.holidays if self.photo.search_info else []
+            values = (
+                sorted(self.photo.search_info.holidays)
+                if self.photo.search_info
+                else []
+            )
         elif field == "searchinfo.activity":
-            values = self.photo.search_info.activities if self.photo.search_info else []
+            values = (
+                sorted(self.photo.search_info.activities)
+                if self.photo.search_info
+                else []
+            )
         elif field == "searchinfo.venue":
-            values = self.photo.search_info.venues if self.photo.search_info else []
+            values = (
+                sorted(self.photo.search_info.venues) if self.photo.search_info else []
+            )
         elif field == "searchinfo.venue_type":
             values = (
-                self.photo.search_info.venue_types if self.photo.search_info else []
+                sorted(self.photo.search_info.venue_types)
+                if self.photo.search_info
+                else []
             )
         elif field == "shell_quote":
             values = [shlex.quote(v) for v in default if v]
@@ -1322,9 +1339,7 @@ class PhotoTemplate:
             # skip folder_album because it would have been handled above
             values = [sanitize_dirname(value) for value in values]
 
-        # If no values, insert None so code below will substitute none_str for None
-        values = values or []
-        return values
+        return values or []
 
     def get_format_values(
         self, field: str, subfield: str, default: List[str]

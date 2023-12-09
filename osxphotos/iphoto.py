@@ -1140,24 +1140,30 @@ class iPhotoPhotoInfo:
                 persons.append(person)
             else:
                 persons.append(_UNKNOWN_PERSON)
-        return persons
+        return sorted(persons, key=lambda x: x or "")
 
     @property
     def person_info(self) -> list[iPhotoPersonInfo]:
         """List of iPhotoPersonInfo objects for photo"""
         faces = self._get_faces()
-        return [iPhotoPersonInfo(face, self._db) for face in faces]
+        return sorted(
+            [iPhotoPersonInfo(face, self._db) for face in faces],
+            key=lambda x: x.name or "",
+        )
 
     @property
     def face_info(self) -> list[iPhotoFaceInfo]:
         """List of iPhotoFaceInfo objects for photo"""
         faces = self._get_faces()
-        return [iPhotoFaceInfo(self, face, self._db) for face in faces]
+        return sorted(
+            [iPhotoFaceInfo(self, face, self._db) for face in faces],
+            key=lambda x: x.name or "",
+        )
 
     @property
     def keywords(self) -> list[str]:
         """Keywords for photo"""
-        return self._db._db_photos[self._uuid].get("keywords", [])
+        return sorted(self._db._db_photos[self._uuid].get("keywords", []))
 
     @property
     def hasadjustments(self) -> bool:
@@ -1207,17 +1213,24 @@ class iPhotoPhotoInfo:
     @property
     def albums(self) -> list[str]:
         """List of albums photo is contained in"""
-        return [
-            album["name"] for album in self._db._db_photos[self._uuid].get("albums", [])
-        ]
+        return sorted(
+            [
+                album["name"]
+                for album in self._db._db_photos[self._uuid].get("albums", [])
+            ],
+            key=lambda x: x or "",
+        )
 
     @property
     def album_info(self) -> list[iPhotoAlbumInfo]:
         """ "Return list of iPhotoAlbumInfo objects for photo"""
-        return [
-            iPhotoAlbumInfo(album, self._db)
-            for album in self._db._db_photos[self._uuid].get("albums", [])
-        ]
+        return sorted(
+            [
+                iPhotoAlbumInfo(album, self._db)
+                for album in self._db._db_photos[self._uuid].get("albums", [])
+            ],
+            key=lambda x: x.title or "",
+        )
 
     @property
     def event_info(self) -> iPhotoEventInfo | None:

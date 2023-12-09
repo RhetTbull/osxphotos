@@ -19,7 +19,7 @@ PHOTO_LIBRARY = "tests/Test-10.15.7.photoslibrary"
 ALBUM_TITLES = ["Test Album", "Pumpkin Farm", "Last Import", "AlbumInFolder"]
 
 # Test data for iPhoto library
-# Created with `osxphotos query --library IPHOTO_LIBRARY > tests/iphoto_test_data.json`
+# Created with `osxphotos query --library tests/Test-iPhoto-9.6.1.photolibrary --json > tests/iphoto_test_data.json`
 # Then replace the path to the library with `IPHOTO_LIBRARY_ROOT`
 TEST_DATA = "tests/iphoto_test_data.json"
 
