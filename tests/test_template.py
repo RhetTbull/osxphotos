@@ -989,7 +989,7 @@ def test_comment(photosdb_comments):
     for uuid in COMMENT_UUID_DICT:
         photo = photosdb_comments.get_photo(uuid)
         comments = photo.render_template("{comment}")
-        assert comments[0] == COMMENT_UUID_DICT[uuid]
+        assert comments[0] == sorted(COMMENT_UUID_DICT[uuid])
 
 
 def test_media_type(photosdb_cloud):

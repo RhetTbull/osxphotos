@@ -67,18 +67,6 @@
     <rdf:Bag>
      <rdf:li rdf:parseType="Resource">
       <mwg-rs:Area rdf:parseType="Resource">
-      <stArea:h>0.111950</stArea:h>
-      <stArea:w>0.074615</stArea:w>
-      <stArea:x>0.309784</stArea:x>
-      <stArea:y>0.335536</stArea:y>
-      <stArea:unit>normalized</stArea:unit>
-      </mwg-rs:Area>
-      <mwg-rs:Name>Suzy</mwg-rs:Name>
-      <mwg-rs:Rotation>0.09641068428754807</mwg-rs:Rotation>
-      <mwg-rs:Type>Face</mwg-rs:Type>
-     </rdf:li>
-     <rdf:li rdf:parseType="Resource">
-      <mwg-rs:Area rdf:parseType="Resource">
       <stArea:h>0.075018</stArea:h>
       <stArea:w>0.050000</stArea:w>
       <stArea:x>0.712673</stArea:x>
@@ -87,6 +75,18 @@
       </mwg-rs:Area>
       <mwg-rs:Name>Katie</mwg-rs:Name>
       <mwg-rs:Rotation>0</mwg-rs:Rotation>
+      <mwg-rs:Type>Face</mwg-rs:Type>
+     </rdf:li>
+     <rdf:li rdf:parseType="Resource">
+      <mwg-rs:Area rdf:parseType="Resource">
+      <stArea:h>0.111950</stArea:h>
+      <stArea:w>0.074615</stArea:w>
+      <stArea:x>0.309784</stArea:x>
+      <stArea:y>0.335536</stArea:y>
+      <stArea:unit>normalized</stArea:unit>
+      </mwg-rs:Area>
+      <mwg-rs:Name>Suzy</mwg-rs:Name>
+      <mwg-rs:Rotation>0.09641068428754807</mwg-rs:Rotation>
       <mwg-rs:Type>Face</mwg-rs:Type>
      </rdf:li>
     </rdf:Bag>
@@ -101,12 +101,12 @@
      <MPRI:Regions>
       <rdf:Bag>
        <rdf:li rdf:parseType="Resource">
-       <MPReg:PersonDisplayName>Suzy</MPReg:PersonDisplayName>
-       <MPReg:Rectangle>0.272476, 0.279561, 0.074615, 0.111950</MPReg:Rectangle>
-       </rdf:li>
-       <rdf:li rdf:parseType="Resource">
        <MPReg:PersonDisplayName>Katie</MPReg:PersonDisplayName>
        <MPReg:Rectangle>0.687673, 0.386478, 0.050000, 0.075018</MPReg:Rectangle>
+       </rdf:li>
+       <rdf:li rdf:parseType="Resource">
+       <MPReg:PersonDisplayName>Suzy</MPReg:PersonDisplayName>
+       <MPReg:Rectangle>0.272476, 0.279561, 0.074615, 0.111950</MPReg:Rectangle>
        </rdf:li>
       </rdf:Bag>
      </MPRI:Regions>

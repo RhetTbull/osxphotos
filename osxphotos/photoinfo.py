@@ -569,12 +569,18 @@ class PhotoInfo:
     @property
     def persons(self) -> list[str]:
         """list of persons in picture"""
-        return [self._db._dbpersons_pk[pk]["fullname"] for pk in self._info["persons"]]
+        return sorted(
+            [self._db._dbpersons_pk[pk]["fullname"] for pk in self._info["persons"]],
+            key=lambda x: x or "",
+        )
 
     @property
     def person_info(self) -> list[PersonInfo]:
         """list of PersonInfo objects for person in picture"""
-        return [PersonInfo(db=self._db, pk=pk) for pk in self._info["persons"]]
+        return sorted(
+            [PersonInfo(db=self._db, pk=pk) for pk in self._info["persons"]],
+            key=lambda x: x.name or "",
+        )
 
     @property
     def face_info(self) -> list[FaceInfo]:
@@ -585,6 +591,7 @@ class PhotoInfo:
         except KeyError:
             # no faces
             self._faceinfo = []
+        self._faceinfo = sorted(self._faceinfo, key=lambda x: x.name or "")
         return self._faceinfo
 
     @property
@@ -602,8 +609,11 @@ class PhotoInfo:
             return self._albums
         except AttributeError:
             album_uuids = self._get_album_uuids()
-            self._albums = list(
-                {self._db._dbalbum_details[album]["title"] for album in album_uuids}
+            self._albums = sorted(
+                list(
+                    {self._db._dbalbum_details[album]["title"] for album in album_uuids}
+                ),
+                key=lambda x: x or "",
             )
             return self._albums
 
@@ -614,13 +624,16 @@ class PhotoInfo:
         for photo in self.burst_photos:
             if photo.burst_key:
                 burst_albums.extend(photo.albums)
-        return list(set(burst_albums))
+        return sorted(list(set(burst_albums)), key=lambda x: x or "")
 
     @property
     def album_info(self) -> list[AlbumInfo]:
         """list of AlbumInfo objects representing albums the photo is contained in"""
         album_uuids = self._get_album_uuids()
-        return [AlbumInfo(db=self._db, uuid=album) for album in album_uuids]
+        return sorted(
+            [AlbumInfo(db=self._db, uuid=album) for album in album_uuids],
+            key=lambda x: x.title or "",
+        )
 
     @property
     def burst_album_info(self) -> list[AlbumInfo]:
@@ -629,7 +642,7 @@ class PhotoInfo:
         for photo in self.burst_photos:
             if photo.burst_key:
                 burst_album_info.extend(photo.album_info)
-        return list(set(burst_album_info))
+        return sorted(list(set(burst_album_info)), key=lambda x: x.title or "")
 
     @property
     def import_info(self) -> ImportInfo | None:
@@ -644,12 +657,15 @@ class PhotoInfo:
     def project_info(self) -> list[ProjectInfo]:
         """list of ProjectInfo objects representing projects for the photo or None if no projects"""
         project_uuids = self._get_album_uuids(project=True)
-        return [ProjectInfo(db=self._db, uuid=album) for album in project_uuids]
+        return sorted(
+            [ProjectInfo(db=self._db, uuid=album) for album in project_uuids],
+            key=lambda x: x.title,
+        )
 
     @property
     def keywords(self) -> list[str]:
         """list of keywords for picture"""
-        return self._info["keywords"]
+        return sorted(self._info["keywords"])
 
     @property
     def title(self) -> str | None:

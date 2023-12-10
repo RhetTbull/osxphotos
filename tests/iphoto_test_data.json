@@ -1123,16 +1123,16 @@
                 "folder_names": [],
                 "parent": null,
                 "sort_order": 0,
-                "title": "Test Album",
-                "uuid": "Tn%h%CuhQruD8VQ5zVgy8g"
+                "title": "Pumpkin Farm",
+                "uuid": "pDZqrEDNTc2Rt9Q1hdvStQ"
             },
             {
                 "folder_list": [],
                 "folder_names": [],
                 "parent": null,
                 "sort_order": 0,
-                "title": "Pumpkin Farm",
-                "uuid": "pDZqrEDNTc2Rt9Q1hdvStQ"
+                "title": "Test Album",
+                "uuid": "Tn%h%CuhQruD8VQ5zVgy8g"
             }
         ],
         "albums": [
@@ -1146,16 +1146,16 @@
                 "folder_names": [],
                 "parent": null,
                 "sort_order": 0,
-                "title": "Test Album",
-                "uuid": "Tn%h%CuhQruD8VQ5zVgy8g"
+                "title": "Pumpkin Farm",
+                "uuid": "pDZqrEDNTc2Rt9Q1hdvStQ"
             },
             {
                 "folder_list": [],
                 "folder_names": [],
                 "parent": null,
                 "sort_order": 0,
-                "title": "Pumpkin Farm",
-                "uuid": "pDZqrEDNTc2Rt9Q1hdvStQ"
+                "title": "Test Album",
+                "uuid": "Tn%h%CuhQruD8VQ5zVgy8g"
             }
         ],
         "burst_albums": [
@@ -1237,39 +1237,6 @@
         "face_info": [
             {
                 "center": [
-                    656,
-                    452
-                ],
-                "center_x": 0.3203125,
-                "center_y": 0.3311355311355311,
-                "face_rect": [
-                    [
-                        593,
-                        389
-                    ],
-                    [
-                        719,
-                        515
-                    ]
-                ],
-                "mpri_reg_rect": {
-                    "h": 0.0615234375,
-                    "w": 0.09230769230769231,
-                    "x": 593,
-                    "y": 389
-                },
-                "mwg_rs_area": {
-                    "h": 0.09230769230769231,
-                    "w": 0.0615234375,
-                    "x": 0.3203125,
-                    "y": 0.3311355311355311
-                },
-                "name": "Suzy",
-                "quality": 0.777,
-                "size": 0.0615234375
-            },
-            {
-                "center": [
                     1437,
                     588
                 ],
@@ -1300,6 +1267,39 @@
                 "name": "Katie",
                 "quality": 0.551,
                 "size": 0.0498046875
+            },
+            {
+                "center": [
+                    656,
+                    452
+                ],
+                "center_x": 0.3203125,
+                "center_y": 0.3311355311355311,
+                "face_rect": [
+                    [
+                        593,
+                        389
+                    ],
+                    [
+                        719,
+                        515
+                    ]
+                ],
+                "mpri_reg_rect": {
+                    "h": 0.0615234375,
+                    "w": 0.09230769230769231,
+                    "x": 593,
+                    "y": 389
+                },
+                "mwg_rs_area": {
+                    "h": 0.09230769230769231,
+                    "w": 0.0615234375,
+                    "x": 0.3203125,
+                    "y": 0.3311355311355311
+                },
+                "name": "Suzy",
+                "quality": 0.777,
+                "size": 0.0615234375
             }
         ],
         "favorite": false,
@@ -1359,17 +1359,6 @@
         "path_raw": null,
         "person_info": [
             {
-                "displayname": "Suzy",
-                "facecount": 1,
-                "favorite": false,
-                "feature_less": false,
-                "keyface": null,
-                "keyphoto": null,
-                "name": "Suzy",
-                "sort_order": 0,
-                "uuid": "Elle1Gc1RpCfTTDamY8ZGA"
-            },
-            {
                 "displayname": "Katie",
                 "facecount": 2,
                 "favorite": false,
@@ -1379,6 +1368,17 @@
                 "name": "Katie",
                 "sort_order": 0,
                 "uuid": "d%YZTuXcTQqnfDWsiRmsTw"
+            },
+            {
+                "displayname": "Suzy",
+                "facecount": 1,
+                "favorite": false,
+                "feature_less": false,
+                "keyface": null,
+                "keyphoto": null,
+                "name": "Suzy",
+                "sort_order": 0,
+                "uuid": "Elle1Gc1RpCfTTDamY8ZGA"
             }
         ],
         "persons": [
@@ -2539,14 +2539,6 @@
         "adjustments": {},
         "album_info": [
             {
-                "folder_list": [],
-                "folder_names": [],
-                "parent": null,
-                "sort_order": 0,
-                "title": "Last Import",
-                "uuid": "lastImportAlbum"
-            },
-            {
                 "folder_list": [
                     "dmCBXs4sSXaZ8nEJV+AM%A",
                     "NtsvmxOMR6WM3nYJy5X3ow"
@@ -2559,6 +2551,14 @@
                 "sort_order": 0,
                 "title": "AlbumInFolder",
                 "uuid": "dtiURL7dQ%+oltqjyqD3pQ"
+            },
+            {
+                "folder_list": [],
+                "folder_names": [],
+                "parent": null,
+                "sort_order": 0,
+                "title": "Last Import",
+                "uuid": "lastImportAlbum"
             }
         ],
         "albums": [
@@ -2568,14 +2568,6 @@
         "burst": false,
         "burst_album_info": [
             {
-                "folder_list": [],
-                "folder_names": [],
-                "parent": null,
-                "sort_order": 0,
-                "title": "Last Import",
-                "uuid": "lastImportAlbum"
-            },
-            {
                 "folder_list": [
                     "dmCBXs4sSXaZ8nEJV+AM%A",
                     "NtsvmxOMR6WM3nYJy5X3ow"
@@ -2588,6 +2580,14 @@
                 "sort_order": 0,
                 "title": "AlbumInFolder",
                 "uuid": "dtiURL7dQ%+oltqjyqD3pQ"
+            },
+            {
+                "folder_list": [],
+                "folder_names": [],
+                "parent": null,
+                "sort_order": 0,
+                "title": "Last Import",
+                "uuid": "lastImportAlbum"
             }
         ],
         "burst_albums": [
