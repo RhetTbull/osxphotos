@@ -903,18 +903,23 @@ class PhotoExporter:
         fileutil = options.fileutil
         export_db = options.export_db
 
+        action = None
         if options.update or options.force_update:  # updating
             if dest_exists:
-                if self._should_update_photo(src, dest, options):
+                if update_reason := self._should_update_photo(src, dest, options):
                     update_updated_files.append(dest_str)
+                    action = "update: " + update_reason.name
                 else:
                     update_skipped_files.append(dest_str)
+                    action = "skip"
             else:
                 # update, destination doesn't exist (new file)
                 update_new_files.append(dest_str)
+                action = "new"
         else:
             # not update, export the file
             exported_files.append(dest_str)
+            action = "export"
 
         export_files = update_new_files + update_updated_files + exported_files
         for export_dest in export_files:
@@ -1043,7 +1048,7 @@ class PhotoExporter:
                 }
             else:
                 rec.error = None
-            rec.history = ("action", diff)
+            rec.history = (action, diff)
 
         # clean up lock file
         unlock_filename(dest_str)
