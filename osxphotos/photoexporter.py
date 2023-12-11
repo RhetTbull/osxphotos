@@ -1046,8 +1046,6 @@ class PhotoExporter:
                     "exiftool_error": exif_results.exiftool_error,
                     "exiftool_warning": exif_results.exiftool_warning,
                 }
-            else:
-                rec.error = None
             rec.history = (action, diff)
 
         # clean up lock file
