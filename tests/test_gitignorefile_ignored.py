@@ -6,6 +6,10 @@ import osxphotos.gitignorefile
 
 class TestIgnored(unittest.TestCase):
     def test_simple(self):
+        # if there is no __pycahce__ directory, this test will fail
+        # so create a dummy __pycache__ directory if not present
+        if not os.path.isdir(f"{os.path.dirname(__file__)}/__pycache__"):
+            os.mkdir(f"{os.path.dirname(__file__)}/__pycache__")
         for is_dir in (None, False, True):
             with self.subTest(i=is_dir):
                 self.assertFalse(
