@@ -503,7 +503,7 @@ The ``osxphotos.cli`` module contains the code for the ``osxphotos`` command lin
    >>> from osxphotos.cli.export import export_cli
    >>> export_cli(dest="/private/tmp", update=True)
 
-The ``export_cli()`` function takes the same arguments as the ``osxphotos export`` command. See ``osxphotos help export`` for more information. You can also refernced the implementation `here <https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292>`_.
+The ``export_cli()`` function takes the same arguments as the ``osxphotos export`` command. See ``osxphotos help export`` for more information. You can also reference the implementation `here <https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292>`_.
 
 Package Interface
 -----------------
@@ -3021,7 +3021,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.65.0'
+     - The osxphotos version, e.g. '0.66.0'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}

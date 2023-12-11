@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.iphoto - osxphotos 0.64.2 documentation</title>
+        <title>osxphotos.iphoto - osxphotos 0.66.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.64.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.66.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.64.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.66.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1355,24 +1355,30 @@
                 <span class="n">persons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">persons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_UNKNOWN_PERSON</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">persons</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">persons</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">person_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">iPhotoPersonInfo</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;List of iPhotoPersonInfo objects for photo&quot;&quot;&quot;</span>
         <span class="n">faces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_faces</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">iPhotoPersonInfo</span><span class="p">(</span><span class="n">face</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span> <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">iPhotoPersonInfo</span><span class="p">(</span><span class="n">face</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span> <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">],</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">face_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">iPhotoFaceInfo</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;List of iPhotoFaceInfo objects for photo&quot;&quot;&quot;</span>
         <span class="n">faces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_faces</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">iPhotoFaceInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span> <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">iPhotoFaceInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span> <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">],</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keywords for photo&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;keywords&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;keywords&quot;</span><span class="p">,</span> <span class="p">[]))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hasadjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1422,17 +1428,24 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">albums</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;List of albums photo is contained in&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="n">album</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;albums&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="p">]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">album</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;albums&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="p">],</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">iPhotoAlbumInfo</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;Return list of iPhotoAlbumInfo objects for photo&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="n">iPhotoAlbumInfo</span><span class="p">(</span><span class="n">album</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;albums&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="p">]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">iPhotoAlbumInfo</span><span class="p">(</span><span class="n">album</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;albums&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="p">],</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">event_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">iPhotoEventInfo</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -2759,7 +2772,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=7190b053"></script>
+</div><script src="../../_static/documentation_options.js?v=01ba2a92"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
