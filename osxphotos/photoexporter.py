@@ -355,14 +355,6 @@ class PhotoExporter:
         sidecar_writer = SidecarWriter(self.photo)
         all_results += sidecar_writer.write_sidecar_files(dest=dest, options=options)
 
-        # update export database for any missing files
-        for missing_file in all_results.missing:
-            with options.export_db.create_or_get_file_record(
-                missing_file, self.photo.uuid
-            ) as rec:
-                rec.error = {"missing": True}
-                rec.export_options = options.bit_flags
-
         return all_results
 
     def _init_temp_dir(self, options: ExportOptions):
