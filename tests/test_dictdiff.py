@@ -2,7 +2,7 @@
 
 import pytest
 
-from osxphotos.dictdiff import dictdiff
+from osxphotos.dictdiff import _dictdiff
 
 data = [
     ({"a": 1, "b": 2}, {"a": 1, "b": 2}, None, []),
@@ -17,6 +17,6 @@ data = [
 @pytest.mark.parametrize("d1, d2, tolerance, expected", data)
 def test_dictdiff(d1, d2, tolerance, expected):
     if tolerance is None:
-        assert dictdiff(d1, d2) == expected
+        assert _dictdiff(d1, d2) == expected
     else:
-        assert dictdiff(d1, d2, tolerance=tolerance) == expected
+        assert _dictdiff(d1, d2, tolerance=tolerance) == expected

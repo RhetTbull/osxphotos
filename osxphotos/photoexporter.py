@@ -12,7 +12,7 @@ import typing as t
 from enum import Enum
 
 from ._version import __version__
-from .dictdiff import dictdiff
+from .dictdiff import _dictdiff
 from .exiftool import exiftool_can_write
 from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
@@ -1017,7 +1017,7 @@ class PhotoExporter:
                 # to avoid issues with datetime comparisons, list order
                 # need to deserialize from photo.json() instead of using photo.asdict()
                 current_data = json.loads(self.photo.json(shallow=True))
-                diff = dictdiff(last_data, current_data)
+                diff = _dictdiff(last_data, current_data)
 
                 def _json_default(o):
                     if isinstance(o, (datetime.date, datetime.datetime)):
