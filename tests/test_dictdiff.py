@@ -1,6 +1,7 @@
 """Test dictdiff"""
 
 import pytest
+
 from osxphotos.dictdiff import dictdiff
 
 data = [
@@ -9,7 +10,7 @@ data = [
     ({"a": 1}, {"a": 1, "b": 3}, None, [["b", "added", (3,)]]),
     ({"a": 1, "b": 2}, {"a": 1}, None, [["b", "removed", (2,)]]),
     ({"a": 1.01, "b": 2}, {"a": 1, "b": 2.0}, None, [["a", "changed", (1.01, 1)]]),
-    # ({"a": 1.01, "b": 2}, {"a": 1, "b": 2.0}, 0.01, []),
+    ({"a": 1.01, "b": 2}, {"a": 1, "b": 2.0}, 0.015, []),
 ]
 
 
