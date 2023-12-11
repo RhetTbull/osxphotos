@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.66.0](https://github.com/RhetTbull/osxphotos/compare/v0.65.0...v0.66.0)
+
+Bug Fixes
+
+### [v0.66.0] - 2023-12-10
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+- Templates which return lists of strings such as `{album}` now return results in sorted order #1317
+
+#### Fixed
+
+- Fixed install issues for Monterey, #1324 
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code
+
 ## [v0.65.0](https://github.com/RhetTbull/osxphotos/compare/v0.64.3...v0.65.0)
 
 Thanksgiving Release: A cornucopia of new features and bug fixes for the Thanksgiving holiday. Thanks to all the contributors who helped make this release possible. Please note there are some breaking changes in this release, see notes below. If you have scripts or workflows that use `osxphotos` CLI commands, you may need to update them to specify the library with `--library` or `--db` instead of as a positional argument.
