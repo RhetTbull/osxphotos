@@ -12,7 +12,7 @@ import typing as t
 from enum import Enum
 
 from ._version import __version__
-from .dictdiff import _dictdiff
+from .dictdiff import dictdiff
 from .exiftool import exiftool_can_write
 from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
@@ -354,6 +354,13 @@ class PhotoExporter:
             all_results += self._write_aae_file(dest=dest, options=options)
         sidecar_writer = SidecarWriter(self.photo)
         all_results += sidecar_writer.write_sidecar_files(dest=dest, options=options)
+
+        # write history record for any missing files
+        # for any exported, skipped, updated files,
+        # the history record is written in _export_photo
+        # but this isn't called for missing photos
+        for filename in all_results.missing:
+            options.export_db.set_history(filename, self.photo.uuid, "missing", None)
 
         return all_results
 
@@ -1014,7 +1021,7 @@ class PhotoExporter:
                 # to avoid issues with datetime comparisons, list order
                 # need to deserialize from photo.json() instead of using photo.asdict()
                 current_data = json.loads(self.photo.json(shallow=True))
-                diff = _dictdiff(last_data, current_data)
+                diff = dictdiff(last_data, current_data)
 
                 def _json_default(o):
                     if isinstance(o, (datetime.date, datetime.datetime)):
@@ -1046,7 +1053,10 @@ class PhotoExporter:
                     "exiftool_error": exif_results.exiftool_error,
                     "exiftool_warning": exif_results.exiftool_warning,
                 }
-            rec.history = (action, diff)
+
+        export_db.set_history(
+            filename=dest_str, uuid=self.photo.uuid, action=action, diff=diff
+        )
 
         # clean up lock file
         unlock_filename(dest_str)

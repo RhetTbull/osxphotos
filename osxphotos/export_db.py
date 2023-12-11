@@ -407,6 +407,85 @@ class ExportDB:
             ).fetchall()
             return sum(self.delete_data_for_uuid(row[0]) for row in results)
 
+    # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def set_history(
+        self,
+        filename: pathlib.Path | str,
+        uuid: str,
+        action: str,
+        diff: str | None,
+    ):
+        """Set the history record for the filepath
+
+        Args:
+            filename: path to file
+            action: action taken on file, e.g. "exported", "skipped", "missing", "updated"
+            diff: diff for file as a serialized JSON str
+        """
+        filename_normalized = self._normalize_filepath_relative(filename)
+        with self.lock:
+            conn = self.connection
+            c = conn.cursor()
+            if filepath_id := c.execute(
+                "SELECT id FROM history_path WHERE filepath_normalized = ?;",
+                (filename_normalized,),
+            ).fetchone():
+                filepath_id = filepath_id[0]
+            else:
+                c.execute(
+                    "INSERT INTO history_path (filepath_normalized, uuid) VALUES (?, ?);",
+                    (filename_normalized, uuid),
+                )
+                filepath_id = c.lastrowid
+            c.execute(
+                "INSERT INTO history (filepath_id, action, diff) VALUES (?, ?, ?);",
+                (filepath_id, action, diff),
+            )
+            conn.commit()
+
+    # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def get_history(
+        self, filepath: pathlib.Path | str | None = None, uuid: str | None = None
+    ):
+        """Get history for a filepath or uuid
+
+        Args:
+            filepath: path to file
+            uuid: UUID of file
+
+        Returns:
+            list of history records
+        """
+        with self.lock:
+            conn = self.connection
+            c = conn.cursor()
+            if filepath:
+                filepath_normalized = self._normalize_filepath_relative(filepath)
+                results = c.execute(
+                    """
+                    SELECT datetime, action, diff
+                    FROM history_path
+                    JOIN history ON history_path.id = history.filepath_id
+                    WHERE filepath_normalized = ?
+                    ORDER BY datetime ASC
+                    """,
+                    (filepath_normalized,),
+                ).fetchall()
+            elif uuid:
+                results = c.execute(
+                    """
+                    SELECT datetime, action, diff
+                    FROM history_path
+                    JOIN history ON history_path.id = history.filepath_id
+                    WHERE uuid = ?
+                    ORDER BY datetime ASC
+                    """,
+                    (uuid,),
+                ).fetchall()
+            else:
+                raise ValueError("Must specify filepath or uuid")
+            return results
+
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def close(self):
         """close the database connection"""
@@ -845,26 +924,44 @@ class ExportDB:
         """Add history table"""
         with self.lock:
             c = conn.cursor()
+
+            # the export_data table does not contain data on missing files
+            # so create a history_paths table to track every path that has ever
+            # been exported or attempted to export (but was missing)
+            # so this can be used by history table to find the associated file path
+            c.execute(
+                """
+            CREATE TABLE IF NOT EXISTS history_path (
+                id INTEGER PRIMARY KEY,
+                filepath_normalized TEXT NOT NULL,
+                uuid TEXT NOT NULL
+            );
+            """
+            )
+
+            # filepath_id is foreign key to history_path table
             c.execute(
                 """
             CREATE TABLE IF NOT EXISTS history (
                       id INTEGER PRIMARY KEY,
-                      export_data_id INTEGER,
-                      timestamp DATETIME,
+                      filepath_id INTEGER,
+                      datetime DATETIME,
                       action TEXT,
                       diff JSON
                     );
             """
             )
+
             c.execute(
                 """
-                CREATE TRIGGER IF NOT EXISTS insert_history_timestamp_trigger
+                CREATE TRIGGER IF NOT EXISTS insert_history_datetime_trigger
                 AFTER INSERT ON history
                 BEGIN
-                    UPDATE history SET timestamp = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;
+                    UPDATE history SET datetime = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;
                 END;
                 """
             )
+
             conn.commit()
 
     def _perform_db_maintenance(self, conn: sqlite3.Connection):
@@ -1397,61 +1494,6 @@ class ExportRecord:
         raise ValueError(
             f"No timestamp found in database for {self._filepath_normalized}"
         )
-
-    @property
-    def history(self) -> tuple[str, str, str]:
-        """returns the history value"""
-        if self._context_manager:
-            return self._history()
-        with self.lock:
-            return self._history()
-
-    @history.setter
-    def history(self, value: tuple[str, str, str]):
-        """Set history value"""
-        if self._context_manager:
-            self._history_setter(value)
-        else:
-            with self.lock:
-                self._history_setter(value)
-
-    def _history(self) -> tuple[str, str, str]:
-        """returns the history value"""
-        conn = self.connection
-        c = conn.cursor()
-        if export_data_id := c.execute(
-            "SELECT id FROM export_data WHERE filepath_normalized = ?;",
-            (self._filepath_normalized,),
-        ).fetchone():
-            export_data_id = export_data_id[0]
-        else:
-            raise ValueError("No export_data_id found in database")
-        if row := c.execute(
-            "SELECT id, timestamp, action, diff FROM history WHERE export_data_id = ?;",
-            (export_data_id,),
-        ).fetchone():
-            return row
-        raise ValueError(
-            f"No history found in database for {self._filepath_normalized}"
-        )
-
-    def _history_setter(self, value: tuple[str, str]):
-        """Set history value"""
-        conn = self.connection
-        c = conn.cursor()
-        if export_data_id := c.execute(
-            "SELECT id FROM export_data WHERE filepath_normalized = ?;",
-            (self._filepath_normalized,),
-        ).fetchone():
-            export_data_id = export_data_id[0]
-        else:
-            raise ValueError("No export_data_id found in database")
-        c.execute(
-            "INSERT INTO history (export_data_id, action, diff) VALUES (?, ?, ?);",
-            (export_data_id, value[0], value[1]),
-        )
-        if not self._context_manager:
-            conn.commit()
 
     @property
     def error(self) -> dict[str, Any] | None:
