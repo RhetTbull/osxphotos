@@ -43,6 +43,8 @@ from .export import render_and_validate_report
 from .param_types import TemplateString
 from .report_writer import export_report_writer_factory
 from .verbose import get_verbose_console, verbose_print
+from osxphotos._constants import UUID_PATTERN
+import re
 
 
 @click.command(name="exportdb")
@@ -100,6 +102,12 @@ from .verbose import get_verbose_console, verbose_print
     metavar="UUID",
     nargs=1,
     help="Print information about UUID contained in the database.",
+)
+@click.option(
+    "--history",
+    metavar="FILE_PATH_OR_UUID",
+    nargs=1,
+    help="Print history of FILE_PATH_OR_UUID contained in the database.",
 )
 @click.option(
     "--delete-uuid",
@@ -194,6 +202,7 @@ def exportdb(
     update_signatures,
     uuid_files,
     uuid_info,
+    history,
     delete_uuid,
     delete_file,
     vacuum,
@@ -422,6 +431,24 @@ def exportdb(
                     f"[error]UUID '{uuid_files}' not found in export database[/error]"
                 )
             sys.exit(0)
+
+    if history:
+        # get history for a file or uuid
+        exportdb = ExportDB(export_db, export_dir)
+        if re.match(UUID_PATTERN, history):
+            kwargs = {"uuid": history}
+        else:
+            kwargs = {"filepath": history}
+        try:
+            history_list = exportdb.get_history(**kwargs)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+
+        for item in history_list:
+            rich_echo(f"[date]{item[0]}[/], [filepath]{item[1]}[/], [uuid]{item[2]}[/]")
+
+        sys.exit(0)
 
     if delete_uuid:
         # delete a uuid from the export database
