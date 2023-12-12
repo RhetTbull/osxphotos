@@ -7,17 +7,18 @@
 import pathlib
 from typing import List, Optional, Union
 
-from osxphotos import ExportOptions, PhotoInfo
+from osxphotos import PhotoInfo
+from osxphotos.phototemplate import RenderOptions
 
 
 def example(
-    photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs
+    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
 ) -> Union[List, str]:
     """example function for {function} template; adds suffix of # if photo has adjustments and ! if photo is a favorite
 
     Args:
         photo: osxphotos.PhotoInfo object
-        options: osxphotos.ExportOptions object
+        options: osxphotos.phototemplate.RenderOptions object
         args: optional str of arguments passed to template function
         **kwargs: not currently used, placeholder to keep functions compatible with possible changes to {function}
 

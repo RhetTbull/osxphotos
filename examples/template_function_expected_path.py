@@ -9,18 +9,19 @@ from __future__ import annotations
 import os
 from typing import List, Optional, Union
 
-from osxphotos import ExportOptions, PhotoInfo
+from osxphotos import PhotoInfo
 from osxphotos._constants import _MOVIE_TYPE, _PHOTO_TYPE, _PHOTOS_5_SHARED_PHOTO_PATH
+from osxphotos.phototemplate import RenderOptions
 
 
 def original(
-    photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs
+    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
 ) -> Union[list[str], str]:
     """returns expected path for original photo or None if path cannot be determined
 
     Args:
         photo: osxphotos.PhotoInfo object
-        options: osxphotos.ExportOptions object
+        options: osxphotos.phototemplate.RenderOptions object
         args: optional str of arguments passed to template function
         **kwargs: not currently used, placeholder to keep functions compatible with possible changes to {function}
 
@@ -49,13 +50,13 @@ def original(
 
 
 def edited(
-    photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs
+    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
 ) -> Union[list[str], str]:
     """returns expected path for edited photo or None if path cannot be determined
 
     Args:
         photo: osxphotos.PhotoInfo object
-        options: osxphotos.ExportOptions object
+        options: osxphotos.phototemplate.RenderOptions object
         args: optional str of arguments passed to template function
         **kwargs: not currently used, placeholder to keep functions compatible with possible changes to {function}
 
