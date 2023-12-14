@@ -1589,23 +1589,24 @@ def import_cli(
                         continue
 
             verbose(f"Importing [filepath]{filepath}[/]")
-            if duplicates := fq.photos_by_fingerprint(fingerprint(filepath)):
-                # duplicate of file already in Photos library
-                verbose(
-                    f"File [filepath]{filepath}[/] is a duplicate of photos in the library: "
-                    f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/])' for u, f in duplicates])}"
-                )
 
             report_data[filepath] = ReportRecord(
                 filepath=filepath, filename=filepath.name
             )
             report_record = report_data[filepath]
 
-            if skip_dups:
-                verbose(f"Skipping duplicate [filepath]{filepath}[/]")
-                skipped_count += 1
-                report_record.imported = False
-                continue
+            if duplicates := fq.possible_duplicates(filepath):
+                # duplicate of file already in Photos library
+                verbose(
+                    f"File [filepath]{filepath}[/] appears to be a duplicate of photos in the library: "
+                    f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
+                )
+
+                if skip_dups:
+                    verbose(f"Skipping duplicate [filepath]{filepath}[/]")
+                    skipped_count += 1
+                    report_record.imported = False
+                    continue
 
             if not dry_run:
                 photo, error = import_photo(filepath, dup_check, verbose)
