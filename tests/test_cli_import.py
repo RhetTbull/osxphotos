@@ -28,7 +28,7 @@ from tests.conftest import get_os_version
 if is_macos:
     from photoscript import Photo
 
-    from osxphotos.cli.import_cli import import_cli
+    from osxphotos.cli.import_cli import import_main
 else:
     pytest.skip(allow_module_level=True)
 
@@ -138,7 +138,7 @@ def test_import():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -160,7 +160,7 @@ def test_import_dry_run():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--dry-run",
@@ -195,14 +195,14 @@ def test_import_dup_check():
 
     # import first to ensure photo is in library
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
 
     # now import again with --dup-check
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--dup-check", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -225,14 +225,14 @@ def test_import_skip_dups():
     runner = CliRunner()
     # import first to ensure photo is in library
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
 
     # now import again with --skip-dups
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--skip-dups", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -249,7 +249,7 @@ def test_import_album():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--album", "My New Album", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -274,7 +274,7 @@ def test_import_album_2():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--album", "Folder/My New Album", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -300,7 +300,7 @@ def test_import_album_slit_folder():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--album",
@@ -333,7 +333,7 @@ def test_import_album_relative_to():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--album",
@@ -368,7 +368,7 @@ def test_import_clear_metadata():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -398,7 +398,7 @@ def test_import_exiftool():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -432,7 +432,7 @@ def test_import_exiftool_video():
     test_image_1 = os.path.join(cwd, TEST_VIDEO_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -466,7 +466,7 @@ def test_import_exiftool_video_no_metadata():
     test_image_1 = os.path.join(cwd, TEST_VIDEO_2)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -500,7 +500,7 @@ def test_import_title():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -530,7 +530,7 @@ def test_import_description():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -559,7 +559,7 @@ def test_import_keyword():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--keyword",
@@ -590,7 +590,7 @@ def test_import_keyword_merge():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -626,7 +626,7 @@ def test_import_keyword_merge_unicode():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -665,7 +665,7 @@ def test_import_location():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -697,7 +697,7 @@ def test_import_glob():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", f"{cwd}/{TEST_IMAGES_DIR}/", "--walk", "--glob", "Pumpk*.jpg"],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -713,7 +713,7 @@ def test_import_glob_walk():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             f"{cwd}/{TEST_IMAGES_DIR}/",
@@ -747,7 +747,7 @@ def test_import_check_templates():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--exiftool",
@@ -787,7 +787,7 @@ def test_import_function_template():
         )
         runner = CliRunner()
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 "--verbose",
                 "--album",
@@ -819,7 +819,7 @@ def test_import_report():
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -838,7 +838,7 @@ def test_import_report():
 
         # test report gets overwritten
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -855,7 +855,7 @@ def test_import_report():
 
         # test report with --append
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -885,7 +885,7 @@ def test_import_report_json():
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -903,7 +903,7 @@ def test_import_report_json():
 
         # test report gets overwritten
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -921,7 +921,7 @@ def test_import_report_json():
 
         # test report with --append
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -953,7 +953,7 @@ def test_import_report_sqlite(report_file):
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -972,7 +972,7 @@ def test_import_report_sqlite(report_file):
 
         # test report gets overwritten
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -991,7 +991,7 @@ def test_import_report_sqlite(report_file):
 
         # test report with --append
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -1023,7 +1023,7 @@ def test_import_report_invalid_name():
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -1045,7 +1045,7 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -1062,7 +1062,7 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
     # test resume
     test_image_2 = os.path.join(cwd, TEST_IMAGE_2)
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--resume", test_image_1, test_image_2],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -1099,7 +1099,7 @@ def test_import_parse_date(tmp_path: pathlib.Path):
 
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--parse-date",
@@ -1137,7 +1137,7 @@ def test_import_post_function():
 
         tempdir = os.getcwd()
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 "import",
                 "--verbose",
