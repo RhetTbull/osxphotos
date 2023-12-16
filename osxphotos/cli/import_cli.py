@@ -960,10 +960,10 @@ def import_files(
     merge_keywords: bool,
     title: str | None,
     description: str | None,
-    keyword: tuple[str],
+    keyword: tuple[str, ...],
     location: tuple[float, float],
     parse_date: str | None,
-    album: tuple[str],
+    album: tuple[str, ...],
     split_folder: str,
     post_function: tuple[Callable[..., None]],
     skip_dups: bool,
@@ -1124,8 +1124,6 @@ def import_files(
                 import_db.set(str(filepath), report_record)
 
             progress.advance(task)
-
-    import_db.close()
 
     return imported_count, skipped_count, error_count
 
@@ -1589,6 +1587,11 @@ class ImportCommand(click.Command):
     "GLOB may be repeated to import multiple patterns.",
 )
 @click.option(
+    "--check",
+    is_flag=True,
+    help="Check which FILES have been previously imported but do not actually import anything. ",
+)
+@click.option(
     "--dry-run",
     is_flag=True,
     help="Dry run; do not actually import. Useful with --verbose to see what would be imported.",
@@ -1661,6 +1664,7 @@ def import_main(
     cli_obj: CLI_Obj,
     album: tuple[str, ...],
     append: bool,
+    check: bool,
     check_templates: bool,
     clear_location: bool,
     clear_metadata: bool,
@@ -1705,6 +1709,7 @@ def import_main(
 def import_cli(
     album: tuple[str, ...] = (),
     append: bool = False,
+    check: bool = False,
     check_templates: bool = False,
     clear_location: bool = False,
     clear_metadata: bool = False,
@@ -1765,6 +1770,18 @@ def import_cli(
             parse_date,
         )
 
+    # need to get the library path to initialize FingerprintQuery
+    last_library = library or get_last_library_path()
+    if not last_library:
+        rich_echo_error(
+            "[error]Could not determine path to Photos library. "
+            "Please specify path to library with --library option."
+        )
+
+    if check:
+        check_imported_files(files, last_library, verbose)
+        sys.exit(0)
+
     # initialize report data
     # report data is set even if no report is generated
     report_data: dict[pathlib.Path, ReportRecord] = {}
@@ -1776,14 +1793,6 @@ def import_cli(
         deserialize=ReportRecord.deserialize,
     )
     import_db.about = f"osxphotos import database\n{OSXPHOTOS_ABOUT_STRING}"
-
-    # need to get the library path to initialize FingerprintQuery
-    last_library = library or get_last_library_path()
-    if not last_library:
-        rich_echo_error(
-            "[error]Could not determine path to Photos library. "
-            "Please specify path to library with --library option."
-        )
 
     imported_count, skipped_count, error_count = import_files(
         last_library=last_library,
@@ -1812,6 +1821,8 @@ def import_cli(
         verbose=verbose,
     )
 
+    import_db.close()
+
     if report and not dry_run:
         write_report(report_file, report_data, append)
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
@@ -1823,3 +1834,17 @@ def import_cli(
         f"{skipped_str}",
         emoji=False,
     )
+
+
+def check_imported_files(files: list[str], library: str, verbose: Callable[..., None]):
+    """Check if files have been previously imported and print results"""
+
+    fq = FingerprintQuery(library)
+    for filepath in files:
+        if duplicates := fq.possible_duplicates(filepath):
+            echo(
+                f"[filepath]:white_check_mark-emoji: {filepath}[/], imported, "
+                + f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
+            )
+        else:
+            echo(f"[error]{filepath}[/], not imported")

@@ -79,7 +79,9 @@ class FingerprintQuery:
         ]
         return results
 
-    def possible_duplicates(self, filepath: str) -> list[tuple[str, str]]:
+    def possible_duplicates(
+        self, filepath: str
+    ) -> list[tuple[str, datetime.datetime, str]]:
         """Return a list of tuples of (uuid, date_added, filename) for all photos that might be duplicates of filepath
 
         Args:
