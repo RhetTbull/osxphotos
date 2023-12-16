@@ -94,7 +94,7 @@ class PhotoInfoFromFile:
     Returns None for most attributes but allows some templates like exiftool and created to work correctly
     """
 
-    def __init__(self, filepath: Union[str, Path], exiftool: str | None = None):
+    def __init__(self, filepath: Union[str, pathlib.Path], exiftool: str | None = None):
         self._path = str(filepath)
         self._exiftool_path = exiftool
         self._uuid = str(uuid.uuid1()).upper()
@@ -590,7 +590,7 @@ def get_relative_filepath(filepath: pathlib.Path, relative_to: str | None) -> Pa
 
 def check_templates_and_exit(
     files: List[str],
-    relative_to: Optional[Path],
+    relative_to: Optional[pathlib.Path],
     title: str | None,
     description: str | None,
     keyword: Tuple[str],
@@ -1589,7 +1589,17 @@ class ImportCommand(click.Command):
 @click.option(
     "--check",
     is_flag=True,
-    help="Check which FILES have been previously imported but do not actually import anything. ",
+    help="Check which FILES have been previously imported but do not actually import anything. "
+    "Prints a report showing which files have been imported (and when they were added) "
+    "and which files have not been imported. "
+    "See also, --check-not.",
+)
+@click.option(
+    "--check-not",
+    is_flag=True,
+    help="Check which FILES have not been previously imported but do not actually import anything. "
+    "Prints the path to each file that has not been previously imported. "
+    "See also, --check.",
 )
 @click.option(
     "--dry-run",
@@ -1665,6 +1675,7 @@ def import_main(
     album: tuple[str, ...],
     append: bool,
     check: bool,
+    check_not: bool,
     check_templates: bool,
     clear_location: bool,
     clear_metadata: bool,
@@ -1710,6 +1721,7 @@ def import_cli(
     album: tuple[str, ...] = (),
     append: bool = False,
     check: bool = False,
+    check_not: bool = False,
     check_templates: bool = False,
     clear_location: bool = False,
     clear_metadata: bool = False,
@@ -1779,7 +1791,11 @@ def import_cli(
         )
 
     if check:
-        check_imported_files(files, last_library, verbose)
+        check_imported_files(files, last_library)
+        sys.exit(0)
+
+    if check_not:
+        check_not_imported_files(files, last_library)
         sys.exit(0)
 
     # initialize report data
@@ -1836,7 +1852,7 @@ def import_cli(
     )
 
 
-def check_imported_files(files: list[str], library: str, verbose: Callable[..., None]):
+def check_imported_files(files: list[str], library: str):
     """Check if files have been previously imported and print results"""
 
     fq = FingerprintQuery(library)
@@ -1848,3 +1864,13 @@ def check_imported_files(files: list[str], library: str, verbose: Callable[..., 
             )
         else:
             echo(f"[error]{filepath}[/], not imported")
+
+
+def check_not_imported_files(files: list[str], library: str):
+    """Check if files have not been previously imported and print results"""
+
+    fq = FingerprintQuery(library)
+    for filepath in files:
+        if fq.possible_duplicates(filepath):
+            continue
+        echo(f"{filepath}")
