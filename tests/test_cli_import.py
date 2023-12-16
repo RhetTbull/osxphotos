@@ -1148,3 +1148,32 @@ def test_import_post_function():
         )
         assert result.exit_code == 0
         assert "FOO BAR" in result.output
+
+
+@pytest.mark.test_import
+def test_import_check():
+    """test import with --check option"""
+    cwd = os.getcwd()
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [f"{cwd}/{TEST_IMAGES_DIR}", "--walk", "--check", "--verbose"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "tests/test-images/IMG_3984.jpeg, not imported" in result.output
+    assert "tests/test-images/IMG_3092.heic, imported" in result.output
+
+
+@pytest.mark.test_import
+def test_import_check_not():
+    """test import with --check-not option"""
+    cwd = os.getcwd()
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [f"{cwd}/{TEST_IMAGES_DIR}", "--walk", "--check-not", "--verbose"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "tests/test-images/IMG_3984.jpeg" in result.output

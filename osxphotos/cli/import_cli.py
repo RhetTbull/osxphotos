@@ -1791,11 +1791,11 @@ def import_cli(
         )
 
     if check:
-        check_imported_files(files, last_library)
+        check_imported_files(files, last_library, verbose)
         sys.exit(0)
 
     if check_not:
-        check_not_imported_files(files, last_library)
+        check_not_imported_files(files, last_library, verbose)
         sys.exit(0)
 
     # initialize report data
@@ -1852,9 +1852,15 @@ def import_cli(
     )
 
 
-def check_imported_files(files: list[str], library: str):
+def check_imported_files(files: list[str], library: str, verbose: Callable[..., None]):
     """Check if files have been previously imported and print results"""
 
+    if not files:
+        rich_echo_error("No files to check")
+        return
+
+    file_word = pluralize(len(files), "file", "files")
+    verbose(f"Checking {len(files)} {file_word} to see if previously imported")
     fq = FingerprintQuery(library)
     for filepath in files:
         if duplicates := fq.possible_duplicates(filepath):
@@ -1866,9 +1872,17 @@ def check_imported_files(files: list[str], library: str):
             echo(f"[error]{filepath}[/], not imported")
 
 
-def check_not_imported_files(files: list[str], library: str):
+def check_not_imported_files(
+    files: list[str], library: str, verbose: Callable[..., None]
+):
     """Check if files have not been previously imported and print results"""
 
+    if not files:
+        rich_echo_error("No files to check")
+        return
+
+    file_word = pluralize(len(files), "file", "files")
+    verbose(f"Checking {len(files)} {file_word} to see if not previously imported")
     fq = FingerprintQuery(library)
     for filepath in files:
         if fq.possible_duplicates(filepath):
