@@ -294,7 +294,7 @@ def test_import_album_2():
 
 
 @pytest.mark.test_import
-def test_import_album_slit_folder():
+def test_import_album_split_folder():
     """Test basic import to an album with a "/" in it and --split-folder"""
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)

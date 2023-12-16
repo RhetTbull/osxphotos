@@ -276,21 +276,63 @@ def metadata_from_file(filepath: pathlib.Path, exiftool_path: str) -> MetaData:
     """
     exiftool = ExifToolCaching(filepath, exiftool_path)
     metadata = exiftool.asdict()
+    return metadata_from_metadata_dict(metadata)
+
+
+def metadata_from_sidecar(
+    filepath: pathlib.Path, exiftool_path: str | None
+) -> MetaData:
+    """Get metadata from sidecar file; if file is XMP, exiftool must be installed.
+
+    Returns: the following metadata from EXIF/XMP/IPTC fields as a MetaData named tuple
+    title: str, XMP:Title, IPTC:ObjectName, QuickTime:DisplayName
+    description: str, XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
+    keywords: str, XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
+    location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef,  EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
+
+    Notes: If there is an error reading the sidecar file, returns null data
+    """
+    if filepath.suffix.lower() == ".xmp":
+        # use exiftool to read XMP sidecar
+        exiftool = ExifToolCaching(filepath, exiftool_path)
+        metadata = exiftool.asdict()
+    else:
+        with open(filepath, "r") as fp:
+            try:
+                metadata = json.load(fp)
+            except json.JSONDecodeError as e:
+                rich_echo_error(f"[error] Could not read sidecar file: {filepath}, {e}")
+                metadata = {}
+
+    return metadata_from_metadata_dict(metadata)
+
+
+def metadata_from_metadata_dict(metadata: dict) -> MetaData:
+    """Return MetaData from metadata dict as loaded from ExifTool or sidecar"""
+
     title = (
         metadata.get("XMP:Title")
         or metadata.get("IPTC:ObjectName")
         or metadata.get("QuickTime:DisplayName")
+        or metadata.get("Title")
+        or metadata.get("ObjectName")
     )
     description = (
         metadata.get("XMP:Description")
         or metadata.get("IPTC:Caption-Abstract")
         or metadata.get("EXIF:ImageDescription")
         or metadata.get("QuickTime:Description")
+        or metadata.get("Description")
+        or metadata.get("Caption-Abstract")
+        or metadata.get("ImageDescription")
     )
     keywords = (
         metadata.get("XMP:Subject")
         or metadata.get("XMP:TagsList")
         or metadata.get("IPTC:Keywords")
+        or metadata.get("Subject")
+        or metadata.get("TagsList")
+        or metadata.get("Keywords")
     )
 
     title = title or ""
@@ -299,14 +341,14 @@ def metadata_from_file(filepath: pathlib.Path, exiftool_path: str) -> MetaData:
     if not isinstance(keywords, (tuple, list)):
         keywords = [keywords]
 
-    location = location_from_file(filepath, exiftool_path)
+    location = location_from_metadata_dict(metadata)
     return MetaData(title, description, keywords, location)
 
 
-def location_from_file(
-    filepath: pathlib.Path, exiftool_path: str
+def location_from_metadata_dict(
+    metadata: dict,
 ) -> Tuple[Optional[float], Optional[float]]:
-    """Get location from file with exiftool
+    """Get location from metadata dict as loaded from ExifTool or sidecar
 
     Returns:
         Tuple of lat, long or None, None if not set
@@ -318,9 +360,6 @@ def location_from_file(
             QuickTime:GPSCoordinates
             UserData:GPSCoordinates
     """
-    exiftool = ExifToolCaching(filepath, exiftool_path)
-    metadata = exiftool.asdict()
-
     # photos and videos store location data differently
     # for photos, location in EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef, EXIF:GPSLatitude, EXIF:GPSLongitude
     # the GPSLatitudeRef and GPSLongitudeRef are needed to determine N/S, E/W respectively
@@ -336,18 +375,24 @@ def location_from_file(
 
     latitude, longitude = None, None
     try:
-        if latitude := metadata.get("EXIF:GPSLatitude"):
+        if latitude := metadata.get("EXIF:GPSLatitude") or metadata.get("GPSLatitude"):
             latitude = float(latitude)
-            latitude_ref = metadata.get("EXIF:GPSLatitudeRef")
+            latitude_ref = metadata.get("EXIF:GPSLatitudeRef") or metadata.get(
+                "GPSLatitudeRef"
+            )
             if latitude_ref == "S":
                 latitude = -latitude
             elif latitude_ref != "N":
                 latitude = None
         if latitude is None:
             latitude = metadata.get("XMP:GPSLatitude")
-        if longitude := metadata.get("EXIF:GPSLongitude"):
+        if longitude := metadata.get("EXIF:GPSLongitude") or metadata.get(
+            "GPSLongitude"
+        ):
             longitude = float(longitude)
-            longitude_ref = metadata.get("EXIF:GPSLongitudeRef")
+            longitude_ref = metadata.get("EXIF:GPSLongitudeRef") or metadata.get(
+                "GPSLongitudeRef"
+            )
             if longitude_ref == "W":
                 longitude = -longitude
             elif longitude_ref != "E":
@@ -357,7 +402,7 @@ def location_from_file(
         if latitude is None or longitude is None:
             # maybe it's a video
             if lat_lon := metadata.get("QuickTime:GPSCoordinates") or metadata.get(
-                "UserData:GPSCoordinates"
+                "UserData:GPSCoordinates" or metadata.get("GPSCoordinates")
             ):
                 lat_lon = lat_lon.split()
                 if len(lat_lon) != 2:
@@ -401,9 +446,23 @@ def set_photo_metadata_from_exiftool(
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> MetaData:
-    """Set photo's metadata by reading metadata form file with exiftool"""
+    """Set photo's metadata by reading metadata from file with exiftool"""
     verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
     metadata = metadata_from_file(filepath, exiftool_path)
+    set_photo_metadata_from_metadata(
+        photo, filepath, metadata, merge_keywords, verbose, dry_run
+    )
+
+
+def set_photo_metadata_from_metadata(
+    photo: Photo,
+    filepath: pathlib.Path,
+    metadata: MetaData,
+    merge_keywords: bool,
+    verbose: Callable[..., None],
+    dry_run: bool,
+) -> MetaData:
+    """Set metadata from a MetaData object"""
     if any([metadata.title, metadata.description, metadata.keywords]):
         metadata = set_photo_metadata(photo, metadata, merge_keywords, dry_run)
         verbose(f"Set metadata for [filename]{filepath.name}[/]:")
@@ -423,6 +482,23 @@ def set_photo_metadata_from_exiftool(
     else:
         verbose(f"No location to set for [filename]{filepath.name}[/]")
     return metadata
+
+
+def set_photo_metadata_from_sidecar(
+    photo: Photo,
+    filepath: pathlib.Path,
+    sidecar: pathlib.Path,
+    exiftool_path: str | None,
+    merge_keywords: bool,
+    verbose: Callable[..., None],
+    dry_run: bool,
+) -> MetaData:
+    """Set photo's metadata by reading metadata from sidecar. If sidecar format is XMP, exiftool must be installed."""
+    verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
+    metadata = metadata_from_sidecar_file(sidecar, exiftool_path)
+    set_photo_metadata_from_metadata(
+        photo, filepath, metadata, merge_keywords, verbose, dry_run
+    )
 
 
 def set_photo_title(
@@ -647,6 +723,27 @@ def check_templates_and_exit(
                     f"[warning]Could not parse date from filename [filename]{file.name}[/][/]"
                 )
     sys.exit(0)
+
+
+def get_sidecar_for_file(filepath: pathlib.Path | str) -> pathlib.Path | None:
+    """Get sidecar file for filepath if it exists or None
+
+    Note:
+        Tests for both JSON and XMP sidecar. If both exists, JSON is returned.
+        Tests both with and without original suffix. If both exists, file with original suffix is returned.
+        E.g. search order is: img_1234.jpg.json, img_1234.json, img_1234.jpg.xmp, img_1234.xmp
+    """
+    filepath = (
+        pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
+    )
+    for ext in ["json", "xmp"]:
+        sidecar = pathlib.Path(f"{filepath}.{ext}")
+        if sidecar.is_file():
+            return sidecar
+        sidecar = filepath.with_suffix("." + ext)
+        if sidecar.is_file():
+            return sidecar
+    return None
 
 
 @dataclass
@@ -957,6 +1054,7 @@ def import_files(
     clear_location: bool,
     exiftool: bool,
     exiftool_path: str,
+    sidecar: bool,
     merge_keywords: bool,
     title: str | None,
     description: str | None,
@@ -1048,6 +1146,11 @@ def import_files(
 
             if exiftool:
                 set_photo_metadata_from_exiftool(
+                    photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
+                )
+
+            if sidecar:
+                set_photo_metadata_from_sidecar(
                     photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
                 )
 
@@ -1474,7 +1577,7 @@ class ImportCommand(click.Command):
     "--merge-keywords",
     "-m",
     is_flag=True,
-    help="Merge keywords created by --exiftool or --keyword "
+    help="Merge keywords created by --exiftool, --sidecar, --sidecar-template, or --keyword "
     "with any keywords already associated with the photo. "
     "Without --merge-keywords, existing keywords will be overwritten.",
 )
@@ -1530,6 +1633,7 @@ class ImportCommand(click.Command):
     help="Use third party tool exiftool (https://exiftool.org/) to automatically "
     "update metadata (title, description, keywords, location) in imported photos from "
     "the imported file's metadata. "
+    "See also --sidecar, --sidecar-template. "
     "Note: importing keywords from video files is not currently supported.",
 )
 @click.option(
@@ -1538,6 +1642,19 @@ class ImportCommand(click.Command):
     metavar="EXIFTOOL_PATH",
     type=click.Path(exists=True, dir_okay=False),
     help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
+)
+@click.option(
+    "--sidecar",
+    "-s",
+    is_flag=True,
+    help="Use sidecar files to import metadata (title, description, keywords, location). "
+    "Sidecar files must be in the same directory as the imported file and have the same name. "
+    "For example, if image is named img_1234.jpg, sidecar must be named one of: "
+    "img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json. "
+    "Supported sidecar formats are XMP and JSON (as generated by exiftool). "
+    "If both JSON and XMP sidecars are found, the JSON sidecar will be used. "
+    "If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
+    "See also --sidecar-template if you need control over the sidecar name.",
 )
 @click.option(
     "--relative-to",
@@ -1588,6 +1705,7 @@ class ImportCommand(click.Command):
 )
 @click.option(
     "--check",
+    "-i",
     is_flag=True,
     help="Check which FILES have been previously imported but do not actually import anything. "
     "Prints a report showing which files have been imported (and when they were added) "
@@ -1596,6 +1714,7 @@ class ImportCommand(click.Command):
 )
 @click.option(
     "--check-not",
+    "-I",
     is_flag=True,
     help="Check which FILES have not been previously imported but do not actually import anything. "
     "Prints the path to each file that has not been previously imported. "
@@ -1696,6 +1815,7 @@ def import_main(
     relative_to: str | None,
     report: str | None,
     resume: bool,
+    sidecar: bool,
     skip_dups: bool,
     split_folder: str | None,
     theme: str | None,
@@ -1742,6 +1862,7 @@ def import_cli(
     relative_to: str | None = None,
     report: str | None = None,
     resume: bool = False,
+    sidecar: bool = False,
     skip_dups: bool = False,
     split_folder: str | None = None,
     theme: str | None = None,
@@ -1798,6 +1919,14 @@ def import_cli(
         check_not_imported_files(files, last_library, verbose)
         sys.exit(0)
 
+    if exiftool and not exiftool_path:
+        # ensure exiftool is installed in path
+        try:
+            get_exiftool_path()
+        except FileNotFoundError as e:
+            rich_echo_error(f"[error] {e}")
+            raise click.Abort()
+
     # initialize report data
     # report data is set even if no report is generated
     report_data: dict[pathlib.Path, ReportRecord] = {}
@@ -1819,6 +1948,7 @@ def import_cli(
         clear_location=clear_location,
         exiftool=exiftool,
         exiftool_path=exiftool_path,
+        sidecar=sidecar,
         merge_keywords=merge_keywords,
         title=title,
         description=description,
