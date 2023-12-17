@@ -58,6 +58,13 @@ TEST_DATA = {
             "keyword: {exiftool:IPTC:Keywords}: ['osxphotos', 'Sümmer']",
             "album: {filepath.parent}: test-images",
         ],
+        "sidecar": {
+            "title": "Image Title",
+            "description": "Image Description",
+            "keywords": ["nature"],
+            "lat": 33.71506,
+            "lon": -118.31967,
+        },
     },
     TEST_VIDEO_1: {
         "title": "Jellyfish",
@@ -688,6 +695,40 @@ def test_import_location():
     lat, lon = photo_1.location
     assert lat == approx(-45.0)
     assert lon == approx(-45.0)
+
+
+@pytest.mark.test_import
+def test_import_sidecar():
+    """Test import file with --sidecar"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--sidecar",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Setting metadata and location from sidecar" in result.output
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert photo_1.title == TEST_DATA[TEST_IMAGE_1]["sidecar"]["title"]
+    assert photo_1.description == TEST_DATA[TEST_IMAGE_1]["sidecar"]["description"]
+    assert photo_1.keywords == TEST_DATA[TEST_IMAGE_1]["sidecar"]["keywords"]
+    lat, lon = photo_1.location
+    assert lat == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lat"])
+    assert lon == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lon"])
 
 
 @pytest.mark.test_import

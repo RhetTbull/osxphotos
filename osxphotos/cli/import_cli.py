@@ -299,8 +299,8 @@ def metadata_from_sidecar(
     else:
         with open(filepath, "r") as fp:
             try:
-                metadata = json.load(fp)
-            except json.JSONDecodeError as e:
+                metadata = json.load(fp)[0]
+            except (json.JSONDecodeError, IndexError) as e:
                 rich_echo_error(f"[error] Could not read sidecar file: {filepath}, {e}")
                 metadata = {}
 
@@ -376,13 +376,17 @@ def location_from_metadata_dict(
     latitude, longitude = None, None
     try:
         if latitude := metadata.get("EXIF:GPSLatitude") or metadata.get("GPSLatitude"):
+            #  "GPSLatitude": "33 deg 42' 54.22\" N",
+            #  "GPSLongitude": "118 deg 19' 10.81\" W",
+
             latitude = float(latitude)
             latitude_ref = metadata.get("EXIF:GPSLatitudeRef") or metadata.get(
                 "GPSLatitudeRef"
             )
+            latitude_ref = latitude_ref.upper()[:1] if latitude_ref else None
             if latitude_ref == "S":
-                latitude = -latitude
-            elif latitude_ref != "N":
+                latitude = -abs(latitude)
+            elif latitude_ref and latitude_ref != "N":
                 latitude = None
         if latitude is None:
             latitude = metadata.get("XMP:GPSLatitude")
@@ -393,16 +397,19 @@ def location_from_metadata_dict(
             longitude_ref = metadata.get("EXIF:GPSLongitudeRef") or metadata.get(
                 "GPSLongitudeRef"
             )
+            longitude_ref = longitude_ref.upper()[:1] if longitude_ref else None
             if longitude_ref == "W":
-                longitude = -longitude
-            elif longitude_ref != "E":
+                longitude = -abs(longitude)
+            elif longitude_ref and longitude_ref != "E":
                 longitude = None
         if longitude is None:
             longitude = metadata.get("XMP:GPSLongitude")
         if latitude is None or longitude is None:
             # maybe it's a video
-            if lat_lon := metadata.get("QuickTime:GPSCoordinates") or metadata.get(
-                "UserData:GPSCoordinates" or metadata.get("GPSCoordinates")
+            if (
+                lat_lon := metadata.get("QuickTime:GPSCoordinates")
+                or metadata.get("UserData:GPSCoordinates")
+                or metadata.get("GPSCoordinates")
             ):
                 lat_lon = lat_lon.split()
                 if len(lat_lon) != 2:
@@ -494,8 +501,10 @@ def set_photo_metadata_from_sidecar(
     dry_run: bool,
 ) -> MetaData:
     """Set photo's metadata by reading metadata from sidecar. If sidecar format is XMP, exiftool must be installed."""
-    verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
-    metadata = metadata_from_sidecar_file(sidecar, exiftool_path)
+    verbose(
+        f"Setting metadata and location from sidecar [filename]{sidecar.name}[/] for [filename]{filepath.name}[/]"
+    )
+    metadata = metadata_from_sidecar(sidecar, exiftool_path)
     set_photo_metadata_from_metadata(
         photo, filepath, metadata, merge_keywords, verbose, dry_run
     )
@@ -1022,6 +1031,8 @@ def collect_files_to_import(
         files: list of initial files or directories to import
         walk: whether to walk directories
         glob: optional glob patterns to match files
+
+    Note: ignores any files that appear to be image sidecar files
     """
     files_to_import = []
     for file in files:
@@ -1042,6 +1053,14 @@ def collect_files_to_import(
                             files_to_import.append(os.path.join(root, file))
         else:
             continue
+
+    # strip any sidecar files
+    files_to_import = [
+        f
+        for f in files_to_import
+        if pathlib.Path(f).suffix.lower() not in [".json", ".xmp"]
+    ]
+
     return files_to_import
 
 
@@ -1150,9 +1169,18 @@ def import_files(
                 )
 
             if sidecar:
-                set_photo_metadata_from_sidecar(
-                    photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
-                )
+                if sidecar_file := get_sidecar_for_file(filepath):
+                    set_photo_metadata_from_sidecar(
+                        photo,
+                        filepath,
+                        sidecar_file,
+                        exiftool_path,
+                        merge_keywords,
+                        verbose,
+                        dry_run,
+                    )
+                else:
+                    verbose(f"No sidecar found for [filepath]{filepath}[/]")
 
             if title:
                 set_photo_title(
