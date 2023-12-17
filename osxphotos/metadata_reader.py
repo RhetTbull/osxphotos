@@ -204,7 +204,10 @@ def location_from_metadata_dict(
                     latitude = None
 
         if latitude is None:
-            latitude = float(metadata.get("XMP:GPSLatitude"))
+            try:
+                latitude = float(metadata.get("XMP:GPSLatitude"))
+            except TypeError:
+                latitude = None
 
         if longitude := metadata.get("EXIF:GPSLongitude") or metadata.get(
             "GPSLongitude"
@@ -226,7 +229,10 @@ def location_from_metadata_dict(
                 elif longitude_ref and longitude_ref != "E":
                     longitude = None
         if longitude is None:
-            longitude = float(metadata.get("XMP:GPSLongitude"))
+            try:
+                longitude = float(metadata.get("XMP:GPSLongitude"))
+            except TypeError:
+                longitude = None
         if latitude is None or longitude is None:
             # maybe it's a video
             if (
