@@ -183,8 +183,8 @@ def location_from_metadata_dict(
     try:
         if latitude := metadata.get("EXIF:GPSLatitude") or metadata.get("GPSLatitude"):
             # this could be a float (as str) or a str in format:
-            #  "GPSLatitude": "33 deg 42' 54.22\" N",
-            #  "GPSLongitude": "118 deg 19' 10.81\" W",
+            #  "GPSLatitude": "33 deg 42' 54.22\"",
+            #  "GPSLongitude": "118 deg 19' 10.81\"",
 
             latitude_ref = metadata.get("EXIF:GPSLatitudeRef") or metadata.get(
                 "GPSLatitudeRef"
