@@ -48,6 +48,7 @@ from osxphotos.fingerprint import fingerprint
 from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.metadata_reader import (
     MetaData,
+    get_sidecar_for_file,
     metadata_from_file,
     metadata_from_sidecar,
 )
@@ -580,27 +581,6 @@ def check_templates_and_exit(
                     f"[warning]Could not parse date from filename [filename]{file.name}[/][/]"
                 )
     sys.exit(0)
-
-
-def get_sidecar_for_file(filepath: pathlib.Path | str) -> pathlib.Path | None:
-    """Get sidecar file for filepath if it exists or None
-
-    Note:
-        Tests for both JSON and XMP sidecar. If both exists, JSON is returned.
-        Tests both with and without original suffix. If both exists, file with original suffix is returned.
-        E.g. search order is: img_1234.jpg.json, img_1234.json, img_1234.jpg.xmp, img_1234.xmp
-    """
-    filepath = (
-        pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
-    )
-    for ext in ["json", "xmp"]:
-        sidecar = pathlib.Path(f"{filepath}.{ext}")
-        if sidecar.is_file():
-            return sidecar
-        sidecar = filepath.with_suffix("." + ext)
-        if sidecar.is_file():
-            return sidecar
-    return None
 
 
 @dataclass

@@ -4,15 +4,71 @@ from __future__ import annotations
 
 import json
 import pathlib
+import re
 from collections import namedtuple
 from typing import Optional, Tuple
 
 from .exiftool import ExifToolCaching
 
+EXIFTOOL_DEG_MIN_SEC_PATTERN = r"(\d+)\s*deg\s*(\d+)\'\s*(\d+\.\d+)\""
+
 MetaData = namedtuple("MetaData", ["title", "description", "keywords", "location"])
 
 
-def metadata_from_file(filepath: pathlib.Path, exiftool_path: str) -> MetaData:
+def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
+    """Get sidecar file for filepath if it exists or None
+
+    Note:
+        Tests for both JSON and XMP sidecar. If both exists, JSON is returned.
+        Tests both with and without original suffix. If both exists, file with original suffix is returned.
+        E.g. search order is: img_1234.jpg.json, img_1234.json, img_1234.jpg.xmp, img_1234.xmp
+    """
+    filepath = (
+        pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
+    )
+    for ext in ["json", "xmp"]:
+        sidecar = pathlib.Path(f"{filepath}.{ext}")
+        if sidecar.is_file():
+            return sidecar
+        sidecar = filepath.with_suffix("." + ext)
+        if sidecar.is_file():
+            return sidecar
+    return None
+
+
+def convert_exiftool_latitude(lat_string, lat_ref):
+    """Convert latitude string from exiftool to decimal format"""
+    # Regular expression to match and capture the degrees, minutes, and seconds
+    match = re.match(EXIFTOOL_DEG_MIN_SEC_PATTERN, lat_string)
+
+    if not match:
+        raise ValueError(f"Invalid latitude string: {lat_string}")
+
+    deg, minutes, seconds = map(float, match.groups())
+    latitude = deg + minutes / 60 + seconds / 3600
+    if lat_ref and lat_ref.upper()[:1] == "S":
+        latitude = -latitude
+
+    return latitude
+
+
+def convert_exiftool_longitude(lon_string, lon_ref):
+    """Convert longitude string from exiftool to decimal format"""
+    # Regular expression to match and capture the degrees, minutes, and seconds
+    match = re.match(EXIFTOOL_DEG_MIN_SEC_PATTERN, lon_string)
+
+    if not match:
+        raise ValueError(f"Invalid longitude string: {lon_string}")
+
+    deg, minutes, seconds = map(float, match.groups())
+    longitude = deg + minutes / 60 + seconds / 3600
+    if lon_ref and lon_ref.upper()[:1] == "W":
+        longitude = -longitude
+
+    return longitude
+
+
+def metadata_from_file(filepath: str | pathlib.Path, exiftool_path: str) -> MetaData:
     """Get metadata from file with exiftool
 
     Returns the following metadata from EXIF/XMP/IPTC fields as a MetaData named tuple
@@ -27,7 +83,7 @@ def metadata_from_file(filepath: pathlib.Path, exiftool_path: str) -> MetaData:
 
 
 def metadata_from_sidecar(
-    filepath: pathlib.Path, exiftool_path: str | None
+    filepath: str | pathlib.Path, exiftool_path: str | None
 ) -> MetaData:
     """Get metadata from sidecar file; if file is XMP, exiftool must be installed.
 
@@ -40,6 +96,9 @@ def metadata_from_sidecar(
     Raises:
         ValueError if error reading sidecar file
     """
+    filepath = (
+        pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
+    )
     if filepath.suffix.lower() == ".xmp":
         # use exiftool to read XMP sidecar
         exiftool = ExifToolCaching(filepath, exiftool_path)
@@ -123,34 +182,51 @@ def location_from_metadata_dict(
     latitude, longitude = None, None
     try:
         if latitude := metadata.get("EXIF:GPSLatitude") or metadata.get("GPSLatitude"):
+            # this could be a float (as str) or a str in format:
             #  "GPSLatitude": "33 deg 42' 54.22\" N",
             #  "GPSLongitude": "118 deg 19' 10.81\" W",
 
-            latitude = float(latitude)
             latitude_ref = metadata.get("EXIF:GPSLatitudeRef") or metadata.get(
                 "GPSLatitudeRef"
             )
             latitude_ref = latitude_ref.upper()[:1] if latitude_ref else None
-            if latitude_ref == "S":
-                latitude = -abs(latitude)
-            elif latitude_ref and latitude_ref != "N":
-                latitude = None
+
+            if isinstance(latitude, str) and "deg" in latitude:
+                try:
+                    latitude = convert_exiftool_latitude(latitude, latitude_ref)
+                except ValueError:
+                    latitude = None
+            else:
+                latitude = float(latitude)
+                if latitude_ref == "S":
+                    latitude = -abs(latitude)
+                elif latitude_ref and latitude_ref != "N":
+                    latitude = None
+
         if latitude is None:
-            latitude = metadata.get("XMP:GPSLatitude")
+            latitude = float(metadata.get("XMP:GPSLatitude"))
+
         if longitude := metadata.get("EXIF:GPSLongitude") or metadata.get(
             "GPSLongitude"
         ):
-            longitude = float(longitude)
             longitude_ref = metadata.get("EXIF:GPSLongitudeRef") or metadata.get(
                 "GPSLongitudeRef"
             )
             longitude_ref = longitude_ref.upper()[:1] if longitude_ref else None
-            if longitude_ref == "W":
-                longitude = -abs(longitude)
-            elif longitude_ref and longitude_ref != "E":
-                longitude = None
+
+            if isinstance(longitude, str) and "deg" in longitude:
+                try:
+                    longitude = convert_exiftool_longitude(longitude, longitude_ref)
+                except ValueError:
+                    longitude = None
+            else:
+                longitude = float(longitude)
+                if longitude_ref == "W":
+                    longitude = -abs(longitude)
+                elif longitude_ref and longitude_ref != "E":
+                    longitude = None
         if longitude is None:
-            longitude = metadata.get("XMP:GPSLongitude")
+            longitude = float(metadata.get("XMP:GPSLongitude"))
         if latitude is None or longitude is None:
             # maybe it's a video
             if (
