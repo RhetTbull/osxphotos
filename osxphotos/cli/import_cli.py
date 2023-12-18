@@ -56,6 +56,10 @@ from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
+from osxphotos.strpdatetime_parts import (
+    date_str_matches_date_time_codes,
+    fmt_has_date_time_codes,
+)
 from osxphotos.unicode import normalize_unicode
 from osxphotos.utils import get_last_library_path, pluralize
 
@@ -462,17 +466,44 @@ def set_photo_location(
     return location
 
 
+def combine_date_time(
+    photo: Photo | None,
+    filepath: str | pathlib.Path,
+    parse_date: str,
+    date: datetime.datetime,
+) -> datetime.datetime:
+    """Combine date and time from parse_date and photo.date
+
+    If parse_date has both date and time, use the parsed date and time
+    If parse_date has only date, use the parsed date and time from photo
+    If parse_date has only time, use the parsed time and date from photo
+
+    Photo may be None during --dry-run
+    """
+    if photo is None:
+        return date
+    has_date, has_time = date_str_matches_date_time_codes(str(filepath), parse_date)
+    if has_date and not has_time:
+        # date only, no time, set date to date but keep time from photo
+        date = datetime.datetime.combine(date.date(), photo.date.time())
+    elif has_time and not has_date:
+        # time only, no date, set time to time but keep date from photo
+        date = datetime.datetime.combine(photo.date.date(), date.time())
+    return date
+
+
 def set_photo_date_from_filename(
     photo: Photo,
-    filepath: pathlib.Path,
+    photo_name: str,
+    filepath: pathlib.Path | str,
     parse_date: str,
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> datetime.datetime | None:
-    """Set date of photo from filename"""
+    """Set date of photo from filename or path"""
     # TODO: handle timezone (use code from timewarp), for now convert timezone to local timezone
     try:
-        date = strpdatetime(filepath.name, parse_date)
+        date = strpdatetime(str(filepath), parse_date)
         # Photo.date must be timezone naive (assumed to local timezone)
         if datetime_has_tz(date):
             local_date = datetime_remove_tz(
@@ -483,19 +514,21 @@ def set_photo_date_from_filename(
             )
             date = local_date
     except ValueError:
-        verbose(
-            f"[warning]Could not parse date from filename [filename]{filepath.name}[/][/]"
-        )
+        verbose(f"[warning]Could not parse date from [filepath]{filepath}[/][/]")
         return None
+
+    date = combine_date_time(photo, filepath, parse_date, date)
     verbose(
-        f"Setting date of photo [filename]{filepath.name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+        f"Setting date of photo [filename]{photo_name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
     )
     if not dry_run:
         photo.date = date
     return date
 
 
-def get_relative_filepath(filepath: pathlib.Path, relative_to: str | None) -> Path:
+def get_relative_filepath(
+    filepath: pathlib.Path, relative_to: str | None
+) -> pathlib.Path:
     """Get relative filepath of file relative to relative_to or return filepath if relative_to is None
 
     Args:
@@ -532,6 +565,7 @@ def check_templates_and_exit(
     exiftool_path: str | None,
     exiftool: bool,
     parse_date: str | None,
+    parse_folder_date: str | None,
 ):
     """Renders templates against each file so user can verify correctness"""
     for file in files:
@@ -575,10 +609,28 @@ def check_templates_and_exit(
         if parse_date:
             try:
                 date = strpdatetime(file.name, parse_date)
-                echo(f"date: [italic]{parse_date}[/]: {date}")
+                has_date, has_time = fmt_has_date_time_codes(parse_date)
+                if has_date and not has_time:
+                    date = date.date()
+                elif not has_date and has_time:
+                    date = date.time()
+                echo(f"parse_date: [italic]{parse_date}[/]: {date}")
             except ValueError:
                 echo(
                     f"[warning]Could not parse date from filename [filename]{file.name}[/][/]"
+                )
+        if parse_folder_date:
+            try:
+                date = strpdatetime(str(file.parent), parse_folder_date)
+                has_date, has_time = fmt_has_date_time_codes(parse_folder_date)
+                if has_date and not has_time:
+                    date = date.date()
+                elif not has_date and has_time:
+                    date = date.time()
+                echo(f"parse_folder_date: [italic]{parse_folder_date}[/]: {date}")
+            except ValueError:
+                echo(
+                    f"[warning]Could not parse date from folder [filepath]{file.parent}[/][/]"
                 )
     sys.exit(0)
 
@@ -909,6 +961,7 @@ def import_files(
     keyword: tuple[str, ...],
     location: tuple[float, float],
     parse_date: str | None,
+    parse_folder_date: str | None,
     album: tuple[str, ...],
     split_folder: str,
     post_function: tuple[Callable[..., None]],
@@ -1057,9 +1110,19 @@ def import_files(
 
             if parse_date:
                 set_photo_date_from_filename(
-                    photo, filepath, parse_date, verbose, dry_run
+                    photo, filepath.name, filepath.name, parse_date, verbose, dry_run
                 )
                 # TODO: ReportRecord doesn't currently record date
+
+            if parse_folder_date:
+                set_photo_date_from_filename(
+                    photo,
+                    filepath.name,
+                    filepath.parent,
+                    parse_folder_date,
+                    verbose,
+                    dry_run,
+                )
 
             if album:
                 report_record.albums = add_photo_to_albums(
@@ -1469,8 +1532,31 @@ class ImportCommand(click.Command):
     "as the import command does not yet support setting time zone information. "
     "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
     "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
-    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name."
-    "See also --check-templates.",
+    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name. "
+    "If the pattern matches only date or only time, the missing information will be set to the "
+    "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
+    "if it exists or the file modification date/time. "
+    "For example, if photos are named 'IMG_1234_2022_11_23.jpg' where the date is '2022-11-23', "
+    "you could use the pattern '%Y_%m_%d' to set the date but the time would be set from the EXIF "
+    "or the file's modification time. "
+    "See also --parse-folder-date, --check-templates.",
+)
+@click.option(
+    "--parse-folder-date",
+    "-F",
+    metavar="DATE_PATTERN",
+    type=StrpDateTimePattern(),
+    help="Parse date from folder name using DATE_PATTERN. "
+    "If folder does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
+    "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
+    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
+    "as the import command does not yet support setting time zone information. "
+    "For example, if your photos are in folder '2023/12/17/IMG_1234.jpg` where the date is "
+    "'2023-12-17', you could use the pattern '%Y/%m/%d$' as the DATE_PATTERN. "
+    "If the pattern matches only date or only time, the missing information will be set to the "
+    "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
+    "if it exists or the file modification date/time. "
+    "See also --parse-folder-date, --check-templates.",
 )
 @click.option(
     "--clear-metadata",
@@ -1692,6 +1778,7 @@ def import_main(
     merge_keywords: bool,
     no_progress: bool,
     parse_date: str | None,
+    parse_folder_date: str | None,
     post_function: tuple[Callable[..., None]],
     relative_to: str | None,
     report: str | None,
@@ -1740,6 +1827,7 @@ def import_cli(
     merge_keywords: bool = False,
     no_progress: bool = False,
     parse_date: str | None = None,
+    parse_folder_date: str | None = None,
     post_function: tuple[Callable[..., None]] = (),
     relative_to: str | None = None,
     report: str | None = None,
@@ -1784,6 +1872,7 @@ def import_cli(
             exiftool_path,
             exiftool,
             parse_date,
+            parse_folder_date,
         )
 
     # need to get the library path to initialize FingerprintQuery
@@ -1845,6 +1934,7 @@ def import_cli(
         keyword=keyword,
         location=location,
         parse_date=parse_date,
+        parse_folder_date=parse_folder_date,
         album=album,
         split_folder=split_folder,
         post_function=post_function,

@@ -1,6 +1,7 @@
 """ Tests which require user interaction to run for osxphotos import command; run with pytest --test-import """
 
 import csv
+import datetime
 import json
 import os
 import os.path
@@ -10,7 +11,6 @@ import shutil
 import sqlite3
 import time
 import unicodedata
-from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import Dict
 
@@ -84,6 +84,18 @@ TEST_DATA = {
         "albums": ["faceinfo"],
     },
 }
+
+PARSE_DATE_DEFAULT_DATE = datetime.datetime(1999, 1, 2, 3, 4, 5)
+PARSE_DATE_TEST_DATA = [
+    ["img_1234_2020_11_22_12_34_56.jpg", datetime.datetime(2020, 11, 22, 12, 34, 56)],
+    ["img_1234_20211122.jpg", datetime.datetime(2021, 11, 22, 3, 4, 5)],
+    ["19991231_20221122.jpg", datetime.datetime(2022, 11, 22, 3, 4, 5)],
+    [
+        "img-123456.jpg",
+        datetime.datetime(1999, 1, 2, 12, 34, 56),
+    ],  # matches only the time
+    ["test_parse_date.jpg", PARSE_DATE_DEFAULT_DATE],
+]
 
 
 # set timezone to avoid issues with comparing dates
@@ -1150,29 +1162,26 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
 
 
 @pytest.mark.test_import
-def test_import_parse_date(tmp_path: pathlib.Path):
+@pytest.mark.parametrize("data", PARSE_DATE_TEST_DATA)
+def test_import_parse_date(tmp_path: pathlib.Path, data: tuple[str, datetime.datetime]):
     """Test import with --parse-date"""
+
+    img_name = data[0]
+    date = data[1]
 
     # set up test images
     os.environ["TZ"] = "US/Pacific"
     cwd = os.getcwd()
     test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
 
-    default_date = datetime(1999, 1, 1, 0, 0, 0)
-    test_data = [
-        ["img_1234_2020_11_22_12_34_56.jpg", datetime(2020, 11, 22, 12, 34, 56)],
-        ["img_1234_20211122.jpg", datetime(2021, 11, 22, 0, 0, 0)],
-        ["19991231_20221122.jpg", datetime(2022, 11, 22, 0, 0, 0)],
-        ["test_parse_date.jpg", default_date],
-    ]
-    images = []
-    for img in [x[0] for x in test_data]:
-        test_file = tmp_path / img
-        shutil.copy(test_image_source, test_file)
-        images.append(test_file)
+    test_file = tmp_path / img_name
+    shutil.copy(test_image_source, test_file)
 
-        # set file time to default date
-        os.utime(test_file, (default_date.timestamp(), default_date.timestamp()))
+    # set file time to default date
+    os.utime(
+        test_file,
+        (PARSE_DATE_DEFAULT_DATE.timestamp(), PARSE_DATE_DEFAULT_DATE.timestamp()),
+    )
 
     runner = CliRunner()
     result = runner.invoke(
@@ -1180,8 +1189,8 @@ def test_import_parse_date(tmp_path: pathlib.Path):
         [
             "--verbose",
             "--parse-date",
-            "img_*_%Y_%m_%d_%H_%M_%S|img_{4}_%Y%m%d|_%Y%m%d.",
-            *[str(x) for x in images],
+            "img_*_%Y_%m_%d_%H_%M_%S|img_{4}_%Y%m%d|_%Y%m%d.|-%H%M%S.",
+            str(test_file),
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -1189,9 +1198,50 @@ def test_import_parse_date(tmp_path: pathlib.Path):
 
     # verify that the date was parsed correctly
     photosdb = PhotosDB()
-    for test_case in test_data:
-        photo = photosdb.query(QueryOptions(name=[test_case[0]]))[0]
-        assert datetime_remove_tz(photo.date) == test_case[1]
+    photo = photosdb.query(QueryOptions(name=[img_name]))[0]
+    assert datetime_remove_tz(photo.date) == date
+
+
+@pytest.mark.test_import
+def test_import_parse_folder_date(tmp_path: pathlib.Path):
+    """Test import with --parse-folder-date"""
+
+    # set up test images
+    os.environ["TZ"] = "US/Pacific"
+    cwd = os.getcwd()
+    test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
+
+    test_dir = tmp_path / "2021-12-11"
+    img_name = "123457.jpg"
+    test_dir.mkdir(parents=True, exist_ok=True)
+    test_file = test_dir / img_name
+    shutil.copy(test_image_source, test_file)
+
+    # set file time to default date
+    os.utime(
+        test_file,
+        (PARSE_DATE_DEFAULT_DATE.timestamp(), PARSE_DATE_DEFAULT_DATE.timestamp()),
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--parse-date",
+            "%H%M%S.",
+            "--parse-folder-date",
+            "%Y-%m-%d",
+            str(test_file),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    # verify that the date was parsed correctly
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(name=[img_name]))[0]
+    assert datetime_remove_tz(photo.date) == datetime.datetime(2021, 12, 11, 12, 34, 57)
 
 
 @pytest.mark.test_import
