@@ -22,6 +22,7 @@ TEST_IMAGE_1_JSON_EXIFTOOL = "tests/test-images/IMG_4179.jpeg.exiftool.json"
 TEST_IMAGE_1_JSON_OSXPHOTOS_EXIFTOOL = "tests/test-images/IMG_4179.jpeg.json"
 TEST_IMAGE_1_JSON_OSXPHOTOS_JSON = "tests/test-images/IMG_4179.jpeg.json_osxphotos.json"
 TEST_IMAGE_NO_SIDECAR = "tests/test-images/IMG_9975.jpeg"
+TEST_SIDECAR_GOOGLE = "tests/test-images/IMG_4547.jpg.google_json.json"
 
 # list of lists of [image, sidecar, extra files]
 # for testing get_sidecar_for_file
@@ -43,6 +44,7 @@ SIDECAR_TYPES = {
     TEST_IMAGE_1_JSON_EXIFTOOL: SidecarFileType.exiftool,
     TEST_IMAGE_1_JSON_OSXPHOTOS_EXIFTOOL: SidecarFileType.exiftool,
     TEST_IMAGE_1_JSON_OSXPHOTOS_JSON: SidecarFileType.osxphotos,
+    TEST_SIDECAR_GOOGLE: SidecarFileType.GoogleTakeout,
     TEST_IMAGE_1: SidecarFileType.Unknown,
 }
 
