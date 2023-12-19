@@ -251,6 +251,57 @@ def add_photo_to_albums(
     return albums
 
 
+def add_duplicate_to_albums(
+    duplicates: list[tuple[str, datetime.datetime, str]],
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path,
+    album: Tuple[str],
+    split_folder: str,
+    exiftool_path: pathlib.Path,
+    verbose: Callable[..., None],
+    dry_run: bool,
+) -> list[str]:
+    """For photo with already imported duplicate, add the imported photo to albums
+
+    duplicates: list of tuples of (uuid, date, filename) for duplicates as returned by FingerprintQuery.possible_duplicates
+    filepath: path to file to import
+    relative_filepath: relative path to file to import
+    album: list of album templates
+    split_folder: str to split folders on
+    exiftool_path: path to exiftool
+    verbose: verbose function
+    dry_run: dry run
+
+    Returns: list of albums photo was added to or empty list if no photo found for duplicate
+    """
+    dup_photo = None
+    for uuid, _, _ in duplicates:
+        # if there are multiple duplicates, use the first one
+        # there could be an error retrieving the Photo for the duplicate uuid
+        # if it was deleted from the Photos library or in the hidden album
+        # so if there's an error, try the next one
+        try:
+            dup_photo = Photo(uuid=uuid)
+            break
+        except Exception as e:
+            # no photo found for duplicate
+            rich_echo_error(f"[error] Error getting duplicate photo: {e}")
+
+    if not dup_photo:
+        return []
+
+    return add_photo_to_albums(
+        dup_photo,
+        filepath,
+        relative_filepath,
+        album,
+        split_folder,
+        exiftool_path,
+        verbose,
+        dry_run,
+    )
+
+
 def clear_photo_metadata(
     photo: Photo, filepath: pathlib.Path, verbose: Callable[..., None], dry_run: bool
 ):
@@ -941,6 +992,11 @@ def collect_files_to_import(
         if pathlib.Path(f).suffix.lower() not in [".json", ".xmp"]
     ]
 
+    # strip osxphotos export db in case importing an osxphotos export
+    files_to_import = [
+        f for f in files_to_import if not f.endswith(".osxphotos_export.db")
+    ]
+
     return files_to_import
 
 
@@ -963,6 +1019,7 @@ def import_files(
     parse_date: str | None,
     parse_folder_date: str | None,
     album: tuple[str, ...],
+    dup_albums: bool,
     split_folder: str,
     post_function: tuple[Callable[..., None]],
     skip_dups: bool,
@@ -1026,7 +1083,22 @@ def import_files(
                     verbose(f"Skipping duplicate [filepath]{filepath}[/]")
                     skipped_count += 1
                     report_record.imported = False
-                    continue
+
+                    # ZZZ put this into a function and handle this case
+                    # Skipping duplicate /Users/rhet/Desktop/export/2019/04/15/wedding_edited.jpeg
+                    # ❌️   Error getting duplicate photo: Invalid photo id: 6FD38366-3BF2-407D-81FE-7153EB6125B6
+                    if dup_albums and album:
+                        report_record.albums = add_duplicate_to_albums(
+                            duplicates,
+                            filepath,
+                            relative_filepath,
+                            album,
+                            split_folder,
+                            exiftool_path,
+                            verbose,
+                            dry_run,
+                        )
+                        continue
 
             if not dry_run:
                 photo, error = import_photo(filepath, dup_check, verbose)
@@ -1469,6 +1541,7 @@ class ImportCommand(click.Command):
     help="Import photos into album ALBUM_TEMPLATE. "
     "ALBUM_TEMPLATE is an osxphotos template string. "
     "Photos may be imported into more than one album by repeating --album. "
+    "See also --skip-dups, --dup-albums, --split-folder, --relative-to. "
     "See Template System in help for additional information.",
 )
 @click.option(
@@ -1648,7 +1721,16 @@ class ImportCommand(click.Command):
     is_flag=True,
     help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. "
     "Unlike --dup-check, this does not use Photos' built in duplicate checking feature and "
-    "does not display a dialog box for each duplicate found. See also --dup-check.",
+    "does not display a dialog box for each duplicate found. See also --dup-check and --dup-albums.",
+)
+@click.option(
+    "--dup-albums",
+    is_flag=True,
+    help="If used with --skip-dups, the matching duplicate already in the Photos library "
+    "will be added to any albums the current file would have been added to had it not been skipped. "
+    "This is useful if you have duplicate photos in separate folders and want to avoid duplicates "
+    "in Photos but keep the photos organized in albums that match the folder structure. "
+    "Must be used with --skip-dups and --album. See also --skip-dups.",
 )
 @click.option(
     "--split-folder",
@@ -1767,6 +1849,7 @@ def import_main(
     clear_metadata: bool,
     description: str | None,
     dry_run: bool,
+    dup_albums: bool,
     dup_check: bool,
     exiftool: bool,
     exiftool_path: str | None,
@@ -1816,6 +1899,7 @@ def import_cli(
     clear_metadata: bool = False,
     description: str | None = None,
     dry_run: bool = False,
+    dup_albums: bool = False,
     dup_check: bool = False,
     exiftool: bool = False,
     exiftool_path: str | None = None,
@@ -1905,6 +1989,12 @@ def import_cli(
         )
         raise click.Abort()
 
+    if dup_albums and not (skip_dups and album):
+        rich_echo_error(
+            "[error] --dup-albums must be used with --skip-dups and --album"
+        )
+        raise click.Abort()
+
     # initialize report data
     # report data is set even if no report is generated
     report_data: dict[pathlib.Path, ReportRecord] = {}
@@ -1936,6 +2026,7 @@ def import_cli(
         parse_date=parse_date,
         parse_folder_date=parse_folder_date,
         album=album,
+        dup_albums=dup_albums,
         split_folder=split_folder,
         post_function=post_function,
         skip_dups=skip_dups,

@@ -33,7 +33,7 @@ class FingerprintQuery:
         self.photos_version = get_photos_version_from_model(str(self.photos_library))
 
     def photos_by_fingerprint(
-        self, fingerprint: str
+        self, fingerprint: str, in_trash: bool = False
     ) -> list[tuple[str, datetime.datetime, str]]:
         """Return a list of tuples of (uuid, date_added, filename) for all photos matching fingerprint"""
 
@@ -48,6 +48,9 @@ class FingerprintQuery:
             JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
             WHERE ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT = ?
             """
+        if not in_trash:
+            sql += f"\nAND {asset_table}.ZTRASHEDSTATE = 0"
+
         results = self.conn.execute(sql, (fingerprint,)).fetchall()
         results = [
             (row[0], photos_timestamp_to_datetime(row[1], row[2]), row[3])
@@ -56,7 +59,7 @@ class FingerprintQuery:
         return results
 
     def photos_by_filename_size(
-        self, filename: str, size: int
+        self, filename: str, size: int, in_trash: bool = False
     ) -> list[tuple[str, datetime.datetime, str]]:
         """Return a list of tuples of (uuid, date_added, filename) for all photos matching filename and size"""
 
@@ -72,6 +75,10 @@ class FingerprintQuery:
             WHERE ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME = ?
             AND ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE = ?
             """
+
+        if not in_trash:
+            sql += f"\nAND {asset_table}.ZTRASHEDSTATE = 0"
+
         results = self.conn.execute(sql, (filename, size)).fetchall()
         results = [
             (row[0], photos_timestamp_to_datetime(row[1], row[2]), row[3])
@@ -80,12 +87,13 @@ class FingerprintQuery:
         return results
 
     def possible_duplicates(
-        self, filepath: str
+        self, filepath: str, in_trash: bool = False
     ) -> list[tuple[str, datetime.datetime, str]]:
         """Return a list of tuples of (uuid, date_added, filename) for all photos that might be duplicates of filepath
 
         Args:
             filepath: path to file
+            in_trash: if True, search for possible duplicates in the Photos trash otherwise exclude photos in the trash
 
         Returns:
             list of tuples of (uuid, date_added, filename) for all photos that might be duplicates of filepath
@@ -94,14 +102,14 @@ class FingerprintQuery:
         """
         # first check by fingerprint
         # Photos stores fingerprint for photos but not videos
-        if results := self.photos_by_fingerprint(fingerprint(filepath)):
+        if results := self.photos_by_fingerprint(fingerprint(filepath), in_trash):
             return results
 
         # if not fingerprint matches, could still be a match based on filename/size
         # this is not 100% perfect but close enough to find likely duplicates
         filename = pathlib.Path(filepath).name
         size = pathlib.Path(filepath).stat().st_size
-        if results := self.photos_by_filename_size(filename, size):
+        if results := self.photos_by_filename_size(filename, size, in_trash):
             return results
 
         return []

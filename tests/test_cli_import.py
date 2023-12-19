@@ -262,6 +262,40 @@ def test_import_skip_dups():
 
 
 @pytest.mark.test_import
+def test_import_skip_dups_dup_albums():
+    """Test basic import with --skip_dups and --dup-albums"""
+
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    # import first to ensure photo is in library
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    # now import again with --skip-dups
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--skip-dups",
+            test_image_1,
+            "--album",
+            "Test Album",
+            "--dup-albums",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Skipping duplicate" in result.output
+    image_name = pathlib.Path(test_image_1).name
+    assert f"Adding photo {image_name} to album Test Album" in result.output
+
+
+@pytest.mark.test_import
 def test_import_album():
     """Test basic import to an album"""
     cwd = os.getcwd()
