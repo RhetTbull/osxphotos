@@ -8,6 +8,8 @@ import pytest
 
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.metadata_reader import (
+    SidecarFileType,
+    get_sidecar_filetype,
     get_sidecar_for_file,
     metadata_from_file,
     metadata_from_sidecar,
@@ -20,6 +22,14 @@ TEST_IMAGE_1_JSON_EXIFTOOL = "tests/test-images/IMG_4179.jpeg.exiftool.json"
 TEST_IMAGE_1_JSON_OSXPHOTOS_EXIFTOOL = "tests/test-images/IMG_4179.jpeg.json"
 TEST_IMAGE_1_JSON_OSXPHOTOS_JSON = "tests/test-images/IMG_4179.jpeg.json_osxphotos.json"
 TEST_IMAGE_NO_SIDECAR = "tests/test-images/IMG_9975.jpeg"
+
+SIDECARS = {
+    TEST_IMAGE_1_XMP: SidecarFileType.XMP,
+    TEST_IMAGE_1_JSON_EXIFTOOL: SidecarFileType.exiftool,
+    TEST_IMAGE_1_JSON_OSXPHOTOS_EXIFTOOL: SidecarFileType.exiftool,
+    TEST_IMAGE_1_JSON_OSXPHOTOS_JSON: SidecarFileType.osxphotos,
+    TEST_IMAGE_1: SidecarFileType.Unknown,
+}
 
 # determine if exiftool installed so exiftool tests can be skipped
 try:
@@ -73,3 +83,10 @@ def test_get_sidecar_for_file():
 def test_get_sidecar_for_file_none():
     """Test get_sidecar_for_file when there is no sidecar"""
     assert get_sidecar_for_file(TEST_IMAGE_NO_SIDECAR) is None
+
+
+@pytest.mark.parametrize("data", SIDECARS.items())
+def test_get_sidecar_filetype(data):
+    """Test get_sidecar_filetype()"""
+    filename, sidecar_type = data
+    assert get_sidecar_filetype(filename) == sidecar_type

@@ -8,15 +8,9 @@
         "Caption-Abstract": "Image Description",
         "Title": "Image Title",
         "ObjectName": "Image Title",
-        "Keywords": [
-            "nature"
-        ],
-        "Subject": [
-            "nature"
-        ],
-        "TagsList": [
-            "nature"
-        ],
+        "Keywords": ["nature"],
+        "Subject": ["nature"],
+        "TagsList": ["nature"],
         "GPSLatitude": 33.71506,
         "GPSLongitude": -118.31967,
         "GPSLatitudeRef": "N",

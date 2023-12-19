@@ -7,12 +7,53 @@ import pathlib
 import re
 from collections import namedtuple
 from typing import Optional, Tuple
-
+from enum import Enum
 from .exiftool import ExifToolCaching
 
 EXIFTOOL_DEG_MIN_SEC_PATTERN = r"(\d+)\s*deg\s*(\d+)\'\s*(\d+\.\d+)\""
 
 MetaData = namedtuple("MetaData", ["title", "description", "keywords", "location"])
+
+
+class SidecarFileType(Enum):
+    """Enum for sidecar file type"""
+
+    XMP = 1
+    exiftool = 2
+    osxphotos = 3
+    GoogleTakeout = 4
+    Unknown = 5
+
+
+def get_sidecar_filetype(filepath: str | pathlib.Path) -> SidecarFileType:
+    """Determine type of sidecar file"""
+    filepath = (
+        pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
+    )
+    if filepath.suffix.lower() == ".xmp":
+        return SidecarFileType.XMP
+    elif filepath.suffix.lower() == ".json":
+        # could be exiftool or osxphotos or Google Takeout
+        with open(filepath, "r") as fp:
+            try:
+                metadata = json.load(fp)
+            except json.JSONDecodeError:
+                return SidecarFileType.Unknown
+            if isinstance(metadata, list):
+                # could be exiftool or osxphotos
+                metadata = metadata[0]
+                if metadata.get("ExifToolVersion"):
+                    return SidecarFileType.exiftool
+                elif metadata.get("ExifTool:ExifToolVersion"):
+                    return SidecarFileType.osxphotos
+            elif isinstance(metadata, dict):
+                # could be Google Takeout
+                # Google Takeout JSON appears to have keys:
+                # 'title', 'description', 'imageViews', 'creationTime',
+                # 'photoTakenTime', 'geoData', 'geoDataExif', 'url', 'googlePhotosOrigin'
+                if metadata.get("googlePhotosOrigin"):
+                    return SidecarFileType.GoogleTakeout
+    return SidecarFileType.Unknown
 
 
 def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
@@ -22,6 +63,11 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
         Tests for both JSON and XMP sidecar. If both exists, JSON is returned.
         Tests both with and without original suffix. If both exists, file with original suffix is returned.
         E.g. search order is: img_1234.jpg.json, img_1234.json, img_1234.jpg.xmp, img_1234.xmp
+        For Google Takeout, the sidecar may be named img_1234.jpg.json or img_1234.json;
+        if the image is edited, it will be named img_1234-edited.jpg but the sidecar will still be
+        named img_1234.jpg.json or img_1234.json so drop the -edited suffix when searching for the sidecar.
+        If there is a duplicate file name, Google Takeout will append a number to the file name
+        in form img_1234(1).jpg but the sidecar may be named img_1234.jpg(1).json
     """
     filepath = (
         pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
@@ -33,6 +79,28 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
         sidecar = filepath.with_suffix("." + ext)
         if sidecar.is_file():
             return sidecar
+
+    # if here, no sidecar found, check for Google Takeout formats
+    # Google Takeout may append -edited to the file name but not the sidecar
+    # If there is a duplicate file name, Google Takeout will append a number to the file name
+    # in form img_1234(1).jpg but the sidecar may be named img_1234.jpg(1).json
+
+    stem = filepath.stem
+    if stem.endswith("-edited"):
+        # strip off -edited suffix
+        stem = stem[:-7]
+        new_filepath = filepath.with_stem(stem)
+        return get_sidecar_for_file(new_filepath)
+
+    # strip off (1) suffix
+    if match := re.match(r"(.*)(\(\d+\))$", stem):
+        stem = match.groups()[0]
+        new_filepath = pathlib.Path(
+            str(filepath.with_stem(stem)) + match.groups()[1] + ".json"
+        )
+        if new_filepath.is_file():
+            return new_filepath
+
     return None
 
 
