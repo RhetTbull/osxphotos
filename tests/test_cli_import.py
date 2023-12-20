@@ -762,6 +762,7 @@ def test_import_sidecar():
 
     assert result.exit_code == 0
     assert "Setting metadata and location from sidecar" in result.output
+    assert "Set date" in result.output
 
     import_data = parse_import_output(result.output)
     file_1 = pathlib.Path(test_image_1).name
@@ -775,6 +776,29 @@ def test_import_sidecar():
     lat, lon = photo_1.location
     assert lat == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lat"])
     assert lon == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lon"])
+
+
+@pytest.mark.test_import
+def test_import_sidecar_ignore_date():
+    """Test import file with --sidecar --sidecar-ignore-date"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--sidecar",
+            "--sidecar-ignore-date",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Setting metadata and location from sidecar" in result.output
+    assert "Set date" not in result.output
 
 
 @pytest.mark.test_import

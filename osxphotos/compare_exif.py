@@ -14,7 +14,7 @@ assert_macos()
 
 from photoscript import Photo
 
-from .exif_datetime_updater import get_exif_date_time_offset
+from .exifutils import get_exif_date_time_offset
 from .phototz import PhotoTimeZone
 
 ExifDiff = namedtuple(

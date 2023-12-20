@@ -370,7 +370,7 @@ def set_photo_metadata_from_exiftool(
     verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
     metadata = metadata_from_file(filepath, exiftool_path)
     set_photo_metadata_from_metadata(
-        photo, filepath, metadata, merge_keywords, verbose, dry_run
+        photo, filepath, metadata, merge_keywords, True, verbose, dry_run
     )
 
 
@@ -379,6 +379,7 @@ def set_photo_metadata_from_metadata(
     filepath: pathlib.Path,
     metadata: MetaData,
     merge_keywords: bool,
+    ignore_date: bool,
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> MetaData:
@@ -403,9 +404,7 @@ def set_photo_metadata_from_metadata(
     else:
         verbose(f"No location to set for [filename]{filepath.name}[/]")
 
-    print("foo")
-    print(f"{metadata=}")
-    if metadata.date is not None:
+    if metadata.date is not None and not ignore_date:
         verbose(
             f"Set date for [filename]{filepath.name}[/]: [time]{metadata.date.isoformat()}[/]"
         )
@@ -420,6 +419,7 @@ def set_photo_metadata_from_sidecar(
     photo: Photo,
     filepath: pathlib.Path,
     sidecar: pathlib.Path,
+    sidecar_ignore_date: bool,
     exiftool_path: str | None,
     merge_keywords: bool,
     verbose: Callable[..., None],
@@ -434,9 +434,8 @@ def set_photo_metadata_from_sidecar(
     except ValueError as e:
         rich_echo_error(f"Error reading sidecar [filename]{sidecar.name}[/]: {e}")
         return
-    print(f"{sidecar=}, {metadata=}")
     set_photo_metadata_from_metadata(
-        photo, filepath, metadata, merge_keywords, verbose, dry_run
+        photo, filepath, metadata, merge_keywords, sidecar_ignore_date, verbose, dry_run
     )
 
 
@@ -1041,6 +1040,7 @@ def import_files(
     exiftool: bool,
     exiftool_path: str,
     sidecar: bool,
+    sidecar_ignore_date: bool,
     sidecar_template: str,
     merge_keywords: bool,
     title: str | None,
@@ -1115,9 +1115,6 @@ def import_files(
                     skipped_count += 1
                     report_record.imported = False
 
-                    # ZZZ put this into a function and handle this case
-                    # Skipping duplicate /Users/rhet/Desktop/export/2019/04/15/wedding_edited.jpeg
-                    # ❌️   Error getting duplicate photo: Invalid photo id: 6FD38366-3BF2-407D-81FE-7153EB6125B6
                     if dup_albums and album:
                         report_record.albums = add_duplicate_to_albums(
                             duplicates,
@@ -1166,6 +1163,7 @@ def import_files(
                         photo,
                         filepath,
                         sidecar_file,
+                        sidecar_ignore_date,
                         exiftool_path,
                         merge_keywords,
                         verbose,
@@ -1709,6 +1707,7 @@ class ImportCommand(click.Command):
     "If both JSON and XMP sidecars are found, the JSON sidecar will be used. "
     "If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
     "See also --sidecar-template if you need control over the sidecar name. "
+    "See also --sidecar-ignore-date. "
     "Note: --sidecar and --sidecar-template are mutually exclusive.",
 )
 @click.option(
@@ -1725,7 +1724,19 @@ class ImportCommand(click.Command):
     "'{filepath}.xmp'. "
     "If the sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
     "See Template System in help for additional information. "
+    "See also --sidecar-ignore-date. "
     "Note: --sidecar and --sidecar-template are mutually exclusive.",
+)
+@click.option(
+    "--sidecar-ignore-date",
+    is_flag=True,
+    help="Do not use date in sidecar to set photo date/time. "
+    "Setting the timezone from sidecar files is not currently supported so when using --sidecar "
+    "or --sidecar-template, the date/time found in the sidecar will be converted to the local timezone "
+    "and that value will be used to set the photo date/time. "
+    "If your photos have correct timezone information in the embedded metadata you can use "
+    "--sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the "
+    "file (which will be read by Photos on import).",
 )
 @click.option(
     "--relative-to",
@@ -1898,6 +1909,7 @@ def import_main(
     report: str | None,
     resume: bool,
     sidecar: bool,
+    sidecar_ignore_date: bool,
     sidecar_template: str | None,
     skip_dups: bool,
     split_folder: str | None,
@@ -1948,6 +1960,7 @@ def import_cli(
     report: str | None = None,
     resume: bool = False,
     sidecar: bool = False,
+    sidecar_ignore_date: bool = False,
     sidecar_template: str | None = None,
     skip_dups: bool = False,
     split_folder: str | None = None,
@@ -2020,6 +2033,12 @@ def import_cli(
         )
         raise click.Abort()
 
+    if sidecar_ignore_date and not (sidecar or sidecar_template):
+        rich_echo_error(
+            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-template"
+        )
+        raise click.Abort()
+
     if dup_albums and not (skip_dups and album):
         rich_echo_error(
             "[error] --dup-albums must be used with --skip-dups and --album"
@@ -2048,6 +2067,7 @@ def import_cli(
         exiftool=exiftool,
         exiftool_path=exiftool_path,
         sidecar=sidecar,
+        sidecar_ignore_date=sidecar_ignore_date,
         sidecar_template=sidecar_template,
         merge_keywords=merge_keywords,
         title=title,

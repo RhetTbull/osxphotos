@@ -115,6 +115,7 @@ def test_metadata_from_sidecar(filename):
     )
     assert metadata.tz_offset_sec == -25200.0
 
+
 def test_metadata_from_sidecar_persons():
     """Test metadata_from_sidecar with persons info"""
     metadata = metadata_from_sidecar(TEST_IMAGE_2_JSON, None)

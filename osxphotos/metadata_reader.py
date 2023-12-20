@@ -18,8 +18,8 @@ from .datetime_utils import (
     datetime_utc_to_local,
     utc_offset_seconds,
 )
-from .exif_datetime_updater import get_exif_date_time_offset
 from .exiftool import ExifToolCaching
+from .exifutils import get_exif_date_time_offset
 
 EXIFTOOL_DEG_MIN_SEC_PATTERN = r"(\d+)\s*deg\s*(\d+)\'\s*(\d+\.\d+)\""
 
