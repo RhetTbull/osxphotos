@@ -1,9 +1,11 @@
 """Use exiftool to update exif data in photos """
 
+from __future__ import annotations
+
 import datetime
 import re
 from collections import namedtuple
-from typing import Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Optional, Tuple
 
 from photoscript import Photo
 
@@ -266,9 +268,9 @@ class ExifDateTimeUpdater:
 
 
 def get_exif_date_time_offset(
-    exif: Dict, use_file_modify_date: bool = False
+    exif: dict[str, Any], use_file_modify_date: bool = False
 ) -> ExifDateTime:
-    """Get datetime/offset from an exif dict as returned by osxphotos.exiftool.ExifTool.asdict()
+    """Get datetime/offset from an exif dict as returned by osxphotos.exiftool.ExifTool.asdict() or exiftool -j
 
     Args:
         exif: dict of exif data
@@ -283,6 +285,9 @@ def get_exif_date_time_offset(
 
     # search these fields in this order for date/time/timezone
     time_fields = [
+        "Composite:DateTimeCreated",
+        "Composite:SubSecDateTimeOriginal",
+        "Composite:SubSecCreateDate",
         "EXIF:DateTimeOriginal",
         "EXIF:CreateDate",
         "QuickTime:ContentCreateDate",
@@ -290,28 +295,33 @@ def get_exif_date_time_offset(
         "QuickTime:CreateDate",
         "IPTC:DateCreated",
         "XMP-exif:DateTimeOriginal",
+        "XMP-xmp:DateCreated",
         "XMP-xmp:CreateDate",
+        "XMP:DateTimeOriginal",
+        "XMP:DateCreated",
+        "XMP:CreateDate",
+        "DateTimeCreated",
         "DateTimeOriginal",
+        "DateCreated",
         "CreateDate",
         "ContentCreateDate",
         "CreationDate",
-        "DateCreated",
     ]
     if use_file_modify_date:
         time_fields.extend(["File:FileModifyDate", "FileModifyDate"])
 
     for dt_str in time_fields:
         dt = exif.get(dt_str)
-        if dt and dt_str == "IPTC:DateCreated":
+        if dt and dt_str in {"IPTC:DateCreated", "DateCreated"}:
             # also need time
-            time_ = exif.get("IPTC:TimeCreated")
+            time_ = exif.get("IPTC:TimeCreated") or exif.get("TimeCreated")
             if not time_:
                 time_ = "00:00:00"
                 default_time = True
             dt = f"{dt} {time_}"
 
         if dt:
-            used_file_modify_date = dt_str in ("File:FileModifyDate", "FileModifyDate")
+            used_file_modify_date = dt_str in {"File:FileModifyDate", "FileModifyDate"}
             break
     else:
         # no date/time found
@@ -321,8 +331,16 @@ def get_exif_date_time_offset(
     offset = exif.get("EXIF:OffsetTimeOriginal") or exif.get("OffsetTimeOriginal")
     if dt and not offset:
         # see if offset set in the dt string
-        matched = re.match(r"\d{4}:\d{2}:\d{2}\s\d{2}:\d{2}:\d{2}([+-]\d{2}:\d{2})", dt)
-        offset = matched.group(1) if matched else None
+        for pattern in (
+            r"\d{4}:\d{2}:\d{2}\s\d{2}:\d{2}:\d{2}([+-]\d{2}:\d{2})",
+            r"\d{4}:\d{2}:\d{2}\s\d{2}:\d{2}:\d{2}\.\d+([+-]\d{2}:\d{2})",
+        ):
+            matched = re.match(pattern, dt)
+            if matched:
+                offset = matched.group(1)
+                break
+        else:
+            offset = None
 
     if dt:
         # make sure we have time
@@ -339,10 +357,12 @@ def get_exif_date_time_offset(
         if offset:
             # drop offset from dt string and add it back on in datetime %z format
             dt = re.sub(r"[+-]\d{2}:\d{2}$", "", dt)
+            dt = re.sub(r"\.\d+$", "", dt)
             offset = offset.replace(":", "")
             dt = f"{dt}{offset}"
             dt_format = "%Y:%m:%d %H:%M:%S%z"
         else:
+            dt = re.sub(r"\.\d+$", "", dt)
             dt_format = "%Y:%m:%d %H:%M:%S"
 
         # convert to datetime

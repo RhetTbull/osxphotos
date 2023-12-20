@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import pathlib
 
 import pytest
@@ -23,6 +24,10 @@ TEST_IMAGE_1_JSON_OSXPHOTOS_EXIFTOOL = "tests/test-images/IMG_4179.jpeg.json"
 TEST_IMAGE_1_JSON_OSXPHOTOS_JSON = "tests/test-images/IMG_4179.jpeg.json_osxphotos.json"
 TEST_IMAGE_NO_SIDECAR = "tests/test-images/IMG_9975.jpeg"
 TEST_SIDECAR_GOOGLE = "tests/test-images/IMG_4547.jpg.google_json.json"
+
+# this test image has person info
+TEST_IMAGE_2 = "tests/test-images/Pumkins1.jpg"
+TEST_IMAGE_2_JSON = "tests/test-images/Pumkins1.jpg.json"
 
 # list of lists of [image, sidecar, extra files]
 # for testing get_sidecar_for_file
@@ -56,6 +61,7 @@ except FileNotFoundError:
 
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+@pytest.mark.usefixtures("set_tz_pacific")
 def test_metadata_from_file():
     """Test metadata_from_file"""
     metadata = metadata_from_file(TEST_IMAGE_1, None)
@@ -66,9 +72,23 @@ def test_metadata_from_file():
         pytest.approx(33.7150638888889),
         pytest.approx(-118.319672222222),
     )
+    assert not metadata.favorite
+    assert metadata.date == datetime.datetime(2021, 4, 8, 16, 4, 55)
+    assert metadata.timezone == datetime.timezone(
+        datetime.timedelta(days=-1, seconds=61200)
+    )
+    assert metadata.tz_offset_sec == -25200.0
 
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+def test_metadata_from_file_person_info():
+    """Test metadata_from_file with person info"""
+    metadata = metadata_from_file(TEST_IMAGE_2, None)
+    assert sorted(metadata.persons) == ["Katie", "Suzy"]
+
+
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+@pytest.mark.usefixtures("set_tz_pacific")
 @pytest.mark.parametrize(
     "filename",
     [
@@ -88,6 +108,17 @@ def test_metadata_from_sidecar(filename):
         pytest.approx(33.71506),
         pytest.approx(-118.31967),
     )
+    assert not metadata.favorite
+    assert metadata.date == datetime.datetime(2021, 4, 8, 16, 4, 55)
+    assert metadata.timezone == datetime.timezone(
+        datetime.timedelta(days=-1, seconds=61200)
+    )
+    assert metadata.tz_offset_sec == -25200.0
+
+def test_metadata_from_sidecar_persons():
+    """Test metadata_from_sidecar with persons info"""
+    metadata = metadata_from_sidecar(TEST_IMAGE_2_JSON, None)
+    assert sorted(metadata.persons) == ["Katie", "Suzy"]
 
 
 @pytest.mark.parametrize("filename,sidecar,extra_files", SIDECARS)

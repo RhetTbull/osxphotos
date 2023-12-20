@@ -11,10 +11,14 @@ from enum import Enum
 from typing import Optional, Tuple
 
 from .datetime_utils import (
+    datetime_has_tz,
     datetime_naive_to_utc,
-    datetime_utc_to_local,
     datetime_remove_tz,
+    datetime_tz_to_utc,
+    datetime_utc_to_local,
+    utc_offset_seconds,
 )
+from .exif_datetime_updater import get_exif_date_time_offset
 from .exiftool import ExifToolCaching
 
 EXIFTOOL_DEG_MIN_SEC_PATTERN = r"(\d+)\s*deg\s*(\d+)\'\s*(\d+\.\d+)\""
@@ -22,7 +26,19 @@ EXIFTOOL_DEG_MIN_SEC_PATTERN = r"(\d+)\s*deg\s*(\d+)\'\s*(\d+\.\d+)\""
 
 @dataclass
 class MetaData:
-    """Metadata for a photo or video"""
+    """Metadata for a photo or video
+
+    Attributes:
+        title: title of photo
+        description: description of photo
+        keywords: list of keywords for photo
+        location: tuple of lat, long or None, None if not set
+        favorite: bool, True if photo marked favorite
+        persons: list of persons in photo
+        date: datetime for photo as naive datetime.datetime in local timezone or None if not set
+        timezone: timezone or None of original date (before conversion to local naive datetime)
+        tz_offset_sec: int or None if not set, offset from UTC in seconds
+    """
 
     title: str
     description: str
@@ -31,6 +47,8 @@ class MetaData:
     favorite: bool = False
     persons: list[str] = field(default_factory=list)
     date: datetime.datetime | None = None
+    timezone: datetime.tzinfo | None = None
+    tz_offset_sec: float | None = None
 
 
 class SidecarFileType(Enum):
@@ -250,6 +268,9 @@ def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
         favorite=favorite,
         persons=persons,
         date=date,
+        # Google Takeout doesn't store timezone but times are in UTC so cannot determine true timezone
+        timezone=False,
+        tz_offset_sec=0,
     )
 
 
@@ -281,7 +302,17 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         or metadata.get("Keywords")
     )
 
-    # date = metadata.get("EXIF:DateTimeOriginal") or metadata.get("EXIF:CreateDate")
+    persons = metadata.get("XMP:PersonInImage", []) or metadata.get("PersonInImage", [])
+
+    date_info = get_exif_date_time_offset(metadata)
+    date: datetime.datetime | None = date_info.datetime
+    tz_offset, timezone = None, None
+    if date and datetime_has_tz(date):
+        # convert to naive datetime in local timezone as that is what Photos uses
+        tz_offset = utc_offset_seconds(date)
+        timezone = date.tzinfo
+        date = datetime_remove_tz(datetime_utc_to_local(datetime_tz_to_utc(date)))
+
     title = title or ""
     description = description or ""
     keywords = keywords or []
@@ -291,7 +322,15 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
     location = location_from_metadata_dict(metadata)
 
     return MetaData(
-        title=title, description=description, keywords=keywords, location=location
+        title=title,
+        description=description,
+        keywords=keywords,
+        location=location,
+        favorite=False,
+        persons=persons,
+        date=date,
+        timezone=timezone,
+        tz_offset_sec=tz_offset,
     )
 
 

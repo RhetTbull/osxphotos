@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import dataclasses
 import datetime
 import fnmatch
 import json
@@ -14,7 +15,6 @@ import sqlite3
 import sys
 import uuid
 from contextlib import suppress
-from dataclasses import asdict, dataclass, field
 from textwrap import dedent
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Union
 
@@ -334,7 +334,16 @@ def set_photo_metadata(
     merge_keywords: bool,
     dry_run: bool,
 ) -> MetaData:
-    """Set metadata (title, description, keywords) for a Photo object"""
+    """Set metadata (title, description, keywords) for a Photo object
+
+    Args:
+        photo: Photo object
+        metadata: MetaData object
+        merge_keywords: if True, merge keywords with existing keywords
+        dry_run: if True, do not actually set metadata
+
+    Returns: MetaData object with metadata updated keywords if merge_keywords is True
+    """
     if dry_run:
         return metadata
     photo.title = normalize_unicode(metadata.title)
@@ -346,7 +355,7 @@ def set_photo_metadata(
             keywords.extend(old_keywords)
             keywords = list(set(keywords))
     photo.keywords = keywords
-    return MetaData(metadata.title, metadata.description, keywords, metadata.location)
+    return dataclasses.replace(metadata, keywords=keywords)
 
 
 def set_photo_metadata_from_exiftool(
@@ -382,6 +391,7 @@ def set_photo_metadata_from_metadata(
         )
     else:
         verbose(f"No metadata to set for [filename]{filepath.name}[/]")
+
     if metadata.location[0] is not None and metadata.location[1] is not None:
         # location will be set to None, None if latitude or longitude is missing
         if not dry_run:
@@ -392,6 +402,17 @@ def set_photo_metadata_from_metadata(
         )
     else:
         verbose(f"No location to set for [filename]{filepath.name}[/]")
+
+    print("foo")
+    print(f"{metadata=}")
+    if metadata.date is not None:
+        verbose(
+            f"Set date for [filename]{filepath.name}[/]: [time]{metadata.date.isoformat()}[/]"
+        )
+        if not dry_run:
+            # TODO: handle timezone
+            photo.date = metadata.date
+
     return metadata
 
 
@@ -413,6 +434,7 @@ def set_photo_metadata_from_sidecar(
     except ValueError as e:
         rich_echo_error(f"Error reading sidecar [filename]{sidecar.name}[/]: {e}")
         return
+    print(f"{sidecar=}, {metadata=}")
     set_photo_metadata_from_metadata(
         photo, filepath, metadata, merge_keywords, verbose, dry_run
     )
@@ -690,19 +712,19 @@ def check_templates_and_exit(
     sys.exit(0)
 
 
-@dataclass
+@dataclasses.dataclass
 class ReportRecord:
     """Dataclass that records metadata on each file imported for writing to report"""
 
-    albums: list[str] = field(default_factory=list)
+    albums: list[str] = dataclasses.field(default_factory=list)
     description: str = ""
     error: bool = False
     filename: str = ""
-    filepath: pathlib.Path = field(default_factory=pathlib.Path)
+    filepath: pathlib.Path = dataclasses.field(default_factory=pathlib.Path)
     import_datetime: datetime.datetime = datetime.datetime.now()
     imported: bool = False
-    keywords: list[str] = field(default_factory=list)
-    location: tuple[float, float] = field(default_factory=tuple)
+    keywords: list[str] = dataclasses.field(default_factory=list)
+    location: tuple[float, float] = dataclasses.field(default_factory=tuple)
     title: str = ""
     uuid: str = ""
 
@@ -729,7 +751,7 @@ class ReportRecord:
         self.location = metadata.location
 
     def asdict(self):
-        return asdict(self)
+        return dataclasses.asdict(self)
 
     def asjsondict(self):
         """Return a JSON serializable dict"""
