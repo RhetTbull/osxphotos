@@ -30,7 +30,11 @@ assert_macos()
 from photoscript import Photo, PhotosLibrary
 
 import osxphotos.sqlite3_datetime as sqlite3_datetime
-from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL, SQLITE_CHECK_SAME_THREAD
+from osxphotos._constants import (
+    _OSXPHOTOS_NONE_SENTINEL,
+    OSXPHOTOS_EXPORT_DB,
+    SQLITE_CHECK_SAME_THREAD,
+)
 from osxphotos._version import __version__
 from osxphotos.cli.cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
 from osxphotos.cli.common import get_data_dir
@@ -690,15 +694,15 @@ def check_templates_and_exit(
 class ReportRecord:
     """Dataclass that records metadata on each file imported for writing to report"""
 
-    albums: List[str] = field(default_factory=list)
+    albums: list[str] = field(default_factory=list)
     description: str = ""
     error: bool = False
     filename: str = ""
     filepath: pathlib.Path = field(default_factory=pathlib.Path)
     import_datetime: datetime.datetime = datetime.datetime.now()
     imported: bool = False
-    keywords: List[str] = field(default_factory=list)
-    location: Tuple[float, float] = field(default_factory=tuple)
+    keywords: list[str] = field(default_factory=list)
+    location: tuple[float, float] = field(default_factory=tuple)
     title: str = ""
     uuid: str = ""
 
@@ -994,7 +998,12 @@ def collect_files_to_import(
 
     # strip osxphotos export db in case importing an osxphotos export
     files_to_import = [
-        f for f in files_to_import if not f.endswith(".osxphotos_export.db")
+        f for f in files_to_import if not pathlib.Path(f).name == OSXPHOTOS_EXPORT_DB
+    ]
+
+    # strip .DS_Store
+    files_to_import = [
+        f for f in files_to_import if not pathlib.Path(f).name == ".DS_Store"
     ]
 
     return files_to_import

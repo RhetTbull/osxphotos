@@ -291,9 +291,14 @@ def get_exif_date_time_offset(
         "IPTC:DateCreated",
         "XMP-exif:DateTimeOriginal",
         "XMP-xmp:CreateDate",
+        "DateTimeOriginal",
+        "CreateDate",
+        "ContentCreateDate",
+        "CreationDate",
+        "DateCreated",
     ]
     if use_file_modify_date:
-        time_fields.append("File:FileModifyDate")
+        time_fields.extend(["File:FileModifyDate", "FileModifyDate"])
 
     for dt_str in time_fields:
         dt = exif.get(dt_str)
@@ -306,14 +311,14 @@ def get_exif_date_time_offset(
             dt = f"{dt} {time_}"
 
         if dt:
-            used_file_modify_date = dt_str == "File:FileModifyDate"
+            used_file_modify_date = dt_str in ("File:FileModifyDate", "FileModifyDate")
             break
     else:
         # no date/time found
         dt = None
 
     # try to get offset from EXIF:OffsetTimeOriginal
-    offset = exif.get("EXIF:OffsetTimeOriginal")
+    offset = exif.get("EXIF:OffsetTimeOriginal") or exif.get("OffsetTimeOriginal")
     if dt and not offset:
         # see if offset set in the dt string
         matched = re.match(r"\d{4}:\d{2}:\d{2}\s\d{2}:\d{2}:\d{2}([+-]\d{2}:\d{2})", dt)

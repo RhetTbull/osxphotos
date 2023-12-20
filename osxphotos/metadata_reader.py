@@ -2,17 +2,31 @@
 
 from __future__ import annotations
 
+import datetime
 import json
 import pathlib
 import re
-from collections import namedtuple
-from typing import Optional, Tuple
+from dataclasses import dataclass, field
 from enum import Enum
+from typing import Optional, Tuple
+
+from .datetime_utils import datetime_naive_to_utc
 from .exiftool import ExifToolCaching
 
 EXIFTOOL_DEG_MIN_SEC_PATTERN = r"(\d+)\s*deg\s*(\d+)\'\s*(\d+\.\d+)\""
 
-MetaData = namedtuple("MetaData", ["title", "description", "keywords", "location"])
+
+@dataclass
+class MetaData:
+    """Metadata for a photo or video"""
+
+    title: str
+    description: str
+    keywords: list[str]
+    location: tuple[Optional[float], Optional[float]]
+    favorite: bool = False
+    people: list[str] = field(default_factory=list)
+    date: datetime.datetime | None = None
 
 
 class SidecarFileType(Enum):
@@ -167,18 +181,68 @@ def metadata_from_sidecar(
     filepath = (
         pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
     )
-    if filepath.suffix.lower() == ".xmp":
+
+    sidecar_type = get_sidecar_filetype(filepath)
+
+    if sidecar_type == SidecarFileType.XMP:
         # use exiftool to read XMP sidecar
         exiftool = ExifToolCaching(filepath, exiftool_path)
         metadata = exiftool.asdict()
-    else:
+        return metadata_from_metadata_dict(metadata)
+
+    if sidecar_type in (SidecarFileType.exiftool, SidecarFileType.osxphotos):
         with open(filepath, "r") as fp:
             try:
                 metadata = json.load(fp)[0]
             except (json.JSONDecodeError, IndexError) as e:
                 raise ValueError(f"Error reading sidecar file {filepath}: {e}")
+        return metadata_from_metadata_dict(metadata)
 
-    return metadata_from_metadata_dict(metadata)
+    if sidecar_type == SidecarFileType.GoogleTakeout:
+        return metadata_from_google_takeout(filepath)
+
+    raise ValueError(f"Unknown sidecar type for file {filepath}")
+
+
+def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
+    """Read metadata from Google Takeout JSON file"""
+    with open(filepath, "r") as fp:
+        try:
+            metadata = json.load(fp)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Error reading sidecar file {filepath}: {e}")
+
+    title = metadata.get("title")
+    description = metadata.get("description")
+    favorite = metadata.get("favorited", False)
+    geo_data = metadata.get("geoData", {})
+    location = geo_data.get("latitude"), geo_data.get("longitude")
+    if location == (0.0, 0.0):
+        # Google Takeout uses 0.0, 0.0 to indicate no location
+        location = None, None
+    people = [p["name"] for p in metadata.get("people", [])]
+    timestamp = metadata.get("photoTakenTime", {}).get("timestamp")
+    if timestamp:
+        try:
+            date = datetime.datetime.fromtimestamp(int(timestamp))
+        except ValueError:
+            date = None
+        if date:
+            # Takeout JSON stores date as timestamp in UTC
+            # regardless of timezone of photo
+            date = datetime_naive_to_utc(date)
+    else:
+        date = None
+
+    return MetaData(
+        title=title or "",
+        description=description or "",
+        keywords=[],
+        location=location,
+        favorite=favorite,
+        people=people,
+        date=date,
+    )
 
 
 def metadata_from_metadata_dict(metadata: dict) -> MetaData:
@@ -209,6 +273,7 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         or metadata.get("Keywords")
     )
 
+    # date = metadata.get("EXIF:DateTimeOriginal") or metadata.get("EXIF:CreateDate")
     title = title or ""
     description = description or ""
     keywords = keywords or []
