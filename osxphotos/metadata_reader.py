@@ -10,7 +10,11 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Tuple
 
-from .datetime_utils import datetime_naive_to_utc
+from .datetime_utils import (
+    datetime_naive_to_utc,
+    datetime_utc_to_local,
+    datetime_remove_tz,
+)
 from .exiftool import ExifToolCaching
 
 EXIFTOOL_DEG_MIN_SEC_PATTERN = r"(\d+)\s*deg\s*(\d+)\'\s*(\d+\.\d+)\""
@@ -25,7 +29,7 @@ class MetaData:
     keywords: list[str]
     location: tuple[Optional[float], Optional[float]]
     favorite: bool = False
-    people: list[str] = field(default_factory=list)
+    persons: list[str] = field(default_factory=list)
     date: datetime.datetime | None = None
 
 
@@ -220,7 +224,7 @@ def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
     if location == (0.0, 0.0):
         # Google Takeout uses 0.0, 0.0 to indicate no location
         location = None, None
-    people = [p["name"] for p in metadata.get("people", [])]
+    persons = [p["name"] for p in metadata.get("people", [])]
     timestamp = metadata.get("photoTakenTime", {}).get("timestamp")
     if timestamp:
         try:
@@ -230,7 +234,11 @@ def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
         if date:
             # Takeout JSON stores date as timestamp in UTC
             # regardless of timezone of photo
-            date = datetime_naive_to_utc(date)
+            # convert to naive datetime in local timezone
+            # as that's what Photos uses
+            date = datetime_remove_tz(
+                datetime_utc_to_local(datetime_naive_to_utc(date))
+            )
     else:
         date = None
 
@@ -240,7 +248,7 @@ def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
         keywords=[],
         location=location,
         favorite=favorite,
-        people=people,
+        persons=persons,
         date=date,
     )
 
@@ -281,7 +289,10 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         keywords = [keywords]
 
     location = location_from_metadata_dict(metadata)
-    return MetaData(title, description, keywords, location)
+
+    return MetaData(
+        title=title, description=description, keywords=keywords, location=location
+    )
 
 
 def location_from_metadata_dict(
