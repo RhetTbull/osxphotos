@@ -303,6 +303,8 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
     )
 
     persons = metadata.get("XMP:PersonInImage", []) or metadata.get("PersonInImage", [])
+    if persons and not isinstance(persons, (tuple, list)):
+        persons = [persons]
 
     date_info = get_exif_date_time_offset(metadata)
     date: datetime.datetime | None = date_info.datetime
