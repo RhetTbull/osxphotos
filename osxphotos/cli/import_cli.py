@@ -487,7 +487,6 @@ def set_photo_metadata_from_metadata(
             f"Set date for [filename]{filepath.name}[/]: [time]{metadata.date.isoformat()}[/]"
         )
         if not dry_run:
-            # TODO: handle timezone
             photo.date = metadata.date
 
     return metadata
@@ -664,7 +663,6 @@ def set_photo_date_from_filename(
     dry_run: bool,
 ) -> datetime.datetime | None:
     """Set date of photo from filename or path"""
-    # TODO: handle timezone (use code from timewarp), for now convert timezone to local timezone
     try:
         date = strpdatetime(str(filepath), parse_date)
         # Photo.date must be timezone naive (assumed to local timezone)
@@ -823,6 +821,7 @@ class ReportRecord:
     location: tuple[float, float] = dataclasses.field(default_factory=tuple)
     title: str = ""
     uuid: str = ""
+    datetime: datetime.datetime | None = None
 
     @classmethod
     def serialize(cls, record: "ReportRecord") -> str:
@@ -836,6 +835,11 @@ class ReportRecord:
         dict_data["filepath"] = pathlib.Path(dict_data["filepath"])
         dict_data["import_datetime"] = datetime.datetime.fromisoformat(
             dict_data["import_datetime"]
+        )
+        dict_data["datetime"] = (
+            datetime.datetime.fromisoformat(dict_data["datetime"])
+            if dict_data["datetime"]
+            else None
         )
         return cls(**dict_data)
 
@@ -854,6 +858,9 @@ class ReportRecord:
         dict_data = self.asdict()
         dict_data["filepath"] = str(dict_data["filepath"])
         dict_data["import_datetime"] = dict_data["import_datetime"].isoformat()
+        dict_data["datetime"] = (
+            dict_data["datetime"].isoformat() if dict_data["datetime"] else None
+        )
         return dict_data
 
 
@@ -870,6 +877,7 @@ def update_report_record(
     report_record.description = photo.description
     report_record.keywords = photo.keywords
     report_record.location = photo.location
+    report_record.datetime = photo.date
 
     return report_record
 
@@ -901,7 +909,7 @@ def write_csv_report(
                 [
                     "filepath",
                     "filename",
-                    "datetime",
+                    "import_datetime",
                     "uuid",
                     "imported",
                     "error",
@@ -910,6 +918,7 @@ def write_csv_report(
                     "keywords",
                     "albums",
                     "location",
+                    "datetime",
                 ]
             )
         for report_record in report_data.values():
@@ -926,6 +935,7 @@ def write_csv_report(
                     ",".join(report_record.keywords),
                     ",".join(report_record.albums),
                     report_record.location,
+                    report_record.datetime,
                 ]
             )
 
@@ -963,7 +973,7 @@ def write_sqlite_report(
                 report_id INTEGER,
                 filepath TEXT,
                 filename TEXT,
-                datetime TEXT,
+                import_datetime TEXT,
                 uuid TEXT,
                 imported INTEGER,
                 error INTEGER,
@@ -971,7 +981,8 @@ def write_sqlite_report(
                 description TEXT,
                 keywords TEXT,
                 albums TEXT,
-                location TEXT
+                location TEXT,
+                datetime TEXT
             )"""
         )
         c.execute(
@@ -1006,7 +1017,7 @@ def write_sqlite_report(
                 report_id,
                 filepath,
                 filename,
-                datetime,
+                import_datetime,
                 uuid,
                 imported,
                 error,
@@ -1014,13 +1025,16 @@ def write_sqlite_report(
                 description,
                 keywords,
                 albums,
-                location
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""",
+                location,
+                datetime
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""",
             (
                 report_id,
                 str(report_record.filepath),
                 report_record.filename,
-                report_record.import_datetime,
+                report_record.import_datetime.isoformat()
+                if report_record.import_datetime
+                else None,
                 report_record.uuid,
                 report_record.imported,
                 report_record.error,
@@ -1029,6 +1043,7 @@ def write_sqlite_report(
                 ",".join(report_record.keywords),
                 ",".join(report_record.albums),
                 f"{report_record.location[0]},{report_record.location[1]}",
+                report_record.datetime.isoformat() if report_record.datetime else None,
             ),
         )
     conn.commit()
@@ -1236,7 +1251,8 @@ def import_files(
                             verbose,
                             dry_run,
                         )
-                        continue
+
+                    continue
 
             if not dry_run:
                 photo, error = import_photo(filepath, dup_check, verbose)
@@ -1316,7 +1332,6 @@ def import_files(
                 set_photo_date_from_filename(
                     photo, filepath.name, filepath.name, parse_date, verbose, dry_run
                 )
-                # TODO: ReportRecord doesn't currently record date
 
             if parse_folder_date:
                 set_photo_date_from_filename(
