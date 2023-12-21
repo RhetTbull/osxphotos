@@ -3,21 +3,20 @@
 from __future__ import annotations
 
 import csv
+import dataclasses
 import datetime
 import fnmatch
 import json
 import logging
 import os
 import os.path
+import pathlib
 import sqlite3
 import sys
 import uuid
-from collections import namedtuple
 from contextlib import suppress
-from dataclasses import asdict, dataclass, field
-from pathlib import Path
 from textwrap import dedent
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Union
 
 import click
 from rich.console import Console
@@ -31,7 +30,11 @@ assert_macos()
 from photoscript import Photo, PhotosLibrary
 
 import osxphotos.sqlite3_datetime as sqlite3_datetime
-from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL, SQLITE_CHECK_SAME_THREAD
+from osxphotos._constants import (
+    _OSXPHOTOS_NONE_SENTINEL,
+    OSXPHOTOS_EXPORT_DB,
+    SQLITE_CHECK_SAME_THREAD,
+)
 from osxphotos._version import __version__
 from osxphotos.cli.cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
 from osxphotos.cli.common import get_data_dir
@@ -47,10 +50,20 @@ from osxphotos.datetime_utils import (
 from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.fingerprint import fingerprint
 from osxphotos.fingerprintquery import FingerprintQuery
+from osxphotos.metadata_reader import (
+    MetaData,
+    get_sidecar_for_file,
+    metadata_from_file,
+    metadata_from_sidecar,
+)
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
+from osxphotos.strpdatetime_parts import (
+    date_str_matches_date_time_codes,
+    fmt_has_date_time_codes,
+)
 from osxphotos.unicode import normalize_unicode
 from osxphotos.utils import get_last_library_path, pluralize
 
@@ -59,20 +72,22 @@ from .click_rich_echo import rich_click_echo, rich_echo_error
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 
-# Note: the style in this module is a bit different than much of the other osxphotos code
-# As an experiment, I've used mostly functions instead of classes (e.g. the report writer
-# functions vs ReportWriter class used by export) and I've kept everything for import
-# self-contained in this one file
+if TYPE_CHECKING:
+    from .cli import CLI_Obj
 
 # register datetime adapters/converters for sqlite3
 sqlite3_datetime.register()
 
-MetaData = namedtuple("MetaData", ["title", "description", "keywords", "location"])
 
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # stores import status so imports can be resumed
 IMPORT_DB = "osxphotos_import.db"
+
+try:
+    EXIFTOOL_PATH = get_exiftool_path()
+except FileNotFoundError:
+    EXIFTOOL_PATH = None
 
 
 def echo(message, emoji=True, **kwargs):
@@ -85,16 +100,60 @@ def echo(message, emoji=True, **kwargs):
     rich_click_echo(message, **kwargs)
 
 
+def get_sidecar_file(
+    filepath: pathlib.Path,
+    relative_filepath: str | None,
+    sidecar: bool,
+    sidecar_template: str | None,
+    exiftool_path: str | None,
+    verbose: Callable[..., None],
+) -> pathlib.Path | None:
+    if sidecar or sidecar_template:
+        if sidecar_template:
+            if sidecar_file := render_photo_template(
+                filepath,
+                relative_filepath,
+                sidecar_template,
+                exiftool_path,
+                None,
+            ):
+                sidecar_file = pathlib.Path(sidecar_file[0])
+        else:
+            sidecar_file = get_sidecar_for_file(filepath)
+        if not sidecar_file or not sidecar_file.exists():
+            verbose(f"No sidecar found for [filepath]{filepath}[/]")
+            sidecar_file = None
+    else:
+        sidecar_file = None
+    return sidecar_file
+
+
 class PhotoInfoFromFile:
     """Mock PhotoInfo class for a file to be imported
 
     Returns None for most attributes but allows some templates like exiftool and created to work correctly
     """
 
-    def __init__(self, filepath: Union[str, Path], exiftool: Optional[str] = None):
+    def __init__(
+        self,
+        filepath: Union[str, pathlib.Path],
+        exiftool: str | None = None,
+        sidecar: str | None = None,
+    ):
         self._path = str(filepath)
-        self._exiftool_path = exiftool
+        self._exiftool_path = exiftool or EXIFTOOL_PATH
         self._uuid = str(uuid.uuid1()).upper()
+        self._sidecar = sidecar
+        if sidecar:
+            self._metadata = metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
+        elif self._exiftool_path:
+            self._metadata = metadata_from_file(
+                pathlib.Path(filepath), self._exiftool_path
+            )
+        else:
+            self._metadata = MetaData(
+                title="", description="", keywords=[], location=(None, None)
+            )
 
     @property
     def uuid(self):
@@ -102,11 +161,19 @@ class PhotoInfoFromFile:
 
     @property
     def original_filename(self):
-        return Path(self._path).name
+        return pathlib.Path(self._path).name
+
+    @property
+    def filename(self):
+        return pathlib.Path(self._path).name
 
     @property
     def date(self):
-        """Use file creation date and local time zone"""
+        """Use file creation date and local time zone if not exiftool or sidecar"""
+        if self._metadata.date:
+            if dt := self._metadata.date:
+                return datetime_naive_to_local(dt)
+
         ctime = os.path.getctime(self._path)
         dt = datetime.datetime.fromtimestamp(ctime)
         return datetime_naive_to_local(dt)
@@ -115,6 +182,26 @@ class PhotoInfoFromFile:
     def path(self):
         """Path to photo file"""
         return self._path
+
+    @property
+    def keywords(self) -> list[str]:
+        """list of keywords for picture"""
+        return self._metadata.keywords
+
+    @property
+    def persons(self) -> list[str]:
+        """list of persons in picture"""
+        return self._metadata.persons
+
+    @property
+    def title(self) -> str | None:
+        """name / title of picture"""
+        return self._metadata.title
+
+    @property
+    def description(self) -> str | None:
+        """description of picture"""
+        return self._metadata.description
 
     @property
     def exiftool(self):
@@ -167,8 +254,8 @@ class PhotoInfoFromFile:
 
 
 def import_photo(
-    filepath: Path, dup_check: bool, verbose: Callable[..., None]
-) -> Tuple[Optional[Photo], Optional[str]]:
+    filepath: pathlib.Path, dup_check: bool, verbose: Callable[..., None]
+) -> Tuple[Optional[Photo], str | None]:
     """Import a photo and return Photo object and error string if any
 
     Args:
@@ -191,14 +278,15 @@ def import_photo(
 
 
 def render_photo_template(
-    filepath: Path,
-    relative_filepath: Path,
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path,
     template: str,
-    exiftool_path: Optional[str],
+    exiftool_path: str | None,
+    sidecar: str | None,
 ):
     """Render template string for a photo"""
 
-    photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path)
+    photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path, sidecar=sidecar)
     options = RenderOptions(
         none_str=_OSXPHOTOS_NONE_SENTINEL, filepath=relative_filepath, caller="import"
     )
@@ -211,11 +299,12 @@ def render_photo_template(
 
 def add_photo_to_albums(
     photo: Photo,
-    filepath: Path,
-    relative_filepath: Path,
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path,
     album: Tuple[str],
     split_folder: str,
-    exiftool_path: Path,
+    exiftool_path: pathlib.Path,
+    sidecar: pathlib.Path | None,
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> list[str]:
@@ -223,7 +312,9 @@ def add_photo_to_albums(
     albums = []
     for a in album:
         albums.extend(
-            render_photo_template(filepath, relative_filepath, a, exiftool_path)
+            render_photo_template(
+                filepath, relative_filepath, a, exiftool_path, sidecar
+            )
         )
     verbose(
         f"Adding photo [filename]{filepath.name}[/filename] to {len(albums)} {pluralize(len(albums), 'album', 'albums')}"
@@ -240,8 +331,61 @@ def add_photo_to_albums(
     return albums
 
 
+def add_duplicate_to_albums(
+    duplicates: list[tuple[str, datetime.datetime, str]],
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path,
+    album: Tuple[str],
+    split_folder: str,
+    exiftool_path: pathlib.Path,
+    sidecar: pathlib.Path | None,
+    verbose: Callable[..., None],
+    dry_run: bool,
+) -> list[str]:
+    """For photo with already imported duplicate, add the imported photo to albums
+
+    duplicates: list of tuples of (uuid, date, filename) for duplicates as returned by FingerprintQuery.possible_duplicates
+    filepath: path to file to import
+    relative_filepath: relative path to file to import
+    album: list of album templates
+    split_folder: str to split folders on
+    exiftool_path: path to exiftool
+    verbose: verbose function
+    dry_run: dry run
+
+    Returns: list of albums photo was added to or empty list if no photo found for duplicate
+    """
+    dup_photo = None
+    for uuid, _, _ in duplicates:
+        # if there are multiple duplicates, use the first one
+        # there could be an error retrieving the Photo for the duplicate uuid
+        # if it was deleted from the Photos library or in the hidden album
+        # so if there's an error, try the next one
+        try:
+            dup_photo = Photo(uuid=uuid)
+            break
+        except Exception as e:
+            # no photo found for duplicate
+            rich_echo_error(f"[error] Error getting duplicate photo: {e}")
+
+    if not dup_photo:
+        return []
+
+    return add_photo_to_albums(
+        dup_photo,
+        filepath,
+        relative_filepath,
+        album,
+        split_folder,
+        exiftool_path,
+        sidecar,
+        verbose,
+        dry_run,
+    )
+
+
 def clear_photo_metadata(
-    photo: Photo, filepath: Path, verbose: Callable[..., None], dry_run: bool
+    photo: Photo, filepath: pathlib.Path, verbose: Callable[..., None], dry_run: bool
 ):
     """Clear any metadata (title, description, keywords) associated with Photo in the Photos Library"""
     verbose(f"Clearing metadata for [filename]{filepath.name}[/]")
@@ -253,7 +397,7 @@ def clear_photo_metadata(
 
 
 def clear_photo_location(
-    photo: Photo, filepath: Path, verbose: Callable[..., None], dry_run: bool
+    photo: Photo, filepath: pathlib.Path, verbose: Callable[..., None], dry_run: bool
 ):
     """Clear any location (latitude, longitude) associated with Photo in the Photos Library"""
     verbose(f"Clearing location for [filename]{filepath.name}[/]")
@@ -262,120 +406,22 @@ def clear_photo_location(
     photo.location = (None, None)
 
 
-def metadata_from_file(filepath: Path, exiftool_path: str) -> MetaData:
-    """Get metadata from file with exiftool
-
-    Returns the following metadata from EXIF/XMP/IPTC fields as a MetaData named tuple
-        title: str, XMP:Title, IPTC:ObjectName, QuickTime:DisplayName
-        description: str, XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
-        keywords: str, XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
-        location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef,  EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
-    """
-    exiftool = ExifToolCaching(filepath, exiftool_path)
-    metadata = exiftool.asdict()
-    title = (
-        metadata.get("XMP:Title")
-        or metadata.get("IPTC:ObjectName")
-        or metadata.get("QuickTime:DisplayName")
-    )
-    description = (
-        metadata.get("XMP:Description")
-        or metadata.get("IPTC:Caption-Abstract")
-        or metadata.get("EXIF:ImageDescription")
-        or metadata.get("QuickTime:Description")
-    )
-    keywords = (
-        metadata.get("XMP:Subject")
-        or metadata.get("XMP:TagsList")
-        or metadata.get("IPTC:Keywords")
-    )
-
-    title = title or ""
-    description = description or ""
-    keywords = keywords or []
-    if not isinstance(keywords, (tuple, list)):
-        keywords = [keywords]
-
-    location = location_from_file(filepath, exiftool_path)
-    return MetaData(title, description, keywords, location)
-
-
-def location_from_file(
-    filepath: Path, exiftool_path: str
-) -> Tuple[Optional[float], Optional[float]]:
-    """Get location from file with exiftool
-
-    Returns:
-        Tuple of lat, long or None, None if not set
-
-    Note:
-        Attempts to get location from the following EXIF fields:
-            EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
-            EXIF:GPSLatitude, EXIF:GPSLongitude
-            QuickTime:GPSCoordinates
-            UserData:GPSCoordinates
-    """
-    exiftool = ExifToolCaching(filepath, exiftool_path)
-    metadata = exiftool.asdict()
-
-    # photos and videos store location data differently
-    # for photos, location in EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef, EXIF:GPSLatitude, EXIF:GPSLongitude
-    # the GPSLatitudeRef and GPSLongitudeRef are needed to determine N/S, E/W respectively
-    # for example:
-    #   EXIF:GPSLatitudeRef N
-    #   EXIF:GPSLongitudeRef W
-    #   EXIF:GPSLatitude 33.7198027777778
-    #   EXIF:GPSLongitude 118.285491666667
-    # for video, location in QuickTime:GPSCoordinates or UserData:GPSCoordinates as a
-    # pair of positive/negative numbers thus no ref needed
-    # for example:
-    #   QuickTime:GPSCoordinates 34.0533 -118.2423
-
-    latitude, longitude = None, None
-    try:
-        if latitude := metadata.get("EXIF:GPSLatitude"):
-            latitude = float(latitude)
-            latitude_ref = metadata.get("EXIF:GPSLatitudeRef")
-            if latitude_ref == "S":
-                latitude = -latitude
-            elif latitude_ref != "N":
-                latitude = None
-        if latitude is None:
-            latitude = metadata.get("XMP:GPSLatitude")
-        if longitude := metadata.get("EXIF:GPSLongitude"):
-            longitude = float(longitude)
-            longitude_ref = metadata.get("EXIF:GPSLongitudeRef")
-            if longitude_ref == "W":
-                longitude = -longitude
-            elif longitude_ref != "E":
-                longitude = None
-        if longitude is None:
-            longitude = metadata.get("XMP:GPSLongitude")
-        if latitude is None or longitude is None:
-            # maybe it's a video
-            if lat_lon := metadata.get("QuickTime:GPSCoordinates") or metadata.get(
-                "UserData:GPSCoordinates"
-            ):
-                lat_lon = lat_lon.split()
-                if len(lat_lon) != 2:
-                    latitude = None
-                    longitude = None
-                else:
-                    latitude = float(lat_lon[0])
-                    longitude = float(lat_lon[1])
-    except ValueError:
-        # couldn't convert one of the numbers to float
-        return None, None
-    return latitude, longitude
-
-
 def set_photo_metadata(
     photo: Photo,
     metadata: MetaData,
     merge_keywords: bool,
     dry_run: bool,
 ) -> MetaData:
-    """Set metadata (title, description, keywords) for a Photo object"""
+    """Set metadata (title, description, keywords) for a Photo object
+
+    Args:
+        photo: Photo object
+        metadata: MetaData object
+        merge_keywords: if True, merge keywords with existing keywords
+        dry_run: if True, do not actually set metadata
+
+    Returns: MetaData object with metadata updated keywords if merge_keywords is True
+    """
     if dry_run:
         return metadata
     photo.title = normalize_unicode(metadata.title)
@@ -387,20 +433,35 @@ def set_photo_metadata(
             keywords.extend(old_keywords)
             keywords = list(set(keywords))
     photo.keywords = keywords
-    return MetaData(metadata.title, metadata.description, keywords, metadata.location)
+    return dataclasses.replace(metadata, keywords=keywords)
 
 
 def set_photo_metadata_from_exiftool(
     photo: Photo,
-    filepath: Path,
+    filepath: pathlib.Path,
     exiftool_path: str,
     merge_keywords: bool,
     verbose: Callable[..., None],
     dry_run: bool,
-) -> MetaData:
-    """Set photo's metadata by reading metadata form file with exiftool"""
+):
+    """Set photo's metadata by reading metadata from file with exiftool"""
     verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
     metadata = metadata_from_file(filepath, exiftool_path)
+    set_photo_metadata_from_metadata(
+        photo, filepath, metadata, merge_keywords, True, verbose, dry_run
+    )
+
+
+def set_photo_metadata_from_metadata(
+    photo: Photo,
+    filepath: pathlib.Path,
+    metadata: MetaData,
+    merge_keywords: bool,
+    ignore_date: bool,
+    verbose: Callable[..., None],
+    dry_run: bool,
+) -> MetaData:
+    """Set metadata from a MetaData object"""
     if any([metadata.title, metadata.description, metadata.keywords]):
         metadata = set_photo_metadata(photo, metadata, merge_keywords, dry_run)
         verbose(f"Set metadata for [filename]{filepath.name}[/]:")
@@ -409,6 +470,7 @@ def set_photo_metadata_from_exiftool(
         )
     else:
         verbose(f"No metadata to set for [filename]{filepath.name}[/]")
+
     if metadata.location[0] is not None and metadata.location[1] is not None:
         # location will be set to None, None if latitude or longitude is missing
         if not dry_run:
@@ -419,21 +481,54 @@ def set_photo_metadata_from_exiftool(
         )
     else:
         verbose(f"No location to set for [filename]{filepath.name}[/]")
+
+    if metadata.date is not None and not ignore_date:
+        verbose(
+            f"Set date for [filename]{filepath.name}[/]: [time]{metadata.date.isoformat()}[/]"
+        )
+        if not dry_run:
+            photo.date = metadata.date
+
     return metadata
+
+
+def set_photo_metadata_from_sidecar(
+    photo: Photo,
+    filepath: pathlib.Path,
+    sidecar: pathlib.Path,
+    sidecar_ignore_date: bool,
+    exiftool_path: str | None,
+    merge_keywords: bool,
+    verbose: Callable[..., None],
+    dry_run: bool,
+):
+    """Set photo's metadata by reading metadata from sidecar. If sidecar format is XMP, exiftool must be installed."""
+    verbose(
+        f"Setting metadata and location from sidecar [filename]{sidecar.name}[/] for [filename]{filepath.name}[/]"
+    )
+    try:
+        metadata = metadata_from_sidecar(sidecar, exiftool_path)
+    except ValueError as e:
+        rich_echo_error(f"Error reading sidecar [filename]{sidecar.name}[/]: {e}")
+        return
+    set_photo_metadata_from_metadata(
+        photo, filepath, metadata, merge_keywords, sidecar_ignore_date, verbose, dry_run
+    )
 
 
 def set_photo_title(
     photo: Photo,
-    filepath: Path,
-    relative_filepath: Path,
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path,
     title_template: str,
     exiftool_path: str,
+    sidecar: pathlib.Path | None,
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> str:
     """Set title of photo"""
     title_text = render_photo_template(
-        filepath, relative_filepath, title_template, exiftool_path
+        filepath, relative_filepath, title_template, exiftool_path, sidecar
     )
     if len(title_text) > 1:
         echo(
@@ -454,16 +549,21 @@ def set_photo_title(
 
 def set_photo_description(
     photo: Photo,
-    filepath: Path,
-    relative_filepath: Path,
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path,
     description_template: str,
     exiftool_path: str,
+    sidecar: pathlib.Path | None,
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> str:
     """Set description of photo"""
     description_text = render_photo_template(
-        filepath, relative_filepath, description_template, exiftool_path
+        filepath,
+        relative_filepath,
+        description_template,
+        exiftool_path,
+        sidecar,
     )
     if len(description_text) > 1:
         echo(
@@ -484,18 +584,21 @@ def set_photo_description(
 
 def set_photo_keywords(
     photo: Photo,
-    filepath: Path,
-    relative_filepath: Path,
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path,
     keyword_template: str,
     exiftool_path: str,
     merge: bool,
+    sidecar: pathlib.Path | None,
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> list[str]:
     """Set keywords of photo"""
     keywords = []
     for keyword in keyword_template:
-        kw = render_photo_template(filepath, relative_filepath, keyword, exiftool_path)
+        kw = render_photo_template(
+            filepath, relative_filepath, keyword, exiftool_path, sidecar
+        )
         keywords.extend(kw)
     if keywords:
         keywords = normalize_unicode(keywords)
@@ -511,7 +614,7 @@ def set_photo_keywords(
 
 def set_photo_location(
     photo: Photo,
-    filepath: Path,
+    filepath: pathlib.Path,
     location: Tuple[float, float],
     verbose: Callable[..., None],
     dry_run: bool,
@@ -525,17 +628,43 @@ def set_photo_location(
     return location
 
 
+def combine_date_time(
+    photo: Photo | None,
+    filepath: str | pathlib.Path,
+    parse_date: str,
+    date: datetime.datetime,
+) -> datetime.datetime:
+    """Combine date and time from parse_date and photo.date
+
+    If parse_date has both date and time, use the parsed date and time
+    If parse_date has only date, use the parsed date and time from photo
+    If parse_date has only time, use the parsed time and date from photo
+
+    Photo may be None during --dry-run
+    """
+    if photo is None:
+        return date
+    has_date, has_time = date_str_matches_date_time_codes(str(filepath), parse_date)
+    if has_date and not has_time:
+        # date only, no time, set date to date but keep time from photo
+        date = datetime.datetime.combine(date.date(), photo.date.time())
+    elif has_time and not has_date:
+        # time only, no date, set time to time but keep date from photo
+        date = datetime.datetime.combine(photo.date.date(), date.time())
+    return date
+
+
 def set_photo_date_from_filename(
     photo: Photo,
-    filepath: Path,
+    photo_name: str,
+    filepath: pathlib.Path | str,
     parse_date: str,
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> datetime.datetime | None:
-    """Set date of photo from filename"""
-    # TODO: handle timezone (use code from timewarp), for now convert timezone to local timezone
+    """Set date of photo from filename or path"""
     try:
-        date = strpdatetime(filepath.name, parse_date)
+        date = strpdatetime(str(filepath), parse_date)
         # Photo.date must be timezone naive (assumed to local timezone)
         if datetime_has_tz(date):
             local_date = datetime_remove_tz(
@@ -546,19 +675,21 @@ def set_photo_date_from_filename(
             )
             date = local_date
     except ValueError:
-        verbose(
-            f"[warning]Could not parse date from filename [filename]{filepath.name}[/][/]"
-        )
+        verbose(f"[warning]Could not parse date from [filepath]{filepath}[/][/]")
         return None
+
+    date = combine_date_time(photo, filepath, parse_date, date)
     verbose(
-        f"Setting date of photo [filename]{filepath.name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+        f"Setting date of photo [filename]{photo_name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
     )
     if not dry_run:
         photo.date = date
     return date
 
 
-def get_relative_filepath(filepath: Path, relative_to: Optional[str]) -> Path:
+def get_relative_filepath(
+    filepath: pathlib.Path, relative_to: str | None
+) -> pathlib.Path:
     """Get relative filepath of file relative to relative_to or return filepath if relative_to is None
 
     Args:
@@ -587,19 +718,30 @@ def get_relative_filepath(filepath: Path, relative_to: Optional[str]) -> Path:
 
 def check_templates_and_exit(
     files: List[str],
-    relative_to: Optional[Path],
-    title: Optional[str],
-    description: Optional[str],
+    relative_to: Optional[pathlib.Path],
+    title: str | None,
+    description: str | None,
     keyword: Tuple[str],
     album: Tuple[str],
-    exiftool_path: Optional[str],
+    exiftool_path: str | None,
     exiftool: bool,
-    parse_date: Optional[str],
+    parse_date: str | None,
+    parse_folder_date: str | None,
+    sidecar: bool,
+    sidecar_template: str | None = None,
 ):
     """Renders templates against each file so user can verify correctness"""
     for file in files:
-        file = Path(file).absolute().resolve()
+        file = pathlib.Path(file).absolute().resolve()
         relative_filepath = get_relative_filepath(file, relative_to)
+        sidecar_file = get_sidecar_file(
+            filepath=file,
+            relative_filepath=relative_filepath,
+            sidecar=sidecar,
+            sidecar_template=sidecar_template,
+            exiftool_path=exiftool_path,
+            verbose=echo,
+        )
         echo(f"[filepath]{file}[/]:")
         if exiftool:
             metadata = metadata_from_file(file, exiftool_path)
@@ -609,13 +751,13 @@ def check_templates_and_exit(
             echo(f"exiftool location: {metadata.location}")
         if title:
             rendered_title = render_photo_template(
-                file, relative_filepath, title, exiftool_path
+                file, relative_filepath, title, exiftool_path, sidecar_file
             )
             rendered_title = rendered_title[0] if rendered_title else "None"
             echo(f"title: [italic]{title}[/]: {rendered_title}")
         if description:
             rendered_description = render_photo_template(
-                file, relative_filepath, description, exiftool_path
+                file, relative_filepath, description, exiftool_path, sidecar_file
             )
             rendered_description = (
                 rendered_description[0] if rendered_description else "None"
@@ -624,43 +766,62 @@ def check_templates_and_exit(
         if keyword:
             for kw in keyword:
                 rendered_keywords = render_photo_template(
-                    file, relative_filepath, kw, exiftool_path
+                    file, relative_filepath, kw, exiftool_path, sidecar_file
                 )
                 rendered_keywords = rendered_keywords or "None"
                 echo(f"keyword: [italic]{kw}[/]: {rendered_keywords}")
         if album:
             for al in album:
                 rendered_album = render_photo_template(
-                    file, relative_filepath, al, exiftool_path
+                    file, relative_filepath, al, exiftool_path, sidecar_file
                 )
                 rendered_album = rendered_album[0] if rendered_album else "None"
                 echo(f"album: [italic]{al}[/]: {rendered_album}")
         if parse_date:
             try:
                 date = strpdatetime(file.name, parse_date)
-                echo(f"date: [italic]{parse_date}[/]: {date}")
+                has_date, has_time = fmt_has_date_time_codes(parse_date)
+                if has_date and not has_time:
+                    date = date.date()
+                elif not has_date and has_time:
+                    date = date.time()
+                echo(f"parse_date: [italic]{parse_date}[/]: {date}")
             except ValueError:
                 echo(
                     f"[warning]Could not parse date from filename [filename]{file.name}[/][/]"
                 )
+        if parse_folder_date:
+            try:
+                date = strpdatetime(str(file.parent), parse_folder_date)
+                has_date, has_time = fmt_has_date_time_codes(parse_folder_date)
+                if has_date and not has_time:
+                    date = date.date()
+                elif not has_date and has_time:
+                    date = date.time()
+                echo(f"parse_folder_date: [italic]{parse_folder_date}[/]: {date}")
+            except ValueError:
+                echo(
+                    f"[warning]Could not parse date from folder [filepath]{file.parent}[/][/]"
+                )
     sys.exit(0)
 
 
-@dataclass
+@dataclasses.dataclass
 class ReportRecord:
     """Dataclass that records metadata on each file imported for writing to report"""
 
-    albums: List[str] = field(default_factory=list)
+    albums: list[str] = dataclasses.field(default_factory=list)
     description: str = ""
     error: bool = False
     filename: str = ""
-    filepath: Path = field(default_factory=Path)
+    filepath: pathlib.Path = dataclasses.field(default_factory=pathlib.Path)
     import_datetime: datetime.datetime = datetime.datetime.now()
     imported: bool = False
-    keywords: List[str] = field(default_factory=list)
-    location: Tuple[float, float] = field(default_factory=tuple)
+    keywords: list[str] = dataclasses.field(default_factory=list)
+    location: tuple[float, float] = dataclasses.field(default_factory=tuple)
     title: str = ""
     uuid: str = ""
+    datetime: datetime.datetime | None = None
 
     @classmethod
     def serialize(cls, record: "ReportRecord") -> str:
@@ -671,9 +832,14 @@ class ReportRecord:
     def deserialize(cls, json_string: str) -> "ReportRecord":
         """Deserialize class from JSON"""
         dict_data = json.loads(json_string)
-        dict_data["filepath"] = Path(dict_data["filepath"])
+        dict_data["filepath"] = pathlib.Path(dict_data["filepath"])
         dict_data["import_datetime"] = datetime.datetime.fromisoformat(
             dict_data["import_datetime"]
+        )
+        dict_data["datetime"] = (
+            datetime.datetime.fromisoformat(dict_data["datetime"])
+            if dict_data["datetime"]
+            else None
         )
         return cls(**dict_data)
 
@@ -685,17 +851,22 @@ class ReportRecord:
         self.location = metadata.location
 
     def asdict(self):
-        return asdict(self)
+        return dataclasses.asdict(self)
 
     def asjsondict(self):
         """Return a JSON serializable dict"""
         dict_data = self.asdict()
         dict_data["filepath"] = str(dict_data["filepath"])
         dict_data["import_datetime"] = dict_data["import_datetime"].isoformat()
+        dict_data["datetime"] = (
+            dict_data["datetime"].isoformat() if dict_data["datetime"] else None
+        )
         return dict_data
 
 
-def update_report_record(report_record: ReportRecord, photo: Photo, filepath: Path):
+def update_report_record(
+    report_record: ReportRecord, photo: Photo, filepath: pathlib.Path
+):
     """Update a ReportRecord with data from a Photo"""
 
     # do not update albums as they are added to the report record as they are imported (#934)
@@ -706,11 +877,14 @@ def update_report_record(report_record: ReportRecord, photo: Photo, filepath: Pa
     report_record.description = photo.description
     report_record.keywords = photo.keywords
     report_record.location = photo.location
+    report_record.datetime = photo.date
 
     return report_record
 
 
-def write_report(report_file: str, report_data: Dict[Path, ReportRecord], append: bool):
+def write_report(
+    report_file: str, report_data: dict[pathlib.Path, ReportRecord], append: bool
+):
     """Write report to file"""
     report_type = os.path.splitext(report_file)[1][1:].lower()
     if report_type == "csv":
@@ -725,7 +899,7 @@ def write_report(report_file: str, report_data: Dict[Path, ReportRecord], append
 
 
 def write_csv_report(
-    report_file: str, report_data: Dict[Path, ReportRecord], append: bool
+    report_file: str, report_data: dict[pathlib.Path, ReportRecord], append: bool
 ):
     """Write report to csv file"""
     with open(report_file, "a" if append else "w") as f:
@@ -735,7 +909,7 @@ def write_csv_report(
                 [
                     "filepath",
                     "filename",
-                    "datetime",
+                    "import_datetime",
                     "uuid",
                     "imported",
                     "error",
@@ -744,6 +918,7 @@ def write_csv_report(
                     "keywords",
                     "albums",
                     "location",
+                    "datetime",
                 ]
             )
         for report_record in report_data.values():
@@ -760,12 +935,13 @@ def write_csv_report(
                     ",".join(report_record.keywords),
                     ",".join(report_record.albums),
                     report_record.location,
+                    report_record.datetime,
                 ]
             )
 
 
 def write_json_report(
-    report_file: str, report_data: Dict[Path, ReportRecord], append: bool
+    report_file: str, report_data: dict[pathlib.Path, ReportRecord], append: bool
 ):
     """Write report to JSON file"""
     records = [v.asjsondict() for v in report_data.values()]
@@ -778,7 +954,7 @@ def write_json_report(
 
 
 def write_sqlite_report(
-    report_file: str, report_data: Dict[Path, ReportRecord], append: bool
+    report_file: str, report_data: dict[pathlib.Path, ReportRecord], append: bool
 ):
     """Write report to SQLite file"""
     if not append:
@@ -797,7 +973,7 @@ def write_sqlite_report(
                 report_id INTEGER,
                 filepath TEXT,
                 filename TEXT,
-                datetime TEXT,
+                import_datetime TEXT,
                 uuid TEXT,
                 imported INTEGER,
                 error INTEGER,
@@ -805,7 +981,8 @@ def write_sqlite_report(
                 description TEXT,
                 keywords TEXT,
                 albums TEXT,
-                location TEXT
+                location TEXT,
+                datetime TEXT
             )"""
         )
         c.execute(
@@ -840,7 +1017,7 @@ def write_sqlite_report(
                 report_id,
                 filepath,
                 filename,
-                datetime,
+                import_datetime,
                 uuid,
                 imported,
                 error,
@@ -848,13 +1025,16 @@ def write_sqlite_report(
                 description,
                 keywords,
                 albums,
-                location
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""",
+                location,
+                datetime
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""",
             (
                 report_id,
                 str(report_record.filepath),
                 report_record.filename,
-                report_record.import_datetime,
+                report_record.import_datetime.isoformat()
+                if report_record.import_datetime
+                else None,
                 report_record.uuid,
                 report_record.imported,
                 report_record.error,
@@ -863,6 +1043,7 @@ def write_sqlite_report(
                 ",".join(report_record.keywords),
                 ",".join(report_record.albums),
                 f"{report_record.location[0]},{report_record.location[1]}",
+                report_record.datetime.isoformat() if report_record.datetime else None,
             ),
         )
     conn.commit()
@@ -918,6 +1099,8 @@ def collect_files_to_import(
         files: list of initial files or directories to import
         walk: whether to walk directories
         glob: optional glob patterns to match files
+
+    Note: ignores any files that appear to be image sidecar files
     """
     files_to_import = []
     for file in files:
@@ -938,7 +1121,261 @@ def collect_files_to_import(
                             files_to_import.append(os.path.join(root, file))
         else:
             continue
+
+    # strip any sidecar files
+    files_to_import = [
+        f
+        for f in files_to_import
+        if pathlib.Path(f).suffix.lower() not in [".json", ".xmp"]
+    ]
+
+    # strip osxphotos export db in case importing an osxphotos export
+    files_to_import = [
+        f for f in files_to_import if not pathlib.Path(f).name == OSXPHOTOS_EXPORT_DB
+    ]
+
+    # strip .DS_Store
+    files_to_import = [
+        f for f in files_to_import if not pathlib.Path(f).name == ".DS_Store"
+    ]
+
     return files_to_import
+
+
+def import_files(
+    last_library: str,
+    files: list[str],
+    no_progress: bool,
+    resume: bool,
+    clear_metadata: bool,
+    clear_location: bool,
+    exiftool: bool,
+    exiftool_path: str,
+    sidecar: bool,
+    sidecar_ignore_date: bool,
+    sidecar_template: str,
+    merge_keywords: bool,
+    title: str | None,
+    description: str | None,
+    keyword: tuple[str, ...],
+    location: tuple[float, float],
+    parse_date: str | None,
+    parse_folder_date: str | None,
+    album: tuple[str, ...],
+    dup_albums: bool,
+    split_folder: str,
+    post_function: tuple[Callable[..., None]],
+    skip_dups: bool,
+    dup_check: bool,
+    dry_run: bool,
+    report_data: dict[pathlib.Path, ReportRecord],
+    relative_to: str | None,
+    import_db: SQLiteKVStore,
+    verbose: Callable[..., None],
+):
+    """Import files into Photos library
+
+    Returns: tuple of imported_count, skipped_count, error_count
+    """
+
+    # initialize FingerprintQuery to be able to find duplicates
+    fq = FingerprintQuery(last_library)
+
+    imported_count = 0
+    error_count = 0
+    skipped_count = 0
+    filecount = len(files)
+    with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
+        task = progress.add_task(
+            f"Importing [num]{filecount}[/] {pluralize(filecount, 'file', 'files')}",
+            total=filecount,
+        )
+        for filepath in files:
+            filepath = pathlib.Path(filepath).resolve().absolute()
+            relative_filepath = get_relative_filepath(filepath, relative_to)
+
+            # check if file already imported
+            if resume:
+                if record := import_db.get(str(filepath)):
+                    if record.imported and not record.error:
+                        # file already imported
+                        verbose(
+                            f"Skipping [filepath]{filepath}[/], "
+                            f"already imported on [time]{record.import_datetime.isoformat()}[/] "
+                            f"with UUID [uuid]{record.uuid}[/]"
+                        )
+                        skipped_count += 1
+                        progress.advance(task)
+                        continue
+
+            verbose(f"Importing [filepath]{filepath}[/]")
+
+            report_data[filepath] = ReportRecord(
+                filepath=filepath, filename=filepath.name
+            )
+            report_record = report_data[filepath]
+
+            if sidecar or sidecar_template:
+                sidecar_file = get_sidecar_file(
+                    filepath=filepath,
+                    relative_filepath=relative_filepath,
+                    sidecar=sidecar,
+                    sidecar_template=sidecar_template,
+                    exiftool_path=exiftool_path,
+                    verbose=verbose,
+                )
+            else:
+                sidecar_file = None
+
+            if duplicates := fq.possible_duplicates(filepath):
+                # duplicate of file already in Photos library
+                verbose(
+                    f"File [filepath]{filepath}[/] appears to be a duplicate of photos in the library: "
+                    f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
+                )
+
+                if skip_dups:
+                    verbose(f"Skipping duplicate [filepath]{filepath}[/]")
+                    skipped_count += 1
+                    report_record.imported = False
+
+                    if dup_albums and album:
+                        report_record.albums = add_duplicate_to_albums(
+                            duplicates,
+                            filepath,
+                            relative_filepath,
+                            album,
+                            split_folder,
+                            exiftool_path,
+                            sidecar_file,
+                            verbose,
+                            dry_run,
+                        )
+
+                    continue
+
+            if not dry_run:
+                photo, error = import_photo(filepath, dup_check, verbose)
+                if error:
+                    error_count += 1
+                    report_record.error = True
+                    continue
+            else:
+                photo = None
+            report_record.imported = True
+            imported_count += 1
+
+            if clear_metadata:
+                clear_photo_metadata(photo, filepath, verbose, dry_run)
+
+            if clear_location:
+                clear_photo_location(photo, filepath, verbose, dry_run)
+
+            if exiftool:
+                set_photo_metadata_from_exiftool(
+                    photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
+                )
+
+            if sidecar_file:
+                set_photo_metadata_from_sidecar(
+                    photo,
+                    filepath,
+                    sidecar_file,
+                    sidecar_ignore_date,
+                    exiftool_path,
+                    merge_keywords,
+                    verbose,
+                    dry_run,
+                )
+
+            if title:
+                set_photo_title(
+                    photo,
+                    filepath,
+                    relative_filepath,
+                    title,
+                    exiftool_path,
+                    sidecar_file,
+                    verbose,
+                    dry_run,
+                )
+
+            if description:
+                set_photo_description(
+                    photo,
+                    filepath,
+                    relative_filepath,
+                    description,
+                    exiftool_path,
+                    sidecar_file,
+                    verbose,
+                    dry_run,
+                )
+
+            if keyword:
+                set_photo_keywords(
+                    photo,
+                    filepath,
+                    relative_filepath,
+                    keyword,
+                    exiftool_path,
+                    merge_keywords,
+                    sidecar_file,
+                    verbose,
+                    dry_run,
+                )
+
+            if location:
+                set_photo_location(photo, filepath, location, verbose, dry_run)
+
+            if parse_date:
+                set_photo_date_from_filename(
+                    photo, filepath.name, filepath.name, parse_date, verbose, dry_run
+                )
+
+            if parse_folder_date:
+                set_photo_date_from_filename(
+                    photo,
+                    filepath.name,
+                    filepath.parent,
+                    parse_folder_date,
+                    verbose,
+                    dry_run,
+                )
+
+            if album:
+                report_record.albums = add_photo_to_albums(
+                    photo,
+                    filepath,
+                    relative_filepath,
+                    album,
+                    split_folder,
+                    exiftool_path,
+                    sidecar_file,
+                    verbose,
+                    dry_run,
+                )
+
+            if post_function:
+                for function in post_function:
+                    # post function is tuple of (function, filename.py::function_name)
+                    verbose(f"Calling post-function [bold]{function[1]}")
+                    if not dry_run:
+                        try:
+                            function[0](photo, filepath, verbose, report_record)
+                        except Exception as e:
+                            rich_echo_error(
+                                f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
+                            )
+
+            # update report data
+            if not dry_run:
+                update_report_record(report_record, photo, filepath)
+                import_db.set(str(filepath), report_record)
+
+            progress.advance(task)
+
+    return imported_count, skipped_count, error_count
 
 
 class ImportCommand(click.Command):
@@ -1091,6 +1528,17 @@ class ImportCommand(click.Command):
 
             `--keyword "Vacation"` sets the keyword for the imported file to the literal string "Vacation".
 
+            If the photo metadata or sidecar contains the names of persons in the image (e.g. `XMP:PersonInImage`),
+            you can use the `{person}` template to add the names of the persons to the keywords.  For example:
+
+            `--keyword "{person}"` will add the names of the persons in the image to the keywords.
+
+            This is helpful as Photos will not import person names from the metadata and osxphotos
+            cannot set person names in Photos (this is a limitation of Photos).
+
+            To use the `{person}` template, you must have exiftool installed and in your path or
+            the data must be in a sidecar file.
+
             ## Template System
 
             As mentioned above, the `--title`, `--description`, `--keyword`, and `--album` options 
@@ -1169,12 +1617,15 @@ class ImportCommand(click.Command):
             `--keyword`, and `--album` option. It will also print out the values extracted by
             the `--exiftool` option.
 
-            ## Parsing Dates/Times from Filenames
+            ## Parsing Dates/Times from File and Folder Names
 
-            The --parse-date option allows you to parse dates/times from the filename of the
+            The `--parse-date` option allows you to parse dates/times from the filename of the
             file being imported.  This is useful if you have a large number of files with
             dates/times embedded in the filename but not in the metadata.
 
+            Likewise, you can use `--parse-folder-date` to parse dates/times from the name of the
+            folder containing the file being imported.
+    
             The argument to `--parse-date` is a pattern string that is used to parse the date/time
             from the filename. The pattern string is a superset of the python `strftime/strptime`
             format with the following additions:
@@ -1212,6 +1663,12 @@ class ImportCommand(click.Command):
             and so on. If you have multiple formats in your filenames you will want to order the patterns
             from most specific to least specific to avoid false matches.
 
+            If your photos are organized by date into folders in format `YYYY/MM/DD`, for example,
+            `/Volumes/Photos/2020/03/22/IMG_1234.jpg`, you can parse the date from the folder name
+            using `--parse-folder-date "%Y/%m/%d$"`. In this example, the pattern is anchored to the
+            end of the string using `$` to avoid false matches if other parts of the path happen to match
+            the pattern.
+
             ## Post Function
 
             You can run a custom python function after each photo is imported using `--post-function`.
@@ -1232,6 +1689,27 @@ class ImportCommand(click.Command):
         
             See https://rhettbull.github.io/PhotoScript/
             for documentation on photoscript and the Photo class that is passed to the function.
+
+            ## Google Takeout
+
+            If you have a Google Takeout archive of your Google Photos library, you can import
+            it using the following steps:
+
+            - Download the Google Takout archive from Google Photos
+            - Unzip the archive
+            - Run the following command to import the photos into Photos:
+
+            `osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv`
+            
+            If you have persons tagged in Google Photos you can add this option to create keywords
+            for each person in the photo: `--keyword "{person}"`
+
+            Google Takeout does not preserve the timezone of the photo. The metadata JSON sidecar
+            produced by Google converts photo times to UTC. The import command will convert these
+            to the correct time in the local timezone upon import. If your photos contain the correct
+            date/time and timezone information in the metadata you can use the `--sidecar-ignore-date`
+            option to ignore the date/time in the sidecar and use the date/time from the photo metadata.
+
         """
         )
         console = Console()
@@ -1252,6 +1730,7 @@ class ImportCommand(click.Command):
     help="Import photos into album ALBUM_TEMPLATE. "
     "ALBUM_TEMPLATE is an osxphotos template string. "
     "Photos may be imported into more than one album by repeating --album. "
+    "See also --skip-dups, --dup-albums, --split-folder, --relative-to. "
     "See Template System in help for additional information.",
 )
 @click.option(
@@ -1287,7 +1766,7 @@ class ImportCommand(click.Command):
     "--merge-keywords",
     "-m",
     is_flag=True,
-    help="Merge keywords created by --exiftool or --keyword "
+    help="Merge keywords created by --exiftool, --sidecar, --sidecar-template, or --keyword "
     "with any keywords already associated with the photo. "
     "Without --merge-keywords, existing keywords will be overwritten.",
 )
@@ -1315,12 +1794,35 @@ class ImportCommand(click.Command):
     "as the import command does not yet support setting time zone information. "
     "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
     "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
-    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name."
-    "See also --check-templates.",
+    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name. "
+    "If the pattern matches only date or only time, the missing information will be set to the "
+    "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
+    "if it exists or the file modification date/time. "
+    "For example, if photos are named 'IMG_1234_2022_11_23.jpg' where the date is '2022-11-23', "
+    "you could use the pattern '%Y_%m_%d' to set the date but the time would be set from the EXIF "
+    "or the file's modification time. "
+    "See also --parse-folder-date, --check-templates.",
+)
+@click.option(
+    "--parse-folder-date",
+    "-F",
+    metavar="DATE_PATTERN",
+    type=StrpDateTimePattern(),
+    help="Parse date from folder name using DATE_PATTERN. "
+    "If folder does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
+    "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
+    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
+    "as the import command does not yet support setting time zone information. "
+    "For example, if your photos are in folder '2023/12/17/IMG_1234.jpg` where the date is "
+    "'2023-12-17', you could use the pattern '%Y/%m/%d$' as the DATE_PATTERN. "
+    "If the pattern matches only date or only time, the missing information will be set to the "
+    "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
+    "if it exists or the file modification date/time. "
+    "See also --parse-folder-date, --check-templates.",
 )
 @click.option(
     "--clear-metadata",
-    "-C",
+    "-X",
     is_flag=True,
     help="Clear any metadata set automatically "
     "by Photos upon import. Normally, Photos will set title, description, and keywords "
@@ -1343,6 +1845,7 @@ class ImportCommand(click.Command):
     help="Use third party tool exiftool (https://exiftool.org/) to automatically "
     "update metadata (title, description, keywords, location) in imported photos from "
     "the imported file's metadata. "
+    "See also --sidecar, --sidecar-template. "
     "Note: importing keywords from video files is not currently supported.",
 )
 @click.option(
@@ -1351,6 +1854,50 @@ class ImportCommand(click.Command):
     metavar="EXIFTOOL_PATH",
     type=click.Path(exists=True, dir_okay=False),
     help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
+)
+@click.option(
+    "--sidecar",
+    "-s",
+    is_flag=True,
+    help="Use sidecar files to import metadata (title, description, keywords, location). "
+    "Sidecar files must be in the same directory as the imported file and have the same name. "
+    "For example, if image is named img_1234.jpg, sidecar must be named one of: "
+    "img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json. "
+    "Supported sidecar formats are XMP and JSON (as generated by exiftool). "
+    "If both JSON and XMP sidecars are found, the JSON sidecar will be used. "
+    "If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
+    "See also --sidecar-template if you need control over the sidecar name. "
+    "See also --sidecar-ignore-date. "
+    "Note: --sidecar and --sidecar-template are mutually exclusive.",
+)
+@click.option(
+    "--sidecar-template",
+    "-T",
+    metavar="TEMPLATE",
+    type=TemplateString(),
+    help="Use sidecar files to import metadata (title, description, keywords, location). "
+    "The TEMPLATE is an osxphotos template string that is rendered to produce the sidecar filename. "
+    "The path to the current file is available as {filepath}. "
+    "Thus if file is named 'IMG_1234.jpg' and sidecar is named 'IMG_1234.xmp', "
+    "you would use the template '{filepath.parent}/{filepath.stem}.xmp'. "
+    "If the sidecar name was 'IMG_1234.jpg.xmp', you would use the template "
+    "'{filepath}.xmp'. "
+    "If the sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
+    "See Template System in help for additional information. "
+    "See also --sidecar-ignore-date. "
+    "Note: --sidecar and --sidecar-template are mutually exclusive.",
+)
+@click.option(
+    "--sidecar-ignore-date",
+    "-i",
+    is_flag=True,
+    help="Do not use date in sidecar to set photo date/time. "
+    "Setting the timezone from sidecar files is not currently supported so when using --sidecar "
+    "or --sidecar-template, the date/time found in the sidecar will be converted to the local timezone "
+    "and that value will be used to set the photo date/time. "
+    "If your photos have correct timezone information in the embedded metadata you can use "
+    "--sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the "
+    "file (which will be read by Photos on import).",
 )
 @click.option(
     "--relative-to",
@@ -1374,10 +1921,21 @@ class ImportCommand(click.Command):
 )
 @click.option(
     "--skip-dups",
+    "-S",
     is_flag=True,
     help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. "
     "Unlike --dup-check, this does not use Photos' built in duplicate checking feature and "
-    "does not display a dialog box for each duplicate found. See also --dup-check.",
+    "does not display a dialog box for each duplicate found. See also --dup-check and --dup-albums.",
+)
+@click.option(
+    "--dup-albums",
+    "-A",
+    is_flag=True,
+    help="If used with --skip-dups, the matching duplicate already in the Photos library "
+    "will be added to any albums the current file would have been added to had it not been skipped. "
+    "This is useful if you have duplicate photos in separate folders and want to avoid duplicates "
+    "in Photos but keep the photos organized in albums that match the folder structure. "
+    "Must be used with --skip-dups and --album. See also --skip-dups.",
 )
 @click.option(
     "--split-folder",
@@ -1400,12 +1958,31 @@ class ImportCommand(click.Command):
     "GLOB may be repeated to import multiple patterns.",
 )
 @click.option(
+    "--check",
+    "-c",
+    is_flag=True,
+    help="Check which FILES have been previously imported but do not actually import anything. "
+    "Prints a report showing which files have been imported (and when they were added) "
+    "and which files have not been imported. "
+    "See also, --check-not.",
+)
+@click.option(
+    "--check-not",
+    "-C",
+    is_flag=True,
+    help="Check which FILES have not been previously imported but do not actually import anything. "
+    "Prints the path to each file that has not been previously imported. "
+    "See also, --check.",
+)
+@click.option(
     "--dry-run",
+    "-n",
     is_flag=True,
     help="Dry run; do not actually import. Useful with --verbose to see what would be imported.",
 )
 @click.option(
     "--report",
+    "-o",
     metavar="REPORT_FILE",
     help="Write a report of all files that were imported. "
     "The extension of the report filename will be used to determine the format. "
@@ -1426,6 +2003,7 @@ class ImportCommand(click.Command):
 )
 @click.option(
     "--append",
+    "-O",
     is_flag=True,
     help="If used with --report, add data to existing report file instead of overwriting it. "
     "See also --report.",
@@ -1433,7 +2011,10 @@ class ImportCommand(click.Command):
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
 @click.option(
-    "--no-progress", is_flag=True, help="Do not display progress bar during import."
+    "--no-progress",
+    "-N",
+    is_flag=True,
+    help="Do not display progress bar during import.",
 )
 @click.option(
     "--check-templates",
@@ -1467,82 +2048,183 @@ class ImportCommand(click.Command):
 @click.argument("files", nargs=-1)
 @click.pass_obj
 @click.pass_context
+def import_main(
+    ctx: click.Context,
+    cli_obj: CLI_Obj,
+    album: tuple[str, ...],
+    append: bool,
+    check: bool,
+    check_not: bool,
+    check_templates: bool,
+    clear_location: bool,
+    clear_metadata: bool,
+    description: str | None,
+    dry_run: bool,
+    dup_albums: bool,
+    dup_check: bool,
+    exiftool: bool,
+    exiftool_path: str | None,
+    files: tuple[str, ...],
+    glob: tuple[str, ...],
+    keyword: tuple[str, ...],
+    library: str | None,
+    location: tuple[float, float],
+    merge_keywords: bool,
+    no_progress: bool,
+    parse_date: str | None,
+    parse_folder_date: str | None,
+    post_function: tuple[Callable[..., None]],
+    relative_to: str | None,
+    report: str | None,
+    resume: bool,
+    sidecar: bool,
+    sidecar_ignore_date: bool,
+    sidecar_template: str | None,
+    skip_dups: bool,
+    split_folder: str | None,
+    theme: str | None,
+    timestamp: bool,
+    title: str | None,
+    verbose_flag: bool,
+    walk: bool,
+):
+    """Import photos and videos into Photos. Photos will be imported into the
+    most recently opened Photos library.
+
+    Limitations:
+
+    - Photos are imported one at a time thus the "Imports" album in Photos will show
+    a new import group for each photo imported.
+
+    - Live photos and RAW+JPEG pairs are imported as separate files, not as a single asset.
+
+    - If there's an edited version of a photo along with the original, they will be imported as separate files, not as a single asset.
+    """
+
+    kwargs = locals()
+    kwargs.pop("ctx")
+    kwargs.pop("cli_obj")
+    import_cli(**kwargs)
+
+
 def import_cli(
-    ctx,
-    cli_obj,
-    album,
-    append,
-    check_templates,
-    clear_location,
-    clear_metadata,
-    description,
-    dry_run,
-    dup_check,
-    exiftool,
-    exiftool_path,
-    files,
-    glob,
-    keyword,
-    library,
-    location,
-    merge_keywords,
-    no_progress,
-    parse_date,
-    post_function,
-    relative_to,
-    report,
-    resume,
-    skip_dups,
-    split_folder,
-    theme,
-    timestamp,
-    title,
-    verbose_flag,
-    walk,
+    album: tuple[str, ...] = (),
+    append: bool = False,
+    check: bool = False,
+    check_not: bool = False,
+    check_templates: bool = False,
+    clear_location: bool = False,
+    clear_metadata: bool = False,
+    description: str | None = None,
+    dry_run: bool = False,
+    dup_albums: bool = False,
+    dup_check: bool = False,
+    exiftool: bool = False,
+    exiftool_path: str | None = None,
+    files: tuple[str, ...] = (),
+    glob: tuple[str, ...] = (),
+    keyword: tuple[str, ...] = (),
+    library: str | None = None,
+    location: tuple[float, float] = (),
+    merge_keywords: bool = False,
+    no_progress: bool = False,
+    parse_date: str | None = None,
+    parse_folder_date: str | None = None,
+    post_function: tuple[Callable[..., None]] = (),
+    relative_to: str | None = None,
+    report: str | None = None,
+    resume: bool = False,
+    sidecar: bool = False,
+    sidecar_ignore_date: bool = False,
+    sidecar_template: str | None = None,
+    skip_dups: bool = False,
+    split_folder: str | None = None,
+    theme: str | None = None,
+    timestamp: bool = False,
+    title: str | None = None,
+    verbose_flag: bool = False,
+    walk: bool = False,
 ):
     """Import photos and videos into Photos. Photos will be imported into the
     most recently opened Photos library.
 
     Photos are imported one at a time thus the "Imports" album in Photos will show
-    a new import group for each photo imported. Batch import into a single import
-    group will be added in a future release.
-    """
+    a new import group for each photo imported.
 
+    This function is called by import_main() and is pulled out as a separate function
+    so it could be called directly in your own code without the Click instrumentation.
+    """
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     if not files:
         echo("Nothing to import", err=True)
         return
 
-    # below needed for to make CliRunner work for testing
-    # cli_db = cli_obj.db if cli_obj is not None else None
-    # db = get_photos_db(db, cli_db)
-    # if not db:
-    #     echo(get_help_msg(import_cli), err=True)
-    #     echo("\n\nLocated the following Photos library databases: ", err=True)
-    #     _list_libraries()
-    #     return
-
     report_file = render_and_validate_report(report) if report else None
-    relative_to = Path(relative_to) if relative_to else None
+    relative_to = pathlib.Path(relative_to) if relative_to else None
 
     files = collect_files_to_import(files, walk, glob)
     if check_templates:
         check_templates_and_exit(
-            files,
-            relative_to,
-            title,
-            description,
-            keyword,
-            album,
-            exiftool_path,
-            exiftool,
-            parse_date,
+            files=files,
+            relative_to=relative_to,
+            title=title,
+            description=description,
+            keyword=keyword,
+            album=album,
+            exiftool_path=exiftool_path,
+            exiftool=exiftool,
+            parse_date=parse_date,
+            parse_folder_date=parse_folder_date,
+            sidecar=sidecar,
+            sidecar_template=sidecar_template,
         )
+
+    # need to get the library path to initialize FingerprintQuery
+    last_library = library or get_last_library_path()
+    if not last_library:
+        rich_echo_error(
+            "[error]Could not determine path to Photos library. "
+            "Please specify path to library with --library option."
+        )
+
+    if check:
+        check_imported_files(files, last_library, verbose)
+        sys.exit(0)
+
+    if check_not:
+        check_not_imported_files(files, last_library, verbose)
+        sys.exit(0)
+
+    if exiftool and not exiftool_path:
+        # ensure exiftool is installed in path
+        try:
+            get_exiftool_path()
+        except FileNotFoundError as e:
+            rich_echo_error(f"[error] {e}")
+            raise click.Abort()
+
+    if sidecar and sidecar_template:
+        rich_echo_error(
+            "[error] Only one of --sidecar or --sidecar-template may be used"
+        )
+        raise click.Abort()
+
+    if sidecar_ignore_date and not (sidecar or sidecar_template):
+        rich_echo_error(
+            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-template"
+        )
+        raise click.Abort()
+
+    if dup_albums and not (skip_dups and album):
+        rich_echo_error(
+            "[error] --dup-albums must be used with --skip-dups and --album"
+        )
+        raise click.Abort()
 
     # initialize report data
     # report data is set even if no report is generated
-    report_data: Dict[Path, ReportRecord] = {}
+    report_data: dict[pathlib.Path, ReportRecord] = {}
 
     import_db = SQLiteKVStore(
         get_data_dir() / IMPORT_DB,
@@ -1552,156 +2234,37 @@ def import_cli(
     )
     import_db.about = f"osxphotos import database\n{OSXPHOTOS_ABOUT_STRING}"
 
-    # need to get the library path to initialize FingerprintQuery
-    last_library = library or get_last_library_path()
-    if not last_library:
-        rich_echo_error(
-            "[error]Could not determine path to Photos library. "
-            "Please specify path to library with --library option."
-        )
-    fq = FingerprintQuery(last_library)
-
-    imported_count = 0
-    error_count = 0
-    skipped_count = 0
-    filecount = len(files)
-    with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
-        task = progress.add_task(
-            f"Importing [num]{filecount}[/] {pluralize(filecount, 'file', 'files')}",
-            total=filecount,
-        )
-        for filepath in files:
-            filepath = Path(filepath).resolve().absolute()
-            relative_filepath = get_relative_filepath(filepath, relative_to)
-
-            # check if file already imported
-            if resume:
-                if record := import_db.get(str(filepath)):
-                    if record.imported and not record.error:
-                        # file already imported
-                        verbose(
-                            f"Skipping [filepath]{filepath}[/], "
-                            f"already imported on [time]{record.import_datetime.isoformat()}[/] "
-                            f"with UUID [uuid]{record.uuid}[/]"
-                        )
-                        skipped_count += 1
-                        progress.advance(task)
-                        continue
-
-            verbose(f"Importing [filepath]{filepath}[/]")
-            if duplicates := fq.photos_by_fingerprint(fingerprint(filepath)):
-                # duplicate of file already in Photos library
-                verbose(
-                    f"File [filepath]{filepath}[/] is a duplicate of photos in the library: "
-                    f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/])' for u, f in duplicates])}"
-                )
-
-            report_data[filepath] = ReportRecord(
-                filepath=filepath, filename=filepath.name
-            )
-            report_record = report_data[filepath]
-
-            if skip_dups:
-                verbose(f"Skipping duplicate [filepath]{filepath}[/]")
-                skipped_count += 1
-                report_record.imported = False
-                continue
-
-            if not dry_run:
-                photo, error = import_photo(filepath, dup_check, verbose)
-                if error:
-                    error_count += 1
-                    report_record.error = True
-                    continue
-            else:
-                photo = None
-            report_record.imported = True
-            imported_count += 1
-
-            if clear_metadata:
-                clear_photo_metadata(photo, filepath, verbose, dry_run)
-
-            if clear_location:
-                clear_photo_location(photo, filepath, verbose, dry_run)
-
-            if exiftool:
-                set_photo_metadata_from_exiftool(
-                    photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
-                )
-
-            if title:
-                set_photo_title(
-                    photo,
-                    filepath,
-                    relative_filepath,
-                    title,
-                    exiftool_path,
-                    verbose,
-                    dry_run,
-                )
-
-            if description:
-                set_photo_description(
-                    photo,
-                    filepath,
-                    relative_filepath,
-                    description,
-                    exiftool_path,
-                    verbose,
-                    dry_run,
-                )
-
-            if keyword:
-                set_photo_keywords(
-                    photo,
-                    filepath,
-                    relative_filepath,
-                    keyword,
-                    exiftool_path,
-                    merge_keywords,
-                    verbose,
-                    dry_run,
-                )
-
-            if location:
-                set_photo_location(photo, filepath, location, verbose, dry_run)
-
-            if parse_date:
-                set_photo_date_from_filename(
-                    photo, filepath, parse_date, verbose, dry_run
-                )
-                # TODO: ReportRecord doesn't currently record date
-
-            if album:
-                report_record.albums = add_photo_to_albums(
-                    photo,
-                    filepath,
-                    relative_filepath,
-                    album,
-                    split_folder,
-                    exiftool_path,
-                    verbose,
-                    dry_run,
-                )
-
-            if post_function:
-                for function in post_function:
-                    # post function is tuple of (function, filename.py::function_name)
-                    verbose(f"Calling post-function [bold]{function[1]}")
-                    if not dry_run:
-                        try:
-                            function[0](photo, filepath, verbose, report_record)
-                        except Exception as e:
-                            rich_echo_error(
-                                f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
-                            )
-
-            # update report data
-            if not dry_run:
-                update_report_record(report_record, photo, filepath)
-                import_db.set(str(filepath), report_record)
-
-            progress.advance(task)
+    imported_count, skipped_count, error_count = import_files(
+        last_library=last_library,
+        files=files,
+        no_progress=no_progress,
+        resume=resume,
+        clear_metadata=clear_metadata,
+        clear_location=clear_location,
+        exiftool=exiftool,
+        exiftool_path=exiftool_path,
+        sidecar=sidecar,
+        sidecar_ignore_date=sidecar_ignore_date,
+        sidecar_template=sidecar_template,
+        merge_keywords=merge_keywords,
+        title=title,
+        description=description,
+        keyword=keyword,
+        location=location,
+        parse_date=parse_date,
+        parse_folder_date=parse_folder_date,
+        album=album,
+        dup_albums=dup_albums,
+        split_folder=split_folder,
+        post_function=post_function,
+        skip_dups=skip_dups,
+        dup_check=dup_check,
+        dry_run=dry_run,
+        report_data=report_data,
+        relative_to=relative_to,
+        import_db=import_db,
+        verbose=verbose,
+    )
 
     import_db.close()
 
@@ -1716,3 +2279,41 @@ def import_cli(
         f"{skipped_str}",
         emoji=False,
     )
+
+
+def check_imported_files(files: list[str], library: str, verbose: Callable[..., None]):
+    """Check if files have been previously imported and print results"""
+
+    if not files:
+        rich_echo_error("No files to check")
+        return
+
+    file_word = pluralize(len(files), "file", "files")
+    verbose(f"Checking {len(files)} {file_word} to see if previously imported")
+    fq = FingerprintQuery(library)
+    for filepath in files:
+        if duplicates := fq.possible_duplicates(filepath):
+            echo(
+                f"[filepath]:white_check_mark-emoji: {filepath}[/], imported, "
+                + f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
+            )
+        else:
+            echo(f"[error]{filepath}[/], not imported")
+
+
+def check_not_imported_files(
+    files: list[str], library: str, verbose: Callable[..., None]
+):
+    """Check if files have not been previously imported and print results"""
+
+    if not files:
+        rich_echo_error("No files to check")
+        return
+
+    file_word = pluralize(len(files), "file", "files")
+    verbose(f"Checking {len(files)} {file_word} to see if not previously imported")
+    fq = FingerprintQuery(library)
+    for filepath in files:
+        if fq.possible_duplicates(filepath):
+            continue
+        echo(f"{filepath}")

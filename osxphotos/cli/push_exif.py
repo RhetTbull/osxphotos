@@ -9,8 +9,8 @@ import click
 from rich.progress import Progress
 
 from osxphotos import PhotoInfo
-from osxphotos.exif_datetime_updater import get_exif_date_time_offset
 from osxphotos.exiftool import get_exiftool_path
+from osxphotos.exifutils import get_exif_date_time_offset
 from osxphotos.exifwriter import ExifOptions, ExifWriter, exif_options_from_locals
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions

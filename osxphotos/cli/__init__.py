@@ -86,7 +86,7 @@ from .version import version
 if is_macos:
     from .add_locations import add_locations
     from .batch_edit import batch_edit
-    from .import_cli import import_cli
+    from .import_cli import import_main
     from .photo_inspect import photo_inspect
     from .push_exif import push_exif
     from .show_command import show
@@ -140,7 +140,7 @@ if is_macos:
     __all__ += [
         "add_locations",
         "batch_edit",
-        "import_cli",
+        "import_main",
         "photo_inspect",
         "push_exif",
         "show",

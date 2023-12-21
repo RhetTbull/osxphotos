@@ -1,6 +1,7 @@
 """ Tests which require user interaction to run for osxphotos import command; run with pytest --test-import """
 
 import csv
+import datetime
 import json
 import os
 import os.path
@@ -10,7 +11,6 @@ import shutil
 import sqlite3
 import time
 import unicodedata
-from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import Dict
 
@@ -28,7 +28,7 @@ from tests.conftest import get_os_version
 if is_macos:
     from photoscript import Photo
 
-    from osxphotos.cli.import_cli import import_cli
+    from osxphotos.cli.import_cli import import_main
 else:
     pytest.skip(allow_module_level=True)
 
@@ -58,6 +58,13 @@ TEST_DATA = {
             "keyword: {exiftool:IPTC:Keywords}: ['osxphotos', 'Sümmer']",
             "album: {filepath.parent}: test-images",
         ],
+        "sidecar": {
+            "title": "Image Title",
+            "description": "Image Description",
+            "keywords": ["nature"],
+            "lat": 33.71506,
+            "lon": -118.31967,
+        },
     },
     TEST_VIDEO_1: {
         "title": "Jellyfish",
@@ -77,6 +84,18 @@ TEST_DATA = {
         "albums": ["faceinfo"],
     },
 }
+
+PARSE_DATE_DEFAULT_DATE = datetime.datetime(1999, 1, 2, 3, 4, 5)
+PARSE_DATE_TEST_DATA = [
+    ["img_1234_2020_11_22_12_34_56.jpg", datetime.datetime(2020, 11, 22, 12, 34, 56)],
+    ["img_1234_20211122.jpg", datetime.datetime(2021, 11, 22, 3, 4, 5)],
+    ["19991231_20221122.jpg", datetime.datetime(2022, 11, 22, 3, 4, 5)],
+    [
+        "img-123456.jpg",
+        datetime.datetime(1999, 1, 2, 12, 34, 56),
+    ],  # matches only the time
+    ["test_parse_date.jpg", PARSE_DATE_DEFAULT_DATE],
+]
 
 
 # set timezone to avoid issues with comparing dates
@@ -138,7 +157,7 @@ def test_import():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -160,7 +179,7 @@ def test_import_dry_run():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--dry-run",
@@ -195,14 +214,14 @@ def test_import_dup_check():
 
     # import first to ensure photo is in library
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
 
     # now import again with --dup-check
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--dup-check", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -225,14 +244,14 @@ def test_import_skip_dups():
     runner = CliRunner()
     # import first to ensure photo is in library
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
 
     # now import again with --skip-dups
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--skip-dups", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -243,13 +262,47 @@ def test_import_skip_dups():
 
 
 @pytest.mark.test_import
+def test_import_skip_dups_dup_albums():
+    """Test basic import with --skip_dups and --dup-albums"""
+
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    # import first to ensure photo is in library
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    # now import again with --skip-dups
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--skip-dups",
+            test_image_1,
+            "--album",
+            "Test Album",
+            "--dup-albums",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Skipping duplicate" in result.output
+    image_name = pathlib.Path(test_image_1).name
+    assert f"Adding photo {image_name} to album Test Album" in result.output
+
+
+@pytest.mark.test_import
 def test_import_album():
     """Test basic import to an album"""
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--album", "My New Album", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -274,7 +327,7 @@ def test_import_album_2():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--album", "Folder/My New Album", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -294,13 +347,13 @@ def test_import_album_2():
 
 
 @pytest.mark.test_import
-def test_import_album_slit_folder():
+def test_import_album_split_folder():
     """Test basic import to an album with a "/" in it and --split-folder"""
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--album",
@@ -333,7 +386,7 @@ def test_import_album_relative_to():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--album",
@@ -368,7 +421,7 @@ def test_import_clear_metadata():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -398,7 +451,7 @@ def test_import_exiftool():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -432,7 +485,7 @@ def test_import_exiftool_video():
     test_image_1 = os.path.join(cwd, TEST_VIDEO_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -466,7 +519,7 @@ def test_import_exiftool_video_no_metadata():
     test_image_1 = os.path.join(cwd, TEST_VIDEO_2)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -500,7 +553,7 @@ def test_import_title():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -530,7 +583,7 @@ def test_import_description():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -559,7 +612,7 @@ def test_import_keyword():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--keyword",
@@ -590,7 +643,7 @@ def test_import_keyword_merge():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -626,7 +679,7 @@ def test_import_keyword_merge_unicode():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -665,7 +718,7 @@ def test_import_location():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--clear-metadata",
@@ -691,13 +744,107 @@ def test_import_location():
 
 
 @pytest.mark.test_import
+def test_import_sidecar():
+    """Test import file with --sidecar"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--sidecar",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Setting metadata and location from sidecar" in result.output
+    assert "Set date" in result.output
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert photo_1.title == TEST_DATA[TEST_IMAGE_1]["sidecar"]["title"]
+    assert photo_1.description == TEST_DATA[TEST_IMAGE_1]["sidecar"]["description"]
+    assert photo_1.keywords == TEST_DATA[TEST_IMAGE_1]["sidecar"]["keywords"]
+    lat, lon = photo_1.location
+    assert lat == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lat"])
+    assert lon == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lon"])
+
+
+@pytest.mark.test_import
+def test_import_sidecar_ignore_date():
+    """Test import file with --sidecar --sidecar-ignore-date"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--sidecar",
+            "--sidecar-ignore-date",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Setting metadata and location from sidecar" in result.output
+    assert "Set date" not in result.output
+
+
+@pytest.mark.test_import
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+def test_import_sidecar_template():
+    """Test import file with --sidecar-template"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--sidecar-template",
+            "{filepath}.xmp",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Setting metadata and location from sidecar" in result.output
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert photo_1.title == TEST_DATA[TEST_IMAGE_1]["sidecar"]["title"]
+    assert photo_1.description == TEST_DATA[TEST_IMAGE_1]["sidecar"]["description"]
+    assert photo_1.keywords == TEST_DATA[TEST_IMAGE_1]["sidecar"]["keywords"]
+    lat, lon = photo_1.location
+    assert lat == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lat"])
+    assert lon == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lon"])
+
+
+@pytest.mark.test_import
 def test_import_glob():
     """Test import with --glob"""
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", f"{cwd}/{TEST_IMAGES_DIR}/", "--walk", "--glob", "Pumpk*.jpg"],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -713,7 +860,7 @@ def test_import_glob_walk():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             f"{cwd}/{TEST_IMAGES_DIR}/",
@@ -747,7 +894,7 @@ def test_import_check_templates():
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--exiftool",
@@ -787,7 +934,7 @@ def test_import_function_template():
         )
         runner = CliRunner()
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 "--verbose",
                 "--album",
@@ -819,7 +966,7 @@ def test_import_report():
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -838,7 +985,7 @@ def test_import_report():
 
         # test report gets overwritten
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -855,7 +1002,7 @@ def test_import_report():
 
         # test report with --append
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -885,7 +1032,7 @@ def test_import_report_json():
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -903,7 +1050,7 @@ def test_import_report_json():
 
         # test report gets overwritten
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -921,7 +1068,7 @@ def test_import_report_json():
 
         # test report with --append
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -953,7 +1100,7 @@ def test_import_report_sqlite(report_file):
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -972,7 +1119,7 @@ def test_import_report_sqlite(report_file):
 
         # test report gets overwritten
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -991,7 +1138,7 @@ def test_import_report_sqlite(report_file):
 
         # test report with --append
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -1023,7 +1170,7 @@ def test_import_report_invalid_name():
 
     with runner.isolated_filesystem():
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 test_image_1,
                 "--report",
@@ -1045,7 +1192,7 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -1062,7 +1209,7 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
     # test resume
     test_image_2 = os.path.join(cwd, TEST_IMAGE_2)
     result = runner.invoke(
-        import_cli,
+        import_main,
         ["--verbose", "--resume", test_image_1, test_image_2],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -1073,38 +1220,35 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
 
 
 @pytest.mark.test_import
-def test_import_parse_date(tmp_path: pathlib.Path):
+@pytest.mark.parametrize("data", PARSE_DATE_TEST_DATA)
+def test_import_parse_date(tmp_path: pathlib.Path, data: tuple[str, datetime.datetime]):
     """Test import with --parse-date"""
+
+    img_name = data[0]
+    date = data[1]
 
     # set up test images
     os.environ["TZ"] = "US/Pacific"
     cwd = os.getcwd()
     test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
 
-    default_date = datetime(1999, 1, 1, 0, 0, 0)
-    test_data = [
-        ["img_1234_2020_11_22_12_34_56.jpg", datetime(2020, 11, 22, 12, 34, 56)],
-        ["img_1234_20211122.jpg", datetime(2021, 11, 22, 0, 0, 0)],
-        ["19991231_20221122.jpg", datetime(2022, 11, 22, 0, 0, 0)],
-        ["test_parse_date.jpg", default_date],
-    ]
-    images = []
-    for img in [x[0] for x in test_data]:
-        test_file = tmp_path / img
-        shutil.copy(test_image_source, test_file)
-        images.append(test_file)
+    test_file = tmp_path / img_name
+    shutil.copy(test_image_source, test_file)
 
-        # set file time to default date
-        os.utime(test_file, (default_date.timestamp(), default_date.timestamp()))
+    # set file time to default date
+    os.utime(
+        test_file,
+        (PARSE_DATE_DEFAULT_DATE.timestamp(), PARSE_DATE_DEFAULT_DATE.timestamp()),
+    )
 
     runner = CliRunner()
     result = runner.invoke(
-        import_cli,
+        import_main,
         [
             "--verbose",
             "--parse-date",
-            "img_*_%Y_%m_%d_%H_%M_%S|img_{4}_%Y%m%d|_%Y%m%d.",
-            *[str(x) for x in images],
+            "img_*_%Y_%m_%d_%H_%M_%S|img_{4}_%Y%m%d|_%Y%m%d.|-%H%M%S.",
+            str(test_file),
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -1112,9 +1256,50 @@ def test_import_parse_date(tmp_path: pathlib.Path):
 
     # verify that the date was parsed correctly
     photosdb = PhotosDB()
-    for test_case in test_data:
-        photo = photosdb.query(QueryOptions(name=[test_case[0]]))[0]
-        assert datetime_remove_tz(photo.date) == test_case[1]
+    photo = photosdb.query(QueryOptions(name=[img_name]))[0]
+    assert datetime_remove_tz(photo.date) == date
+
+
+@pytest.mark.test_import
+def test_import_parse_folder_date(tmp_path: pathlib.Path):
+    """Test import with --parse-folder-date"""
+
+    # set up test images
+    os.environ["TZ"] = "US/Pacific"
+    cwd = os.getcwd()
+    test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
+
+    test_dir = tmp_path / "2021-12-11"
+    img_name = "123457.jpg"
+    test_dir.mkdir(parents=True, exist_ok=True)
+    test_file = test_dir / img_name
+    shutil.copy(test_image_source, test_file)
+
+    # set file time to default date
+    os.utime(
+        test_file,
+        (PARSE_DATE_DEFAULT_DATE.timestamp(), PARSE_DATE_DEFAULT_DATE.timestamp()),
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--parse-date",
+            "%H%M%S.",
+            "--parse-folder-date",
+            "%Y-%m-%d",
+            str(test_file),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    # verify that the date was parsed correctly
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(name=[img_name]))[0]
+    assert datetime_remove_tz(photo.date) == datetime.datetime(2021, 12, 11, 12, 34, 57)
 
 
 @pytest.mark.test_import
@@ -1137,7 +1322,7 @@ def test_import_post_function():
 
         tempdir = os.getcwd()
         result = runner.invoke(
-            import_cli,
+            import_main,
             [
                 "import",
                 "--verbose",
@@ -1148,3 +1333,32 @@ def test_import_post_function():
         )
         assert result.exit_code == 0
         assert "FOO BAR" in result.output
+
+
+@pytest.mark.test_import
+def test_import_check():
+    """test import with --check option"""
+    cwd = os.getcwd()
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [f"{cwd}/{TEST_IMAGES_DIR}", "--walk", "--check", "--verbose"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "tests/test-images/IMG_3984.jpeg, not imported" in result.output
+    assert "tests/test-images/IMG_3092.heic, imported" in result.output
+
+
+@pytest.mark.test_import
+def test_import_check_not():
+    """test import with --check-not option"""
+    cwd = os.getcwd()
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [f"{cwd}/{TEST_IMAGES_DIR}", "--walk", "--check-not", "--verbose"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "tests/test-images/IMG_3984.jpeg" in result.output
