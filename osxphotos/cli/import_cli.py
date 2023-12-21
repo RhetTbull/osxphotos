@@ -1528,6 +1528,17 @@ class ImportCommand(click.Command):
 
             `--keyword "Vacation"` sets the keyword for the imported file to the literal string "Vacation".
 
+            If the photo metadata or sidecar contains the names of persons in the image (e.g. `XMP:PersonInImage`),
+            you can use the `{person}` template to add the names of the persons to the keywords.  For example:
+
+            `--keyword "{person}"` will add the names of the persons in the image to the keywords.
+
+            This is helpful as Photos will not import person names from the metadata and osxphotos
+            cannot set person names in Photos (this is a limitation of Photos).
+
+            To use the `{person}` template, you must have exiftool installed and in your path or
+            the data must be in a sidecar file.
+
             ## Template System
 
             As mentioned above, the `--title`, `--description`, `--keyword`, and `--album` options 
@@ -1606,12 +1617,15 @@ class ImportCommand(click.Command):
             `--keyword`, and `--album` option. It will also print out the values extracted by
             the `--exiftool` option.
 
-            ## Parsing Dates/Times from Filenames
+            ## Parsing Dates/Times from File and Folder Names
 
-            The --parse-date option allows you to parse dates/times from the filename of the
+            The `--parse-date` option allows you to parse dates/times from the filename of the
             file being imported.  This is useful if you have a large number of files with
             dates/times embedded in the filename but not in the metadata.
 
+            Likewise, you can use `--parse-folder-date` to parse dates/times from the name of the
+            folder containing the file being imported.
+    
             The argument to `--parse-date` is a pattern string that is used to parse the date/time
             from the filename. The pattern string is a superset of the python `strftime/strptime`
             format with the following additions:
@@ -1649,6 +1663,12 @@ class ImportCommand(click.Command):
             and so on. If you have multiple formats in your filenames you will want to order the patterns
             from most specific to least specific to avoid false matches.
 
+            If your photos are organized by date into folders in format `YYYY/MM/DD`, for example,
+            `/Volumes/Photos/2020/03/22/IMG_1234.jpg`, you can parse the date from the folder name
+            using `--parse-folder-date "%Y/%m/%d$"`. In this example, the pattern is anchored to the
+            end of the string using `$` to avoid false matches if other parts of the path happen to match
+            the pattern.
+
             ## Post Function
 
             You can run a custom python function after each photo is imported using `--post-function`.
@@ -1669,6 +1689,27 @@ class ImportCommand(click.Command):
         
             See https://rhettbull.github.io/PhotoScript/
             for documentation on photoscript and the Photo class that is passed to the function.
+
+            ## Google Takeout
+
+            If you have a Google Takeout archive of your Google Photos library, you can import
+            it using the following steps:
+
+            - Download the Google Takout archive from Google Photos
+            - Unzip the archive
+            - Run the following command to import the photos into Photos:
+
+            `osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv`
+            
+            If you have persons tagged in Google Photos you can add this option to create keywords
+            for each person in the photo: `--keyword "{person}"`
+
+            Google Takeout does not preserve the timezone of the photo. The metadata JSON sidecar
+            produced by Google converts photo times to UTC. The import command will convert these
+            to the correct time in the local timezone upon import. If your photos contain the correct
+            date/time and timezone information in the metadata you can use the `--sidecar-ignore-date`
+            option to ignore the date/time in the sidecar and use the date/time from the photo metadata.
+
         """
         )
         console = Console()
@@ -2050,8 +2091,14 @@ def import_main(
     """Import photos and videos into Photos. Photos will be imported into the
     most recently opened Photos library.
 
-    Photos are imported one at a time thus the "Imports" album in Photos will show
+    Limitations:
+
+    - Photos are imported one at a time thus the "Imports" album in Photos will show
     a new import group for each photo imported.
+
+    - Live photos and RAW+JPEG pairs are imported as separate files, not as a single asset.
+
+    - If there's an edited version of a photo along with the original, they will be imported as separate files, not as a single asset.
     """
 
     kwargs = locals()
