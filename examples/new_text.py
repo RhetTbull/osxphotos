@@ -27,8 +27,7 @@ def new_text(photos: list[osxphotos.PhotoInfo], **kwargs):
             results.append(data)
         kv[photo.uuid] = datetime.datetime.now().isoformat()
     kv.close()
-    if results:
-        echo(json.dumps(results, indent=4))
+    echo(json.dumps(results, indent=4))
 
 
 if __name__ == "__main__":
