@@ -18,6 +18,7 @@ def new_text(photos: list[osxphotos.PhotoInfo], **kwargs):
         if text := photo.search_info.detected_text:
             data = {
                 "photo": photo.original_filename,
+                "path": photo.path,
                 "uuid": photo.uuid,
                 "date_added": photo.date_added.isoformat()
                 if photo.date_added
