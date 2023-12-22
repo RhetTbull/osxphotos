@@ -2,13 +2,14 @@
 
 import json
 import pathlib
+import re
 import sys
 from textwrap import dedent
 
 import click
 from rich import print
 
-from osxphotos._constants import OSXPHOTOS_EXPORT_DB
+from osxphotos._constants import OSXPHOTOS_EXPORT_DB, UUID_PATTERN
 from osxphotos._version import __version__
 from osxphotos.export_db import (
     MAX_EXPORT_RESULTS_DATA_ROWS,
@@ -43,8 +44,6 @@ from .export import render_and_validate_report
 from .param_types import TemplateString
 from .report_writer import export_report_writer_factory
 from .verbose import get_verbose_console, verbose_print
-from osxphotos._constants import UUID_PATTERN
-import re
 
 
 @click.command(name="exportdb")

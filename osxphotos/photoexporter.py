@@ -6,6 +6,7 @@ from __future__ import annotations
 import dataclasses
 import datetime
 import json
+import logging
 import os
 import pathlib
 import typing as t
@@ -56,6 +57,8 @@ if t.TYPE_CHECKING:
 
 # retry if download_missing/use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
+
+logger = logging.getLogger("osxphotos")
 
 
 # return values for _should_update_photo
@@ -1021,7 +1024,14 @@ class PhotoExporter:
                 # to avoid issues with datetime comparisons, list order
                 # need to deserialize from photo.json() instead of using photo.asdict()
                 current_data = json.loads(self.photo.json(shallow=True))
-                diff = dictdiff(last_data, current_data)
+                try:
+                    diff = dictdiff(last_data, current_data)
+                except Exception as e:
+                    # just in case there's an edge case not caught by dictdiff
+                    logger.debug(
+                        f"Error comparing last_data and current_data: {e} ({lineno(__file__)})"
+                    )
+                    diff = []
 
                 def _json_default(o):
                     if isinstance(o, (datetime.date, datetime.datetime)):

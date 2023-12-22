@@ -1,4 +1,4 @@
-"""Perform diffs of dictionaries"""
+"""Perform diffs of dictionaries; this is optimized for osxphotos and is not a general purpose diff tool"""
 
 from __future__ import annotations
 
@@ -72,23 +72,22 @@ def _dictdiff(
             diffs.append([new_path, "removed", (d1[k],)])
         elif isinstance(d1[k], dict) and isinstance(d2[k], dict):
             diffs.extend(_dictdiff(d1[k], d2[k], tolerance, new_path))
-        elif isinstance(d1[k], list) and isinstance(d2[k], list):
-            for i in range(max(len(d1[k]), len(d2[k]))):
-                if i >= len(d1[k]):
-                    diffs.append([f"{new_path}[{i}]", "added", (d2[k][i],)])
-                elif i >= len(d2[k]):
-                    diffs.append([f"{new_path}[{i}]", "removed", (d1[k][i],)])
-                elif (
-                    d1[k]
-                    and isinstance(d1[k][i], dict)
-                    and d2[k]
-                    and isinstance(d2[k][i], dict)
-                ):
-                    diffs.extend(
-                        _dictdiff(d1[k][i], d2[k][i], tolerance, f"{new_path}[{i}]")
-                    )
-                elif not _compare(d1[k][i], d2[k][i], tolerance):
-                    diffs.append([f"{new_path}[{i}]", "changed", (d1[k][i], d2[k][i])])
+        elif isinstance(d1[k], (list, set, tuple)) and isinstance(
+            d2[k], (list, set, tuple)
+        ):
+            added = []
+            removed = []
+            try:
+                added = set(d2[k]) - set(d1[k])
+                removed = set(d1[k]) - set(d2[k])
+            except TypeError:
+                # can't compare sets of unhashable types
+                if d1[k] != d2[k]:
+                    diffs.append([new_path, "changed", (d1[k], d2[k])])
+            if added:
+                diffs.append([new_path, "added", list(added)])
+            if removed:
+                diffs.append([new_path, "removed", list(removed)])
         elif not _compare(d1[k], d2[k], tolerance):
             diffs.append([new_path, "changed", (d1[k], d2[k])])
     for k in set(d2.keys()) - set(d1.keys()):
