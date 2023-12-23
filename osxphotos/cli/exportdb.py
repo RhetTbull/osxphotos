@@ -29,7 +29,7 @@ from osxphotos.export_db_utils import (
     export_db_update_signatures,
     export_db_vacuum,
 )
-from osxphotos.sqlite_utils import sqlite_repair_db
+from osxphotos.sqlite_utils import sqlite_check_integrity, sqlite_repair_db
 from osxphotos.utils import pluralize
 
 from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
@@ -150,6 +150,7 @@ from .verbose import get_verbose_console, verbose_print
     is_flag=True,
     help="Upgrade (if needed) export database to current version.",
 )
+@click.option("--check", is_flag=True, help="Check export database for errors.")
 @click.option(
     "--repair",
     is_flag=True,
@@ -193,6 +194,7 @@ from .verbose import get_verbose_console, verbose_print
 @click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path(exists=True))
 def exportdb(
     append,
+    check,
     check_signatures,
     create,
     dry_run,
@@ -247,6 +249,7 @@ def exportdb(
     sub_commands = [
         bool(cmd)
         for cmd in [
+            check,
             check_signatures,
             create,
             info,
@@ -307,6 +310,17 @@ def exportdb(
         else:
             rich_echo(f"Created export database [filepath]{export_db}[/]")
             sys.exit(0)
+
+    if check:
+        errors = sqlite_check_integrity(export_db)
+        if not errors:
+            rich_echo(f"Ok: [filepath]{export_db}[/]")
+            sys.exit(0)
+        else:
+            rich_echo_error(f"[error]Errors: [filepath]{export_db}[/][/error]")
+            for error in errors:
+                rich_echo_error(error)
+            sys.exit(1)
 
     if repair:
         try:

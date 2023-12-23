@@ -28,6 +28,7 @@ __all__ = [
     "sqlite_recover_db",
     "sqlite_repair_db",
     "sqlite_tables",
+    "sqlite_db_is_ok",
 ]
 
 
@@ -154,20 +155,30 @@ def sqlite_delete_backup_files(dbpath: str | pathlib.Path) -> list[str]:
     return [str(d) for d in deleted_files]
 
 
-def sqlite_check_integrity(dbpath: str | pathlib.Path) -> bool:
-    """Check integrity of sqlite database at dbpath"""
+def sqlite_check_integrity(dbpath: str | pathlib.Path) -> list[str]:
+    """Check integrity of sqlite database at dbpath
+
+    Returns:
+        list of errors found or empty list if no errors
+    """
+    dbpath = str(dbpath)
     try:
         conn = sqlite3.connect(
             dbpath, timeout=1, check_same_thread=SQLITE_CHECK_SAME_THREAD
         )
         results = conn.execute("PRAGMA integrity_check;").fetchall()
         if results[0][0] == "ok":
-            return True
+            return []
+        return [row[0] for row in results]
     except sqlite3.Error:
-        return False
+        return ["Unknown error"]
     finally:
         conn.close()
-    return False
+
+
+def sqlite_db_is_ok(dbpath: str | pathlib.Path) -> bool:
+    """Check integrity of sqlite database at dbpath"""
+    return not sqlite_check_integrity(dbpath)
 
 
 def sqlite_repair_db(dbpath: str | pathlib.Path):
@@ -180,7 +191,7 @@ def sqlite_repair_db(dbpath: str | pathlib.Path):
         sqlite3.Error if repair fails
     """
 
-    if sqlite_check_integrity(dbpath):
+    if sqlite_db_is_ok(dbpath):
         return
     try:
         sqlite_recover_db(dbpath)
@@ -214,7 +225,7 @@ def sqlite_recover_db(dbpath: str | pathlib.Path) -> None:
         raise FileNotFoundError("sqlite3 command line tool not found")
 
     try:
-        shutil.copy(dbpath, dbpath + ".bak")
+        sqlite_backup_dbfiles(dbpath)
         temp_file = os.path.join(tempfile.mkdtemp(), "temp_db.db")
         recovered_tmp_file = os.path.join(tempfile.mkdtemp(), "recovered_db.db")
         shutil.copy(dbpath, temp_file)
