@@ -701,6 +701,16 @@
         "test",
         "bug"
       ]
+    },
+    {
+      "login": "mikekenyon99",
+      "name": "Mike Kenyon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/42475982?v=4",
+      "profile": "https://github.com/mikekenyon99",
+      "contributions": [
+        "ideas",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
