@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.0](https://github.com/RhetTbull/osxphotos/compare/v0.66.0...v0.67.0)
+
+Import support for sidecars, Google Takeout.
+
+### [v0.67.0] - 2023-12-23
+
+Several enhancements to `osxphotos import` that now allow it to be used to import a Google Takeout archive into Photos.app. Enhancements to `osxphotos export` to store the history of exported photos and videos in the export database and to allow checking and repairing the export database with `osxphotos exportdb`.
+
+For example, to import a Google Takeout archive into Photos.app:
+
+Download the Google Photos Takeout archive from Google and unzip it. This will create a folder with a name like `Takeout`. Inside this folder will be a folder named `Google Photos` which contains all the photos and videos.  You can import the photos and videos into Photos.app using the following command (assuming you unzipped the Takeout file in your Downloads folder):
+
+```bash
+osxphotos import ~/Downloads/Takeout/Google\ Photos --walk --album "{filepath.parent.name}" --skip-dups --dup-albums --sidecar --verbose --sidecar-ignore-date --keyword "{person}" --report takeout_import.csv
+```
+
+This will import all the photos and videos into Photos.app, creating albums with the same name as the folder they were in in the Takeout archive (which is how Google Takeout stores photos in albums). It will skip duplicates (Google Takeout exports duplicate copies of photos that are in more than one album) but add the duplicate photo that's already in the library to the albums it would have been added to if it were imported (`--skip-dups --dup-albums`).  It will also import metadata from the sidecar files (Google Takeout exports metadata in JSON format) (`--sidecar`).
+
+The `--sidecar-ignore-date` option is optional but prevents osxphotos from setting the photo's date from the sidecar metadata. This is helpful because Google Takeout does not preserve the timezone of the photo in the Takeout metadata but converts all times to UTC. This will be handled by osxphotos by converting to local timezone upon import. However, if the photo's already have correct time in the EXIF data, `--sidecar-ignore-date` will prevent osxphotos from setting the date from the sidecar metadata, allowing Photos to set the date from the image.
+
+The `--keyword "{person}"` option will add any people in the photo to the photo's keywords. The `osxphotos import` command cannot set person info in Photos (this is a limitation of Photos) but Google will preserve the person names if you've used the face naming feature. You can optionally include `--keyword "{person}"` to add keywords for the persons found in each image.
+
+The `--report takeout_import.csv` option will create a report of the import in CSV format.
+
+#### Added
+
+- Added `--sidecar` and `--sidecar-template` to `osxphotos import` to import metadata from sidecar files during import. Supported sidecar formats are XMP, osxphotos JSON, exiftool JSON, and Google Takeout JSON. `--sidecar` will automatically find the sidecar (even with Google Takeout's weird naming scheme) and `--sidecar-template` allows to specify the sidecar file name using a template.
+- Added `--dup-albums` to `osxphotos import` to add photos to the appropriate albums even if photo is skipped due to `--skip-dups`. This will add the duplicate photo already in the library to the albums the photo would have been added to if it were imported.
+- Added `--parse-folder-date` to `osxphotos import` to parse date from folder name just as `--parse-date` can parse date from the filename. `--parse-folder-date` and `--parse-date` can be used together if part of the date is in the filename and part in the folder name. For example `--parse-folder-date "%Y/%m/%d" --parse-date "%H%M%S"` would parse a date from a folder name like `2021/01/01` and time from filename like `IMG_1234_125600.jpg`.
+- Added `--check`, `--repair` to `osxphotos exportdb` to check and repair database
+- Added `--history` to `osxphotos exportdb` to show history of exported photos and videos
+
+#### Removed
+
+#### Changed
+
+- Export database now stores history of exported photos and videos which can be used with `osxphotos exportdb --history` to see why a specific file or UUID was exported or skipped and the history of the file.
+- The report format for `osxphotos import` has changed (added photo date to report), thus if you use `--report --append` you'll need to archive the existing reports and start fresh with this version.
+
+#### Fixed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code
+- @finestream [@finestream](https://github.com/finestream) for the idea to add `--sidecar` to `osxphotos import`
+- @mikekenyon99 [@mikekenyon99](https://github.com/mikekenyon99) for the idea to add a repair option to `osxphotos exportdb`
+
 ## [v0.66.0](https://github.com/RhetTbull/osxphotos/compare/v0.65.0...v0.66.0)
 
 Bug Fixes
