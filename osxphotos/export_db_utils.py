@@ -331,6 +331,7 @@ def export_db_migrate_photos_library(
     photosdb = PhotosDB(dbfile=photos_library, verbose=verbose)
     photosdb_fingerprint = {}
     photosdb_cloud_guid = {}
+    photosdb_name_size = {}
     photosdb_shared = {}
     for photo in photosdb.photos():
         photosdb_fingerprint[
@@ -338,6 +339,9 @@ def export_db_migrate_photos_library(
         ] = photo.uuid
         photosdb_cloud_guid[
             f"{photo.original_filename}:{photo.cloud_guid}"
+        ] = photo.uuid
+        photosdb_name_size[
+            f"{photo.original_filename}:{photo.original_filesize}"
         ] = photo.uuid
         if photo.shared:
             photosdb_shared[_shared_photo_key(photo)] = photo.uuid
@@ -375,6 +379,18 @@ def export_db_migrate_photos_library(
                 new_uuid = photosdb_fingerprint[key]
                 verbose(
                     f"[green]Matched by fingerprint[/green]: [uuid]{uuid}[/] -> [uuid]{new_uuid}[/]"
+                )
+                _export_db_update_uuid_info(
+                    conn, uuid, new_uuid, photoinfo, photosdb, dry_run
+                )
+                matched += 1
+                continue
+        if original_filesize := photoinfo.get("original_filesize", None):
+            key = f"{photoinfo['original_filename']}:{original_filesize}"
+            if key in photosdb_name_size:
+                new_uuid = photosdb_name_size[key]
+                verbose(
+                    f"[green]Matched by name and size[/green]: [uuid]{uuid}[/] -> [uuid]{new_uuid}[/]"
                 )
                 _export_db_update_uuid_info(
                     conn, uuid, new_uuid, photoinfo, photosdb, dry_run
