@@ -508,7 +508,6 @@ class ExportDB:
             self._conn.close()
             self._conn = None
 
-    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def _open_export_db(
         self, dbfile: str, version: str | None = None
     ) -> sqlite3.Connection:
