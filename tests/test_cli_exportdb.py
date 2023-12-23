@@ -91,28 +91,29 @@ def test_export_cleanup_exportdb_report():
         assert len(deleted_files) == 2
 
 
-def test_exportdb_create_version_upgrade(tmp_path):
+def test_exportdb_create_version_upgrade():
     """Test exportdb --create, --version, --upgrade"""
 
     runner = CliRunner()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(exportdb, [str(tmp_path), "--create", "5.0"])
+        cwd = os.getcwd()
+        result = runner.invoke(exportdb, [cwd, "--create", "5.0"])
         assert result.exit_code == 0
         assert "Created export database" in result.output
-        export_db = pathlib.Path(tmp_path) / OSXPHOTOS_EXPORT_DB
+        export_db = pathlib.Path(cwd) / OSXPHOTOS_EXPORT_DB
         assert export_db.is_file()
 
-        result = runner.invoke(exportdb, [str(tmp_path), "--version"])
+        result = runner.invoke(exportdb, [cwd, "--version"])
         assert result.exit_code == 0
         assert "export database version: 5.0" in result.output
 
-        result = runner.invoke(exportdb, [str(tmp_path), "--upgrade"])
+        result = runner.invoke(exportdb, [cwd, "--upgrade"])
         assert result.exit_code == 0
         assert "Upgraded export database" in result.output
         assert OSXPHOTOS_EXPORTDB_VERSION in result.output
 
-        result = runner.invoke(exportdb, [str(tmp_path), "--upgrade"])
+        result = runner.invoke(exportdb, [cwd, "--upgrade"])
         assert result.exit_code == 0
         assert "is already at latest version" in result.output
 
