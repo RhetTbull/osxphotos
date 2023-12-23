@@ -4,13 +4,16 @@
 from __future__ import annotations
 
 import dataclasses
+import datetime
 import json
+import logging
 import os
 import pathlib
 import typing as t
 from enum import Enum
 
 from ._version import __version__
+from .dictdiff import dictdiff
 from .exiftool import exiftool_can_write
 from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
@@ -54,6 +57,8 @@ if t.TYPE_CHECKING:
 
 # retry if download_missing/use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
+
+logger = logging.getLogger("osxphotos")
 
 
 # return values for _should_update_photo
@@ -352,6 +357,13 @@ class PhotoExporter:
             all_results += self._write_aae_file(dest=dest, options=options)
         sidecar_writer = SidecarWriter(self.photo)
         all_results += sidecar_writer.write_sidecar_files(dest=dest, options=options)
+
+        # write history record for any missing files
+        # for any exported, skipped, updated files,
+        # the history record is written in _export_photo
+        # but this isn't called for missing photos
+        for filename in all_results.missing:
+            options.export_db.set_history(filename, self.photo.uuid, "missing", None)
 
         return all_results
 
@@ -901,18 +913,23 @@ class PhotoExporter:
         fileutil = options.fileutil
         export_db = options.export_db
 
+        action = None
         if options.update or options.force_update:  # updating
             if dest_exists:
-                if self._should_update_photo(src, dest, options):
+                if update_reason := self._should_update_photo(src, dest, options):
                     update_updated_files.append(dest_str)
+                    action = "update: " + update_reason.name
                 else:
                     update_skipped_files.append(dest_str)
+                    action = "skip"
             else:
                 # update, destination doesn't exist (new file)
                 update_new_files.append(dest_str)
+                action = "new"
         else:
             # not update, export the file
             exported_files.append(dest_str)
+            action = "export"
 
         export_files = update_new_files + update_updated_files + exported_files
         for export_dest in export_files:
@@ -1002,6 +1019,29 @@ class PhotoExporter:
 
         # set data in the database
         with export_db.create_or_get_file_record(dest_str, self.photo.uuid) as rec:
+            if rec.photoinfo:
+                last_data = json.loads(rec.photoinfo)
+                # to avoid issues with datetime comparisons, list order
+                # need to deserialize from photo.json() instead of using photo.asdict()
+                current_data = json.loads(self.photo.json(shallow=True))
+                try:
+                    diff = dictdiff(last_data, current_data)
+                except Exception as e:
+                    # just in case there's an edge case not caught by dictdiff
+                    logger.debug(
+                        f"Error comparing last_data and current_data: {e} ({lineno(__file__)})"
+                    )
+                    diff = []
+
+                def _json_default(o):
+                    if isinstance(o, (datetime.date, datetime.datetime)):
+                        return o.isoformat()
+                    if isinstance(o, pathlib.Path):
+                        return str(o)
+
+                diff = json.dumps(diff, default=_json_default) if diff else None
+            else:
+                diff = None
             rec.photoinfo = self.photo.json(shallow=True)
             rec.export_options = options.bit_flags
             # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
@@ -1023,6 +1063,10 @@ class PhotoExporter:
                     "exiftool_error": exif_results.exiftool_error,
                     "exiftool_warning": exif_results.exiftool_warning,
                 }
+
+        export_db.set_history(
+            filename=dest_str, uuid=self.photo.uuid, action=action, diff=diff
+        )
 
         # clean up lock file
         unlock_filename(dest_str)

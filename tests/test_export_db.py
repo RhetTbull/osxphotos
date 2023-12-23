@@ -466,3 +466,19 @@ def test_export_db_migration(tmp_path):
     export_db = ExportDB(test_db, tmp_path)
     assert export_db.was_upgraded
     assert export_db.version == OSXPHOTOS_EXPORTDB_VERSION
+
+
+def test_export_db_version(tmp_path):
+    """Test export_db creation with specific version"""
+    # create export db with version 1
+    test_db = tmp_path / "osxphotos_export.db"
+    export_db = ExportDB(test_db, tmp_path, version="7.0")
+    assert export_db.version == "7.0"
+    table_query = "SELECT * FROM sqlite_master WHERE type='table' AND name='history'"
+    assert not export_db.connection.execute(table_query).fetchall()
+
+    # now open again, should be upgraded
+    export_db = ExportDB(test_db, tmp_path)
+    assert export_db.was_upgraded
+    assert export_db.version == OSXPHOTOS_EXPORTDB_VERSION
+    assert export_db.connection.execute(table_query).fetchall()

@@ -2,13 +2,14 @@
 
 import json
 import pathlib
+import re
 import sys
 from textwrap import dedent
 
 import click
 from rich import print
 
-from osxphotos._constants import OSXPHOTOS_EXPORT_DB
+from osxphotos._constants import OSXPHOTOS_EXPORT_DB, UUID_PATTERN
 from osxphotos._version import __version__
 from osxphotos.export_db import (
     MAX_EXPORT_RESULTS_DATA_ROWS,
@@ -28,6 +29,7 @@ from osxphotos.export_db_utils import (
     export_db_update_signatures,
     export_db_vacuum,
 )
+from osxphotos.sqlite_utils import sqlite_check_integrity, sqlite_repair_db
 from osxphotos.utils import pluralize
 
 from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
@@ -48,6 +50,9 @@ from .verbose import get_verbose_console, verbose_print
 @click.command(name="exportdb")
 @click.option("--version", is_flag=True, help="Print export database version and exit.")
 @click.option("--vacuum", is_flag=True, help="Run VACUUM to defragment the database.")
+@click.option(
+    "--create", metavar="VERSION", help="Create a new export database with VERSION."
+)
 @click.option(
     "--check-signatures",
     is_flag=True,
@@ -102,6 +107,12 @@ from .verbose import get_verbose_console, verbose_print
     help="Print information about UUID contained in the database.",
 )
 @click.option(
+    "--history",
+    metavar="FILE_PATH_OR_UUID",
+    nargs=1,
+    help="Print history of FILE_PATH_OR_UUID contained in the database.",
+)
+@click.option(
     "--delete-uuid",
     metavar="UUID",
     nargs=1,
@@ -135,9 +146,17 @@ from .verbose import get_verbose_console, verbose_print
     type=(TemplateString(), click.IntRange(-(MAX_EXPORT_RESULTS_DATA_ROWS - 1), 0)),
 )
 @click.option(
-    "--migrate",
+    "--upgrade",
     is_flag=True,
-    help="Migrate (if needed) export database to current version.",
+    help="Upgrade (if needed) export database to current version.",
+)
+@click.option("--check", is_flag=True, help="Check export database for errors.")
+@click.option(
+    "--repair",
+    is_flag=True,
+    help="Repair export database. "
+    "This may be useful if the export database is corrupted and osxphotos reports "
+    "'database disk image is malformed' errors. ",
 )
 @click.option(
     "--sql",
@@ -175,7 +194,9 @@ from .verbose import get_verbose_console, verbose_print
 @click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path(exists=True))
 def exportdb(
     append,
+    check,
     check_signatures,
+    create,
     dry_run,
     export_db,
     export_dir,
@@ -183,8 +204,8 @@ def exportdb(
     errors,
     last_errors,
     last_run,
-    migrate,
     migrate_photos_library,
+    repair,
     report,
     save_config,
     sql,
@@ -192,8 +213,10 @@ def exportdb(
     timestamp,
     touch_file,
     update_signatures,
+    upgrade,
     uuid_files,
     uuid_info,
+    history,
     delete_uuid,
     delete_file,
     vacuum,
@@ -215,7 +238,7 @@ def exportdb(
     if export_db.is_dir():
         # assume it's the export folder
         export_db = export_db / OSXPHOTOS_EXPORT_DB
-        if not export_db.is_file():
+        if not export_db.is_file() and not create:
             rich_echo_error(
                 f"[error]Error: {OSXPHOTOS_EXPORT_DB} missing from {export_db.parent}[/error]"
             )
@@ -226,10 +249,13 @@ def exportdb(
     sub_commands = [
         bool(cmd)
         for cmd in [
+            check,
             check_signatures,
+            create,
             info,
             last_run,
-            migrate,
+            upgrade,
+            repair,
             report,
             save_config,
             sql,
@@ -262,6 +288,49 @@ def exportdb(
                 f"osxphotos version: [num]{osxphotos_ver}[/], export database version: [num]{export_db_ver}[/]"
             )
         sys.exit(0)
+
+    if create:
+        if pathlib.Path(export_db).exists():
+            rich_echo_error(
+                f"[error]Error: export database {export_db} already exists[/error]"
+            )
+            sys.exit(1)
+
+        if not "4.3" <= create <= OSXPHOTOS_EXPORTDB_VERSION:
+            rich_echo_error(
+                f"[error]Error: invalid version number {create}: must be between >= 4.3, <= {OSXPHOTOS_EXPORTDB_VERSION}[/]"
+            )
+            sys.exit(1)
+
+        try:
+            ExportDB(export_db, export_dir, create)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+        else:
+            rich_echo(f"Created export database [filepath]{export_db}[/]")
+            sys.exit(0)
+
+    if check:
+        errors = sqlite_check_integrity(export_db)
+        if not errors:
+            rich_echo(f"Ok: [filepath]{export_db}[/]")
+            sys.exit(0)
+        else:
+            rich_echo_error(f"[error]Errors: [filepath]{export_db}[/][/error]")
+            for error in errors:
+                rich_echo_error(error)
+            sys.exit(1)
+
+    if repair:
+        try:
+            sqlite_repair_db(export_db)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+        else:
+            rich_echo(f"Ok: [filepath]{export_db}[/]")
+            sys.exit(0)
 
     if vacuum:
         try:
@@ -423,6 +492,24 @@ def exportdb(
                 )
             sys.exit(0)
 
+    if history:
+        # get history for a file or uuid
+        exportdb = ExportDB(export_db, export_dir)
+        if re.match(UUID_PATTERN, history):
+            kwargs = {"uuid": history}
+        else:
+            kwargs = {"filepath": history}
+        try:
+            history_list = exportdb.get_history(**kwargs)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+
+        for item in history_list:
+            rich_echo(f"[date]{item[0]}[/], [filepath]{item[1]}[/], [uuid]{item[2]}[/]")
+
+        sys.exit(0)
+
     if delete_uuid:
         # delete a uuid from the export database
         exportdb = ExportDB(export_db, export_dir)
@@ -465,11 +552,11 @@ def exportdb(
         rich_echo(f"Wrote report to [filepath]{report_filename}[/]")
         sys.exit(0)
 
-    if migrate:
+    if upgrade:
         exportdb = ExportDB(export_db, export_dir)
         if upgraded := exportdb.was_upgraded:
             rich_echo(
-                f"Migrated export database [filepath]{export_db}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
+                f"Upgraded export database [filepath]{export_db}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
             )
         else:
             rich_echo(

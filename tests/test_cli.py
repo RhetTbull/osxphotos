@@ -7421,54 +7421,6 @@ def test_export_cleanup_keep_relative_path():
         assert pathlib.Path("./report.db").is_file()
 
 
-def test_export_cleanup_exportdb_report():
-    """test export with --cleanup flag results show in exportdb --report"""
-
-    runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
-        )
-        assert result.exit_code == 0
-
-        # create 2 files and a directory
-        with open("delete_me.txt", "w") as fd:
-            fd.write("delete me!")
-        os.mkdir("./foo")
-        with open("foo/delete_me_too.txt", "w") as fd:
-            fd.write("delete me too!")
-
-        assert pathlib.Path("./delete_me.txt").is_file()
-        results = runner.invoke(
-            export,
-            [
-                "--library",
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                ".",
-                "-V",
-                "--update",
-                "--cleanup",
-            ],
-        )
-        assert "Deleted: 2 files, 1 directory" in results.output
-        assert not pathlib.Path("./delete_me.txt").is_file()
-        assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
-
-        results = runner.invoke(
-            exportdb,
-            [".", "--report", "report.json", "0"],
-        )
-        assert results.exit_code == 0
-        with open("report.json", "r") as fd:
-            report = json.load(fd)
-        deleted_dirs = [x for x in report if x["cleanup_deleted_directory"]]
-        deleted_files = [x for x in report if x["cleanup_deleted_file"]]
-        assert len(deleted_dirs) == 1
-        assert len(deleted_files) == 2
-
-
 def test_export_cleanup_osxphotos_keep():
     """test export with --cleanup with a .osxphotos_keep file"""
 
