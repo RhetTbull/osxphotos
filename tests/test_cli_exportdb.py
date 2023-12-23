@@ -95,7 +95,6 @@ def test_exportdb_create_version_upgrade(tmp_path):
     """Test exportdb --create, --version, --upgrade"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(exportdb, [str(tmp_path), "--create", "5.0"])
@@ -116,3 +115,25 @@ def test_exportdb_create_version_upgrade(tmp_path):
         result = runner.invoke(exportdb, [str(tmp_path), "--upgrade"])
         assert result.exit_code == 0
         assert "is already at latest version" in result.output
+
+
+def test_exportdb_check():
+    """Test --check"""
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(exportdb, [".", "--create", OSXPHOTOS_EXPORTDB_VERSION])
+        result = runner.invoke(exportdb, [".", "--check"])
+        assert result.exit_code == 0
+        assert "Ok" in result.output
+
+
+def test_exportdb_repair():
+    """Test --repair"""
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(exportdb, [".", "--create", OSXPHOTOS_EXPORTDB_VERSION])
+        result = runner.invoke(exportdb, [".", "--repair"])
+        assert result.exit_code == 0
+        assert "Ok" in result.output
