@@ -122,8 +122,9 @@ def test_exportdb_check():
 
     runner = CliRunner()
     with runner.isolated_filesystem():
-        result = runner.invoke(exportdb, [".", "--create", OSXPHOTOS_EXPORTDB_VERSION])
-        result = runner.invoke(exportdb, [".", "--check"])
+        cwd = os.getcwd()
+        result = runner.invoke(exportdb, [cwd, "--create", OSXPHOTOS_EXPORTDB_VERSION])
+        result = runner.invoke(exportdb, [cwd, "--check"])
         assert result.exit_code == 0
         assert "Ok" in result.output
 
@@ -133,7 +134,23 @@ def test_exportdb_repair():
 
     runner = CliRunner()
     with runner.isolated_filesystem():
-        result = runner.invoke(exportdb, [".", "--create", OSXPHOTOS_EXPORTDB_VERSION])
-        result = runner.invoke(exportdb, [".", "--repair"])
+        cwd = os.getcwd()
+        result = runner.invoke(exportdb, [cwd, "--create", OSXPHOTOS_EXPORTDB_VERSION])
+        result = runner.invoke(exportdb, [cwd, "--repair"])
         assert result.exit_code == 0
         assert "Ok" in result.output
+
+
+def test_exportdb_history():
+    """Test --history"""
+
+    runner = CliRunner()
+    library = os.path.join(os.getcwd(), CLI_PHOTOS_DB)
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        result = runner.invoke(export, [cwd, "--library", library, "-V"])
+        result = runner.invoke(
+            exportdb, [cwd, "--history", os.path.join(cwd, "wedding.jpg")]
+        )
+        assert result.exit_code == 0
+        assert "export, None" in result.output
