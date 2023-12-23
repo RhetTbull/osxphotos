@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.66.0 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.67.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.66.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.67.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.66.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2290,6 +2290,12 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-create">
+<span class="sig-name descname"><span class="pre">--create</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;VERSION&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-create" title="Link to this definition">#</a></dt>
+<dd><p>Create a new export database with VERSION.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-check-signatures">
 <span class="sig-name descname"><span class="pre">--check-signatures</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-check-signatures" title="Link to this definition">#</a></dt>
 <dd><p>Check signatures for all exported photos in the database to find signatures that don’t match.</p>
@@ -2350,6 +2356,12 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-history">
+<span class="sig-name descname"><span class="pre">--history</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILE_PATH_OR_UUID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-history" title="Link to this definition">#</a></dt>
+<dd><p>Print history of FILE_PATH_OR_UUID contained in the database.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-delete-uuid">
 <span class="sig-name descname"><span class="pre">--delete-uuid</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UUID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-delete-uuid" title="Link to this definition">#</a></dt>
 <dd><p>Delete all data associated with UUID from the database.</p>
@@ -2368,9 +2380,21 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-migrate">
-<span class="sig-name descname"><span class="pre">--migrate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-migrate" title="Link to this definition">#</a></dt>
-<dd><p>Migrate (if needed) export database to current version.</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-upgrade">
+<span class="sig-name descname"><span class="pre">--upgrade</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-upgrade" title="Link to this definition">#</a></dt>
+<dd><p>Upgrade (if needed) export database to current version.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-check">
+<span class="sig-name descname"><span class="pre">--check</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-check" title="Link to this definition">#</a></dt>
+<dd><p>Check export database for errors.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-repair">
+<span class="sig-name descname"><span class="pre">--repair</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-repair" title="Link to this definition">#</a></dt>
+<dd><p>Repair export database. This may be useful if the export database is corrupted and osxphotos reports ‘database disk image is malformed’ errors.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2458,9 +2482,15 @@ to modify this behavior.</p>
 <h3>import<a class="headerlink" href="#osxphotos-import" title="Link to this heading">#</a></h3>
 <p>Import photos and videos into Photos. Photos will be imported into the
 most recently opened Photos library.</p>
-<p>Photos are imported one at a time thus the “Imports” album in Photos will show
-a new import group for each photo imported. Batch import into a single import
-group will be added in a future release.</p>
+<p>Limitations:</p>
+<ul class="simple">
+<li><p>Photos are imported one at a time thus the “Imports” album in Photos will show</p></li>
+</ul>
+<p>a new import group for each photo imported.</p>
+<ul class="simple">
+<li><p>Live photos and RAW+JPEG pairs are imported as separate files, not as a single asset.</p></li>
+<li><p>If there’s an edited version of a photo along with the original, they will be imported as separate files, not as a single asset.</p></li>
+</ul>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>import<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>FILES<span class="o">]</span>...
 </pre></div>
 </div>
@@ -2468,7 +2498,7 @@ group will be added in a future release.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-a">
 <span id="cmdoption-osxphotos-import-album"></span><span class="sig-name descname"><span class="pre">-a</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM_TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-a" title="Link to this definition">#</a></dt>
-<dd><p>Import photos into album ALBUM_TEMPLATE. ALBUM_TEMPLATE is an osxphotos template string. Photos may be imported into more than one album by repeating –album. See Template System in help for additional information.</p>
+<dd><p>Import photos into album ALBUM_TEMPLATE. ALBUM_TEMPLATE is an osxphotos template string. Photos may be imported into more than one album by repeating –album. See also –skip-dups, –dup-albums, –split-folder, –relative-to. See Template System in help for additional information.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2492,7 +2522,7 @@ group will be added in a future release.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-m">
 <span id="cmdoption-osxphotos-import-merge-keywords"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--merge-keywords</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-m" title="Link to this definition">#</a></dt>
-<dd><p>Merge keywords created by –exiftool or –keyword with any keywords already associated with the photo. Without –merge-keywords, existing keywords will be overwritten.</p>
+<dd><p>Merge keywords created by –exiftool, –sidecar, –sidecar-template, or –keyword with any keywords already associated with the photo. Without –merge-keywords, existing keywords will be overwritten.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2504,12 +2534,18 @@ group will be added in a future release.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-P">
 <span id="cmdoption-osxphotos-import-parse-date"></span><span class="sig-name descname"><span class="pre">-P</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--parse-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE_PATTERN&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-P" title="Link to this definition">#</a></dt>
-<dd><p>Parse date from filename using DATE_PATTERN. If file does not match DATE_PATTERN, the date will be set by Photos using Photo’s default behavior. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone as the import command does not yet support setting time zone information. For example, if your photos are named ‘IMG_1234_2022_11_23_12_34_56.jpg’ where the date/time is ‘2022-11-23 12:34:56’, you could use the pattern ‘%Y_%m_%d_%H_%M_%S’ or ‘IMG_*_%Y_%m_%d_%H_%M_%S’ to further narrow the pattern to only match files with ‘<a href="#id3"><span class="problematic" id="id4">IMG_xxxx_</span></a>’ in the name.See also –check-templates.</p>
+<dd><p>Parse date from filename using DATE_PATTERN. If file does not match DATE_PATTERN, the date will be set by Photos using Photo’s default behavior. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone as the import command does not yet support setting time zone information. For example, if your photos are named ‘IMG_1234_2022_11_23_12_34_56.jpg’ where the date/time is ‘2022-11-23 12:34:56’, you could use the pattern ‘%Y_%m_%d_%H_%M_%S’ or ‘IMG_*_%Y_%m_%d_%H_%M_%S’ to further narrow the pattern to only match files with ‘<a href="#id3"><span class="problematic" id="id4">IMG_xxxx_</span></a>’ in the name. If the pattern matches only date or only time, the missing information will be set to the default date/time used by Photos when importing the photo. This is either the EXIF date/time if it exists or the file modification date/time. For example, if photos are named ‘IMG_1234_2022_11_23.jpg’ where the date is ‘2022-11-23’, you could use the pattern ‘%Y_%m_%d’ to set the date but the time would be set from the EXIF or the file’s modification time. See also –parse-folder-date, –check-templates.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-import-C">
-<span id="cmdoption-osxphotos-import-clear-metadata"></span><span class="sig-name descname"><span class="pre">-C</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--clear-metadata</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-C" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-F">
+<span id="cmdoption-osxphotos-import-parse-folder-date"></span><span class="sig-name descname"><span class="pre">-F</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--parse-folder-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE_PATTERN&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-F" title="Link to this definition">#</a></dt>
+<dd><p>Parse date from folder name using DATE_PATTERN. If folder does not match DATE_PATTERN, the date will be set by Photos using Photo’s default behavior. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone as the import command does not yet support setting time zone information. For example, if your photos are in folder ‘2023/12/17/IMG_1234.jpg` where the date is ‘2023-12-17’, you could use the pattern ‘%Y/%m/%d$’ as the DATE_PATTERN. If the pattern matches only date or only time, the missing information will be set to the default date/time used by Photos when importing the photo. This is either the EXIF date/time if it exists or the file modification date/time. See also –parse-folder-date, –check-templates.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-X">
+<span id="cmdoption-osxphotos-import-clear-metadata"></span><span class="sig-name descname"><span class="pre">-X</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--clear-metadata</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-X" title="Link to this definition">#</a></dt>
 <dd><p>Clear any metadata set automatically by Photos upon import. Normally, Photos will set title, description, and keywords from XMP metadata in the imported file.  If you specify –clear-metadata, any metadata set by Photos will be cleared after import.</p>
 </dd></dl>
 
@@ -2522,13 +2558,31 @@ group will be added in a future release.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-e">
 <span id="cmdoption-osxphotos-import-exiftool"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-e" title="Link to this definition">#</a></dt>
-<dd><p>Use third party tool exiftool (<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>) to automatically update metadata (title, description, keywords, location) in imported photos from the imported file’s metadata. Note: importing keywords from video files is not currently supported.</p>
+<dd><p>Use third party tool exiftool (<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>) to automatically update metadata (title, description, keywords, location) in imported photos from the imported file’s metadata. See also –sidecar, –sidecar-template. Note: importing keywords from video files is not currently supported.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-p">
 <span id="cmdoption-osxphotos-import-exiftool-path"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool-path</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIFTOOL_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-p" title="Link to this definition">#</a></dt>
 <dd><p>Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-s">
+<span id="cmdoption-osxphotos-import-sidecar"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-s" title="Link to this definition">#</a></dt>
+<dd><p>Use sidecar files to import metadata (title, description, keywords, location). Sidecar files must be in the same directory as the imported file and have the same name. For example, if image is named img_1234.jpg, sidecar must be named one of: img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json. Supported sidecar formats are XMP and JSON (as generated by exiftool). If both JSON and XMP sidecars are found, the JSON sidecar will be used. If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. See also –sidecar-template if you need control over the sidecar name. See also –sidecar-ignore-date. Note: –sidecar and –sidecar-template are mutually exclusive.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-T">
+<span id="cmdoption-osxphotos-import-sidecar-template"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar-template</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-T" title="Link to this definition">#</a></dt>
+<dd><p>Use sidecar files to import metadata (title, description, keywords, location). The TEMPLATE is an osxphotos template string that is rendered to produce the sidecar filename. The path to the current file is available as {filepath}. Thus if file is named ‘IMG_1234.jpg’ and sidecar is named ‘IMG_1234.xmp’, you would use the template ‘{filepath.parent}/{filepath.stem}.xmp’. If the sidecar name was ‘IMG_1234.jpg.xmp’, you would use the template ‘{filepath}.xmp’. If the sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. See Template System in help for additional information. See also –sidecar-ignore-date. Note: –sidecar and –sidecar-template are mutually exclusive.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-i">
+<span id="cmdoption-osxphotos-import-sidecar-ignore-date"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar-ignore-date</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-i" title="Link to this definition">#</a></dt>
+<dd><p>Do not use date in sidecar to set photo date/time. Setting the timezone from sidecar files is not currently supported so when using –sidecar or –sidecar-template, the date/time found in the sidecar will be converted to the local timezone and that value will be used to set the photo date/time. If your photos have correct timezone information in the embedded metadata you can use –sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the file (which will be read by Photos on import).</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2544,9 +2598,15 @@ group will be added in a future release.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-import-skip-dups">
-<span class="sig-name descname"><span class="pre">--skip-dups</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-skip-dups" title="Link to this definition">#</a></dt>
-<dd><p>Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. Unlike –dup-check, this does not use Photos’ built in duplicate checking feature and does not display a dialog box for each duplicate found. See also –dup-check.</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-S">
+<span id="cmdoption-osxphotos-import-skip-dups"></span><span class="sig-name descname"><span class="pre">-S</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--skip-dups</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-S" title="Link to this definition">#</a></dt>
+<dd><p>Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. Unlike –dup-check, this does not use Photos’ built in duplicate checking feature and does not display a dialog box for each duplicate found. See also –dup-check and –dup-albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-A">
+<span id="cmdoption-osxphotos-import-dup-albums"></span><span class="sig-name descname"><span class="pre">-A</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dup-albums</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-A" title="Link to this definition">#</a></dt>
+<dd><p>If used with –skip-dups, the matching duplicate already in the Photos library will be added to any albums the current file would have been added to had it not been skipped. This is useful if you have duplicate photos in separate folders and want to avoid duplicates in Photos but keep the photos organized in albums that match the folder structure. Must be used with –skip-dups and –album. See also –skip-dups.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2568,14 +2628,26 @@ group will be added in a future release.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-import-dry-run">
-<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-dry-run" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-c">
+<span id="cmdoption-osxphotos-import-check"></span><span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--check</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-c" title="Link to this definition">#</a></dt>
+<dd><p>Check which FILES have been previously imported but do not actually import anything. Prints a report showing which files have been imported (and when they were added) and which files have not been imported. See also, –check-not.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-C">
+<span id="cmdoption-osxphotos-import-check-not"></span><span class="sig-name descname"><span class="pre">-C</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--check-not</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-C" title="Link to this definition">#</a></dt>
+<dd><p>Check which FILES have not been previously imported but do not actually import anything. Prints the path to each file that has not been previously imported. See also, –check.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-n">
+<span id="cmdoption-osxphotos-import-dry-run"></span><span class="sig-name descname"><span class="pre">-n</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-n" title="Link to this definition">#</a></dt>
 <dd><p>Dry run; do not actually import. Useful with –verbose to see what would be imported.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-import-report">
-<span class="sig-name descname"><span class="pre">--report</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REPORT_FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-report" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-o">
+<span id="cmdoption-osxphotos-import-report"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--report</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REPORT_FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-o" title="Link to this definition">#</a></dt>
 <dd><p>Write a report of all files that were imported. The extension of the report filename will be used to determine the format. Valid extensions are: .csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). REPORT_FILE may be a template string (see Template System), for example, –report ‘export_{today.date}.csv’ will write a CSV report file named with today’s date. See also –append.</p>
 </dd></dl>
 
@@ -2586,8 +2658,8 @@ group will be added in a future release.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-import-append">
-<span class="sig-name descname"><span class="pre">--append</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-append" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-O">
+<span id="cmdoption-osxphotos-import-append"></span><span class="sig-name descname"><span class="pre">-O</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--append</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-O" title="Link to this definition">#</a></dt>
 <dd><p>If used with –report, add data to existing report file instead of overwriting it. See also –report.</p>
 </dd></dl>
 
@@ -2604,8 +2676,8 @@ group will be added in a future release.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-import-no-progress">
-<span class="sig-name descname"><span class="pre">--no-progress</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-no-progress" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-N">
+<span id="cmdoption-osxphotos-import-no-progress"></span><span class="sig-name descname"><span class="pre">-N</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--no-progress</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-N" title="Link to this definition">#</a></dt>
 <dd><p>Do not display progress bar during import.</p>
 </dd></dl>
 
@@ -5916,7 +5988,7 @@ Commands:
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=01ba2a92"></script>
+</div><script src="_static/documentation_options.js?v=706f60cb"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

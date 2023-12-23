@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.photoexporter - osxphotos 0.66.0 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.67.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.66.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.66.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,13 +202,16 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">t</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 
 <span class="kn">from</span> <span class="nn">._version</span> <span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span> <span class="nn">.dictdiff</span> <span class="kn">import</span> <span class="n">dictdiff</span>
 <span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">exiftool_can_write</span>
 <span class="kn">from</span> <span class="nn">.exifwriter</span> <span class="kn">import</span> <span class="n">ExifWriter</span><span class="p">,</span> <span class="n">exif_options_from_options</span>
 <span class="kn">from</span> <span class="nn">.export_db</span> <span class="kn">import</span> <span class="n">ExportDBTemp</span>
@@ -252,6 +255,8 @@
 
 <span class="c1"># retry if download_missing/use_photos_export fails the first time (which sometimes it does)</span>
 <span class="n">MAX_PHOTOSCRIPT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># return values for _should_update_photo</span>
@@ -554,6 +559,13 @@
             <span class="n">all_results</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_aae_file</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
         <span class="n">sidecar_writer</span> <span class="o">=</span> <span class="n">SidecarWriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">)</span>
         <span class="n">all_results</span> <span class="o">+=</span> <span class="n">sidecar_writer</span><span class="o">.</span><span class="n">write_sidecar_files</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="c1"># write history record for any missing files</span>
+        <span class="c1"># for any exported, skipped, updated files,</span>
+        <span class="c1"># the history record is written in _export_photo</span>
+        <span class="c1"># but this isn&#39;t called for missing photos</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">all_results</span><span class="o">.</span><span class="n">missing</span><span class="p">:</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">export_db</span><span class="o">.</span><span class="n">set_history</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="s2">&quot;missing&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">all_results</span></div>
 
@@ -1104,18 +1116,23 @@
         <span class="n">fileutil</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">fileutil</span>
         <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
 
+        <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>  <span class="c1"># updating</span>
             <span class="k">if</span> <span class="n">dest_exists</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_update_photo</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">update_reason</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_update_photo</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
                     <span class="n">update_updated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;update: &quot;</span> <span class="o">+</span> <span class="n">update_reason</span><span class="o">.</span><span class="n">name</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">update_skipped_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;skip&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># update, destination doesn&#39;t exist (new file)</span>
                 <span class="n">update_new_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;new&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># not update, export the file</span>
             <span class="n">exported_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;export&quot;</span>
 
         <span class="n">export_files</span> <span class="o">=</span> <span class="n">update_new_files</span> <span class="o">+</span> <span class="n">update_updated_files</span> <span class="o">+</span> <span class="n">exported_files</span>
         <span class="k">for</span> <span class="n">export_dest</span> <span class="ow">in</span> <span class="n">export_files</span><span class="p">:</span>
@@ -1205,6 +1222,29 @@
 
         <span class="c1"># set data in the database</span>
         <span class="k">with</span> <span class="n">export_db</span><span class="o">.</span><span class="n">create_or_get_file_record</span><span class="p">(</span><span class="n">dest_str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span> <span class="k">as</span> <span class="n">rec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span><span class="p">:</span>
+                <span class="n">last_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span><span class="p">)</span>
+                <span class="c1"># to avoid issues with datetime comparisons, list order</span>
+                <span class="c1"># need to deserialize from photo.json() instead of using photo.asdict()</span>
+                <span class="n">current_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">diff</span> <span class="o">=</span> <span class="n">dictdiff</span><span class="p">(</span><span class="n">last_data</span><span class="p">,</span> <span class="n">current_data</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="c1"># just in case there&#39;s an edge case not caught by dictdiff</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Error comparing last_data and current_data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">diff</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">def</span> <span class="nf">_json_default</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
+                        <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
+                <span class="n">diff</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">_json_default</span><span class="p">)</span> <span class="k">if</span> <span class="n">diff</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">rec</span><span class="o">.</span><span class="n">export_options</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">bit_flags</span>
             <span class="c1"># don&#39;t set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool</span>
@@ -1226,6 +1266,10 @@
                     <span class="s2">&quot;exiftool_error&quot;</span><span class="p">:</span> <span class="n">exif_results</span><span class="o">.</span><span class="n">exiftool_error</span><span class="p">,</span>
                     <span class="s2">&quot;exiftool_warning&quot;</span><span class="p">:</span> <span class="n">exif_results</span><span class="o">.</span><span class="n">exiftool_warning</span><span class="p">,</span>
                 <span class="p">}</span>
+
+        <span class="n">export_db</span><span class="o">.</span><span class="n">set_history</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">dest_str</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">diff</span><span class="o">=</span><span class="n">diff</span>
+        <span class="p">)</span>
 
         <span class="c1"># clean up lock file</span>
         <span class="n">unlock_filename</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
@@ -1556,7 +1600,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=01ba2a92"></script>
+</div><script src="../../_static/documentation_options.js?v=706f60cb"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
