@@ -11,7 +11,7 @@ import osxphotos
 
 
 def main():
-    photosdb = osxphotos.PhotosDB()
+    photosdb = osxphotos.PhotosDB(verbose=print)
     tempdir = tempfile.TemporaryDirectory()
     photos = photosdb.photos()
     downloaded = 0
