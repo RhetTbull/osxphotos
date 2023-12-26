@@ -86,9 +86,8 @@ def get_sidecar_filetype(filepath: str | pathlib.Path) -> SidecarFileType:
                 # could be Google Takeout
                 # Google Takeout JSON appears to have keys:
                 # 'title', 'description', 'imageViews', 'creationTime',
-                # 'photoTakenTime', 'geoData', 'geoDataExif', 'url', 'googlePhotosOrigin'
-                if metadata.get("googlePhotosOrigin"):
-                    return SidecarFileType.GoogleTakeout
+                # 'photoTakenTime', 'geoData', 'geoDataExif', 'url'
+                return SidecarFileType.GoogleTakeout
     return SidecarFileType.Unknown
 
 
