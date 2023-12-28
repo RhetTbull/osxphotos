@@ -246,15 +246,17 @@ def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
     timestamp = metadata.get("photoTakenTime", {}).get("timestamp")
     if timestamp:
         try:
-            date = datetime.datetime.fromtimestamp(int(timestamp),datetime.timezone.utc)
-        except ValueError:
-            date = None
-        if date:
             # Takeout JSON stores date as timestamp in UTC
             # regardless of timezone of photo
             # convert to naive datetime in local timezone
             # as that's what Photos uses
-            date = date.astimezone(tz=None).replace(tzinfo=None)
+            date = datetime.datetime.fromtimestamp(int(timestamp))
+            # From datetime.datetime.fromtimestamp docs:
+            # Return the local date and time corresponding to the POSIX timestamp, such as is returned by time.time(). 
+            # If optional argument tz is None or not specified, the timestamp is converted to the platform’s local date and time,
+            # and the returned datetime object is naive.
+        except ValueError:
+            date = None
     else:
         date = None
 
