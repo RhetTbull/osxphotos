@@ -246,7 +246,7 @@ def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
     timestamp = metadata.get("photoTakenTime", {}).get("timestamp")
     if timestamp:
         try:
-            date = datetime.datetime.fromtimestamp(int(timestamp))
+            date = datetime.datetime.fromtimestamp(int(timestamp),datetime.timezone.utc)
         except ValueError:
             date = None
         if date:
@@ -254,9 +254,7 @@ def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
             # regardless of timezone of photo
             # convert to naive datetime in local timezone
             # as that's what Photos uses
-            date = datetime_remove_tz(
-                datetime_utc_to_local(datetime_naive_to_utc(date))
-            )
+            date = date.astimezone(tz=None).replace(tzinfo=None)
     else:
         date = None
 
