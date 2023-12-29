@@ -1110,6 +1110,8 @@ FILE_FAVORITE = "wedding.jpg"
 UUID_NOT_FAVORITE = "1EB2B765-0765-43BA-A90C-0D0580E6172C"
 FILE_NOT_FAVORITE = "Pumpkins3.jpg"
 
+UUID_IPHOTO_RATING = "RgISIEPbThGVoco5LyiLjQ"  # wedding.jpg, rating=5
+
 # number of photos in test library with Make=Canon
 EXIF_MAKE_CANON = 7
 
@@ -3829,6 +3831,31 @@ def test_export_sidecar():
         assert result.exit_code == 0
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
+
+
+def test_export_sidecar_iphoto():
+    """test --sidecar=xmp with iPhoto library to test XMP:Rating"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, IPHOTO_LIBRARY),
+                ".",
+                "--sidecar=xmp",
+                f"--uuid={UUID_IPHOTO_RATING}",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("wedding.jpg.xmp", "r") as fp:
+            xmp = fp.read()
+        assert "<xmp:Rating>5</xmp:Rating>" in xmp
 
 
 def test_export_sidecar_favorite_rating():

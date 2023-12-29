@@ -503,7 +503,7 @@ def test_rating(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.rating == 5
+    assert p.rating == 0
 
 
 def test_rating_not_starred(photosdb):

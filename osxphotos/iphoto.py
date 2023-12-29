@@ -46,6 +46,7 @@ from typing import Any, Callable, get_type_hints
 from zoneinfo import ZoneInfo
 
 from ._constants import (
+    _IPHOTO_VERSION,
     _UNKNOWN_PERSON,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
@@ -133,6 +134,10 @@ class iPhotoDB:
         self._db_folders = {}  # mapping of modelId to folders
         self._db_albums = {}  # mapping of modelId to albums
         self._db_volumes = {}  # mapping of volume uuid to volume name
+
+        # set _db_version and _photos_ver even though they're not used in iPhoto because other code depends on these
+        self._db_version = _IPHOTO_VERSION
+        self._photos_ver = 0
 
         self._load_library()
 
@@ -1633,6 +1638,7 @@ class iPhotoPhotoInfo:
             dict_data["saved_to_library"] = self.saved_to_library
             dict_data["shared_moment"] = self.shared_moment
             dict_data["shared_library"] = self.shared_library
+            dict_data["rating"] = self.rating
 
         return dict_data
 
