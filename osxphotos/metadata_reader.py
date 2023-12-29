@@ -88,7 +88,19 @@ def get_sidecar_filetype(filepath: str | pathlib.Path) -> SidecarFileType:
                 # 'title', 'description', 'imageViews', 'creationTime',
                 # 'photoTakenTime', 'geoData', 'geoDataExif', 'url'
                 # Google Takeout is the only format to sometimes set 'googlePhotosOrigin'
-                if ('googlePhotosOrigin' in metadata) or all(k in metadata for k in ('title', 'description', 'imageViews', 'creationTime','photoTakenTime', 'geoData', 'geoDataExif', 'url')):
+                if ("googlePhotosOrigin" in metadata) or all(
+                    k in metadata
+                    for k in (
+                        "title",
+                        "description",
+                        "imageViews",
+                        "creationTime",
+                        "photoTakenTime",
+                        "geoData",
+                        "geoDataExif",
+                        "url",
+                    )
+                ):
                     return SidecarFileType.GoogleTakeout
     return SidecarFileType.Unknown
 
@@ -253,7 +265,7 @@ def metadata_from_google_takeout(filepath: str | pathlib.Path) -> MetaData:
             # as that's what Photos uses
             date = datetime.datetime.fromtimestamp(int(timestamp))
             # From datetime.datetime.fromtimestamp docs:
-            # Return the local date and time corresponding to the POSIX timestamp, such as is returned by time.time(). 
+            # Return the local date and time corresponding to the POSIX timestamp, such as is returned by time.time().
             # If optional argument tz is None or not specified, the timestamp is converted to the platform’s local date and time,
             # and the returned datetime object is naive.
         except ValueError:

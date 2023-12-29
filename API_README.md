@@ -1139,7 +1139,7 @@ Returns `True` if the picture has been marked as flagged otherwise `False` (iPho
 
 #### `rating`
 
-Returns star rating of photo as int from 0 to 5 (iPhoto only); for Photos, returns 5 if photo is favorite, else 0
+Returns star rating of photo as int from 0 to 5 (iPhoto only); for Photos, always returns 0.
 
 #### `hidden`
 

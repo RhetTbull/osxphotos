@@ -378,6 +378,9 @@ class ExifWriter(_ExifMixin):
         if options.face_regions and self.photo.face_info:
             exif.update(self._get_mwg_face_regions_exiftool())
 
+        if self.photo.rating != 0:
+            exif["XMP:Rating"] = self.photo.rating
+
         if options.favorite_rating:
             exif["XMP:Rating"] = 5 if self.photo.favorite else 0
 

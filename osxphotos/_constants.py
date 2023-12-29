@@ -36,6 +36,8 @@ _TESTED_DB_VERSIONS = ["6000", "5001", "4025", "4016", "3301", "2622"]
 # Photos 9 (14.0.0 dev preview) = 17120
 _TEST_MODEL_VERSIONS = ["13537", "13703", "14104", "15323", "16320", "17120"]
 
+_IPHOTO_VERSION = "0000"
+
 _PHOTOS_2_VERSION = "2622"
 
 # only version 3 - 4 have RKVersion.selfPortrait

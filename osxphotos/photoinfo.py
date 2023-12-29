@@ -751,8 +751,8 @@ class PhotoInfo:
 
     @property
     def rating(self) -> int:
-        """Star rating of photo as int from 0 to 5; for iPhoto, returns star rating; for Photos, returns 5 if favorite, else 0"""
-        return 5 if self.favorite else 0
+        """Star rating of photo as int from 0 to 5; for iPhoto, returns star rating; for Photos, always returns 0"""
+        return 0
 
     @property
     def hidden(self) -> bool:
@@ -2140,6 +2140,7 @@ class PhotoInfo:
             dict_data["saved_to_library"] = self.saved_to_library
             dict_data["shared_moment"] = self.shared_moment
             dict_data["shared_library"] = self.shared_library
+            dict_data["rating"] = self.rating
 
         return dict_data
 
