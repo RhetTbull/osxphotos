@@ -803,8 +803,8 @@ def test_import_sidecar_ignore_date():
 
 @pytest.mark.test_import
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
-def test_import_sidecar_template():
-    """Test import file with --sidecar-template"""
+def test_import_sidecar_filename():
+    """Test import file with --sidecar-filename"""
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
@@ -813,7 +813,7 @@ def test_import_sidecar_template():
         [
             "--verbose",
             "--clear-metadata",
-            "--sidecar-template",
+            "--sidecar-filename",
             "{filepath}.xmp",
             test_image_1,
         ],
