@@ -597,6 +597,8 @@ CLI_EXPORT_SIDECAR_FILENAMES = _normalize_fs_paths(
         "Pumkins2.jpg.xmp",
     ]
 )
+CLI_EXPORT_SIDECAR_XMP = "Pumkins2.jpg.xmp"
+
 CLI_EXPORT_SIDECAR_DROP_EXT_FILENAMES = _normalize_fs_paths(
     [
         "Pumkins2.jpg",
@@ -2346,6 +2348,33 @@ def test_export_exiftool():
                     assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
                 else:
                     assert exif[key] == CLI_EXIFTOOL[uuid][key]
+            assert (
+                "XMP:Rating" not in exif
+            )  # non-iPhoto library doesn't have rating, #1353
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_rating_iphoto():
+    """Test that with iPhoto library, XMP:Rating is written to file, #1353"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, IPHOTO_LIBRARY),
+                ".",
+                "-V",
+                "--exiftool",
+                "--uuid",
+                f"{UUID_IPHOTO_RATING}",
+            ],
+        )
+        assert result.exit_code == 0
+        exif = ExifTool("wedding.jpg").asdict()
+        assert exif["XMP:Rating"] == 5
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
@@ -3831,6 +3860,11 @@ def test_export_sidecar():
         assert result.exit_code == 0
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
+
+        # testing that rating isn't included for non iPhoto libraries
+        with open(CLI_EXPORT_SIDECAR_XMP, "r") as fp:
+            xmp = fp.read()
+        assert "<xmp:Rating>" not in xmp
 
 
 def test_export_sidecar_iphoto():
