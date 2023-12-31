@@ -635,9 +635,9 @@ def photo_query(
         photos = [p for p in photos if not p.iscloudasset]
 
     if options.incloud:
-        photos = [p for p in photos if p.incloud]
+        photos = [p for p in photos if p.incloud and not p.shared]
     elif options.not_incloud:
-        photos = [p for p in photos if not p.incloud]
+        photos = [p for p in photos if not p.incloud and not p.shared]
 
     if options.has_raw:
         photos = [p for p in photos if p.has_raw]
