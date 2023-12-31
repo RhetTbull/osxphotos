@@ -1,0 +1,38 @@
+{
+  "title": "Pumkins2.jpg",
+  "description": "Girl holding a pumpkin",
+  "imageViews": "12",
+  "creationTime": {
+    "timestamp": "1669355742",
+    "formatted": "Nov 25, 2022, 5:55:42 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1538176027",
+    "formatted": "Sep 28, 2018, 11:07:07 PM UTC"
+  },
+  "geoData": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "people": [{
+    "name": "Katie"
+  }],
+  "favorited": true,
+  "url": "https://photos.google.com/photo/AF1QipOx1DP65oyrmmO0fC3e55Xtkt2_hY0NM6k9tQKl",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

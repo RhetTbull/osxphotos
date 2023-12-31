@@ -25,6 +25,9 @@ TEST_TIMEWARP = False
 # run import tests (configured with --test-import)
 TEST_IMPORT = False
 
+# run import tests (configured with --test-import-takeout)
+TEST_IMPORT_TAKEOUT = False
+
 # run sync tests (configured with --test-sync)
 TEST_SYNC = False
 
@@ -67,6 +70,7 @@ if OS_VER[0] == "10" and OS_VER[1] == "15":
     TEST_LIBRARY = "tests/Test-10.15.7.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
+    TEST_LIBRARY_TAKOUT = None
     from tests.config_timewarp_catalina import TEST_LIBRARY_TIMEWARP
 
     TEST_LIBRARY_ADD_LOCATIONS = None
@@ -75,6 +79,7 @@ elif OS_VER[0] == "13":
     TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
+    TEST_LIBRARY_TAKEOUT = "tests/Test-Empty-Library-13-5.photoslibrary"
     from tests.config_timewarp_ventura import TEST_LIBRARY_TIMEWARP
 
     TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
@@ -83,6 +88,7 @@ else:
     TEST_LIBRARY_TIMEWARP = None
     TEST_LIBRARY_SYNC = None
     TEST_LIBRARY_ADD_LOCATIONS = None
+    TEST_LIBRARY_TAKEOUT = None
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
@@ -97,6 +103,13 @@ def setup_photos_import():
     if not TEST_IMPORT:
         return
     copy_photos_library(TEST_LIBRARY_IMPORT, delay=10)
+
+
+@pytest.fixture(scope="session", autouse=is_macos)
+def setup_photos_import_takeout():
+    if not TEST_IMPORT_TAKEOUT:
+        return
+    copy_photos_library(TEST_LIBRARY_TAKEOUT, delay=10)
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
@@ -135,6 +148,12 @@ def pytest_addoption(parser):
         default=False,
         help="run `osxphotos import` tests",
     )
+    parser.addoption(
+        "--test-import-takeout",
+        action="store_true",
+        default=False,
+        help="run `osxphotos import` tests with Google Takeout archive",
+    )
     parser.addoption("--test-batch-edit", action="store_true", default=False)
     parser.addoption(
         "--test-sync",
@@ -164,6 +183,7 @@ def pytest_configure(config):
                 config.getoption("--addalbum"),
                 config.getoption("--timewarp"),
                 config.getoption("--test-import"),
+                config.getoption("--test-import-takeout"),
                 config.getoption("--test-sync"),
                 config.getoption("--test-batch-edit"),
                 0,
@@ -172,7 +192,7 @@ def pytest_configure(config):
         > 1
     ):
         pytest.exit(
-            "--addalbum, --timewarp, --test-import, --test-sync, --test-batch-edit are mutually exclusive"
+            "--addalbum, --timewarp, --test-import, --test-import-takeout, --test-sync, --test-batch-edit are mutually exclusive"
         )
 
     config.addinivalue_line(
@@ -183,6 +203,10 @@ def pytest_configure(config):
     )
     config.addinivalue_line(
         "markers", "test_import: mark test as requiring --test-import to run"
+    )
+    config.addinivalue_line(
+        "markers",
+        "test_import_takeout: mark test as requiring --test-import-takeout to run",
     )
     config.addinivalue_line(
         "markers", "test_sync: mark test as requiring --test-sync to run"
@@ -203,6 +227,10 @@ def pytest_configure(config):
     if config.getoption("--test-import"):
         global TEST_IMPORT
         TEST_IMPORT = True
+
+    if config.getoption("--test-import-takeout"):
+        global TEST_IMPORT_TAKEOUT
+        TEST_IMPORT_TAKEOUT = True
 
     if config.getoption("--test-sync"):
         global TEST_SYNC
@@ -239,6 +267,16 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "test_import" in item.keywords:
                 item.add_marker(skip_test_import)
+
+    if not (
+        config.getoption("--test-import-takeout") and TEST_LIBRARY_TAKEOUT is not None
+    ):
+        skip_test_import_takeout = pytest.mark.skip(
+            reason="need --test-import-takeout option to run"
+        )
+        for item in items:
+            if "test_import_takeout" in item.keywords:
+                item.add_marker(skip_test_import_takeout)
 
     if not (config.getoption("--test-sync") and TEST_LIBRARY_SYNC is not None):
         skip_test_sync = pytest.mark.skip(reason="need --test-sync option to run")

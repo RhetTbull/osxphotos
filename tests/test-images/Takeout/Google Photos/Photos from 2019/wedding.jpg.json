@@ -1,0 +1,37 @@
+{
+  "title": "wedding.jpg",
+  "description": "Bride Wedding day",
+  "imageViews": "16",
+  "creationTime": {
+    "timestamp": "1669355745",
+    "formatted": "Nov 25, 2022, 5:55:45 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1555364424",
+    "formatted": "Apr 15, 2019, 9:40:24 PM UTC"
+  },
+  "geoData": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "people": [{
+    "name": "Maria"
+  }],
+  "url": "https://photos.google.com/photo/AF1QipPZOUbAUCUrVk2XhYW4ROBcoCxBKNBH8UCRf_JX",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

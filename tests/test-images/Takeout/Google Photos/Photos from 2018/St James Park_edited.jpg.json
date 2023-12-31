@@ -1,0 +1,34 @@
+{
+  "title": "St James Park_edited.jpg",
+  "description": "",
+  "imageViews": "12",
+  "creationTime": {
+    "timestamp": "1669355738",
+    "formatted": "Nov 25, 2022, 5:55:38 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1539418692",
+    "formatted": "Oct 13, 2018, 8:18:12 AM UTC"
+  },
+  "geoData": {
+    "latitude": 51.5035722,
+    "longitude": -0.1318056,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 51.5035722,
+    "longitude": -0.1318056,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "url": "https://photos.google.com/photo/AF1QipOzvPXEoLiuVF872HGkChdIR4RS30ea-e3VFhaz",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}
