@@ -1,0 +1,39 @@
+{
+  "title": "Pumkins1.jpg",
+  "description": "Can we carry this?",
+  "imageViews": "11",
+  "creationTime": {
+    "timestamp": "1669355741",
+    "formatted": "Nov 25, 2022, 5:55:41 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1538174149",
+    "formatted": "Sep 28, 2018, 10:35:49 PM UTC"
+  },
+  "geoData": {
+    "latitude": 41.2565369,
+    "longitude": -95.9345034,
+    "altitude": 0.0,
+    "latitudeSpan": 0.10131105000000164,
+    "longitudeSpan": 0.21010749999999853
+  },
+  "geoDataExif": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "people": [{
+    "name": "Katie"
+  }, {
+    "name": "Suzy"
+  }],
+  "url": "https://photos.google.com/photo/AF1QipMGbURicctnuv22pgErI1N6XPNHUpxn8sAqLcPE",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

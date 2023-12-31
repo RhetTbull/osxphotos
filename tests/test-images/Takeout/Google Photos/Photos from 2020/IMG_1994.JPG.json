@@ -1,0 +1,34 @@
+{
+  "title": "IMG_1994.JPG",
+  "description": "",
+  "imageViews": "13",
+  "creationTime": {
+    "timestamp": "1669355691",
+    "formatted": "Nov 25, 2022, 5:54:51 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1586971551",
+    "formatted": "Apr 15, 2020, 5:25:51 PM UTC"
+  },
+  "geoData": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "url": "https://photos.google.com/photo/AF1QipPj1V2YRFOTx9mOGGl5x-KiZ3LoRsdWaoiMaORB",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ import pathlib
 import re
 import shutil
 import sqlite3
+import sys
 import time
 import unicodedata
 from tempfile import TemporaryDirectory
@@ -113,6 +114,19 @@ def set_timezone():
     time.tzset()
 
 
+@pytest.fixture(autouse=True)
+def xdg_patch(monkeypatch):
+    """Patch XDG_CONFIG_HOME to point to temporary directory"""
+    with TemporaryDirectory() as tmpdir:
+        if sys.version_info[0:2] <= (3, 9):
+            monkeypatch.setattr("xdg.xdg_data_home", lambda: pathlib.Path(tmpdir))
+        else:
+            monkeypatch.setattr(
+                "xdg_base_dirs.xdg_data_home", lambda: pathlib.Path(tmpdir)
+            )
+        yield
+
+
 # determine if exiftool installed so exiftool tests can be skipped
 try:
     exiftool_path = get_exiftool_path()
@@ -161,7 +175,6 @@ def test_import():
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
-
     assert result.exit_code == 0
 
     import_data = parse_import_output(result.output)

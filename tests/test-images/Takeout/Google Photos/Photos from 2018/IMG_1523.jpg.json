@@ -1,0 +1,34 @@
+{
+  "title": "IMG_1523.jpg",
+  "description": "⁨Brookings⁩, ⁨Oregon⁩, ⁨United States⁩",
+  "imageViews": "9",
+  "creationTime": {
+    "timestamp": "1669355674",
+    "formatted": "Nov 25, 2022, 5:54:34 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1531008199",
+    "formatted": "Jul 8, 2018, 12:03:19 AM UTC"
+  },
+  "geoData": {
+    "latitude": 42.2049944,
+    "longitude": -124.37467219999999,
+    "altitude": 55.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 42.2049944,
+    "longitude": -124.37467219999999,
+    "altitude": 55.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "url": "https://photos.google.com/photo/AF1QipNesMelnDtA0KN7RE_fjlhGriWk8E4JjnqX6KxV",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

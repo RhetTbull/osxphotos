@@ -1,0 +1,34 @@
+{
+  "title": "IMG_1760_Seattle.jpg",
+  "description": "⁨Seattle Center⁩, ⁨Seattle⁩, ⁨United States⁩",
+  "imageViews": "10",
+  "creationTime": {
+    "timestamp": "1669355674",
+    "formatted": "Nov 25, 2022, 5:54:34 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1531181234",
+    "formatted": "Jul 10, 2018, 12:07:14 AM UTC"
+  },
+  "geoData": {
+    "latitude": 47.6203917,
+    "longitude": -122.35000559999997,
+    "altitude": 47.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 47.6203917,
+    "longitude": -122.35000559999997,
+    "altitude": 47.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "url": "https://photos.google.com/photo/AF1QipNPeI0rXcfqxS7ybcSUDFQ6224yhnMRl6QNCrYs",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

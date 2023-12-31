@@ -1,0 +1,17 @@
+{
+  "title": "Pumpkin Farm",
+  "description": "",
+  "access": "protected",
+  "date": {
+    "timestamp": "1669355809",
+    "formatted": "Nov 25, 2022, 5:56:49 AM UTC"
+  },
+  "location": "",
+  "geoData": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  }
+}

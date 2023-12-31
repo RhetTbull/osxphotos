@@ -1,0 +1,34 @@
+{
+  "title": "IMG_1523_no_location.jpg",
+  "description": "No location",
+  "imageViews": "7",
+  "creationTime": {
+    "timestamp": "1669355663",
+    "formatted": "Nov 25, 2022, 5:54:23 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1476070474",
+    "formatted": "Oct 10, 2016, 3:34:34 AM UTC"
+  },
+  "geoData": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "url": "https://photos.google.com/photo/AF1QipOuLhjAAn6T2vciarFB-9Hjm8-2fTdeGkmF5kKL",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "title": "IMG_3092.heic",
+  "description": "Apple tree",
+  "imageViews": "12",
+  "creationTime": {
+    "timestamp": "1669355686",
+    "formatted": "Nov 25, 2022, 5:54:46 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1600551386",
+    "formatted": "Sep 19, 2020, 9:36:26 PM UTC"
+  },
+  "geoData": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "url": "https://photos.google.com/photo/AF1QipNDe__5T2RgxI8PpTLdq-8f8BPy-BSpYyPw2PqG",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

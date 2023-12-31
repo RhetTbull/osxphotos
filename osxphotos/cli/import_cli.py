@@ -876,7 +876,7 @@ def update_report_record(
     report_record.title = photo.title
     report_record.description = photo.description
     report_record.keywords = photo.keywords
-    report_record.location = photo.location
+    report_record.location = photo.location or (None, None)
     report_record.datetime = photo.date
 
     return report_record
@@ -1042,7 +1042,9 @@ def write_sqlite_report(
                 report_record.description,
                 ",".join(report_record.keywords),
                 ",".join(report_record.albums),
-                f"{report_record.location[0]},{report_record.location[1]}",
+                f"{report_record.location[0]},{report_record.location[1]}"
+                if report_record.location and report_record.location is not None
+                else None,
                 report_record.datetime.isoformat() if report_record.datetime else None,
             ),
         )

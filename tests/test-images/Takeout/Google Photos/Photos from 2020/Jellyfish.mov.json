@@ -1,0 +1,34 @@
+{
+  "title": "Jellyfish.mov",
+  "description": "",
+  "imageViews": "18",
+  "creationTime": {
+    "timestamp": "1669355655",
+    "formatted": "Nov 25, 2022, 5:54:15 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1578262393",
+    "formatted": "Jan 5, 2020, 10:13:13 PM UTC"
+  },
+  "geoData": {
+    "latitude": 34.0533,
+    "longitude": -118.24230000000001,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 34.0533,
+    "longitude": -118.24230000000001,
+    "altitude": 0.0,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "url": "https://photos.google.com/photo/AF1QipOlM_j15ySld8xWCavcxb9Cj6ZIeyv67kfGkeJ_",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}

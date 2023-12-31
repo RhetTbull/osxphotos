@@ -1,0 +1,35 @@
+{
+  "title": "IMG_4179.jpeg",
+  "description": "Used for testing osxphotos",
+  "imageViews": "25",
+  "creationTime": {
+    "timestamp": "1669355658",
+    "formatted": "Nov 25, 2022, 5:54:18 AM UTC"
+  },
+  "photoTakenTime": {
+    "timestamp": "1617923095",
+    "formatted": "Apr 8, 2021, 11:04:55 PM UTC"
+  },
+  "geoData": {
+    "latitude": 33.7150639,
+    "longitude": -118.31967219999999,
+    "altitude": 2.9,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "geoDataExif": {
+    "latitude": 33.7150639,
+    "longitude": -118.31967219999999,
+    "altitude": 2.9,
+    "latitudeSpan": 0.0,
+    "longitudeSpan": 0.0
+  },
+  "favorited": true,
+  "url": "https://photos.google.com/photo/AF1QipPt7JOZNr_Qcv5cdgsqVTK0Ye11AdpesQcb61P3",
+  "googlePhotosOrigin": {
+    "webUpload": {
+      "computerUpload": {
+      }
+    }
+  }
+}
