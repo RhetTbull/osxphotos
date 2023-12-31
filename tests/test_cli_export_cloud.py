@@ -111,4 +111,4 @@ def test_export_not_in_cloud():
         )
         assert result.exit_code == 0
         assert UUID_INCLOUD not in result.output
-        assert UUID_NOT_INCLOUD in result.output
+        assert "Did not find any photos to export" in result.output
