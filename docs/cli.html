@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.67.1 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.67.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.67.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.67.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2522,7 +2522,7 @@ most recently opened Photos library.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-m">
 <span id="cmdoption-osxphotos-import-merge-keywords"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--merge-keywords</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-m" title="Link to this definition">#</a></dt>
-<dd><p>Merge keywords created by –exiftool, –sidecar, –sidecar-template, or –keyword with any keywords already associated with the photo. Without –merge-keywords, existing keywords will be overwritten.</p>
+<dd><p>Merge keywords created by –exiftool, –sidecar, –sidecar-filename, or –keyword with any keywords already associated with the photo. Without –merge-keywords, existing keywords will be overwritten.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2558,7 +2558,7 @@ most recently opened Photos library.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-e">
 <span id="cmdoption-osxphotos-import-exiftool"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-e" title="Link to this definition">#</a></dt>
-<dd><p>Use third party tool exiftool (<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>) to automatically update metadata (title, description, keywords, location) in imported photos from the imported file’s metadata. See also –sidecar, –sidecar-template. Note: importing keywords from video files is not currently supported.</p>
+<dd><p>Use third party tool exiftool (<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>) to automatically update metadata (title, description, keywords, location) in imported photos from the imported file’s metadata. See also –sidecar, –sidecar-filename. Note: importing keywords from video files is not currently supported.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2570,19 +2570,19 @@ most recently opened Photos library.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-s">
 <span id="cmdoption-osxphotos-import-sidecar"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-s" title="Link to this definition">#</a></dt>
-<dd><p>Use sidecar files to import metadata (title, description, keywords, location). Sidecar files must be in the same directory as the imported file and have the same name. For example, if image is named img_1234.jpg, sidecar must be named one of: img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json. Supported sidecar formats are XMP and JSON (as generated by exiftool). If both JSON and XMP sidecars are found, the JSON sidecar will be used. If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. See also –sidecar-template if you need control over the sidecar name. See also –sidecar-ignore-date. Note: –sidecar and –sidecar-template are mutually exclusive.</p>
+<dd><p>Use sidecar files to import metadata (title, description, keywords, location). Sidecar files must be in the same directory as the imported file and have the same name. For example, if image is named img_1234.jpg, sidecar must be named one of: img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json. Supported sidecar formats are XMP and JSON (as generated by exiftool). If both JSON and XMP sidecars are found, the JSON sidecar will be used. If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. See also –sidecar-filename if you need control over the sidecar name. See also –sidecar-ignore-date. Note: –sidecar and –sidecar-filename are mutually exclusive.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-T">
-<span id="cmdoption-osxphotos-import-sidecar-template"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar-template</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-T" title="Link to this definition">#</a></dt>
-<dd><p>Use sidecar files to import metadata (title, description, keywords, location). The TEMPLATE is an osxphotos template string that is rendered to produce the sidecar filename. The path to the current file is available as {filepath}. Thus if file is named ‘IMG_1234.jpg’ and sidecar is named ‘IMG_1234.xmp’, you would use the template ‘{filepath.parent}/{filepath.stem}.xmp’. If the sidecar name was ‘IMG_1234.jpg.xmp’, you would use the template ‘{filepath}.xmp’. If the sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. See Template System in help for additional information. See also –sidecar-ignore-date. Note: –sidecar and –sidecar-template are mutually exclusive.</p>
+<span id="cmdoption-osxphotos-import-sidecar-filename"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar-filename</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-T" title="Link to this definition">#</a></dt>
+<dd><p>Use sidecar files to import metadata (title, description, keywords, location). The TEMPLATE is an osxphotos template string that is rendered to produce the sidecar filename. The path to the current file is available as {filepath}. Thus if file is named ‘IMG_1234.jpg’ and sidecar is named ‘IMG_1234.xmp’, you would use the template ‘{filepath.parent}/{filepath.stem}.xmp’. If the sidecar name was ‘IMG_1234.jpg.xmp’, you would use the template ‘{filepath}.xmp’. If the sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. See Template System in help for additional information. See also –sidecar-ignore-date. Note: –sidecar and –sidecar-filename are mutually exclusive.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-i">
 <span id="cmdoption-osxphotos-import-sidecar-ignore-date"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar-ignore-date</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-i" title="Link to this definition">#</a></dt>
-<dd><p>Do not use date in sidecar to set photo date/time. Setting the timezone from sidecar files is not currently supported so when using –sidecar or –sidecar-template, the date/time found in the sidecar will be converted to the local timezone and that value will be used to set the photo date/time. If your photos have correct timezone information in the embedded metadata you can use –sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the file (which will be read by Photos on import).</p>
+<dd><p>Do not use date in sidecar to set photo date/time. Setting the timezone from sidecar files is not currently supported so when using –sidecar or –sidecar-filename, the date/time found in the sidecar will be converted to the local timezone and that value will be used to set the photo date/time. If your photos have correct timezone information in the embedded metadata you can use –sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the file (which will be read by Photos on import).</p>
 </dd></dl>
 
 <dl class="std option">
@@ -5988,7 +5988,7 @@ Commands:
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=d417e4d2"></script>
+</div><script src="_static/documentation_options.js?v=e3ef6eb8"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
