@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.iphoto - osxphotos 0.67.0 documentation</title>
+        <title>osxphotos.iphoto - osxphotos 0.67.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -244,6 +244,7 @@
 <span class="kn">from</span> <span class="nn">zoneinfo</span> <span class="kn">import</span> <span class="n">ZoneInfo</span>
 
 <span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_IPHOTO_VERSION</span><span class="p">,</span>
     <span class="n">_UNKNOWN_PERSON</span><span class="p">,</span>
     <span class="n">SIDECAR_EXIFTOOL</span><span class="p">,</span>
     <span class="n">SIDECAR_JSON</span><span class="p">,</span>
@@ -333,6 +334,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_folders</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># mapping of modelId to folders</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_albums</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># mapping of modelId to albums</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_volumes</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># mapping of volume uuid to volume name</span>
+
+        <span class="c1"># set _db_version and _photos_ver even though they&#39;re not used in iPhoto because other code depends on these</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="n">_IPHOTO_VERSION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_library</span><span class="p">()</span>
 
@@ -1856,6 +1861,7 @@
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;saved_to_library&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_to_library</span>
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;shared_moment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span>
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;shared_library&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_library</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rating</span>
 
         <span class="k">return</span> <span class="n">dict_data</span></div>
 
@@ -2772,7 +2778,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=706f60cb"></script>
+</div><script src="../../_static/documentation_options.js?v=d417e4d2"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
