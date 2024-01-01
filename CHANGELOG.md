@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.2](https://github.com/RhetTbull/osxphotos/compare/v0.67.1...v0.67.2)
+
+### [v0.67.2] - 2024-01-01
+
+Fixes for `--sidecar`` when exporting edited photos.
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+#### Fixed
+
+- Sidecar not written for edited photo when exporting both original and edited photo. (#1346)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @finestream [@finestream](https://github.com/finestream) for finding the bug with `--sidecar`.
+
 ## [v0.67.1](https://github.com/RhetTbull/osxphotos/compare/v0.67.0...v0.67.1)
 
 ### [v0.67.1] - 2023-12-31
