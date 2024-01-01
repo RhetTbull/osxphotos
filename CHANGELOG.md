@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.1](https://github.com/RhetTbull/osxphotos/compare/v0.67.0...v0.67.1)
+
+### [v0.67.1] - 2023-12-31
+
+Fixes for iPhoto export and Google Takeout import.
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+- iPhoto export will now write the photo rating to the `XMP:Rating` field with `--sidecar` and `--exiftool` options. (#1353)
+- `osxphotos import --sidecar-template` renamed to `--sidecar-filename` to avoid ambiguity with the `osxphotos export` option `--sidecar-template`. (#1351)
+- Photos in shared albums are now excluded from `--not-incloud` as this caused confusion for usesrs (#1366)
+
+#### Fixed
+
+- Fixed query could sometimes fail with iPhoto library.
+- Fixed Google Takeout was importing timestamps incorrectly. (#1356)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @LunarLanding [@LunarLanding](https://github.com/LunarLanding) for finding bug in import and submitting the fix.
+- @mlevin77 [@mlevin77](https://github.com/mlevin77) for idea to use `XMP:Rating` field with iPhoto.
+- @finestream [@finestream](https://github.com/finestream) for suggesting the change to `--sidecar-template` for import.
+
 ## [v0.67.0](https://github.com/RhetTbull/osxphotos/compare/v0.66.0...v0.67.0)
 
 Import support for sidecars, Google Takeout.
