@@ -1112,6 +1112,9 @@ FILE_FAVORITE = "wedding.jpg"
 UUID_NOT_FAVORITE = "1EB2B765-0765-43BA-A90C-0D0580E6172C"
 FILE_NOT_FAVORITE = "Pumpkins3.jpg"
 
+UUID_EDITED_PHOTO = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
+FILE_EDITED_PHOTO = "wedding.jpg"
+
 UUID_IPHOTO_RATING = "RgISIEPbThGVoco5LyiLjQ"  # wedding.jpg, rating=5
 
 # number of photos in test library with Make=Canon
@@ -3890,6 +3893,36 @@ def test_export_sidecar_iphoto():
         with open("wedding.jpg.xmp", "r") as fp:
             xmp = fp.read()
         assert "<xmp:Rating>5</xmp:Rating>" in xmp
+
+
+def test_export_sidecar_edited_file():
+    """test --sidecar with edited photos (#1346)"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--sidecar=json",
+                "--sidecar=xmp",
+                f"--uuid={UUID_EDITED_PHOTO}",
+                "--jpeg-ext",
+                "jpg",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*.*")
+        expected = [f"{FILE_EDITED_PHOTO}{ext}" for ext in ["", ".json", ".xmp"]]
+        edited_filename = f"{pathlib.Path(FILE_EDITED_PHOTO).stem}_edited{pathlib.Path(FILE_EDITED_PHOTO).suffix}"
+        expected += [f"{edited_filename}{ext}" for ext in ["", ".json", ".xmp"]]
+        assert sorted(files) == sorted(expected)
 
 
 def test_export_sidecar_favorite_rating():

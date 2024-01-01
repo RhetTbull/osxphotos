@@ -2600,7 +2600,7 @@ def export_photo(
                     retry=retry,
                     export_aae=export_aae,
                     sidecar_drop_ext=sidecar_drop_ext,
-                    sidecar_flags=sidecar_flags if not export_original else 0,
+                    sidecar_flags=sidecar_flags,
                     touch_file=touch_file,
                     update=update,
                     update_errors=update_errors,
