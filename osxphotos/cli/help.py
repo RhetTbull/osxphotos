@@ -130,11 +130,10 @@ def get_subtopic_help(cmd: click.Command, ctx: click.Context, subtopic: str):
     if options:
         option_str = format_options_help(options, ctx, highlight=subtopic)
         formatter.write(f"Options that match '[highlight]{subtopic}[/highlight]':\n")
-        formatter.write_paragraph()
-        formatter.write(option_str)
+        return formatter.getvalue() + "\n" + option_str
     else:
         formatter.write(f"No options match '[highlight]{subtopic}[/highlight]'")
-    return formatter.getvalue()
+        return formatter.getvalue()
 
 
 def get_matching_options(
@@ -176,28 +175,23 @@ def format_options_help(
     """
     formatter = click.HelpFormatter(width=HELP_WIDTH)
     opt_help = [opt.get_help_record(ctx) for opt in options]
-    if highlight:
-        # convert list of tuples to list of lists
-        opt_help = [list(opt) for opt in opt_help]
-        for record in opt_help:
-            record[0] = re.sub(
-                f"({highlight})",
-                "[highlight]\\1[/highlight]",
-                record[0],
-                re.IGNORECASE,
-            )
-
-            record[1] = re.sub(
-                f"({highlight})",
-                "[highlight]\\1[/highlight]",
-                record[1],
-                re.IGNORECASE,
-            )
-
-        # convert back to list of tuples as that's what write_dl expects
-        opt_help = [tuple(opt) for opt in opt_help]
     formatter.write_dl(opt_help)
-    return formatter.getvalue()
+
+    help_text = formatter.getvalue()
+    if highlight:
+
+        def _highlight(match):
+            return f"[highlight]{match.group(0)}[/]"
+
+        # add highlight tags
+        help_text = re.sub(
+            f"{highlight}",
+            _highlight,
+            help_text,
+            flags=re.IGNORECASE,
+        )
+
+    return help_text
 
 
 def format_help_text(text: str, formatter: click.HelpFormatter):
