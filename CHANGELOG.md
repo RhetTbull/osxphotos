@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.3](https://github.com/RhetTbull/osxphotos/compare/v0.67.2...v0.67.3)
+
+### [v0.67.3] - 2024-01-13
+
+Fixes for `--checkpoint` causing unnecessary slowdown.
+
+#### Added
+
+#### Removed
+
+#### Changed
+
+- `osxphotos export --checkpoint` no longer automatically checkpoints during export. See #1083.
+
+#### Fixed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @rajscode [@rajscode](https://github.com/rajscode) for finding the issue with checkpoint.
+
 ## [v0.67.2](https://github.com/RhetTbull/osxphotos/compare/v0.67.1...v0.67.2)
 
 ### [v0.67.2] - 2024-01-01
