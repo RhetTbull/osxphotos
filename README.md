@@ -1497,16 +1497,17 @@ Options:
                                   will be saved to the specified file.
   --ramdb                         Copy export database to memory during export;
                                   will improve performance when exporting over a
-                                  network or slow disk but could result in
-                                  losing update state information if the program
-                                  is interrupted or crashes. See also
-                                  --checkpoint.
+                                  network or slow disk. See also --checkpoint.
   --checkpoint NUMBER_OF_PHOTOS   When used with --ramdb, periodically save the
                                   export database back to disk after processing
-                                  NUMBER_OF_PHOTOS to avoid data loss if export
-                                  is cancelled or crashes. Default is 1000; to
-                                  prevent checkpointing of database, use
-                                  `--checkpoint 0`  [x>=0]
+                                  NUMBER_OF_PHOTOS. When using --ramdb, the
+                                  export database will be automatically saved if
+                                  there is a crash or interrupt thus you do not
+                                  generally need to specify --checkpoint and
+                                  doing so may slow down the export if your
+                                  export database is large. This is an advanced
+                                  feature for those who need to fine-tune the
+                                  behavior of osxphotos.  [x>=0]
   -F, --ignore-exportdb           If exporting to a directory that already
                                   contains an export database and --update is
                                   not specified, do not prompt to continue but
@@ -2278,7 +2279,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.67.2'
+{osxphotos_version}             The osxphotos version, e.g. '0.67.3'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2769,7 +2770,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.67.2'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.67.3'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
