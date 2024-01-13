@@ -30,7 +30,6 @@ import osxphotos.gitignorefile
 from osxphotos._constants import (
     _EXIF_TOOL_URL,
     _OSXPHOTOS_NONE_SENTINEL,
-    DEFAULT_CHECKPOINT,
     DEFAULT_EDITED_SUFFIX,
     DEFAULT_JPEG_QUALITY,
     DEFAULT_ORIGINAL_SUFFIX,
@@ -757,17 +756,18 @@ if TYPE_CHECKING:
     "--ramdb",
     is_flag=True,
     help="Copy export database to memory during export; "
-    "will improve performance when exporting over a network or slow disk but could result in "
-    "losing update state information if the program is interrupted or crashes. "
+    "will improve performance when exporting over a network or slow disk. "
     "See also --checkpoint.",
 )
 @click.option(
     "--checkpoint",
     metavar="NUMBER_OF_PHOTOS",
     help="When used with --ramdb, periodically save the export database "
-    "back to disk after processing NUMBER_OF_PHOTOS "
-    "to avoid data loss if export is cancelled or crashes. "
-    f"Default is {DEFAULT_CHECKPOINT}; to prevent checkpointing of database, use `--checkpoint 0`",
+    "back to disk after processing NUMBER_OF_PHOTOS. "
+    "When using --ramdb, the export database will be automatically saved if there is a crash or interrupt "
+    "thus you do not generally need to specify --checkpoint and doing so may slow down the export "
+    "if your export database is large. "
+    "This is an advanced feature for those who need to fine-tune the behavior of osxphotos.",
     type=click.IntRange(min=0),
 )
 @click.option(
@@ -1630,7 +1630,6 @@ def export_cli(
         DEFAULT_PREVIEW_SUFFIX if preview_suffix is None else preview_suffix
     )
     retry = retry or 0
-    checkpoint = DEFAULT_CHECKPOINT if checkpoint is None else checkpoint
 
     dest = str(pathlib.Path(dest).resolve())
 
