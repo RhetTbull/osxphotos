@@ -524,6 +524,3 @@ UUID_PATTERN = (
 # pass SQLITE_CHECK_SAME_THREAD to sqlite3.connect() to enable multithreaded access on systems that support it
 SQLITE_CHECK_SAME_THREAD = not sqlite3.threadsafety == 3
 logger.debug(f"{SQLITE_CHECK_SAME_THREAD=}, {sqlite3.threadsafety=}")
-
-# default value for --checkpoint
-DEFAULT_CHECKPOINT = 1000
