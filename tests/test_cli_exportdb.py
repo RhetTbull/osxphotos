@@ -106,7 +106,7 @@ def test_exportdb_create_version_upgrade():
 
         result = runner.invoke(exportdb, [cwd, "--version"])
         assert result.exit_code == 0
-        assert "export database version: 5.0" in result.output
+        assert "Export database version: 5.0" in result.output
 
         result = runner.invoke(exportdb, [cwd, "--upgrade"])
         assert result.exit_code == 0
