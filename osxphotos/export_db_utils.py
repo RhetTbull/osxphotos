@@ -27,6 +27,7 @@ from .utils import hexdigest, noop
 __all__ = [
     "export_db_backup",
     "export_db_check_signatures",
+    "export_db_get_about",
     "export_db_get_errors",
     "export_db_get_last_library",
     "export_db_get_last_run",
@@ -57,6 +58,16 @@ def export_db_get_version(
     ).fetchone():
         return (row[0], row[1])
     return (None, None)
+
+
+def export_db_get_about(dbfile: Union[str, pathlib.Path]) -> str:
+    """Returns the about string from the export database"""
+    # read the last entry in the about table
+    conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
+    c = conn.cursor()
+    if row := c.execute("SELECT about FROM about ORDER BY id DESC LIMIT 1;").fetchone():
+        return row[0]
+    return ""
 
 
 def export_db_vacuum(dbfile: Union[str, pathlib.Path]) -> None:

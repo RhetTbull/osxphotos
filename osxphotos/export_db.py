@@ -40,7 +40,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "9.0"
+OSXPHOTOS_EXPORTDB_VERSION = "9.1"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -703,6 +703,10 @@ class ExportDB:
             # add history table
             self._migrate_8_0_to_9_0(conn)
 
+        if version_info[1] < "9.1" and version >= "9.1":
+            # add history table
+            self._migrate_9_0_to_9_1(conn)
+
         with self.lock:
             conn.execute("VACUUM;")
             conn.commit()
@@ -996,6 +1000,21 @@ class ExportDB:
                     UPDATE history SET datetime = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;
                 END;
                 """
+            )
+
+            conn.commit()
+
+    def _migrate_9_0_to_9_1(self, conn: sqlite3.Connection):
+        """Add history index"""
+        with self.lock:
+            c = conn.cursor()
+
+            # add index to the history_path table
+            c.execute(
+                """ CREATE UNIQUE INDEX IF NOT EXISTS
+                    idx_history_path_filepath_normalized
+                    ON history_path (filepath_normalized);
+                    """
             )
 
             conn.commit()

@@ -19,6 +19,7 @@ from osxphotos.export_db import (
 from osxphotos.export_db_utils import (
     export_db_backup,
     export_db_check_signatures,
+    export_db_get_about,
     export_db_get_errors,
     export_db_get_last_library,
     export_db_get_last_run,
@@ -278,6 +279,11 @@ def exportdb(
     if version:
         try:
             osxphotos_ver, export_db_ver = export_db_get_version(export_db)
+            about_str = export_db_get_about(export_db)
+            # find create date by searching for this pattern:
+            # on 2024-01-22 05:58:19.171571
+            date_created = re.search(r" on (\d{4}.*)$", about_str).group(1)
+
         except Exception as e:
             rich_echo_error(
                 f"[error]Error: could not read version from {export_db}: {e}[/error]"
@@ -285,7 +291,8 @@ def exportdb(
             sys.exit(1)
         else:
             rich_echo(
-                f"osxphotos version: [num]{osxphotos_ver}[/], export database version: [num]{export_db_ver}[/]"
+                f"Export database version: [num]{export_db_ver}[/], "
+                f"created by osxphotos version [num]{osxphotos_ver}[/] on [time]{date_created}[/]"
             )
         sys.exit(0)
 
