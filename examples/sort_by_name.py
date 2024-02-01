@@ -76,12 +76,25 @@ def sort_by_name(dry_run, start, step):
     ):
         raise click.Abort()
 
-    photos = sorted(photos, key=lambda photo: photo.filename)
+    photos = natural_sort(photos)
     for photo in photos:
         click.echo(f"Setting date for {photo.filename} to {start}")
         if not dry_run:
             photo.date = start
         start += step
+
+
+def natural_sort(input_list: list[str]) -> list[str]:
+    """Sort the given list in the way that humans expect."""
+    import re
+
+    def convert(text: str) -> list[int | str]:
+        return [int(text)] if text.isdigit() else [text.lower()]
+
+    def alphanum_key(key: str) -> list[int | str]:
+        return [convert(c) for c in re.split("([0-9]+)", key)]
+
+    return sorted(input_list, key=alphanum_key)
 
 
 def validate_date(photo: photoscript.Photo) -> datetime.datetime:
@@ -90,6 +103,7 @@ def validate_date(photo: photoscript.Photo) -> datetime.datetime:
         return photo.date
     except Exception as e:
         return datetime.datetime.now()
+
 
 if __name__ == "__main__":
     sort_by_name()
