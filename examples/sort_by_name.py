@@ -84,8 +84,8 @@ def sort_by_name(dry_run, start, step):
         start += step
 
 
-def natural_sort(input_list: list[str]) -> list[str]:
-    """Sort the given list in the way that humans expect."""
+def natural_sort(input_list: list[photoscript.Photo]) -> list[photoscript.Photo]:
+    """Sort the given list of photos in the way that humans expect."""
     import re
 
     def convert(text: str) -> list[int | str]:
@@ -94,7 +94,7 @@ def natural_sort(input_list: list[str]) -> list[str]:
     def alphanum_key(key: str) -> list[int | str]:
         return [convert(c) for c in re.split("([0-9]+)", key)]
 
-    return sorted(input_list, key=alphanum_key)
+    return sorted(input_list, key=lambda p: alphanum_key(p.filename))
 
 
 def validate_date(photo: photoscript.Photo) -> datetime.datetime:
