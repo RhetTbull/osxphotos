@@ -2,7 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>DuplicateSharedLibraryEnabledMarker</key>
+	<true/>
 	<key>PLDeferredCriticalMaintenanceTask</key>
-	<date>2024-02-01T02:36:46Z</date>
+	<date>2024-02-06T07:47:39Z</date>
 </dict>
 </plist>
