@@ -86,6 +86,7 @@ setup(
         "packaging>=21.3",
         "pathvalidate>=2.4.1,<4.0.0",
         "photoscript>=0.3.0,<0.4.0; sys_platform == 'darwin'",
+        "pip",
         "ptpython>=3.0.20,<4.0.0",
         "pyobjc-core>=9.0,<11.0; sys_platform == 'darwin' and platform_release >= '22.0'",
         "pyobjc-framework-AppleScriptKit>=9.0,<11.0; sys_platform == 'darwin' and platform_release >= '22.0'",
