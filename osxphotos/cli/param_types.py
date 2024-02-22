@@ -29,6 +29,7 @@ from osxphotos.utils import (
 __all__ = [
     "BitMathSize",
     "BooleanString",
+    "CatchSmartQuotesPath",
     "CSVOptions",
     "DateOffset",
     "DateTimeISO8601",
@@ -45,6 +46,26 @@ __all__ = [
     "TimeString",
     "UTCOffset",
 ]
+
+
+class CatchSmartQuotesPath(click.Path):
+    """A click.Path that catches smart quotes if used in a path"""
+
+    name = "CATCH_SMART_QUOTES_PATH"
+
+    def convert(self, value, param, ctx):
+        try:
+            return super().convert(value, param, ctx)
+        except click.exceptions.BadParameter as e:
+            # check to see if the error is due to smart quotes (curly quotes created by some apps such as Notes)
+            # if so, print a more helpful error message
+            if "“" in str(e) or "”" in str(e) or "‘" in str(e) or "’" in str(e):
+                self.fail(
+                    f"Path {value} contains smart quotes. Please check the path and try again. "
+                    "If you copied this path from an app like Notes or TextEdit, try disabling smart quotes in the app."
+                )
+            else:
+                self.fail(e)
 
 
 class DeprecatedPath(click.Path):

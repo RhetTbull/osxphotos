@@ -116,7 +116,13 @@ from .common import (
 )
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
-from .param_types import CSVOptions, ExportDBType, FunctionCall, TemplateString
+from .param_types import (
+    CatchSmartQuotesPath,
+    CSVOptions,
+    ExportDBType,
+    FunctionCall,
+    TemplateString,
+)
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
 from .sidecar import generate_user_sidecar
@@ -882,7 +888,7 @@ if TYPE_CHECKING:
     "obviously this is only for testing and debugging crash handling.",
 )
 @THEME_OPTION
-@click.argument("dest", nargs=1, type=click.Path(exists=True))
+@click.argument("dest", nargs=1, type=CatchSmartQuotesPath(exists=True))
 @click.pass_obj
 @click.pass_context
 @crash_reporter(
