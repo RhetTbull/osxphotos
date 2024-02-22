@@ -277,7 +277,7 @@ if TYPE_CHECKING:
     multiple=False,
     help="Skip photos with UUID(s) loaded from FILE. "
     "Format is a single UUID per line.  Lines preceded with # are ignored.",
-    type=click.Path(exists=True),
+    type=CatchSmartQuotesPath(exists=True),
 )
 @click.option(
     "--current-name",
@@ -385,7 +385,7 @@ if TYPE_CHECKING:
     multiple=True,
     type=click.Tuple(
         [
-            click.Path(dir_okay=False, file_okay=True, exists=True),
+            CatchSmartQuotesPath(dir_okay=False, file_okay=True, exists=True),
             TemplateString(),
             CSVOptions(
                 [
@@ -445,7 +445,7 @@ if TYPE_CHECKING:
 @click.option(
     "--exiftool-path",
     metavar="EXIFTOOL_PATH",
-    type=click.Path(exists=True),
+    type=CatchSmartQuotesPath(exists=True),
     help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
 )
 @click.option(
@@ -809,7 +809,7 @@ if TYPE_CHECKING:
     "particularly if the Photos library is on an APFS volume that is not the system volume, "
     "osxphotos may run faster if you specify a temporary directory on the same volume as "
     "the Photos library.",
-    type=click.Path(dir_okay=True, file_okay=False, exists=True),
+    type=CatchSmartQuotesPath(dir_okay=True, file_okay=False, exists=True),
 )
 @click.option(
     "--alt-copy",
@@ -830,7 +830,7 @@ if TYPE_CHECKING:
     "and use `--alt-db` to specify the path to the database file on the internal disk. "
     "then use `--library` to specify the path to the Photos library root on the external disk. "
     "For example: `--library /Volumes/ExternalDisk/Photos.photoslibrary --alt-db /path/to/database/Photos.sqlite` ",
-    type=click.Path(exists=True),
+    type=CatchSmartQuotesPath(exists=True),
 )
 @click.option(
     "--load-config",
@@ -845,7 +845,7 @@ if TYPE_CHECKING:
         "If any other command line options are used in conjunction with --load-config, "
         "they will override the corresponding values in the config file."
     ),
-    type=click.Path(exists=True),
+    type=CatchSmartQuotesPath(exists=True),
 )
 @click.option(
     "--save-config",
@@ -854,7 +854,7 @@ if TYPE_CHECKING:
     default=None,
     help="Save options to file for use with --load-config. File format is TOML. "
     "See also --config-only.",
-    type=click.Path(),
+    type=CatchSmartQuotesPath(),
 )
 @click.option(
     "--config-only",
