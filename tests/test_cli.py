@@ -1,4 +1,5 @@
 """ Test the command line interface (CLI) """
+
 import csv
 import datetime
 import glob
@@ -3167,6 +3168,19 @@ def test_export_duplicate_unicode_filenames():
         assert "exported: 4" in result.output
         files = glob.glob("*")
         assert sorted(files) == sorted(EXPORT_UNICODE_TITLE_FILENAMES)
+
+
+def test_export_smart_quotes():
+    """test export with smart quotes in destination path, #1408"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        os.mkdir("exportdir")
+        result = runner.invoke(
+            export, ["“exportdir”", "--library", os.path.join(cwd, CLI_PHOTOS_DB), "-V"]
+        )
+        assert result.exit_code != 0
+        assert "smart quotes" in result.output
 
 
 @pytest.mark.usefixtures("set_tz_pacific")
