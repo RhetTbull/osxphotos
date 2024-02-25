@@ -1366,7 +1366,7 @@ class iPhotoPhotoInfo:
             well_timed_shot=0.0,
         )
 
-    @cached_property
+    @property
     def orientation(self) -> int:
         """returns EXIF orientation of the current photo version as int or 0 if current orientation cannot be determined"""
         # iPhoto doesn't store orientation but does store rotation from which we can get orientation
