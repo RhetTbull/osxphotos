@@ -2129,7 +2129,7 @@
         "comments": [],
         "date": "2019-07-04T09:24:01+00:00",
         "date_added": "2023-09-27T06:43:07.933525+00:00",
-        "date_modified": "2023-07-24T22:05:15.033957+00:00",
+        "date_modified": "2024-02-24T17:02:18.085828+00:00",
         "date_trashed": null,
         "description": "Wedding tulips",
         "exif_info": {
@@ -2164,8 +2164,8 @@
                 "Make": "FUJIFILM",
                 "MeteringMode": 3,
                 "Model": "X-T1",
-                "PixelHeight": 1365,
                 "PixelWidth": 2047,
+                "PixelHeight": 1365,
                 "ProfileName": "sRGB IEC61966-2.1",
                 "SceneCaptureType": 0,
                 "Sharpness": 2,
@@ -2198,7 +2198,7 @@
         "has_raw": false,
         "hasadjustments": false,
         "hdr": false,
-        "height": 1365,
+        "height": 2047,
         "hidden": false,
         "import_info": {},
         "incloud": null,
@@ -2312,7 +2312,7 @@
         "uti_raw": null,
         "uuid": "E5FQ%pg4SRyKPi4dk6rUrg",
         "visible": false,
-        "width": 2047
+        "width": 1365
     },
     {
         "adjustments": {},
