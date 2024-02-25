@@ -85,7 +85,7 @@ def fix_exif_orientation(
         exiftool_flags=options.exiftool_flags,
     )
     if match:
-        status = "Orientation matches, no fix needed"
+        status = f"Orientation matches for photo {photo.uuid}, no fix needed"
         logger.debug(status)
         return False, status
 
