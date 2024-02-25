@@ -4,7 +4,7 @@
 	<key>Application Version</key>
 	<string>9.4</string>
 	<key>Archive Path</key>
-	<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary</string>
+	<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary</string>
 	<key>ArchiveId</key>
 	<string>1</string>
 	<key>Major Version</key>
@@ -413,7 +413,7 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064945/IMG_4547.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064945/IMG_4547.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -425,7 +425,7 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717515388.623018</real>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064945/QwWcnIjYRUOOiAt0h6RYWg/IMG_4547.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064945/QwWcnIjYRUOOiAt0h6RYWg/IMG_4547.jpg</string>
 			<key>latitude</key><real>-34.91889167</real>
 			<key>longitude</key><real>138.5968617</real>
 		</dict>
@@ -442,7 +442,7 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins1.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins1.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -454,7 +454,7 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717515001.379778</real>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/7NGbu3h6RkGXxBGa9lfMVQ/Pumkins1.jpg</string>
 			<key>Faces</key>
 				<array>
 					<dict>
@@ -480,7 +480,7 @@
 			<key>Rating</key>
 			<integer>4</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins2.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumkins2.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -492,7 +492,7 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717515112.573878</real>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/L0ddFwSDTmGwDZBWpnLF4A/Pumkins2.jpg</string>
 			<key>Faces</key>
 				<array>
 					<dict>
@@ -514,7 +514,7 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/Pumpkins3.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Pumpkins3.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -526,7 +526,7 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717515001.383062</real>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/TeSYQT5HRJ6R6uGZRm+VOQ/Pumpkins3.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TeSYQT5HRJ6R6uGZRm+VOQ/Pumpkins3.jpg</string>
 		</dict>
 		<key>21</key>
 		<dict>
@@ -541,7 +541,7 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St. James&apos;s Park.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St. James&apos;s Park.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -553,9 +553,9 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717515162.632193</real>
 			<key>OriginalPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/St James Park.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/St James Park.jpg</string>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St James Park.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/QtE4HvHhSnO2W8bmbzWRSg/St James Park.jpg</string>
 			<key>latitude</key><real>51.50357167</real>
 			<key>longitude</key><real>-0.1318055</real>
 		</dict>
@@ -574,7 +574,7 @@
 			<key>Rating</key>
 			<integer>5</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -586,9 +586,9 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>718493284.553226</real>
 			<key>OriginalPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/wedding.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/wedding.jpg</string>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/RgISIEPbThGVoco5LyiLjQ/wedding.jpg</string>
 			<key>Faces</key>
 				<array>
 					<dict>
@@ -610,19 +610,21 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/Tulips.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/E5FQ%pg4SRyKPi4dk6rUrg/Tulips tied together at a flower shop.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
-			<real>711954315.033957</real>
+			<real>730515738.085828</real>
 			<key>DateAsTimerInterval</key>
 			<real>583975441.000000</real>
 			<key>DateAsTimerIntervalGMT</key>
 			<real>583950241.000000</real>
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717515004.461551</real>
+			<key>OriginalPath</key>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/Tulips.jpg</string>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/E5FQ%pg4SRyKPi4dk6rUrg/Tulips.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/E5FQ%pg4SRyKPi4dk6rUrg/Tulips.jpg</string>
 		</dict>
 		<key>1</key>
 		<dict>
@@ -637,7 +639,7 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -649,9 +651,9 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717514995.116733</real>
 			<key>OriginalPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/DSC03584.dng</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/DSC03584.dng</string>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UD3w1wufQy6UcuzQ31ZF1w/DSC03584.jpg</string>
 		</dict>
 		<key>3</key>
 		<dict>
@@ -666,7 +668,7 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -678,9 +680,9 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717514998.240107</real>
 			<key>OriginalPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.cr2</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.cr2</string>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/TiiIk8KsQn+ZUVyBGno4iA/IMG_1994.jpg</string>
 		</dict>
 		<key>5</key>
 		<dict>
@@ -695,7 +697,7 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.JPG</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1994.JPG</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -707,7 +709,7 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717514998.237012</real>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/ReMuru2aQOWFGSt0%%j7pg/IMG_1994_2.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/ReMuru2aQOWFGSt0%%j7pg/IMG_1994_2.jpg</string>
 		</dict>
 		<key>7</key>
 		<dict>
@@ -722,7 +724,7 @@
 			<key>Rating</key>
 			<integer>1</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -734,9 +736,9 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717515192.570160</real>
 			<key>OriginalPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.cr2</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.cr2</string>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/UaL9+WGLTRSpqLbgUoUsIQ/IMG_1997.jpg</string>
 		</dict>
 		<key>9</key>
 		<dict>
@@ -751,7 +753,7 @@
 			<key>Rating</key>
 			<integer>1</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Previews/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_2.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Previews/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_2.jpg</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -763,9 +765,9 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717515192.569412</real>
 			<key>OriginalPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.JPG</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_1997.JPG</string>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_2.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/wOCT+bugTx2I9gKyidlKUg/IMG_1997_2.jpg</string>
 		</dict>
 		<key>11</key>
 		<dict>
@@ -780,7 +782,7 @@
 			<key>Rating</key>
 			<integer>0</integer>
 			<key>ImagePath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Masters/2023/09/27/20230927-064307/IMG_3092.heic</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Masters/2023/09/27/20230927-064307/IMG_3092.heic</string>
 			<key>MediaType</key>
 			<string>Image</string>
 			<key>ModDateAsTimerInterval</key>
@@ -792,7 +794,7 @@
 			<key>MetaModDateAsTimerInterval</key>
 			<real>717514998.238968</real>
 			<key>ThumbPath</key>
-			<string>/Users/rhet/Dropbox/Code/osxphotos/iPhoto Library.photolibrary/Thumbnails/2023/09/27/20230927-064307/WvY%8CN+RLaDKrD0GQCRoQ/IMG_3092.jpg</string>
+			<string>/Users/rhet/Pictures/Test-iPhoto-9.6.1.photolibrary/Thumbnails/2023/09/27/20230927-064307/WvY%8CN+RLaDKrD0GQCRoQ/IMG_3092.jpg</string>
 		</dict>
 	</dict>
 </dict>

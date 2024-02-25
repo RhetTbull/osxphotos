@@ -114,7 +114,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 8,
         "original_filename": "DSC03584.dng",
         "original_filesize": 21473824,
         "original_height": 4000,
@@ -301,7 +301,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "IMG_1994.cr2",
         "original_filesize": 16128420,
         "original_height": 3312,
@@ -489,7 +489,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "IMG_1994.JPG",
         "original_filesize": 2901554,
         "original_height": 3312,
@@ -676,7 +676,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 6,
         "original_filename": "IMG_1997.cr2",
         "original_filesize": 15921433,
         "original_height": 3312,
@@ -864,7 +864,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 6,
         "original_filename": "IMG_1997.JPG",
         "original_filesize": 2991408,
         "original_height": 3312,
@@ -1047,7 +1047,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "IMG_3092.heic",
         "original_filesize": 1877314,
         "original_height": 4032,
@@ -1344,7 +1344,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "Pumkins1.jpg",
         "original_filesize": 557769,
         "original_height": 1365,
@@ -1615,7 +1615,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "Pumkins2.jpg",
         "original_filesize": 544761,
         "original_height": 2048,
@@ -1840,7 +1840,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "Pumpkins3.jpg",
         "original_filesize": 591671,
         "original_height": 2048,
@@ -2038,7 +2038,7 @@
             -0.1318055
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "St James Park.jpg",
         "original_filesize": 1266130,
         "original_height": 1356,
@@ -2129,7 +2129,7 @@
         "comments": [],
         "date": "2019-07-04T09:24:01+00:00",
         "date_added": "2023-09-27T06:43:07.933525+00:00",
-        "date_modified": "2023-07-24T22:05:15.033957+00:00",
+        "date_modified": "2024-02-24T17:02:18.085828+00:00",
         "date_trashed": null,
         "description": "Wedding tulips",
         "exif_info": {
@@ -2198,7 +2198,7 @@
         "has_raw": false,
         "hasadjustments": false,
         "hdr": false,
-        "height": 1365,
+        "height": 2047,
         "hidden": false,
         "import_info": {},
         "incloud": null,
@@ -2240,7 +2240,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 8,
         "original_filename": "Tulips.jpg",
         "original_filesize": 516378,
         "original_height": 1365,
@@ -2312,7 +2312,7 @@
         "uti_raw": null,
         "uuid": "E5FQ%pg4SRyKPi4dk6rUrg",
         "visible": false,
-        "width": 2047
+        "width": 1365
     },
     {
         "adjustments": {},
@@ -2458,7 +2458,7 @@
             null
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "wedding.jpg",
         "original_filesize": 463959,
         "original_height": 1367,
@@ -2718,7 +2718,7 @@
             138.59686167
         ],
         "longitude": 0.0,
-        "orientation": 0,
+        "orientation": 1,
         "original_filename": "IMG_4547.jpg",
         "original_filesize": 1477654,
         "original_height": 2754,

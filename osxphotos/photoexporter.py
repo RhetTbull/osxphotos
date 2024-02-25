@@ -14,7 +14,8 @@ from enum import Enum
 
 from ._version import __version__
 from .dictdiff import dictdiff
-from .exiftool import exiftool_can_write
+from .exif_orientation import fix_exif_orientation
+from .exiftool import ExifTool, exiftool_can_write
 from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
 from .exportoptions import ExportOptions, ExportResults
@@ -969,8 +970,8 @@ class PhotoExporter:
                     src = tmp_file
                     converted_to_jpeg_files.append(dest_str)
 
-                if options.exiftool:
-                    # if exiftool, write the metadata
+                if options.exiftool or options.fix_orientation:
+                    # if exiftool or fix_orientation, write the metadata
                     # need to copy the file to a temp file before writing metadata
                     src = pathlib.Path(src)
                     tmp_file = increment_filename(
@@ -980,9 +981,15 @@ class PhotoExporter:
                     # point src to the tmp_file so that the original source is not modified
                     # and the export grabs the new file
                     src = tmp_file
-                    exif_results = self.write_exiftool_metadata_to_file(
-                        src, dest, options=options
-                    )
+
+                    if options.exiftool:
+                        exif_results = self.write_exiftool_metadata_to_file(
+                            src, dest, options=options
+                        )
+
+                    if options.fix_orientation:
+                        fixed, msg = fix_exif_orientation(self.photo, src, options)
+                        verbose(msg)
 
                 try:
                     fileutil.copy(src, dest_str)

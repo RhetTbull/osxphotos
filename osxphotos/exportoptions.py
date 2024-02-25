@@ -71,6 +71,7 @@ class ExportOptions:
         verbose (callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
         tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory
         favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
+        fix_orientation (bool): if True, will adjust image orientation based on exif data if necessary
 
     """
 
@@ -119,6 +120,7 @@ class ExportOptions:
     verbose: Optional[Callable[[Any], Any]] = None
     tmpdir: Optional[str] = None
     favorite_rating: bool = False
+    fix_orientation: bool = False
 
     def asdict(self):
         return dataclasses.asdict(self)
