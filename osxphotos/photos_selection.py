@@ -76,6 +76,7 @@ def get_selected(photosdb: PhotosDB):
     assert_macos()
     try:
         selected = photoscript.PhotosLibrary().selection
+        return photosdb.photos(uuid=[p.uuid for p in selected]) if selected else []
     except ScriptError as e:
         # some photos (e.g. shared items) can't be selected and raise ScriptError:
         # applescript.ScriptError: Photos got an error: Can’t get media item id "34C26DFA-0CEA-4DB7-8FDA-B87789B3209D/L0/001". (-1728) app='Photos' range=16820-16873
@@ -83,4 +84,4 @@ def get_selected(photosdb: PhotosDB):
         if match := re.match(r".*Can’t get media item id \"(.*)\".*", str(e)):
             uuid = match[1].split("/")[0]
             return photosdb.photos(uuid=[uuid])
-    return photosdb.photos(uuid=[p.uuid for p in selected]) if selected else []
+    return []
