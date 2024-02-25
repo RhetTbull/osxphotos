@@ -55,6 +55,7 @@ from ._constants import (
 )
 from .datetime_utils import datetime_has_tz, datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
+from .exifutils import angle_to_exif_orientation
 from .exportoptions import ExportOptions
 from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoexporter import PhotoExporter
@@ -1365,6 +1366,15 @@ class iPhotoPhotoInfo:
             well_timed_shot=0.0,
         )
 
+    @cached_property
+    def orientation(self) -> int:
+        """returns EXIF orientation of the current photo version as int or 0 if current orientation cannot be determined"""
+        # iPhoto doesn't store orientation but does store rotation from which we can get orientation
+        rotation = self._info.get("rotation")
+        if rotation is None:
+            return 0
+        return angle_to_exif_orientation(rotation)
+
     def export(
         self,
         dest: str,
@@ -2181,9 +2191,11 @@ class iPhotoFolderInfo:
         if parent_uuid := self._folder["parentFolderUuid"]:
             return next(
                 (
-                    None
-                    if bool(folder["isMagic"])
-                    else iPhotoFolderInfo(folder, self._db)
+                    (
+                        None
+                        if bool(folder["isMagic"])
+                        else iPhotoFolderInfo(folder, self._db)
+                    )
                     for folder in self._db._db_folders.values()
                     if folder["uuid"] == parent_uuid
                 ),
@@ -2312,9 +2324,9 @@ class iPhotoEventInfo:
             "start_date": self.start_date.isoformat() if self.start_date else None,
             "end_date": self.end_date.isoformat() if self.end_date else None,
             "date": self.date.isoformat() if self.date else None,
-            "modification_date": self.modification_date.isoformat()
-            if self.modification_date
-            else None,
+            "modification_date": (
+                self.modification_date.isoformat() if self.modification_date else None
+            ),
             "note": self.note,
             # "photos": self.photos,
         }

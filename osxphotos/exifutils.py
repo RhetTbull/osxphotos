@@ -145,3 +145,20 @@ def get_exif_date_time_offset(
     return ExifDateTime(
         dt, offset_seconds, offset_str, default_time, used_file_modify_date
     )
+
+
+def angle_to_exif_orientation(angle: int) -> int:
+    """Convert angle, in degrees, to EXIF orientation value.
+
+    Args:
+        angle: angle in degrees (0, 90, 180, 270) as clockwise rotation from normal orientation
+
+    Returns:
+        EXIF orientation value as integer
+    """
+    if angle % 90 != 0:
+        raise ValueError(f"angle must be a multiple of 90: {angle}")
+
+    orientation_map = {0: 1, 90: 6, 180: 3, 270: 8}
+
+    return orientation_map[angle % 360]
