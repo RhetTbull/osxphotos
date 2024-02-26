@@ -1,6 +1,5 @@
 """ Utility functions for working with export_db """
 
-
 from __future__ import annotations
 
 import contextlib
@@ -19,8 +18,9 @@ from osxphotos.photoinfo import PhotoInfo
 from ._constants import OSXPHOTOS_EXPORT_DB, SQLITE_CHECK_SAME_THREAD
 from ._version import __version__
 from .configoptions import ConfigOptions
-from .export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDB
+from .export_db import ExportDB
 from .fileutil import FileUtil
+from .photo_signature import photo_signature
 from .photosdb import PhotosDB
 from .utils import hexdigest, noop
 
@@ -239,7 +239,7 @@ def export_db_touch_files(
     """
     export_dir = pathlib.Path(export_dir)
 
-    # open and close exportdb to ensure it gets migrated
+    # open and close exportdb to ensure it gets d
     exportdb = ExportDB(dbfile, export_dir)
     if upgraded := exportdb.was_upgraded:
         verbose_(
@@ -340,38 +340,21 @@ def export_db_migrate_photos_library(
 
     verbose(f"Loading data from Photos library {photos_library}")
     photosdb = PhotosDB(dbfile=photos_library, verbose=verbose)
-    photosdb_fingerprint = {}
+    photosdb_signature = {}
     photosdb_cloud_guid = {}
     photosdb_name_size = {}
-    photosdb_shared = {}
     for photo in photosdb.photos():
-        photosdb_fingerprint[
-            f"{photo.original_filename}:{photo.fingerprint}"
-        ] = photo.uuid
+        photosdb_signature[photo_signature(photo)] = photo.uuid
         photosdb_cloud_guid[
             f"{photo.original_filename}:{photo.cloud_guid}"
         ] = photo.uuid
         photosdb_name_size[
             f"{photo.original_filename}:{photo.original_filesize}"
         ] = photo.uuid
-        if photo.shared:
-            photosdb_shared[_shared_photo_key(photo)] = photo.uuid
     verbose("Matching photos in export database to photos in Photos library")
     matched = 0
     notmatched = 0
     for uuid, photoinfo in exportdb_uuids.items():
-        if photoinfo.get("shared"):
-            key = _shared_photo_key(photoinfo)
-            if key in photosdb_shared:
-                new_uuid = photosdb_shared[key]
-                verbose(
-                    f"[green]Matched by shared info[/green]: [uuid]{uuid}[/] -> [uuid]{new_uuid}[/]"
-                )
-                _export_db_update_uuid_info(
-                    conn, uuid, new_uuid, photoinfo, photosdb, dry_run
-                )
-                matched += 1
-                continue
         if cloud_guid := photoinfo.get("cloud_guid", None):
             key = f"{photoinfo['original_filename']}:{cloud_guid}"
             if key in photosdb_cloud_guid:
@@ -384,12 +367,11 @@ def export_db_migrate_photos_library(
                 )
                 matched += 1
                 continue
-        if fingerprint := photoinfo.get("fingerprint", None):
-            key = f"{photoinfo['original_filename']}:{fingerprint}"
-            if key in photosdb_fingerprint:
-                new_uuid = photosdb_fingerprint[key]
+        if signature := photo_signature(photoinfo):
+            if signature in photosdb_signature:
+                new_uuid = photosdb_signature[signature]
                 verbose(
-                    f"[green]Matched by fingerprint[/green]: [uuid]{uuid}[/] -> [uuid]{new_uuid}[/]"
+                    f"[green]Matched by signature[/green]: [uuid]{uuid}[/] -> [uuid]{new_uuid}[/]"
                 )
                 _export_db_update_uuid_info(
                     conn, uuid, new_uuid, photoinfo, photosdb, dry_run
@@ -418,22 +400,6 @@ def export_db_migrate_photos_library(
         conn.execute("VACUUM;")
     conn.close()
     return (matched, notmatched)
-
-
-def _shared_photo_key(photo: PhotoInfo | dict[str, Any]) -> str:
-    """return a key for matching a shared photo between libraries"""
-    photoinfo = photo.asdict() if isinstance(photo, PhotoInfo) else photo
-    date = photoinfo.get("date")
-    if isinstance(date, datetime.datetime):
-        date = date.isoformat()
-    return (
-        f"{photoinfo.get('cloud_owner_hashed_id')}:"
-        f"{photoinfo.get('original_height')}:"
-        f"{photoinfo.get('original_width')}:"
-        f"{photoinfo.get('isphoto')}:"
-        f"{photoinfo.get('ismovie')}:"
-        f"{date}"
-    )
 
 
 def _export_db_update_uuid_info(

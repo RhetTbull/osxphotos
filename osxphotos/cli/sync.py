@@ -11,6 +11,7 @@ from typing import Any, Callable, Literal
 import click
 
 from osxphotos import PhotoInfo, PhotosDB, __version__
+from osxphotos.photo_signature import photo_signature
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photoquery import (
     IncompatibleQueryOptions,
@@ -142,11 +143,6 @@ def open_metadata_db(db_path: str):
     return metadata_db
 
 
-def key_from_photo(photo: PhotoInfo) -> str:
-    """Return key for photo used to correlate photos between libraries"""
-    return f"{photo.fingerprint}:{photo.original_filename}"
-
-
 def get_photo_metadata(photos: list[PhotoInfo]) -> str:
     """Return JSON string of metadata for photos; if more than one photo, merge metadata"""
     if len(photos) == 1:
@@ -216,7 +212,7 @@ def export_metadata_to_db(
     # as there is no way to know which photo is the "correct" one
     key_to_photos = {}
     for photo in photos:
-        key = key_from_photo(photo)
+        key = photo_signature(photo)
         if key in key_to_photos:
             key_to_photos[key].append(photo)
         else:
@@ -278,7 +274,7 @@ def import_metadata(
     # build mapping of key to photo
     key_to_photo = {}
     for photo in photos:
-        key = key_from_photo(photo)
+        key = photo_signature(photo)
         if key in key_to_photo:
             key_to_photo[key].append(photo)
         else:
