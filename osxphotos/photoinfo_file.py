@@ -11,9 +11,12 @@ from typing import Optional, Union
 
 from .datetime_utils import datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
-from .fingerprint import fingerprint
 from .metadata_reader import MetaData, metadata_from_file, metadata_from_sidecar
 from .phototemplate import PhotoTemplate, RenderOptions
+from .platform import is_macos
+
+if is_macos:
+    from .fingerprint import fingerprint
 
 try:
     EXIFTOOL_PATH = get_exiftool_path()
@@ -105,9 +108,11 @@ class PhotoInfoFromFile:
         return self._metadata.description
 
     @property
-    def fingerprint(self) -> str:
-        """Returns fingerprint of original photo as a string"""
-        return fingerprint(self.path)
+    def fingerprint(self) -> str | None:
+        """Returns fingerprint of original photo as a string or None if not on macOS"""
+        if is_macos:
+            return fingerprint(self._path)
+        return None
 
     @property
     def exiftool(self):

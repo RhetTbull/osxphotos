@@ -1690,8 +1690,8 @@ class PhotoInfo:
         return self._info["cloudownerhashedpersonid"]
 
     @cached_property
-    def fingerprint(self) -> str:
-        """Returns fingerprint of original photo as a string"""
+    def fingerprint(self) -> str | None:
+        """Returns fingerprint of original photo as a string or None if not available"""
         return self._info["masterFingerprint"]
 
     def detected_text(
