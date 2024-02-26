@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import datetime
 import os
-from typing import Any
 
-from .fingerprint import fingerprint
 from .photoinfo import PhotoInfo
 from .photoinfo_file import PhotoInfoFromDict, PhotoInfoFromFile
+from .platform import is_macos
+
+if is_macos:
+    from .fingerprint import fingerprint
 
 
 def photo_signature(
@@ -27,7 +29,7 @@ def photo_signature(
     if photo.fingerprint:
         return f"{photo.original_filename.lower()}:{photo.fingerprint}"
 
-    if photo.path:
+    if photo.path and is_macos:
         return f"{photo.original_filename.lower()}:{fingerprint(photo.path)}"
 
     return f"{photo.original_filename.lower()}:{photo.original_filesize}"
