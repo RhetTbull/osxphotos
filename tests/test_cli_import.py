@@ -251,27 +251,27 @@ def test_import_dup_check():
 @pytest.mark.test_import
 def test_import_skip_dups():
     """Test basic import with --skip_dups"""
-
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_2 = os.path.join(cwd, TEST_VIDEO_1)
     runner = CliRunner()
     # import first to ensure photo is in library
     result = runner.invoke(
         import_main,
-        ["--verbose", test_image_1],
+        ["--verbose", test_image_1, test_image_2],
         terminal_width=TERMINAL_WIDTH,
     )
 
     # now import again with --skip-dups
     result = runner.invoke(
         import_main,
-        ["--verbose", "--skip-dups", test_image_1],
+        ["--verbose", "--skip-dups", test_image_1, test_image_2],
         terminal_width=TERMINAL_WIDTH,
     )
 
     assert result.exit_code == 0
     assert "Skipping duplicate" in result.output
-    assert "1 skipped" in result.output
+    assert "2 skipped" in result.output
 
 
 @pytest.mark.test_import
@@ -863,7 +863,7 @@ def test_import_glob():
     )
 
     assert result.exit_code == 0
-    assert "imported 2 files" in result.output
+    assert "imported 4 files" in result.output
 
 
 @pytest.mark.test_import

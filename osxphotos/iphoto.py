@@ -1257,7 +1257,7 @@ class iPhotoPhotoInfo:
 
     @cached_property
     def fingerprint(self) -> str | None:
-        """Returns fingerprint of original photo as a string; returns None if not available"""
+        """Returns fingerprint of original photo as a string; returns None if not available. On linux, returns None."""
         if not is_macos:
             logger.warning("fingerprint only supported on macOS")
             return None

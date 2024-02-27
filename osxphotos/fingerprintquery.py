@@ -72,14 +72,14 @@ class FingerprintQuery:
             ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME 
             FROM {asset_table}
             JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
-            WHERE ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME = ?
-            AND ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE = ?
+            WHERE ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE = ?
+            AND LOWER(ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME) = LOWER(?)
             """
 
         if not in_trash:
             sql += f"\nAND {asset_table}.ZTRASHEDSTATE = 0"
 
-        results = self.conn.execute(sql, (filename, size)).fetchall()
+        results = self.conn.execute(sql, (size, filename)).fetchall()
         results = [
             (row[0], photos_timestamp_to_datetime(row[1], row[2]), row[3])
             for row in results
