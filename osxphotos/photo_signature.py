@@ -17,7 +17,7 @@ def photo_signature(
     photo: PhotoInfo | PhotoInfoFromFile | dict | str | os.PathLike,
     exiftool: str | None = None,
 ) -> str:
-    """Compute photo signature for a PhotoInfo or file"""
+    """Compute photo signature for a PhotoInfo, a PhotoInfo dict, or file path"""
     if isinstance(photo, dict):
         photo = PhotoInfoFromDict(photo)
     elif not isinstance(photo, PhotoInfo):
