@@ -56,6 +56,10 @@ python3 -m build
 echo "Building CLI executable"
 ./make_cli_exe.sh
 
+# sign the executable
+echo "Signing CLI executable"
+codesign --force --sign "$DEVELOPER_ID_APPLICATION" dist/osxphotos
+
 # zip up CLI executable
 echo "Zipping CLI executable"
 OSXPHOTOSVERSION=$(python3 -c "import osxphotos; print(osxphotos.__version__)")

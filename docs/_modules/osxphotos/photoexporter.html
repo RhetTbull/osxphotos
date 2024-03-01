@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.photoexporter - osxphotos 0.67.3 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.67.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -212,7 +212,8 @@
 
 <span class="kn">from</span> <span class="nn">._version</span> <span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">.dictdiff</span> <span class="kn">import</span> <span class="n">dictdiff</span>
-<span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">exiftool_can_write</span>
+<span class="kn">from</span> <span class="nn">.exif_orientation</span> <span class="kn">import</span> <span class="n">fix_exif_orientation</span>
+<span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">exiftool_can_write</span>
 <span class="kn">from</span> <span class="nn">.exifwriter</span> <span class="kn">import</span> <span class="n">ExifWriter</span><span class="p">,</span> <span class="n">exif_options_from_options</span>
 <span class="kn">from</span> <span class="nn">.export_db</span> <span class="kn">import</span> <span class="n">ExportDBTemp</span>
 <span class="kn">from</span> <span class="nn">.exportoptions</span> <span class="kn">import</span> <span class="n">ExportOptions</span><span class="p">,</span> <span class="n">ExportResults</span>
@@ -1172,8 +1173,8 @@
                     <span class="n">src</span> <span class="o">=</span> <span class="n">tmp_file</span>
                     <span class="n">converted_to_jpeg_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exiftool</span><span class="p">:</span>
-                    <span class="c1"># if exiftool, write the metadata</span>
+                <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exiftool</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">fix_orientation</span><span class="p">:</span>
+                    <span class="c1"># if exiftool or fix_orientation, write the metadata</span>
                     <span class="c1"># need to copy the file to a temp file before writing metadata</span>
                     <span class="n">src</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
                     <span class="n">tmp_file</span> <span class="o">=</span> <span class="n">increment_filename</span><span class="p">(</span>
@@ -1183,9 +1184,15 @@
                     <span class="c1"># point src to the tmp_file so that the original source is not modified</span>
                     <span class="c1"># and the export grabs the new file</span>
                     <span class="n">src</span> <span class="o">=</span> <span class="n">tmp_file</span>
-                    <span class="n">exif_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_exiftool_metadata_to_file</span><span class="p">(</span>
-                        <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span>
-                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exiftool</span><span class="p">:</span>
+                        <span class="n">exif_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_exiftool_metadata_to_file</span><span class="p">(</span>
+                            <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span>
+                        <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">fix_orientation</span><span class="p">:</span>
+                        <span class="n">fixed</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">fix_exif_orientation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+                        <span class="n">verbose</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">fileutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest_str</span><span class="p">)</span>
@@ -1600,7 +1607,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=4797eaa1"></script>
+</div><script src="../../_static/documentation_options.js?v=8c1e7a6c"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

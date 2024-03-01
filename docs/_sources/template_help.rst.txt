@@ -361,7 +361,7 @@ Template Substitutions
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.67.3'
+     - The osxphotos version, e.g. '0.67.4'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
