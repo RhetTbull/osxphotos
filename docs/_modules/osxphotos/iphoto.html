@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.iphoto - osxphotos 0.67.1 documentation</title>
+        <title>osxphotos.iphoto - osxphotos 0.67.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -253,6 +253,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.datetime_utils</span> <span class="kn">import</span> <span class="n">datetime_has_tz</span><span class="p">,</span> <span class="n">datetime_naive_to_local</span>
 <span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifToolCaching</span><span class="p">,</span> <span class="n">get_exiftool_path</span>
+<span class="kn">from</span> <span class="nn">.exifutils</span> <span class="kn">import</span> <span class="n">angle_to_exif_orientation</span>
 <span class="kn">from</span> <span class="nn">.exportoptions</span> <span class="kn">import</span> <span class="n">ExportOptions</span>
 <span class="kn">from</span> <span class="nn">.personinfo</span> <span class="kn">import</span> <span class="n">MPRI_Reg_Rect</span><span class="p">,</span> <span class="n">MWG_RS_Area</span>
 <span class="kn">from</span> <span class="nn">.photoexporter</span> <span class="kn">import</span> <span class="n">PhotoExporter</span>
@@ -1471,7 +1472,7 @@
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns fingerprint of original photo as a string; returns None if not available&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns fingerprint of original photo as a string; returns None if not available. On linux, returns None.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_macos</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;fingerprint only supported on macOS&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -1579,6 +1580,15 @@
             <span class="n">well_framed_subject</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
             <span class="n">well_timed_shot</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns EXIF orientation of the current photo version as int or 0 if current orientation cannot be determined&quot;&quot;&quot;</span>
+        <span class="c1"># iPhoto doesn&#39;t store orientation but does store rotation from which we can get orientation</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rotation&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rotation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">angle_to_exif_orientation</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span>
 
 <div class="viewcode-block" id="iPhotoPhotoInfo.export">
 <a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.export">[docs]</a>
@@ -2447,9 +2457,11 @@
         <span class="k">if</span> <span class="n">parent_uuid</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folder</span><span class="p">[</span><span class="s2">&quot;parentFolderUuid&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="nb">next</span><span class="p">(</span>
                 <span class="p">(</span>
-                    <span class="kc">None</span>
-                    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">folder</span><span class="p">[</span><span class="s2">&quot;isMagic&quot;</span><span class="p">])</span>
-                    <span class="k">else</span> <span class="n">iPhotoFolderInfo</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span>
+                    <span class="p">(</span>
+                        <span class="kc">None</span>
+                        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">folder</span><span class="p">[</span><span class="s2">&quot;isMagic&quot;</span><span class="p">])</span>
+                        <span class="k">else</span> <span class="n">iPhotoFolderInfo</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span>
+                    <span class="p">)</span>
                     <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_folders</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">folder</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">parent_uuid</span>
                 <span class="p">),</span>
@@ -2585,9 +2597,9 @@
             <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;modification_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modification_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modification_date</span>
-            <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;modification_date&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">modification_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modification_date</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
             <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">note</span><span class="p">,</span>
             <span class="c1"># &quot;photos&quot;: self.photos,</span>
         <span class="p">}</span>
@@ -2778,7 +2790,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=d417e4d2"></script>
+</div><script src="../../_static/documentation_options.js?v=8c1e7a6c"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

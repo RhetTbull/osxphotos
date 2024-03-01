@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.67.3 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.67.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.67.3 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.67.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1914,6 +1914,12 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-jpeg-quality">
 <span class="sig-name descname"><span class="pre">--jpeg-quality</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;jpeg_quality&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-jpeg-quality" title="Link to this definition">#</a></dt>
 <dd><p>Value in range 0.0 to 1.0 to use with –convert-to-jpeg. A value of 1.0 specifies best quality, a value of 0.0 specifies maximum compression. Defaults to 1.0</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-fix-orientation">
+<span class="sig-name descname"><span class="pre">--fix-orientation</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-fix-orientation" title="Link to this definition">#</a></dt>
+<dd><p>Automatically fix image orientation in exported photos to match orientation in Photos database. Requires exiftool be installed and in the path. This is useful mainly for iPhoto libraries. When an image is rotated in iPhoto, the image orientation is not actually changed, instead the image is tagged with an orientation value in the iPhoto database. This means that when the image is exported, the orientation may not be correct. This option will read the EXIF orientation data and fix the image’s orientation if necessary. If used with Photos libraries, this option will result in the original image also being adjusted upon export.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -5988,7 +5994,7 @@ Commands:
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=4797eaa1"></script>
+</div><script src="_static/documentation_options.js?v=8c1e7a6c"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
