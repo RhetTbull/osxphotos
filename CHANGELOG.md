@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.4](https://github.com/RhetTbull/osxphotos/compare/v0.67.3...v0.67.4)
+
+### [v0.67.4] - 2024-03-01
+
+This release includes a few bug fixes as well as a new feature to fix photo orientation upon export. There's also a performance improvement for `osxphotos export`.
+
+#### Added
+
+- `--fix-orientation` flag to `osxphotos export` command to automatically adjust the orientation of exported photos to match the orientation stored in the Photos database. This is mostly useful for iPhoto libraries which do not treat orientation adjustments as edits and thus no edited image with the correct orientation is created. #1396
+
+#### Fixed
+
+- Unified the fingerprint code for `sync` and `import` which improves reliability and makes it possible to implement the `osxphotos compare` command. #1389
+- If a path is invalid in the `osxphotos export` command and the passed path includes smart quotes, the error message will now tell the user to remove the smart quotes. This fixes a common user error when pasting from TextEdit or Notes that use smart quotes. #1408
+- Fixed `osxphotos repl` to work when connected via SSH. #1332
+
+#### Changed
+
+- Added index to history table in export databasel; this should speed up exports with `--update` (migrates export database to version 9.1)
+
+#### Removed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @mlevin77 [@mlevin77](https://github.com/mlevin77) for suggesting the `--fix-orientation` flag.
+
 ## [v0.67.3](https://github.com/RhetTbull/osxphotos/compare/v0.67.2...v0.67.3)
 
 ### [v0.67.3] - 2024-01-13
