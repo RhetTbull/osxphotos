@@ -704,7 +704,7 @@ class ExportDB:
             self._migrate_8_0_to_9_0(conn)
 
         if version_info[1] < "9.1" and version >= "9.1":
-            # add history table
+            # Add history index
             self._migrate_9_0_to_9_1(conn)
 
         with self.lock:
