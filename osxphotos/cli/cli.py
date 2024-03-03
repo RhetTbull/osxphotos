@@ -15,6 +15,7 @@ from .about import about
 from .albums import albums
 from .cli_params import DEBUG_OPTIONS, VERSION_OPTION
 from .common import OSXPHOTOS_HIDDEN
+from .compare import compare
 from .debug_dump import debug_dump
 from .docs import docs_command
 from .dump import dump
@@ -112,6 +113,7 @@ def cli_main(ctx, profile, profile_sort, **kwargs):
 commands = [
     about,
     albums,
+    compare,
     debug_dump,
     diff,
     docs_command,

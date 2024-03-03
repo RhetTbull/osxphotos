@@ -58,6 +58,7 @@ from .cli_commands import (
 )
 from .cli_params import DB_OPTION, DEBUG_OPTIONS, JSON_OPTION
 from .common import OSXPHOTOS_HIDDEN, get_photos_db
+from .compare import compare
 from .debug_dump import debug_dump
 from .docs import docs_command
 from .dump import dump
@@ -101,6 +102,7 @@ __all__ = [
     "about",
     "albums",
     "cli_main",
+    "compare",
     "debug_dump",
     "diff",
     "docs_command",
