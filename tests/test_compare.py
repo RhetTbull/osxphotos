@@ -30,7 +30,12 @@ def diff_a_b(db_a, db_b):
     return compare_photos_libraries(db_a, db_b)
 
 
-def test_compare_photos_libraries_1(diff_a_b):
+@pytest.fixture(scope="module")
+def diff_a_a(db_a):
+    return compare_photos_libraries(db_a, db_a)
+
+
+def test_compare_photos_libraries_a_b(diff_a_b):
     """Test comparison of two libraries A <--> B"""
 
     assert len(diff_a_b.in_a_not_b) == 1
@@ -39,7 +44,7 @@ def test_compare_photos_libraries_1(diff_a_b):
     assert len(diff_a_b.in_both_different) == 1
 
 
-def test_compare_photos_libraries_2(db_a, db_b):
+def test_compare_photos_libraries_b_a(db_a, db_b):
     """Test comparison of two libraries B <--> A"""
 
     diff_b_a = compare_photos_libraries(db_b, db_a)
@@ -47,6 +52,15 @@ def test_compare_photos_libraries_2(db_a, db_b):
     assert len(diff_b_a.in_b_not_a) == 1
     assert len(diff_b_a.in_both_same) == 2
     assert len(diff_b_a.in_both_different) == 1
+
+
+def test_compare_photos_libraries_a_a(diff_a_a):
+    """Test comparison of two libraries A <--> A"""
+
+    assert len(diff_a_a.in_a_not_b) == 0
+    assert len(diff_a_a.in_b_not_a) == 0
+    assert len(diff_a_a.in_both_same) == 4
+    assert len(diff_a_a.in_both_different) == 0
 
 
 def test_compare_photos_libraries_str(diff_a_b):
@@ -89,3 +103,23 @@ def test_compare_photos_libraries_csv(diff_a_b):
     assert test_row["in_b_not_a"] == "0"
     assert test_row["in_a_and_b_same"] == "0"
     assert test_row["in_a_and_b_different"] == "1"
+
+
+def test_compare_photos_libraries_len_a_b(diff_a_b):
+    """Test comparison len()"""
+    assert len(diff_a_b) == 4
+
+
+def test_compare_photos_libraries_len_a_a(diff_a_a):
+    """Test comparison len()"""
+    assert len(diff_a_a) == 0
+
+
+def test_compare_photos_libraries_bool(diff_a_b):
+    """Test comparison len()"""
+    assert bool(diff_a_b)
+
+
+def test_compare_photos_libraries_bool(diff_a_a):
+    """Test comparison len()"""
+    assert not bool(diff_a_a)
