@@ -85,7 +85,7 @@ def test_compare_photos_libraries_csv(diff_a_b):
         if row["original_filename"] == "wedding.jpg":
             test_row = row
             break
-    assert test_row["in_a_not_b"] == '0'
-    assert test_row["in_b_not_a"] == '0'
-    assert test_row["in_a_and_b_same"] == '0'
-    assert test_row["in_a_and_b_different"] == '1'
+    assert test_row["in_a_not_b"] == "0"
+    assert test_row["in_b_not_a"] == "0"
+    assert test_row["in_a_and_b_same"] == "0"
+    assert test_row["in_a_and_b_different"] == "1"
