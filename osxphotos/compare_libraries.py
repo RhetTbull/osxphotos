@@ -198,7 +198,7 @@ def photo_diff(photo_a: PhotoInfo, photo_b: PhotoInfo) -> list[list[Any]]:
     diffs = [
         diff
         for diff in diffs
-        if not diff[0] in ("library", "face_info", "labels")
+        if not diff[0] in ("library", "face_info", "labels", "filename", "uuid")
         and not diff[0].startswith("path")
         and not diff[0].startswith("score")
     ]
@@ -368,9 +368,9 @@ def _compare_mappings(
                 else:
                     in_a_and_b_same.append((photo_a, photo_b))
 
-            if len(a_photos) > len(b_photos):
-                in_a_not_b.extend(a_photos[len(b_photos) :])
-            elif len(b_photos) > len(a_photos):
-                in_b_not_a.extend(b_photos[len(a_photos) :])
+        if len(a_photos) > len(b_photos):
+            in_a_not_b.extend(a_photos[len(b_photos) :])
+        elif len(b_photos) > len(a_photos):
+            in_b_not_a.extend(b_photos[len(a_photos) :])
 
     return in_a_not_b, in_b_not_a, in_a_and_b_same, in_a_and_b_diff
