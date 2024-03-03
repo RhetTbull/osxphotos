@@ -18,7 +18,7 @@ import urllib.parse
 import uuid
 from functools import cache
 from plistlib import load as plistload
-from typing import Callable, List, Optional, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
 
 import requests
@@ -27,6 +27,9 @@ import shortuuid
 import osxphotos.tempdir as tempdir
 from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.unicode import normalize_fs_path
+
+if TYPE_CHECKING:
+    from osxphotos.photoinfo import PhotoInfo
 
 T = TypeVar("T", bound=Union[str, pathlib.Path])
 
@@ -48,6 +51,7 @@ __all__ = [
     "lock_filename",
     "noop",
     "pluralize",
+    "pluralize_photos",
     "shortuuid_to_uuid",
     "uuid_to_shortuuid",
 ]
@@ -500,6 +504,13 @@ def get_latest_version() -> Tuple[Optional[str], str]:
 def pluralize(count: Optional[int], singular: str, plural: str) -> str:
     """Return singular or plural based on count"""
     return singular if count == 1 else plural
+
+
+def pluralize_photos(photolist: list[PhotoInfo]) -> str:
+    """Return pluralized form of '1 photo', '2 photos', etc based on number of photos in list"""
+    length = len(photolist)
+    photo_word = pluralize(length, "photo", "photos")
+    return f"{length} {photo_word}"
 
 
 def hexdigest(strval: str) -> str:

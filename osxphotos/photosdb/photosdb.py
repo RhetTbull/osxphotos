@@ -3187,7 +3187,7 @@ class PhotosDB:
         )
 
     def __repr__(self):
-        return f"osxphotos.{self.__class__.__name__}(dbfile='{self.db_path}')"
+        return f"{self.__class__.__name__}(dbfile='{self.db_path}')"
 
     # compare two PhotosDB objects for equality
     def __eq__(self, other):
