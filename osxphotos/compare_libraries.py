@@ -13,9 +13,16 @@ from .dictdiff import dictdiff
 from .photo_signature import photo_signature
 from .photoinfo import PhotoInfo
 from .photosdb import PhotosDB
-from .utils import noop, pluralize_photos
+from .utils import noop, pluralize
 
 __all__ = ["PhotosDBDiff", "compare_photos_libraries"]
+
+
+def pluralize_assets(photolist: list[PhotoInfo]) -> str:
+    """Return pluralized form of '1 asset', '2 assets', etc based on number of photos in list"""
+    length = len(photolist)
+    photo_word = pluralize(length, "asset", "assets")
+    return f"{length} {photo_word}"
 
 
 @dataclasses.dataclass
@@ -179,13 +186,13 @@ class PhotosDBDiff:
         with StringIO(newline="") as strfile:
             print(f"library_a = {self.library_a.library_path}", file=strfile)
             print(f"library_b = {self.library_b.library_path}", file=strfile)
-            print(f"in_a_not_b = {pluralize_photos(self.in_a_not_b)}", file=strfile)
-            print(f"in_b_not_a = {pluralize_photos(self.in_b_not_a)}", file=strfile)
+            print(f"in_a_not_b = {pluralize_assets(self.in_a_not_b)}", file=strfile)
+            print(f"in_b_not_a = {pluralize_assets(self.in_b_not_a)}", file=strfile)
             print(
-                f"in_a_and_b_same = {pluralize_photos(self.in_both_same)}", file=strfile
+                f"in_a_and_b_same = {pluralize_assets(self.in_both_same)}", file=strfile
             )
             print(
-                f"in_a_and_b_different = {pluralize_photos(self.in_both_different)}",
+                f"in_a_and_b_different = {pluralize_assets(self.in_both_different)}",
                 file=strfile,
             )
             strfile.flush()

@@ -15,6 +15,13 @@ from .verbose import verbose_print
 
 @click.command()
 @click.option(
+    "--check",
+    "-C",
+    is_flag=True,
+    help="Check if libraries are different and print out total number of differences. "
+    "If libraries are different, exits with error code 1, otherwise 0 if they are the same.",
+)
+@click.option(
     "--csv",
     "-c",
     "csv_flag",
@@ -41,7 +48,15 @@ from .verbose import verbose_print
 @click.argument("library_b", type=click.Path(exists=True))
 @click.pass_context
 def compare(
-    ctx, csv_flag, tsv_flag, json_flag, output, verbose_flag, library_a, library_b
+    ctx,
+    check,
+    csv_flag,
+    tsv_flag,
+    json_flag,
+    output,
+    verbose_flag,
+    library_a,
+    library_b,
 ):
     """Compare two Photos libraries to find differences"""
 
@@ -61,16 +76,23 @@ def compare(
 
     diff = compare_photos_libraries(db_a, db_b, verbose=verbose)
 
-    # handle normal output
+    if check:
+        if diff:
+            print(len(diff))
+            sys.exit(1)
+        else:
+            print(0)
+            sys.exit(0)
+
     if not any([csv_flag, tsv_flag, json_flag]):
         print_output(diff, output)
         sys.exit(0)
 
     if csv_flag:
         print_output(diff.csv(), output)
-    if tsv_flag:
+    elif tsv_flag:
         print_output(diff.csv(delimiter="\t"), output)
-    if json_flag:
+    elif json_flag:
         print_output(diff.json(), output)
 
 
@@ -86,6 +108,7 @@ def _validate_compare_options(ctx):
     if (
         sum(
             [
+                ctx.params.get("check"),
                 ctx.params.get("csv_flag"),
                 ctx.params.get("tsv_flag"),
                 ctx.params.get("json_flag"),
@@ -93,4 +116,6 @@ def _validate_compare_options(ctx):
         )
         > 1
     ):
-        raise click.BadParameter("Only one of --csv, --tsv, or --json may be specified")
+        raise click.BadParameter(
+            "Only one of --check, --csv, --tsv, or --json may be specified"
+        )

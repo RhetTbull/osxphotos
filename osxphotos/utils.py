@@ -51,7 +51,6 @@ __all__ = [
     "lock_filename",
     "noop",
     "pluralize",
-    "pluralize_photos",
     "shortuuid_to_uuid",
     "uuid_to_shortuuid",
 ]
@@ -504,13 +503,6 @@ def get_latest_version() -> Tuple[Optional[str], str]:
 def pluralize(count: Optional[int], singular: str, plural: str) -> str:
     """Return singular or plural based on count"""
     return singular if count == 1 else plural
-
-
-def pluralize_photos(photolist: list[PhotoInfo]) -> str:
-    """Return pluralized form of '1 photo', '2 photos', etc based on number of photos in list"""
-    length = len(photolist)
-    photo_word = pluralize(length, "photo", "photos")
-    return f"{length} {photo_word}"
 
 
 def hexdigest(strval: str) -> str:

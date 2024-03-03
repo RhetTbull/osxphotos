@@ -68,10 +68,10 @@ def test_compare_photos_libraries_str(diff_a_b):
     """Test comparison str output"""
 
     expected = [
-        "in_a_not_b = 1 photo",
-        "in_b_not_a = 2 photos",
-        "in_a_and_b_same = 2 photos",
-        "in_a_and_b_different = 1 photo",
+        "in_a_not_b = 1 asset",
+        "in_b_not_a = 2 assets",
+        "in_a_and_b_same = 2 assets",
+        "in_a_and_b_different = 1 asset",
     ]
     diff_str = str(diff_a_b)
     for line in expected:
@@ -143,7 +143,6 @@ def test_compare_photos_libraries_diff_function(db_a, db_b):
 
 
 def test_compare_photos_libraries_signature_function(db_a, db_b):
-
     def signature_func(p: PhotoInfo):
         sig, _ = p.render_template(
             "{photo.original_filename|lower}:{photo.original_filesize}"
