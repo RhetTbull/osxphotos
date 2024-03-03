@@ -35,13 +35,14 @@ class PhotosDBDiff:
     in_b_not_a: list[PhotoInfo]
     in_both_same: list[tuple[PhotoInfo, PhotoInfo]]
     in_both_different: list[tuple[PhotoInfo, PhotoInfo, Any]]
+    signature: Callable[[PhotoInfo], Any] = photo_signature
 
     def asdict(self) -> dict:
         """Return PhotosDBDiff as a dict"""
         in_a_not_b = [
             {
                 "original_filename": photo.original_filename,
-                "signature": photo_signature(photo),
+                "signature": self.signature(photo),
                 "uuid": photo.uuid,
             }
             for photo in self.in_a_not_b
@@ -49,7 +50,7 @@ class PhotosDBDiff:
         in_b_not_a = [
             {
                 "original_filename": photo.original_filename,
-                "signature": photo_signature(photo),
+                "signature": self.signature(photo),
                 "uuid": photo.uuid,
             }
             for photo in self.in_b_not_a
@@ -57,7 +58,7 @@ class PhotosDBDiff:
         in_a_and_b_same = [
             {
                 "original_filename": photo_a.original_filename,
-                "signature": photo_signature(photo_a),
+                "signature": self.signature(photo_a),
                 "uuid_a": photo_a.uuid,
                 "uuid_b": photo_b.uuid,
             }
@@ -66,7 +67,7 @@ class PhotosDBDiff:
         in_a_and_b_different = [
             {
                 "original_filename": photo_a.original_filename,
-                "signature": photo_signature(photo_a),
+                "signature": self.signature(photo_a),
                 "uuid_a": photo_a.uuid,
                 "uuid_b": photo_b.uuid,
                 "difference": diff,
@@ -113,7 +114,7 @@ class PhotosDBDiff:
             rows.append(
                 [
                     photo_a.original_filename,
-                    photo_signature(photo_a),
+                    self.signature(photo_a),
                     photo_a.uuid,
                     "",
                     1,
@@ -127,7 +128,7 @@ class PhotosDBDiff:
             rows.append(
                 [
                     photo_b.original_filename,
-                    photo_signature(photo_b),
+                    self.signature(photo_b),
                     "",
                     photo_b.uuid,
                     0,
@@ -141,7 +142,7 @@ class PhotosDBDiff:
             rows.append(
                 [
                     photo_a.original_filename,
-                    photo_signature(photo_a),
+                    self.signature(photo_a),
                     photo_a.uuid,
                     photo_b.uuid,
                     0,
@@ -155,7 +156,7 @@ class PhotosDBDiff:
             rows.append(
                 [
                     photo_a.original_filename,
-                    photo_signature(photo_a),
+                    self.signature(photo_a),
                     photo_a.uuid,
                     photo_b.uuid,
                     0,
@@ -266,6 +267,7 @@ def compare_photos_libraries(
         in_b_not_a,
         in_a_and_b_same,
         in_a_and_b_different,
+        signature_function,
     )
 
 

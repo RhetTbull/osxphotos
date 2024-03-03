@@ -10,13 +10,14 @@ from osxphotos.compare_libraries import compare_photos_libraries
 from osxphotos.photosdb import PhotosDB
 
 from .cli_params import VERBOSE_OPTION
+from .param_types import TemplateString
 from .verbose import verbose_print
 
 
 @click.command()
 @click.option(
     "--check",
-    "-C",
+    "-k",
     is_flag=True,
     help="Check if libraries are different and print out total number of differences. "
     "If libraries are different, exits with error code 1, otherwise 0 if they are the same.",
@@ -43,6 +44,15 @@ from .verbose import verbose_print
     "-o",
     type=click.Path(dir_okay=False),
 )
+@click.option(
+    "--signature",
+    "-s",
+    type=TemplateString(),
+    help="Custom template for signature. "
+    "The signature is used to match photos from one library to another. "
+    "The default is '{photo.original_filename|lower}:{photo.fingerprint}' "
+    "which should work well in most cases.",
+)
 @VERBOSE_OPTION
 @click.argument("library_a", type=click.Path(exists=True))
 @click.argument("library_b", type=click.Path(exists=True))
@@ -54,6 +64,7 @@ def compare(
     tsv_flag,
     json_flag,
     output,
+    signature,
     verbose_flag,
     library_a,
     library_b,
@@ -74,7 +85,16 @@ def compare(
     verbose("Opening library B")
     db_b = PhotosDB(dbfile=library_b, verbose=verbose)
 
-    diff = compare_photos_libraries(db_a, db_b, verbose=verbose)
+    _signature = None
+    if signature:
+
+        def _signature(photo):
+            sig, _ = photo.render_template(signature)
+            return sig[0]
+
+    diff = compare_photos_libraries(
+        db_a, db_b, verbose=verbose, signature_function=_signature
+    )
 
     if check:
         if diff:
