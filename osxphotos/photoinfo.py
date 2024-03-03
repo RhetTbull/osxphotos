@@ -1944,7 +1944,7 @@ class PhotoInfo:
         return album_list
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(db={self._db}, uuid='{self._uuid}')"
+        return f"osxphotos.{self.__class__.__name__}(db={self._db}, uuid='{self._uuid}', info={self._info})"
 
     def __str__(self) -> str:
         """string representation of PhotoInfo object"""

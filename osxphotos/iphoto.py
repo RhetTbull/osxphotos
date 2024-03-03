@@ -953,7 +953,7 @@ class iPhotoDB:
         return photo_query(self, options)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(dbfile='{self.db_path}')"
+        return f"osxphotos.{self.__class__.__name__}(dbfile='{self.db_path}')"
 
     def __len__(self) -> int:
         """Return number of photos in the library"""
@@ -1721,7 +1721,7 @@ class iPhotoPhotoInfo:
         )
 
     def __repr__(self) -> str:
-        return f"osxphotos.{self.__class__.__name__}(db={self._db}, uuid='{self._uuid}')"
+        return f"osxphotos.{self.__class__.__name__}(db={self._db}, uuid='{self._uuid}', info={self._info})"
 
     def __str__(self) -> str:
         """string representation of iPhotoPhotoInfo object"""
