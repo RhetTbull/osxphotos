@@ -47,7 +47,7 @@ class PhotosDBDiff:
             }
             for photo in self.in_b_not_a
         ]
-        in_both_same = [
+        in_a_and_b_same = [
             {
                 "original_filename": photo_a.original_filename,
                 "signature": photo_signature(photo_a),
@@ -56,7 +56,7 @@ class PhotosDBDiff:
             }
             for photo_a, photo_b in self.in_both_same
         ]
-        in_both_different = [
+        in_a_and_b_different = [
             {
                 "original_filename": photo_a.original_filename,
                 "signature": photo_signature(photo_a),
@@ -72,8 +72,8 @@ class PhotosDBDiff:
             "library_b": self.library_b.library_path,
             "in_a_not_b": in_a_not_b,
             "in_b_not_a": in_b_not_a,
-            "in_both_same": in_both_same,
-            "in_both_different": in_both_different,
+            "in_a_and_b_same": in_a_and_b_same,
+            "in_a_and_b_different": in_a_and_b_different,
         }
 
     def json(self, indent=2) -> str:
@@ -181,9 +181,11 @@ class PhotosDBDiff:
             print(f"library_b = {self.library_b.library_path}", file=strfile)
             print(f"in_a_not_b = {pluralize_photos(self.in_a_not_b)}", file=strfile)
             print(f"in_b_not_a = {pluralize_photos(self.in_b_not_a)}", file=strfile)
-            print(f"in_both_same = {pluralize_photos(self.in_both_same)}", file=strfile)
             print(
-                f"in_both_different = {pluralize_photos(self.in_both_different)}",
+                f"in_a_and_b_same = {pluralize_photos(self.in_both_same)}", file=strfile
+            )
+            print(
+                f"in_a_and_b_different = {pluralize_photos(self.in_both_different)}",
                 file=strfile,
             )
             strfile.flush()
