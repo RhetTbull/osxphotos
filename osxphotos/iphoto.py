@@ -45,6 +45,8 @@ from functools import cached_property
 from typing import Any, Callable, get_type_hints
 from zoneinfo import ZoneInfo
 
+import yaml
+
 from ._constants import (
     _IPHOTO_VERSION,
     _UNKNOWN_PERSON,
@@ -950,6 +952,9 @@ class iPhotoDB:
         """
         return photo_query(self, options)
 
+    def __repr__(self):
+        return f"osxphotos.{self.__class__.__name__}(dbfile='{self.db_path}')"
+
     def __len__(self) -> int:
         """Return number of photos in the library"""
         return len(self.photos())
@@ -1714,6 +1719,72 @@ class iPhotoPhotoInfo:
             if self.hasadjustments
             else self._db._db_photos[self._uuid].get("faces", [])
         )
+
+    def __repr__(self) -> str:
+        return f"osxphotos.{self.__class__.__name__}(db={self._db}, uuid='{self._uuid}', info={self._info})"
+
+    def __str__(self) -> str:
+        """string representation of iPhotoPhotoInfo object"""
+
+        date_iso = self.date.isoformat()
+        date_modified_iso = (
+            self.date_modified.isoformat() if self.date_modified else None
+        )
+        exif = str(self.exif_info) if self.exif_info else None
+        score = str(self.score) if self.score else None
+
+        info = {
+            "uuid": self.uuid,
+            "filename": self.filename,
+            "original_filename": self.original_filename,
+            "date": date_iso,
+            "description": self.description,
+            "title": self.title,
+            "keywords": self.keywords,
+            "albums": self.albums,
+            "persons": self.persons,
+            "path": self.path,
+            "ismissing": self.ismissing,
+            "hasadjustments": self.hasadjustments,
+            "external_edit": self.external_edit,
+            "favorite": self.favorite,
+            "hidden": self.hidden,
+            "latitude": self._latitude,
+            "longitude": self._longitude,
+            "path_edited": self.path_edited,
+            "shared": self.shared,
+            "isphoto": self.isphoto,
+            "ismovie": self.ismovie,
+            "uti": self.uti,
+            "burst": self.burst,
+            "live_photo": self.live_photo,
+            "path_live_photo": self.path_live_photo,
+            "iscloudasset": self.iscloudasset,
+            "incloud": self.incloud,
+            "date_modified": date_modified_iso,
+            "portrait": self.portrait,
+            "screenshot": self.screenshot,
+            "slow_mo": self.slow_mo,
+            "time_lapse": self.time_lapse,
+            "hdr": self.hdr,
+            "selfie": self.selfie,
+            "panorama": self.panorama,
+            "has_raw": self.has_raw,
+            "uti_raw": self.uti_raw,
+            "path_raw": self.path_raw,
+            "place": self.place,
+            "exif": exif,
+            "score": score,
+            "intrash": self.intrash,
+            "height": self.height,
+            "width": self.width,
+            "orientation": self.orientation,
+            "original_height": self.original_height,
+            "original_width": self.original_width,
+            "original_orientation": self.original_orientation,
+            "original_filesize": self.original_filesize,
+        }
+        return yaml.dump(info, sort_keys=False)
 
     def __getattr__(self, name: str) -> Any:
         """If attribute is not found in iPhotoPhotoInfo, look at PhotoInfo and return default type"""

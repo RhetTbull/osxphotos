@@ -84,7 +84,7 @@ def snap(ctx, cli_obj, db):
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
 def diff(ctx, cli_obj, db, raw_output, style, db2, verbose_flag, timestamp):
-    """Compare two Photos databases and print out differences
+    """Compare two Photos databases; see also `osxphotos snap`
 
     To use the diff command, you'll need to install sqldiff via homebrew:
 
