@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.67.4 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.67.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.67.4 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.67.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,7 +201,18 @@
 <h1>OSXPhotos Command Line Interface (CLI)<a class="headerlink" href="#osxphotos-command-line-interface-cli" title="Link to this heading">#</a></h1>
 <section id="osxphotos">
 <h2>osxphotos<a class="headerlink" href="#osxphotos" title="Link to this heading">#</a></h2>
-<p>osxphotos: the multi-tool for your Photos library</p>
+<p>OSXPhotos: the multi-tool for your Photos library.</p>
+<p>To get help on a specific command, use “osxphotos COMMAND –help”
+or “osxphotos help COMMAND”; for example, “osxphotos help export”.</p>
+<p>To search help for a specific topic within a command, run
+“osxphotos help COMMAND TOPIC”; for example,
+“osxphotos help export keyword” to get help related to keywords
+when using the export command.</p>
+<p>To see the full documentation in your browser, run “osxphotos docs”.</p>
+<p>Some advanced commands are hidden by default. To see all commands,
+run “OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help”. Some commands also have
+hidden options. These can be seen by running
+“OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help COMMAND”.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
 </pre></div>
 </div>
@@ -934,67 +945,65 @@ or <cite>osxphotos docs</cite> for more information on the osxphotos template sy
 </dd></dl>
 
 </section>
-<section id="osxphotos-diff">
-<h3>diff<a class="headerlink" href="#osxphotos-diff" title="Link to this heading">#</a></h3>
-<p>Compare two Photos databases and print out differences</p>
-<p>To use the diff command, you’ll need to install sqldiff via homebrew:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Install homebrew (<a class="reference external" href="https://brew.sh/">https://brew.sh/</a>) if not already installed</p></li>
-<li><p>Install sqldiff: <cite>brew install sqldiff</cite></p></li>
-</ul>
-</div></blockquote>
-<p>When run with no arguments, compares the current Photos library to the
-most recent snapshot in the the OSXPHOTOS_SNAPSHOT directory.</p>
-<p>If run with the –db option, compares the library specified by –db to the
-most recent snapshot in the the OSXPHOTOS_SNAPSHOT directory.</p>
-<p>If run with just the DB2 argument, compares the current Photos library to
-the database specified by the DB2 argument.</p>
-<p>If run with both the –db option and the DB2 argument, compares the
-library specified by –db to the database specified by DB2</p>
-<p>See also <cite>osxphotos snap</cite></p>
-<p>If the OSXPHOTOS_SNAPSHOT environment variable is not set, will use
-‘/private/tmp/osxphotos_snapshots’</p>
-<p>Works only on Photos library versions since Catalina (10.15) or newer.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>diff<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>DB2<span class="o">]</span>...
+<section id="osxphotos-compare">
+<h3>compare<a class="headerlink" href="#osxphotos-compare" title="Link to this heading">#</a></h3>
+<p>Compare two Photos libraries to find differences</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>compare<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>LIBRARY_A<span class="w"> </span>LIBRARY_B
 </pre></div>
 </div>
 <p class="rubric">Options</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-library">
-<span id="cmdoption-osxphotos-diff-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-diff-library" title="Link to this definition">#</a></dt>
-<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-k">
+<span id="cmdoption-osxphotos-compare-check"></span><span class="sig-name descname"><span class="pre">-k</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--check</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-compare-k" title="Link to this definition">#</a></dt>
+<dd><p>Check if libraries are different and print out total number of differences. If libraries are different, exits with error code 1, otherwise 0 if they are the same.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-r">
-<span id="cmdoption-osxphotos-diff-raw-output"></span><span class="sig-name descname"><span class="pre">-r</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--raw-output</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-r" title="Link to this definition">#</a></dt>
-<dd><p>Print raw output (don’t use syntax highlighting).</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-c">
+<span id="cmdoption-osxphotos-compare-csv"></span><span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--csv</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-compare-c" title="Link to this definition">#</a></dt>
+<dd><p>Output results in CSV (comma delimited) format</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-s">
-<span id="cmdoption-osxphotos-diff-style"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--style</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;STYLE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-diff-s" title="Link to this definition">#</a></dt>
-<dd><p>Specify style/theme for syntax highlighting. Theme may be any valid pygments style (<a class="reference external" href="https://pygments.org/styles/">https://pygments.org/styles/</a>). Default is ‘monokai’.</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-t">
+<span id="cmdoption-osxphotos-compare-tsv"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--tsv</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-compare-t" title="Link to this definition">#</a></dt>
+<dd><p>Output results in TSV (tab delimited) format</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-V">
-<span id="cmdoption-osxphotos-diff-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-V" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-j">
+<span id="cmdoption-osxphotos-compare-json"></span><span class="sig-name descname"><span class="pre">-j</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-compare-j" title="Link to this definition">#</a></dt>
+<dd><p>Output results in JSON format</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-o">
+<span id="cmdoption-osxphotos-compare-output"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-compare-o" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-s">
+<span id="cmdoption-osxphotos-compare-signature"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--signature</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;signature&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-compare-s" title="Link to this definition">#</a></dt>
+<dd><p>Custom template for signature. The signature is used to match photos from one library to another. The default is ‘{photo.original_filename|lower}:{photo.fingerprint}’ which should work well in most cases.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-V">
+<span id="cmdoption-osxphotos-compare-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-compare-V" title="Link to this definition">#</a></dt>
 <dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-timestamp">
-<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-timestamp" title="Link to this definition">#</a></dt>
-<dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
 <p class="rubric">Arguments</p>
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-arg-DB2">
-<span class="sig-name descname"><span class="pre">DB2</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-arg-DB2" title="Link to this definition">#</a></dt>
-<dd><p>Optional argument(s)</p>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-arg-LIBRARY_A">
+<span class="sig-name descname"><span class="pre">LIBRARY_A</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-compare-arg-LIBRARY_A" title="Link to this definition">#</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-compare-arg-LIBRARY_B">
+<span class="sig-name descname"><span class="pre">LIBRARY_B</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-compare-arg-LIBRARY_B" title="Link to this definition">#</a></dt>
+<dd><p>Required argument</p>
 </dd></dl>
 
 </section>
@@ -4877,24 +4886,6 @@ Currently this command cannot be used to show subfolders in Photos.</p>
 </dd></dl>
 
 </section>
-<section id="osxphotos-snap">
-<h3>snap<a class="headerlink" href="#osxphotos-snap" title="Link to this heading">#</a></h3>
-<p>Create snapshot of Photos database to use with diff command</p>
-<p>Snapshots only the database files, not the entire library. If OSXPHOTOS_SNAPSHOT
-environment variable is defined, will use that as snapshot directory, otherwise
-uses ‘/private/tmp/osxphotos_snapshots’</p>
-<p>Works only on Photos library versions since Catalina (10.15) or newer.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>snap<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</pre></div>
-</div>
-<p class="rubric">Options</p>
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-snap-library">
-<span id="cmdoption-osxphotos-snap-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-snap-library" title="Link to this definition">#</a></dt>
-<dd><p>Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
-</dd></dl>
-
-</section>
 <section id="osxphotos-sync">
 <h3>sync<a class="headerlink" href="#osxphotos-sync" title="Link to this heading">#</a></h3>
 <p>Sync metadata and albums between Photos libraries.</p>
@@ -5950,7 +5941,7 @@ Commands:
 <li><a class="reference internal" href="#osxphotos-add-locations">add-locations</a></li>
 <li><a class="reference internal" href="#osxphotos-albums">albums</a></li>
 <li><a class="reference internal" href="#osxphotos-batch-edit">batch-edit</a></li>
-<li><a class="reference internal" href="#osxphotos-diff">diff</a></li>
+<li><a class="reference internal" href="#osxphotos-compare">compare</a></li>
 <li><a class="reference internal" href="#osxphotos-docs">docs</a></li>
 <li><a class="reference internal" href="#osxphotos-dump">dump</a></li>
 <li><a class="reference internal" href="#osxphotos-exiftool">exiftool</a></li>
@@ -5972,7 +5963,6 @@ Commands:
 <li><a class="reference internal" href="#osxphotos-repl">repl</a></li>
 <li><a class="reference internal" href="#osxphotos-run">run</a></li>
 <li><a class="reference internal" href="#osxphotos-show">show</a></li>
-<li><a class="reference internal" href="#osxphotos-snap">snap</a></li>
 <li><a class="reference internal" href="#osxphotos-sync">sync</a></li>
 <li><a class="reference internal" href="#osxphotos-template">template</a></li>
 <li><a class="reference internal" href="#osxphotos-theme">theme</a></li>
@@ -5994,7 +5984,7 @@ Commands:
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8c1e7a6c"></script>
+</div><script src="_static/documentation_options.js?v=2866fe75"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

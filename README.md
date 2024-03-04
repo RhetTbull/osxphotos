@@ -156,7 +156,21 @@ cog.out(
 ```
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
-  osxphotos: the multi-tool for your Photos library
+  OSXPhotos: the multi-tool for your Photos library.
+
+  To get help on a specific command, use "osxphotos COMMAND --help" or
+  "osxphotos help COMMAND"; for example, "osxphotos help export".
+
+  To search help for a specific topic within a command, run "osxphotos help
+  COMMAND TOPIC"; for example, "osxphotos help export keyword" to get help
+  related to keywords when using the export command.
+
+  To see the full documentation in your browser, run "osxphotos docs".
+
+  Some advanced commands are hidden by default. To see all commands, run
+  "OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help". Some commands also have hidden
+  options. These can be seen by running "OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help
+  COMMAND".
 
 Options:
   -v, --version  Show the version and exit.
@@ -167,7 +181,7 @@ Commands:
   add-locations  Add missing location data to photos in Photos.app using...
   albums         Print out albums found in the Photos library.
   batch-edit     Batch edit photo metadata such as title, description,...
-  diff           Compare two Photos databases and print out differences
+  compare        Compare two Photos libraries to find differences
   docs           Open osxphotos documentation in your browser.
   dump           Print list of all photos & associated info from the Photos...
   exiftool       Run exiftool on previously exported files to update metadata.
@@ -189,7 +203,6 @@ Commands:
   repl           Run interactive osxphotos REPL shell (useful for...
   run            Run a python file using same environment as osxphotos.
   show           Show photo, album, or folder in Photos from UUID_OR_NAME
-  snap           Create snapshot of Photos database to use with diff command
   sync           Sync metadata and albums between Photos libraries.
   template       Interactively render templates for selected photo.
   theme          Manage osxphotos color themes.
@@ -2294,7 +2307,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.67.4'
+{osxphotos_version}             The osxphotos version, e.g. '0.67.5'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2785,7 +2798,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.67.4'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.67.5'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
