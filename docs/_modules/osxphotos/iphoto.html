@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.iphoto - osxphotos 0.67.4 documentation</title>
+        <title>osxphotos.iphoto - osxphotos 0.67.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -242,6 +242,8 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">get_type_hints</span>
 <span class="kn">from</span> <span class="nn">zoneinfo</span> <span class="kn">import</span> <span class="n">ZoneInfo</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_IPHOTO_VERSION</span><span class="p">,</span>
@@ -1162,6 +1164,9 @@
         <span class="k">return</span> <span class="n">photo_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span></div>
 
 
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;osxphotos.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(dbfile=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of photos in the library&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photos</span><span class="p">())</span></div>
@@ -1941,6 +1946,72 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span>
             <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;faces&quot;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;osxphotos.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(db=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="si">}</span><span class="s2">, uuid=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="si">}</span><span class="s2">&#39;, info=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;string representation of iPhotoPhotoInfo object&quot;&quot;&quot;</span>
+
+        <span class="n">date_iso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">date_modified_iso</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">date_modified</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_modified</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">exif</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+            <span class="s2">&quot;original_filename&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span><span class="p">,</span>
+            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">date_iso</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s2">&quot;keywords&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span>
+            <span class="s2">&quot;albums&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">,</span>
+            <span class="s2">&quot;persons&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;ismissing&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismissing</span><span class="p">,</span>
+            <span class="s2">&quot;hasadjustments&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">,</span>
+            <span class="s2">&quot;external_edit&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_edit</span><span class="p">,</span>
+            <span class="s2">&quot;favorite&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">favorite</span><span class="p">,</span>
+            <span class="s2">&quot;hidden&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latitude</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_longitude</span><span class="p">,</span>
+            <span class="s2">&quot;path_edited&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">,</span>
+            <span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">,</span>
+            <span class="s2">&quot;isphoto&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span><span class="p">,</span>
+            <span class="s2">&quot;ismovie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismovie</span><span class="p">,</span>
+            <span class="s2">&quot;uti&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span><span class="p">,</span>
+            <span class="s2">&quot;burst&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
+            <span class="s2">&quot;live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span><span class="p">,</span>
+            <span class="s2">&quot;path_live_photo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_live_photo</span><span class="p">,</span>
+            <span class="s2">&quot;iscloudasset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscloudasset</span><span class="p">,</span>
+            <span class="s2">&quot;incloud&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">incloud</span><span class="p">,</span>
+            <span class="s2">&quot;date_modified&quot;</span><span class="p">:</span> <span class="n">date_modified_iso</span><span class="p">,</span>
+            <span class="s2">&quot;portrait&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">portrait</span><span class="p">,</span>
+            <span class="s2">&quot;screenshot&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">screenshot</span><span class="p">,</span>
+            <span class="s2">&quot;slow_mo&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">slow_mo</span><span class="p">,</span>
+            <span class="s2">&quot;time_lapse&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_lapse</span><span class="p">,</span>
+            <span class="s2">&quot;hdr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdr</span><span class="p">,</span>
+            <span class="s2">&quot;selfie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">selfie</span><span class="p">,</span>
+            <span class="s2">&quot;panorama&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">panorama</span><span class="p">,</span>
+            <span class="s2">&quot;has_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_raw</span><span class="p">,</span>
+            <span class="s2">&quot;uti_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_raw</span><span class="p">,</span>
+            <span class="s2">&quot;path_raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_raw</span><span class="p">,</span>
+            <span class="s2">&quot;place&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="p">,</span>
+            <span class="s2">&quot;exif&quot;</span><span class="p">:</span> <span class="n">exif</span><span class="p">,</span>
+            <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span>
+            <span class="s2">&quot;intrash&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span><span class="p">,</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+            <span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">orientation</span><span class="p">,</span>
+            <span class="s2">&quot;original_height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_height</span><span class="p">,</span>
+            <span class="s2">&quot;original_width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_width</span><span class="p">,</span>
+            <span class="s2">&quot;original_orientation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_orientation</span><span class="p">,</span>
+            <span class="s2">&quot;original_filesize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filesize</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;If attribute is not found in iPhotoPhotoInfo, look at PhotoInfo and return default type&quot;&quot;&quot;</span>
@@ -2790,7 +2861,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8c1e7a6c"></script>
+</div><script src="../../_static/documentation_options.js?v=2866fe75"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
