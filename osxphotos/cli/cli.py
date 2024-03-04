@@ -85,7 +85,23 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
 )
 @click.pass_context
 def cli_main(ctx, profile, profile_sort, **kwargs):
-    """osxphotos: the multi-tool for your Photos library"""
+    """OSXPhotos: the multi-tool for your Photos library.
+    
+    To get help on a specific command, use "osxphotos COMMAND --help"
+    or "osxphotos help COMMAND"; for example, "osxphotos help export".
+
+    To search help for a specific topic within a command, run
+    "osxphotos help COMMAND TOPIC"; for example,
+    "osxphotos help export keyword" to get help related to keywords
+    when using the export command.
+
+    To see the full documentation in your browser, run "osxphotos docs".
+
+    Some advanced commands are hidden by default. To see all commands,
+    run "OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help". Some commands also have
+    hidden options. These can be seen by running
+    "OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help COMMAND".
+    """
     # Note: kwargs is used to catch any debug options passed in
     # the debug options are handled in cli/__init__.py
     # before this function is called
