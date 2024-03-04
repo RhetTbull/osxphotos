@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.5](https://github.com/RhetTbull/osxphotos/compare/v0.67.4...v0.67.5)
+
+### [v0.67.5] - 2024-03-04
+
+Adds new `osxphotos compare` command to compare two libraries.
+
+Synopsis:
+
+```bash
+osxphotos compare [OPTIONS] LIBRARY1 LIBRARY2
+```
+
+```bash
+osxphotos compare Test-13.5.1-compare-1.photoslibrary Test-13.5.1-compare-2.photoslibrary
+library_a = Test-13.5.1-compare-1.photoslibrary
+library_b = Test-13.5.1-compare-2.photoslibrary
+in_a_not_b = 1 asset
+in_b_not_a = 2 assets
+in_a_and_b_same = 2 assets
+in_a_and_b_different = 1 asset
+```
+
+```bash
+osxphotos compare \
+Test-13.5.1-compare-1.photoslibrary \
+Test-13.5.1-compare-2.photoslibrary \
+--csv --output compare.csv
+```
+
+#### Added
+
+- New `osxphotos compare` command to compare two libraries. #939
+
+#### Fixed
+
+- Code comment in `export_db.py` thanks to @rajscode. #1422
+
+#### Changed
+
+- `osxphotos diff` and `osxphotos snap` commands are now hidden as these are primarily for osxphotos developers or those hacking on the Photos library. To see hidden commands, use `OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help`. #1427
+
+#### Removed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @rajscode [@rajscode](https://github.com/rajscode) for fixing an incorrect comment in the code.
+
 ## [v0.67.4](https://github.com/RhetTbull/osxphotos/compare/v0.67.3...v0.67.4)
 
 ### [v0.67.4] - 2024-03-01
