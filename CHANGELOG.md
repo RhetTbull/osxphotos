@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.6](https://github.com/RhetTbull/osxphotos/compare/v0.67.5...v0.67.6)
+
+### v0.67.6 - 2024-03-05
+
+Hot fix for bug catching Ctrl+C when using --ramdb
+
+#### Fixed
+
+- Bug when using --ramdb that prevented user from exiting with Ctrl+C (#1432)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @rajscode [@rajscode](https://github.com/rajscode) for reporting the bug
+
 ## [v0.67.5](https://github.com/RhetTbull/osxphotos/compare/v0.67.4...v0.67.5)
 
 ### [v0.67.5] - 2024-03-04
