@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Reference" href="reference.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>OSXPhotos Python API - osxphotos 0.67.5 documentation</title>
+        <title>OSXPhotos Python API - osxphotos 0.67.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.67.5 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.67.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.5 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.6 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -234,6 +234,7 @@
 <li><p><a class="reference external" href="#exifwriter">ExifWriter</a></p></li>
 <li><p><a class="reference external" href="#sidecarwriter">SidecarWriter</a></p></li>
 <li><p><a class="reference external" href="#textdetection">Text Detection</a></p></li>
+<li><p><a class="reference external" href="#comparelibraries">Compare Libraries</a></p></li>
 <li><p><a class="reference external" href="#utility-functions">Utility Functions</a></p></li>
 </ul>
 </li>
@@ -2812,7 +2813,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.67.5’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.67.6’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -3137,6 +3138,66 @@ cog.out("\n"+get_template_field_table()+"\n")
 <h3><span class="raw-html-m2r"><a name="textdetection">Text Detection</a></span><a class="headerlink" href="#a-name-textdetection-text-detection-a" title="Link to this heading">#</a></h3>
 <p>The <a class="reference external" href="#photoinfo_detected_text">PhotoInfo.detected_text()</a> and the <code class="docutils literal notranslate"><span class="pre">{detected_text}</span></code> template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named <code class="docutils literal notranslate"><span class="pre">osxphotos.metadata:detected_text</span></code> and can be viewed using the built-in <a class="reference external" href="https://ss64.com/osx/xattr.html">xattr</a> command or my <a class="reference external" href="https://github.com/RhetTbull/osxmetadata">osxmetadata</a> tool.  If you want to remove the cached attribute, you can do so with <code class="docutils literal notranslate"><span class="pre">xattr</span></code> as follows:</p>
 <p><code class="docutils literal notranslate"><span class="pre">find</span> <span class="pre">~/Pictures/Photos\</span> <span class="pre">Library.photoslibrary</span> <span class="pre">|</span> <span class="pre">xargs</span> <span class="pre">-I{}</span> <span class="pre">xattr</span> <span class="pre">-c</span> <span class="pre">osxphotos.metadata:detected_text</span> <span class="pre">'{}'</span></code></p>
+</section>
+<section id="a-name-comparelibraries-compare-libraries-a">
+<h3><span class="raw-html-m2r"><a name="comparelibraries">Compare Libraries</a></span><a class="headerlink" href="#a-name-comparelibraries-compare-libraries-a" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.compare_libraries</span> <span class="kn">import</span> <span class="n">compare_photos_libraries</span><span class="p">,</span> <span class="n">PhotosDBDiff</span>
+</pre></div>
+</div>
+<section id="compare-photos-libraries">
+<h4><code class="docutils literal notranslate"><span class="pre">compare_photos_libraries()</span></code><a class="headerlink" href="#compare-photos-libraries" title="Link to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compare_photos_libraries</span><span class="p">(</span>
+    <span class="n">library_a</span><span class="p">:</span> <span class="n">PhotosDB</span><span class="p">,</span>
+    <span class="n">library_b</span><span class="p">:</span> <span class="n">PhotosDB</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">signature_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diff_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PhotoInfo</span><span class="p">,</span> <span class="n">PhotoInfo</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhotosDBDiff</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare two Photos libraries and return a PhotosDBDiff object</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        library_a: PhotosDB object for first library</span>
+<span class="sd">        library_b: PhotosDB object for second library</span>
+<span class="sd">        verbose: function to print verbose output, defaults to None</span>
+<span class="sd">        signature_function: function to compute signature for a PhotoInfo object, defaults to None</span>
+<span class="sd">        diff_function: function to compare two PhotoInfo objects, defaults to None</span>
+
+<span class="sd">    Returns: PhotosDBDiff object</span>
+
+<span class="sd">    Note: signature_function should take a PhotoInfo object as input and return a unique</span>
+<span class="sd">        signature for the photo; if signature_function is None, the default signature</span>
+<span class="sd">        function will be used which computes a signature based on the photo&#39;s fingerprint</span>
+<span class="sd">        diff_function should take two PhotoInfo objects as input and return a truthy value</span>
+<span class="sd">        if the objects are different or a falsy value if they are the same; if diff_function</span>
+<span class="sd">        is None, the default diff function will be used which compares the dictionary</span>
+<span class="sd">        representation of the PhotoInfo objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="photosdbdiff">
+<h4><code class="docutils literal notranslate"><span class="pre">PhotosDBDiff</span></code><a class="headerlink" href="#photosdbdiff" title="Link to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">PhotosDBDiff</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to hold differences between two PhotosDB objects&quot;&quot;&quot;</span>
+
+    <span class="n">library_a</span><span class="p">:</span> <span class="n">PhotosDB</span>
+    <span class="n">library_b</span><span class="p">:</span> <span class="n">PhotosDB</span>
+    <span class="n">in_a_not_b</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]</span>
+    <span class="n">in_b_not_a</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]</span>
+    <span class="n">in_both_same</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">,</span> <span class="n">PhotoInfo</span><span class="p">]]</span>
+    <span class="n">in_both_different</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">,</span> <span class="n">PhotoInfo</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+    <span class="n">signature</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">photo_signature</span>
+</pre></div>
+</div>
+<p>This class also the following methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">asdict()</span></code>: return dict representation of the diff</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">json(self,</span> <span class="pre">indent=2)</span></code>: return JSON representation of the diff</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">csv(self,</span> <span class="pre">delimiter=&quot;,&quot;)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></code>: return CSV representation of the diff</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">bool(PhotosDBDiff())</span></code> returns True if there are any differences between the libraries.</p>
+</section>
 </section>
 <section id="id171">
 <h3>Utility Functions<a class="headerlink" href="#id171" title="Link to this heading">#</a></h3>
@@ -3563,6 +3624,11 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#a-name-exifwriter-exifwriter-a"><span class="raw-html-m2r"><a name="exifwriter">ExifWriter</a></span></a></li>
 <li><a class="reference internal" href="#a-name-sidecarwriter-sidecarwriter-a"><span class="raw-html-m2r"><a name="sidecarwriter">SidecarWriter</a></span></a></li>
 <li><a class="reference internal" href="#a-name-textdetection-text-detection-a"><span class="raw-html-m2r"><a name="textdetection">Text Detection</a></span></a></li>
+<li><a class="reference internal" href="#a-name-comparelibraries-compare-libraries-a"><span class="raw-html-m2r"><a name="comparelibraries">Compare Libraries</a></span></a><ul>
+<li><a class="reference internal" href="#compare-photos-libraries"><code class="docutils literal notranslate"><span class="pre">compare_photos_libraries()</span></code></a></li>
+<li><a class="reference internal" href="#photosdbdiff"><code class="docutils literal notranslate"><span class="pre">PhotosDBDiff</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#id171">Utility Functions</a><ul>
 <li><a class="reference internal" href="#id172"><code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code></a></li>
 <li><a class="reference internal" href="#id173"><code class="docutils literal notranslate"><span class="pre">get_last_library_path()</span></code></a></li>
@@ -3583,7 +3649,7 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=2866fe75"></script>
+</div><script src="_static/documentation_options.js?v=1f9e741f"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
