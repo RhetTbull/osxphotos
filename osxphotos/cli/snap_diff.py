@@ -13,11 +13,11 @@ from rich.syntax import Syntax
 import osxphotos
 
 from .cli_params import DB_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
-from .common import OSXPHOTOS_SNAPSHOT_DIR, get_photos_db
+from .common import OSXPHOTOS_HIDDEN, OSXPHOTOS_SNAPSHOT_DIR, get_photos_db
 from .verbose import verbose_print
 
 
-@click.command(name="snap")
+@click.command(name="snap", hidden=OSXPHOTOS_HIDDEN)
 @click.pass_obj
 @click.pass_context
 @DB_OPTION
@@ -59,7 +59,7 @@ def snap(ctx, cli_obj, db):
     print(f"Copied {count} files from {db_path} to {destination_path}")
 
 
-@click.command(name="diff")
+@click.command(name="diff", hidden=OSXPHOTOS_HIDDEN)
 @click.pass_obj
 @click.pass_context
 @DB_OPTION
@@ -84,7 +84,7 @@ def snap(ctx, cli_obj, db):
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
 def diff(ctx, cli_obj, db, raw_output, style, db2, verbose_flag, timestamp):
-    """Compare two Photos databases and print out differences
+    """Compare two Photos databases; see also `osxphotos snap`
 
     To use the diff command, you'll need to install sqldiff via homebrew:
 

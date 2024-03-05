@@ -34,6 +34,7 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
   * [ExifWriter](#exifwriter)
   * [SidecarWriter](#sidecarwriter)
   * [Text Detection](#textdetection)
+  * [Compare Libraries](#comparelibraries)
   * [Utility Functions](#utility-functions)
 * [Additional Examples](#additional-examples)
 
@@ -2556,7 +2557,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.67.4'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.67.5'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -2849,6 +2850,67 @@ See source code for full details.
 The [PhotoInfo.detected_text()](#photoinfo_detected_text) and the `{detected_text}` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named `osxphotos.metadata:detected_text` and can be viewed using the built-in [xattr](https://ss64.com/osx/xattr.html) command or my [osxmetadata](https://github.com/RhetTbull/osxmetadata) tool.  If you want to remove the cached attribute, you can do so with `xattr` as follows:
 
 `find ~/Pictures/Photos\ Library.photoslibrary | xargs -I{} xattr -c osxphotos.metadata:detected_text '{}'`
+
+### <a name="comparelibraries">Compare Libraries</a>
+
+```python
+from osxphotos.compare_libraries import compare_photos_libraries, PhotosDBDiff
+```
+
+#### `compare_photos_libraries()`
+
+```python
+def compare_photos_libraries(
+    library_a: PhotosDB,
+    library_b: PhotosDB,
+    verbose: Callable[[Any], bool] | None = None,
+    signature_function: Callable[[PhotoInfo], Any] | None = None,
+    diff_function: Callable[[PhotoInfo, PhotoInfo], Any] | None = None,
+) -> PhotosDBDiff:
+    """Compare two Photos libraries and return a PhotosDBDiff object
+
+    Args:
+        library_a: PhotosDB object for first library
+        library_b: PhotosDB object for second library
+        verbose: function to print verbose output, defaults to None
+        signature_function: function to compute signature for a PhotoInfo object, defaults to None
+        diff_function: function to compare two PhotoInfo objects, defaults to None
+
+    Returns: PhotosDBDiff object
+
+    Note: signature_function should take a PhotoInfo object as input and return a unique
+        signature for the photo; if signature_function is None, the default signature
+        function will be used which computes a signature based on the photo's fingerprint
+        diff_function should take two PhotoInfo objects as input and return a truthy value
+        if the objects are different or a falsy value if they are the same; if diff_function
+        is None, the default diff function will be used which compares the dictionary
+        representation of the PhotoInfo objects.
+    """
+```
+
+#### `PhotosDBDiff`
+
+```python
+@dataclasses.dataclass
+class PhotosDBDiff:
+    """Class to hold differences between two PhotosDB objects"""
+
+    library_a: PhotosDB
+    library_b: PhotosDB
+    in_a_not_b: list[PhotoInfo]
+    in_b_not_a: list[PhotoInfo]
+    in_both_same: list[tuple[PhotoInfo, PhotoInfo]]
+    in_both_different: list[tuple[PhotoInfo, PhotoInfo, Any]]
+    signature: Callable[[PhotoInfo], Any] = photo_signature
+```
+
+This class also the following methods:
+
+* `asdict()`: return dict representation of the diff
+* `json(self, indent=2)`: return JSON representation of the diff
+* `csv(self, delimiter=",") -> str`: return CSV representation of the diff
+
+`bool(PhotosDBDiff())` returns True if there are any differences between the libraries.
 
 ### Utility Functions
 

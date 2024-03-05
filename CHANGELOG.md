@@ -2,6 +2,81 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.5](https://github.com/RhetTbull/osxphotos/compare/v0.67.4...v0.67.5)
+
+### [v0.67.5] - 2024-03-04
+
+Adds new `osxphotos compare` command to compare two libraries.
+
+Synopsis:
+
+```bash
+osxphotos compare [OPTIONS] LIBRARY1 LIBRARY2
+```
+
+```bash
+osxphotos compare Test-13.5.1-compare-1.photoslibrary Test-13.5.1-compare-2.photoslibrary
+library_a = Test-13.5.1-compare-1.photoslibrary
+library_b = Test-13.5.1-compare-2.photoslibrary
+in_a_not_b = 1 asset
+in_b_not_a = 2 assets
+in_a_and_b_same = 2 assets
+in_a_and_b_different = 1 asset
+```
+
+```bash
+osxphotos compare \
+Test-13.5.1-compare-1.photoslibrary \
+Test-13.5.1-compare-2.photoslibrary \
+--csv --output compare.csv
+```
+
+#### Added
+
+- New `osxphotos compare` command to compare two libraries. #939
+
+#### Fixed
+
+- Code comment in `export_db.py` thanks to @rajscode. #1422
+
+#### Changed
+
+- `osxphotos diff` and `osxphotos snap` commands are now hidden as these are primarily for osxphotos developers or those hacking on the Photos library. To see hidden commands, use `OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help`. #1427
+
+#### Removed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @rajscode [@rajscode](https://github.com/rajscode) for fixing an incorrect comment in the code.
+
+## [v0.67.4](https://github.com/RhetTbull/osxphotos/compare/v0.67.3...v0.67.4)
+
+### [v0.67.4] - 2024-03-01
+
+This release includes a few bug fixes as well as a new feature to fix photo orientation upon export. There's also a performance improvement for `osxphotos export`.
+
+#### Added
+
+- `--fix-orientation` flag to `osxphotos export` command to automatically adjust the orientation of exported photos to match the orientation stored in the Photos database. This is mostly useful for iPhoto libraries which do not treat orientation adjustments as edits and thus no edited image with the correct orientation is created. #1396
+
+#### Fixed
+
+- Unified the fingerprint code for `sync` and `import` which improves reliability and makes it possible to implement the `osxphotos compare` command. #1389
+- If a path is invalid in the `osxphotos export` command and the passed path includes smart quotes, the error message will now tell the user to remove the smart quotes. This fixes a common user error when pasting from TextEdit or Notes that use smart quotes. #1408
+- Fixed `osxphotos repl` to work when connected via SSH. #1332
+
+#### Changed
+
+- Added index to history table in export databasel; this should speed up exports with `--update` (migrates export database to version 9.1)
+
+#### Removed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @mlevin77 [@mlevin77](https://github.com/mlevin77) for suggesting the `--fix-orientation` flag.
+
 ## [v0.67.3](https://github.com/RhetTbull/osxphotos/compare/v0.67.2...v0.67.3)
 
 ### [v0.67.3] - 2024-01-13

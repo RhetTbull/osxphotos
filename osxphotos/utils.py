@@ -18,7 +18,7 @@ import urllib.parse
 import uuid
 from functools import cache
 from plistlib import load as plistload
-from typing import Callable, List, Optional, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
 
 import requests
@@ -27,6 +27,9 @@ import shortuuid
 import osxphotos.tempdir as tempdir
 from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.unicode import normalize_fs_path
+
+if TYPE_CHECKING:
+    from osxphotos.photoinfo import PhotoInfo
 
 T = TypeVar("T", bound=Union[str, pathlib.Path])
 

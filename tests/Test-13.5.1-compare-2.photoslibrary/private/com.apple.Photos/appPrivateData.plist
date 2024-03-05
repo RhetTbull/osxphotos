@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CollapsedSidebarSectionIdentifiers</key>
+	<array/>
+	<key>ExpandedSidebarItemIdentifiers</key>
+	<array>
+		<string>08F6973B-389C-4618-9D35-C72F868D8215/L0/020</string>
+	</array>
+	<key>IPXWorkspaceControllerZoomLevelsKey</key>
+	<dict>
+		<key>kZoomLevelIdentifierPhotosGrid</key>
+		<integer>1</integer>
+	</dict>
+</dict>
+</plist>
