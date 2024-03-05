@@ -1818,15 +1818,17 @@ def export_cli(
             fileutil = FileUtilMacOS
 
     if no_exportdb:
-        verbose("Using temporary export database, no state information will be saved.")
+        rich_click_echo("Using temporary export database, no state information will be saved.")
     else:
         if export_db.was_created:
-            verbose(f"Created export database [filepath]{export_db_path}")
+            rich_click_echo(f"Created export database [filepath]{export_db_path}")
         else:
-            verbose(f"Using export database [filepath]{export_db_path}")
+            exportdbversion = export_db.version
+            rich_click_echo(f"Using osxphotos export database: version [num]{exportdbversion}[/] located at [filepath]{export_db_path}")
+
     upgraded = export_db.was_upgraded
     if upgraded:
-        verbose(
+        rich_click_echo(
             f"Upgraded export database [filepath]{export_db_path}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
         )
 
