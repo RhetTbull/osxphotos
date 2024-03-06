@@ -1800,10 +1800,11 @@ def export_cli(
 
             # install SIGINT handler to write database on Ctrl+C
             def sigint_handler(signal, frame):
-                print("Aborted!", file=sys.stderr)
-                print(f"Writing export database to {export_db_path}")
+                print("\nAborting!", file=sys.stderr)
+                print(f"Writing export database to {export_db_path}", file=sys.stderr)
                 export_db.write_to_disk()
-                return 1
+                print("Aborted!")
+                sys.exit(1)
 
             signal.signal(signal.SIGINT, sigint_handler)
 
