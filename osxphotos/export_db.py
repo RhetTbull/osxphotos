@@ -556,7 +556,11 @@ class ExportDB:
             version_info = conn.execute(
                 "SELECT osxphotos, exportdb, max(id) FROM version"
             ).fetchone()
-            return (version_info[0], version_info[1])
+            version = (version_info[0], version_info[1])
+            if not version[1]:
+                # database may have not been initialized, #1435
+                version = (version[0], "4.3")
+            return version
 
     def _create_or_migrate_db_tables(
         self, conn: sqlite3.Connection, version: str | None = None
