@@ -1910,19 +1910,20 @@ def export_cli(
         original_name = not current_name
 
         # set up for --add-export-to-album if needed
+        # and checking to see if not --dry-run
         album_export = (
             PhotosAlbum(add_exported_to_album, verbose=verbose)
-            if add_exported_to_album
+            if add_exported_to_album and not dry_run
             else None
         )
         album_skipped = (
             PhotosAlbum(add_skipped_to_album, verbose=verbose)
-            if add_skipped_to_album
+            if add_skipped_to_album and not dry_run
             else None
         )
         album_missing = (
             PhotosAlbum(add_missing_to_album, verbose=verbose)
-            if add_missing_to_album
+            if add_missing_to_album and not dry_run
             else None
         )
 
