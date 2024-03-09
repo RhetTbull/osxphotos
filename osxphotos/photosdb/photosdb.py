@@ -699,8 +699,7 @@ class PhotosDB:
         works on Photos version <= 4.0"""
 
         verbose = self._verbose
-        verbose("Processing database.")
-        verbose(f"Database version: {self._num(self._db_version)}.")
+        verbose(f"Photos database version: {self._num(self._db_version)}.")
 
         (conn, c) = sqlite_open_ro(self._tmp_db)
 
@@ -1697,15 +1696,12 @@ class PhotosDB:
 
         logger.debug(f"_process_database5")
         verbose = self._verbose
-        verbose(f"Processing database.")
         (conn, c) = sqlite_open_ro(self._tmp_db)
 
         # some of the tables/columns have different names in different versions of Photos
         # set local var for readability
         photos_ver = self._photos_ver
-        verbose(
-            f"Database version: {self._num(self._db_version)}, {self._num(photos_ver)}."
-        )
+        verbose(f"Photos database version: {self._num(self._db_version)}, {self._num(photos_ver)}.")
         asset_table = _DB_TABLE_NAMES[photos_ver]["ASSET"]
         keyword_join = _DB_TABLE_NAMES[photos_ver]["KEYWORD_JOIN"]
         asset_album_table = _DB_TABLE_NAMES[photos_ver]["ASSET_ALBUM_TABLE"]
