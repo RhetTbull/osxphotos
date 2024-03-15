@@ -26,11 +26,11 @@ def main():
         if photo.ismissing:
             print(f"Downloading photo {photo.original_filename}")
             downloaded += 1
-            exported = photo.export(tempdir.name, use_photos_export=True, timeout=300)
+            exported = photo.export(tempdir.name, use_photos_export=True, timeout=600)
             if photo.hasadjustments:
                 exported.extend(
                     photo.export(
-                        tempdir.name, use_photos_export=True, edited=True, timeout=300
+                        tempdir.name, use_photos_export=True, edited=True, timeout=600
                     )
                 )
             for filename in exported:
