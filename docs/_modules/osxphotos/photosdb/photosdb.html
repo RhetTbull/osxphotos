@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.67.5 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.67.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.67.5 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.67.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.5 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -902,8 +902,7 @@
 <span class="sd">        works on Photos version &lt;= 4.0&quot;&quot;&quot;</span>
 
         <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
-        <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Processing database.&quot;</span><span class="p">)</span>
-        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Database version: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Photos database version: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
         <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="n">sqlite_open_ro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
 
@@ -1900,15 +1899,12 @@
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_process_database5&quot;</span><span class="p">)</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
-        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing database.&quot;</span><span class="p">)</span>
         <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="n">sqlite_open_ro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
 
         <span class="c1"># some of the tables/columns have different names in different versions of Photos</span>
         <span class="c1"># set local var for readability</span>
         <span class="n">photos_ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span>
-        <span class="n">verbose</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Database version: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">(</span><span class="n">photos_ver</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
+        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Photos database version: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">(</span><span class="n">photos_ver</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="n">asset_table</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;ASSET&quot;</span><span class="p">]</span>
         <span class="n">keyword_join</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">]</span>
         <span class="n">asset_album_table</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">]</span>
@@ -2308,8 +2304,8 @@
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;hidden&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;favorite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;originalFilename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">12</span><span class="p">])</span>
-            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">12</span><span class="p">])</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span> <span class="c1">#1445</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span> <span class="c1">#1445</span>
 
             <span class="c1"># set latitude and longitude</span>
             <span class="c1"># if both latitude and longitude = -180.0, then they are NULL</span>
@@ -3456,7 +3452,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=2866fe75"></script>
+</div><script src="../../../_static/documentation_options.js?v=bbe6f006"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
