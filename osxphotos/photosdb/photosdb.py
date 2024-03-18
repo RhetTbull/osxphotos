@@ -2101,8 +2101,8 @@ class PhotosDB:
             info["hidden"] = row[9]
             info["favorite"] = row[10]
             info["originalFilename"] = normalize_unicode(row[3])
-            info["filename"] = normalize_unicode(row[12])
-            info["directory"] = row[11]
+            info["filename"] = normalize_unicode(row[12]) if row[12] else "" #1445
+            info["directory"] = row[11] or "" #1445
 
             # set latitude and longitude
             # if both latitude and longitude = -180.0, then they are NULL
