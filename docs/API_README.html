@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Reference" href="reference.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>OSXPhotos Python API - osxphotos 0.67.7 documentation</title>
+        <title>OSXPhotos Python API - osxphotos 0.67.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.67.7 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.67.8 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.8 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2774,6 +2774,12 @@ cog.out("\n"+get_template_field_table()+"\n")
 <tr class="row-odd"><td><p>{pipe}</p></td>
 <td><p>A vertical pipe: ‘|’</p></td>
 </tr>
+<tr class="row-even"><td><p>{percent}</p></td>
+<td><p>A percent sign: ‘%’</p></td>
+</tr>
+<tr class="row-odd"><td><p>{ampersand}</p></td>
+<td><p>an ampersand symbol: ‘&amp;’</p></td>
+</tr>
 <tr class="row-even"><td><p>{openbrace}</p></td>
 <td><p>An open brace: ‘{’</p></td>
 </tr>
@@ -2813,7 +2819,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.67.7’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.67.8’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -2876,7 +2882,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <td><p>Use in form ‘{strip,TEMPLATE}’; strips whitespace from begining and end of rendered TEMPLATE value(s).</p></td>
 </tr>
 <tr class="row-even"><td><p>{format}</p></td>
-<td><p>Use in form, ‘{format:TYPE:FORMAT,TEMPLATE}’; converts TEMPLATE value to TYPE then formats the value using Python string formatting codes specified by FORMAT; TYPE is one of: ‘int’, ‘float’, or ‘str’. For example, ‘{format:float:.1f,{exiftool:EXIF:FocalLength}}’ will format focal length to 1 decimal place (e.g. ‘100.0’).</p></td>
+<td><p>Use in form ‘{format:TYPE:FORMAT,TEMPLATE}’; converts TEMPLATE value to TYPE then formats the value using Python string formatting codes specified by FORMAT; TYPE is one of: ‘int’, ‘float’, or ‘str’. For example, ‘{format:float:.1f,{exiftool:EXIF:FocalLength}}’ will format focal length to 1 decimal place (e.g. ‘100.0’).</p></td>
 </tr>
 <tr class="row-odd"><td><p>{function}</p></td>
 <td><p>Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where ‘file.py’ is the path/name of the python file and ‘function_name’ is the name of the function to call. The file name may also be url to a python file, e.g. ‘{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}’. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.</p></td>
@@ -3649,7 +3655,7 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=bbe6f006"></script>
+</div><script src="_static/documentation_options.js?v=53fc53c4"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
