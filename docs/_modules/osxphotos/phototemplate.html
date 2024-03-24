@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.phototemplate - osxphotos 0.67.4 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.67.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.8 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.8 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -398,6 +398,8 @@
     <span class="s2">&quot;</span><span class="si">{semicolon}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;A semicolon: &#39;;&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{questionmark}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;A question mark: &#39;?&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{pipe}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;A vertical pipe: &#39;|&#39;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{percent}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;A percent sign: &#39;%&#39;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{ampersand}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;an ampersand symbol: &#39;&amp;&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{openbrace}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;An open brace: &#39;{&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{closebrace}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;A close brace: &#39;}&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{openparens}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;An open parentheses: &#39;(&#39;&quot;</span><span class="p">,</span>
@@ -454,7 +456,7 @@
     <span class="o">+</span> <span class="s2">&quot;Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{shell_quote}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Use in form &#39;{shell_quote,TEMPLATE}&#39;; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg =&gt; &#39;My file.jpeg&#39;; only adds quotes if needed.&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{strip}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Use in form &#39;{strip,TEMPLATE}&#39;; strips whitespace from begining and end of rendered TEMPLATE value(s).&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;</span><span class="si">{format}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Use in form, &#39;{format:TYPE:FORMAT,TEMPLATE}&#39;; converts TEMPLATE value to TYPE then formats the value &quot;</span>
+    <span class="s2">&quot;</span><span class="si">{format}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Use in form &#39;{format:TYPE:FORMAT,TEMPLATE}&#39;; converts TEMPLATE value to TYPE then formats the value &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;using Python string formatting codes specified by FORMAT; TYPE is one of: &#39;int&#39;, &#39;float&#39;, or &#39;str&#39;. &quot;</span>
     <span class="s2">&quot;For example, &#39;{format:float:.1f,{exiftool:EXIF:FocalLength}}&#39; will format focal length to 1 decimal place (e.g. &#39;100.0&#39;). &quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{function}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Execute a python function from an external file and use return value as template substitution. &quot;</span>
@@ -534,6 +536,8 @@
     <span class="s2">&quot;comma&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span>
     <span class="s2">&quot;semicolon&quot;</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;pipe&quot;</span><span class="p">:</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;percent&quot;</span><span class="p">:</span> <span class="s2">&quot;%&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ampersand&quot;</span><span class="p">:</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;openbrace&quot;</span><span class="p">:</span> <span class="s2">&quot;{&quot;</span><span class="p">,</span>
     <span class="s2">&quot;closebrace&quot;</span><span class="p">:</span> <span class="s2">&quot;}&quot;</span><span class="p">,</span>
     <span class="s2">&quot;openparens&quot;</span><span class="p">:</span> <span class="s2">&quot;(&quot;</span><span class="p">,</span>
@@ -765,6 +769,23 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">delim</span> <span class="o">=</span> <span class="kc">None</span>
 
+            <span class="c1"># process combine operator</span>
+            <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">combine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">is_combine</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">combine</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">combine_val</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_statement</span><span class="p">(</span>
+                        <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">combine</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                        <span class="n">field_arg</span><span class="o">=</span><span class="n">field_arg</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">unmatched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># blank combine value</span>
+                    <span class="n">combine_val</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_combine</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">combine_val</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># process boolean operator</span>
             <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">bool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">is_bool</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">bool</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -935,6 +956,9 @@
                     <span class="n">vals</span> <span class="o">=</span> <span class="n">comparison_test</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="n">c</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span>
                     <span class="n">vals</span> <span class="o">=</span> <span class="n">comparison_test</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="n">c</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">is_combine</span> <span class="ow">and</span> <span class="n">combine_val</span><span class="p">:</span>
+                <span class="n">vals</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">combine_val</span> <span class="k">if</span> <span class="n">val</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">is_bool</span><span class="p">:</span>
                 <span class="n">vals</span> <span class="o">=</span> <span class="n">default</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">vals</span> <span class="k">else</span> <span class="n">bool_val</span>
@@ -2044,7 +2068,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8c1e7a6c"></script>
+</div><script src="../../_static/documentation_options.js?v=53fc53c4"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
