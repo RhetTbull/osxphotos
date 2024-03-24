@@ -757,7 +757,7 @@ class PhotosDB:
                 RKVersion.uuid,
                 RKFace.uuid
                 FROM RKPerson, RKFace, RKVersion
-                WHERE 
+                WHERE
                 RKFace.modelId = RKPerson.representativeFaceId AND
                 RKVersion.modelId = RKFace.ImageModelId
             """
@@ -779,15 +779,15 @@ class PhotosDB:
         # get information on detected faces
         verbose("Processing detected faces in photos.")
         c.execute(
-            """ SELECT 
+            """ SELECT
                 RKPerson.modelID,
-                RKVersion.uuid 
-                FROM 
-                RKFace, RKPerson, RKVersion, RKMaster 
-                WHERE 
-                RKFace.personID = RKperson.modelID AND 
+                RKVersion.uuid
+                FROM
+                RKFace, RKPerson, RKVersion, RKMaster
+                WHERE
+                RKFace.personID = RKperson.modelID AND
                 RKVersion.modelId = RKFace.ImageModelId AND
-                RKVersion.masterUuid = RKMaster.uuid  
+                RKVersion.masterUuid = RKMaster.uuid
             """
         )
 
@@ -810,8 +810,8 @@ class PhotosDB:
         # Get info on albums
         verbose("Processing albums.")
         c.execute(
-            """ SELECT 
-                RKAlbum.uuid, 
+            """ SELECT
+                RKAlbum.uuid,
                 RKVersion.uuid,
                 RKCustomSortOrder.orderNumber
                 FROM RKVersion
@@ -841,16 +841,16 @@ class PhotosDB:
 
         # now get additional details about albums
         c.execute(
-            """ SELECT 
-                uuid, 
-                name, 
-                cloudLibraryState, 
-                cloudIdentifier, 
-                isInTrash, 
+            """ SELECT
+                uuid,
+                name,
+                cloudLibraryState,
+                cloudIdentifier,
+                isInTrash,
                 folderUuid,
-                albumType, 
+                albumType,
                 albumSubclass,
-                createDate 
+                createDate
                 FROM RKAlbum """
         )
 
@@ -890,14 +890,14 @@ class PhotosDB:
 
         # get details about folders
         c.execute(
-            """ SELECT 
-                uuid, 
-                modelId, 
-                name, 
-                isMagic, 
-                isInTrash, 
-                folderType, 
-                parentFolderUuid, 
+            """ SELECT
+                uuid,
+                modelId,
+                name,
+                isMagic,
+                isInTrash,
+                folderType,
+                parentFolderUuid,
                 folderPath
                 FROM RKFolder """
         )
@@ -947,14 +947,14 @@ class PhotosDB:
         verbose("Processing keywords.")
         c.execute(
             """ SELECT
-                RKKeyword.name, 
-                RKVersion.uuid, 
-                RKMaster.uuid 
-                FROM 
-                RKKeyword, RKKeywordForVersion, RKVersion, RKMaster 
-                WHERE 
-                RKKeyword.modelId = RKKeyWordForVersion.keywordID AND 
-                RKVersion.modelID = RKKeywordForVersion.versionID AND 
+                RKKeyword.name,
+                RKVersion.uuid,
+                RKMaster.uuid
+                FROM
+                RKKeyword, RKKeywordForVersion, RKVersion, RKMaster
+                WHERE
+                RKKeyword.modelId = RKKeyWordForVersion.keywordID AND
+                RKVersion.modelID = RKKeywordForVersion.versionID AND
                 RKMaster.uuid = RKVersion.masterUuid
             """
         )
@@ -979,12 +979,12 @@ class PhotosDB:
         if self._db_version < _PHOTOS_3_VERSION:
             # Photos < 3.0 doesn't have RKVersion.selfPortrait (selfie)
             c.execute(
-                """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, 
-                    RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, 
-                    RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, 
-                    RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, 
-                    RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, 
-                    RKVersion.latitude, RKVersion.longitude, 
+                """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename,
+                    RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating,
+                    RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds,
+                    RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name,
+                    RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden,
+                    RKVersion.latitude, RKVersion.longitude,
                     RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
                     RKVersion.burstUuid, RKVersion.burstPickType,
                     RKVersion.specialType, RKMaster.modelID, null, RKVersion.momentUuid,
@@ -992,11 +992,11 @@ class PhotosDB:
                     RKVersion.nonRawMasterUuid,
                     RKMaster.alternateMasterUuid,
                     RKVersion.isInTrash,
-                    RKVersion.processedHeight, 
-                    RKVersion.processedWidth, 
+                    RKVersion.processedHeight,
+                    RKVersion.processedWidth,
                     RKVersion.orientation,
                     RKMaster.height,
-                    RKMaster.width, 
+                    RKMaster.width,
                     RKMaster.orientation,
                     RKMaster.fileSize,
                     RKVersion.subType,
@@ -1010,12 +1010,12 @@ class PhotosDB:
             )
         else:
             c.execute(
-                """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, 
-                    RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, 
-                    RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, 
-                    RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, 
-                    RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, 
-                    RKVersion.latitude, RKVersion.longitude, 
+                """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename,
+                    RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating,
+                    RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds,
+                    RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name,
+                    RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden,
+                    RKVersion.latitude, RKVersion.longitude,
                     RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
                     RKVersion.burstUuid, RKVersion.burstPickType,
                     RKVersion.specialType, RKMaster.modelID,
@@ -1025,11 +1025,11 @@ class PhotosDB:
                     RKVersion.nonRawMasterUuid,
                     RKMaster.alternateMasterUuid,
                     RKVersion.isInTrash,
-                    RKVersion.processedHeight, 
-                    RKVersion.processedWidth, 
+                    RKVersion.processedHeight,
+                    RKVersion.processedWidth,
                     RKVersion.orientation,
                     RKMaster.height,
-                    RKMaster.width, 
+                    RKMaster.width,
                     RKMaster.orientation,
                     RKMaster.originalFileSize,
                     RKVersion.subType,
@@ -1304,15 +1304,15 @@ class PhotosDB:
         # get additional details from RKMaster, needed for RAW processing
         verbose("Processing additional photo details.")
         c.execute(
-            """ SELECT 
+            """ SELECT
                 RKMaster.uuid,
-                RKMaster.volumeId, 
-                RKMaster.imagePath, 
-                RKMaster.isMissing, 
-                RKMaster.originalFileName, 
+                RKMaster.volumeId,
+                RKMaster.imagePath,
+                RKMaster.isMissing,
+                RKMaster.originalFileName,
                 RKMaster.UTI,
-                RKMaster.modelID, 
-                RKMaster.fileSize, 
+                RKMaster.modelID,
+                RKMaster.fileSize,
                 RKMaster.isTrulyRaw,
                 RKMaster.alternateMasterUuid,
                 RKMaster.filename
@@ -1405,11 +1405,11 @@ class PhotosDB:
 
         # get details on external edits
         c.execute(
-            """ SELECT RKVersion.uuid, 
-                RKVersion.adjustmentUuid, 
-                RKAdjustmentData.originator, 
-                RKAdjustmentData.format 
-                FROM RKVersion, RKAdjustmentData 
+            """ SELECT RKVersion.uuid,
+                RKVersion.adjustmentUuid,
+                RKAdjustmentData.originator,
+                RKAdjustmentData.format
+                FROM RKVersion, RKAdjustmentData
                 WHERE RKVersion.adjustmentUuid = RKAdjustmentData.uuid """
         )
 
@@ -1420,17 +1420,17 @@ class PhotosDB:
 
         # get details to find path of live photos
         c.execute(
-            """ SELECT 
-                RKVersion.uuid, 
+            """ SELECT
+                RKVersion.uuid,
                 RKModelResource.modelId,
                 RKModelResource.UTI,
-                RKVersion.specialType, 
+                RKVersion.specialType,
                 RKModelResource.attachedModelType,
                 RKModelResource.resourceType,
                 RKModelResource.isOnDisk
-                FROM RKVersion 
-                INNER JOIN RKMaster on RKVersion.masterUuid = RKMaster.uuid 
-                INNER JOIN RKModelResource on RKMaster.modelId = RKModelResource.attachedModelId  
+                FROM RKVersion
+                INNER JOIN RKMaster on RKVersion.masterUuid = RKMaster.uuid
+                INNER JOIN RKModelResource on RKMaster.modelId = RKModelResource.attachedModelId
                 WHERE RKModelResource.UTI = 'com.apple.quicktime-movie'
               """
         )
@@ -1481,10 +1481,10 @@ class PhotosDB:
 
         # get cloud details
         c.execute(
-            """ SELECT 
-                RKVersion.uuid, 
+            """ SELECT
+                RKVersion.uuid,
                 RKMaster.cloudLibraryState,
-                RKCloudResource.available, 
+                RKCloudResource.available,
                 RKCloudResource.status
                 FROM RKCloudResource
                 INNER JOIN RKMaster ON RKMaster.fingerprint = RKCloudResource.fingerprint
@@ -1701,7 +1701,9 @@ class PhotosDB:
         # some of the tables/columns have different names in different versions of Photos
         # set local var for readability
         photos_ver = self._photos_ver
-        verbose(f"Photos database version: {self._num(self._db_version)}, {self._num(photos_ver)}.")
+        verbose(
+            f"Photos database version: {self._num(self._db_version)}, {self._num(photos_ver)}."
+        )
         asset_table = _DB_TABLE_NAMES[photos_ver]["ASSET"]
         keyword_join = _DB_TABLE_NAMES[photos_ver]["KEYWORD_JOIN"]
         asset_album_table = _DB_TABLE_NAMES[photos_ver]["ASSET_ALBUM_TABLE"]
@@ -1826,12 +1828,12 @@ class PhotosDB:
         # get details about albums
         verbose("Processing albums.")
         c.execute(
-            f""" SELECT 
-                ZGENERICALBUM.ZUUID, 
+            f""" SELECT
+                ZGENERICALBUM.ZUUID,
                 {asset_table}.ZUUID,
                 {album_sort}
-                FROM {asset_table} 
-                JOIN {asset_album_table} ON {album_join} = {asset_table}.Z_PK 
+                FROM {asset_table}
+                JOIN {asset_album_table} ON {album_join} = {asset_table}.Z_PK
                 JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = {asset_album_join}
             """
         )
@@ -1944,9 +1946,9 @@ class PhotosDB:
         verbose("Processing keywords.")
         c.execute(
             f"""SELECT ZKEYWORD.ZTITLE, {asset_table}.ZUUID
-                FROM {asset_table} 
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
-                JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK 
+                FROM {asset_table}
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
+                JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK
                 JOIN ZKEYWORD ON ZKEYWORD.Z_PK = {keyword_join} """
         )
         for keyword_title, keyword_uuid in c:
@@ -1968,24 +1970,24 @@ class PhotosDB:
         # get details about photos
         verbose("Processing photo details.")
         c.execute(
-            f"""SELECT {asset_table}.ZUUID, 
-                ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, 
-                ZADDITIONALASSETATTRIBUTES.ZTITLE, 
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME, 
-                {asset_table}.ZMODIFICATIONDATE, 
-                {asset_table}.ZDATECREATED, 
-                ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, 
-                ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET, 
-                ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME, 
-                {asset_table}.ZHIDDEN, 
-                {asset_table}.ZFAVORITE, 
-                {asset_table}.ZDIRECTORY, 
-                {asset_table}.ZFILENAME, 
-                {asset_table}.ZLATITUDE, 
-                {asset_table}.ZLONGITUDE, 
-                {asset_table}.ZHASADJUSTMENTS, 
-                {asset_table}.ZCLOUDBATCHPUBLISHDATE, 
-                {asset_table}.ZKIND, 
+            f"""SELECT {asset_table}.ZUUID,
+                ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT,
+                ZADDITIONALASSETATTRIBUTES.ZTITLE,
+                ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME,
+                {asset_table}.ZMODIFICATIONDATE,
+                {asset_table}.ZDATECREATED,
+                ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
+                ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET,
+                ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME,
+                {asset_table}.ZHIDDEN,
+                {asset_table}.ZFAVORITE,
+                {asset_table}.ZDIRECTORY,
+                {asset_table}.ZFILENAME,
+                {asset_table}.ZLATITUDE,
+                {asset_table}.ZLONGITUDE,
+                {asset_table}.ZHASADJUSTMENTS,
+                {asset_table}.ZCLOUDBATCHPUBLISHDATE,
+                {asset_table}.ZKIND,
                 {asset_table}.ZUNIFORMTYPEIDENTIFIER,
                 {asset_table}.ZAVALANCHEUUID,
                 {asset_table}.ZAVALANCHEPICKTYPE,
@@ -1997,11 +1999,11 @@ class PhotosDB:
                 {asset_table}.ZMOMENT,
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,
                 {asset_table}.ZTRASHEDSTATE,
-                {asset_table}.ZHEIGHT, 
-                {asset_table}.ZWIDTH, 
-                {asset_table}.ZORIENTATION, 
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT, 
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH, 
+                {asset_table}.ZHEIGHT,
+                {asset_table}.ZWIDTH,
+                {asset_table}.ZORIENTATION,
+                ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT,
+                ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH,
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE,
                 {depth_state},
@@ -2013,8 +2015,8 @@ class PhotosDB:
                 {asset_table}.Z_PK,
                 {asset_table}.ZCLOUDOWNERHASHEDPERSONID,
                 {asset_table}.ZMOMENTSHARE
-                FROM {asset_table} 
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                FROM {asset_table}
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
                 ORDER BY {asset_table}.ZUUID  """
         )
         # Order of results
@@ -2101,8 +2103,8 @@ class PhotosDB:
             info["hidden"] = row[9]
             info["favorite"] = row[10]
             info["originalFilename"] = normalize_unicode(row[3])
-            info["filename"] = normalize_unicode(row[12]) if row[12] else "" #1445
-            info["directory"] = row[11] or "" #1445
+            info["filename"] = normalize_unicode(row[12]) if row[12] else ""  # 1445
+            info["directory"] = row[11] or ""  # 1445
 
             # set latitude and longitude
             # if both latitude and longitude = -180.0, then they are NULL
@@ -2333,11 +2335,11 @@ class PhotosDB:
         # Get extended description
         verbose("Processing additional photo details.")
         c.execute(
-            f"""SELECT {asset_table}.ZUUID, 
-                ZASSETDESCRIPTION.ZLONGDESCRIPTION 
-                FROM {asset_table} 
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
-                JOIN ZASSETDESCRIPTION ON ZASSETDESCRIPTION.Z_PK = ZADDITIONALASSETATTRIBUTES.ZASSETDESCRIPTION 
+            f"""SELECT {asset_table}.ZUUID,
+                ZASSETDESCRIPTION.ZLONGDESCRIPTION
+                FROM {asset_table}
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
+                JOIN ZASSETDESCRIPTION ON ZASSETDESCRIPTION.Z_PK = ZADDITIONALASSETATTRIBUTES.ZASSETDESCRIPTION
                 ORDER BY {asset_table}.ZUUID """
         )
         for row in c:
@@ -2351,11 +2353,11 @@ class PhotosDB:
 
         # get information about adjusted/edited photos
         c.execute(
-            f"""SELECT {asset_table}.ZUUID, 
-                {asset_table}.ZHASADJUSTMENTS, 
-                ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER 
-                FROM {asset_table}, ZUNMANAGEDADJUSTMENT 
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+            f"""SELECT {asset_table}.ZUUID,
+                {asset_table}.ZHASADJUSTMENTS,
+                ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER
+                FROM {asset_table}, ZUNMANAGEDADJUSTMENT
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
                 WHERE ZADDITIONALASSETATTRIBUTES.ZUNMANAGEDADJUSTMENT = ZUNMANAGEDADJUSTMENT.Z_PK """
         )
         for row in c:
@@ -2375,29 +2377,29 @@ class PhotosDB:
         # Get info on remote/local availability for photos in shared albums
         # Also get UTI of original image (zdatastoresubtype = 1)
         if self._photos_ver >= 7:
-            sql_missing = f""" SELECT 
-                {asset_table}.ZUUID, 
-                ZINTERNALRESOURCE.ZLOCALAVAILABILITY, 
+            sql_missing = f""" SELECT
+                {asset_table}.ZUUID,
+                ZINTERNALRESOURCE.ZLOCALAVAILABILITY,
                 ZINTERNALRESOURCE.ZREMOTEAVAILABILITY,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
                 {uti_original_column},
-                null 
+                null
                 FROM {asset_table}
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
-                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
                 WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
         else:
-            sql_missing = f""" SELECT 
-                {asset_table}.ZUUID, 
-                ZINTERNALRESOURCE.ZLOCALAVAILABILITY, 
+            sql_missing = f""" SELECT
+                {asset_table}.ZUUID,
+                ZINTERNALRESOURCE.ZLOCALAVAILABILITY,
                 ZINTERNALRESOURCE.ZREMOTEAVAILABILITY,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
                 {uti_original_column},
                 ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER
                 FROM {asset_table}
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
-                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
-                JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK = ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
+                JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK = ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER
                 WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
 
         c.execute(sql_missing)
@@ -2465,27 +2467,27 @@ class PhotosDB:
         if self._photos_ver >= 7:
             sql_raw = f""" SELECT
                 {asset_table}.ZUUID,
-                ZINTERNALRESOURCE.ZDATALENGTH, 
+                ZINTERNALRESOURCE.ZDATALENGTH,
                 null,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
                 ZINTERNALRESOURCE.ZRESOURCETYPE,
                 ZINTERNALRESOURCE.ZFILESYSTEMBOOKMARK
                 FROM {asset_table}
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
                 WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
             """
         else:
             sql_raw = f""" SELECT
                 {asset_table}.ZUUID,
-                ZINTERNALRESOURCE.ZDATALENGTH, 
+                ZINTERNALRESOURCE.ZDATALENGTH,
                 ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
                 ZINTERNALRESOURCE.ZRESOURCETYPE,
                 ZINTERNALRESOURCE.ZFILESYSTEMBOOKMARK
                 FROM {asset_table}
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
                 JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK =  ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER
                 WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
             """
@@ -2508,9 +2510,9 @@ class PhotosDB:
             {asset_table}.ZUUID,
             ZFILESYSTEMVOLUME.ZNAME,
             ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME
-            FROM {asset_table} 
+            FROM {asset_table}
             JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
-            JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+            JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
             JOIN ZFILESYSTEMBOOKMARK ON ZFILESYSTEMBOOKMARK.ZRESOURCE = ZINTERNALRESOURCE.Z_PK
             JOIN ZFILESYSTEMVOLUME ON ZFILESYSTEMVOLUME.Z_PK = ZINTERNALRESOURCE.ZFILESYSTEMVOLUME
             WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
@@ -2572,7 +2574,16 @@ class PhotosDB:
 
         # process search info
         verbose("Processing photo labels.")
-        self._process_searchinfo()
+        try:
+            self._process_searchinfo()
+        except Exception as e:
+            # The search db is sometimes missing or missing the right tables;
+            # osxphotos can operate without reading the search db so this is not fatal
+            # but labels won't be available.
+            # I've not yet figured out why or how to fix it but w
+            logger.warning(
+                f"Error reading photo labels (labels & search_info will not be available): {e}"
+            )
 
         # process exif info
         verbose("Processing EXIF details.")
@@ -2618,7 +2629,7 @@ class PhotosDB:
 
         results = self.execute(
             f"""
-            SELECT 
+            SELECT
             Z_PK,
             ZTIMEZONEOFFSET,
             ZTRASHEDSTATE,
