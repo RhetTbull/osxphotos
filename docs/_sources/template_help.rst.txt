@@ -8,7 +8,7 @@ In its simplest form, a template statement has the form: ``"{template_field}"``\
 
 Template statements may contain one or more modifiers.  The full syntax is:
 
-``"pretext{delim+template_field:subfield(field_arg)|filter[find,replace] conditional?bool_value,default}posttext"``
+``"pretext{delim+template_field:subfield(field_arg)|filter[find,replace] conditional&combine_value?bool_value,default}posttext"``
 
 Template statements are white-space sensitive meaning that white space (spaces, tabs) changes the meaning of the template statement.
 
@@ -125,7 +125,9 @@ This can be used to rename files as well, for example:
 
 This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where 'ImageName.jpg' is the original name of the photo) and all other photos with the unmodified original name.
 
-``?bool_value``\ : Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(field_arg)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is ``"{hdr}"``\ ) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is ``"{title}"``\ ) then the default value following a "," will be used.  
+`&combine_value`: Template fields may be combined with another template statement to return multiple values. The combine_value is another template statement. For example, the template {created.year&{folder_album,}} would resolve to ["1999", "Vacation"] if the photo was created in 1999 and was in the album Vacation. Because the combine_value is a template statement, multiple templates may be combined together by nesting the combine operator: {template1&{template2&{template3,},},}. In this example, a null default value is used to prevent the default value from being combined if any of the nested templates does not resolve to a value
+
+``?bool_value``\ : Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(field_arg)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is ``"{hdr}"``\ ) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is ``"{title}"``\ ) then the default value following a "," will be used.
 
 e.g. if photo is an HDR image,
 
@@ -145,7 +147,7 @@ e.g., if photo has no title set,
 * ``"{title}"`` renders to "_"
 * ``"{title,I have no title}"`` renders to ``"I have no title"``
 
-Template fields such as ``created.strftime`` use the default value to pass the template to use for ``strftime``.  
+Template fields such as ``created.strftime`` use the default value to pass the template to use for ``strftime``.
 
 e.g., if photo date is 4 February 2020, 19:07:38,
 
@@ -162,7 +164,9 @@ e.g. ``"{created.year}/{openbrace}{title}{closebrace}"`` would result in ``"2020
 
 **Variables**
 
-You can define variables for later use in the template string using the format ``{var:NAME,VALUE}`` where ``VALUE`` is a template statement.  Variables may then be referenced using the format ``%NAME``. For example: ``{var:foo,bar}`` defines the variable ``%foo`` to have value ``bar``. This can be useful if you want to re-use a complex template value in multiple places within your template string or for allowing the use of characters that would otherwise be prohibited in a template string. For example, the "pipe" (\ ``|``\ ) character is not allowed in a find/replace pair but you can get around this limitation like so: ``{var:pipe,{pipe}}{title[-,%pipe]}`` which replaces the ``-`` character with ``|`` (the value of ``%pipe``\ ).  
+You can define variables for later use in the template string using the format ``{var:NAME,VALUE}`` where ``VALUE`` is a template statement.  Variables may then be referenced using the format ``%NAME``. For example: ``{var:foo,bar}`` defines the variable ``%foo`` to have value ``bar``. This can be useful if you want to re-use a complex template value in multiple places within your template string or for allowing the use of characters that would otherwise be prohibited in a template string. For example, the "pipe" (\ ``|``\ ) character is not allowed in a find/replace pair but you can get around this limitation like so: ``{var:pipe,{pipe}}{title[-,%pipe]}`` which replaces the ``-`` character with ``|`` (the value of ``%pipe``\ ).
+
+Another use case for variables is filtering combined template values. For example, using the ``&combine_value`` mechanism to combine two template values that might result in duplicate values, you could do the following: ``{var:myvar,{template1&{template2,},}}{%myvar|uniq}`` which allows the use of the uniq filter against the combined template values.
 
 Variables can also be referenced as fields in the template string, for example: ``{var:year,{created.year}}{original_name}-{%year}``. In some cases, use of variables can make your template string more readable.  Variables can be used as template fields, as values for filters, as values for conditional operations, or as default values.  When used as a conditional value or default value, variables should be treated like any other field and enclosed in braces as conditional and default values are evaluated as template strings. For example: ``{var:name,Katie}{person contains {%name}?{%name},Not-{%name}}``.
 
