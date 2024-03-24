@@ -200,6 +200,8 @@ TEMPLATE_SUBSTITUTIONS = {
     "{semicolon}": "A semicolon: ';'",
     "{questionmark}": "A question mark: '?'",
     "{pipe}": "A vertical pipe: '|'",
+    "{percent}": "A percent sign: '%'",
+    "{ampersand}": "an ampersand symbol: '&'",
     "{openbrace}": "An open brace: '{'",
     "{closebrace}": "A close brace: '}'",
     "{openparens}": "An open parentheses: '('",
@@ -256,7 +258,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.",
     "{shell_quote}": "Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.",
     "{strip}": "Use in form '{strip,TEMPLATE}'; strips whitespace from begining and end of rendered TEMPLATE value(s).",
-    "{format}": "Use in form, '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then formats the value "
+    "{format}": "Use in form '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then formats the value "
     + "using Python string formatting codes specified by FORMAT; TYPE is one of: 'int', 'float', or 'str'. "
     "For example, '{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1 decimal place (e.g. '100.0'). ",
     "{function}": "Execute a python function from an external file and use return value as template substitution. "
@@ -336,6 +338,8 @@ PUNCTUATION = {
     "comma": ",",
     "semicolon": ";",
     "pipe": "|",
+    "percent": "%",
+    "ampersand": "&",
     "openbrace": "{",
     "closebrace": "}",
     "openparens": "(",
@@ -562,6 +566,23 @@ class PhotoTemplate:
             else:
                 delim = None
 
+            # process combine operator
+            if ts.template.combine is not None:
+                is_combine = True
+                if ts.template.combine.value is not None:
+                    combine_val, u = self._render_statement(
+                        ts.template.combine.value,
+                        field_arg=field_arg,
+                    )
+                    unmatched.extend(u)
+                else:
+                    # blank combine value
+                    combine_val = [""]
+            else:
+                is_combine = False
+                combine_val = None
+
+            # process boolean operator
             if ts.template.bool is not None:
                 is_bool = True
                 if ts.template.bool.value is not None:
@@ -732,6 +753,9 @@ class PhotoTemplate:
                     vals = comparison_test(lambda v, c: v > c)
                 elif operator == ">=":
                     vals = comparison_test(lambda v, c: v >= c)
+
+            if is_combine and combine_val:
+                vals.extend(val for val in combine_val if val)
 
             if is_bool:
                 vals = default if not vals else bool_val

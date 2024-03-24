@@ -1,6 +1,6 @@
 // OSXPhotos Metadata Template Language (MTL)
 // a TemplateString has format:
-// pre{delim+template_field:subfield(field_arg)|filter[find,replace] conditional?bool_value,default}post
+// pre{delim+template_field:subfield(field_arg)|filter[find,replace] conditional&combine_value?bool_value,default}post
 // a TemplateStatement may contain zero or more TemplateStrings
 // The pre and post are optional strings
 // The template itself (inside the {}) is also optional but if present
@@ -26,6 +26,7 @@ Template:
     filter=Filter
     findreplace=FindReplace
     conditional=Conditional
+    combine=Combine
     bool=Boolean
     default=Default
     "}"
@@ -44,7 +45,7 @@ Delim:
 ;
 
 DELIM_WORD:
-    /[^\{\}]*(?=\+\w)/
+    /[^\{\}]*(?=\+[\w\%])/
 ;
 
 Field:
@@ -127,6 +128,12 @@ REPLACE_WORD:
     /[^\[\]\|]*/
 ;
 
+Combine:
+    (
+    "&"
+    (value=Statement)?
+    )?
+;
 
 Boolean:
     (

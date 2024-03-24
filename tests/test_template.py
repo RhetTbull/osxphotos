@@ -261,6 +261,7 @@ TEMPLATE_VALUES = {
     "{created.mm|filter(!= 02)}": "_",
     "{created.mm|int|filter(== 2)}": "2",
     "{created.mm|float|filter(== 2.0)}": "2.0",
+    "{var:combine,{created.year&{descr|titlecase&{exif.camera_make}}}}{|+%combine}": "2020|Jack Rose Dining Saloon|Apple",
 }
 
 
