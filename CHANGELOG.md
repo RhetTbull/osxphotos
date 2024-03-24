@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.8](https://github.com/RhetTbull/osxphotos/compare/v0.67.7...v0.67.8)
+
+Combine Operator
+
+### v0.67.8 - 2024-03-24
+
+Adds new combine operator `&` to template language, ignores corrupt psi.sqlite in Photos library.
+
+#### Added
+
+- New combine operator `&` to template language, (#1453)
+
+#### Fixed
+
+- Ignore corrupt psi.sqlite in Photos library, (#1452)
+
+#### Changed
+
+#### Removed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
+## [v0.67.7](https://github.com/RhetTbull/osxphotos/compare/v0.67.6...v0.67.7)
+
+### v0.67.7 - 2024-03-17
+
+A few bug fixes; update for macOS 14.4.
+
+#### Added
+
+#### Fixed
+
+- Fix for improperly initialized export db, (#1435)
+- Fix for album still created on export when --dry-run parameter is used (#1440)
+- Attribute error during PhotoInfo.path (#1445)
+- Update macOS tested version for 14.4 (#1429)
+
+#### Changed
+
+#### Removed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @rajscode [@rajscode](https://github.com/rajscode) for fixing #1445.
+- @jasonhollis[@jasonhollis](https://github.com/jasonhollis) for identifying #1435 and providing debug info.
+
 ## [v0.67.6](https://github.com/RhetTbull/osxphotos/compare/v0.67.5...v0.67.6)
 
 ### v0.67.6 - 2024-03-05
@@ -225,7 +274,7 @@ Bug Fixes
 
 #### Fixed
 
-- Fixed install issues for Monterey, #1324 
+- Fixed install issues for Monterey, #1324
 
 #### Contributors
 
@@ -250,7 +299,7 @@ This allows `batch-edit` to be used to sync albums between iCloud shared librari
 will write the album name in form `album:Folder/Album` to the keyword field.  Then on the other user's machine:
 
 ```bash
-osxphotos batch-edit --verbose --album "{keyword|filter(startswith album:)|sslice(6:)}" --split-folder "/" 
+osxphotos batch-edit --verbose --album "{keyword|filter(startswith album:)|sslice(6:)}" --split-folder "/"
 ```
 
 reads the album name from the keyword field and splits it into folder and album name and adds the photo to the album, creating album and folders as necessary.
@@ -324,7 +373,7 @@ Adds `--alt-db` option to export. You probably (almost certainly) don't need thi
 
 #### Added
 
-- `--alt-db` option to export to specify a different database than the one in the Photos library. This is a niche option you likely don't need but enables certain use cases that previously weren't possible. 
+- `--alt-db` option to export to specify a different database than the one in the Photos library. This is a niche option you likely don't need but enables certain use cases that previously weren't possible.
 
 #### Removed
 
@@ -567,11 +616,11 @@ Documentation Fixes
 
 Initial support for iCloud Shared Libraries.
 
-This release contains a lot of changes some of which may be breaking depending on your workflow. If you use `--sidecar-template`, you should look at the help for this option as the options have changed from boolean flags to named flags. 
+This release contains a lot of changes some of which may be breaking depending on your workflow. If you use `--sidecar-template`, you should look at the help for this option as the options have changed from boolean flags to named flags.
 
 If you use `--report` with `--append` and you use CSV reports, you should archive the existing report and start a new one as the report now contains additional fields for user files.
 
-If you use `--post-function`, the called function may now return an [ExportResults](https://rhettbull.github.io/osxphotos/reference.html#osxphotos.ExportResults) object with information about the files written, the files skipped, and any errors generated. If returned, these files will be included in `--report` and will be protected from cleanup with `--cleanup`. 
+If you use `--post-function`, the called function may now return an [ExportResults](https://rhettbull.github.io/osxphotos/reference.html#osxphotos.ExportResults) object with information about the files written, the files skipped, and any errors generated. If returned, these files will be included in `--report` and will be protected from cleanup with `--cleanup`.
 
 Initial support for photos in Shared iCloud Libraries has been implemented. These photos can be queried via the `--shared-library` option.  Still working on decoding the participant information (who is sharing the photos).
 
@@ -690,7 +739,7 @@ Adds support for working with Photos libraries on macOS Sonoma (14.0 preview)
 
 AAE Export Support
 
-### [v0.60.7] - 2023-07-15 
+### [v0.60.7] - 2023-07-15
 
 #### Addeded
 
