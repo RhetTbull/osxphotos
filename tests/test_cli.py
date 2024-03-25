@@ -7933,7 +7933,9 @@ def test_export_exportdb():
             ],
         )
         assert result.exit_code == 0
-        assert re.search(r"Using osxphotos export database: version.*export\.db", result.output)
+        assert re.search(
+            r"Using osxphotos export database: version.*export\.db", result.output
+        )
 
         # export again w/o --exportdb
         result = runner.invoke(
@@ -8004,7 +8006,9 @@ def test_export_exportdb_ramdb():
             ],
         )
         assert result.exit_code == 0
-        assert re.search(r"Using osxphotos export database: version.*export\.db", result.output)
+        assert re.search(
+            r"Using osxphotos export database: version.*export\.db", result.output
+        )
         assert "exported: 0" in result.output
 
 

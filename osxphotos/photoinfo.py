@@ -1,4 +1,4 @@
-""" PhotoInfo class: Represents a single photo in the Photos library and provides access to the photo's attributes
+"""PhotoInfo class: Represents a single photo in the Photos library and provides access to the photo's attributes
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
@@ -53,6 +53,7 @@ from ._constants import (
 )
 from .adjustmentsinfo import AdjustmentsInfo
 from .albuminfo import AlbumInfo, ImportInfo, ProjectInfo
+from .bookmark import resolve_bookmark_path
 from .commentinfo import CommentInfo, LikeInfo
 from .exifinfo import ExifInfo
 from .exiftool import ExifToolCaching, get_exiftool_path
@@ -969,36 +970,32 @@ class PhotoInfo:
         """Returns True if photo is a live photo, otherwise False"""
         return self._info["live_photo"]
 
-    @property
+    @cached_property
     def path_live_photo(self) -> str | None:
         """Returns path to the associated video file for a live photo
         If photo is not a live photo, returns None
         If photo is missing, returns None"""
 
-        photopath = None
         if self._db._db_version <= _PHOTOS_4_VERSION:
             return self._path_live_photo_4()
-        elif self.live_photo and self.path and not self.ismissing:
-            if self.shared:
-                return self._path_live_photo_shared_5()
-            if self.shared_moment and self._db.photos_version >= 7:
-                return self._path_live_shared_moment()
-            if self.syndicated and not self.saved_to_library:
-                # syndicated ("Shared with you") photos not yet saved to library
-                return self._path_live_syndicated()
+        elif not (self.live_photo and self.path and not self.ismissing):
+            # if photo is missing or original path missing, cannot determine path to live photo
+            return None
 
-            filename = pathlib.Path(self.path)
-            photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
-            photopath = str(photopath)
-            if not os.path.isfile(photopath):
-                # In testing, I've seen occasional missing movie for live photo
-                # these appear to be valid -- e.g. video component not yet downloaded from iCloud
-                # TODO: should this be a warning or debug?
-                photopath = None
-        else:
-            photopath = None
+        if self.shared:
+            return self._path_live_photo_shared_5()
+        if self.shared_moment and self._db.photos_version >= 7:
+            return self._path_live_shared_moment()
+        if self.syndicated and not self.saved_to_library:
+            # syndicated ("Shared with you") photos not yet saved to library
+            return self._path_live_syndicated()
+        if self.isreference:
+            return self._path_live_referenced()
 
-        return photopath
+        filename = pathlib.Path(self.path)
+        photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
+        # live photo may be missing, in which case return None
+        return str(photopath) if photopath.is_file() else None
 
     def _path_live_photo_shared_5(self) -> str | None:
         """Return path for live photo for shared photos"""
@@ -1075,6 +1072,24 @@ class PhotoInfo:
             filename,
         )
         return live_photo if os.path.isfile(live_photo) else None
+
+    def _path_live_referenced(self) -> str | None:
+        """Return path for live video for a referenced photo"""
+        query = get_query(
+            "referenced_live_photo", self._db.photos_version, uuid=self.uuid
+        )
+        if result := self._db.execute(query).fetchone():
+            _, volume, path_relative, bookmark = result
+            path = pathlib.Path("/Volumes") / volume / path_relative
+            if path.exists():
+                return str(path)
+            # path didn't exist so try to resolve from the bookmark data
+            # this only works on macOS
+            if is_macos:
+                if path := resolve_bookmark_path(bookmark):
+                    if path.exists():
+                        return str(path)
+        return None
 
     @cached_property
     def path_derivatives(self) -> list[str]:
