@@ -45,7 +45,7 @@ Tested on macOS Sierra (10.12.6) through macOS Sonoma (14.1). Tested on both x86
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
-| 14.0 - 14.1       | Sonoma     | 9.0 ✅             |
+| 14.0 - 14.3       | Sonoma     | 9.0 ✅             |
 | 13.0 - 13.6       | Ventura    | 8.0 ✅             |
 | 12.0 - 12.7       | Monterey   | 7.0 ✅             |
 | 10.16, 11.0-11.7  | Big Sur    | 6.0 ✅             |
