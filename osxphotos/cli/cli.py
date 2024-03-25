@@ -86,7 +86,7 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.pass_context
 def cli_main(ctx, profile, profile_sort, **kwargs):
     """OSXPhotos: the multi-tool for your Photos library.
-    
+
     To get help on a specific command, use "osxphotos COMMAND --help"
     or "osxphotos help COMMAND"; for example, "osxphotos help export".
 

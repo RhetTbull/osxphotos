@@ -23,7 +23,6 @@ from ._constants import (
     AlbumSortOrder,
 )
 from .datetime_utils import get_local_tz
-from .query_builder import get_query
 
 __all__ = [
     "sort_list_by_keys",
