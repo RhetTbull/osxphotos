@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.9](https://github.com/RhetTbull/osxphotos/compare/v0.67.8...v0.67.9)
+
+### v0.67.9 - 2024-03-24
+
+Fixed bug for missing path for referenced Live Photos.
+
+#### Added
+
+#### Fixed
+
+- Fixed bug for missing path for referenced Live Photos. (#1459)
+
+#### Changed
+
+#### Removed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @oPromessa [@oPromessa](https://github.com/oPromessa) for reporting the bug with Live Photo path.
+
 ## [v0.67.8](https://github.com/RhetTbull/osxphotos/compare/v0.67.7...v0.67.8)
 
 Combine Operator
@@ -49,7 +70,7 @@ A few bug fixes; update for macOS 14.4.
 
 - @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
 - @rajscode [@rajscode](https://github.com/rajscode) for fixing #1445.
-- @jasonhollis[@jasonhollis](https://github.com/jasonhollis) for identifying #1435 and providing debug info.
+- @jasonhollis [@jasonhollis](https://github.com/jasonhollis) for identifying #1435 and providing debug info.
 
 ## [v0.67.6](https://github.com/RhetTbull/osxphotos/compare/v0.67.5...v0.67.6)
 
