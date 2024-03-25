@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.photoinfo - osxphotos 0.67.7 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.67.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.7 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.9 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.9 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -196,7 +196,7 @@
         </div>
         <article role="main">
           <h1>Source code for osxphotos.photoinfo</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; PhotoInfo class: Represents a single photo in the Photos library and provides access to the photo&#39;s attributes</span>
+<span></span><span class="sd">&quot;&quot;&quot;PhotoInfo class: Represents a single photo in the Photos library and provides access to the photo&#39;s attributes</span>
 <span class="sd">PhotosDB.photos() returns a list of PhotoInfo objects</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -251,6 +251,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.adjustmentsinfo</span> <span class="kn">import</span> <span class="n">AdjustmentsInfo</span>
 <span class="kn">from</span> <span class="nn">.albuminfo</span> <span class="kn">import</span> <span class="n">AlbumInfo</span><span class="p">,</span> <span class="n">ImportInfo</span><span class="p">,</span> <span class="n">ProjectInfo</span>
+<span class="kn">from</span> <span class="nn">.bookmark</span> <span class="kn">import</span> <span class="n">resolve_bookmark_path</span>
 <span class="kn">from</span> <span class="nn">.commentinfo</span> <span class="kn">import</span> <span class="n">CommentInfo</span><span class="p">,</span> <span class="n">LikeInfo</span>
 <span class="kn">from</span> <span class="nn">.exifinfo</span> <span class="kn">import</span> <span class="n">ExifInfo</span>
 <span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifToolCaching</span><span class="p">,</span> <span class="n">get_exiftool_path</span>
@@ -1169,36 +1170,32 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if photo is a live photo, otherwise False&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;live_photo&quot;</span><span class="p">]</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">path_live_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the associated video file for a live photo</span>
 <span class="sd">        If photo is not a live photo, returns None</span>
 <span class="sd">        If photo is missing, returns None&quot;&quot;&quot;</span>
 
-        <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_photo_4</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismissing</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_photo_shared_5</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_shared_moment</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">syndicated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_to_library</span><span class="p">:</span>
-                <span class="c1"># syndicated (&quot;Shared with you&quot;) photos not yet saved to library</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_syndicated</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismissing</span><span class="p">):</span>
+            <span class="c1"># if photo is missing or original path missing, cannot determine path to live photo</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-            <span class="n">photopath</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_3.mov&quot;</span><span class="p">)</span>
-            <span class="n">photopath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
-                <span class="c1"># In testing, I&#39;ve seen occasional missing movie for live photo</span>
-                <span class="c1"># these appear to be valid -- e.g. video component not yet downloaded from iCloud</span>
-                <span class="c1"># TODO: should this be a warning or debug?</span>
-                <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_photo_shared_5</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_moment</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_shared_moment</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">syndicated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_to_library</span><span class="p">:</span>
+            <span class="c1"># syndicated (&quot;Shared with you&quot;) photos not yet saved to library</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_syndicated</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isreference</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_live_referenced</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">photopath</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">photopath</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_3.mov&quot;</span><span class="p">)</span>
+        <span class="c1"># live photo may be missing, in which case return None</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span> <span class="k">if</span> <span class="n">photopath</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_path_live_photo_shared_5</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return path for live photo for shared photos&quot;&quot;&quot;</span>
@@ -1275,6 +1272,24 @@
             <span class="n">filename</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">live_photo</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">live_photo</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_path_live_referenced</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return path for live video for a referenced photo&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">get_query</span><span class="p">(</span>
+            <span class="s2">&quot;referenced_live_photo&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">path_relative</span><span class="p">,</span> <span class="n">bookmark</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/Volumes&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">volume</span> <span class="o">/</span> <span class="n">path_relative</span>
+            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="c1"># path didn&#39;t exist so try to resolve from the bookmark data</span>
+            <span class="c1"># this only works on macOS</span>
+            <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">path</span> <span class="o">:=</span> <span class="n">resolve_bookmark_path</span><span class="p">(</span><span class="n">bookmark</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">path_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -2584,7 +2599,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=bbe6f006"></script>
+</div><script src="../../_static/documentation_options.js?v=f784d7dd"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
