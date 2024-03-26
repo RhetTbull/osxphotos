@@ -806,9 +806,7 @@ class PhotoExporter:
                     results_attr = (
                         "edited_live"
                         if live_photo and options.edited
-                        else "original_live"
-                        if live_photo
-                        else None
+                        else "original_live" if live_photo else None
                     )
                 elif self.photo.has_raw and pathlib.Path(
                     exported_file.lower()
@@ -1199,8 +1197,11 @@ class PhotoExporter:
 
         aae_src = self.photo.adjustments_path
         if aae_src is None:
+            verbose(
+                f"Skipping adjustments for {self._filename(self.photo.original_filename)}: no AAE adjustments file"
+            )
             return ExportResults()
-        aae_dest = dest.with_suffix(".AAE")
+        aae_dest = normalize_fs_path(dest.with_suffix(".AAE"))
 
         if options.export_as_hardlink:
             try:
@@ -1221,14 +1222,14 @@ class PhotoExporter:
         else:
             try:
                 options.fileutil.copy(aae_src, aae_dest)
-                verbose(
-                    f"Exported adjustments of {self._filename(self.photo.original_filename)} to {self._filepath(normalize_fs_path(aae_dest))}"
-                )
             except Exception as e:
                 raise ExportError(
                     f"Error copying file {aae_src} to {aae_dest}: {e} ({lineno(__file__)})"
                 ) from e
 
+        verbose(
+            f"Exported adjustments of {self._filename(self.photo.original_filename)} to {self._filepath(aae_dest)}"
+        )
         return ExportResults(aae_written=[aae_dest])
 
     def write_exiftool_metadata_to_file(
