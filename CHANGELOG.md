@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.67.10](https://github.com/RhetTbull/osxphotos/compare/v0.67.9...v0.67.10)
+
+### v0.67.10 - 2024-03-30
+
+Fixed bug for corrupt place info data.
+
+#### Added
+
+#### Fixed
+
+- Fixed bug for corrupt place info data.
+- Fixed doc string for `PhotoInfo.screenshot`.
+- Fixed verbose output for export of AAE files.
+
+#### Changed
+
+#### Removed
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @axelkar [@axelkar](https://github.com/axelkar) for code and first contribution.
+
 ## [v0.67.9](https://github.com/RhetTbull/osxphotos/compare/v0.67.8...v0.67.9)
 
 ### v0.67.9 - 2024-03-24
