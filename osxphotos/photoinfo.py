@@ -1212,7 +1212,7 @@ class PhotoInfo:
 
     @property
     def screenshot(self) -> bool:
-        """Returns True if photo is an HDR photo, otherwise False"""
+        """Returns True if photo is a screenshot, otherwise False"""
         return self._info["screenshot"]
 
     @property
