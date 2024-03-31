@@ -1714,6 +1714,9 @@ class PhotosDB:
         depth_state = _DB_TABLE_NAMES[photos_ver]["DEPTH_STATE"]
         uti_original_column = _DB_TABLE_NAMES[photos_ver]["UTI_ORIGINAL"]
         hdr_type_column = _DB_TABLE_NAMES[photos_ver]["HDR_TYPE"]
+        creation_date_column = "NULL" if photos_ver == 12310 else "ZCREATIONDATE"
+        inferred_tz_offset_column = "NULL" if photos_ver == 12310 else "ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET"
+        has_zfilesystemvolume = photos_ver != 12310
 
         # Look for all combinations of persons and pictures
         logger.debug(f"Getting information about persons")
@@ -1870,7 +1873,7 @@ class PhotosDB:
             "ZPARENTFOLDER, "  # 7
             "Z_PK, "  # 8
             "ZTRASHEDSTATE, "  # 9
-            "ZCREATIONDATE, "  # 10
+            f"{creation_date_column}, "  # 10
             "ZSTARTDATE, "  # 11
             "ZENDDATE, "  # 12
             "ZCUSTOMSORTASCENDING, "  # 13
@@ -1892,7 +1895,7 @@ class PhotosDB:
                 "pk": album[8],
                 "intrash": False if album[9] == 0 else True,
                 "creation_date": album[10]
-                or 0,  # iPhone Photos.sqlite can have null value
+                or 0,  # iOS Photos.sqlite can have null value
                 "start_date": album[11] or 0,
                 "end_date": album[12] or 0,
                 "customsortascending": album[13],
@@ -1963,9 +1966,10 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword_title] = [keyword_uuid]
 
         # get details on disk volumes
-        c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
-        for vol in c:
-            self._dbvolumes[vol[0]] = vol[1]
+        if has_zfilesystemvolume:
+            c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
+            for vol in c:
+                self._dbvolumes[vol[0]] = vol[1]
 
         # get details about photos
         verbose("Processing photo details.")
@@ -1977,7 +1981,7 @@ class PhotosDB:
                 {asset_table}.ZMODIFICATIONDATE,
                 {asset_table}.ZDATECREATED,
                 ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
-                ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET,
+                {inferred_tz_offset_column},
                 ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME,
                 {asset_table}.ZHIDDEN,
                 {asset_table}.ZFAVORITE,
@@ -2027,7 +2031,7 @@ class PhotosDB:
         # 4    ZGENERICASSET.ZMODIFICATIONDATE,
         # 5    ZGENERICASSET.ZDATECREATED,
         # 6    ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
-        # 7    ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET,
+        # 7    ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET, -- THIS IS NOT USED!!!
         # 8    ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME,
         # 9    ZGENERICASSET.ZHIDDEN,
         # 10   ZGENERICASSET.ZFAVORITE,
@@ -2464,7 +2468,21 @@ class PhotosDB:
 
         # get information about associted RAW images
         # RAW images have ZDATASTORESUBTYPE = 17
-        if self._photos_ver >= 7:
+        if self._photos_ver == 12310:
+            sql_raw = f""" SELECT
+                {asset_table}.ZUUID,
+                ZINTERNALRESOURCE.ZDATALENGTH,
+                ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER,
+                ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
+                ZINTERNALRESOURCE.ZRESOURCETYPE,
+                NULL
+                FROM {asset_table}
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
+                JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK =  ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER
+                WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
+            """
+        elif self._photos_ver >= 7:
             sql_raw = f""" SELECT
                 {asset_table}.ZUUID,
                 ZINTERNALRESOURCE.ZDATALENGTH,
@@ -2505,30 +2523,31 @@ class PhotosDB:
                 self._dbphotos[uuid]["raw_bookmark"] = row[5]
 
         # get paths for the relative imports for RAW+JPEG images
-        c.execute(
-            f""" SELECT
-            {asset_table}.ZUUID,
-            ZFILESYSTEMVOLUME.ZNAME,
-            ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME
-            FROM {asset_table}
-            JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
-            JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
-            JOIN ZFILESYSTEMBOOKMARK ON ZFILESYSTEMBOOKMARK.ZRESOURCE = ZINTERNALRESOURCE.Z_PK
-            JOIN ZFILESYSTEMVOLUME ON ZFILESYSTEMVOLUME.Z_PK = ZINTERNALRESOURCE.ZFILESYSTEMVOLUME
-            WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
-            """
-        )
+        if has_zfilesystemvolume:
+            c.execute(
+                f""" SELECT
+                {asset_table}.ZUUID,
+                ZFILESYSTEMVOLUME.ZNAME,
+                ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME
+                FROM {asset_table}
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
+                JOIN ZFILESYSTEMBOOKMARK ON ZFILESYSTEMBOOKMARK.ZRESOURCE = ZINTERNALRESOURCE.Z_PK
+                JOIN ZFILESYSTEMVOLUME ON ZFILESYSTEMVOLUME.Z_PK = ZINTERNALRESOURCE.ZFILESYSTEMVOLUME
+                WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
+                """
+            )
 
-        # path to the raw image will be /Volumes/ZFILESYSTEMVOLUME.ZNAME/ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME
-        # 0: {asset_table}.ZUUID, -- UUID
-        # 1: ZFILESYSTEMVOLUME.ZNAME, -- name of the volume
-        # 2: ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME -- path to the raw image
+            # path to the raw image will be /Volumes/ZFILESYSTEMVOLUME.ZNAME/ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME
+            # 0: {asset_table}.ZUUID, -- UUID
+            # 1: ZFILESYSTEMVOLUME.ZNAME, -- name of the volume
+            # 2: ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME -- path to the raw image
 
-        for row in c:
-            uuid = row[0]
-            if uuid in self._dbphotos:
-                self._dbphotos[uuid]["raw_volume"] = row[1]
-                self._dbphotos[uuid]["raw_relative_path"] = row[2]
+            for row in c:
+                uuid = row[0]
+                if uuid in self._dbphotos:
+                    self._dbphotos[uuid]["raw_volume"] = row[1]
+                    self._dbphotos[uuid]["raw_relative_path"] = row[2]
 
         # add faces and keywords to photo data
         for uuid in self._dbphotos:
@@ -2586,8 +2605,11 @@ class PhotosDB:
             )
 
         # process exif info
-        verbose("Processing EXIF details.")
-        self._process_exifinfo()
+        if self._photos_ver == 12310:
+            verbose("Not processing EXIF details.")
+        else:
+            verbose("Processing EXIF details.")
+            self._process_exifinfo()
 
         # process computed scores
         verbose("Processing computed aesthetic scores.")
@@ -2631,7 +2653,7 @@ class PhotosDB:
             f"""
             SELECT
             Z_PK,
-            ZTIMEZONEOFFSET,
+            {"NULL" if self._photos_ver == 12310 else "ZTIMEZONEOFFSET"},
             ZTRASHEDSTATE,
             ZAPPROXIMATELATITUDE,
             ZAPPROXIMATELONGITUDE,
@@ -2639,11 +2661,12 @@ class PhotosDB:
             ZMODIFICATIONDATE,
             ZREPRESENTATIVEDATE,
             ZSTARTDATE,
-            ZSUBTITLE,
+            {"NULL" if self._photos_ver == 12310 else "ZSUBTITLE"},
             ZTITLE,
             ZUUID
             FROM ZMOMENT"""
         )
+        # 12310 has ZTITLE2 and ZTITLE3. can they substitute ZSUBTITLE?
 
         # results
         # 0  Z_PK,

@@ -11,6 +11,7 @@ from .._constants import (
     _PHOTOS_2_VERSION,
     _PHOTOS_3_VERSION,
     _PHOTOS_4_VERSION,
+    _PHOTOS_12310_MODEL_VERSION,
     _PHOTOS_5_MODEL_VERSION,
     _PHOTOS_5_VERSION,
     _PHOTOS_6_MODEL_VERSION,
@@ -105,7 +106,9 @@ def get_photos_version_from_model(db_file: str) -> int:
     """
 
     model_ver = get_model_version(db_file)
-    if _PHOTOS_5_MODEL_VERSION[0] <= model_ver <= _PHOTOS_5_MODEL_VERSION[1]:
+    if _PHOTOS_12310_MODEL_VERSION[0] <= model_ver <= _PHOTOS_12310_MODEL_VERSION[1]:
+        return 12310
+    elif _PHOTOS_5_MODEL_VERSION[0] <= model_ver <= _PHOTOS_5_MODEL_VERSION[1]:
         return 5
     elif _PHOTOS_6_MODEL_VERSION[0] <= model_ver <= _PHOTOS_6_MODEL_VERSION[1]:
         return 6

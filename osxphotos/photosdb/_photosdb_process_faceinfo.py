@@ -220,10 +220,10 @@ def _process_faceinfo_5(photosdb):
         NULL, -- ZDETECTEDFACE.ZMOUTHX,
         NULL, -- ZDETECTEDFACE.ZMOUTHY,
         ZDETECTEDFACE.ZPOSEYAW,
-        ZDETECTEDFACE.ZQUALITY,
+        {"NULL" if photosdb._photos_ver == 12310 else "ZDETECTEDFACE.ZQUALITY"},
         NULL, -- ZDETECTEDFACE.ZRIGHTEYEX,
         NULL, -- ZDETECTEDFACE.ZRIGHTEYEY,
-        ZDETECTEDFACE.ZROLL,
+        {"NULL" if photosdb._photos_ver == 12310 else "ZDETECTEDFACE.ZROLL"},
         ZDETECTEDFACE.ZSIZE,
         NULL, -- ZDETECTEDFACE.ZYAW,
         ZDETECTEDFACE.ZMASTERIDENTIFIER
@@ -265,7 +265,7 @@ def _process_faceinfo_5(photosdb):
     # 29   NULL -- ZDETECTEDFACE.ZMOUTHX, (Not available on Ventura)
     # 30   NULL -- ZDETECTEDFACE.ZMOUTHY, (Not available on Ventura)
     # 31   ZDETECTEDFACE.ZPOSEYAW,
-    # 32   ZDETECTEDFACE.ZQUALITY,
+    # 32   ZDETECTEDFACE.ZQUALITY, -- 12310 has ZQUALITYMEASURE but not this
     # 33   NULL -- ZDETECTEDFACE.ZRIGHTEYEX, (Not available on Ventura)
     # 34   NULL -- ZDETECTEDFACE.ZRIGHTEYEY, (Not available on Ventura)
     # 35   ZDETECTEDFACE.ZROLL,

@@ -46,8 +46,10 @@ _PHOTOS_3_VERSION = "3301"
 # versions 5.0 and later have a different database structure
 _PHOTOS_4_VERSION = "4025"  # latest Mojave version on 10.14.6
 _PHOTOS_5_VERSION = "5000"  # I've seen both 5001 and 6000.  6000 is most common on Catalina and up but there are some version 5001 database in the wild
+# I've seen 5001 on an iPhone 14 running iOS 17 and an iPad mini 2 running iOS 12.5.7 (16H81)
 
 # Ranges for model version by Photos version
+_PHOTOS_12310_MODEL_VERSION = [12310, 12310] # an iPad running iOS 12.5.7 (16H81)
 _PHOTOS_5_MODEL_VERSION = [13000, 13999]
 _PHOTOS_6_MODEL_VERSION = [14000, 14999]
 _PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Dev preview: 15134, 12.1: 15331
@@ -62,6 +64,20 @@ _PHOTOS_SHARED_LIBRARY_VERSION = 16320  # 13.0
 
 # some table names differ between Photos 5 and later versions
 _DB_TABLE_NAMES = {
+    12310: {
+        "ASSET": "ZGENERICASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_34KEYWORDS",
+        "ALBUM_JOIN": "Z_23ASSETS.Z_30ASSETS",
+        "ALBUM_SORT_ORDER": "Z_23ASSETS.Z_FOK_30ASSETS",
+        "IMPORT_FOK": "ZGENERICASSET.Z_FOK_IMPORTSESSION",
+        "DEPTH_STATE": "ZGENERICASSET.ZDEPTHSTATES",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER",
+        "ASSET_ALBUM_JOIN": "Z_23ASSETS.Z_23ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_23ASSETS",
+        "HDR_TYPE": "ZCUSTOMRENDEREDVALUE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSON",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSET",
+    },
     5: {
         "ASSET": "ZGENERICASSET",
         "KEYWORD_JOIN": "Z_1KEYWORDS.Z_37KEYWORDS",
