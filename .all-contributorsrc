@@ -732,6 +732,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "axelkar",
+      "name": "Axel Karjalainen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/120189068?v=4",
+      "profile": "https://axka.fi",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
