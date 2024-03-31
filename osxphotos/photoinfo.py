@@ -1248,7 +1248,15 @@ class PhotoInfo:
                 return self._place  # pylint: disable=access-member-before-definition
             except AttributeError:
                 if self._info["reverse_geolocation"]:
-                    self._place = PlaceInfo5(self._info["reverse_geolocation"])
+                    try:
+                        self._place = PlaceInfo5(self._info["reverse_geolocation"])
+                    except Exception as e:
+                        # sometimes the reverse geolocation data is corrupted
+                        # and this can cause a UnsupportedArchiver error
+                        logging.warning(
+                            f"Error creating PlaceInfo5 for {self.uuid}: {str(e)}"
+                        )
+                        self._place = None
                 else:
                     self._place = None
                 return self._place
