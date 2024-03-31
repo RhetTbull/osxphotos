@@ -581,7 +581,7 @@ def print_import_summary(results: SyncResults):
     "Note that using --set overwrites any existing metadata in the local Photos library. "
     "For example, if a photo is marked as favorite in the local library but not in the import source, "
     "--set favorite will clear the favorite status in the local library. "
-    "The exception to this is that `--set album` will not remove the photo "
+    "The exception to this is that `--set albums` will not remove the photo "
     "from any existing albums in the local library but will add the photo to any new albums specified "
     "in the import source."
     "See also --merge.",

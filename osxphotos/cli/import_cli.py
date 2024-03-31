@@ -6,6 +6,7 @@ import csv
 import dataclasses
 import datetime
 import fnmatch
+import itertools
 import json
 import os
 import os.path
@@ -13,10 +14,12 @@ import pathlib
 import sqlite3
 import sys
 from contextlib import suppress
+from functools import cache
 from textwrap import dedent
-from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 
 import click
+from cgmetadata import ImageMetadata
 from rich.console import Console
 from rich.markdown import Markdown
 from strpdatetime import strpdatetime
@@ -25,6 +28,7 @@ from osxphotos.platform import assert_macos
 
 assert_macos()
 
+import osxmetadata
 from photoscript import Photo, PhotosLibrary
 
 import osxphotos.sqlite3_datetime as sqlite3_datetime
@@ -125,8 +129,8 @@ def get_sidecar_file(
     return sidecar_file
 
 
-def import_photo(
-    filepath: pathlib.Path, dup_check: bool, verbose: Callable[..., None]
+def import_photo_group(
+    filepaths: tuple[pathlib.Path], dup_check: bool, verbose: Callable[..., None]
 ) -> Tuple[Optional[Photo], str | None]:
     """Import a photo and return Photo object and error string if any
 
@@ -136,15 +140,16 @@ def import_photo(
         verbose: Callable
     """
     if imported := PhotosLibrary().import_photos(
-        [filepath], skip_duplicate_check=not dup_check
+        filepaths, skip_duplicate_check=not dup_check
     ):
         verbose(
-            f"Imported [filename]{filepath.name}[/] with UUID [uuid]{imported[0].uuid}[/]"
+            f"Imported [filename]{filepaths[0].name}[/] with UUID [uuid]{imported[0].uuid}[/]"
         )
+        print(f"{len(imported)=} {imported=}")
         photo = imported[0]
         return photo, None
     else:
-        error_str = f"[error]Error importing file [filepath]{filepath}[/][/]"
+        error_str = f"[error]Error importing file [filepath]{filepaths[0]}[/][/]"
         echo(error_str, err=True)
         return None, error_str
 
@@ -589,7 +594,7 @@ def get_relative_filepath(
 
 
 def check_templates_and_exit(
-    files: List[str],
+    files: list[str | os.PathLike],
     relative_to: Optional[pathlib.Path],
     title: str | None,
     description: str | None,
@@ -904,9 +909,11 @@ def write_sqlite_report(
                 report_id,
                 str(report_record.filepath),
                 report_record.filename,
-                report_record.import_datetime.isoformat()
-                if report_record.import_datetime
-                else None,
+                (
+                    report_record.import_datetime.isoformat()
+                    if report_record.import_datetime
+                    else None
+                ),
                 report_record.uuid,
                 report_record.imported,
                 report_record.error,
@@ -914,9 +921,11 @@ def write_sqlite_report(
                 report_record.description,
                 ",".join(report_record.keywords),
                 ",".join(report_record.albums),
-                f"{report_record.location[0]},{report_record.location[1]}"
-                if report_record.location and report_record.location is not None
-                else None,
+                (
+                    f"{report_record.location[0]},{report_record.location[1]}"
+                    if report_record.location and report_record.location is not None
+                    else None
+                ),
                 report_record.datetime.isoformat() if report_record.datetime else None,
             ),
         )
@@ -966,7 +975,7 @@ def filename_matches_patterns(filename: str, patterns: Tuple[str]) -> bool:
 
 def collect_files_to_import(
     files: Tuple[str], walk: bool, glob: Tuple[str]
-) -> List[str]:
+) -> list[pathlib.Path]:
     """Collect files to import, recursively if necessary
 
     Args:
@@ -996,29 +1005,126 @@ def collect_files_to_import(
         else:
             continue
 
+    files_to_import = [pathlib.Path(f) for f in files_to_import]
+
     # strip any sidecar files
     files_to_import = [
-        f
-        for f in files_to_import
-        if pathlib.Path(f).suffix.lower() not in [".json", ".xmp"]
+        f for f in files_to_import if f.suffix.lower() not in [".json", ".xmp"]
     ]
 
     # strip osxphotos export db in case importing an osxphotos export
-    files_to_import = [
-        f for f in files_to_import if not pathlib.Path(f).name == OSXPHOTOS_EXPORT_DB
-    ]
+    files_to_import = [f for f in files_to_import if not f.name == OSXPHOTOS_EXPORT_DB]
 
-    # strip .DS_Store
-    files_to_import = [
-        f for f in files_to_import if not pathlib.Path(f).name == ".DS_Store"
-    ]
+    # strip any files starting with a .
+    files_to_import = [f for f in files_to_import if not f.name.startswith(".")]
 
+    # keep only image files, video files, and .aae files
+    files_to_import = [
+        f
+        for f in files_to_import
+        if is_image_file(f) or is_video_file(f) or f.suffix.lower() == ".aae"
+    ]
     return files_to_import
+
+
+def group_files_to_import(files: list[pathlib.Path]) -> list[tuple[pathlib.Path, ...]]:
+    """Group files by live photo, burst UUID, raw+jpeg, etc."""
+    # first collect all files by parent directory
+    files_by_parent = {}
+    for file in files:
+        parent = file.parent
+        if parent not in files_by_parent:
+            files_by_parent[parent] = []
+        files_by_parent[parent].append(file)
+
+    # walk through each parent directory and group files by same stem
+    grouped_files = []
+    for parent, files in files_by_parent.items():
+        files_by_stem, remainder = group_files_by_stem(files)
+        if files_by_stem:
+            grouped_files.extend(files_by_stem)
+        bursts, remainder = group_files_by_burst_uuid(remainder)
+        if bursts:
+            grouped_files.extend(bursts)
+        grouped_files.extend(tuple([r]) for r in remainder)
+    files_to_import = []
+    for group in grouped_files:
+        files_to_import.append(sort_paths(group))
+    return files_to_import
+
+
+def sort_paths(paths: Tuple[pathlib.Path, ...]) -> Tuple[pathlib.Path, ...]:
+    def path_key(path: pathlib.Path) -> Tuple[int, int, str]:
+        extension = path.suffix.lower()
+        is_aae = extension in [".aae"]
+        is_mov = extension in [".mov"]
+        return (is_aae, is_mov, str(path))
+
+    return tuple(sorted(paths, key=path_key))
+
+
+def group_files_by_stem(
+    files: list[pathlib.Path],
+) -> tuple[list[tuple[pathlib.Path, ...]], list[pathlib.Path]]:
+    """Group files by stem (filename without extension) and
+    return list of tuples of files with same stem and list of files without a match"""
+    file_dict = {}
+    for path in files:
+        stem = path.stem.lower()
+        if stem in file_dict:
+            file_dict[stem].append(path)
+        else:
+            file_dict[stem] = [path]
+
+    same_stem = []
+    remainder = []
+    for files in file_dict.values():
+        if len(files) > 1:
+            same_stem.append(tuple(files))
+        else:
+            remainder.extend(files)
+    return same_stem, remainder
+
+
+def group_files_by_burst_uuid(
+    files: list[pathlib.Path],
+) -> tuple[list[tuple[pathlib.Path, ...]], list[pathlib.Path]]:
+    """Group files by burst UUI"""
+    burst_dict = {}
+    remainder = []
+    for path in files:
+        if not is_image_file(path):
+            remainder.append(path)
+            continue
+        if burst_uuid := burst_uuid_from_path(path):
+            if burst_uuid in burst_dict:
+                burst_dict[burst_uuid].append(path)
+            else:
+                burst_dict[burst_uuid] = [path]
+        else:
+            remainder.append(path)
+
+    same_burst = []
+    for files in burst_dict.values():
+        if len(files) > 1:
+            same_burst.append(tuple(files))
+        else:
+            remainder.extend(files)
+
+    return same_burst, remainder
+
+
+def burst_uuid_from_path(path: pathlib.Path) -> str | None:
+    """Get burst UUID of a file"""
+    md = ImageMetadata(path)
+    with suppress(KeyError):
+        return md.properties["MakerApple"]["11"]
+    return None
 
 
 def import_files(
     last_library: str,
-    files: list[str],
+    files: list[tuple[pathlib.Path, ...]],
     no_progress: bool,
     resume: bool,
     clear_metadata: bool,
@@ -1058,29 +1164,35 @@ def import_files(
     imported_count = 0
     error_count = 0
     skipped_count = 0
-    filecount = len(files)
+    filecount = len(list(itertools.chain.from_iterable(files)))
+    # ZZZ need to figure out how to report number of files or pairs
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
         task = progress.add_task(
             f"Importing [num]{filecount}[/] {pluralize(filecount, 'file', 'files')}",
             total=filecount,
         )
-        for filepath in files:
-            filepath = pathlib.Path(filepath).resolve().absolute()
+        for file_tuple in files:
+            if len(file_tuple) > 1:
+                verbose(
+                    f"Processing burst or live photo group: {', '.join([f.name for f in file_tuple])}"
+                )
+            # ZZZ
+            filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
             relative_filepath = get_relative_filepath(filepath, relative_to)
 
             # check if file already imported
-            if resume:
-                if record := import_db.get(str(filepath)):
-                    if record.imported and not record.error:
-                        # file already imported
-                        verbose(
-                            f"Skipping [filepath]{filepath}[/], "
-                            f"already imported on [time]{record.import_datetime.isoformat()}[/] "
-                            f"with UUID [uuid]{record.uuid}[/]"
-                        )
-                        skipped_count += 1
-                        progress.advance(task)
-                        continue
+            # if resume:
+            #     if record := import_db.get(str(filepath)):
+            #         if record.imported and not record.error:
+            #             # file already imported
+            #             verbose(
+            #                 f"Skipping [filepath]{filepath}[/], "
+            #                 f"already imported on [time]{record.import_datetime.isoformat()}[/] "
+            #                 f"with UUID [uuid]{record.uuid}[/]"
+            #             )
+            #             skipped_count += 1
+            #             progress.advance(task)
+            #             continue
 
             verbose(f"Importing [filepath]{filepath}[/]")
 
@@ -1129,7 +1241,7 @@ def import_files(
                     continue
 
             if not dry_run:
-                photo, error = import_photo(filepath, dup_check, verbose)
+                photo, error = import_photo_group(file_tuple, dup_check, verbose)
                 if error:
                     error_count += 1
                     report_record.error = True
@@ -2055,6 +2167,8 @@ def import_cli(
             sidecar_filename_template=sidecar_filename_template,
         )
 
+    files_to_import = group_files_to_import(files)
+    print(f"{files_to_import=}")
     # need to get the library path to initialize FingerprintQuery
     last_library = library or get_last_library_path()
     if not last_library:
@@ -2064,10 +2178,12 @@ def import_cli(
         )
 
     if check:
+        # ZZZ need to be updated to skip AAE, live, raw
         check_imported_files(files, last_library, verbose)
         sys.exit(0)
 
     if check_not:
+        # ZZZ need to be updated to skip AAE, live, raw
         check_not_imported_files(files, last_library, verbose)
         sys.exit(0)
 
@@ -2111,7 +2227,7 @@ def import_cli(
 
     imported_count, skipped_count, error_count = import_files(
         last_library=last_library,
-        files=files,
+        files=files_to_import,
         no_progress=no_progress,
         resume=resume,
         clear_metadata=clear_metadata,
@@ -2192,3 +2308,20 @@ def check_not_imported_files(
         if fq.possible_duplicates(filepath):
             continue
         echo(f"{filepath}")
+
+
+def content_tree(filepath: str) -> list[str]:
+    """Return the content tree for a file"""
+    md = osxmetadata.OSXMetaData(filepath)
+    return md.get("kMDItemContentTypeTree") or []
+
+
+@cache
+def is_image_file(filepath: str) -> bool:
+    """Return True if filepath is an image file"""
+    return "public.image" in content_tree(filepath)
+
+@cache
+def is_video_file(filepath: str) -> bool:
+    """Return True if filepath is a video file"""
+    return "public.movie" in content_tree(filepath)
