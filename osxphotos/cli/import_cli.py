@@ -1133,6 +1133,13 @@ def import_files(
                 if error:
                     error_count += 1
                     report_record.error = True
+
+                    # Stop after 10 errors. "Unknown error"issue with Photos at import ~2000 assets
+                    if error_count >= 10:
+                        verbose(
+                            f"More than 10 import errors. Stopping! Last [filename]{filepath.name}[/] [error_count]{error_count}[/]"
+                        )
+                        break
                     continue
             else:
                 photo = None
