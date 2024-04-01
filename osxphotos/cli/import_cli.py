@@ -1040,6 +1040,7 @@ def import_files(
     split_folder: str,
     post_function: tuple[Callable[..., None]],
     skip_dups: bool,
+    stop_on_error: int,
     dup_check: bool,
     dry_run: bool,
     report_data: dict[pathlib.Path, ReportRecord],
@@ -1134,10 +1135,10 @@ def import_files(
                     error_count += 1
                     report_record.error = True
 
-                    # Stop after 10 errors. "Unknown error"issue with Photos at import ~2000 assets
-                    if error_count >= 10:
+                    # Stop after stop_on_error errors. "Unknown error" issue with Photos at import ~2000 assets.
+                    if error_count >= stop_on_error:
                         verbose(
-                            f"More than 10 import errors. Stopping! Last [filename]{filepath.name}[/] [error_count]{error_count}[/]"
+                            f"More than [stop_on_error]{stop_on_error}[/] import errors. Stopping! Last [filename]{filepath.name}[/] [error_count]{error_count}[/]"
                         )
                         break
                     continue
@@ -1926,6 +1927,13 @@ class ImportCommand(click.Command):
     "You will only need to specify this if osxphotos cannot determine the path to the library "
     "in which case osxphotos will tell you to use the --library option when you run the import command.",
 )
+@click.option(
+    "--stop-on-error",
+    metavar="ERRORCOUNT",
+    help="Stops importing after ERRORCOUNT errors. . "
+    "Useful when facing Photos 'Unknownd error' when importing more than ~2000 assets.",
+    type=click.IntRange(min=0)
+)
 @THEME_OPTION
 @click.argument("files", nargs=-1)
 @click.pass_obj
@@ -1962,6 +1970,7 @@ def import_main(
     sidecar: bool,
     sidecar_ignore_date: bool,
     sidecar_filename_template: str | None,
+    stop_on_error: int | None,
     skip_dups: bool,
     split_folder: str | None,
     theme: str | None,
@@ -2021,6 +2030,7 @@ def import_cli(
     sidecar_filename_template: str | None = None,
     skip_dups: bool = False,
     split_folder: str | None = None,
+    stop_on_error: int | None = None,
     theme: str | None = None,
     timestamp: bool = False,
     title: str | None = None,
@@ -2140,6 +2150,7 @@ def import_cli(
         split_folder=split_folder,
         post_function=post_function,
         skip_dups=skip_dups,
+        stop_on_error=stop_on_error,
         dup_check=dup_check,
         dry_run=dry_run,
         report_data=report_data,
