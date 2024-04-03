@@ -56,7 +56,11 @@ class PersonInfo:
     @property
     def photos(self):
         """Returns list of PhotoInfo objects associated with this person"""
-        return self._db.photos_by_uuid(self._db._dbfaces_pk[self._pk])
+        try:
+            return self._db.photos_by_uuid(self._db._dbfaces_pk[self._pk])
+        except KeyError:
+            # A person may have no photos (e.g. if all photos were deleted from the library)
+            return []
 
     @property
     def face_info(self):
