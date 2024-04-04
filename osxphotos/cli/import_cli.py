@@ -30,7 +30,7 @@ assert_macos()
 
 import osxmetadata
 from photoscript import Photo, PhotosLibrary
-
+from makelive import is_live_photo_pair
 import osxphotos.sqlite3_datetime as sqlite3_datetime
 from osxphotos._constants import (
     _OSXPHOTOS_NONE_SENTINEL,
@@ -2168,7 +2168,7 @@ def import_cli(
         )
 
     files_to_import = group_files_to_import(files)
-    print(f"{files_to_import=}")
+
     # need to get the library path to initialize FingerprintQuery
     last_library = library or get_last_library_path()
     if not last_library:
@@ -2179,7 +2179,7 @@ def import_cli(
 
     if check:
         # ZZZ need to be updated to skip AAE, live, raw
-        check_imported_files(files, last_library, verbose)
+        check_imported_files(files_to_import, last_library, verbose)
         sys.exit(0)
 
     if check_not:
@@ -2264,6 +2264,7 @@ def import_cli(
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
 
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
+    # ZZZ add group count to imported
     echo(
         f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file', 'files')}, "
         f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
@@ -2272,17 +2273,32 @@ def import_cli(
     )
 
 
-def check_imported_files(files: list[str], library: str, verbose: Callable[..., None]):
+def check_imported_files(
+    files: list[tuple[pathlib.Path, ...]], library: str, verbose: Callable[..., None]
+):
     """Check if files have been previously imported and print results"""
 
     if not files:
         rich_echo_error("No files to check")
         return
 
-    file_word = pluralize(len(files), "file", "files")
-    verbose(f"Checking {len(files)} {file_word} to see if previously imported")
+    filecount = len(list(itertools.chain.from_iterable(files)))
+    file_word = pluralize(filecount, "file", "files")
+    group_word = pluralize(files, "groups", "groups")
+    verbose(
+        f"Checking {filecount} {file_word} in {len(files)} {group_word} to see if previously imported"
+    )
     fq = FingerprintQuery(library)
-    for filepath in files:
+    for filegroup in files:
+        if len(filegroup) == 1:
+            filepath = filegroup[0]
+        elif len(filegroup) == 2:
+            if is_live_photo_pair(*filegroup):
+                print("live photo pair: ", filegroup)
+                filepath = filegroup[0]
+        else:
+            # ZZZ check bursts, raw, aae
+            filepath = filegroup[0]
         if duplicates := fq.possible_duplicates(filepath):
             echo(
                 f"[filepath]:white_check_mark-emoji: {filepath}[/], imported, "
@@ -2320,6 +2336,7 @@ def content_tree(filepath: str) -> list[str]:
 def is_image_file(filepath: str) -> bool:
     """Return True if filepath is an image file"""
     return "public.image" in content_tree(filepath)
+
 
 @cache
 def is_video_file(filepath: str) -> bool:
