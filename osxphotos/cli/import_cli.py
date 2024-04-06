@@ -2289,23 +2289,25 @@ def check_imported_files(
         f"Checking {filecount} {file_word} in {len(files)} {group_word} to see if previously imported"
     )
     fq = FingerprintQuery(library)
+    filepaths = []
     for filegroup in files:
         if len(filegroup) == 1:
-            filepath = filegroup[0]
+            filepaths.append(filegroup[0])
         elif len(filegroup) == 2:
             if is_live_photo_pair(*filegroup):
                 print("live photo pair: ", filegroup)
-                filepath = filegroup[0]
+                filepaths.append(filegroup[0])
         else:
             # ZZZ check bursts, raw, aae
-            filepath = filegroup[0]
-        if duplicates := fq.possible_duplicates(filepath):
-            echo(
-                f"[filepath]:white_check_mark-emoji: {filepath}[/], imported, "
-                + f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
-            )
-        else:
-            echo(f"[error]{filepath}[/], not imported")
+            filepaths.append(filegroup[0])
+        for filepath in filepaths:
+            if duplicates := fq.possible_duplicates(filepath):
+                echo(
+                    f"[filepath]:white_check_mark-emoji: {filepath}[/], imported, "
+                    + f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
+                )
+            else:
+                echo(f"[error]{filepath}[/], not imported")
 
 
 def check_not_imported_files(
