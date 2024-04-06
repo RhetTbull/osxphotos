@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import sqlite3
 import sys
 from typing import Any
 
@@ -72,14 +73,16 @@ def get_unnamed_person_photos(
     photos_version = photosdb.photos_version
     asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
     asset_fk = _DB_TABLE_NAMES[photos_version]["DETECTED_FACE_ASSET_FK"]
+    person_fk = _DB_TABLE_NAMES[photos_version]["DETECTED_FACE_PERSON_FK"]
     results = photosdb.execute(
         f""" SELECT {asset_table}.ZUUID
                 FROM {asset_table}
                 INNER JOIN ZDETECTEDFACE
                 ON {asset_table}.Z_PK = {asset_fk}
-                WHERE ZDETECTEDFACE.ZPERSON IS NULL;
+                WHERE {person_fk} IS NULL;
             """
     ).fetchall()
+
     uuids = [r[0] for r in results]
     unnamed_faces = photosdb.photos(uuid=uuids)
     return unnamed_faces
