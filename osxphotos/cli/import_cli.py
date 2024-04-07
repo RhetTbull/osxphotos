@@ -147,7 +147,7 @@ def import_photo_group(
         verbose(
             f"Imported [filename]{filepaths[0].name}[/] with UUID [uuid]{imported[0].uuid}[/]"
         )
-        print(f"{len(imported)=} {imported=}")
+        # ZZZ check length? 
         photo = imported[0]
         return photo, None
     else:
@@ -1175,9 +1175,16 @@ def import_files(
         )
         for file_tuple in files:
             if len(file_tuple) > 1:
-                verbose(
-                    f"Processing photo group: {', '.join([f.name for f in file_tuple])}"
-                )
+                noun = "import group"
+                if burst_uuid_from_path(file_tuple[0]):
+                    noun = "burst group"
+                elif is_live_pair(*file_tuple[:2]):
+                    noun = "live photo pair"
+                elif is_raw_pair(*file_tuple[:2]):
+                    noun = "raw+jpeg pair"
+                if has_aae(file_tuple):
+                    noun += " with .AAE file"
+                verbose(f"Processing {noun}: {', '.join([f.name for f in file_tuple])}")
             # ZZZ
             filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
             relative_filepath = get_relative_filepath(filepath, relative_to)
@@ -2393,6 +2400,19 @@ def is_live_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> 
         # expects live pairs to be image, video
         return False
     return makelive.is_live_photo_pair(filepath1, filepath2)
+
+
+def has_aae(filepaths: Iterable[str | os.PathLike]) -> bool:
+    """Return True if any file in the list is an AAE file"""
+    for filepath in filepaths:
+        filepath = (
+            pathlib.Path(filepath)
+            if not isinstance(filepath, pathlib.Path)
+            else filepath
+        )
+        if filepath.name.lower().endswith(".aae"):
+            return True
+    return False
 
 
 def non_raw_file(filepaths: Iterable[str | os.PathLike]) -> str | os.PathLike:
