@@ -2182,13 +2182,11 @@ def import_cli(
         )
 
     if check:
-        # ZZZ need to be updated to skip AAE, live, raw
         check_imported_files(files_to_import, last_library, verbose)
         sys.exit(0)
 
     if check_not:
-        # ZZZ need to be updated to skip AAE, live, raw
-        check_not_imported_files(files, last_library, verbose)
+        check_not_imported_files(files_to_import, last_library, verbose)
         sys.exit(0)
 
     if exiftool and not exiftool_path:
@@ -2268,13 +2266,38 @@ def import_cli(
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
 
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
-    # ZZZ add group count to imported
     echo(
         f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, "
         f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
         f"{skipped_str}",
         emoji=False,
     )
+
+
+def collect_filepaths_for_import_check(
+    filegroup: tuple[pathlib.Path, ...]
+) -> list[pathlib.Path]:
+    """Collect filepaths for import check"""
+    filepaths = []
+    # exclude .AAE files
+    filegroup = [f for f in filegroup if not f.name.lower().endswith(".aae")]
+    if len(filegroup) == 1:
+        filepaths.append(filegroup[0])
+    elif burst_uuid_from_path(filegroup[0]):
+        # include all burst images
+        filepaths.extend(filegroup)
+    elif len(filegroup) == 2:
+        if is_live_pair(*filegroup):
+            # only include the image file for live photos
+            filepaths.append(filegroup[0])
+        elif is_raw_pair(*filegroup):
+            # Photos always makes the non-RAW image the original upon import
+            # only include the non-RAW image
+            filepaths.append(non_raw_file(filegroup))
+    else:
+        # include everything else
+        filepaths.extend(filegroup)
+    return filepaths
 
 
 def check_imported_files(
@@ -2294,21 +2317,7 @@ def check_imported_files(
     )
     fq = FingerprintQuery(library)
     for filegroup in files:
-        filepaths = []
-        # strip .AAE files
-        filegroup = [f for f in filegroup if not f.name.lower().endswith(".aae")]
-        if len(filegroup) == 1:
-            filepaths.append(filegroup[0])
-        elif burst_uuid_from_path(filegroup[0]):
-            filepaths.extend(filegroup)
-        elif len(filegroup) == 2:
-            if is_live_pair(*filegroup):
-                filepaths.append(filegroup[0])
-            elif is_raw_pair(*filegroup):
-                # Photos always makes the non-RAW image the original upon import
-                filepaths.append(non_raw_file(filegroup))
-        else:
-            filepaths.extend(filegroup)
+        filepaths = collect_filepaths_for_import_check(filegroup)
         for filepath in filepaths:
             if duplicates := fq.possible_duplicates(filepath):
                 echo(
@@ -2320,7 +2329,7 @@ def check_imported_files(
 
 
 def check_not_imported_files(
-    files: list[str], library: str, verbose: Callable[..., None]
+    files: list[tuple[pathlib.Path, ...]], library: str, verbose: Callable[..., None]
 ):
     """Check if files have not been previously imported and print results"""
 
@@ -2328,13 +2337,20 @@ def check_not_imported_files(
         rich_echo_error("No files to check")
         return
 
-    file_word = pluralize(len(files), "file", "files")
-    verbose(f"Checking {len(files)} {file_word} to see if not previously imported")
+    filecount = len(list(itertools.chain.from_iterable(files)))
+    file_word = pluralize(filecount, "file", "files")
+    group_word = pluralize(files, "group", "groups")
+    verbose(
+        f"Checking {filecount} {file_word} in {len(files)} {group_word} to see if not previously imported"
+    )
     fq = FingerprintQuery(library)
-    for filepath in files:
-        if fq.possible_duplicates(filepath):
-            continue
-        echo(f"{filepath}")
+    for filegroup in files:
+        filepaths = collect_filepaths_for_import_check(filegroup)
+        for filepath in filepaths:
+            if fq.possible_duplicates(filepath):
+                continue
+            # ZZZ need to show the group
+            echo(f"{filepath}")
 
 
 def content_tree(filepath: str | os.PathLike) -> list[str]:
