@@ -13,10 +13,11 @@ import os.path
 import pathlib
 import sqlite3
 import sys
+from collections.abc import Iterable
 from contextlib import suppress
 from functools import cache
 from textwrap import dedent
-from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, Optional, Tuple
 
 import click
 from cgmetadata import ImageMetadata
@@ -28,9 +29,10 @@ from osxphotos.platform import assert_macos
 
 assert_macos()
 
+import makelive
 import osxmetadata
 from photoscript import Photo, PhotosLibrary
-from makelive import is_live_photo_pair
+
 import osxphotos.sqlite3_datetime as sqlite3_datetime
 from osxphotos._constants import (
     _OSXPHOTOS_NONE_SENTINEL,
@@ -1165,21 +1167,22 @@ def import_files(
     error_count = 0
     skipped_count = 0
     filecount = len(list(itertools.chain.from_iterable(files)))
-    # ZZZ need to figure out how to report number of files or pairs
+    groupcount = len(files)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
         task = progress.add_task(
-            f"Importing [num]{filecount}[/] {pluralize(filecount, 'file', 'files')}",
-            total=filecount,
+            f"Importing [num]{filecount}[/] {pluralize(filecount, 'file', 'files')} in [num]{groupcount}[/] {pluralize(groupcount, 'group', 'groups')}",
+            total=groupcount,
         )
         for file_tuple in files:
             if len(file_tuple) > 1:
                 verbose(
-                    f"Processing burst or live photo group: {', '.join([f.name for f in file_tuple])}"
+                    f"Processing photo group: {', '.join([f.name for f in file_tuple])}"
                 )
             # ZZZ
             filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
             relative_filepath = get_relative_filepath(filepath, relative_to)
 
+            # ZZZ
             # check if file already imported
             # if resume:
             #     if record := import_db.get(str(filepath)):
@@ -1194,8 +1197,9 @@ def import_files(
             #             progress.advance(task)
             #             continue
 
-            verbose(f"Importing [filepath]{filepath}[/]")
+            verbose(f"Importing " + ", ".join(f"[filepath]{f}[/]" for f in file_tuple))
 
+            # ZZZ need to handle bursts differently
             report_data[filepath] = ReportRecord(
                 filepath=filepath, filename=filepath.name
             )
@@ -1400,7 +1404,7 @@ class ImportCommand(click.Command):
             The value passed to `--album` may be a literal string or an osxphotos template
             (see Template System below).  For example:
 
-            `osxphotos import /Volumes/photos/*.jpg --album "Vacation"` 
+            `osxphotos import /Volumes/photos/*.jpg --album "Vacation"`
 
             adds all photos to the album "Vacation".  The album will be created if it does not
             already exist.
@@ -1412,9 +1416,9 @@ class ImportCommand(click.Command):
             ## Folders
 
             If you want to organize the imported photos into both folders and albums, you can
-            use the `--split-folder` option.  For example, if your photos are organized into 
+            use the `--split-folder` option.  For example, if your photos are organized into
             folders as follows:
-            
+
                 .
                 ├── 2021
                 │   ├── Family
@@ -1423,14 +1427,14 @@ class ImportCommand(click.Command):
                     ├── Family
                     └── Travel
 
-            You can recreate this hierarchal structure on import using 
-            
+            You can recreate this hierarchal structure on import using
+
             `--album "{filepath.parent}" --split-folder "/"`
 
             In this example, `{filepath.parent}` renders to '2021/Family', '2021/Travel', etc.
-            and `--split-folder "/"` instructs osxphotos to split the album name into separate 
+            and `--split-folder "/"` instructs osxphotos to split the album name into separate
             parts '2021' and 'Family'.
-            
+
             If your photos are organized in a set of folders but you want to exclude one or more parent
             folders from the list of folders and album, you can use the `--relative-to` option to specify
             the parent path that all subsequent paths should be relative to.  For example, if your photos
@@ -1453,7 +1457,7 @@ class ImportCommand(click.Command):
             This will produce folders/albums `2021/Family`, `2021/Travel`, and so on.
 
             Note: in Photos, only albums can contain photos and folders
-            may contain albums or other folders. 
+            may contain albums or other folders.
 
             ## Duplicate Checking
 
@@ -1470,19 +1474,19 @@ class ImportCommand(click.Command):
 
             ## Metadata
 
-            `osxphotos import` can set metadata (title, description, keywords, and location) for 
-            imported photos/videos using several options. 
+            `osxphotos import` can set metadata (title, description, keywords, and location) for
+            imported photos/videos using several options.
 
             If you have exiftool (https://exiftool.org/) installed, osxphotos can use
             exiftool to extract metadata from the imported file and use this to update
             the metadata in Photos.
 
-            The `--exiftool` option will automatically attempt to update title, 
+            The `--exiftool` option will automatically attempt to update title,
             description, keywords, and location from the file's metadata:
-            
-            `osxphotos import *.jpg --exiftool` 
 
-            The following metadata fields are read (in priority order) and used to set 
+            `osxphotos import *.jpg --exiftool`
+
+            The following metadata fields are read (in priority order) and used to set
             the metadata of the imported photo:
 
             - Title: XMP:Title, IPTC:ObjectName, QuickTime:DisplayName
@@ -1490,21 +1494,21 @@ class ImportCommand(click.Command):
             - Keywords: XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
             - Location: EXIF:GPSLatitude/EXIF:GPSLatitudeRef, EXIF:GPSLongitude/EXIF:GPSLongitudeRef, QuickTime:GPSCoordinates, UserData:GPSCoordinates
 
-            When importing photos, Photos itself will usually read most of these same fields 
-            and set the metadata but when importing via AppleScript (which is how `osxphotos 
-            import` interacts with Photos), Photos does not always reliably do this. It is 
+            When importing photos, Photos itself will usually read most of these same fields
+            and set the metadata but when importing via AppleScript (which is how `osxphotos
+            import` interacts with Photos), Photos does not always reliably do this. It is
             recommended you use `--exiftool` to ensure metadata gets correctly imported.
 
             You can also use `--clear-metadata` to remove any metadata automatically set by
             Photos upon import.
 
-            In addition to `--exiftool`, you can specify a template (see Template System below) 
-            for setting title (`--title`), description (`--description`), and keywords (`--keywords`). 
+            In addition to `--exiftool`, you can specify a template (see Template System below)
+            for setting title (`--title`), description (`--description`), and keywords (`--keywords`).
             Location can be set using `--location`.  The album(s) of the imported file can likewise
             be specified with `--album`.
 
-            `--title`, `--description`, `--keyword`, and `--album` all take a literal string or an 
-            osxphotos template string.  If a template string is used, the template is rendered 
+            `--title`, `--description`, `--keyword`, and `--album` all take a literal string or an
+            osxphotos template string.  If a template string is used, the template is rendered
             using the osxphotos template language to produce the final value.
 
             For example:
@@ -1527,7 +1531,7 @@ class ImportCommand(click.Command):
 
             ## Template System
 
-            As mentioned above, the `--title`, `--description`, `--keyword`, and `--album` options 
+            As mentioned above, the `--title`, `--description`, `--keyword`, and `--album` options
             all take an osxphotos template language template string that is further rendered to
             produce the final value.  The template system used by `osxphotos import` is a subset
             of the template system used by `osxphotos export`. For a complete description of the
@@ -1545,12 +1549,12 @@ class ImportCommand(click.Command):
             You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`.
             exiftool must be installed in the path to use this template (alternatively, you can use
             `--exiftool-path` to specify the path to exiftool.)
-            
+
             #### {filepath}
-            
+
             - `{filepath}`: The full path to the file being imported.
-            For example, `/Volumes/photos/img_1234.jpg`. 
-            
+            For example, `/Volumes/photos/img_1234.jpg`.
+
             `{filepath}` has several subfields that
             allow you to access various parts of the path using the following subfield modifiers:
 
@@ -1569,14 +1573,14 @@ class ImportCommand(click.Command):
             example would be `/Shared/Backup` and `{filepath.parent.name}` would be `Photos`.
 
             `{filepath}` may be modified using the `--relative-to` option.  For example,
-            if the path to the imported photo is `/Volumes/Photos/Folder1/Album1/IMG_1234.jpg` 
+            if the path to the imported photo is `/Volumes/Photos/Folder1/Album1/IMG_1234.jpg`
             and you specify `--relative-to "/Volumes/Photos"` then `{filepath}` will be set
             to `Folder1/Album1/IMG_1234.jpg`
             (a subset of the path relative to the value of `--relative-to`).
 
             #### {created}
 
-            - `{created}`: The date the file was created.  `{created}` must be used with a subfield to 
+            - `{created}`: The date the file was created.  `{created}` must be used with a subfield to
             specify the format of the date.
 
             - `{created.date}`: Photo's creation date in ISO format, e.g. '2020-03-22'
@@ -1592,13 +1596,13 @@ class ImportCommand(click.Command):
             - `{created.min}`: 2-digit minute of the photo creation time
             - `{created.sec}`: 2-digit second of the photo creation time
             - `{created.strftime}`: Apply strftime template to file creation date/time. Should be used in form
-            `{created.strftime,TEMPLATE}` where TEMPLATE is a valid strftime template, e.g. 
-            `{created.strftime,%Y-%U}` would result in year-week number of year: '2020-23'. 
-            If used with no template will return null value. 
+            `{created.strftime,TEMPLATE}` where TEMPLATE is a valid strftime template, e.g.
+            `{created.strftime,%Y-%U}` would result in year-week number of year: '2020-23'.
+            If used with no template will return null value.
             See https://strftime.org/ for help on strftime templates.
 
-            You may find the `--check-templates` option useful for testing templates. 
-            When run with `--check-templates` osxphotos will not actually import anything 
+            You may find the `--check-templates` option useful for testing templates.
+            When run with `--check-templates` osxphotos will not actually import anything
             but will instead print out the rendered value for each `--title`, `--description`,
             `--keyword`, and `--album` option. It will also print out the values extracted by
             the `--exiftool` option.
@@ -1611,7 +1615,7 @@ class ImportCommand(click.Command):
 
             Likewise, you can use `--parse-folder-date` to parse dates/times from the name of the
             folder containing the file being imported.
-    
+
             The argument to `--parse-date` is a pattern string that is used to parse the date/time
             from the filename. The pattern string is a superset of the python `strftime/strptime`
             format with the following additions:
@@ -1622,14 +1626,14 @@ class ImportCommand(click.Command):
             - {n}: Match exactly n characters
             - {n,}: Match at least n characters
             - {n,m}: Match at least n characters and at most m characters
-            - In addition to `%%` for a literal `%`, the following format codes are supported: 
+            - In addition to `%%` for a literal `%`, the following format codes are supported:
                 `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
             - |: join multiple format codes; each code is tried in order until one matches
-            - Unlike the standard library, the leading zero is not optional for 
+            - Unlike the standard library, the leading zero is not optional for
                 %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
             - For optional leading zero, use %-d, %-m, %-H, %-I, %-M, %-S, %-j, %-U, %-W, and %-V
 
-            For more information on strptime format codes, see: 
+            For more information on strptime format codes, see:
             https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
 
             **Note**: The time zone of the parsed date/time is assumed to be the local time zone.
@@ -1672,7 +1676,7 @@ class ImportCommand(click.Command):
             and all metadata been set (e.g. --exiftool, --title, etc.)
 
             You may call more than one function by repeating the `--post-function` option.
-        
+
             See https://rhettbull.github.io/PhotoScript/
             for documentation on photoscript and the Photo class that is passed to the function.
 
@@ -1686,7 +1690,7 @@ class ImportCommand(click.Command):
             - Run the following command to import the photos into Photos:
 
             `osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv`
-            
+
             If you have persons tagged in Google Photos you can add this option to create keywords
             for each person in the photo: `--keyword "{person}"`
 
@@ -2266,7 +2270,7 @@ def import_cli(
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
     # ZZZ add group count to imported
     echo(
-        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file', 'files')}, "
+        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, "
         f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
         f"{skipped_str}",
         emoji=False,
@@ -2284,22 +2288,27 @@ def check_imported_files(
 
     filecount = len(list(itertools.chain.from_iterable(files)))
     file_word = pluralize(filecount, "file", "files")
-    group_word = pluralize(files, "groups", "groups")
+    group_word = pluralize(files, "group", "groups")
     verbose(
         f"Checking {filecount} {file_word} in {len(files)} {group_word} to see if previously imported"
     )
     fq = FingerprintQuery(library)
-    filepaths = []
     for filegroup in files:
+        filepaths = []
+        # strip .AAE files
+        filegroup = [f for f in filegroup if not f.name.lower().endswith(".aae")]
         if len(filegroup) == 1:
             filepaths.append(filegroup[0])
+        elif burst_uuid_from_path(filegroup[0]):
+            filepaths.extend(filegroup)
         elif len(filegroup) == 2:
-            if is_live_photo_pair(*filegroup):
-                print("live photo pair: ", filegroup)
+            if is_live_pair(*filegroup):
                 filepaths.append(filegroup[0])
+            elif is_raw_pair(*filegroup):
+                # Photos always makes the non-RAW image the original upon import
+                filepaths.append(non_raw_file(filegroup))
         else:
-            # ZZZ check bursts, raw, aae
-            filepaths.append(filegroup[0])
+            filepaths.extend(filegroup)
         for filepath in filepaths:
             if duplicates := fq.possible_duplicates(filepath):
                 echo(
@@ -2328,19 +2337,51 @@ def check_not_imported_files(
         echo(f"{filepath}")
 
 
-def content_tree(filepath: str) -> list[str]:
+def content_tree(filepath: str | os.PathLike) -> list[str]:
     """Return the content tree for a file"""
-    md = osxmetadata.OSXMetaData(filepath)
+    md = osxmetadata.OSXMetaData(str(filepath))
     return md.get("kMDItemContentTypeTree") or []
 
 
 @cache
-def is_image_file(filepath: str) -> bool:
+def is_image_file(filepath: str | os.PathLike) -> bool:
     """Return True if filepath is an image file"""
     return "public.image" in content_tree(filepath)
 
 
 @cache
-def is_video_file(filepath: str) -> bool:
+def is_video_file(filepath: str | os.PathLike) -> bool:
     """Return True if filepath is a video file"""
     return "public.movie" in content_tree(filepath)
+
+
+@cache
+def is_raw_image(filepath: str | os.PathLike) -> bool:
+    """Return True if filepath is a RAW image"""
+    return "public.camera-raw-image" in content_tree(filepath)
+
+
+def is_raw_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> bool:
+    """Return True if one of the files is a RAW image and the other is a non-RAW image"""
+    return (
+        is_raw_image(filepath1)
+        and (is_image_file(filepath2) and not is_raw_image(filepath2))
+        or is_raw_image(filepath2)
+        and (is_image_file(filepath1) and not is_raw_image(filepath1))
+    )
+
+
+def is_live_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> bool:
+    """Return True if photos are a live photo pair"""
+    if not is_image_file(filepath1) or not is_video_file(filepath2):
+        # expects live pairs to be image, video
+        return False
+    return makelive.is_live_photo_pair(filepath1, filepath2)
+
+
+def non_raw_file(filepaths: Iterable[str | os.PathLike]) -> str | os.PathLike:
+    """Return the non-RAW file from a RAW+non-RAW pair or the first file if non-RAW file not found"""
+    for filepath in filepaths:
+        if not is_raw_image(filepath):
+            return filepath
+    return filepaths[0]
