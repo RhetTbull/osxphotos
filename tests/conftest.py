@@ -1,4 +1,5 @@
 """ pytest test configuration """
+
 import os
 import pathlib
 import shutil

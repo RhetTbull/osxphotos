@@ -1,6 +1,5 @@
 """ Custom template system for osxphotos, implements metadata template language (MTL) """
 
-
 import datetime
 import locale
 import os

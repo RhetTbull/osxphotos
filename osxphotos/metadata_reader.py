@@ -185,7 +185,9 @@ def convert_exiftool_longitude(lon_string, lon_ref):
     return longitude
 
 
-def metadata_from_file(filepath: str | pathlib.Path, exiftool_path: str) -> MetaData:
+def metadata_from_file(
+    filepath: str | pathlib.Path, exiftool_path: str | None
+) -> MetaData:
     """Get metadata from file with exiftool
 
     Returns the following metadata from EXIF/XMP/IPTC fields as a MetaData named tuple

@@ -56,7 +56,7 @@ def get_unicode_fs_form() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     return _GLOBAL_UNICODE_FS_FORM
 
 
-def set_unicode_fs_form(format: str) -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
+def set_unicode_fs_form(format: Literal["NFC", "NFKC", "NFD", "NFKD"]):
     """Set the global unicode filesystem format"""
 
     if format not in ["NFC", "NFKC", "NFD", "NFKD"]:

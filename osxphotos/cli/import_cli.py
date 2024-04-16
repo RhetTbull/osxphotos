@@ -103,43 +103,63 @@ def echo(message, emoji=True, **kwargs):
     rich_click_echo(message, **kwargs)
 
 
+# a decorator that when applied to a function, prints the name of the function and the name and type of each argument
+# def watch(func):
+#     """Print name of function, name type of each argument"""
+#     # this is to help figure out type hint issues
+
+#     def wrapper(*args, **kwargs):
+#         print(f"Running {func.__name__}")
+#         for arg in itertools.chain(args, kwargs.values()):
+#             print(f"{arg=}, {type(arg)=}")
+#             if arg and isinstance(arg, (list, tuple)):
+#                 print(f"{arg[0]=} {type(arg[0])=}")
+#                 if arg[0] and isinstance(arg[0], (list, tuple)):
+#                     print(f"{arg[0][0]=} {type(arg[0][0])=}")
+#         return func(*args, **kwargs)
+
+#     return wrapper
+
+
 def get_sidecar_file(
     filepath: pathlib.Path,
-    relative_filepath: str | None,
+    relative_filepath: pathlib.Path,
     sidecar: bool,
     sidecar_filename_template: str | None,
     exiftool_path: str | None,
     verbose: Callable[..., None],
 ) -> pathlib.Path | None:
+    sidecar_file = None
     if sidecar or sidecar_filename_template:
         if sidecar_filename_template:
-            if sidecar_file := render_photo_template(
+            if sidecar_files := render_photo_template(
                 filepath,
                 relative_filepath,
                 sidecar_filename_template,
                 exiftool_path,
                 None,
             ):
-                sidecar_file = pathlib.Path(sidecar_file[0])
+                sidecar_file = pathlib.Path(sidecar_files[0])
         else:
             sidecar_file = get_sidecar_for_file(filepath)
         if not sidecar_file or not sidecar_file.exists():
             verbose(f"No sidecar found for [filepath]{filepath}[/]")
             sidecar_file = None
-    else:
-        sidecar_file = None
     return sidecar_file
 
 
 def import_photo_group(
-    filepaths: tuple[pathlib.Path], dup_check: bool, verbose: Callable[..., None]
-) -> Tuple[Optional[Photo], str | None]:
+    filepaths: tuple[pathlib.Path, ...], dup_check: bool, verbose: Callable[..., None]
+) -> tuple[Photo | None, str | None]:
     """Import a photo and return Photo object and error string if any
 
     Args:
         filepath: path to the file to import
         dup_check: enable or disable Photo's duplicate check on import
         verbose: Callable
+
+    Returns:
+        tuple of Photo object and error string if any
     """
     if imported := PhotosLibrary().import_photos(
         filepaths, skip_duplicate_check=not dup_check
@@ -147,7 +167,8 @@ def import_photo_group(
         verbose(
             f"Imported [filename]{filepaths[0].name}[/] with UUID [uuid]{imported[0].uuid}[/]"
         )
-        # ZZZ check length? 
+        if len(imported) > 1:
+            print(f"Imported {len(imported)} photos")
         photo = imported[0]
         return photo, None
     else:
@@ -161,13 +182,16 @@ def render_photo_template(
     relative_filepath: pathlib.Path,
     template: str,
     exiftool_path: str | None,
-    sidecar: str | None,
+    sidecar: pathlib.Path | None,
 ):
     """Render template string for a photo"""
-
-    photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path, sidecar=sidecar)
+    photoinfo = PhotoInfoFromFile(
+        filepath, exiftool=exiftool_path, sidecar=str(sidecar) if sidecar else None
+    )
     options = RenderOptions(
-        none_str=_OSXPHOTOS_NONE_SENTINEL, filepath=relative_filepath, caller="import"
+        none_str=_OSXPHOTOS_NONE_SENTINEL,
+        filepath=str(relative_filepath),
+        caller="import",
     )
     template_values, _ = photoinfo.render_template(template, options=options)
     # filter out empty strings
@@ -177,12 +201,12 @@ def render_photo_template(
 
 
 def add_photo_to_albums(
-    photo: Photo,
+    photo: Photo | None,
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path,
-    album: Tuple[str],
+    album: tuple[str, ...],
     split_folder: str,
-    exiftool_path: pathlib.Path,
+    exiftool_path: str,
     sidecar: pathlib.Path | None,
     verbose: Callable[..., None],
     dry_run: bool,
@@ -202,7 +226,7 @@ def add_photo_to_albums(
     # add photo to albums
     for a in albums:
         verbose(f"Adding photo [filename]{filepath.name}[/] to album [filepath]{a}[/]")
-        if not dry_run:
+        if photo and not dry_run:
             photos_album = PhotosAlbumPhotoScript(
                 a, verbose=verbose, split_folder=split_folder, rich=True
             )
@@ -214,9 +238,9 @@ def add_duplicate_to_albums(
     duplicates: list[tuple[str, datetime.datetime, str]],
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path,
-    album: Tuple[str],
+    album: tuple[str, ...],
     split_folder: str,
-    exiftool_path: pathlib.Path,
+    exiftool_path: str,
     sidecar: pathlib.Path | None,
     verbose: Callable[..., None],
     dry_run: bool,
@@ -264,11 +288,15 @@ def add_duplicate_to_albums(
 
 
 def clear_photo_metadata(
-    photo: Photo, filepath: pathlib.Path, verbose: Callable[..., None], dry_run: bool
+    photo: Photo | None,
+    filepath: pathlib.Path,
+    verbose: Callable[..., None],
+    dry_run: bool,
 ):
     """Clear any metadata (title, description, keywords) associated with Photo in the Photos Library"""
     verbose(f"Clearing metadata for [filename]{filepath.name}[/]")
-    if dry_run:
+
+    if dry_run or not photo:
         return
     photo.title = ""
     photo.description = ""
@@ -276,17 +304,20 @@ def clear_photo_metadata(
 
 
 def clear_photo_location(
-    photo: Photo, filepath: pathlib.Path, verbose: Callable[..., None], dry_run: bool
+    photo: Photo | None,
+    filepath: pathlib.Path,
+    verbose: Callable[..., None],
+    dry_run: bool,
 ):
     """Clear any location (latitude, longitude) associated with Photo in the Photos Library"""
     verbose(f"Clearing location for [filename]{filepath.name}[/]")
-    if dry_run:
+    if dry_run or not photo:
         return
     photo.location = (None, None)
 
 
 def set_photo_metadata(
-    photo: Photo,
+    photo: Photo | None,
     metadata: MetaData,
     merge_keywords: bool,
     dry_run: bool,
@@ -301,7 +332,7 @@ def set_photo_metadata(
 
     Returns: MetaData object with metadata updated keywords if merge_keywords is True
     """
-    if dry_run:
+    if dry_run or not photo:
         return metadata
     photo.title = normalize_unicode(metadata.title)
     photo.description = normalize_unicode(metadata.description)
@@ -316,7 +347,7 @@ def set_photo_metadata(
 
 
 def set_photo_metadata_from_exiftool(
-    photo: Photo,
+    photo: Photo | None,
     filepath: pathlib.Path,
     exiftool_path: str,
     merge_keywords: bool,
@@ -332,7 +363,7 @@ def set_photo_metadata_from_exiftool(
 
 
 def set_photo_metadata_from_metadata(
-    photo: Photo,
+    photo: Photo | None,
     filepath: pathlib.Path,
     metadata: MetaData,
     merge_keywords: bool,
@@ -352,7 +383,7 @@ def set_photo_metadata_from_metadata(
 
     if metadata.location[0] is not None and metadata.location[1] is not None:
         # location will be set to None, None if latitude or longitude is missing
-        if not dry_run:
+        if photo and not dry_run:
             photo.location = metadata.location
         verbose(
             f"Set location for [filename]{filepath.name}[/]: "
@@ -365,14 +396,14 @@ def set_photo_metadata_from_metadata(
         verbose(
             f"Set date for [filename]{filepath.name}[/]: [time]{metadata.date.isoformat()}[/]"
         )
-        if not dry_run:
+        if photo and not dry_run:
             photo.date = metadata.date
 
     return metadata
 
 
 def set_photo_metadata_from_sidecar(
-    photo: Photo,
+    photo: Photo or None,
     filepath: pathlib.Path,
     sidecar: pathlib.Path,
     sidecar_ignore_date: bool,
@@ -396,7 +427,7 @@ def set_photo_metadata_from_sidecar(
 
 
 def set_photo_title(
-    photo: Photo,
+    photo: Photo | None,
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path,
     title_template: str,
@@ -419,7 +450,7 @@ def set_photo_title(
         verbose(
             f"Setting title of photo [filename]{filepath.name}[/] to '{title_text[0]}'"
         )
-        if not dry_run:
+        if photo and not dry_run:
             photo.title = normalize_unicode(title_text[0])
         return title_text[0]
     else:
@@ -427,7 +458,7 @@ def set_photo_title(
 
 
 def set_photo_description(
-    photo: Photo,
+    photo: Photo or None,
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path,
     description_template: str,
@@ -454,7 +485,7 @@ def set_photo_description(
         verbose(
             f"Setting description of photo [filename]{filepath.name}[/] to '{description_text[0]}'"
         )
-        if not dry_run:
+        if photo and not dry_run:
             photo.description = normalize_unicode(description_text[0])
         return description_text[0]
     else:
@@ -462,7 +493,7 @@ def set_photo_description(
 
 
 def set_photo_keywords(
-    photo: Photo,
+    photo: Photo | None,
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path,
     keyword_template: str,
@@ -481,18 +512,18 @@ def set_photo_keywords(
         keywords.extend(kw)
     if keywords:
         keywords = normalize_unicode(keywords)
-        if merge:
+        if merge and photo is not None:
             if old_keywords := normalize_unicode(photo.keywords):
                 keywords.extend(old_keywords)
                 keywords = list(set(keywords))
         verbose(f"Setting keywords of photo [filename]{filepath.name}[/] to {keywords}")
-        if not dry_run:
+        if photo and not dry_run:
             photo.keywords = keywords
     return keywords
 
 
 def set_photo_location(
-    photo: Photo,
+    photo: Photo | None,
     filepath: pathlib.Path,
     location: Tuple[float, float],
     verbose: Callable[..., None],
@@ -502,7 +533,7 @@ def set_photo_location(
     verbose(
         f"Setting location of photo [filename]{filepath.name}[/] to {location[0]}, {location[1]}"
     )
-    if not dry_run:
+    if photo and not dry_run:
         photo.location = location
     return location
 
@@ -561,13 +592,13 @@ def set_photo_date_from_filename(
     verbose(
         f"Setting date of photo [filename]{photo_name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
     )
-    if not dry_run:
+    if photo and not dry_run:
         photo.date = date
     return date
 
 
 def get_relative_filepath(
-    filepath: pathlib.Path, relative_to: str | None
+    filepath: pathlib.Path, relative_to: pathlib.Path | None
 ) -> pathlib.Path:
     """Get relative filepath of file relative to relative_to or return filepath if relative_to is None
 
@@ -596,12 +627,12 @@ def get_relative_filepath(
 
 
 def check_templates_and_exit(
-    files: list[str | os.PathLike],
-    relative_to: Optional[pathlib.Path],
+    files: list[pathlib.Path],
+    relative_to: pathlib.Path | None,
     title: str | None,
     description: str | None,
-    keyword: Tuple[str],
-    album: Tuple[str],
+    keyword: tuple[str, ...],
+    album: tuple[str, ...],
     exiftool_path: str | None,
     exiftool: bool,
     parse_date: str | None,
@@ -696,6 +727,12 @@ class ReportRecord:
     filepath: pathlib.Path = dataclasses.field(default_factory=pathlib.Path)
     import_datetime: datetime.datetime = datetime.datetime.now()
     imported: bool = False
+    burst: bool = False
+    burst_images: int = 0
+    live_photo: bool = False
+    live_video: str = ""
+    raw_pair: bool = False
+    raw_image: str = ""
     keywords: list[str] = dataclasses.field(default_factory=list)
     location: tuple[float, float] = dataclasses.field(default_factory=tuple)
     title: str = ""
@@ -747,7 +784,6 @@ def update_report_record(
     report_record: ReportRecord, photo: Photo, filepath: pathlib.Path
 ):
     """Update a ReportRecord with data from a Photo"""
-
     # do not update albums as they are added to the report record as they are imported (#934)
     report_record.filename = filepath.name
     report_record.filepath = filepath
@@ -791,6 +827,7 @@ def write_csv_report(
                     "import_datetime",
                     "uuid",
                     "imported",
+                    # ZZZ
                     "error",
                     "title",
                     "description",
@@ -970,13 +1007,13 @@ def render_and_validate_report(report: str) -> str:
     return report
 
 
-def filename_matches_patterns(filename: str, patterns: Tuple[str]) -> bool:
+def filename_matches_patterns(filename: str, patterns: tuple[str, ...]) -> bool:
     """Return True if filename matches any pattern in patterns"""
     return any(fnmatch.fnmatch(filename, pattern) for pattern in patterns)
 
 
 def collect_files_to_import(
-    files: Tuple[str], walk: bool, glob: Tuple[str]
+    files: tuple[str, ...], walk: bool, glob: tuple[str, ...]
 ) -> list[pathlib.Path]:
     """Collect files to import, recursively if necessary
 
@@ -996,8 +1033,8 @@ def collect_files_to_import(
                 files_to_import.append(file)
         elif os.path.isdir(file):
             if walk:
-                for root, dirs, files in os.walk(file):
-                    for file in files:
+                for root, dirs, filenames in os.walk(file):
+                    for file in filenames:
                         if glob and filename_matches_patterns(
                             os.path.basename(file), glob
                         ):
@@ -1055,7 +1092,8 @@ def group_files_to_import(files: list[pathlib.Path]) -> list[tuple[pathlib.Path,
     return files_to_import
 
 
-def sort_paths(paths: Tuple[pathlib.Path, ...]) -> Tuple[pathlib.Path, ...]:
+def sort_paths(paths: tuple[pathlib.Path, ...]) -> tuple[pathlib.Path, ...]:
+
     def path_key(path: pathlib.Path) -> Tuple[int, int, str]:
         extension = path.suffix.lower()
         is_aae = extension in [".aae"]
@@ -1146,12 +1184,12 @@ def import_files(
     album: tuple[str, ...],
     dup_albums: bool,
     split_folder: str,
-    post_function: tuple[Callable[..., None]],
+    post_function: tuple[Callable[..., None], ...],
     skip_dups: bool,
     dup_check: bool,
     dry_run: bool,
     report_data: dict[pathlib.Path, ReportRecord],
-    relative_to: str | None,
+    relative_to: pathlib.Path | None,
     import_db: SQLiteKVStore,
     verbose: Callable[..., None],
 ):
@@ -1185,28 +1223,27 @@ def import_files(
                 if has_aae(file_tuple):
                     noun += " with .AAE file"
                 verbose(f"Processing {noun}: {', '.join([f.name for f in file_tuple])}")
-            # ZZZ
             filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
             relative_filepath = get_relative_filepath(filepath, relative_to)
 
-            # ZZZ
             # check if file already imported
-            # if resume:
-            #     if record := import_db.get(str(filepath)):
-            #         if record.imported and not record.error:
-            #             # file already imported
-            #             verbose(
-            #                 f"Skipping [filepath]{filepath}[/], "
-            #                 f"already imported on [time]{record.import_datetime.isoformat()}[/] "
-            #                 f"with UUID [uuid]{record.uuid}[/]"
-            #             )
-            #             skipped_count += 1
-            #             progress.advance(task)
-            #             continue
+            if resume:
+                if record := import_db.get(str(filepath)):
+                    if record.imported and not record.error:
+                        # file already imported
+                        verbose(
+                            f"Skipping [filepath]{filepath}[/], "
+                            f"already imported on [time]{record.import_datetime.isoformat()}[/] "
+                            f"with UUID [uuid]{record.uuid}[/]"
+                        )
+                        skipped_count += 1
+                        progress.advance(task)
+                        continue
 
             verbose(f"Importing " + ", ".join(f"[filepath]{f}[/]" for f in file_tuple))
 
-            # ZZZ need to handle bursts differently
+            # ZZZ need to handle bursts differently -- add report record for each file?
+            print(f"{file_tuple=}")
             report_data[filepath] = ReportRecord(
                 filepath=filepath, filename=filepath.name
             )
@@ -1366,7 +1403,7 @@ def import_files(
                             )
 
             # update report data
-            if not dry_run:
+            if photo and not dry_run:
                 update_report_record(report_record, photo, filepath)
                 import_db.set(str(filepath), report_record)
 
@@ -2187,6 +2224,7 @@ def import_cli(
             "[error]Could not determine path to Photos library. "
             "Please specify path to library with --library option."
         )
+        raise click.Abort()
 
     if check:
         check_imported_files(files_to_import, last_library, verbose)
@@ -2227,7 +2265,7 @@ def import_cli(
     report_data: dict[pathlib.Path, ReportRecord] = {}
 
     import_db = SQLiteKVStore(
-        get_data_dir() / IMPORT_DB,
+        str(get_data_dir() / IMPORT_DB),
         wal=True,
         serialize=ReportRecord.serialize,
         deserialize=ReportRecord.deserialize,
@@ -2282,8 +2320,8 @@ def import_cli(
 
 
 def collect_filepaths_for_import_check(
-    filegroup: tuple[pathlib.Path, ...]
-) -> list[pathlib.Path]:
+    filegroup: Iterable[pathlib.Path],
+) -> tuple[list[pathlib.Path], list[pathlib.Path]]:
     """Collect filepaths for import check"""
     filepaths = []
     # exclude .AAE files
@@ -2304,7 +2342,7 @@ def collect_filepaths_for_import_check(
     else:
         # include everything else
         filepaths.extend(filegroup)
-    return filepaths
+    return filepaths, [f for f in filegroup if f not in filepaths]
 
 
 def check_imported_files(
@@ -2324,15 +2362,18 @@ def check_imported_files(
     )
     fq = FingerprintQuery(library)
     for filegroup in files:
-        filepaths = collect_filepaths_for_import_check(filegroup)
+        filepaths, remainder = collect_filepaths_for_import_check(filegroup)
         for filepath in filepaths:
+            group_str = (
+                f" ({', '.join([str(f) for f in remainder])})" if remainder else ""
+            )
             if duplicates := fq.possible_duplicates(filepath):
                 echo(
-                    f"[filepath]:white_check_mark-emoji: {filepath}[/], imported, "
+                    f"[filepath]:white_check_mark-emoji: {filepath}{group_str}[/], imported, "
                     + f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
                 )
             else:
-                echo(f"[error]{filepath}[/], not imported")
+                echo(f"[error]{filepath}{group_str}[/], not imported")
 
 
 def check_not_imported_files(
@@ -2352,12 +2393,14 @@ def check_not_imported_files(
     )
     fq = FingerprintQuery(library)
     for filegroup in files:
-        filepaths = collect_filepaths_for_import_check(filegroup)
+        filepaths, remainder = collect_filepaths_for_import_check(filegroup)
         for filepath in filepaths:
             if fq.possible_duplicates(filepath):
                 continue
-            # ZZZ need to show the group
-            echo(f"{filepath}")
+            group_str = (
+                f" ({', '.join([str(f) for f in remainder])})" if remainder else ""
+            )
+            echo(f"{filepath}{group_str}")
 
 
 def content_tree(filepath: str | os.PathLike) -> list[str]:

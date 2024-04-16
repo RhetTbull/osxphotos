@@ -345,12 +345,12 @@ def export_db_migrate_photos_library(
     photosdb_name_size = {}
     for photo in photosdb.photos():
         photosdb_signature[photo_signature(photo)] = photo.uuid
-        photosdb_cloud_guid[
-            f"{photo.original_filename}:{photo.cloud_guid}"
-        ] = photo.uuid
-        photosdb_name_size[
-            f"{photo.original_filename}:{photo.original_filesize}"
-        ] = photo.uuid
+        photosdb_cloud_guid[f"{photo.original_filename}:{photo.cloud_guid}"] = (
+            photo.uuid
+        )
+        photosdb_name_size[f"{photo.original_filename}:{photo.original_filesize}"] = (
+            photo.uuid
+        )
     verbose("Matching photos in export database to photos in Photos library")
     matched = 0
     notmatched = 0

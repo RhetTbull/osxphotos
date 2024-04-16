@@ -863,7 +863,7 @@ def test_import_glob():
     )
 
     assert result.exit_code == 0
-    assert "imported 4 files" in result.output
+    assert "imported 4 file groups" in result.output
 
 
 @pytest.mark.test_import
@@ -888,7 +888,7 @@ def test_import_glob_walk():
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
-    assert "imported 4 files" in result.output
+    assert "imported 4 file groups" in result.output
 
     import_data = parse_import_output(result.output)
     file_1 = pathlib.Path(TEST_IMAGE_2).name

@@ -535,9 +535,9 @@ class iPhotoDB:
             photo["edited_faces"] = []
             for row in results:
                 row = dict(row)
-                row[
-                    "confidence"
-                ] = 0.0  # TODO: figure out original face and use those values
+                row["confidence"] = (
+                    0.0  # TODO: figure out original face and use those values
+                )
                 face_key = row["face_key"]
                 for person in self._db_persons.values():
                     if face_key == person["face_key"]:

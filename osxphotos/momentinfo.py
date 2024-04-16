@@ -79,8 +79,8 @@ class MomentInfo:
             "start_date": self.start_date.isoformat() if self.start_date else None,
             "end_date": self.end_date.isoformat() if self.end_date else None,
             "date": self.date.isoformat() if self.date else None,
-            "modification_date": self.modification_date.isoformat()
-            if self.modification_date
-            else None,
+            "modification_date": (
+                self.modification_date.isoformat() if self.modification_date else None
+            ),
             "photos": self.photos,
         }

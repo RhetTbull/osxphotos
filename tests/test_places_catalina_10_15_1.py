@@ -1,4 +1,5 @@
 """ Test PlaceInfo """
+
 import pytest
 
 PHOTOS_DB = "./tests/Test-Places-Catalina-10_15_1.photoslibrary/database/photos.db"
