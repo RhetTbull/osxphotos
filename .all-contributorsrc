@@ -741,6 +741,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "kitschpatrol",
+      "name": "Eric Mika",
+      "avatar_url": "https://avatars.githubusercontent.com/u/194164?v=4",
+      "profile": "https://github.com/kitschpatrol",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
