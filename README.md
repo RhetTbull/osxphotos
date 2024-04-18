@@ -2974,7 +2974,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://axka.fi"><img src="https://avatars.githubusercontent.com/u/120189068?v=4?s=75" width="75px;" alt="Axel Karjalainen"/><br /><sub><b>Axel Karjalainen</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=axelkar" title="Code">💻</a></td>
     </tr>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/thanks"><img src="https://avatars.githubusercontent.com/u/1121545?v=4?s=75" width="75px;" alt="Thanks"/><br /><sub><b>Thanks</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=Thanks" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kitschpatrol"><img src="https://avatars.githubusercontent.com/u/194164?v=4?s=75" width="75px;" alt="Eric Mika"/><br /><sub><b>Eric Mika</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Akitschpatrol" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
