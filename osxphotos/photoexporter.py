@@ -356,12 +356,12 @@ class PhotoExporter:
                     f"Skipping missing preview photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                 )
 
-        if export_original and options.export_aae:
+        if export_original and self.photo.hasadjustments and options.export_aae:
             # export associated AAE adjustments file if requested but only for original images
             # AAE applies changes to the original so is not meaningful for the edited image
+            aae_name = normalize_fs_path(dest.with_suffix(".AAE"))
             if staged_files.aae:
                 aae_path = pathlib.Path(staged_files.aae)
-                aae_name = normalize_fs_path(dest.with_suffix(".AAE"))
                 all_results += self._export_aae(
                     aae_path,
                     aae_name,
@@ -371,6 +371,7 @@ class PhotoExporter:
                 verbose(
                     f"Skipping adjustments for {self._filename(self.photo.original_filename)}: no AAE adjustments file"
                 )
+                all_results += ExportResults(missing=[aae_name])
 
         sidecar_writer = SidecarWriter(self.photo)
         all_results += sidecar_writer.write_sidecar_files(dest=dest, options=options)
@@ -380,7 +381,8 @@ class PhotoExporter:
         # the history record is written in _export_photo
         # but this isn't called for missing photos
         for filename in all_results.missing:
-            options.export_db.set_history(filename, self.photo.uuid, "missing", None)
+            action = "AAE: missing" if str(filename).endswith(".AAE") else "missing"
+            options.export_db.set_history(filename, self.photo.uuid, action, None)
 
         return all_results
 
@@ -1219,7 +1221,6 @@ class PhotoExporter:
         if options.update or options.force_update:  # updating
             if dest.exists():
                 if update_reason := self._should_update_photo(src, dest, options):
-                    print(f"{update_reason=} {src=} {dest=}")
                     action = "update: " + update_reason.name
                 else:
                     # update_skipped_files.append(dest_str)
@@ -1232,13 +1233,11 @@ class PhotoExporter:
         if action == "skip":
             if dest.exists():
                 options.export_db.set_history(
-                    filename=str(dest), uuid=self.photo.uuid, action=action, diff=None
+                    filename=str(dest), uuid=self.photo.uuid, action=f"AAE: {action}", diff=None
                 )
                 return ExportResults(aae_skipped=[str(dest)], skipped=[str(dest)])
             else:
                 action = "export"
-
-        print(f"action={action}")
 
         errors = []
         if dest.exists() and any(
@@ -1282,13 +1281,24 @@ class PhotoExporter:
                 }
 
         options.export_db.set_history(
-            filename=str(dest), uuid=self.photo.uuid, action=action, diff=None
+            filename=str(dest), uuid=self.photo.uuid, action=f"AAE: {action}", diff=None
         )
 
         verbose(
             f"Exported adjustments of {self._filename(self.photo.original_filename)} to {self._filepath(dest)}"
         )
-        return ExportResults(aae_written=[str(dest)], exported=[str(dest)], error=errors)
+
+        written = [str(dest)]
+        exported = written if action in {"export", "new"} else []
+        new = written if action == "new" else []
+        updated = written if "update" in action else []
+        return ExportResults(
+            aae_written=written,
+            exported=exported,
+            new=new,
+            updated=updated,
+            error=errors,
+        )
 
     def write_exiftool_metadata_to_file(
         self,
