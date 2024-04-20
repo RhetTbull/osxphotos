@@ -92,6 +92,7 @@ class StagedFiles:
         edited_live: t.Optional[str] = None,
         preview: t.Optional[str] = None,
         raw: t.Optional[str] = None,
+        aae: t.Optional[str] = None,
         error: t.Optional[t.List[str]] = None,
     ):
         self.original = original
@@ -100,6 +101,7 @@ class StagedFiles:
         self.edited_live = edited_live
         self.preview = preview
         self.raw = raw
+        self.aae = aae
         self.error = error or []
 
         # TODO: bursts?
@@ -354,8 +356,22 @@ class PhotoExporter:
                     f"Skipping missing preview photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                 )
 
-        if options.export_aae:
-            all_results += self._write_aae_file(dest=dest, options=options)
+        if export_original and options.export_aae:
+            # export associated AAE adjustments file if requested but only for original images
+            # AAE applies changes to the original so is not meaningful for the edited image
+            if staged_files.aae:
+                aae_path = pathlib.Path(staged_files.aae)
+                aae_name = normalize_fs_path(dest.with_suffix(".AAE"))
+                all_results += self._export_aae(
+                    aae_path,
+                    aae_name,
+                    options=options,
+                )
+            else:
+                verbose(
+                    f"Skipping adjustments for {self._filename(self.photo.original_filename)}: no AAE adjustments file"
+                )
+
         sidecar_writer = SidecarWriter(self.photo)
         all_results += sidecar_writer.write_sidecar_files(dest=dest, options=options)
 
@@ -590,6 +606,8 @@ class PhotoExporter:
                 staged.original = self.photo.path
             if options.live_photo and self.photo.live_photo:
                 staged.original_live = self.photo.path_live_photo
+            if options.export_aae:
+                staged.aae = self.photo.adjustments_path
 
         if options.edited:
             # edited file
@@ -1181,12 +1199,13 @@ class PhotoExporter:
             exported_paths.append(str(dest_new))
         return exported_paths
 
-    def _write_aae_file(
+    def _export_aae(
         self,
+        src: pathlib.Path,
         dest: pathlib.Path,
         options: ExportOptions,
     ) -> ExportResults:
-        """Write AAE file for the photo."""
+        """Export AAE file for the photo."""
 
         # AAE files describe adjustments to originals, so they don't make sense
         # for edited files
@@ -1195,42 +1214,82 @@ class PhotoExporter:
 
         verbose = options.verbose or self._verbose
 
-        aae_src = self.photo.adjustments_path
-        if aae_src is None:
-            verbose(
-                f"Skipping adjustments for {self._filename(self.photo.original_filename)}: no AAE adjustments file"
-            )
-            return ExportResults()
-        aae_dest = normalize_fs_path(dest.with_suffix(".AAE"))
+        action = None
+
+        if options.update or options.force_update:  # updating
+            if dest.exists():
+                if update_reason := self._should_update_photo(src, dest, options):
+                    print(f"{update_reason=} {src=} {dest=}")
+                    action = "update: " + update_reason.name
+                else:
+                    # update_skipped_files.append(dest_str)
+                    action = "skip"
+            else:
+                action = "new"
+        else:
+            action = "export"
+
+        if action == "skip":
+            if dest.exists():
+                options.export_db.set_history(
+                    filename=str(dest), uuid=self.photo.uuid, action=action, diff=None
+                )
+                verbose(f"Skipping up to date AAE file {dest}")
+                return ExportResults(aae_skipped=[])
+            else:
+                action = "export"
+
+        print(f"action={action}")
+
+        errors = []
+        if dest.exists() and any(
+            [options.overwrite, options.update, options.force_update]
+        ):
+            try:
+                options.fileutil.unlink(dest)
+            except Exception as e:
+                errors.append(f"Error removing file {dest}: {e} (({lineno(__file__)})")
 
         if options.export_as_hardlink:
             try:
-                if aae_dest.exists() and any(
-                    [options.overwrite, options.update, options.force_update]
-                ):
-                    try:
-                        options.fileutil.unlink(aae_dest)
-                    except Exception as e:
-                        raise ExportError(
-                            f"Error removing file {aae_dest}: {e} (({lineno(__file__)})"
-                        ) from e
-                options.fileutil.hardlink(aae_src, aae_dest)
+                options.fileutil.hardlink(src, dest)
             except Exception as e:
-                raise ExportError(
-                    f"Error hardlinking {aae_src} to {aae_dest}: {e} ({lineno(__file__)})"
-                ) from e
+                errors.append(
+                    f"Error hardlinking {src} to {dest}: {e} ({lineno(__file__)})"
+                )
         else:
             try:
-                options.fileutil.copy(aae_src, aae_dest)
+                options.fileutil.copy(src, dest)
             except Exception as e:
-                raise ExportError(
-                    f"Error copying file {aae_src} to {aae_dest}: {e} ({lineno(__file__)})"
-                ) from e
+                errors.append(
+                    f"Error copying file {src} to {dest}: {e} ({lineno(__file__)})"
+                )
+
+        # set data in the database
+        fileutil = options.fileutil
+        with options.export_db.create_or_get_file_record(
+            str(dest), self.photo.uuid
+        ) as rec:
+            # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
+            rec.src_sig = fileutil.file_sig(src)
+            if not options.ignore_signature:
+                rec.dest_sig = fileutil.file_sig(dest)
+            rec.export_options = options.bit_flags
+            if errors:
+                rec.error = {
+                    "error": errors,
+                    "exiftool_error": None,
+                    "exiftool_warning": None,
+                }
+
+        options.export_db.set_history(
+            filename=str(dest), uuid=self.photo.uuid, action=action, diff=None
+        )
 
         verbose(
-            f"Exported adjustments of {self._filename(self.photo.original_filename)} to {self._filepath(aae_dest)}"
+            f"Exported adjustments of {self._filename(self.photo.original_filename)} to {self._filepath(dest)}"
         )
-        return ExportResults(aae_written=[aae_dest])
+        return ExportResults(aae_written=[dest], error=errors)
 
     def write_exiftool_metadata_to_file(
         self,
