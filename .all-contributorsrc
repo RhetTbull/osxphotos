@@ -750,6 +750,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "odedia",
+      "name": "odedia",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2992180?v=4",
+      "profile": "https://odedia.org",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
