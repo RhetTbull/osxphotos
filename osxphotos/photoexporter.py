@@ -1234,8 +1234,7 @@ class PhotoExporter:
                 options.export_db.set_history(
                     filename=str(dest), uuid=self.photo.uuid, action=action, diff=None
                 )
-                verbose(f"Skipping up to date AAE file {dest}")
-                return ExportResults(aae_skipped=[])
+                return ExportResults(aae_skipped=[str(dest)], skipped=[str(dest)])
             else:
                 action = "export"
 
@@ -1289,7 +1288,7 @@ class PhotoExporter:
         verbose(
             f"Exported adjustments of {self._filename(self.photo.original_filename)} to {self._filepath(dest)}"
         )
-        return ExportResults(aae_written=[dest], error=errors)
+        return ExportResults(aae_written=[str(dest)], exported=[str(dest)], error=errors)
 
     def write_exiftool_metadata_to_file(
         self,

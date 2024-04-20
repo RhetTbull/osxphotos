@@ -3853,6 +3853,7 @@ def test_export_aae_as_hardlink():
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_AAE_FILENAMES)
 
+
 def test_export_aae_update():
     """Test export with --export-aae --update"""
 
@@ -3892,7 +3893,9 @@ def test_export_aae_update():
         )
         assert result.exit_code == 0
         assert "Error" not in result.output
-        assert re.match(r"Skipped up to date file.*\.AAE", result.output)
+        assert re.findall(
+            r"Skipped up to date file (.*\.AAE)", result.output, re.MULTILINE
+        )
 
 
 def test_export_sidecar():
