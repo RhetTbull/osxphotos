@@ -1,8 +1,8 @@
 """ AdjustmentsInfo class to read adjustments data for photos edited in Apple's Photos.app
     In Catalina and Big Sur, the adjustments data (data about edits done to the photo)
-    is stored in a plist file in 
+    is stored in a plist file in
     ~/Pictures/Photos Library.photoslibrary/resources/renders/X/UUID.plist
-    where X is first character of the photo's UUID string and UUID is the full UUID, 
+    where X is first character of the photo's UUID string and UUID is the full UUID,
     e.g.: ~/Pictures/Photos Library.photoslibrary/resources/renders/3/30362C1D-192F-4CCD-9A2A-968F436DC0DE.plist
 
     Thanks to @neilpa who figured out how to decode this information:
@@ -11,12 +11,15 @@
 
 import datetime
 import json
+import logging
 import plistlib
 import zlib
 
 from .datetime_utils import datetime_naive_to_utc
 
 __all__ = ["AdjustmentsDecodeError", "AdjustmentsInfo"]
+
+logger = logging.getLogger("osxphotos")
 
 
 class AdjustmentsDecodeError(Exception):
@@ -44,6 +47,7 @@ class AdjustmentsInfo:
         try:
             self._adjustments = self._decode_adjustments_from_plist(self._plist)
         except Exception as e:
+            logger.debug(f"Could not decode adjustments data: {plist_file}")
             self._adjustments = None
 
     def _decode_adjustments_from_plist(self, plist):
@@ -70,7 +74,11 @@ class AdjustmentsInfo:
             plist as dict
         """
         with open(str(plist_file), "rb") as fd:
-            plist_dict = plistlib.load(fd)
+            try:
+                plist_dict = plistlib.load(fd)
+            except Exception as e:
+                logger.debug(f"Could not load plist file: {plist_file}")
+                plist_dict = {}
         return plist_dict
 
     @property
@@ -113,7 +121,7 @@ class AdjustmentsInfo:
         """List of adjustment dictionaries (or empty list if none or could not be decoded)"""
         try:
             return self._adjustments["adjustments"] if self._adjustments else []
-        except KeyError:
+        except (KeyError, TypeError):
             return []
 
     @property
@@ -121,7 +129,7 @@ class AdjustmentsInfo:
         """Metadata dictionary or None if adjustment data could not be decoded"""
         try:
             return self._adjustments["metadata"] if self._adjustments else None
-        except KeyError:
+        except (KeyError, TypeError):
             return None
 
     @property
@@ -129,11 +137,8 @@ class AdjustmentsInfo:
         """EXIF orientation of image or 0 if none specified or None if adjustments could not be decoded"""
         try:
             return self._adjustments["metadata"]["orientation"]
-        except KeyError:
-            # no orientation field
-            return 0
-        except TypeError:
-            # adjustments is None
+        except (KeyError, TypeError):
+            # no orientation field or adjustments is None
             return 0
 
     @property
@@ -141,7 +146,7 @@ class AdjustmentsInfo:
         """Format version for adjustments data (formatVersion field from adjustmentData) or None if adjustments could not be decoded"""
         try:
             return self._adjustments["formatVersion"] if self._adjustments else None
-        except KeyError:
+        except (KeyError, TypeError):
             return None
 
     @property
@@ -149,7 +154,7 @@ class AdjustmentsInfo:
         """version info for adjustments data or None if adjustments data could not be decoded"""
         try:
             return self._adjustments["versionInfo"] if self._adjustments else None
-        except KeyError:
+        except (KeyError, TypeError):
             return None
 
     def asdict(self):
