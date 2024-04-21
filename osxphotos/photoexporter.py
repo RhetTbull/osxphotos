@@ -1285,7 +1285,7 @@ class PhotoExporter:
         )
 
         verbose(
-            f"Exported adjustments of {self._filename(self.photo.original_filename)} to {self._filepath(dest)}"
+            f"Exported adjustments for {self._filename(self.photo.original_filename)} to {self._filepath(dest)}"
         )
 
         written = [str(dest)]
