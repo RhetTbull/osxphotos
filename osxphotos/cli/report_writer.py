@@ -109,6 +109,8 @@ class ExportReportWriterCSV(ReportWriterABC):
             "user_written",
             "user_skipped",
             "user_error",
+            "aae_written",
+            "aae_skipped",
         ]
 
         mode = "a" if append else "w"
@@ -208,9 +210,9 @@ class ExportReportWriterSQLite(ReportWriterABC):
             cursor = self._conn.cursor()
             cursor.execute(
                 "INSERT INTO report "
-                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user, sidecar_user_error, user_written, user_skipped, user_error) "  # noqa
+                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user, sidecar_user_error, user_written, user_skipped, user_error, aae_written, aae_skipped) "  # noqa
                 "VALUES "
-                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user, :sidecar_user_error, :user_written, :user_skipped, :user_error);",  # noqa
+                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user, :sidecar_user_error, :user_written, :user_skipped, :user_error, :aae_written, :aae_skipped);",  # noqa
                 data,
             )
         self._conn.commit()
@@ -306,6 +308,19 @@ class ExportReportWriterSQLite(ReportWriterABC):
             )
             self._conn.commit()
 
+        # migrate report table for aae_written and aae_skipped
+        if "aae_written" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute(
+                "ALTER TABLE report ADD COLUMN aae_written TEXT;"
+            )
+            self._conn.commit()
+
+        if "aae_skipped" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute(
+                "ALTER TABLE report ADD COLUMN aae_skipped TEXT;"
+            )
+            self._conn.commit()
+
         # create report_summary view
         c.execute(
             """
@@ -396,6 +411,8 @@ def prepare_export_results_for_writing(
                 "user_written": false,
                 "user_skipped": false,
                 "user_error": "",
+                "aae_written": false,
+                "aae_skipped": false,
             }
 
     for result in export_results.exported:
@@ -491,6 +508,12 @@ def prepare_export_results_for_writing(
 
     for result in export_results.user_error:
         all_results[str(result[0])]["user_error"] = result[1]
+
+    for result in export_results.aae_written:
+        all_results[str(result)]["aae_written"] = true
+
+    for result in export_results.aae_skipped:
+        all_results[str(result)]["aae_skipped"] = true
 
     return all_results
 
@@ -644,7 +667,7 @@ class SyncReportWriterSQLite(ReportWriterABC):
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS report (
-                report_id TEXT, 
+                report_id TEXT,
                 uuid TEXT,
                 filename TEXT,
                 fingerprint TEXT,
@@ -1002,7 +1025,7 @@ class PushExifReportWriterSQLite(ReportWriterABC):
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS report (
-                report_id TEXT, 
+                report_id TEXT,
                 uuid TEXT,
                 original_filename TEXT,
                 filename TEXT,
