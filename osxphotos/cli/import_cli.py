@@ -8,6 +8,7 @@ import datetime
 import fnmatch
 import itertools
 import json
+import logging
 import os
 import os.path
 import pathlib
@@ -62,6 +63,7 @@ from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photoinfo_file import PhotoInfoFromFile
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.sqlite_utils import sqlite_columns
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.strpdatetime_parts import (
     date_str_matches_date_time_codes,
@@ -81,6 +83,7 @@ if TYPE_CHECKING:
 # register datetime adapters/converters for sqlite3
 sqlite3_datetime.register()
 
+logger = logging.getLogger("osxphotos")
 
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
@@ -91,6 +94,13 @@ try:
     EXIFTOOL_PATH = get_exiftool_path()
 except FileNotFoundError:
     EXIFTOOL_PATH = None
+
+# bit mask for import groups, live, raw+jpeg, burst, and aae
+IS_IMPORT_GROUP = 1
+IS_LIVE_PAIR = 2
+IS_RAW_JPEG_PAIR = 4
+IS_BURST_GROUP = 8
+HAS_AAE_FILE = 16
 
 
 def echo(message, emoji=True, **kwargs):
@@ -167,8 +177,11 @@ def import_photo_group(
         verbose(
             f"Imported [filename]{filepaths[0].name}[/] with UUID [uuid]{imported[0].uuid}[/]"
         )
+        # this assumes the only groups being imported are live, raw+jpeg, bursts
+        # if modified to import arbitrary groups, will need to be updated
+        # to match the associated UUID and image file
         if len(imported) > 1:
-            print(f"Imported {len(imported)} photos")
+            logger.warning(f"Warning: imported {len(imported)} images, expected 1")
         photo = imported[0]
         return photo, None
     else:
@@ -403,7 +416,7 @@ def set_photo_metadata_from_metadata(
 
 
 def set_photo_metadata_from_sidecar(
-    photo: Photo or None,
+    photo: Photo | None,
     filepath: pathlib.Path,
     sidecar: pathlib.Path,
     sidecar_ignore_date: bool,
@@ -458,7 +471,7 @@ def set_photo_title(
 
 
 def set_photo_description(
-    photo: Photo or None,
+    photo: Photo | None,
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path,
     description_template: str,
@@ -733,6 +746,7 @@ class ReportRecord:
     live_video: str = ""
     raw_pair: bool = False
     raw_image: str = ""
+    aae_file: bool = False
     keywords: list[str] = dataclasses.field(default_factory=list)
     location: tuple[float, float] = dataclasses.field(default_factory=tuple)
     title: str = ""
@@ -827,7 +841,13 @@ def write_csv_report(
                     "import_datetime",
                     "uuid",
                     "imported",
-                    # ZZZ
+                    "burst",
+                    "burst_images",
+                    "live_photo",
+                    "live_video",
+                    "raw_pair",
+                    "raw_image",
+                    "aae_file",
                     "error",
                     "title",
                     "description",
@@ -844,8 +864,15 @@ def write_csv_report(
                     report_record.filename,
                     report_record.import_datetime,
                     report_record.uuid,
-                    report_record.imported,
-                    report_record.error,
+                    1 if report_record.imported else 0,
+                    1 if report_record.burst else 0,
+                    report_record.burst_images,
+                    1 if report_record.live_photo else 0,
+                    report_record.live_video,
+                    1 if report_record.raw_pair else 0,
+                    report_record.raw_image,
+                    1 if report_record.aae_file else 0,
+                    1 if report_record.error else 0,
                     report_record.title,
                     report_record.description,
                     ",".join(report_record.keywords),
@@ -877,50 +904,10 @@ def write_sqlite_report(
         with suppress(FileNotFoundError):
             os.unlink(report_file)
 
-    file_exists = os.path.isfile(report_file)
-
     conn = sqlite3.connect(report_file, check_same_thread=SQLITE_CHECK_SAME_THREAD)
+    create_or_migrate_sql_report_db(conn)
+
     c = conn.cursor()
-
-    if not append or not file_exists:
-        # Create the tables
-        c.execute(
-            """CREATE TABLE IF NOT EXISTS report (
-                report_id INTEGER,
-                filepath TEXT,
-                filename TEXT,
-                import_datetime TEXT,
-                uuid TEXT,
-                imported INTEGER,
-                error INTEGER,
-                title TEXT,
-                description TEXT,
-                keywords TEXT,
-                albums TEXT,
-                location TEXT,
-                datetime TEXT
-            )"""
-        )
-        c.execute(
-            """
-            CREATE TABLE IF NOT EXISTS about (
-                id INTEGER PRIMARY KEY,
-                about TEXT
-                );"""
-        )
-        c.execute(
-            "INSERT INTO about(about) VALUES (?);",
-            (f"OSXPhotos Import Report. {OSXPHOTOS_ABOUT_STRING}",),
-        )
-        c.execute(
-            """
-            CREATE TABLE IF NOT EXISTS report_id (
-                report_id INTEGER PRIMARY KEY,
-                datetime TEXT
-            );"""
-        )
-
-    # Insert report_id
     c.execute(
         "INSERT INTO report_id(datetime) VALUES (?);",
         (datetime.datetime.now().isoformat(),),
@@ -942,8 +929,15 @@ def write_sqlite_report(
                 keywords,
                 albums,
                 location,
-                datetime
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""",
+                datetime,
+                burst,
+                burst_images,
+                live_photo,
+                live_video,
+                raw_pair,
+                raw_image,
+                aae_file
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""",
             (
                 report_id,
                 str(report_record.filepath),
@@ -966,10 +960,89 @@ def write_sqlite_report(
                     else None
                 ),
                 report_record.datetime.isoformat() if report_record.datetime else None,
+                report_record.burst,
+                report_record.burst_images,
+                report_record.live_photo,
+                report_record.live_video,
+                report_record.raw_pair,
+                report_record.raw_image,
+                report_record.aae_file,
             ),
         )
     conn.commit()
     conn.close()
+
+
+def create_or_migrate_sql_report_db(conn: sqlite3.Connection):
+    """Create or migrate the SQLite DB for the import report"""
+
+    c = conn.cursor()
+
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS report (
+            report_id INTEGER,
+            filepath TEXT,
+            filename TEXT,
+            import_datetime TEXT,
+            uuid TEXT,
+            imported INTEGER,
+            error INTEGER,
+            title TEXT,
+            description TEXT,
+            keywords TEXT,
+            albums TEXT,
+            location TEXT,
+            datetime TEXT
+        )"""
+    )
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS about (
+            id INTEGER PRIMARY KEY,
+            about TEXT
+            );"""
+    )
+    c.execute(
+        "INSERT INTO about(about) VALUES (?);",
+        (f"OSXPhotos Import Report. {OSXPHOTOS_ABOUT_STRING}",),
+    )
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS report_id (
+            report_id INTEGER PRIMARY KEY,
+            datetime TEXT
+        );"""
+    )
+    conn.commit()
+
+    # migrate report table for additional records
+    if "burst" not in sqlite_columns(conn, "report"):
+        c.execute("ALTER TABLE report ADD COLUMN burst INTEGER;")
+        conn.commit()
+
+    if "burst_images" not in sqlite_columns(conn, "report"):
+        c.execute("ALTER TABLE report ADD COLUMN burst_images INTEGER;")
+        conn.commit()
+
+    if "live_photo" not in sqlite_columns(conn, "report"):
+        c.execute("ALTER TABLE report ADD COLUMN live_photo INTEGER;")
+        conn.commit()
+
+    if "live_video" not in sqlite_columns(conn, "report"):
+        c.execute("ALTER TABLE report ADD COLUMN live_video TEXT;")
+        conn.commit()
+
+    if "raw_pair" not in sqlite_columns(conn, "report"):
+        c.execute("ALTER TABLE report ADD COLUMN raw_pair INTEGER;")
+        conn.commit()
+
+    if "raw_image" not in sqlite_columns(conn, "report"):
+        c.execute("ALTER TABLE report ADD COLUMN raw_image TEXT;")
+        conn.commit()
+
+    if "aae_file" not in sqlite_columns(conn, "report"):
+        c.execute("ALTER TABLE report ADD COLUMN aae_file INTEGER;")
+        conn.commit()
 
 
 def render_and_validate_report(report: str) -> str:
@@ -1212,15 +1285,21 @@ def import_files(
             total=groupcount,
         )
         for file_tuple in files:
+            file_type = 0
             if len(file_tuple) > 1:
+                file_type |= IS_IMPORT_GROUP
                 noun = "import group"
                 if burst_uuid_from_path(file_tuple[0]):
+                    file_type |= IS_BURST_GROUP
                     noun = "burst group"
                 elif is_live_pair(*file_tuple[:2]):
+                    file_type |= IS_LIVE_PAIR
                     noun = "live photo pair"
                 elif is_raw_pair(*file_tuple[:2]):
+                    file_type |= IS_RAW_JPEG_PAIR
                     noun = "raw+jpeg pair"
                 if has_aae(file_tuple):
+                    file_type |= HAS_AAE_FILE
                     noun += " with .AAE file"
                 verbose(f"Processing {noun}: {', '.join([f.name for f in file_tuple])}")
             filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
@@ -1242,10 +1321,16 @@ def import_files(
 
             verbose(f"Importing " + ", ".join(f"[filepath]{f}[/]" for f in file_tuple))
 
-            # ZZZ need to handle bursts differently -- add report record for each file?
-            print(f"{file_tuple=}")
             report_data[filepath] = ReportRecord(
-                filepath=filepath, filename=filepath.name
+                filename=filepath.name,
+                filepath=filepath,
+                burst=bool(file_type & IS_BURST_GROUP),
+                burst_images=len(file_tuple) if file_type & IS_BURST_GROUP else 0,
+                live_photo=bool(file_type & IS_LIVE_PAIR),
+                live_video=str(file_tuple[1]) if file_type & IS_LIVE_PAIR else "",
+                raw_pair=bool(file_type & IS_RAW_JPEG_PAIR),
+                raw_image=str(file_tuple[1]) if file_type & IS_RAW_JPEG_PAIR else "",
+                aae_file=bool(file_type & HAS_AAE_FILE),
             )
             report_record = report_data[filepath]
 
