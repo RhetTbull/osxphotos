@@ -9,6 +9,7 @@ import pathlib
 import uuid
 from typing import Optional, Union
 
+from ._constants import _OSXPHOTOS_NONE_SENTINEL
 from .datetime_utils import datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .metadata_reader import MetaData, metadata_from_file, metadata_from_sidecar
@@ -153,7 +154,7 @@ class PhotoInfoFromFile:
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
         """
-        options = options or RenderOptions(caller="import")
+        options = options or RenderOptions(caller="import", filepath=self.path)
         template = PhotoTemplate(self, exiftool_path=self._exiftool_path)
         return template.render(template_str, options)
 
@@ -180,3 +181,66 @@ class PhotoInfoFromDict:
         if not name.startswith("_"):
             return self._data.get(name)
         raise AttributeError()
+
+
+def render_photo_template(
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path | None,
+    template: str,
+    exiftool_path: str | None,
+    sidecar: pathlib.Path | None,
+):
+    """Render template string for a photo from a file instead of a PhotoInfo object
+
+    Args:
+        filepath: path to the photo being rendered
+        relative_filepath: path to the photo relative to the library or import root; if None, uses filepath
+        template: template string to render
+        exiftool_path: path to exiftool to retrieve metadata
+        sidecar: path to sidecar file if it exists for retrieving metadata
+
+    Returns: list of rendered strings
+    """
+    photoinfo = PhotoInfoFromFile(
+        filepath, exiftool=exiftool_path, sidecar=str(sidecar) if sidecar else None
+    )
+    render_filepath = relative_filepath or filepath
+    options = RenderOptions(
+        none_str=_OSXPHOTOS_NONE_SENTINEL,
+        # filepath=str(relative_filepath),
+        filepath=str(render_filepath),
+        caller="import",
+    )
+    template_values, _ = photoinfo.render_template(template, options=options)
+    # filter out empty strings
+    template_values = [v.replace(_OSXPHOTOS_NONE_SENTINEL, "") for v in template_values]
+    template_values = [v for v in template_values if v]
+    return template_values
+
+
+def strip_edited_suffix(
+    filepath: pathlib.Path,
+    edited_suffix: str | None,
+    exiftool_path: str | None,
+) -> pathlib.Path:
+    """Strip edited suffix from filename if present
+
+    Args:
+        filepath: path to photo file
+        edited_suffix: str: suffix template to strip from filename
+        exiftool_path: path to exiftool
+
+    Returns: pathlib.Path with edited suffix stripped
+    """
+    photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path, sidecar=None)
+    if not edited_suffix:
+        return filepath
+
+    options = RenderOptions()
+    template_values, _ = photoinfo.render_template(edited_suffix, options=options)
+    if len(template_values) != 1:
+        raise ValueError(
+            f"edited_suffix template {edited_suffix} must return exactly one value"
+        )
+    suffix = template_values[0]
+    return filepath.with_name(filepath.stem[: -len(suffix)] + filepath.suffix)

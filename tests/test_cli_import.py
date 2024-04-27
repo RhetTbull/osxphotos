@@ -50,6 +50,7 @@ TEST_DATA = {
         "lat": 33.7150638888889,
         "lon": -118.319672222222,
         "check_templates": [
+            "sidecar file: None",
             "exiftool title: Waves crashing on rocks",
             "exiftool description: Used for testing osxphotos",
             "exiftool keywords: ['osxphotos', 'Sümmer']",

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import pathlib
 from functools import cache
 from typing import Callable
@@ -11,8 +12,16 @@ from mako.template import Template
 
 from osxphotos.cli.click_rich_echo import rich_echo_error
 from osxphotos.exportoptions import ExportResults
+from osxphotos.metadata_reader import get_sidecar_for_file
 from osxphotos.photoinfo import PhotoInfo
+from osxphotos.photoinfo_file import (
+    PhotoInfoFromFile,
+    render_photo_template,
+    strip_edited_suffix,
+)
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+
+logger = logging.getLogger("osxphotos")
 
 
 @cache
@@ -109,7 +118,6 @@ def generate_user_sidecar(
             else:
                 sidecar_results.sidecar_user_written.append(template_filename)
 
-    print(sidecar_results)
     return sidecar_results
 
 
@@ -179,3 +187,53 @@ def _render_sidecar_and_write_data(
             f.write(sidecar_data)
 
     return None
+
+
+def get_sidecar_file_with_template(
+    filepath: pathlib.Path,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
+    edited_suffix: str | None,
+    exiftool_path: str | None,
+) -> pathlib.Path | None:
+    """Find sidecar file for photo with optional template for the sidecar and/or edited suffix"""
+    if not (sidecar or sidecar_filename_template):
+        return None
+    sidecar_file = None
+    if sidecar_filename_template:
+        if sidecars := render_photo_template(
+            filepath,
+            None,
+            sidecar_filename_template,
+            exiftool_path,
+            None,
+        ):
+            # allow multiple values to be rendered and checked
+            # but only one will be used if more than one is valid
+            for f in sidecars:
+                sidecar_file = pathlib.Path(f)
+                if sidecar_file.exists():
+                    break
+                else:
+                    sidecar_file = None
+        else:
+            logger.warning(
+                f"Could not render sidecar template '{sidecar_filename_template}' for '{filepath}'"
+            )
+    else:
+        sidecar_file = get_sidecar_for_file(filepath)
+    if not sidecar_file or not sidecar_file.exists():
+        if edited_suffix:
+            # try again with the edited suffix removed
+            filepath = strip_edited_suffix(
+                filepath, edited_suffix, exiftool_path
+            )
+            return get_sidecar_file_with_template(
+                filepath,
+                sidecar,
+                sidecar_filename_template,
+                None,
+                exiftool_path,
+            )
+        return None
+    return sidecar_file

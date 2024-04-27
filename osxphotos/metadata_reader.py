@@ -8,7 +8,7 @@ import pathlib
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Callable, Optional, Tuple
 
 from .datetime_utils import (
     datetime_has_tz,
@@ -121,11 +121,11 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
     filepath = (
         pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
     )
-    for ext in ["json", "xmp"]:
-        sidecar = pathlib.Path(f"{filepath}.{ext}")
+    for ext in [".json", ".xmp"]:
+        sidecar = pathlib.Path(f"{filepath}{ext}")
         if sidecar.is_file():
             return sidecar
-        sidecar = filepath.with_suffix("." + ext)
+        sidecar = filepath.with_suffix(ext)
         if sidecar.is_file():
             return sidecar
 
@@ -135,13 +135,14 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
     # in form img_1234(1).jpg but the sidecar may be named img_1234.jpg(1).json
 
     stem = filepath.stem
-    if stem.endswith("-edited"):
-        # strip off -edited suffix
+    # strip off -edited suffix (Google Takeout) or _edited (OSXPhotos edited images with default suffix)
+    if stem.endswith("-edited") or stem.endswith("_edited"):
+        # strip off -edited/_edited suffix
         stem = stem[:-7]
         new_filepath = filepath.with_stem(stem)
         return get_sidecar_for_file(new_filepath)
 
-    # strip off (1) suffix
+    # strip off (1) suffix for Google takeout naming scheme
     if match := re.match(r"(.*)(\(\d+\))$", stem):
         stem = match.groups()[0]
         new_filepath = pathlib.Path(

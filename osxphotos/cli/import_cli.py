@@ -36,7 +36,7 @@ from photoscript import Photo, PhotosLibrary
 
 import osxphotos.sqlite3_datetime as sqlite3_datetime
 from osxphotos._constants import (
-    _OSXPHOTOS_NONE_SENTINEL,
+    DEFAULT_EDITED_SUFFIX,
     OSXPHOTOS_EXPORT_DB,
     SQLITE_CHECK_SAME_THREAD,
 )
@@ -45,6 +45,7 @@ from osxphotos.cli.cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
 from osxphotos.cli.common import get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.cli.param_types import FunctionCall, StrpDateTimePattern, TemplateString
+from osxphotos.cli.sidecar import get_sidecar_file_with_template
 from osxphotos.datetime_utils import (
     datetime_has_tz,
     datetime_remove_tz,
@@ -60,7 +61,7 @@ from osxphotos.metadata_reader import (
     metadata_from_sidecar,
 )
 from osxphotos.photoinfo import PhotoInfoNone
-from osxphotos.photoinfo_file import PhotoInfoFromFile
+from osxphotos.photoinfo_file import render_photo_template, strip_edited_suffix
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlite_utils import sqlite_columns
@@ -131,33 +132,6 @@ def echo(message, emoji=True, **kwargs):
 #     return wrapper
 
 
-def get_sidecar_file(
-    filepath: pathlib.Path,
-    relative_filepath: pathlib.Path,
-    sidecar: bool,
-    sidecar_filename_template: str | None,
-    exiftool_path: str | None,
-    verbose: Callable[..., None],
-) -> pathlib.Path | None:
-    sidecar_file = None
-    if sidecar or sidecar_filename_template:
-        if sidecar_filename_template:
-            if sidecar_files := render_photo_template(
-                filepath,
-                relative_filepath,
-                sidecar_filename_template,
-                exiftool_path,
-                None,
-            ):
-                sidecar_file = pathlib.Path(sidecar_files[0])
-        else:
-            sidecar_file = get_sidecar_for_file(filepath)
-        if not sidecar_file or not sidecar_file.exists():
-            verbose(f"No sidecar found for [filepath]{filepath}[/]")
-            sidecar_file = None
-    return sidecar_file
-
-
 def import_photo_group(
     filepaths: tuple[pathlib.Path, ...], dup_check: bool, verbose: Callable[..., None]
 ) -> tuple[Photo | None, str | None]:
@@ -188,29 +162,6 @@ def import_photo_group(
         error_str = f"[error]Error importing file [filepath]{filepaths[0]}[/][/]"
         echo(error_str, err=True)
         return None, error_str
-
-
-def render_photo_template(
-    filepath: pathlib.Path,
-    relative_filepath: pathlib.Path,
-    template: str,
-    exiftool_path: str | None,
-    sidecar: pathlib.Path | None,
-):
-    """Render template string for a photo"""
-    photoinfo = PhotoInfoFromFile(
-        filepath, exiftool=exiftool_path, sidecar=str(sidecar) if sidecar else None
-    )
-    options = RenderOptions(
-        none_str=_OSXPHOTOS_NONE_SENTINEL,
-        filepath=str(relative_filepath),
-        caller="import",
-    )
-    template_values, _ = photoinfo.render_template(template, options=options)
-    # filter out empty strings
-    template_values = [v.replace(_OSXPHOTOS_NONE_SENTINEL, "") for v in template_values]
-    template_values = [v for v in template_values if v]
-    return template_values
 
 
 def add_photo_to_albums(
@@ -624,7 +575,6 @@ def get_relative_filepath(
     Raises: click.Abort if relative_to is not in the same path as filepath
     """
     relative_filepath = filepath
-
     # check relative_to here so we abort before import if relative_to is bad
     if relative_to:
         try:
@@ -635,7 +585,6 @@ def get_relative_filepath(
                 err=True,
             )
             raise click.Abort() from e
-
     return relative_filepath
 
 
@@ -651,21 +600,25 @@ def check_templates_and_exit(
     parse_date: str | None,
     parse_folder_date: str | None,
     sidecar: bool,
-    sidecar_filename_template: str | None = None,
+    sidecar_filename_template: str | None,
+    edited_suffix: str | None,
 ):
     """Renders templates against each file so user can verify correctness"""
     for file in files:
         file = pathlib.Path(file).absolute().resolve()
         relative_filepath = get_relative_filepath(file, relative_to)
-        sidecar_file = get_sidecar_file(
+        sidecar_file = get_sidecar_file_with_template(
             filepath=file,
-            relative_filepath=relative_filepath,
             sidecar=sidecar,
             sidecar_filename_template=sidecar_filename_template,
+            edited_suffix=edited_suffix,
             exiftool_path=exiftool_path,
-            verbose=echo,
         )
         echo(f"[filepath]{file}[/]:")
+        if sidecar and not sidecar_file:
+            echo("no sidecar file found")
+        else:
+            echo(f"sidecar file: {sidecar_file}")
         if exiftool:
             metadata = metadata_from_file(file, exiftool_path)
             echo(f"exiftool title: {metadata.title}")
@@ -1242,6 +1195,7 @@ def import_files(
     resume: bool,
     clear_metadata: bool,
     clear_location: bool,
+    edited_suffix: str | None,
     exiftool: bool,
     exiftool_path: str,
     sidecar: bool,
@@ -1335,14 +1289,15 @@ def import_files(
             report_record = report_data[filepath]
 
             if sidecar or sidecar_filename_template:
-                sidecar_file = get_sidecar_file(
+                sidecar_file = get_sidecar_file_with_template(
                     filepath=filepath,
-                    relative_filepath=relative_filepath,
                     sidecar=sidecar,
                     sidecar_filename_template=sidecar_filename_template,
+                    edited_suffix=edited_suffix,
                     exiftool_path=exiftool_path,
-                    verbose=verbose,
                 )
+                if not sidecar_file:
+                    verbose(f"No sidecar file found for [filepath]{filepath}[/]")
             else:
                 sidecar_file = None
 
@@ -2008,6 +1963,19 @@ class ImportCommand(click.Command):
     "Note: --sidecar and --sidecar-filename are mutually exclusive.",
 )
 @click.option(
+    "--edited-suffix",
+    metavar="TEMPLATE",
+    help="Optional suffix template used for naming edited photos. "
+    "This is used to associate sidecars to the edited version of a file when --sidecar or --sidecar-filename is used. "
+    f"By default, osxphotos will look for edited photos using default 'osxphotos export' suffix of '{DEFAULT_EDITED_SUFFIX}' "
+    "If your edited photos have a different suffix you can use '--edited-suffix' to specify the suffix. "
+    "For example, with '--edited-suffix _bearbeiten', the import command will look for a file named 'photoname_bearbeiten.ext' "
+    "and associated that with a sidecar named 'photoname.xmp', etc. "
+    "The --edited-suffix option is only valid when used with --sidecar or --sidecar-filename. "
+    "Multi-value templates (see Templating System in the OSXPhotos docs) are not permitted with --edited-suffix.",
+    type=TemplateString(),
+)
+@click.option(
     "--sidecar-ignore-date",
     "-i",
     is_flag=True,
@@ -2182,6 +2150,7 @@ def import_main(
     dry_run: bool,
     dup_albums: bool,
     dup_check: bool,
+    edited_suffix: str | None,
     exiftool: bool,
     exiftool_path: str | None,
     files: tuple[str, ...],
@@ -2239,6 +2208,7 @@ def import_cli(
     dry_run: bool = False,
     dup_albums: bool = False,
     dup_check: bool = False,
+    edited_suffix: str | None = None,
     exiftool: bool = False,
     exiftool_path: str | None = None,
     files: tuple[str, ...] = (),
@@ -2298,6 +2268,7 @@ def import_cli(
             parse_folder_date=parse_folder_date,
             sidecar=sidecar,
             sidecar_filename_template=sidecar_filename_template,
+            edited_suffix=edited_suffix,
         )
 
     files_to_import = group_files_to_import(files)
@@ -2339,6 +2310,12 @@ def import_cli(
         )
         raise click.Abort()
 
+    if edited_suffix and not (sidecar or sidecar_filename_template):
+        rich_echo_error(
+            "[error] --edited-suffix must be used with --sidecar or --sidecar-filename"
+        )
+        raise click.Abort()
+
     if dup_albums and not (skip_dups and album):
         rich_echo_error(
             "[error] --dup-albums must be used with --skip-dups and --album"
@@ -2364,6 +2341,7 @@ def import_cli(
         resume=resume,
         clear_metadata=clear_metadata,
         clear_location=clear_location,
+        edited_suffix=edited_suffix,
         exiftool=exiftool,
         exiftool_path=exiftool_path,
         sidecar=sidecar,
