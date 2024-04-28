@@ -1106,23 +1106,29 @@ def collect_files_to_import(
     files_to_import = []
     for file in files:
         if os.path.isfile(file):
-            if glob and filename_matches_patterns(os.path.basename(file), glob):
-                files_to_import.append(file)
-            elif not glob:
-                files_to_import.append(file)
+            files_to_import.append(file)
         elif os.path.isdir(file):
-            if walk:
+            if not walk:
+                # don't recurse but do collect all files in the directory
+                dir_files = [
+                    os.path.join(file, f)
+                    for f in os.listdir(file)
+                    if os.path.isfile(os.path.join(file, f))
+                ]
+                files_to_import.extend(dir_files)
+            else:
                 for root, dirs, filenames in os.walk(file):
                     for file in filenames:
-                        if glob and filename_matches_patterns(
-                            os.path.basename(file), glob
-                        ):
-                            files_to_import.append(os.path.join(root, file))
-                        elif not glob:
-                            files_to_import.append(os.path.join(root, file))
+                        files_to_import.append(os.path.join(root, file))
         else:
             continue
 
+    if glob:
+        files_to_import = [
+            f
+            for f in files_to_import
+            if filename_matches_patterns(os.path.basename(f), glob)
+        ]
     files_to_import = [pathlib.Path(f).absolute() for f in files_to_import]
 
     # strip any sidecar files
@@ -2286,7 +2292,7 @@ class ImportCommand(click.Command):
     "in which case osxphotos will tell you to use the --library option when you run the import command.",
 )
 @THEME_OPTION
-@click.argument("files", nargs=-1)
+@click.argument("FILES_OR_DIRS", nargs=-1)
 @click.pass_obj
 @click.pass_context
 def import_main(
