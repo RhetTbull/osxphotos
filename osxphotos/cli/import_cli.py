@@ -1266,6 +1266,7 @@ def import_files(
     import_db: SQLiteKVStore,
     verbose: Callable[..., None],
     auto_live: bool,
+    stop_on_error: int | None,
     signature: str | None,
 ):
     """Import files into Photos library
@@ -1296,247 +1297,265 @@ def import_files(
             f"Importing [num]{filecount}[/] {pluralize(filecount, 'file', 'files')} in [num]{groupcount}[/] {pluralize(groupcount, 'group', 'groups')}",
             total=groupcount,
         )
-        for file_tuple in files:
-            file_type = 0
-            if len(file_tuple) > 1:
-                file_type |= IS_IMPORT_GROUP
-                noun = "import group"
-                if burst_uuid_from_path(file_tuple[0]):
-                    file_type |= IS_BURST_GROUP
-                    noun = "burst group"
-                elif is_live_pair(*file_tuple[:2]):
-                    file_type |= IS_LIVE_PAIR
-                    noun = "live photo pair"
-                elif is_raw_pair(*file_tuple[:2]):
-                    file_type |= IS_RAW_JPEG_PAIR
-                    noun = "raw+jpeg pair"
-                elif auto_live and is_possible_live_pair(*file_tuple[:2]):
-                    file_type |= AUTO_LIVE_PAIR
-                    noun = "live photo pair"
-                    verbose(
-                        f"Converting to live photo pair: [filepath]{file_tuple[0]}[/], [filepath]{file_tuple[1]}[/]"
-                    )
-                    if not dry_run:
-                        try:
-                            makelive.make_live_photo(*file_tuple[:2])
-                        except Exception as e:
-                            echo(
-                                f"Error converting {file_tuple[0]}, {file_tuple[1]} to live photo pair: {e}"
-                            )
-                if has_aae(file_tuple):
-                    file_type |= HAS_AAE_FILE
-                    noun += " with .AAE file"
-                verbose(
-                    f"Processing {noun}: {', '.join([f'[filepath]{f.name}[/]' for f in file_tuple])}"
-                )
-            filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
-            relative_filepath = get_relative_filepath(filepath, relative_to)
-
-            # check if file already imported
-            if resume:
-                if record := import_db.get(str(filepath)):
-                    if record.imported and not record.error:
-                        # file already imported
+        try:
+            for file_tuple in files:
+                file_type = 0
+                if len(file_tuple) > 1:
+                    file_type |= IS_IMPORT_GROUP
+                    noun = "import group"
+                    if burst_uuid_from_path(file_tuple[0]):
+                        file_type |= IS_BURST_GROUP
+                        noun = "burst group"
+                    elif is_live_pair(*file_tuple[:2]):
+                        file_type |= IS_LIVE_PAIR
+                        noun = "live photo pair"
+                    elif is_raw_pair(*file_tuple[:2]):
+                        file_type |= IS_RAW_JPEG_PAIR
+                        noun = "raw+jpeg pair"
+                    elif auto_live and is_possible_live_pair(*file_tuple[:2]):
+                        file_type |= AUTO_LIVE_PAIR
+                        noun = "live photo pair"
                         verbose(
-                            f"Skipping [filepath]{filepath}[/], "
-                            f"already imported on [time]{record.import_datetime.isoformat()}[/] "
-                            f"with UUID [uuid]{record.uuid}[/]"
+                            f"Converting to live photo pair: [filepath]{file_tuple[0]}[/], [filepath]{file_tuple[1]}[/]"
                         )
+                        if not dry_run:
+                            try:
+                                makelive.make_live_photo(*file_tuple[:2])
+                            except Exception as e:
+                                echo(
+                                    f"Error converting {file_tuple[0]}, {file_tuple[1]} to live photo pair: {e}"
+                                )
+                    if has_aae(file_tuple):
+                        file_type |= HAS_AAE_FILE
+                        noun += " with .AAE file"
+                    verbose(
+                        f"Processing {noun}: {', '.join([f'[filepath]{f.name}[/]' for f in file_tuple])}"
+                    )
+                filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
+                relative_filepath = get_relative_filepath(filepath, relative_to)
+
+                # check if file already imported
+                if resume:
+                    if record := import_db.get(str(filepath)):
+                        if record.imported and not record.error:
+                            # file already imported
+                            verbose(
+                                f"Skipping [filepath]{filepath}[/], "
+                                f"already imported on [time]{record.import_datetime.isoformat()}[/] "
+                                f"with UUID [uuid]{record.uuid}[/]"
+                            )
+                            skipped_count += 1
+                            progress.advance(task)
+                            continue
+
+                verbose(
+                    f"Importing " + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
+                )
+
+                report_data[filepath] = ReportRecord(
+                    filename=filepath.name,
+                    filepath=filepath,
+                    burst=bool(file_type & IS_BURST_GROUP),
+                    burst_images=len(file_tuple) if file_type & IS_BURST_GROUP else 0,
+                    live_photo=bool(file_type & IS_LIVE_PAIR),
+                    live_video=(
+                        str(file_tuple[1])
+                        if (file_type & IS_LIVE_PAIR) or (file_type & AUTO_LIVE_PAIR)
+                        else ""
+                    ),
+                    raw_pair=bool(file_type & IS_RAW_JPEG_PAIR),
+                    raw_image=(
+                        str(file_tuple[1]) if file_type & IS_RAW_JPEG_PAIR else ""
+                    ),
+                    aae_file=bool(file_type & HAS_AAE_FILE),
+                )
+                report_record = report_data[filepath]
+
+                if sidecar or sidecar_filename_template:
+                    sidecar_file = get_sidecar_file_with_template(
+                        filepath=filepath,
+                        sidecar=sidecar,
+                        sidecar_filename_template=sidecar_filename_template,
+                        edited_suffix=edited_suffix,
+                        exiftool_path=exiftool_path,
+                    )
+                    if not sidecar_file:
+                        verbose(f"No sidecar file found for [filepath]{filepath}[/]")
+                else:
+                    sidecar_file = None
+
+                if duplicates := fq.possible_duplicates(filepath):
+                    # duplicate of file already in Photos library
+                    verbose(
+                        f"File [filepath]{filepath}[/] appears to be a duplicate of photos in the library: "
+                        f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
+                    )
+
+                    if skip_dups:
+                        verbose(f"Skipping duplicate [filepath]{filepath}[/]")
                         skipped_count += 1
-                        progress.advance(task)
+                        report_record.imported = False
+
+                        if dup_albums and album:
+                            report_record.albums = add_duplicate_to_albums(
+                                duplicates,
+                                filepath,
+                                relative_filepath,
+                                album,
+                                split_folder,
+                                exiftool_path,
+                                sidecar_file,
+                                verbose,
+                                dry_run,
+                            )
+
                         continue
 
-            verbose(f"Importing " + ", ".join(f"[filepath]{f}[/]" for f in file_tuple))
+                if not dry_run:
+                    photo, error = import_photo_group(file_tuple, dup_check, verbose)
+                    if error:
+                        error_count += 1
+                        report_record.error = True
 
-            report_data[filepath] = ReportRecord(
-                filename=filepath.name,
-                filepath=filepath,
-                burst=bool(file_type & IS_BURST_GROUP),
-                burst_images=len(file_tuple) if file_type & IS_BURST_GROUP else 0,
-                live_photo=bool(file_type & IS_LIVE_PAIR),
-                live_video=(
-                    str(file_tuple[1])
-                    if (file_type & IS_LIVE_PAIR) or (file_type & AUTO_LIVE_PAIR)
-                    else ""
-                ),
-                raw_pair=bool(file_type & IS_RAW_JPEG_PAIR),
-                raw_image=str(file_tuple[1]) if file_type & IS_RAW_JPEG_PAIR else "",
-                aae_file=bool(file_type & HAS_AAE_FILE),
-            )
-            report_record = report_data[filepath]
-
-            if sidecar or sidecar_filename_template:
-                sidecar_file = get_sidecar_file_with_template(
-                    filepath=filepath,
-                    sidecar=sidecar,
-                    sidecar_filename_template=sidecar_filename_template,
-                    edited_suffix=edited_suffix,
-                    exiftool_path=exiftool_path,
-                )
-                if not sidecar_file:
-                    verbose(f"No sidecar file found for [filepath]{filepath}[/]")
-            else:
-                sidecar_file = None
-
-            if duplicates := fq.possible_duplicates(filepath):
-                # duplicate of file already in Photos library
-                verbose(
-                    f"File [filepath]{filepath}[/] appears to be a duplicate of photos in the library: "
-                    f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
-                )
-
-                if skip_dups:
-                    verbose(f"Skipping duplicate [filepath]{filepath}[/]")
-                    skipped_count += 1
-                    report_record.imported = False
-
-                    if dup_albums and album:
-                        report_record.albums = add_duplicate_to_albums(
-                            duplicates,
-                            filepath,
-                            relative_filepath,
-                            album,
-                            split_folder,
-                            exiftool_path,
-                            sidecar_file,
-                            verbose,
-                            dry_run,
-                        )
-
-                    continue
-
-            if not dry_run:
-                photo, error = import_photo_group(file_tuple, dup_check, verbose)
-                if error:
-                    error_count += 1
-                    report_record.error = True
-                    continue
-            else:
-                photo = None
-            report_record.imported = True
-            imported_count += 1
-
-            if clear_metadata:
-                clear_photo_metadata(photo, filepath, verbose, dry_run)
-
-            if clear_location:
-                clear_photo_location(photo, filepath, verbose, dry_run)
-
-            if exiftool:
-                set_photo_metadata_from_exiftool(
-                    photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
-                )
-
-            if sidecar_file:
-                set_photo_metadata_from_sidecar(
-                    photo,
-                    filepath,
-                    sidecar_file,
-                    sidecar_ignore_date,
-                    exiftool_path,
-                    merge_keywords,
-                    verbose,
-                    dry_run,
-                )
-
-            if title:
-                set_photo_title(
-                    photo,
-                    filepath,
-                    relative_filepath,
-                    title,
-                    exiftool_path,
-                    sidecar_file,
-                    verbose,
-                    dry_run,
-                )
-
-            if description:
-                set_photo_description(
-                    photo,
-                    filepath,
-                    relative_filepath,
-                    description,
-                    exiftool_path,
-                    sidecar_file,
-                    verbose,
-                    dry_run,
-                )
-
-            if keyword:
-                set_photo_keywords(
-                    photo,
-                    filepath,
-                    relative_filepath,
-                    keyword,
-                    exiftool_path,
-                    merge_keywords,
-                    sidecar_file,
-                    verbose,
-                    dry_run,
-                )
-
-            if location:
-                set_photo_location(photo, filepath, location, verbose, dry_run)
-
-            if favorite_rating:
-                set_photo_favorite(
-                    photo,
-                    filepath,
-                    sidecar_file,
-                    exiftool_path,
-                    favorite_rating,
-                    verbose,
-                    dry_run,
-                )
-
-            if parse_date:
-                set_photo_date_from_filename(
-                    photo, filepath.name, filepath.name, parse_date, verbose, dry_run
-                )
-
-            if parse_folder_date:
-                set_photo_date_from_filename(
-                    photo,
-                    filepath.name,
-                    filepath.parent,
-                    parse_folder_date,
-                    verbose,
-                    dry_run,
-                )
-
-            if album:
-                report_record.albums = add_photo_to_albums(
-                    photo,
-                    filepath,
-                    relative_filepath,
-                    album,
-                    split_folder,
-                    exiftool_path,
-                    sidecar_file,
-                    verbose,
-                    dry_run,
-                )
-
-            if post_function:
-                for function in post_function:
-                    # post function is tuple of (function, filename.py::function_name)
-                    verbose(f"Calling post-function [bold]{function[1]}")
-                    if not dry_run:
-                        try:
-                            function[0](photo, filepath, verbose, report_record)
-                        except Exception as e:
+                        if stop_on_error and error_count >= stop_on_error:
                             rich_echo_error(
-                                f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
+                                "[error]Error count exceeded limit, stopping! "
+                                f"Last file: [filename]{filepath.name}[/], error count = [num]{error_count}[/]"
                             )
+                            raise StopIteration
+                        continue
+                else:
+                    photo = None
+                report_record.imported = True
+                imported_count += 1
 
-            # update report data
-            if photo and not dry_run:
-                update_report_record(report_record, photo, filepath)
-                import_db.set(str(filepath), report_record)
+                if clear_metadata:
+                    clear_photo_metadata(photo, filepath, verbose, dry_run)
 
-            progress.advance(task)
+                if clear_location:
+                    clear_photo_location(photo, filepath, verbose, dry_run)
 
+                if exiftool:
+                    set_photo_metadata_from_exiftool(
+                        photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
+                    )
+
+                if sidecar_file:
+                    set_photo_metadata_from_sidecar(
+                        photo,
+                        filepath,
+                        sidecar_file,
+                        sidecar_ignore_date,
+                        exiftool_path,
+                        merge_keywords,
+                        verbose,
+                        dry_run,
+                    )
+
+                if title:
+                    set_photo_title(
+                        photo,
+                        filepath,
+                        relative_filepath,
+                        title,
+                        exiftool_path,
+                        sidecar_file,
+                        verbose,
+                        dry_run,
+                    )
+
+                if description:
+                    set_photo_description(
+                        photo,
+                        filepath,
+                        relative_filepath,
+                        description,
+                        exiftool_path,
+                        sidecar_file,
+                        verbose,
+                        dry_run,
+                    )
+
+                if keyword:
+                    set_photo_keywords(
+                        photo,
+                        filepath,
+                        relative_filepath,
+                        keyword,
+                        exiftool_path,
+                        merge_keywords,
+                        sidecar_file,
+                        verbose,
+                        dry_run,
+                    )
+
+                if location:
+                    set_photo_location(photo, filepath, location, verbose, dry_run)
+
+                if favorite_rating:
+                    set_photo_favorite(
+                        photo,
+                        filepath,
+                        sidecar_file,
+                        exiftool_path,
+                        favorite_rating,
+                        verbose,
+                        dry_run,
+                    )
+
+                if parse_date:
+                    set_photo_date_from_filename(
+                        photo,
+                        filepath.name,
+                        filepath.name,
+                        parse_date,
+                        verbose,
+                        dry_run,
+                    )
+
+                if parse_folder_date:
+                    set_photo_date_from_filename(
+                        photo,
+                        filepath.name,
+                        filepath.parent,
+                        parse_folder_date,
+                        verbose,
+                        dry_run,
+                    )
+
+                if album:
+                    report_record.albums = add_photo_to_albums(
+                        photo,
+                        filepath,
+                        relative_filepath,
+                        album,
+                        split_folder,
+                        exiftool_path,
+                        sidecar_file,
+                        verbose,
+                        dry_run,
+                    )
+
+                if post_function:
+                    for function in post_function:
+                        # post function is tuple of (function, filename.py::function_name)
+                        verbose(f"Calling post-function [bold]{function[1]}")
+                        if not dry_run:
+                            try:
+                                function[0](photo, filepath, verbose, report_record)
+                            except Exception as e:
+                                rich_echo_error(
+                                    f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
+                                )
+
+                # update report data
+                if photo and not dry_run:
+                    update_report_record(report_record, photo, filepath)
+                    import_db.set(str(filepath), report_record)
+
+                progress.advance(task)
+        except StopIteration:
+            pass
     return imported_count, skipped_count, error_count
 
 
@@ -2252,6 +2271,13 @@ class ImportCommand(click.Command):
     "See Post Function below.",
 )
 @click.option(
+    "--stop-on-error",
+    metavar="COUNT",
+    help="Stops importing after COUNT errors. "
+    "Useful if you experience a large number of errors during import.",
+    type=click.IntRange(min=0),
+)
+@click.option(
     "--library",
     metavar="LIBRARY_PATH",
     type=click.Path(exists=True),
@@ -2301,6 +2327,7 @@ def import_main(
     signature: str | None,
     skip_dups: bool,
     split_folder: str | None,
+    stop_on_error: int | None,
     theme: str | None,
     timestamp: bool,
     title: str | None,
@@ -2362,6 +2389,7 @@ def import_cli(
     signature: str | None = None,
     skip_dups: bool = False,
     split_folder: str | None = None,
+    stop_on_error: int | None = None,
     theme: str | None = None,
     timestamp: bool = False,
     title: str | None = None,
@@ -2519,6 +2547,7 @@ def import_cli(
         import_db=import_db,
         auto_live=auto_live,
         signature=signature,
+        stop_on_error=stop_on_error,
         verbose=verbose,
     )
 
