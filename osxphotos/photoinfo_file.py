@@ -9,8 +9,6 @@ import pathlib
 import uuid
 from typing import Optional, Union
 
-from osxphotos.image_file_utils import is_image_file
-
 from ._constants import _OSXPHOTOS_NONE_SENTINEL
 from .datetime_utils import datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
