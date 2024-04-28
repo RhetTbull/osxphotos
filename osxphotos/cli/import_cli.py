@@ -184,11 +184,10 @@ def add_photo_to_albums(
     """Add photo to one or more albums"""
     albums = []
     for a in album:
-        albums.extend(
-            render_photo_template(
+        album_names = render_photo_template(
                 filepath, relative_filepath, a, exiftool_path, sidecar
             )
-        )
+        albums.extend(normalize_unicode(aa) for aa in album_names)
     verbose(
         f"Adding photo [filename]{filepath.name}[/filename] to {len(albums)} {pluralize(len(albums), 'album', 'albums')}"
     )
