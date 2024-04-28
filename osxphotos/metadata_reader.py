@@ -34,6 +34,7 @@ class MetaData:
         keywords: list of keywords for photo
         location: tuple of lat, long or None, None if not set
         favorite: bool, True if photo marked favorite
+        rating: int, rating of photo 0-5
         persons: list of persons in photo
         date: datetime for photo as naive datetime.datetime in local timezone or None if not set
         timezone: timezone or None of original date (before conversion to local naive datetime)
@@ -45,6 +46,7 @@ class MetaData:
     keywords: list[str]
     location: tuple[Optional[float], Optional[float]]
     favorite: bool = False
+    rating: int = 0
     persons: list[str] = field(default_factory=list)
     date: datetime.datetime | None = None
     timezone: datetime.tzinfo | None = None
@@ -212,6 +214,7 @@ def metadata_from_sidecar(
     description: str, XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
     keywords: str, XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
     location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef,  EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
+    rating: int, XMP:Rating
 
     Raises:
         ValueError if error reading sidecar file
@@ -318,6 +321,8 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         or metadata.get("Keywords")
     )
 
+    rating = metadata.get("XMP:Rating") or metadata.get("Rating")
+
     persons = metadata.get("XMP:PersonInImage", []) or metadata.get("PersonInImage", [])
     if persons and not isinstance(persons, (tuple, list)):
         persons = [persons]
@@ -344,6 +349,7 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         description=description,
         keywords=keywords,
         location=location,
+        rating = rating or 0,
         favorite=False,
         persons=persons,
         date=date,

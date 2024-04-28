@@ -109,6 +109,11 @@ class PhotoInfoFromFile:
         return self._metadata.description
 
     @property
+    def rating(self) -> int:
+        """rating of picture; reads XMP:Rating from the photo or sidecar file if available, else returns 0"""
+        return self._metadata.rating
+
+    @property
     def fingerprint(self) -> str | None:
         """Returns fingerprint of original photo as a string or None if not on macOS"""
         if is_macos:

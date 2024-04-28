@@ -61,7 +61,11 @@ from osxphotos.metadata_reader import (
     metadata_from_sidecar,
 )
 from osxphotos.photoinfo import PhotoInfoNone
-from osxphotos.photoinfo_file import render_photo_template, strip_edited_suffix
+from osxphotos.photoinfo_file import (
+    PhotoInfoFromFile,
+    render_photo_template,
+    strip_edited_suffix,
+)
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlite_utils import sqlite_columns
@@ -500,6 +504,35 @@ def set_photo_location(
     if photo and not dry_run:
         photo.location = location
     return location
+
+
+def set_photo_favorite(
+    photo: Photo | None,
+    filepath: pathlib.Path,
+    sidecar_filepath: pathlib.Path | None,
+    exiftool_path: str,
+    favorite_rating: int | None,
+    verbose: Callable[..., None],
+    dry_run: bool,
+):
+    """Set favorite status of photo based on XMP:Rating value"""
+    rating = get_photo_rating(filepath, sidecar_filepath, exiftool_path)
+    if rating is not None and rating >= favorite_rating:
+        verbose(
+            f"Setting favorite status of photo [filename]{filepath.name}[/] (XMP:Rating=[num]{rating}[/])"
+        )
+        if photo and not dry_run:
+            photo.favorite = True
+
+
+def get_photo_rating(
+    filepath: pathlib.Path, sidecar: pathlib.Path | None, exiftool_path: str
+) -> int | None:
+    """Get XMP:Rating from file"""
+    photoinfo = PhotoInfoFromFile(
+        filepath, exiftool=exiftool_path, sidecar=str(sidecar) if sidecar else None
+    )
+    return photoinfo.rating
 
 
 def combine_date_time(
@@ -1070,7 +1103,7 @@ def collect_files_to_import(
         else:
             continue
 
-    files_to_import = [pathlib.Path(f) for f in files_to_import]
+    files_to_import = [pathlib.Path(f).absolute() for f in files_to_import]
 
     # strip any sidecar files
     files_to_import = [
@@ -1198,6 +1231,7 @@ def import_files(
     edited_suffix: str | None,
     exiftool: bool,
     exiftool_path: str,
+    favorite_rating: int | None,
     sidecar: bool,
     sidecar_ignore_date: bool,
     sidecar_filename_template: str,
@@ -1401,6 +1435,17 @@ def import_files(
 
             if location:
                 set_photo_location(photo, filepath, location, verbose, dry_run)
+
+            if favorite_rating:
+                set_photo_favorite(
+                    photo,
+                    filepath,
+                    sidecar_file,
+                    exiftool_path,
+                    favorite_rating,
+                    verbose,
+                    dry_run,
+                )
 
             if parse_date:
                 set_photo_date_from_filename(
@@ -1857,6 +1902,16 @@ class ImportCommand(click.Command):
     "positive longitudes are east of the Prime Meridian; negative longitudes are west of the Prime Meridian.",
 )
 @click.option(
+    "--favorite-rating",
+    "-G",
+    metavar="RATING",
+    type=click.IntRange(1, 5),
+    help="If XMP:Rating is set to RATING or higher, mark imported photo as a favorite. "
+    "RATING must be in range 1 to 5. "
+    "XMP:Rating will be read from asset's metadata or from sidecar if --sidecar, --sidecare-filename is used. "
+    "Requires that exiftool be installed to read the rating from the asset's XMP data.",
+)
+@click.option(
     "--parse-date",
     "-P",
     metavar="DATE_PATTERN",
@@ -2153,6 +2208,7 @@ def import_main(
     edited_suffix: str | None,
     exiftool: bool,
     exiftool_path: str | None,
+    favorite_rating: int | None,
     files: tuple[str, ...],
     glob: tuple[str, ...],
     keyword: tuple[str, ...],
@@ -2211,6 +2267,7 @@ def import_cli(
     edited_suffix: str | None = None,
     exiftool: bool = False,
     exiftool_path: str | None = None,
+    favorite_rating: int | None = None,
     files: tuple[str, ...] = (),
     glob: tuple[str, ...] = (),
     keyword: tuple[str, ...] = (),
@@ -2344,6 +2401,7 @@ def import_cli(
         edited_suffix=edited_suffix,
         exiftool=exiftool,
         exiftool_path=exiftool_path,
+        favorite_rating=favorite_rating,
         sidecar=sidecar,
         sidecar_ignore_date=sidecar_ignore_date,
         sidecar_filename_template=sidecar_filename_template,
