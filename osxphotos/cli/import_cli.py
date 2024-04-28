@@ -47,6 +47,7 @@ from osxphotos.cli.common import get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.cli.param_types import FunctionCall, StrpDateTimePattern, TemplateString
 from osxphotos.cli.sidecar import get_sidecar_file_with_template
+from osxphotos.cli.signaturequery import SignatureQuery
 from osxphotos.datetime_utils import (
     datetime_has_tz,
     datetime_remove_tz,
@@ -55,6 +56,15 @@ from osxphotos.datetime_utils import (
 )
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.fingerprintquery import FingerprintQuery
+from osxphotos.image_file_utils import (
+    burst_uuid_from_path,
+    is_image_file,
+    is_live_pair,
+    is_possible_live_pair,
+    is_raw_image,
+    is_raw_pair,
+    is_video_file,
+)
 from osxphotos.metadata_reader import (
     MetaData,
     get_sidecar_for_file,
@@ -185,8 +195,8 @@ def add_photo_to_albums(
     albums = []
     for a in album:
         album_names = render_photo_template(
-                filepath, relative_filepath, a, exiftool_path, sidecar
-            )
+            filepath, relative_filepath, a, exiftool_path, sidecar
+        )
         albums.extend(normalize_unicode(aa) for aa in album_names)
     verbose(
         f"Adding photo [filename]{filepath.name}[/filename] to {len(albums)} {pluralize(len(albums), 'album', 'albums')}"
@@ -636,9 +646,12 @@ def check_templates_and_exit(
     sidecar: bool,
     sidecar_filename_template: str | None,
     edited_suffix: str | None,
+    signature: str | None,
 ):
     """Renders templates against each file so user can verify correctness"""
     for file in files:
+        if not (is_image_file(file) or is_video_file(file)):
+            continue
         file = pathlib.Path(file).absolute().resolve()
         relative_filepath = get_relative_filepath(file, relative_to)
         sidecar_file = get_sidecar_file_with_template(
@@ -713,6 +726,12 @@ def check_templates_and_exit(
                 echo(
                     f"[warning]Could not parse date from folder [filepath]{file.parent}[/][/]"
                 )
+        if signature:
+            rendered_signature = render_photo_template(
+                file, relative_filepath, signature, exiftool_path, sidecar_file
+            )
+            rendered_signature = rendered_signature[0] if rendered_signature else "None"
+            echo(f"signature: [italic]{signature}[/]: {rendered_signature}")
     sys.exit(0)
 
 
@@ -1214,14 +1233,6 @@ def group_files_by_burst_uuid(
     return same_burst, remainder
 
 
-def burst_uuid_from_path(path: pathlib.Path) -> str | None:
-    """Get burst UUID of a file"""
-    md = ImageMetadata(path)
-    with suppress(KeyError):
-        return md.properties["MakerApple"]["11"]
-    return None
-
-
 def import_files(
     last_library: str,
     files: list[tuple[pathlib.Path, ...]],
@@ -1255,6 +1266,7 @@ def import_files(
     import_db: SQLiteKVStore,
     verbose: Callable[..., None],
     auto_live: bool,
+    signature: str | None,
 ):
     """Import files into Photos library
 
@@ -1262,7 +1274,17 @@ def import_files(
     """
 
     # initialize FingerprintQuery to be able to find duplicates
-    fq = FingerprintQuery(last_library)
+    if signature:
+        fq = SignatureQuery(
+            last_library,
+            signature,
+            sidecar,
+            sidecar_filename_template,
+            edited_suffix,
+            exiftool_path,
+        )
+    else:
+        fq = FingerprintQuery(last_library)
 
     imported_count = 0
     error_count = 0
@@ -2107,6 +2129,20 @@ class ImportCommand(click.Command):
     "does not display a dialog box for each duplicate found. See also --dup-check and --dup-albums.",
 )
 @click.option(
+    "--signature",
+    "-U",
+    type=TemplateString(),
+    help="Custom template for signature when using --skip-dups, --dup-check, and --dup-albums. "
+    "The signature is used to match photos in the library to those being imported. "
+    "If you do not use --signature, the fingerprint will be used for photos "
+    "and lowercase filename + size will be used for videos "
+    "(a fingerprint is not always stored for videos in the Photos library). "
+    "*Note*: When using --signature, the Photos library will be scanned before import "
+    "which may take some time. If there are duplicates files in the list of files to be imported, "
+    "these will not be detected as each imported file will only be compared to the state of the Photos "
+    "library at the start of the import.",
+)
+@click.option(
     "--dup-albums",
     "-A",
     is_flag=True,
@@ -2262,6 +2298,7 @@ def import_main(
     sidecar: bool,
     sidecar_ignore_date: bool,
     sidecar_filename_template: str | None,
+    signature: str | None,
     skip_dups: bool,
     split_folder: str | None,
     theme: str | None,
@@ -2322,6 +2359,7 @@ def import_cli(
     sidecar: bool = False,
     sidecar_ignore_date: bool = False,
     sidecar_filename_template: str | None = None,
+    signature: str | None = None,
     skip_dups: bool = False,
     split_folder: str | None = None,
     theme: str | None = None,
@@ -2364,6 +2402,7 @@ def import_cli(
             sidecar=sidecar,
             sidecar_filename_template=sidecar_filename_template,
             edited_suffix=edited_suffix,
+            signature=signature,
         )
 
     files_to_import = group_files_to_import(files)
@@ -2378,11 +2417,29 @@ def import_cli(
         raise click.Abort()
 
     if check:
-        check_imported_files(files_to_import, last_library, verbose)
+        check_imported_files(
+            files_to_import,
+            last_library,
+            signature,
+            sidecar,
+            sidecar_filename_template,
+            edited_suffix,
+            exiftool_path,
+            verbose,
+        )
         sys.exit(0)
 
     if check_not:
-        check_not_imported_files(files_to_import, last_library, verbose)
+        check_not_imported_files(
+            files_to_import,
+            last_library,
+            signature,
+            sidecar,
+            sidecar_filename_template,
+            edited_suffix,
+            exiftool_path,
+            verbose,
+        )
         sys.exit(0)
 
     if exiftool and not exiftool_path:
@@ -2461,6 +2518,7 @@ def import_cli(
         relative_to=relative_to,
         import_db=import_db,
         auto_live=auto_live,
+        signature=signature,
         verbose=verbose,
     )
 
@@ -2506,7 +2564,14 @@ def collect_filepaths_for_import_check(
 
 
 def check_imported_files(
-    files: list[tuple[pathlib.Path, ...]], library: str, verbose: Callable[..., None]
+    files: list[tuple[pathlib.Path, ...]],
+    library: str,
+    signature: str,
+    sidecar: bool,
+    sidecar_template: str | None,
+    edited_suffix: str | None,
+    exiftool_path: str | None,
+    verbose: Callable[..., None],
 ):
     """Check if files have been previously imported and print results"""
 
@@ -2520,7 +2585,12 @@ def check_imported_files(
     verbose(
         f"Checking {filecount} {file_word} in {len(files)} {group_word} to see if previously imported"
     )
-    fq = FingerprintQuery(library)
+    if signature:
+        fq = SignatureQuery(
+            library, signature, sidecar, sidecar_template, edited_suffix, exiftool_path
+        )
+    else:
+        fq = FingerprintQuery(library)
     for filegroup in files:
         filepaths, remainder = collect_filepaths_for_import_check(filegroup)
         for filepath in filepaths:
@@ -2537,7 +2607,14 @@ def check_imported_files(
 
 
 def check_not_imported_files(
-    files: list[tuple[pathlib.Path, ...]], library: str, verbose: Callable[..., None]
+    files: list[tuple[pathlib.Path, ...]],
+    library: str,
+    signature: str,
+    sidecar: bool,
+    sidecar_template: str | None,
+    edited_suffix: str | None,
+    exiftool_path: str | None,
+    verbose: Callable[..., None],
 ):
     """Check if files have not been previously imported and print results"""
 
@@ -2551,7 +2628,12 @@ def check_not_imported_files(
     verbose(
         f"Checking {filecount} {file_word} in {len(files)} {group_word} to see if not previously imported"
     )
-    fq = FingerprintQuery(library)
+    if signature:
+        fq = SignatureQuery(
+            library, signature, sidecar, sidecar_template, edited_suffix, exiftool_path
+        )
+    else:
+        fq = FingerprintQuery(library)
     for filegroup in files:
         filepaths, remainder = collect_filepaths_for_import_check(filegroup)
         for filepath in filepaths:
@@ -2561,57 +2643,6 @@ def check_not_imported_files(
                 f" ({', '.join([str(f) for f in remainder])})" if remainder else ""
             )
             echo(f"{filepath}{group_str}")
-
-
-def content_tree(filepath: str | os.PathLike) -> list[str]:
-    """Return the content tree for a file"""
-    md = osxmetadata.OSXMetaData(str(filepath))
-    return md.get("kMDItemContentTypeTree") or []
-
-
-@cache
-def is_image_file(filepath: str | os.PathLike) -> bool:
-    """Return True if filepath is an image file"""
-    return "public.image" in content_tree(filepath)
-
-
-@cache
-def is_video_file(filepath: str | os.PathLike) -> bool:
-    """Return True if filepath is a video file"""
-    return "public.movie" in content_tree(filepath)
-
-
-@cache
-def is_raw_image(filepath: str | os.PathLike) -> bool:
-    """Return True if filepath is a RAW image"""
-    return "public.camera-raw-image" in content_tree(filepath)
-
-
-def is_raw_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> bool:
-    """Return True if one of the files is a RAW image and the other is a non-RAW image"""
-    return (
-        is_raw_image(filepath1)
-        and (is_image_file(filepath2) and not is_raw_image(filepath2))
-        or is_raw_image(filepath2)
-        and (is_image_file(filepath1) and not is_raw_image(filepath1))
-    )
-
-
-def is_live_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> bool:
-    """Return True if photos are a live photo pair"""
-    if not is_image_file(filepath1) or not is_video_file(filepath2):
-        # expects live pairs to be image, video
-        return False
-    return makelive.is_live_photo_pair(filepath1, filepath2)
-
-
-def is_possible_live_pair(
-    filepath1: str | os.PathLike, filepath2: str | os.PathLike
-) -> bool:
-    """Return True if photos could be a live photo pair (even if files lack the Content ID metadata"""
-    if is_image_file(filepath1) and is_video_file(filepath2):
-        return True
-    return False
 
 
 def has_aae(filepaths: Iterable[str | os.PathLike]) -> bool:

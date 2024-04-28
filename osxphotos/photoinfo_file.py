@@ -9,6 +9,8 @@ import pathlib
 import uuid
 from typing import Optional, Union
 
+from osxphotos.image_file_utils import is_image_file
+
 from ._constants import _OSXPHOTOS_NONE_SENTINEL
 from .datetime_utils import datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
@@ -18,6 +20,7 @@ from .platform import is_macos
 
 if is_macos:
     from .fingerprint import fingerprint
+    from .image_file_utils import is_image_file, is_video_file
 
 try:
     EXIFTOOL_PATH = get_exiftool_path()
@@ -48,7 +51,7 @@ class PhotoInfoFromFile:
         self._metadata = MetaData()
         if self._exiftool_path:
             self._metadata |= metadata_from_exiftool(
-            pathlib.Path(filepath), self._exiftool_path
+                pathlib.Path(filepath), self._exiftool_path
             )
         if sidecar:
             self._metadata |= metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
@@ -68,6 +71,20 @@ class PhotoInfoFromFile:
     @property
     def original_filesize(self) -> int:
         return os.stat(pathlib.Path(self._path)).st_size
+
+    @property
+    def isphoto(self) -> bool | None:
+        """Return True if file is an image file otherwise False; if not on macOS, returns None"""
+        if not is_macos:
+            return None
+        return is_image_file(self._path)
+
+    @property
+    def ismovie(self) -> bool | None:
+        """Return True if file is a video file otherwise False; if not on macOS, returns None"""
+        if not is_macos:
+            return None
+        return is_video_file(self._path)
 
     @property
     def date(self):

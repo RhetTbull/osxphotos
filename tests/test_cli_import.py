@@ -278,6 +278,42 @@ def test_import_skip_dups():
 
 
 @pytest.mark.test_import
+def test_import_skip_dups_signature():
+    """Test basic import with --skip_dups with --signature"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_2 = os.path.join(cwd, TEST_VIDEO_1)
+    runner = CliRunner()
+
+    # import first to ensure photo is in library
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_1, test_image_2],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    # now import again with --skip-dups and --signature
+    # The signature template is designed to be unique only for video files
+    # so only the video file will be re-imported
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--skip-dups",
+            "--signature",
+            "{photo.isphoto?{photo.original_filename},counter:{counter}}",
+            test_image_1,
+            test_image_2,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Skipping duplicate" in result.output
+    assert "1 skipped" in result.output
+
+
+@pytest.mark.test_import
 def test_import_skip_dups_dup_albums():
     """Test basic import with --skip_dups and --dup-albums"""
 

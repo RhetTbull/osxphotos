@@ -341,8 +341,27 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
 
     rating = metadata.get("XMP:Rating") or metadata.get("Rating")
 
-    height = metadata.get("File:ImageHeight") or metadata.get("ImageHeight")
-    width = metadata.get("File:ImageWidth") or metadata.get("ImageWidth")
+    height = (
+        metadata.get("File:ImageHeight")
+        or metadata.get("EXIF:ImageHeight")
+        or metadata.get("ImageHeight")
+        or metadata.get("QuickTime:ImageHeight")
+    )
+    width = (
+        metadata.get("File:ImageWidth")
+        or metadata.get("EXIF:ImageWidth")
+        or metadata.get("ImageWidth")
+        or metadata.get("QuickTime:ImageWidth")
+    )
+
+    # adjust width, height if needed for the EXIF orientation
+    # Note: this may not work properly for QuickTime files
+    orientation = (
+        metadata.get("EXIF:Orientation")
+        or metadata.get("Orientation")
+        or metadata.get("QuickTime:VideoOrientation")
+    )
+    width, height = width_height_for_orientation(width, height, orientation)
 
     persons = metadata.get("XMP:PersonInImage", []) or metadata.get("PersonInImage", [])
     if persons and not isinstance(persons, (tuple, list)):
@@ -481,3 +500,17 @@ def location_from_metadata_dict(
         # couldn't convert one of the numbers to float
         return None, None
     return latitude, longitude
+
+
+def width_height_for_orientation(
+    width: int | None, height: int | None, orientation: int | None
+) -> tuple[int | None, int | None]:
+    """Return width, height for given orientation"""
+    if orientation is None:
+        return width, height
+
+    swap_orientations = {5, 6, 7, 8}
+    if orientation in swap_orientations:
+        return height, width
+    else:
+        return width, height
