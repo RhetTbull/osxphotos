@@ -62,8 +62,8 @@ except FileNotFoundError:
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
 @pytest.mark.usefixtures("set_tz_pacific")
-def test_metadata_from_file():
-    """Test metadata_from_file"""
+def test_metadata_from_exiftool():
+    """Test metadata_from_exiftool"""
     metadata = metadata_from_exiftool(TEST_IMAGE_1, None)
     assert metadata.title == "Waves crashing on rocks"
     assert metadata.description == "Used for testing osxphotos"
@@ -81,8 +81,8 @@ def test_metadata_from_file():
 
 
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
-def test_metadata_from_file_person_info():
-    """Test metadata_from_file with person info"""
+def test_metadata_from_exiftool_person_info():
+    """Test metadata_from_exiftool with person info"""
     metadata = metadata_from_exiftool(TEST_IMAGE_2, None)
     assert sorted(metadata.persons) == ["Katie", "Suzy"]
 
