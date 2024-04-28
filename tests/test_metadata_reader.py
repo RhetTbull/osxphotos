@@ -12,7 +12,7 @@ from osxphotos.metadata_reader import (
     SidecarFileType,
     get_sidecar_filetype,
     get_sidecar_for_file,
-    metadata_from_file,
+    metadata_from_exiftool,
     metadata_from_sidecar,
 )
 
@@ -64,7 +64,7 @@ except FileNotFoundError:
 @pytest.mark.usefixtures("set_tz_pacific")
 def test_metadata_from_file():
     """Test metadata_from_file"""
-    metadata = metadata_from_file(TEST_IMAGE_1, None)
+    metadata = metadata_from_exiftool(TEST_IMAGE_1, None)
     assert metadata.title == "Waves crashing on rocks"
     assert metadata.description == "Used for testing osxphotos"
     assert metadata.keywords == ["osxphotos", "Sümmer"]
@@ -83,7 +83,7 @@ def test_metadata_from_file():
 @pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
 def test_metadata_from_file_person_info():
     """Test metadata_from_file with person info"""
-    metadata = metadata_from_file(TEST_IMAGE_2, None)
+    metadata = metadata_from_exiftool(TEST_IMAGE_2, None)
     assert sorted(metadata.persons) == ["Katie", "Suzy"]
 
 

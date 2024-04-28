@@ -6,7 +6,7 @@ import datetime
 import json
 import pathlib
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Callable, Optional, Tuple
 
@@ -39,18 +39,33 @@ class MetaData:
         date: datetime for photo as naive datetime.datetime in local timezone or None if not set
         timezone: timezone or None of original date (before conversion to local naive datetime)
         tz_offset_sec: int or None if not set, offset from UTC in seconds
+        height: int or None if not set, height of photo in pixels
+        width: int or None if not set, width of photo in pixels
     """
 
-    title: str
-    description: str
-    keywords: list[str]
-    location: tuple[Optional[float], Optional[float]]
+    title: str = ""
+    description: str = ""
+    keywords: list[str] = field(default_factory=list)
+    location: tuple[Optional[float], Optional[float]] = (None, None)
     favorite: bool = False
     rating: int = 0
     persons: list[str] = field(default_factory=list)
     date: datetime.datetime | None = None
     timezone: datetime.tzinfo | None = None
     tz_offset_sec: float | None = None
+    height: int | None = None
+    width: int | None = None
+
+    def __ior__(self, other):
+        if isinstance(other, MetaData):
+            for field in fields(self):
+                other_value = getattr(other, field.name)
+                self_value = getattr(self, field.name)
+                if other_value:
+                    setattr(self, field.name, other_value)
+        else:
+            raise TypeError("Unsupported operand type")
+        return self
 
 
 class SidecarFileType(Enum):
@@ -188,7 +203,7 @@ def convert_exiftool_longitude(lon_string, lon_ref):
     return longitude
 
 
-def metadata_from_file(
+def metadata_from_exiftool(
     filepath: str | pathlib.Path, exiftool_path: str | None
 ) -> MetaData:
     """Get metadata from file with exiftool
@@ -198,6 +213,9 @@ def metadata_from_file(
         description: str, XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
         keywords: str, XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
         location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef,  EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
+        rating: int, XMP:Rating
+        height: int, ImageHeight
+        width: int, ImageWidth
     """
     exiftool = ExifToolCaching(filepath, exiftool_path)
     metadata = exiftool.asdict()
@@ -323,6 +341,9 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
 
     rating = metadata.get("XMP:Rating") or metadata.get("Rating")
 
+    height = metadata.get("File:ImageHeight") or metadata.get("ImageHeight")
+    width = metadata.get("File:ImageWidth") or metadata.get("ImageWidth")
+
     persons = metadata.get("XMP:PersonInImage", []) or metadata.get("PersonInImage", [])
     if persons and not isinstance(persons, (tuple, list)):
         persons = [persons]
@@ -349,12 +370,14 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         description=description,
         keywords=keywords,
         location=location,
-        rating = rating or 0,
+        rating=rating or 0,
         favorite=False,
         persons=persons,
         date=date,
         timezone=timezone,
         tz_offset_sec=tz_offset,
+        height=height,
+        width=width,
     )
 
 

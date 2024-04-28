@@ -58,7 +58,7 @@ from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.metadata_reader import (
     MetaData,
     get_sidecar_for_file,
-    metadata_from_file,
+    metadata_from_exiftool,
     metadata_from_sidecar,
 )
 from osxphotos.photoinfo import PhotoInfoNone
@@ -325,7 +325,7 @@ def set_photo_metadata_from_exiftool(
 ):
     """Set photo's metadata by reading metadata from file with exiftool"""
     verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
-    metadata = metadata_from_file(filepath, exiftool_path)
+    metadata = metadata_from_exiftool(filepath, exiftool_path)
     set_photo_metadata_from_metadata(
         photo, filepath, metadata, merge_keywords, True, verbose, dry_run
     )
@@ -654,7 +654,7 @@ def check_templates_and_exit(
         else:
             echo(f"sidecar file: {sidecar_file}")
         if exiftool:
-            metadata = metadata_from_file(file, exiftool_path)
+            metadata = metadata_from_exiftool(file, exiftool_path)
             echo(f"exiftool title: {metadata.title}")
             echo(f"exiftool description: {metadata.description}")
             echo(f"exiftool keywords: {metadata.keywords}")

@@ -12,7 +12,7 @@ from typing import Optional, Union
 from ._constants import _OSXPHOTOS_NONE_SENTINEL
 from .datetime_utils import datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
-from .metadata_reader import MetaData, metadata_from_file, metadata_from_sidecar
+from .metadata_reader import MetaData, metadata_from_exiftool, metadata_from_sidecar
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 
@@ -45,16 +45,13 @@ class PhotoInfoFromFile:
         self._exiftool_path = exiftool or EXIFTOOL_PATH
         self._uuid = str(uuid.uuid1()).upper()
         self._sidecar = sidecar
+        self._metadata = MetaData()
+        if self._exiftool_path:
+            self._metadata |= metadata_from_exiftool(
+            pathlib.Path(filepath), self._exiftool_path
+            )
         if sidecar:
-            self._metadata = metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
-        elif self._exiftool_path:
-            self._metadata = metadata_from_file(
-                pathlib.Path(filepath), self._exiftool_path
-            )
-        else:
-            self._metadata = MetaData(
-                title="", description="", keywords=[], location=(None, None)
-            )
+            self._metadata |= metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
 
     @property
     def uuid(self):
@@ -119,6 +116,16 @@ class PhotoInfoFromFile:
         if is_macos:
             return fingerprint(self._path)
         return None
+
+    @property
+    def height(self) -> int:
+        """height of photo in pixels"""
+        return self._metadata.height
+
+    @property
+    def width(self) -> int:
+        """width of photo in pixels"""
+        return self._metadata.width
 
     @property
     def exiftool(self):
