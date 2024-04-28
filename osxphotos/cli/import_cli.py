@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Callable, Optional, Tuple
 
 import click
 from cgmetadata import ImageMetadata
+from makelive.makelive import make_live_photo
 from rich.console import Console
 from rich.markdown import Markdown
 from strpdatetime import strpdatetime
@@ -106,6 +107,7 @@ IS_LIVE_PAIR = 2
 IS_RAW_JPEG_PAIR = 4
 IS_BURST_GROUP = 8
 HAS_AAE_FILE = 16
+AUTO_LIVE_PAIR = 32
 
 
 def echo(message, emoji=True, **kwargs):
@@ -1253,6 +1255,7 @@ def import_files(
     relative_to: pathlib.Path | None,
     import_db: SQLiteKVStore,
     verbose: Callable[..., None],
+    auto_live: bool,
 ):
     """Import files into Photos library
 
@@ -1286,10 +1289,25 @@ def import_files(
                 elif is_raw_pair(*file_tuple[:2]):
                     file_type |= IS_RAW_JPEG_PAIR
                     noun = "raw+jpeg pair"
+                elif auto_live and is_possible_live_pair(*file_tuple[:2]):
+                    file_type |= AUTO_LIVE_PAIR
+                    noun = "live photo pair"
+                    verbose(
+                        f"Converting to live photo pair: [filepath]{file_tuple[0]}[/], [filepath]{file_tuple[1]}[/]"
+                    )
+                    if not dry_run:
+                        try:
+                            makelive.make_live_photo(*file_tuple[:2])
+                        except Exception as e:
+                            echo(
+                                f"Error converting {file_tuple[0]}, {file_tuple[1]} to live photo pair: {e}"
+                            )
                 if has_aae(file_tuple):
                     file_type |= HAS_AAE_FILE
                     noun += " with .AAE file"
-                verbose(f"Processing {noun}: {', '.join([f.name for f in file_tuple])}")
+                verbose(
+                    f"Processing {noun}: {', '.join([f'[filepath]{f.name}[/]' for f in file_tuple])}"
+                )
             filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
             relative_filepath = get_relative_filepath(filepath, relative_to)
 
@@ -1315,7 +1333,11 @@ def import_files(
                 burst=bool(file_type & IS_BURST_GROUP),
                 burst_images=len(file_tuple) if file_type & IS_BURST_GROUP else 0,
                 live_photo=bool(file_type & IS_LIVE_PAIR),
-                live_video=str(file_tuple[1]) if file_type & IS_LIVE_PAIR else "",
+                live_video=(
+                    str(file_tuple[1])
+                    if (file_type & IS_LIVE_PAIR) or (file_type & AUTO_LIVE_PAIR)
+                    else ""
+                ),
                 raw_pair=bool(file_type & IS_RAW_JPEG_PAIR),
                 raw_image=str(file_tuple[1]) if file_type & IS_RAW_JPEG_PAIR else "",
                 aae_file=bool(file_type & HAS_AAE_FILE),
@@ -1912,6 +1934,21 @@ class ImportCommand(click.Command):
     "Requires that exiftool be installed to read the rating from the asset's XMP data.",
 )
 @click.option(
+    "--auto-live",
+    "-E",
+    is_flag=True,
+    help="Automatically convert photo+video pairs into live images. "
+    "Live Photos (photo+video pair) exported from Photos contain a metadata content identifier that Photos "
+    "uses to associate the pair as a single Live Photo asset when re-imported. "
+    "Photo+video pairs taken on non-Apple devices will lack the content identifier and "
+    "thus will be imported as separate assets. "
+    "Use --auto-live to automatically convert these pairs to Live Photos upon import. "
+    "When --auto-live is used, a photo and a video with same base name, "
+    "for example 'IMG_1234.JPG' and 'IMG_1234.mov', in the same directory will be converted to Live Photos. "
+    "*NOTE*: Using this feature will modify the metadata in the files prior to import. "
+    "Ensure you have a backup of the original files if you want to preserve unmodified versions.",
+)
+@click.option(
     "--parse-date",
     "-P",
     metavar="DATE_PATTERN",
@@ -2196,6 +2233,7 @@ def import_main(
     cli_obj: CLI_Obj,
     album: tuple[str, ...],
     append: bool,
+    auto_live: bool,
     check: bool,
     check_not: bool,
     check_templates: bool,
@@ -2255,6 +2293,7 @@ def import_main(
 def import_cli(
     album: tuple[str, ...] = (),
     append: bool = False,
+    auto_live: bool = False,
     check: bool = False,
     check_not: bool = False,
     check_templates: bool = False,
@@ -2422,6 +2461,7 @@ def import_cli(
         report_data=report_data,
         relative_to=relative_to,
         import_db=import_db,
+        auto_live=auto_live,
         verbose=verbose,
     )
 
@@ -2564,6 +2604,15 @@ def is_live_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> 
         # expects live pairs to be image, video
         return False
     return makelive.is_live_photo_pair(filepath1, filepath2)
+
+
+def is_possible_live_pair(
+    filepath1: str | os.PathLike, filepath2: str | os.PathLike
+) -> bool:
+    """Return True if photos could be a live photo pair (even if files lack the Content ID metadata"""
+    if is_image_file(filepath1) and is_video_file(filepath2):
+        return True
+    return False
 
 
 def has_aae(filepaths: Iterable[str | os.PathLike]) -> bool:

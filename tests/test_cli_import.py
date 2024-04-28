@@ -41,6 +41,8 @@ TEST_IMAGE_2 = "tests/test-images/faceinfo/exif1.jpg"
 TEST_IMAGE_NO_EXIF = "tests/test-images/IMG_NO_EXIF.jpeg"
 TEST_VIDEO_1 = "tests/test-images/Jellyfish.mov"
 TEST_VIDEO_2 = "tests/test-images/IMG_0670B_NOGPS.MOV"
+TEST_NOT_LIVE_PHOTO = "tests/test-images/not_live.jpeg"
+TEST_NOT_LIVE_VIDEO = "tests/test-images/not_live.mov"
 
 TEST_DATA = {
     TEST_IMAGE_1: {
@@ -544,7 +546,6 @@ def test_import_exiftool_video_no_metadata():
     )
 
     assert result.exit_code == 0
-
     import_data = parse_import_output(result.output)
     file_1 = pathlib.Path(test_image_1).name
     uuid_1 = import_data[file_1]
@@ -1408,3 +1409,36 @@ def test_import_check_not():
     )
     assert result.exit_code == 0
     assert "tests/test-images/IMG_3984.jpeg" in result.output
+
+
+@pytest.mark.test_import
+def test_import_auto_live(tmp_path):
+    """Test import with --auto-live"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_NOT_LIVE_PHOTO)
+    test_video_1 = os.path.join(cwd, TEST_NOT_LIVE_VIDEO)
+
+    # copy test files to tmp_path as they will be modified
+    shutil.copy(test_image_1, tmp_path)
+    shutil.copy(test_video_1, tmp_path)
+    test_image_1 = str(tmp_path / pathlib.Path(test_image_1).name)
+    test_video_1 = str(tmp_path / pathlib.Path(test_video_1).name)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", "--auto-live", test_image_1, test_video_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Converting to live photo pair" in result.output
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+
+    # verify that the photo was imported as live photo
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert photo.live_photo
