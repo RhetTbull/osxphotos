@@ -2239,9 +2239,9 @@ def import_main(
     Limitations:
 
     - Photos are imported one at a time thus the "Imports" album in Photos will show
-    a new import group for each photo imported.
-
-    - Live photos and RAW+JPEG pairs are imported as separate files, not as a single asset.
+    a new import group for each photo imported. Exception: Live photos (photo+video pair),
+    burst photos, and RAW+JPEG pairs will be imported together so that Photos processes
+    them correctly.
 
     - If there's an edited version of a photo along with the original, they will be imported as separate files, not as a single asset.
     """
