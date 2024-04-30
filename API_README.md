@@ -33,6 +33,7 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
   * [PhotoExporter](#photoexporter)
   * [ExifWriter](#exifwriter)
   * [SidecarWriter](#sidecarwriter)
+  * [PhotosAlbum](#photosalbum)
   * [Text Detection](#textdetection)
   * [Compare Libraries](#comparelibraries)
   * [Utility Functions](#utility-functions)
@@ -472,7 +473,7 @@ osxphotos.PhotosDB(path)
 osxphotos.PhotosDB(dbfile=path)
 ```
 
-Reads the Photos library database and returns a PhotosDB object.  
+Reads the Photos library database and returns a PhotosDB object.
 
 Pass the path to a Photos library or to a specific database file (e.g. "/Users/smith/Pictures/Photos Library.photoslibrary" or "/Users/smith/Pictures/Photos Library.photoslibrary/database/photos.db").  Normally, it's recommended you pass the path the .photoslibrary folder, not the actual database path.  **Note**: In Photos, users may specify a different library to open by holding down the *option* key while opening Photos.app. See also [get_last_library_path](#get_last_library_path) and [get_system_library_path](#get_system_library_path)
 
@@ -665,7 +666,7 @@ keywords = photosdb.keywords
 ```
 
 Returns a list of the keywords found in the Photos library that are associated with at least one photo.
-See also [keywords_as_dict](#keywords_as_dict). 
+See also [keywords_as_dict](#keywords_as_dict).
 
 #### <a name="photosdb_albuminfo">`album_info`</a>
 
@@ -776,7 +777,7 @@ Returns a dictionary of persons (faces) found in the Photos library where key is
 albums_dict = photosdb.albums_as_dict
 ```
 
-Returns a dictionary of albums found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first).  
+Returns a dictionary of albums found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first).
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
@@ -795,25 +796,25 @@ Returns a dictionary of shared albums (e.g. shared via iCloud photo sharing) fou
 
 Returns image categorization labels associated with photos in the library as list of str.
 
-**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized](#photosdb_labels_normalized).  
+**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized](#photosdb_labels_normalized).
 
 #### <a name="photosdb_labels_normalized">`labels_normalized`</a>
 
 Returns image categorization labels associated with photos in the library as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label.
 
-**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#photosdb_labels).  
+**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#photosdb_labels).
 
 #### `labels_as_dict`
 
 Returns dictionary image categorization labels associated with photos in the library where key is label and value is number of photos in the library with the label.
 
-**Note**: Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized_as_dict](#labels_normalized_as_dict).  
+**Note**: Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized_as_dict](#labels_normalized_as_dict).
 
 #### `labels_normalized_as_dict`
 
 Returns dictionary of image categorization labels associated with photos in the library where key is normalized label and value is number of photos in the library with that label. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label.
 
-**Note**: Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_as_dict](#labels_as_dict).  
+**Note**: Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_as_dict](#labels_as_dict).
 
 #### `library_path`
 
@@ -1048,7 +1049,7 @@ Returns the absolute path to the photo on disk as a string.  **Note**: this retu
 
 #### `path_edited`
 
-Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also [path](#path) and [hasadjustments](#hasadjustments).  
+Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also [path](#path) and [hasadjustments](#hasadjustments).
 
 **Note**: will also return None if the edited photo is missing on disk.
 
@@ -1304,7 +1305,7 @@ IMG_9855.JPG
 
 #### `burst_albums`
 
-If photo is burst photo, returns list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns `PhotoInfo.albums`.  
+If photo is burst photo, returns list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns `PhotoInfo.albums`.
 
 If a burst photo which has unselected burst images (e.g. the burst images are in the library but haven't been selected by the user using the "Make a selection" feature) is placed in a an album, Photos treats only the selected "key" photo as in the album.  The unselected burst images, while associated with the photo in the album, are not technically in the album.  If you are handling one of these unselected burst photos and want to know which album it would be in based on which albums it's selected key images are in, use `burst_albums`. See also [burst_album_info](#burst_album_info) and [albums](#albums).
 
@@ -1336,7 +1337,7 @@ Returns True if photo was taken in High Dynamic Range (HDR) mode, otherwise Fals
 
 #### `selfie`
 
-Returns True if photo is a selfie (taken with front-facing camera), otherwise False.  
+Returns True if photo is a selfie (taken with front-facing camera), otherwise False.
 
 **Note**: Only implemented for Photos version 3.0+.  On Photos version < 3.0, returns None.
 
@@ -1358,7 +1359,7 @@ Returns True if photo is a slow motion video, otherwise False
 
 Returns image categorization labels associated with the photo as list of str.
 
-**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized](#labels_normalized).  
+**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized](#labels_normalized).
 
 #### `labels_normalized`
 
@@ -1373,11 +1374,11 @@ for photo in photosdb.photos():
         print(f"I found a statue! {photo.original_filename}")
 ```
 
-**Note**: Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#labels).  
+**Note**: Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#labels).
 
 #### <a name="photoinfo_searchinfo">`search_info`</a>
 
-Returns [SearchInfo](#searchinfo) object that represents search metadata for the photo.  
+Returns [SearchInfo](#searchinfo) object that represents search metadata for the photo.
 
 **Note**: Only valid on Photos 5+; on ealier versions, returns None.
 
@@ -1476,7 +1477,7 @@ Returns a dictionary representation of all photo info.
 
 `export(dest, filename=None, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_exiftool=False, sidecar_xmp=False, use_photos_export=False, use_photokit=True, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
 
-Export photo from the Photos library to another destination on disk.  
+Export photo from the Photos library to another destination on disk.
 
 * dest: must be valid destination path as str (or exception raised).
 * filename (optional): name of picture as str; if not provided, will use current filename.  **NOTE**: if provided, user must ensure file extension (suffix) is correct. For example, if photo is .CR2 file, edited image may be .jpeg.  If you provide an extension different than what the actual file is, export will print a warning but will happily export the photo using the incorrect file extension.  e.g. to get the extension of the edited photo, look at [PhotoInfo.path_edited](#path_edited).
@@ -1638,7 +1639,7 @@ Photos Library
 
 #### `folder_names`
 
-Returns a hierarchical list of names of the folders the album is contained in.  For example, if album is in SubFolder2 of Folder1 as illustrated below, would return ["Folder1", "SubFolder2"].  
+Returns a hierarchical list of names of the folders the album is contained in.  For example, if album is in SubFolder2 of Folder1 as illustrated below, would return ["Folder1", "SubFolder2"].
 
 ```txt
 Photos Library
@@ -1786,7 +1787,7 @@ Returns a list of [AlbumInfo](#albuminfo) objects for each shared album in the p
 
 #### `subfolders`
 
-Returns a list of [FolderInfo](#folderinfo) objects representing the sub-folders of the folder.  
+Returns a list of [FolderInfo](#folderinfo) objects representing the sub-folders of the folder.
 
 #### `parent`
 
@@ -1833,7 +1834,7 @@ Returns a dictionary representation of the FolderInfo object.
 
 ### PlaceInfo
 
-[PhotoInfo.place](#place) returns a PlaceInfo object if the photo contains valid reverse geolocation information.  PlaceInfo has the following properties.  
+[PhotoInfo.place](#place) returns a PlaceInfo object if the photo contains valid reverse geolocation information.  PlaceInfo has the following properties.
 
 **Note** For Photos versions <= 4, only `name`, `names`, and `country_code` properties are defined.  All others return `None`.  This is because older versions of Photos do not store the more detailed reverse geolocation information.
 
@@ -2258,9 +2259,9 @@ and a `rows_dict()` method which returns a list of dicts for the matching rows i
 
 ### Raw Photos
 
-Handling raw photos in `osxphotos` requires a bit of extra work.  Raw photos in Photos can be imported in two different ways: 1) a single raw photo with no associated JPEG image is imported 2) a raw+JPEG pair is imported -- two separate images with same file stem (e.g. `IMG_0001.CR2` and `IMG_001.JPG`) are imported.  
+Handling raw photos in `osxphotos` requires a bit of extra work.  Raw photos in Photos can be imported in two different ways: 1) a single raw photo with no associated JPEG image is imported 2) a raw+JPEG pair is imported -- two separate images with same file stem (e.g. `IMG_0001.CR2` and `IMG_001.JPG`) are imported.
 
-The latter are treated by Photos as a single image.  By default, Photos will treat these as a JPEG image.  They are denoted in the Photos interface with a "J" icon superimposed on the image.  In Photos, the user can select "Use RAW as original" in which case the "J" icon changes to an "R" icon and all subsequent edits will use the raw image as the original. To further complicate this, different versions of Photos handle these differently in their internal logic.  
+The latter are treated by Photos as a single image.  By default, Photos will treat these as a JPEG image.  They are denoted in the Photos interface with a "J" icon superimposed on the image.  In Photos, the user can select "Use RAW as original" in which case the "J" icon changes to an "R" icon and all subsequent edits will use the raw image as the original. To further complicate this, different versions of Photos handle these differently in their internal logic.
 
 `osxphotos` attempts to simplify the handling of these raw+JPEG pairs by providing a set of attributes for accessing both the JPEG and the raw version.  For example, [PhotoInfo.has_raw](#has_raw) will be True if the photo has an associated raw image but False otherwise and [PhotoInfo.path_raw](#path_raw) provides the path to the associated raw image.  Reference the following table for the various attributes useful for dealing with raw images.  Given the different ways Photos deals with raw images I've struggled with how to represent these in a logical and consistent manner.  If you have suggestions for a better interface, please open an [issue](https://github.com/RhetTbull/osxphotos/issues)!
 
@@ -2851,6 +2852,16 @@ sidecar = exiftool_json_sidecar(photo, options, tag_groups, filename)
 
 See source code for full details.
 
+### <a name="photosalbum">PhotosAlbum</a>
+
+`osxphotos.photosalbum.PhotosAlbum` is a class that represents a Photos album. It is useful for creating albums and adding `PhotoInfo` assets to albums in Photos. It uses [PhotoScript](https://github.com/RhetTbull/PhotoScript), a Python wrapper around AppleScript, to interact with Photos. An album is created or retrieved using `__init__()`: `album = PhotosAlbum(name)` will create the album if it doesn't exist or retrieve it if it does. You can add photos to the album using `append()` and `extend()` as in Python lists or `add()` and `update()` as in Python sets (`append()` and `add()` call the same function as do `extend()` and `update()`). Albums behave as sets as adding a asset that is already in the album has no effect. Assets cannot be removed from an album using this class due to limitations in the Photos AppleScript interface.
+
+```python
+
+```
+
+
+
 ### <a name="textdetection">Text Detection</a>
 
 The [PhotoInfo.detected_text()](#photoinfo_detected_text) and the `{detected_text}` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named `osxphotos.metadata:detected_text` and can be viewed using the built-in [xattr](https://ss64.com/osx/xattr.html) command or my [osxmetadata](https://github.com/RhetTbull/osxmetadata) tool.  If you want to remove the cached attribute, you can do so with `xattr` as follows:
@@ -2928,7 +2939,7 @@ The following functions are located in osxphotos.utils
 
 #### `get_last_library_path()`
 
-Returns path to last opened Photo Library as string.  
+Returns path to last opened Photo Library as string.
 
 #### `list_photo_libraries()`
 

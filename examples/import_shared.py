@@ -264,7 +264,7 @@ def import_photos(
         album_names.append(album_name)
     for album_name in album_names:
         album = PhotosAlbumPhotoScript(album_name)
-        album.add_list(imported_photos)
+        album.update(imported_photos)
 
     # metadata
     for imported_photo in imported_photos:

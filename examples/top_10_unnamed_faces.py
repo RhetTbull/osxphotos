@@ -25,10 +25,12 @@ def main():
 
     for p in top_10_unnamed:
         photos = get_person_photos(p)
+        if not photos:
+            continue
         album_name = f"Unnamed person: {p.uuid} ({len(photos)})"
         print(f"Creating album '{album_name}'")
         album = PhotosAlbum(album_name)
-        album.add_list(photos)
+        album.update(photos)
 
 if __name__ == "__main__":
     main()
