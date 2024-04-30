@@ -2314,7 +2314,7 @@ def import_main(
     exiftool: bool,
     exiftool_path: str | None,
     favorite_rating: int | None,
-    files: tuple[str, ...],
+    files_or_dirs: tuple[str, ...],
     glob: tuple[str, ...],
     keyword: tuple[str, ...],
     library: str | None,
@@ -2376,7 +2376,7 @@ def import_cli(
     exiftool: bool = False,
     exiftool_path: str | None = None,
     favorite_rating: int | None = None,
-    files: tuple[str, ...] = (),
+    files_or_dirs: tuple[str, ...] = (),
     glob: tuple[str, ...] = (),
     keyword: tuple[str, ...] = (),
     library: str | None = None,
@@ -2413,17 +2413,17 @@ def import_cli(
     """
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
-    if not files:
+    if not files_or_dirs:
         echo("Nothing to import", err=True)
         return
 
     report_file = render_and_validate_report(report) if report else None
     relative_to = pathlib.Path(relative_to) if relative_to else None
 
-    files = collect_files_to_import(files, walk, glob)
+    files_or_dirs = collect_files_to_import(files_or_dirs, walk, glob)
     if check_templates:
         check_templates_and_exit(
-            files=files,
+            files=files_or_dirs,
             relative_to=relative_to,
             title=title,
             description=description,
@@ -2439,7 +2439,7 @@ def import_cli(
             signature=signature,
         )
 
-    files_to_import = group_files_to_import(files)
+    files_to_import = group_files_to_import(files_or_dirs)
 
     # need to get the library path to initialize FingerprintQuery
     last_library = library or get_last_library_path()
