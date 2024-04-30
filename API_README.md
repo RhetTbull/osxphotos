@@ -2857,10 +2857,21 @@ See source code for full details.
 `osxphotos.photosalbum.PhotosAlbum` is a class that represents a Photos album. It is useful for creating albums and adding `PhotoInfo` assets to albums in Photos. It uses [PhotoScript](https://github.com/RhetTbull/PhotoScript), a Python wrapper around AppleScript, to interact with Photos. An album is created or retrieved using `__init__()`: `album = PhotosAlbum(name)` will create the album if it doesn't exist or retrieve it if it does. You can add photos to the album using `append()` and `extend()` as in Python lists or `add()` and `update()` as in Python sets (`append()` and `add()` call the same function as do `extend()` and `update()`). Albums behave as sets as adding a asset that is already in the album has no effect. Assets cannot be removed from an album using this class due to limitations in the Photos AppleScript interface.
 
 ```python
+"""Example that shows how to add PhotoInfo objects to an album in Photos"""
 
+from osxphotos import PhotosDB
+from osxphotos.photosalbum import PhotosAlbum
+
+# If album exists it will be used, otherwise it will be created
+album = PhotosAlbum("Best Photos")
+best_photos = [p for p in PhotosDB(verbose=print).photos() if p.score.overall > 0.9]
+
+# use album.add() or album.append() to add a single photo
+# use album.update() or album.extend() to add an iterable of photos
+album.extend(best_photos)
+print(f"Added {len(best_photos)} photos to album {album.name}")
+print(f"Album contains {len(album.photos())} photos")
 ```
-
-
 
 ### <a name="textdetection">Text Detection</a>
 

@@ -163,7 +163,7 @@ def get_shared_album_info(shared_albums: list[AlbumInfo]) -> dict[str, int]:
     """Return dict with info about shared albums"""
     albums = {}
     for album in shared_albums:
-        photo_owners = {photo.owner for photo in album.photos}
+        photo_owners = {photo.owner or "None" for photo in album.photos}
         album_key = f"{album.title} ({pluralize_photos(album.photos)} by {', '.join(photo_owners)}"
         albums[album_key] = album
     return albums
