@@ -192,7 +192,7 @@ from .verbose import get_verbose_console, verbose_print
     is_flag=True,
     help="Run in dry-run mode (don't actually update files); for example, use with --update-signatures or --migrate-photos-library.",
 )
-@click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path(exists=True))
+@click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path())
 def exportdb(
     append,
     check,
@@ -303,7 +303,7 @@ def exportdb(
             )
             sys.exit(1)
 
-        if not "4.3" <= create <= OSXPHOTOS_EXPORTDB_VERSION:
+        if not float("4.3") <= float(create) <= float(OSXPHOTOS_EXPORTDB_VERSION):
             rich_echo_error(
                 f"[error]Error: invalid version number {create}: must be between >= 4.3, <= {OSXPHOTOS_EXPORTDB_VERSION}[/]"
             )
@@ -590,7 +590,7 @@ def exportdb(
         rich_echo(
             dedent(
                 f"""
-        [warning]:warning-emoji:  This command will update your export database ([filepath]{export_db}[/]) 
+        [warning]:warning-emoji:  This command will update your export database ([filepath]{export_db}[/])
         to use [filepath]{migrate_photos_library}[/] as the new source library.
         The last library used was [filepath]{last_library}[/].
         This will allow you to use the export database with the new library but it will

@@ -1,5 +1,7 @@
 """ Helper class for managing database used by PhotoExporter for tracking state of exports and updates """
 
+# ZZZ replace all db version compares with floats
+
 from __future__ import annotations
 
 import datetime
@@ -40,7 +42,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "9.1"
+OSXPHOTOS_EXPORTDB_VERSION = "10.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -128,6 +130,7 @@ class ExportDB:
         self._conn = self._open_export_db(self._dbfile, version)
         self._perform_db_maintenance(self._conn)
         self._insert_run_info()
+        self._insert_export_dir()
 
     @property
     def path(self) -> str:
@@ -527,7 +530,7 @@ class ExportDB:
             conn = self._get_db_connection(dbfile)
             self.was_created = False
             version_info = self._get_database_version(conn)
-            if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
+            if float(version_info[1]) < float(OSXPHOTOS_EXPORTDB_VERSION):
                 self._create_or_migrate_db_tables(conn)
                 self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
             else:
@@ -578,16 +581,18 @@ class ExportDB:
         except Exception as e:
             version_info = (__version__, "4.3")
 
-        version = version or OSXPHOTOS_EXPORTDB_VERSION
-        if version < "4.3":
+        max_version = float(OSXPHOTOS_EXPORTDB_VERSION)
+        version = float(version) if version else max_version
+        current_version = float(version_info[1])
+        if version < float("4.3"):
             raise ValueError(
                 f"Requested database version {version} is older than minimum supported version 4.3"
             )
-        if version > OSXPHOTOS_EXPORTDB_VERSION:
+        if version > max_version:
             raise ValueError(
                 f"Requested database version {version} is newer than maximum supported version {OSXPHOTOS_EXPORTDB_VERSION}"
             )
-        if version_info[1] > version:
+        if current_version > version:
             raise ValueError(
                 f"Database version {version_info[1]} is newer than requested version {version}"
             )
@@ -597,7 +602,7 @@ class ExportDB:
             """ CREATE TABLE IF NOT EXISTS version (
                     id INTEGER PRIMARY KEY,
                     osxphotos TEXT,
-                    exportdb TEXT 
+                    exportdb TEXT
                     ); """,
             """ CREATE TABLE IF NOT EXISTS about (
                     id INTEGER PRIMARY KEY,
@@ -621,17 +626,17 @@ class ExportDB:
                     python_path TEXT,
                     script_name TEXT,
                     args TEXT,
-                    cwd TEXT 
+                    cwd TEXT
                     ); """,
             """ CREATE TABLE IF NOT EXISTS info (
                     id INTEGER PRIMARY KEY,
                     uuid text NOT NULL,
-                    json_info JSON 
+                    json_info JSON
                     ); """,
             """ CREATE TABLE IF NOT EXISTS exifdata (
                     id INTEGER PRIMARY KEY,
                     filepath_normalized TEXT NOT NULL,
-                    json_exifdata JSON 
+                    json_exifdata JSON
                     ); """,
             """ CREATE TABLE IF NOT EXISTS edited (
                     id INTEGER PRIMARY KEY,
@@ -668,6 +673,7 @@ class ExportDB:
             """ CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);""",
             """ CREATE UNIQUE INDEX IF NOT EXISTS idx_detected_text on detected_text (uuid);""",
         ]
+
         # create the tables if needed
         with self.lock:
             c = conn.cursor()
@@ -681,35 +687,39 @@ class ExportDB:
             conn.commit()
 
         # perform needed migrations
-        if version_info[1] < "4.3":
+        # compare float(str) to avoid any issues with comparing float(str) to float
+        if current_version < float("4.3"):
             self._migrate_normalized_filepath(conn)
 
-        if version_info[1] < "5.0" and version >= "5.0":
+        if current_version < float("5.0") and version >= float("5.0"):
             self._migrate_4_3_to_5_0(conn)
 
-        if version_info[1] < "6.0" and version >= "6.0":
+        if current_version < float("6.0") and version >= float("6.0"):
             # create export_data table
             self._migrate_5_0_to_6_0(conn)
 
-        if version_info[1] < "7.0" and version >= "7.0":
+        if current_version < float("7.0") and version >= float("7.0"):
             # create report_data table
             self._migrate_6_0_to_7_0(conn)
 
-        if version_info[1] < "7.1" and version >= "7.1":
+        if current_version < float("7.1") and version >= float("7.1"):
             # add timestamp to export_data
             self._migrate_7_0_to_7_1(conn)
 
-        if version_info[1] < "8.0" and version >= "8.0":
+        if current_version < float("8.0") and version >= float("8.0"):
             # add error to export_data
             self._migrate_7_1_to_8_0(conn)
 
-        if version_info[1] < "9.0" and version >= "9.0":
+        if current_version < float("9.0") and version >= float("9.0"):
             # add history table
             self._migrate_8_0_to_9_0(conn)
 
-        if version_info[1] < "9.1" and version >= "9.1":
+        if current_version < float("9.1") and version >= float("9.1"):
             # Add history index
             self._migrate_9_0_to_9_1(conn)
+
+        if current_version < float("10.0") and version >= float("10.0"):
+            self._migrate_9_1_to_10_0(conn)
 
         with self.lock:
             conn.execute("VACUUM;")
@@ -722,6 +732,7 @@ class ExportDB:
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def _insert_run_info(self):
+        """Insert run info into runs table"""
         dt = datetime.datetime.now(datetime.timezone.utc).isoformat()
         python_path = sys.executable
         cmd = sys.argv[0]
@@ -734,6 +745,34 @@ class ExportDB:
                 "INSERT INTO runs (datetime, python_path, script_name, args, cwd) VALUES (?, ?, ?, ?, ?)",
                 (dt, python_path, cmd, args, cwd),
             )
+            conn.commit()
+
+    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def _insert_export_dir(self):
+        """Insert export_directory info into export_directory table"""
+
+        if float(self.version) < float("10.0"):
+            return
+
+        with self.lock:
+            conn = self.connection
+            c = conn.cursor()
+            c.execute(
+                """
+                INSERT INTO export_directory (export_directory)
+                SELECT ?
+                WHERE ? <> (
+                    SELECT export_directory
+                    FROM export_directory
+                    ORDER BY rowid DESC
+                    LIMIT 1
+                ) OR NOT EXISTS (
+                    SELECT 1 FROM export_directory
+                )
+            """,
+                (self._path, self._path),
+            )
+
             conn.commit()
 
     def _relative_filepath(self, filepath: pathlib.Path | str) -> str:
@@ -829,30 +868,30 @@ class ExportDB:
                 """ INSERT INTO export_data (filepath_normalized, filepath, uuid) SELECT filepath_normalized, filepath, uuid FROM files;""",
             )
             c.execute(
-                """ UPDATE export_data 
-                    SET (src_mode, src_size, src_mtime) = 
-                    (SELECT mode, size, mtime 
-                    FROM edited 
+                """ UPDATE export_data
+                    SET (src_mode, src_size, src_mtime) =
+                    (SELECT mode, size, mtime
+                    FROM edited
                     WHERE export_data.filepath_normalized = edited.filepath_normalized);
                 """,
             )
             c.execute(
-                """ UPDATE export_data 
-                    SET (dest_mode, dest_size, dest_mtime) = 
-                    (SELECT orig_mode, orig_size, orig_mtime 
-                    FROM files 
+                """ UPDATE export_data
+                    SET (dest_mode, dest_size, dest_mtime) =
+                    (SELECT orig_mode, orig_size, orig_mtime
+                    FROM files
                     WHERE export_data.filepath_normalized = files.filepath_normalized);
                 """,
             )
             c.execute(
-                """ UPDATE export_data SET digest = 
-                            (SELECT metadata FROM files 
+                """ UPDATE export_data SET digest =
+                            (SELECT metadata FROM files
                             WHERE files.filepath_normalized = export_data.filepath_normalized
                             ); """
             )
             c.execute(
-                """ UPDATE export_data SET exifdata = 
-                            (SELECT json_exifdata FROM exifdata 
+                """ UPDATE export_data SET exifdata =
+                            (SELECT json_exifdata FROM exifdata
                             WHERE exifdata.filepath_normalized = export_data.filepath_normalized
                             ); """
             )
@@ -862,7 +901,7 @@ class ExportDB:
                 """ CREATE TABLE IF NOT EXISTS config (
                         id INTEGER PRIMARY KEY,
                         datetime TEXT,
-                        config TEXT 
+                        config TEXT
                 ); """
             )
 
@@ -1023,9 +1062,24 @@ class ExportDB:
 
             conn.commit()
 
+    def _migrate_9_1_to_10_0(self, conn: sqlite3.Connection):
+        """Add export_directory table"""
+        with self.lock:
+            c = conn.cursor()
+
+            c.execute(
+                """ CREATE TABLE IF NOT EXISTS export_directory (
+                    id INTEGER PRIMARY KEY,
+                    export_directory TEXT
+                    );
+                    """
+            )
+
+            conn.commit()
+
     def _perform_db_maintenance(self, conn: sqlite3.Connection):
         """Perform database maintenance"""
-        if self.version < "6.0":
+        if float(self.version) < float("6.0"):
             return
         with self.lock:
             c = conn.cursor()
@@ -1084,6 +1138,7 @@ class ExportDBInMemory(ExportDB):
 
         self._conn = self._open_export_db(self._dbfile, version=version)
         self._insert_run_info()
+        self._insert_export_dir()
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def write_to_disk(self):
@@ -1156,7 +1211,7 @@ class ExportDBInMemory(ExportDB):
 
         self.was_created = False
         version_info = self._get_database_version(dst)
-        if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
+        if float(version_info[1]) < float(OSXPHOTOS_EXPORTDB_VERSION):
             self._create_or_migrate_db_tables(dst)
             self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
         else:
@@ -1204,6 +1259,7 @@ class ExportDBTemp(ExportDBInMemory):
 
         self._conn = self._open_export_db(self._dbfile, version)
         self._insert_run_info()
+        self._insert_export_dir()
 
     def _relative_filepath(self, filepath: pathlib.Path | str) -> str:
         """Overrides _relative_filepath to return a path for use in the temp db"""
