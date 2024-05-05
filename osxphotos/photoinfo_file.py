@@ -27,7 +27,7 @@ except FileNotFoundError:
 
 logger = logging.getLogger("osxphotos")
 
-__all__ = ["PhotoInfoFromDict", "PhotoInfoFromFile"]
+__all__ = ["PhotoInfoFromFile"]
 
 
 class PhotoInfoFromFile:
@@ -189,24 +189,6 @@ class PhotoInfoFromFile:
         """Return None for any other non-private attribute"""
         if not name.startswith("_"):
             return None
-        raise AttributeError()
-
-
-class PhotoInfoFromDict:
-    """Rehydrate a PhotoInfo class from a dict"""
-
-    def __init__(
-        self,
-        data: dict,
-        exiftool: str | None = None,
-    ):
-        self._data = data
-        self._exiftool_path = exiftool or EXIFTOOL_PATH
-
-    def __getattr__(self, name):
-        """Return dict value or None for non-private attribute"""
-        if not name.startswith("_"):
-            return self._data.get(name)
         raise AttributeError()
 
 
