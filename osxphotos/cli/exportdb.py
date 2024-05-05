@@ -24,6 +24,7 @@ from osxphotos.export_db_utils import (
     export_db_get_last_export_dir,
     export_db_get_last_library,
     export_db_get_last_run,
+    export_db_get_runs,
     export_db_get_version,
     export_db_migrate_photos_library,
     export_db_save_config_to_file,
@@ -71,9 +72,14 @@ from .verbose import get_verbose_console, verbose_print
     help="Touch files on disk to match created date in Photos library and update export database signatures",
 )
 @click.option(
+    "--runs",
+    is_flag=True,
+    help="List osxphotos commands used with this database. See also --last-run.",
+)
+@click.option(
     "--last-run",
     is_flag=True,
-    help="Show last run osxphotos commands used with this database.",
+    help="Show last run osxphotos commands used with this database. See also --runs.",
 )
 @click.option(
     "--last-export-dir", is_flag=True, help="Print path to last used export directory"
@@ -213,6 +219,7 @@ def exportdb(
     migrate_photos_library,
     repair,
     report,
+    runs,
     save_config,
     sql,
     theme,
@@ -264,6 +271,7 @@ def exportdb(
             upgrade,
             repair,
             report,
+            runs,
             save_config,
             sql,
             touch_file,
@@ -372,6 +380,17 @@ def exportdb(
             )
             sys.exit(0)
 
+    if runs:
+        try:
+            run_info = export_db_get_runs(export_db)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+        else:
+            for run in run_info:
+                rich_echo(f"[time]{run[0]}[/]: {run[1]} {run[2]}")
+            sys.exit(0)
+
     if last_run:
         try:
             last_run_info = export_db_get_last_run(export_db)
@@ -380,7 +399,7 @@ def exportdb(
             sys.exit(1)
         else:
             rich_echo(f"last run at [time]{last_run_info[0]}:")
-            rich_echo(f"osxphotos {last_run_info[1]}")
+            rich_echo(f"{last_run_info[1]}")
             sys.exit(0)
 
     if last_export_dir:

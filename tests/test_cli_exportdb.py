@@ -155,3 +155,40 @@ def test_exportdb_history():
         )
         assert result.exit_code == 0
         assert "export, None" in result.output
+
+
+def test_exportdb_last_run():
+    """Test --last-run"""
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        result = runner.invoke(exportdb, [cwd, "--create", OSXPHOTOS_EXPORTDB_VERSION])
+        result = runner.invoke(exportdb, [cwd, "--last-run"])
+        assert result.exit_code == 0
+        # Can't test actual output as the command line for last run will be the pytest command
+
+
+def test_exportdb_runs():
+    """Test --runs"""
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        result = runner.invoke(exportdb, [cwd, "--create", OSXPHOTOS_EXPORTDB_VERSION])
+        result = runner.invoke(exportdb, [cwd, "--runs"])
+        assert result.exit_code == 0
+        # Can't test actual output as the command line for last run will be the pytest command
+
+
+def test_exportdb_last_export_dir():
+    """Test --last-export-dir"""
+
+    runner = CliRunner()
+    library = os.path.join(os.getcwd(), CLI_PHOTOS_DB)
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        result = runner.invoke(export, [cwd, "--library", library, "-V"])
+        result = runner.invoke(exportdb, [cwd, "--last-export-dir"])
+        assert result.exit_code == 0
+        assert cwd in result.output

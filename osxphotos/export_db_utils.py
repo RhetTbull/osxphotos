@@ -29,8 +29,10 @@ __all__ = [
     "export_db_check_signatures",
     "export_db_get_about",
     "export_db_get_errors",
+    "export_db_get_last_export_dir",
     "export_db_get_last_library",
     "export_db_get_last_run",
+    "export_db_get_runs",
     "export_db_get_version",
     "export_db_migrate_photos_library",
     "export_db_save_config_to_file",
@@ -121,6 +123,19 @@ def export_db_update_signatures(
     return (updated, skipped)
 
 
+def export_db_get_runs(
+    export_db: str | os.PathLike,
+) -> list[Tuple[str, str, str]]:
+    """Get last run from export database"""
+    conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
+    c = conn.cursor()
+    if rows := c.execute(
+        "SELECT datetime, script_name, args FROM runs ORDER BY id DESC;"
+    ).fetchall():
+        return rows
+    return []
+
+
 def export_db_get_last_run(
     export_db: str | os.PathLike,
 ) -> Tuple[Optional[str], Optional[str]]:
@@ -160,7 +175,7 @@ def export_db_save_config_to_file(
     c = conn.cursor()
     row = c.execute("SELECT config FROM config ORDER BY id DESC LIMIT 1;").fetchone()
     if not row:
-        return ValueError("No config found in export_db")
+        raise ValueError("No config found in export_db")
     with config_file.open("w") as f:
         f.write(row[0])
 
