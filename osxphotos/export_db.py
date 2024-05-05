@@ -1,7 +1,5 @@
 """ Helper class for managing database used by PhotoExporter for tracking state of exports and updates """
 
-# ZZZ replace all db version compares with floats
-
 from __future__ import annotations
 
 import datetime
@@ -94,34 +92,40 @@ class ExportDB:
 
     Args:
         dbfile: path to osxphotos export database file
-        export_dir: path to directory where exported files are stored
+        export_dir: path to directory where exported files are stored; if None will read value from database
         version: if supplied, creates database with this version; otherwise uses current version;
             (must be >= "4.3" and <= OSXPHOTOS_EXPORTDB_VERSION)
             For testing only; in normal usage, omit this argument
+
+    Note: export_dir = None must only be used when opening an existing database to read and not to export
     """
 
     def __init__(
         self,
-        dbfile: pathlib.Path | str,
-        export_dir: pathlib.Path | str,
+        dbfile: str | os.PathLike,
+        export_dir: str | os.PathLike | None,
         version: str | None = None,
     ):
         """Create a new ExportDB object
 
         Args:
             dbfile: path to osxphotos export database file
-            export_dir: path to directory where exported files are stored
+            export_dir: path to directory where exported files are stored; if None will read value from database
             version: if supplied, creates database with this version; otherwise uses current version;
                 (must be >= "4.3" and <= OSXPHOTOS_EXPORTDB_VERSION)
                 For testing only; in normal usage, omit this argument
+
+        Note: export_dir = None must only be used when opening an existing database to read and not to export
         """
 
         self._dbfile: str = str(dbfile)
-        # export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to
-        # relative paths to this path
+
+        # export_dir allows the database to located in a different path than the export
+        # all paths are stored as relative paths to this path
         # this allows the entire export tree to be moved to a new disk/location
         # whilst preserving the UUID to filename mapping
-        self._path: str = str(export_dir)
+        self._path: str | None = str(export_dir) if export_dir else None
+
         self.was_upgraded: tuple[str, str] | tuple = ()
         self.was_created = False
 
@@ -148,7 +152,7 @@ class ExportDB:
         return self._conn or self._get_db_connection(self._dbfile)
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
-    def get_file_record(self, filename: pathlib.Path | str) -> "ExportRecord" | None:
+    def get_file_record(self, filename: str | os.PathLike) -> "ExportRecord" | None:
         """get info for filename
 
         Returns: an ExportRecord object or None if filename not found
@@ -170,7 +174,7 @@ class ExportDB:
         retry=retry_if_not_exception_type(sqlite3.IntegrityError),
     )
     def create_file_record(
-        self, filename: pathlib.Path | str, uuid: str
+        self, filename: str | os.PathLike, uuid: str
     ) -> "ExportRecord":
         """create a new record for filename and uuid
 
@@ -194,7 +198,7 @@ class ExportDB:
         retry=retry_if_not_exception_type(sqlite3.IntegrityError),
     )
     def create_or_get_file_record(
-        self, filename: pathlib.Path | str, uuid: str
+        self, filename: str | os.PathLike, uuid: str
     ) -> "ExportRecord":
         """create a new record for filename and uuid or return existing record
 
@@ -269,9 +273,7 @@ class ExportDB:
             conn.commit()
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
-    def get_target_for_file(
-        self, uuid: str, filename: pathlib.Path | str
-    ) -> str | None:
+    def get_target_for_file(self, uuid: str, filename: str | os.PathLike) -> str | None:
         """query database for file matching file name and return the matching filename if there is one;
            otherwise return None; looks for file.ext, file (1).ext, file (2).ext and so on to find the
            actual target name that was used to export filename
@@ -413,7 +415,7 @@ class ExportDB:
             return count
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
-    def delete_data_for_filepath(self, filepath: pathlib.Path | str):
+    def delete_data_for_filepath(self, filepath: str | os.PathLike):
         """Delete all exportdb data for given filepath"""
         with self.lock:
             conn = self.connection
@@ -428,7 +430,7 @@ class ExportDB:
     # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def set_history(
         self,
-        filename: pathlib.Path | str,
+        filename: str | os.PathLike,
         uuid: str,
         action: str,
         diff: str | None,
@@ -463,7 +465,7 @@ class ExportDB:
 
     # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_history(
-        self, filepath: pathlib.Path | str | None = None, uuid: str | None = None
+        self, filepath: str | os.PathLike | None = None, uuid: str | None = None
     ):
         """Get history for a filepath or uuid
 
@@ -503,6 +505,24 @@ class ExportDB:
             else:
                 raise ValueError("Must specify filepath or uuid")
             return results
+
+    # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def get_last_export_directory(self) -> str | None:
+        """Return the last export directory from the database"""
+        with self.lock:
+            conn = self.connection
+            c = conn.cursor()
+            results = c.execute(
+                """
+                SELECT export_directory
+                FROM export_directory
+                ORDER BY id DESC
+                LIMIT 1;
+                """
+            ).fetchone()
+            if not results:
+                return None
+            return results[0]
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def close(self):
@@ -754,6 +774,10 @@ class ExportDB:
         if float(self.version) < float("10.0"):
             return
 
+        if self._path is None:
+            # database opened without a path specified, do not update
+            return
+
         with self.lock:
             conn = self.connection
             c = conn.cursor()
@@ -775,15 +799,15 @@ class ExportDB:
 
             conn.commit()
 
-    def _relative_filepath(self, filepath: pathlib.Path | str) -> str:
-        """return filepath relative to self._path"""
-        return str(pathlib.Path(filepath).relative_to(self._path))
+    def _relative_filepath(self, filepath: str | os.PathLike) -> str:
+        """return filepath relative to self.export_dir"""
+        return str(pathlib.Path(filepath).relative_to(self.export_dir))
 
-    def _normalize_filepath(self, filepath: pathlib.Path | str) -> str:
+    def _normalize_filepath(self, filepath: str | os.PathLike) -> str:
         """normalize filepath for unicode, lower case"""
         return normalize_fs_path(str(filepath)).lower()
 
-    def _normalize_filepath_relative(self, filepath: pathlib.Path | str) -> str:
+    def _normalize_filepath_relative(self, filepath: str | os.PathLike) -> str:
         """normalize filepath for unicode, relative path (to export dir), lower case"""
         filepath = self._relative_filepath(filepath)
         return normalize_fs_path(str(filepath)).lower()
@@ -1098,38 +1122,41 @@ class ExportDBInMemory(ExportDB):
     """In memory version of ExportDB
 
     Args:
-        dbfile (str): path to database file
-        export_dir (str): path to export directory
+        dbfile: path to osxphotos export database file
+        export_dir: path to directory where exported files are stored; if None will read value from database
         version: if supplied, creates database with this version; otherwise uses current version;
             (must be >= "4.3" and <= OSXPHOTOS_EXPORTDB_VERSION)
             For testing only; in normal usage, omit this argument
 
     Note:
-        Copies the on-disk database into memory so it may be operated on without
-        modifying the on-disk version
+        Copies the on-disk database into memory so it may be operated on without modifying the on-disk version
+        export_dir = None must only be used when opening an existing database to read and not to export
     """
 
     def __init__(
         self,
-        dbfile: pathlib.Path | str,
-        export_dir: pathlib.Path | str,
+        dbfile: str | os.PathLike,
+        export_dir: str | os.PathLike | None,
         version: str | None = None,
     ):
         """ "Initialize ExportDBInMemory
 
         Args:
-            dbfile (str): path to database file
-            export_dir (str): path to export directory
+            dbfile: path to osxphotos export database file
+            export_dir: path to directory where exported files are stored; if None will read value from database
             version: if supplied, creates database with this version; otherwise uses current version;
                 (must be >= "4.3" and <= OSXPHOTOS_EXPORTDB_VERSION)
                 For testing only; in normal usage, omit this argument
+
+        Note: export_dir = None must only be used when opening an existing database to read and not to export
         """
-        self._dbfile = str(dbfile) or f"./{OSXPHOTOS_EXPORT_DB}"
-        # export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to
-        # relative paths to this path
+        self._dbfile: str = str(dbfile) or f"./{OSXPHOTOS_EXPORT_DB}"
+
+        # export_dir allows the database to located in a different path than the export
+        # all paths are stored as relative paths to this path
         # this allows the entire export tree to be moved to a new disk/location
         # whilst preserving the UUID to filename mapping
-        self._path = str(export_dir)
+        self._path: str | None = str(export_dir) if export_dir else None
 
         self.was_upgraded: tuple[str, str] | tuple = ()
         self.was_created = False
@@ -1183,8 +1210,13 @@ class ExportDBInMemory(ExportDB):
     def _open_export_db(
         self, dbfile: str, version: str | None = None
     ):  # sourcery skip: raise-specific-error
-        """open export database and return a db connection
-        returns: connection to the database
+        """Open export database and return a db connection
+
+        Args:
+            dbfile: path to database file
+            version: database version to create if database doesn't exist
+
+        Returns: connection to the database
         """
         if not os.path.isfile(dbfile):
             # database doesn't exist so create it in-memory
@@ -1198,7 +1230,7 @@ class ExportDBInMemory(ExportDB):
             return src
 
         if version:
-            raise ValueError("Cannot specify version when copying an existing database")
+            raise ValueError("Cannot specify version when opening an existing database")
 
         # database exists so copy it to memory
         src = sqlite3.connect(dbfile, check_same_thread=SQLITE_CHECK_SAME_THREAD)
@@ -1261,7 +1293,7 @@ class ExportDBTemp(ExportDBInMemory):
         self._insert_run_info()
         self._insert_export_dir()
 
-    def _relative_filepath(self, filepath: pathlib.Path | str) -> str:
+    def _relative_filepath(self, filepath: str | os.PathLike) -> str:
         """Overrides _relative_filepath to return a path for use in the temp db"""
         filepath = str(filepath)
         return filepath[1:] if filepath[0] == "/" else filepath

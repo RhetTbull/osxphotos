@@ -21,6 +21,7 @@ from osxphotos.export_db_utils import (
     export_db_check_signatures,
     export_db_get_about,
     export_db_get_errors,
+    export_db_get_last_export_dir,
     export_db_get_last_library,
     export_db_get_last_run,
     export_db_get_version,
@@ -73,6 +74,9 @@ from .verbose import get_verbose_console, verbose_print
     "--last-run",
     is_flag=True,
     help="Show last run osxphotos commands used with this database.",
+)
+@click.option(
+    "--last-export-dir", is_flag=True, help="Print path to last used export directory"
 )
 @click.option(
     "--save-config",
@@ -204,6 +208,7 @@ def exportdb(
     info,
     errors,
     last_errors,
+    last_export_dir,
     last_run,
     migrate_photos_library,
     repair,
@@ -255,6 +260,7 @@ def exportdb(
             create,
             info,
             last_run,
+            last_export_dir,
             upgrade,
             repair,
             report,
@@ -376,6 +382,20 @@ def exportdb(
             rich_echo(f"last run at [time]{last_run_info[0]}:")
             rich_echo(f"osxphotos {last_run_info[1]}")
             sys.exit(0)
+
+    if last_export_dir:
+        try:
+            last_path = export_db_get_last_export_dir(export_db)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+        else:
+            if last_path:
+                rich_echo(f"[filepath]{last_path}[/]")
+                sys.exit(0)
+            else:
+                rich_echo(f"No last export directory found")
+                sys.exit(1)
 
     if save_config:
         try:
