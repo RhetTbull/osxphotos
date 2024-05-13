@@ -74,7 +74,7 @@ from osxphotos.metadata_reader import (
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photoinfo_file import (
     PhotoInfoFromFile,
-    render_photo_template,
+    render_photo_template_from_filepath,
     strip_edited_suffix,
 )
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
@@ -194,7 +194,7 @@ def add_photo_to_albums(
     """Add photo to one or more albums"""
     albums = []
     for a in album:
-        album_names = render_photo_template(
+        album_names = render_photo_template_from_filepath(
             filepath, relative_filepath, a, exiftool_path, sidecar
         )
         albums.extend(normalize_unicode(aa) for aa in album_names)
@@ -416,7 +416,7 @@ def set_photo_title(
     dry_run: bool,
 ) -> str:
     """Set title of photo"""
-    title_text = render_photo_template(
+    title_text = render_photo_template_from_filepath(
         filepath, relative_filepath, title_template, exiftool_path, sidecar
     )
     if len(title_text) > 1:
@@ -447,7 +447,7 @@ def set_photo_description(
     dry_run: bool,
 ) -> str:
     """Set description of photo"""
-    description_text = render_photo_template(
+    description_text = render_photo_template_from_filepath(
         filepath,
         relative_filepath,
         description_template,
@@ -485,7 +485,7 @@ def set_photo_keywords(
     """Set keywords of photo"""
     keywords = []
     for keyword in keyword_template:
-        kw = render_photo_template(
+        kw = render_photo_template_from_filepath(
             filepath, relative_filepath, keyword, exiftool_path, sidecar
         )
         keywords.extend(kw)
@@ -673,13 +673,13 @@ def check_templates_and_exit(
             echo(f"exiftool keywords: {metadata.keywords}")
             echo(f"exiftool location: {metadata.location}")
         if title:
-            rendered_title = render_photo_template(
+            rendered_title = render_photo_template_from_filepath(
                 file, relative_filepath, title, exiftool_path, sidecar_file
             )
             rendered_title = rendered_title[0] if rendered_title else "None"
             echo(f"title: [italic]{title}[/]: {rendered_title}")
         if description:
-            rendered_description = render_photo_template(
+            rendered_description = render_photo_template_from_filepath(
                 file, relative_filepath, description, exiftool_path, sidecar_file
             )
             rendered_description = (
@@ -688,14 +688,14 @@ def check_templates_and_exit(
             echo(f"description: [italic]{description}[/]: {rendered_description}")
         if keyword:
             for kw in keyword:
-                rendered_keywords = render_photo_template(
+                rendered_keywords = render_photo_template_from_filepath(
                     file, relative_filepath, kw, exiftool_path, sidecar_file
                 )
                 rendered_keywords = rendered_keywords or "None"
                 echo(f"keyword: [italic]{kw}[/]: {rendered_keywords}")
         if album:
             for al in album:
-                rendered_album = render_photo_template(
+                rendered_album = render_photo_template_from_filepath(
                     file, relative_filepath, al, exiftool_path, sidecar_file
                 )
                 rendered_album = rendered_album[0] if rendered_album else "None"
@@ -727,7 +727,7 @@ def check_templates_and_exit(
                     f"[warning]Could not parse date from folder [filepath]{file.parent}[/][/]"
                 )
         if signature:
-            rendered_signature = render_photo_template(
+            rendered_signature = render_photo_template_from_filepath(
                 file, relative_filepath, signature, exiftool_path, sidecar_file
             )
             rendered_signature = rendered_signature[0] if rendered_signature else "None"

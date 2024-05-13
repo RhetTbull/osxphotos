@@ -6,6 +6,8 @@ import json
 from typing import Any
 
 from .exiftool import ExifToolCaching, get_exiftool_path
+from .photoinfo_protocol import PhotoInfoMixin
+from .phototemplate import PhotoTemplate, RenderOptions
 from .rehydrate import rehydrate_class
 
 try:
@@ -16,7 +18,7 @@ except FileNotFoundError:
 __all__ = ["PhotoInfoFromDict", "photoinfo_from_dict"]
 
 
-class PhotoInfoFromDict:
+class PhotoInfoFromDict(PhotoInfoMixin):
     """Create a PhotoInfo compatible object from a PhotoInfo dictionary created with PhotoInfo.asdict() or deserialized from JSON"""
 
     def asdict(self) -> dict[str, Any]:
@@ -26,6 +28,20 @@ class PhotoInfoFromDict:
     def json(self) -> str:
         """Return the PhotoInfo dictionary as a JSON string"""
         return json.dumps(self._data)
+
+    def render_template(self, template_str: str, options: RenderOptions | None = None):
+        """Renders a template string for PhotoInfo instance using PhotoTemplate
+
+        Args:
+            template_str: a template string with fields to render
+            options: a RenderOptions instance
+
+        Returns:
+            ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
+        """
+        options = options or RenderOptions()
+        template = PhotoTemplate(self, exiftool_path=self._exiftool_path)
+        return template.render(template_str, options)
 
 
 def photoinfo_from_dict(

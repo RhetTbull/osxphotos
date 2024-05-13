@@ -16,7 +16,7 @@ from osxphotos.metadata_reader import get_sidecar_for_file
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.photoinfo_file import (
     PhotoInfoFromFile,
-    render_photo_template,
+    render_photo_template_from_filepath,
     strip_edited_suffix,
 )
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
@@ -201,7 +201,7 @@ def get_sidecar_file_with_template(
         return None
     sidecar_file = None
     if sidecar_filename_template:
-        if sidecars := render_photo_template(
+        if sidecars := render_photo_template_from_filepath(
             filepath,
             None,
             sidecar_filename_template,

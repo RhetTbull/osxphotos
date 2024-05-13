@@ -1,4 +1,4 @@
-"""A mock PhotoInfo class for a file or a dict instead of an asset in the Photos library"""
+"""A mock PhotoInfo class for a file instead of an asset in the Photos library"""
 
 from __future__ import annotations
 
@@ -192,7 +192,7 @@ class PhotoInfoFromFile:
         raise AttributeError()
 
 
-def render_photo_template(
+def render_photo_template_from_filepath(
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path | None,
     template: str,
