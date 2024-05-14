@@ -14,6 +14,7 @@ import toml
 from rich import print
 
 from osxphotos.photoinfo import PhotoInfo
+from osxphotos.photoinfo_dict import PhotoInfoFromDict, photoinfo_from_dict
 
 from ._constants import OSXPHOTOS_EXPORT_DB, SQLITE_CHECK_SAME_THREAD
 from ._version import __version__
@@ -32,6 +33,7 @@ __all__ = [
     "export_db_get_last_export_dir",
     "export_db_get_last_library",
     "export_db_get_last_run",
+    "export_db_get_photoinfo_for_filepath",
     "export_db_get_runs",
     "export_db_get_version",
     "export_db_migrate_photos_library",
@@ -595,4 +597,36 @@ def export_db_get_last_export_dir(filepath: str | os.PathLike) -> str | None:
         export_root = pathlib.Path(export_db_path).parent
         exportdb = ExportDB(export_db_path, None)
         return exportdb.get_last_export_directory()
+    return None
+
+
+def export_db_get_photoinfo_for_filepath(
+    exportdb_path: str | os.PathLike,
+    filepath: str | os.PathLike,
+    exiftool: str | os.PathLike | None = None,
+) -> PhotoInfoFromDict | None:
+    """Return photoinfo object for a given filepath
+
+    Args:
+        exportdb: path to the export database
+        filepath: absolute path to the file to retrieve info for from the database
+        exiftool: optional path to exiftool to be passed to the PhotoInfoFromDict object
+
+    Returns: PhotoInfoFromDict | None
+    """
+    last_export_dir = export_db_get_last_export_dir(exportdb_path)
+    if not pathlib.Path(exportdb_path).is_file():
+        exportdb_path = find_export_db_for_filepath(exportdb_path)
+    if not exportdb_path:
+        raise ValueError(f"Could not find export database at path: {exportdb_path}")
+    exportdb = ExportDB(exportdb_path, last_export_dir)
+    if file_rec := exportdb.get_file_record(filepath):
+        if info_str := file_rec.photoinfo:
+            try:
+                info_dict = json.loads(info_str)
+            except Exception as e:
+                raise ValueError(f"Error loading PhotoInfo dict from database: {e}")
+            return photoinfo_from_dict(
+                info_dict, exiftool=str(exiftool) if exiftool else None
+            )
     return None

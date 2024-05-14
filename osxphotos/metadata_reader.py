@@ -10,6 +10,8 @@ from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Callable, Optional, Tuple
 
+from osxphotos.photoinfo_protocol import PhotoInfoProtocol
+
 from .datetime_utils import (
     datetime_has_tz,
     datetime_naive_to_utc,
@@ -514,3 +516,25 @@ def width_height_for_orientation(
         return height, width
     else:
         return width, height
+
+
+def metadata_from_photoinfo(photoinfo: PhotoInfoProtocol) -> MetaData:
+    """Create a MetaData object from a PhotoInfo instance"""
+    tz_offset = utc_offset_seconds(photoinfo.date)
+    timezone = photoinfo.date.tzinfo
+    date = datetime_remove_tz(datetime_utc_to_local(datetime_tz_to_utc(photoinfo.date)))
+    location = tuple(photoinfo.location) if photoinfo.location else (None, None)
+    return MetaData(
+        title=photoinfo.title,
+        description=photoinfo.description,
+        keywords=photoinfo.keywords,
+        location=location,
+        rating=photoinfo.rating or 0,
+        favorite=photoinfo.favorite,
+        persons=photoinfo.persons,
+        date=date,
+        timezone=timezone,
+        tz_offset_sec=tz_offset,
+        height=photoinfo.height,
+        width=photoinfo.width,
+    )

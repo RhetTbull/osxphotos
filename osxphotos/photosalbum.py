@@ -61,6 +61,7 @@ def album_by_path(
     """Get (and create if necessary) a Photos Album by path (pass as list of folders, album name)"""
     library = PhotosLibrary()
     verbose = verbose or noop
+    folders_album = folders_album.copy()
     if len(folders_album) > 1:
         # have folders
         album_name = folders_album.pop()
@@ -177,3 +178,27 @@ class PhotosAlbumPhotoScript(PhotosAlbum):
         self.verbose(
             f"Added {self._format_num(photo_len)} {pluralize(photo_len, 'photo', 'photos')} to album {self._format_album(self.name)}"
         )
+
+
+class PhotosAlbumPhotoScriptByPath(PhotosAlbumPhotoScript):
+    """Add photoscript.Photo objects to album"""
+
+    def __init__(
+        self,
+        album_path: list[str],
+        verbose: Optional[callable] = None,
+        rich: bool = False,
+    ):
+        """Return a PhotosAlbum object, creating the album if necessary
+
+        Args:
+            album_path: Path of album, e.g. ["Folder", "Album"] or ["Album"]
+            verbose: optional callable to print verbose output
+            rich: if True, use rich themes for verbose output
+        """
+        self.verbose = verbose or noop
+        self.library = photoscript.PhotosLibrary()
+
+        self.album = album_by_path(album_path, verbose=verbose)
+        self.name = album_path[-1]
+        self.rich = rich

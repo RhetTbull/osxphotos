@@ -18,8 +18,52 @@ except FileNotFoundError:
 __all__ = ["PhotoInfoFromDict", "photoinfo_from_dict"]
 
 
+class AlbumInfoFromDict:
+    """A minimal AlbumInfo object reconstructed from PhotoInfo.asdict()["folders"]"""
+
+    def __init__(self, title: str, folders: list[str]):
+        self._title = title
+        self._folder_names = folders
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @property
+    def folder_names(self) -> list[str]:
+        return self._folder_names
+
+    def __getattr__(self, name):
+        if name in {
+            "uuid",
+            "creation_date",
+            "start_date",
+            "end_date",
+            "owner",
+            "sort_order",
+            "parent",
+        }:
+            return None
+        elif name == "folder_list":
+            return []
+        else:
+            raise AttributeError(f"Invalid attribute: {name}")
+
+
 class PhotoInfoFromDict(PhotoInfoMixin):
     """Create a PhotoInfo compatible object from a PhotoInfo dictionary created with PhotoInfo.asdict() or deserialized from JSON"""
+
+    @property
+    def album_info(self) -> AlbumInfoFromDict:
+        """Return AlbumInfo objects for photo"""
+        # this is a little hacky but it works for `osxphotos import` use case
+        if not getattr(self, "folders"):
+            return []
+        # self.folders is a rehydrated object so need access it's __dict__ to get the actual data
+        return [
+            AlbumInfoFromDict(title, folders)
+            for title, folders in self.folders.__dict__.items()
+        ]
 
     def asdict(self) -> dict[str, Any]:
         """Return the PhotoInfo dictionary"""

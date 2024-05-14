@@ -29,11 +29,14 @@ from tests.conftest import get_os_version
 if is_macos:
     from photoscript import Photo
 
+    from osxphotos.cli.export import export
     from osxphotos.cli.import_cli import import_main
 else:
     pytest.skip(allow_module_level=True)
 
 TERMINAL_WIDTH = 250
+
+TEST_EXPORT_LIBRARY = "tests/Test-13.0.0.photoslibrary"
 
 TEST_IMAGES_DIR = "tests/test-images"
 TEST_IMAGE_1 = "tests/test-images/IMG_4179.jpeg"
@@ -1478,3 +1481,46 @@ def test_import_auto_live(tmp_path):
     photosdb = PhotosDB()
     photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
     assert photo.live_photo
+
+
+@pytest.mark.test_import
+def test_import_exportdb(tmp_path):
+    """Test osxphotos import with --exportdb option"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    assert not photo.title
+    assert photo.description == "Bride Wedding day"
+    assert photo.keywords == ["wedding"]
+    assert "I have a deleted twin" in photo.albums
+    assert "AlbumInFolder" in photo.albums
