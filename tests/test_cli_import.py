@@ -14,6 +14,8 @@ import time
 import unicodedata
 from tempfile import TemporaryDirectory
 from typing import Dict
+from zoneinfo import ZoneInfo
+import hashlib
 
 import pytest
 from click.testing import CliRunner
@@ -21,7 +23,7 @@ from pytest import MonkeyPatch, approx
 
 from osxphotos import PhotosDB, QueryOptions
 from osxphotos._constants import UUID_PATTERN
-from osxphotos.datetime_utils import datetime_remove_tz
+from osxphotos.datetime_utils import datetime_remove_tz, get_local_tz
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
 from tests.conftest import get_os_version
@@ -33,6 +35,7 @@ if is_macos:
     from osxphotos.cli.import_cli import import_main
 else:
     pytest.skip(allow_module_level=True)
+
 
 TERMINAL_WIDTH = 250
 
@@ -46,6 +49,10 @@ TEST_VIDEO_1 = "tests/test-images/Jellyfish.mov"
 TEST_VIDEO_2 = "tests/test-images/IMG_0670B_NOGPS.MOV"
 TEST_NOT_LIVE_PHOTO = "tests/test-images/not_live.jpeg"
 TEST_NOT_LIVE_VIDEO = "tests/test-images/not_live.mov"
+TEST_IMAGE_INVALID_AAE = "tests/test-images/St James Park.jpg"
+TEST_AAE_INVALID_AAE = "tests/test-images/St James Park.AAE"
+TEST_IMAGE_VALID_AAE = "tests/test-images/wedding.jpg"
+TEST_AAE_VALID_AAE = "tests/test-images/wedding.AAE"
 
 TEST_DATA = {
     TEST_IMAGE_1: {
@@ -94,9 +101,18 @@ TEST_DATA = {
 
 PARSE_DATE_DEFAULT_DATE = datetime.datetime(1999, 1, 2, 3, 4, 5)
 PARSE_DATE_TEST_DATA = [
-    ["img_1234_2020_11_22_12_34_56.jpg", datetime.datetime(2020, 11, 22, 12, 34, 56)],
-    ["img_1234_20211122.jpg", datetime.datetime(2021, 11, 22, 3, 4, 5)],
-    ["19991231_20221122.jpg", datetime.datetime(2022, 11, 22, 3, 4, 5)],
+    [
+        "img_1234_2020_11_22_12_34_56.jpg",
+        datetime.datetime(2020, 11, 22, 12, 34, 56),
+    ],
+    [
+        "img_1234_20211122.jpg",
+        datetime.datetime(2021, 11, 22, 3, 4, 5),
+    ],
+    [
+        "19991231_20221122.jpg",
+        datetime.datetime(2022, 11, 22, 3, 4, 5),
+    ],
     [
         "img-123456.jpg",
         datetime.datetime(1999, 1, 2, 12, 34, 56),
@@ -106,18 +122,18 @@ PARSE_DATE_TEST_DATA = [
 
 
 # set timezone to avoid issues with comparing dates
-@pytest.fixture(scope="module", autouse=True)
-def set_timezone():
-    """Set timezone to US/Pacific for all tests"""
-    old_tz = os.environ.get("TZ")
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
-    yield
-    if old_tz:
-        os.environ["TZ"] = old_tz
-    else:
-        del os.environ["TZ"]
-    time.tzset()
+# @pytest.fixture(scope="module", autouse=True)
+# def set_timezone():
+#     """Set timezone to US/Pacific for all tests"""
+#     old_tz = os.environ.get("TZ")
+#     os.environ["TZ"] = "US/Pacific"
+#     time.tzset()
+#     yield
+#     if old_tz:
+#         os.environ["TZ"] = old_tz
+#     else:
+#         del os.environ["TZ"]
+#     time.tzset()
 
 
 @pytest.fixture(autouse=True)
@@ -165,6 +181,14 @@ def parse_import_output(output: str) -> Dict[str, str]:
             uuid = match[2]
             results[file] = uuid
     return results
+
+
+def file_md5(file_path):
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 
 ########## Interactive tests run first ##########
@@ -1314,7 +1338,6 @@ def test_import_parse_date(tmp_path: pathlib.Path, data: tuple[str, datetime.dat
     date = data[1]
 
     # set up test images
-    os.environ["TZ"] = "US/Pacific"
     cwd = os.getcwd()
     test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
 
@@ -1351,7 +1374,6 @@ def test_import_parse_folder_date(tmp_path: pathlib.Path):
     """Test import with --parse-folder-date"""
 
     # set up test images
-    os.environ["TZ"] = "US/Pacific"
     cwd = os.getcwd()
     test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
 
@@ -1457,11 +1479,14 @@ def test_import_auto_live(tmp_path):
     test_image_1 = os.path.join(cwd, TEST_NOT_LIVE_PHOTO)
     test_video_1 = os.path.join(cwd, TEST_NOT_LIVE_VIDEO)
 
-    # copy test files to tmp_path as they will be modified
     shutil.copy(test_image_1, tmp_path)
     shutil.copy(test_video_1, tmp_path)
     test_image_1 = str(tmp_path / pathlib.Path(test_image_1).name)
     test_video_1 = str(tmp_path / pathlib.Path(test_video_1).name)
+
+    # store md5 of test images before import
+    md5_test_image_1 = file_md5(test_image_1)
+    md5_test_video_1 = file_md5(test_video_1)
 
     runner = CliRunner()
     result = runner.invoke(
@@ -1481,6 +1506,10 @@ def test_import_auto_live(tmp_path):
     photosdb = PhotosDB()
     photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
     assert photo.live_photo
+
+    # verify the originals were not modified (test that staging worked)
+    assert file_md5(test_image_1) == md5_test_image_1
+    assert file_md5(test_video_1) == md5_test_video_1
 
 
 @pytest.mark.test_import
@@ -1524,3 +1553,28 @@ def test_import_exportdb(tmp_path):
     assert photo.keywords == ["wedding"]
     assert "I have a deleted twin" in photo.albums
     assert "AlbumInFolder" in photo.albums
+
+
+@pytest.mark.test_import
+def test_import_aae(tmp_path):
+    """Test import with aae files; test that invalid AAE are ignored during import"""
+    cwd = os.getcwd()
+    shutil.copy(TEST_IMAGE_VALID_AAE, os.path.join(tmp_path, "valid_aae.jpg"))
+    shutil.copy(TEST_AAE_VALID_AAE, os.path.join(tmp_path, "valid_aae.aae"))
+    shutil.copy(TEST_IMAGE_INVALID_AAE, os.path.join(tmp_path, "invalid_aae.jpg"))
+    shutil.copy(TEST_AAE_INVALID_AAE, os.path.join(tmp_path, "invalid_aae.aae"))
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", str(tmp_path), "--glob", "*aae*"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    results = parse_import_output(result.output)
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["valid_aae.jpg"]]))[0]
+    assert photo.hasadjustments
+    photo = photosdb.query(QueryOptions(uuid=[results["invalid_aae.jpg"]]))[0]
+    assert not photo.hasadjustments

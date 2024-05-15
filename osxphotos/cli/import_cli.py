@@ -14,6 +14,7 @@ import os.path
 import pathlib
 import sqlite3
 import sys
+import tempfile
 from collections.abc import Iterable
 from contextlib import suppress
 from functools import cache
@@ -27,6 +28,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 from strpdatetime import strpdatetime
 
+from osxphotos.fileutil import FileUtilMacOS
 from osxphotos.photoinfo_protocol import PhotoInfoProtocol
 from osxphotos.platform import assert_macos
 
@@ -60,6 +62,7 @@ from osxphotos.export_db_utils import export_db_get_photoinfo_for_filepath
 from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.image_file_utils import (
     burst_uuid_from_path,
+    is_apple_photos_aae_file,
     is_image_file,
     is_live_pair,
     is_possible_live_pair,
@@ -121,6 +124,7 @@ IS_RAW_JPEG_PAIR = 4
 IS_BURST_GROUP = 8
 HAS_AAE_FILE = 16
 AUTO_LIVE_PAIR = 32
+SHOULD_STAGE_FILES = 64
 
 
 def echo(message, emoji=True, **kwargs):
@@ -178,7 +182,7 @@ def import_photo_group(
         photo = imported[0]
         return photo, None
     else:
-        error_str = f"[error]Error importing file [filepath]{filepaths[0]}[/][/]"
+        error_str = f"[error]Error importing file [filepath]{filepaths[0].name}[/][/]"
         echo(error_str, err=True)
         return None, error_str
 
@@ -1416,7 +1420,6 @@ def import_files(
 
     Returns: tuple of imported_count, skipped_count, error_count
     """
-
     # initialize FingerprintQuery to be able to find duplicates
     if signature:
         fq = SignatureQuery(
@@ -1444,7 +1447,7 @@ def import_files(
             for file_tuple in files:
                 file_type = 0
                 if len(file_tuple) > 1:
-                    file_type |= IS_IMPORT_GROUP
+                    file_type |= IS_IMPORT_GROUP  # ZZZ
                     noun = "import group"
                     if burst_uuid_from_path(file_tuple[0]):
                         file_type |= IS_BURST_GROUP
@@ -1457,20 +1460,23 @@ def import_files(
                         noun = "raw+jpeg pair"
                     elif auto_live and is_possible_live_pair(*file_tuple[:2]):
                         file_type |= AUTO_LIVE_PAIR
+                        file_type |= SHOULD_STAGE_FILES
                         noun = "live photo pair"
-                        verbose(
-                            f"Converting to live photo pair: [filepath]{file_tuple[0]}[/], [filepath]{file_tuple[1]}[/]"
-                        )
-                        if not dry_run:
-                            try:
-                                makelive.make_live_photo(*file_tuple[:2])
-                            except Exception as e:
-                                echo(
-                                    f"Error converting {file_tuple[0]}, {file_tuple[1]} to live photo pair: {e}"
-                                )
                     if has_aae(file_tuple):
-                        file_type |= HAS_AAE_FILE
-                        noun += " with .AAE file"
+                        if non_apple_aae_file := has_non_apple_aae(file_tuple):
+                            # strip the non-Apple .aae file
+                            # also stage the files because Photos will try to import the AAE and generate an error
+                            # if the AAE exists in the same path as the imported file even if the AAE is not explicitely imported
+                            file_type |= SHOULD_STAGE_FILES
+                            file_tuple = tuple(
+                                f for f in file_tuple if not f.suffix.lower() == ".aae"
+                            )
+                            verbose(
+                                f"Skipping import of non-Apple AAE file from external edit: {non_apple_aae_file}"
+                            )
+                        else:
+                            file_type |= HAS_AAE_FILE
+                            noun += " with .AAE file"
                     verbose(
                         f"Processing {noun}: {', '.join([f'[filepath]{f.name}[/]' for f in file_tuple])}"
                     )
@@ -1570,7 +1576,28 @@ def import_files(
                         continue
 
                 if not dry_run:
-                    photo, error = import_photo_group(file_tuple, dup_check, verbose)
+                    with tempfile.TemporaryDirectory(
+                        prefix="osxphotos_import_", ignore_cleanup_errors=True
+                    ) as temp_dir:
+                        if file_type & SHOULD_STAGE_FILES:
+                            verbose(f"Staging files to {temp_dir} prior to import")
+                            files_to_import = stage_files(file_tuple, temp_dir)
+                        else:
+                            files_to_import = file_tuple
+                        if file_type & AUTO_LIVE_PAIR:
+                            verbose(
+                                f"Converting to live photo pair: [filepath]{files_to_import[0].name}[/], [filepath]{files_to_import[1].name}[/]"
+                            )
+                            try:
+                                makelive.make_live_photo(*files_to_import[:2])
+                            except Exception as e:
+                                echo(
+                                    f"Error converting {files_to_import[0].name}, {files_to_import[1].name} to live photo pair: {e}",
+                                    err=True,
+                                )
+                        photo, error = import_photo_group(
+                            files_to_import, dup_check, verbose
+                        )
                     if error:
                         error_count += 1
                         report_record.error = True
@@ -1587,6 +1614,7 @@ def import_files(
                 report_record.imported = True
                 imported_count += 1
 
+                # ZZZ put below in new function to apply_photo_metadata(...)
                 if clear_metadata:
                     clear_photo_metadata(photo, filepath, verbose, dry_run)
 
@@ -1691,6 +1719,7 @@ def import_files(
                         dry_run,
                     )
 
+                # ZZZ put below in apply_photo_albums(...)
                 if album:
                     report_record.albums += add_photo_to_albums(
                         photo,
@@ -2872,9 +2901,35 @@ def has_aae(filepaths: Iterable[str | os.PathLike]) -> bool:
     return False
 
 
+def has_non_apple_aae(filepaths: Iterable[str | os.PathLike]) -> str | None:
+    """Return truthy value if any file in the list are an AAE file but not an Apple AAE file (external edits)"""
+    for filepath in filepaths:
+        filepath = (
+            pathlib.Path(filepath)
+            if not isinstance(filepath, pathlib.Path)
+            else filepath
+        )
+        if filepath.name.lower().endswith(".aae"):
+            if not is_apple_photos_aae_file(filepath):
+                return str(filepath)
+    return None
+
+
 def non_raw_file(filepaths: Iterable[str | os.PathLike]) -> str | os.PathLike:
     """Return the non-RAW file from a RAW+non-RAW pair or the first file if non-RAW file not found"""
     for filepath in filepaths:
         if not is_raw_image(filepath):
             return filepath
     return filepaths[0]
+
+
+def stage_files(
+    filepaths: Iterable[str | os.PathLike], temp_dir: str | os.PathLike
+) -> tuple[pathlib.Path]:
+    """Stage files for import to temp directory"""
+    staged = []
+    for source in filepaths:
+        dest = os.path.join(temp_dir, pathlib.Path(source).name)
+        FileUtilMacOS.copy(str(source), dest)
+        staged.append(pathlib.Path(dest))
+    return tuple(staged)

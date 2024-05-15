@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import os
 import pathlib
+import plistlib
 from contextlib import suppress
 from functools import cache
+from typing import Any
+from weakref import ref
 
 from osxphotos.platform import assert_macos
 
@@ -76,3 +79,24 @@ def burst_uuid_from_path(path: pathlib.Path) -> str | None:
     with suppress(KeyError):
         return md.properties["MakerApple"]["11"]
     return None
+
+
+def load_aae_file(filepath: str | os.PathLike) -> dict[str, Any] | None:
+    """Return plist dict if aae file is valid, else return None"""
+    if not pathlib.Path(filepath).is_file():
+        return None
+
+    with open(filepath, "rb") as f:
+        try:
+            plist = plistlib.load(f)
+        except plistlib.InvalidFileException:
+            return None
+    return plist
+
+
+def is_apple_photos_aae_file(filepath: str | os.PathLike) -> bool:
+    """Return True if filepath is an AAE file containing Apple Photos adjustments; returns False is file contains adjustments for an external editor"""
+    if plist := load_aae_file(filepath):
+        if plist.get("adjustmentFormatIdentifier") == "com.apple.photo":
+            return True
+    return False
