@@ -773,6 +773,135 @@ def get_relative_filepath(
     return relative_filepath
 
 
+def apply_photo_metadata(
+    clear_location: bool,
+    clear_metadata: bool,
+    description: str | None,
+    dry_run: bool,
+    exiftool: bool,
+    exiftool_path: str,
+    exportdb: pathlib.Path | None,
+    favorite_rating: bool,
+    filepath: pathlib.Path,
+    keyword: str | None,
+    location: tuple[float, float],
+    merge_keywords: bool,
+    parse_date: str | None,
+    parse_folder_date: str | None,
+    photo: Photo,
+    relative_filepath: pathlib.Path,
+    sidecar_file: pathlib.Path | None,
+    sidecar_ignore_date: bool,
+    title: str | None,
+    verbose: Callable[..., None],
+):
+    """Set metdata for photo"""
+
+    if clear_metadata:
+        clear_photo_metadata(photo, filepath, verbose, dry_run)
+
+    if clear_location:
+        clear_photo_location(photo, filepath, verbose, dry_run)
+
+    if exportdb:
+        set_photo_metadata_from_exportdb(
+            photo,
+            filepath,
+            exportdb,
+            exiftool_path,
+            merge_keywords,
+            verbose,
+            dry_run,
+        )
+    if exiftool:
+        set_photo_metadata_from_exiftool(
+            photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
+        )
+
+    if sidecar_file:
+        set_photo_metadata_from_sidecar(
+            photo,
+            filepath,
+            sidecar_file,
+            sidecar_ignore_date,
+            exiftool_path,
+            merge_keywords,
+            verbose,
+            dry_run,
+        )
+
+    if title:
+        set_photo_title(
+            photo,
+            filepath,
+            relative_filepath,
+            title,
+            exiftool_path,
+            sidecar_file,
+            verbose,
+            dry_run,
+        )
+
+    if description:
+        set_photo_description(
+            photo,
+            filepath,
+            relative_filepath,
+            description,
+            exiftool_path,
+            sidecar_file,
+            verbose,
+            dry_run,
+        )
+
+    if keyword:
+        set_photo_keywords(
+            photo,
+            filepath,
+            relative_filepath,
+            keyword,
+            exiftool_path,
+            merge_keywords,
+            sidecar_file,
+            verbose,
+            dry_run,
+        )
+
+    if location:
+        set_photo_location(photo, filepath, location, verbose, dry_run)
+
+    if favorite_rating:
+        set_photo_favorite(
+            photo,
+            filepath,
+            sidecar_file,
+            exiftool_path,
+            favorite_rating,
+            verbose,
+            dry_run,
+        )
+
+    if parse_date:
+        set_photo_date_from_filename(
+            photo,
+            filepath.name,
+            filepath.name,
+            parse_date,
+            verbose,
+            dry_run,
+        )
+
+    if parse_folder_date:
+        set_photo_date_from_filename(
+            photo,
+            filepath.name,
+            filepath.parent,
+            parse_folder_date,
+            verbose,
+            dry_run,
+        )
+
+
 def check_templates_and_exit(
     files: list[pathlib.Path],
     relative_to: pathlib.Path | None,
@@ -1671,110 +1800,28 @@ def import_files(
                 report_record.imported = True
                 imported_count += 1
 
-                # ZZZ put below in new function to apply_photo_metadata(...)
-                if clear_metadata:
-                    clear_photo_metadata(photo, filepath, verbose, dry_run)
-
-                if clear_location:
-                    clear_photo_location(photo, filepath, verbose, dry_run)
-
-                if exportdb:
-                    set_photo_metadata_from_exportdb(
-                        photo,
-                        filepath,
-                        exportdb,
-                        exiftool_path,
-                        merge_keywords,
-                        verbose,
-                        dry_run,
-                    )
-                if exiftool:
-                    set_photo_metadata_from_exiftool(
-                        photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
-                    )
-
-                if sidecar_file:
-                    set_photo_metadata_from_sidecar(
-                        photo,
-                        filepath,
-                        sidecar_file,
-                        sidecar_ignore_date,
-                        exiftool_path,
-                        merge_keywords,
-                        verbose,
-                        dry_run,
-                    )
-
-                if title:
-                    set_photo_title(
-                        photo,
-                        filepath,
-                        relative_filepath,
-                        title,
-                        exiftool_path,
-                        sidecar_file,
-                        verbose,
-                        dry_run,
-                    )
-
-                if description:
-                    set_photo_description(
-                        photo,
-                        filepath,
-                        relative_filepath,
-                        description,
-                        exiftool_path,
-                        sidecar_file,
-                        verbose,
-                        dry_run,
-                    )
-
-                if keyword:
-                    set_photo_keywords(
-                        photo,
-                        filepath,
-                        relative_filepath,
-                        keyword,
-                        exiftool_path,
-                        merge_keywords,
-                        sidecar_file,
-                        verbose,
-                        dry_run,
-                    )
-
-                if location:
-                    set_photo_location(photo, filepath, location, verbose, dry_run)
-
-                if favorite_rating:
-                    set_photo_favorite(
-                        photo,
-                        filepath,
-                        sidecar_file,
-                        exiftool_path,
-                        favorite_rating,
-                        verbose,
-                        dry_run,
-                    )
-
-                if parse_date:
-                    set_photo_date_from_filename(
-                        photo,
-                        filepath.name,
-                        filepath.name,
-                        parse_date,
-                        verbose,
-                        dry_run,
-                    )
-
-                if parse_folder_date:
-                    set_photo_date_from_filename(
-                        photo,
-                        filepath.name,
-                        filepath.parent,
-                        parse_folder_date,
-                        verbose,
-                        dry_run,
-                    )
+                apply_photo_metadata(
+                    clear_location=clear_location,
+                    clear_metadata=clear_metadata,
+                    description=description,
+                    dry_run=dry_run,
+                    exiftool=exiftool,
+                    exiftool_path=exiftool_path,
+                    exportdb=exportdb,
+                    favorite_rating=favorite_rating,
+                    filepath=filepath,
+                    keyword=keyword,
+                    location=location,
+                    merge_keywords=merge_keywords,
+                    parse_date=parse_date,
+                    parse_folder_date=parse_folder_date,
+                    photo=photo,
+                    relative_filepath=relative_filepath,
+                    sidecar_file=sidecar_file,
+                    sidecar_ignore_date=sidecar_ignore_date,
+                    title=title,
+                    verbose=verbose,
+                )
 
                 # ZZZ put below in apply_photo_albums(...)
                 if album:
