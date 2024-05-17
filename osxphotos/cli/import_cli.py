@@ -123,8 +123,9 @@ IS_LIVE_PAIR = 2
 IS_RAW_JPEG_PAIR = 4
 IS_BURST_GROUP = 8
 HAS_AAE_FILE = 16
-AUTO_LIVE_PAIR = 32
-SHOULD_STAGE_FILES = 64
+HAS_NON_APPLE_AAE = 32
+AUTO_LIVE_PAIR = 64
+SHOULD_STAGE_FILES = 128
 
 
 def echo(message, emoji=True, **kwargs):
@@ -893,6 +894,7 @@ class ReportRecord:
     raw_pair: bool = False
     raw_image: str = ""
     aae_file: bool = False
+    skipped_aae_file: bool = False
     keywords: list[str] = dataclasses.field(default_factory=list)
     location: tuple[float, float] = dataclasses.field(default_factory=tuple)
     title: str = ""
@@ -994,6 +996,7 @@ def write_csv_report(
                     "raw_pair",
                     "raw_image",
                     "aae_file",
+                    "skipped_aae_file",
                     "error",
                     "title",
                     "description",
@@ -1018,6 +1021,7 @@ def write_csv_report(
                     1 if report_record.raw_pair else 0,
                     report_record.raw_image,
                     1 if report_record.aae_file else 0,
+                    1 if report_record.skipped_aae_file else 0,
                     1 if report_record.error else 0,
                     report_record.title,
                     report_record.description,
@@ -1082,8 +1086,9 @@ def write_sqlite_report(
                 live_video,
                 raw_pair,
                 raw_image,
-                aae_file
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""",
+                aae_file,
+                skipped_aae_file
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);""",
             (
                 report_id,
                 str(report_record.filepath),
@@ -1113,6 +1118,7 @@ def write_sqlite_report(
                 report_record.raw_pair,
                 report_record.raw_image,
                 report_record.aae_file,
+                report_record.skipped_aae_file,
             ),
         )
     conn.commit()
@@ -1189,6 +1195,9 @@ def create_or_migrate_sql_report_db(conn: sqlite3.Connection):
     if "aae_file" not in sqlite_columns(conn, "report"):
         c.execute("ALTER TABLE report ADD COLUMN aae_file INTEGER;")
         conn.commit()
+
+    if "skipped_aae_file" not in sqlite_columns(conn, "report"):
+        c.execute("ALTER TABLE report ADD COLUMN skipped_aae_file INTEGER;")
 
 
 def render_and_validate_report(report: str) -> str:
@@ -1379,6 +1388,81 @@ def group_files_by_burst_uuid(
     return same_burst, remainder
 
 
+def file_type_for_import_group(
+    file_tuple: tuple[pathlib.Path, ...], auto_live: bool
+) -> int:
+    """Determine the file type for a given group of files; also strips non-Apple AAE files from file_tuple.
+
+    Args:
+        file_tuple: tuple of files to import
+        auto_live: if True, find possible live pairs
+
+    Returns: bit mask for the file type
+    """
+    file_type = 0
+    if len(file_tuple) > 1:
+        file_type |= IS_IMPORT_GROUP
+        if burst_uuid_from_path(file_tuple[0]):
+            file_type |= IS_BURST_GROUP
+        elif is_live_pair(*file_tuple[:2]):
+            file_type |= IS_LIVE_PAIR
+        elif is_raw_pair(*file_tuple[:2]):
+            file_type |= IS_RAW_JPEG_PAIR
+        elif auto_live and is_possible_live_pair(*file_tuple[:2]):
+            file_type |= AUTO_LIVE_PAIR
+            file_type |= SHOULD_STAGE_FILES
+        if has_aae(file_tuple):
+            if non_apple_aae_file := has_non_apple_aae(file_tuple):
+                file_type |= HAS_NON_APPLE_AAE
+                file_type |= SHOULD_STAGE_FILES
+            else:
+                file_type |= HAS_AAE_FILE
+    return file_type
+
+
+def noun_for_file_type(file_type: int) -> str:
+    """Return noun to use for a given file type in user messages.
+
+    Args:
+        file_type: bit mask file_type as returned by file_type_for_import_group
+
+    Returns: str with the noun / description of the file type
+    """
+    noun = ""
+    if file_type & IS_IMPORT_GROUP:
+        noun = "import group"
+    if file_type & IS_BURST_GROUP:
+        noun = "burst group"
+    if file_type & IS_LIVE_PAIR:
+        noun = "live photo pair"
+    if file_type & IS_RAW_JPEG_PAIR:
+        noun = "raw+jpeg pair"
+    if file_type & AUTO_LIVE_PAIR:
+        noun = "live photo pair"
+    if file_type & HAS_AAE_FILE:
+        noun += " with .AAE file"
+    return noun
+
+
+def strip_non_apple_aae_file(
+    file_tuple: tuple[pathlib.Path, ...], verbose: Callable[..., None]
+) -> tuple[pathlib.Path, ...]:
+    """Strip non-Apple AAE file from a file tuple.
+
+    Args:
+        file_tuple: tuple of file paths to check for non-Apple AAE files
+        verbose: Callable to print verbose output
+
+    Returns: tuple of file paths with any non-Apple AAE files stripped from the tuple
+    """
+    if non_apple_aae_file := has_non_apple_aae(file_tuple):
+        file_tuple = tuple(f for f in file_tuple if not f.suffix.lower() == ".aae")
+        verbose(
+            f"Skipping import of non-Apple AAE file from external edit: {non_apple_aae_file}"
+        )
+    return file_tuple
+
+
 def import_files(
     last_library: str,
     files: list[tuple[pathlib.Path, ...]],
@@ -1445,41 +1529,13 @@ def import_files(
         )
         try:
             for file_tuple in files:
-                file_type = 0
-                if len(file_tuple) > 1:
-                    file_type |= IS_IMPORT_GROUP  # ZZZ
-                    noun = "import group"
-                    if burst_uuid_from_path(file_tuple[0]):
-                        file_type |= IS_BURST_GROUP
-                        noun = "burst group"
-                    elif is_live_pair(*file_tuple[:2]):
-                        file_type |= IS_LIVE_PAIR
-                        noun = "live photo pair"
-                    elif is_raw_pair(*file_tuple[:2]):
-                        file_type |= IS_RAW_JPEG_PAIR
-                        noun = "raw+jpeg pair"
-                    elif auto_live and is_possible_live_pair(*file_tuple[:2]):
-                        file_type |= AUTO_LIVE_PAIR
-                        file_type |= SHOULD_STAGE_FILES
-                        noun = "live photo pair"
-                    if has_aae(file_tuple):
-                        if non_apple_aae_file := has_non_apple_aae(file_tuple):
-                            # strip the non-Apple .aae file
-                            # also stage the files because Photos will try to import the AAE and generate an error
-                            # if the AAE exists in the same path as the imported file even if the AAE is not explicitely imported
-                            file_type |= SHOULD_STAGE_FILES
-                            file_tuple = tuple(
-                                f for f in file_tuple if not f.suffix.lower() == ".aae"
-                            )
-                            verbose(
-                                f"Skipping import of non-Apple AAE file from external edit: {non_apple_aae_file}"
-                            )
-                        else:
-                            file_type |= HAS_AAE_FILE
-                            noun += " with .AAE file"
-                    verbose(
-                        f"Processing {noun}: {', '.join([f'[filepath]{f.name}[/]' for f in file_tuple])}"
-                    )
+                file_type = file_type_for_import_group(file_tuple, auto_live)
+                noun = noun_for_file_type(file_type)
+                if file_type & HAS_NON_APPLE_AAE:
+                    file_tuple = strip_non_apple_aae_file(file_tuple, verbose)
+                verbose(
+                    f"Processing {noun}: {', '.join([f'[filepath]{f.name}[/]' for f in file_tuple])}"
+                )
                 filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
                 relative_filepath = get_relative_filepath(filepath, relative_to)
 
@@ -1517,6 +1573,7 @@ def import_files(
                         str(file_tuple[1]) if file_type & IS_RAW_JPEG_PAIR else ""
                     ),
                     aae_file=bool(file_type & HAS_AAE_FILE),
+                    skipped_aae_file=bool(file_type & HAS_NON_APPLE_AAE),
                 )
                 report_record = report_data[filepath]
 
