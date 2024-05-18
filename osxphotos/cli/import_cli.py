@@ -1464,7 +1464,9 @@ def collect_files_to_import(
     return files_to_import
 
 
-def group_files_to_import(files: list[pathlib.Path]) -> list[tuple[pathlib.Path, ...]]:
+def group_files_to_import(
+    files: list[pathlib.Path], auto_live: bool
+) -> list[tuple[pathlib.Path, ...]]:
     """Group files by live photo, burst UUID, raw+jpeg, etc."""
     # first collect all files by parent directory
     files_by_parent = {}
@@ -1487,10 +1489,27 @@ def group_files_to_import(files: list[pathlib.Path]) -> list[tuple[pathlib.Path,
     files_to_import = []
     for group in grouped_files:
         files_to_import.append(sort_paths(group))
-    return files_to_import
+
+    # verify each group is a valid import type and if not, break in separate groups
+    return group_files_to_import_by_type(files_to_import, auto_live)
+
+
+def group_files_to_import_by_type(
+    files_to_import: list[tuple[pathlib.Path, ...]], auto_live: bool
+) -> list[tuple[pathlib.Path, ...]]:
+    """Given a list of import tuples created by group_files_to_import, validate the types and adjust the groups if needed"""
+    new_files_to_import = []
+    for file_tuple in files_to_import:
+        if file_type := file_type_for_import_group(file_tuple, auto_live):
+            new_files_to_import.append(file_tuple)
+        else:
+            # unpack into tuples of single files
+            new_files_to_import.extend((f,) for f in file_tuple)
+    return new_files_to_import
 
 
 def sort_paths(paths: tuple[pathlib.Path, ...]) -> tuple[pathlib.Path, ...]:
+    """Seort paths into desired order for import so the key file is first"""
 
     def path_key(path: pathlib.Path) -> Tuple[int, int, str]:
         extension = path.suffix.lower()
@@ -1565,7 +1584,6 @@ def file_type_for_import_group(
     """
     file_type = 0
     if len(file_tuple) > 1:
-        file_type |= IS_IMPORT_GROUP
         if burst_uuid_from_path(file_tuple[0]):
             file_type |= IS_BURST_GROUP
         elif is_live_pair(*file_tuple[:2]):
@@ -1801,7 +1819,9 @@ def import_files(
                         prefix="osxphotos_import_", ignore_cleanup_errors=True
                     ) as temp_dir:
                         if file_type & SHOULD_STAGE_FILES:
-                            verbose(f"Staging files to {temp_dir} prior to import", level=2)
+                            verbose(
+                                f"Staging files to {temp_dir} prior to import", level=2
+                            )
                             files_to_import = stage_files(file_tuple, temp_dir)
                         else:
                             files_to_import = file_tuple
@@ -2780,7 +2800,7 @@ def import_cli(
             signature=signature,
         )
 
-    files_to_import = group_files_to_import(files_or_dirs)
+    files_to_import = group_files_to_import(files_or_dirs, auto_live)
 
     # need to get the library path to initialize FingerprintQuery
     last_library = library or get_last_library_path()

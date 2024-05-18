@@ -1578,3 +1578,36 @@ def test_import_aae(tmp_path):
     assert photo.hasadjustments
     photo = photosdb.query(QueryOptions(uuid=[results["invalid_aae.jpg"]]))[0]
     assert not photo.hasadjustments
+
+
+@pytest.mark.test_import
+def test_import_same_stem(tmp_path):
+    """Test import of two files with same stem"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_NOT_LIVE_PHOTO)
+    test_video_1 = os.path.join(cwd, TEST_NOT_LIVE_VIDEO)
+
+    shutil.copy(test_image_1, tmp_path)
+    shutil.copy(test_video_1, tmp_path)
+    test_image_1 = str(tmp_path / pathlib.Path(test_image_1).name)
+    test_video_1 = str(tmp_path / pathlib.Path(test_video_1).name)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_1, test_video_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    file_2 = pathlib.Path(test_video_1).name
+    uuid_2 = import_data[file_2]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert not photo.live_photo
+    video = photosdb.query(QueryOptions(uuid=[uuid_2]))[0]
+    assert video.ismovie
