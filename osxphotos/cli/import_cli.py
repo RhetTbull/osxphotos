@@ -1801,7 +1801,7 @@ def import_files(
                         prefix="osxphotos_import_", ignore_cleanup_errors=True
                     ) as temp_dir:
                         if file_type & SHOULD_STAGE_FILES:
-                            verbose(f"Staging files to {temp_dir} prior to import")
+                            verbose(f"Staging files to {temp_dir} prior to import", level=2)
                             files_to_import = stage_files(file_tuple, temp_dir)
                         else:
                             files_to_import = file_tuple
