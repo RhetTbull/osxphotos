@@ -193,8 +193,8 @@ def add_photo_to_albums(
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path,
     album: tuple[str, ...],
-    split_folder: str,
-    exiftool_path: str,
+    split_folder: str | None,
+    exiftool_path: str | None,
     sidecar: pathlib.Path | None,
     verbose: Callable[..., None],
     dry_run: bool,
@@ -283,8 +283,8 @@ def add_duplicate_to_albums(
     filepath: pathlib.Path,
     relative_filepath: pathlib.Path,
     album: tuple[str, ...],
-    split_folder: str,
-    exiftool_path: str,
+    split_folder: str | None,
+    exiftool_path: str | None,
     sidecar: pathlib.Path | None,
     verbose: Callable[..., None],
     dry_run: bool,
@@ -899,6 +899,41 @@ def apply_photo_metadata(
             parse_folder_date,
             verbose,
             dry_run,
+        )
+
+
+def apply_photo_albums(
+    album: tuple[str, ...],
+    dry_run: bool,
+    exiftool: bool,
+    exiftool_path: str | None,
+    exportdb: str | None,
+    filepath: pathlib.Path,
+    photo: Photo,
+    relative_filepath: pathlib.Path,
+    report_record: ReportRecord,
+    sidecar_file: pathlib.Path | None,
+    split_folder: str | None,
+    verbose: Callable[..., None],
+):
+    """Apply album changes to photo"""
+    if album:
+        report_record.albums += add_photo_to_albums(
+            photo,
+            filepath,
+            relative_filepath,
+            album,
+            split_folder,
+            exiftool_path,
+            sidecar_file,
+            verbose,
+            dry_run,
+        )
+
+    if exportdb:
+        # add photo to any albums defined in the exportdb data
+        report_record.albums += add_photo_to_albums_from_exportdb(
+            photo, filepath, exportdb, exiftool_path, verbose, dry_run
         )
 
 
@@ -1628,7 +1663,7 @@ def import_files(
     auto_live: bool,
     stop_on_error: int | None,
     signature: str | None,
-):
+) -> tuple[int, int, int]:
     """Import files into Photos library
 
     Returns: tuple of imported_count, skipped_count, error_count
@@ -1823,25 +1858,20 @@ def import_files(
                     verbose=verbose,
                 )
 
-                # ZZZ put below in apply_photo_albums(...)
-                if album:
-                    report_record.albums += add_photo_to_albums(
-                        photo,
-                        filepath,
-                        relative_filepath,
-                        album,
-                        split_folder,
-                        exiftool_path,
-                        sidecar_file,
-                        verbose,
-                        dry_run,
-                    )
-
-                if exportdb:
-                    # add photo to any albums defined in the exportdb data
-                    report_record.albums += add_photo_to_albums_from_exportdb(
-                        photo, filepath, exportdb, exiftool_path, verbose, dry_run
-                    )
+                apply_photo_albums(
+                    album=album,
+                    dry_run=dry_run,
+                    exiftool=exiftool,
+                    exiftool_path=exiftool_path,
+                    exportdb=exportdb,
+                    filepath=filepath,
+                    photo=photo,
+                    relative_filepath=relative_filepath,
+                    report_record=report_record,
+                    sidecar_file=sidecar_file,
+                    split_folder=split_folder,
+                    verbose=verbose,
+                )
 
                 if post_function:
                     for function in post_function:
