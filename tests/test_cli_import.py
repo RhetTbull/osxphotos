@@ -1611,3 +1611,7 @@ def test_import_same_stem(tmp_path):
     assert not photo.live_photo
     video = photosdb.query(QueryOptions(uuid=[uuid_2]))[0]
     assert video.ismovie
+
+
+# ZZZ add tests for IMG_1234.jpg, IMG_E1234.jpg with and without AAE
+#

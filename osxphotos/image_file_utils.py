@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import pathlib
 import plistlib
+import re
 from contextlib import suppress
 from functools import cache
 from typing import Any
@@ -17,6 +18,11 @@ assert_macos()
 import cgmetadata
 import makelive
 import osxmetadata
+
+# regular expressions to match original + edited pairs
+# if a pair of photos matching these regular expressions is imported, Photos creates an edited photo on import
+ORIGINAL_RE = r"^(.*\/?)([A-Za-z]{3})_(\d{4}).*$"
+EDITED_RE = r"^.*\/?[A-Za-z]{3}_E\d{4}.*$"
 
 
 def content_tree(filepath: str | os.PathLike) -> list[str]:
@@ -98,5 +104,13 @@ def is_apple_photos_aae_file(filepath: str | os.PathLike) -> bool:
     """Return True if filepath is an AAE file containing Apple Photos adjustments; returns False is file contains adjustments for an external editor"""
     if plist := load_aae_file(filepath):
         if plist.get("adjustmentFormatIdentifier") == "com.apple.photo":
+            return True
+    return False
+
+
+def is_edited_version_of_file(file1: pathlib.Path, file2: pathlib.Path) -> bool:
+    """Return True if file2 appears to be an edited version of file1"""
+    if match := re.match(ORIGINAL_RE, str(file1)):
+        if re.match(f"{match.group(1)}{match.group(2)}_E{match.group(3)}", str(file2)):
             return True
     return False

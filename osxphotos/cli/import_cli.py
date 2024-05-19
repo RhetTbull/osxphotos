@@ -20,7 +20,9 @@ from contextlib import suppress
 from functools import cache
 from textwrap import dedent
 from typing import TYPE_CHECKING, Callable, Optional, Tuple
+import re
 
+from cgmetadata.utils import is_video
 import click
 from cgmetadata import ImageMetadata
 from makelive.makelive import make_live_photo
@@ -69,6 +71,9 @@ from osxphotos.image_file_utils import (
     is_raw_image,
     is_raw_pair,
     is_video_file,
+    ORIGINAL_RE,
+    EDITED_RE,
+    is_edited_version_of_file,
 )
 from osxphotos.metadata_reader import (
     MetaData,
@@ -126,6 +131,7 @@ HAS_AAE_FILE = 16
 HAS_NON_APPLE_AAE = 32
 AUTO_LIVE_PAIR = 64
 SHOULD_STAGE_FILES = 128
+HAS_EDITED_FILE = 256
 
 
 def echo(message, emoji=True, **kwargs):
@@ -139,21 +145,23 @@ def echo(message, emoji=True, **kwargs):
 
 
 # a decorator that when applied to a function, prints the name of the function and the name and type of each argument
-# def watch(func):
-#     """Print name of function, name type of each argument"""
-#     # this is to help figure out type hint issues
+def watch(func):
+    """Print name of function, name type of each argument"""
+    # this is to help figure out type hint issues
 
-#     def wrapper(*args, **kwargs):
-#         print(f"Running {func.__name__}")
-#         for arg in itertools.chain(args, kwargs.values()):
-#             print(f"{arg=}, {type(arg)=}")
-#             if arg and isinstance(arg, (list, tuple)):
-#                 print(f"{arg[0]=} {type(arg[0])=}")
-#                 if arg[0] and isinstance(arg[0], (list, tuple)):
-#                     print(f"{arg[0][0]=} {type(arg[0][0])=}")
-#         return func(*args, **kwargs)
+    def wrapper(*args, **kwargs):
+        print(f"Running {func.__name__}")
+        for arg in itertools.chain(args, kwargs.values()):
+            print(f"{arg=}, {type(arg)=}")
+            if arg and isinstance(arg, (list, tuple)):
+                print(f"{arg[0]=} {type(arg[0])=}")
+                if arg[0] and isinstance(arg[0], (list, tuple)):
+                    print(f"{arg[0][0]=} {type(arg[0][0])=}")
+        results = func(*args, **kwargs)
+        print(f"returned: {results=} {type(results)=}")
+        return results
 
-#     return wrapper
+    return wrapper
 
 
 def import_photo_group(
@@ -1485,6 +1493,9 @@ def group_files_to_import(
         bursts, remainder = group_files_by_burst_uuid(remainder)
         if bursts:
             grouped_files.extend(bursts)
+        print(f"{grouped_files=}, {remainder=}")
+        grouped_files, remainder = group_files_with_edited(grouped_files, remainder)
+        print(f"{grouped_files=}, {remainder=}")
         grouped_files.extend(tuple([r]) for r in remainder)
     files_to_import = []
     for group in grouped_files:
@@ -1497,15 +1508,49 @@ def group_files_to_import(
 def group_files_to_import_by_type(
     files_to_import: list[tuple[pathlib.Path, ...]], auto_live: bool
 ) -> list[tuple[pathlib.Path, ...]]:
-    """Given a list of import tuples created by group_files_to_import, validate the types and adjust the groups if needed"""
+    """Given a list of import tuples created by group_files_to_import, validate the types and adjust the groups if needed
+
+    The returned list of tuples will include all file groups that should be imported together;
+    any files that should not be imported with a group will be moved to a group of 1 file
+    to be imported individually.
+    """
     new_files_to_import = []
     for file_tuple in files_to_import:
         if file_type := file_type_for_import_group(file_tuple, auto_live):
-            new_files_to_import.append(file_tuple)
+            if file_type & HAS_EDITED_FILE and not file_type & HAS_AAE_FILE:
+                # edited versions can only be imported together with original + AAE
+                new_files_to_import.extend(split_edited_from_file_group(file_tuple))
+            else:
+                new_files_to_import.append(file_tuple)
         else:
             # unpack into tuples of single files
             new_files_to_import.extend((f,) for f in file_tuple)
     return new_files_to_import
+
+
+def split_edited_from_file_group(
+    file_tuple: tuple[pathlib.Path, ...]
+) -> list[tuple[pathlib.Path, ...]]:
+    """Split any edited files out from the file_tuple group.
+
+    Args:
+        file_tuple: tuple of file paths to evaluate.
+
+    Returns a list of tuples that includes the original group with the edited file
+    split out as a individual tuple.
+    """
+    new_files_group = []
+    new_file_list = []
+    for f in file_tuple:
+        if re.match(EDITED_RE, str(f)):
+            # add the edited file as it's own tuple
+            # ZZZ -- extend to add _edited suffix check
+            new_files_group.append((f,))
+        else:
+            new_file_list.append(f)
+    if new_file_list:
+        new_files_group.append(tuple(new_file_list))
+    return new_files_group
 
 
 def sort_paths(paths: tuple[pathlib.Path, ...]) -> tuple[pathlib.Path, ...]:
@@ -1571,6 +1616,41 @@ def group_files_by_burst_uuid(
     return same_burst, remainder
 
 
+def group_files_with_edited(
+    files: list[tuple[pathlib.Path, ...]], remainder: list[pathlib.Path]
+) -> tuple[list[tuple[pathlib.Path, ...]], list[pathlib.Path]]:
+    """Group files with edited versions"""
+    new_files = []
+    remainder = remainder.copy()
+    for file_tuple in files:
+        new_file_list = list(file_tuple)
+        for f in file_tuple:
+            for r in remainder:
+                if is_edited_version_of_file(f, r):
+                    remainder.remove(r)
+                    new_file_list.append(r)
+                    break
+        new_files.append(tuple(new_file_list))
+
+    # Now look through remainder for any files that could be matches and weren't part of a previous tuple group
+    # This isn't efficient and could require N^2 comparisons
+    print(f"{remainder=}")
+    possible_originals = [f for f in remainder if re.match(ORIGINAL_RE, str(f))]
+    possible_edited = [f for f in remainder if re.match(EDITED_RE, str(f))]
+    print(f"{possible_originals=}")
+    print(f"{possible_edited=}")
+    for o in possible_originals:
+        for e in possible_edited:
+            print(o, e)
+            if is_edited_version_of_file(o, e):
+                print(f"is_edited_version")
+                new_files.append((o, e))
+                remainder.remove(o)
+                remainder.remove(e)
+    print(f"{new_files=}, {remainder=}")
+    return new_files, remainder
+
+
 def file_type_for_import_group(
     file_tuple: tuple[pathlib.Path, ...], auto_live: bool
 ) -> int:
@@ -1599,6 +1679,8 @@ def file_type_for_import_group(
                 file_type |= SHOULD_STAGE_FILES
             else:
                 file_type |= HAS_AAE_FILE
+        if has_original_and_edited(file_tuple):
+            file_type |= HAS_EDITED_FILE
     return file_type
 
 
@@ -1610,7 +1692,7 @@ def noun_for_file_type(file_type: int) -> str:
 
     Returns: str with the noun / description of the file type
     """
-    noun = ""
+    noun = "import group"
     if file_type & IS_IMPORT_GROUP:
         noun = "import group"
     if file_type & IS_BURST_GROUP:
@@ -1623,6 +1705,8 @@ def noun_for_file_type(file_type: int) -> str:
         noun = "live photo pair"
     if file_type & HAS_AAE_FILE:
         noun += " with .AAE file"
+    if file_type & HAS_EDITED_FILE:
+        noun += " with edited version"
     return noun
 
 
@@ -3067,6 +3151,19 @@ def has_non_apple_aae(filepaths: Iterable[str | os.PathLike]) -> str | None:
             if not is_apple_photos_aae_file(filepath):
                 return str(filepath)
     return None
+
+
+def has_original_and_edited(filepaths: Iterable[str | os.PathLike]) -> bool:
+    """Return True if any files in list appear to be an original and an edited version"""
+    for filepath1 in filepaths:
+        if not re.match(ORIGINAL_RE, str(filepath1)):
+            continue
+        for filepath2 in filepaths:
+            if not re.match(EDITED_RE, str(filepath2)):
+                continue
+            if is_edited_version_of_file(filepath1, filepath2):
+                return True
+    return False
 
 
 def non_raw_file(filepaths: Iterable[str | os.PathLike]) -> str | os.PathLike:
