@@ -1493,9 +1493,7 @@ def group_files_to_import(
         bursts, remainder = group_files_by_burst_uuid(remainder)
         if bursts:
             grouped_files.extend(bursts)
-        print(f"{grouped_files=}, {remainder=}")
         grouped_files, remainder = group_files_with_edited(grouped_files, remainder)
-        print(f"{grouped_files=}, {remainder=}")
         grouped_files.extend(tuple([r]) for r in remainder)
     files_to_import = []
     for group in grouped_files:
@@ -1634,20 +1632,14 @@ def group_files_with_edited(
 
     # Now look through remainder for any files that could be matches and weren't part of a previous tuple group
     # This isn't efficient and could require N^2 comparisons
-    print(f"{remainder=}")
     possible_originals = [f for f in remainder if re.match(ORIGINAL_RE, str(f))]
     possible_edited = [f for f in remainder if re.match(EDITED_RE, str(f))]
-    print(f"{possible_originals=}")
-    print(f"{possible_edited=}")
     for o in possible_originals:
         for e in possible_edited:
-            print(o, e)
             if is_edited_version_of_file(o, e):
-                print(f"is_edited_version")
                 new_files.append((o, e))
                 remainder.remove(o)
                 remainder.remove(e)
-    print(f"{new_files=}, {remainder=}")
     return new_files, remainder
 
 
