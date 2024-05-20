@@ -2890,6 +2890,7 @@ def import_cli(
     if check:
         check_imported_files(
             files_to_import,
+            relative_to,
             last_library,
             signature,
             sidecar,
@@ -2903,6 +2904,7 @@ def import_cli(
     if check_not:
         check_not_imported_files(
             files_to_import,
+            relative_to,
             last_library,
             signature,
             sidecar,
@@ -3012,24 +3014,35 @@ def import_cli(
 
 def collect_filepaths_for_import_check(
     filegroup: Iterable[pathlib.Path],
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: pathlib.Path | None,
 ) -> tuple[list[pathlib.Path], list[pathlib.Path]]:
     """Collect filepaths for import check"""
     filepaths = []
     # exclude .AAE files
+    file_type = file_type_for_import_group(tuple(filegroup), False)
     filegroup = [f for f in filegroup if not f.name.lower().endswith(".aae")]
     if len(filegroup) == 1:
         filepaths.append(filegroup[0])
-    elif burst_uuid_from_path(filegroup[0]):
+    elif file_type & IS_BURST_GROUP:
         # include all burst images
         filepaths.extend(filegroup)
-    elif len(filegroup) == 2:
-        if is_live_pair(*filegroup):
-            # only include the image file for live photos
-            filepaths.append(filegroup[0])
-        elif is_raw_pair(*filegroup):
-            # Photos always makes the non-RAW image the original upon import
-            # only include the non-RAW image
-            filepaths.append(non_raw_file(filegroup))
+    elif file_type & IS_LIVE_PAIR:
+        # include only the image
+        filepaths.append(filegroup[0])
+    elif file_type & IS_RAW_JPEG_PAIR:
+        # Photos always makes the non-RAW image the original upon import
+        # only include the non-RAW image
+        filepaths.append(non_raw_file(filegroup))
+    elif file_type & HAS_EDITED_FILE and file_type & HAS_AAE_FILE:
+        # exclude the edited version
+        filepaths.extend(
+            non_edited_files(
+                filegroup, edited_suffix, relative_filepath, exiftool_path, sidecar
+            )
+        )
     else:
         # include everything else
         filepaths.extend(filegroup)
@@ -3038,6 +3051,7 @@ def collect_filepaths_for_import_check(
 
 def check_imported_files(
     files: list[tuple[pathlib.Path, ...]],
+    relative_to: pathlib.Path | None,
     library: str,
     signature: str,
     sidecar: bool,
@@ -3065,7 +3079,9 @@ def check_imported_files(
     else:
         fq = FingerprintQuery(library)
     for filegroup in files:
-        filepaths, remainder = collect_filepaths_for_import_check(filegroup)
+        filepaths, remainder = collect_filepaths_for_import_check(
+            filegroup, edited_suffix, relative_to, exiftool_path, sidecar
+        )
         for filepath in filepaths:
             group_str = (
                 f" ({', '.join([str(f) for f in remainder])})" if remainder else ""
@@ -3081,6 +3097,7 @@ def check_imported_files(
 
 def check_not_imported_files(
     files: list[tuple[pathlib.Path, ...]],
+    relative_to: pathlib.Path | None,
     library: str,
     signature: str,
     sidecar: bool,
@@ -3108,7 +3125,9 @@ def check_not_imported_files(
     else:
         fq = FingerprintQuery(library)
     for filegroup in files:
-        filepaths, remainder = collect_filepaths_for_import_check(filegroup)
+        filepaths, remainder = collect_filepaths_for_import_check(
+            filegroup, edited_suffix, relative_to, exiftool_path, sidecar
+        )
         for filepath in filepaths:
             if fq.possible_duplicates(filepath):
                 continue
@@ -3164,6 +3183,48 @@ def non_raw_file(filepaths: Iterable[str | os.PathLike]) -> str | os.PathLike:
         if not is_raw_image(filepath):
             return filepath
     return filepaths[0]
+
+
+def non_edited_files(
+    filepaths: Iterable[str | os.PathLike],
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: pathlib.Path | None,
+) -> list[os.PathLike]:
+    """Return only the non-edited files from a file group"""
+
+    edited_files = set(
+        edited_filename_from_template(
+            pathlib.Path(fp), relative_filepath, edited_suffix, exiftool_path, sidecar
+        )
+        for fp in filepaths
+    )
+    return [fp for fp in filepaths if pathlib.Path(fp) not in edited_files]
+
+
+def edited_filename_from_template(
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path | None,
+    template: str,
+    exiftool_path: str | None,
+    sidecar: pathlib.Path | None,
+) -> pathlib.Path:
+    """Given an edited suffix template, return the filename of the edited file for a given path"""
+
+    edited_name = render_photo_template_from_filepath(
+        filepath=filepath,
+        relative_filepath=relative_filepath,
+        template=template or DEFAULT_EDITED_SUFFIX,
+        exiftool_path=exiftool_path,
+        sidecar=sidecar,
+    )
+
+    if not edited_name:
+        raise ValueError(
+            f"Could not get edited path for {filepath} from template {template}"
+        )
+    return pathlib.Path(edited_name[0])
 
 
 def stage_files(
