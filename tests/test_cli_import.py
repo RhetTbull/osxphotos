@@ -2,6 +2,7 @@
 
 import csv
 import datetime
+import filecmp
 import json
 import os
 import os.path
@@ -53,6 +54,9 @@ TEST_IMAGE_INVALID_AAE = "tests/test-images/St James Park.jpg"
 TEST_AAE_INVALID_AAE = "tests/test-images/St James Park.AAE"
 TEST_IMAGE_VALID_AAE = "tests/test-images/wedding.jpg"
 TEST_AAE_VALID_AAE = "tests/test-images/wedding.AAE"
+TEST_IMAGE_WITH_EDIT_ORIGINAL = "tests/test-images/wedding.jpg"
+TEST_IMAGE_WITH_EDIT_EDITED = "tests/test-images/wedding_edited.jpg"
+TEST_IMAGE_WITH_EDIT_AAE = "tests/test-images/wedding.aae"
 
 TEST_DATA = {
     TEST_IMAGE_1: {
@@ -1613,5 +1617,70 @@ def test_import_same_stem(tmp_path):
     assert video.ismovie
 
 
-# ZZZ add tests for IMG_1234.jpg, IMG_E1234.jpg with and without AAE
-#
+@pytest.mark.test_import
+def test_import_edited_with_aae(tmp_path):
+    """Test import of image with edited file and AAE sidecar"""
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
+    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
+    source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
+
+    test_image_original = str(tmp_path / "IMG_1234.jpg")
+    test_image_edited = str(tmp_path / "IMG_E1234.jpg")
+    test_image_aae = str(tmp_path / "IMG_1234.AAE")
+
+    shutil.copy(source_image_original, test_image_original)
+    shutil.copy(source_image_edited, test_image_edited)
+    shutil.copy(source_image_aae, test_image_aae)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_original, test_image_edited, test_image_aae],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_original).name
+    uuid_1 = import_data[file_1]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert photo.hasadjustments
+    assert photo.original_filename == "IMG_1234.jpg"
+    exported = photo.export(str(tmp_path), "edited.jpg", edited=True)
+    assert filecmp.cmp(exported[0], test_image_edited)
+
+
+@pytest.mark.test_import
+def test_import_edited_without_aae(tmp_path):
+    """Test import of image with edited file without AAE sidecar"""
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
+    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
+
+    test_image_original = str(tmp_path / "IMG_1234.jpg")
+    test_image_edited = str(tmp_path / "IMG_E1234.jpg")
+
+    shutil.copy(source_image_original, test_image_original)
+    shutil.copy(source_image_edited, test_image_edited)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_original, test_image_edited],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_original).name
+    uuid_1 = import_data[file_1]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert not photo.hasadjustments
+    assert photo.original_filename == "IMG_1234.jpg"
