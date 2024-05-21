@@ -164,6 +164,1063 @@ def watch(func):
     return wrapper
 
 
+class ImportCommand(click.Command):
+    """Custom click.Command that overrides get_help() to show additional help info for import"""
+
+    def get_help(self, ctx):
+        help_text = super().get_help(ctx)
+        formatter = click.HelpFormatter(width=HELP_WIDTH)
+        extra_help = dedent(
+            """
+            ## Examples
+
+            Import a file into Photos:
+            `osxphotos import /Volumes/photos/img_1234.jpg`
+
+            Import multiple jpg files into Photos:
+
+            `osxphotos import /Volumes/photos/*.jpg`
+
+            Import files into Photos and add to album:
+
+            `osxphotos import /Volumes/photos/*.jpg --album "My Album"`
+
+            Import files into Photos and add to album named for 4-digit year of file creation date:
+
+            `oxphotos import /Volumes/photos/*.jpg --album "{created.year}"`
+
+            Import files into Photos and add to album named for month of the year in folder named
+            for the 4-digit year of the file creation date:
+
+            `osxphotos import /Volumes/photos/*.jpg --album "{created.year}/{created.month}" --split-folder "/"`
+
+            ## Albums
+
+            The imported files may be added to one or more albums using the `--album` option.
+            The value passed to `--album` may be a literal string or an osxphotos template
+            (see Template System below).  For example:
+
+            `osxphotos import /Volumes/photos/*.jpg --album "Vacation"`
+
+            adds all photos to the album "Vacation".  The album will be created if it does not
+            already exist.
+
+            `osxphotos import /Volumes/photos/Madrid/*.jpg --album "{filepath.parent.name}"`
+
+            adds all photos to the album "Madrid" (the name of the file's parent folder).
+
+            ## Folders
+
+            If you want to organize the imported photos into both folders and albums, you can
+            use the `--split-folder` option.  For example, if your photos are organized into
+            folders as follows:
+
+                .
+                ├── 2021
+                │   ├── Family
+                │   └── Travel
+                └── 2022
+                    ├── Family
+                    └── Travel
+
+            You can recreate this hierarchal structure on import using
+
+            `--album "{filepath.parent}" --split-folder "/"`
+
+            In this example, `{filepath.parent}` renders to '2021/Family', '2021/Travel', etc.
+            and `--split-folder "/"` instructs osxphotos to split the album name into separate
+            parts '2021' and 'Family'.
+
+            If your photos are organized in a set of folders but you want to exclude one or more parent
+            folders from the list of folders and album, you can use the `--relative-to` option to specify
+            the parent path that all subsequent paths should be relative to.  For example, if your photos
+            are organized into photos as follows:
+
+                /
+                └── Volumes
+                    └── Photos
+                        ├── 2021
+                        │   ├── Family
+                        │   └── Travel
+                        └── 2022
+                            ├── Family
+                            └── Travel
+
+            and you want to exclude /Volumes/Photos from the folder/album path, you can do this:
+
+            `osxphotos import /Volumes/Photos/* --walk --album "{filepath.parent}" --relative-to "/Volumes/Photos" --split-folder "/"`
+
+            This will produce folders/albums `2021/Family`, `2021/Travel`, and so on.
+
+            Note: in Photos, only albums can contain photos and folders
+            may contain albums or other folders.
+
+            ## Duplicate Checking
+
+            By default, `osxphotos import` will import all files passed to it even if duplicates
+            exist in the Photos library. If you want to skip duplicate files, you can use the
+            `--skip-dups` option which will cause osxphotos to check for exact duplicates (based on file fingerprint)
+            and skip those files. Alternatively, you can use `--dup-check` to enable Photos' own duplicate
+            checking. If a duplicate is encountered with `--dup-check`, Photos will prompt you
+            to skip or import the duplicate file.
+
+            If you use the `--verbose` option, osxphotos will report on any duplicates it finds
+            even if you don't use `--skip-dups` or `--dup-check`.  This is useful with --dry-run
+            to see if any duplicates exist in the Photos library before importing.
+
+            ## Metadata
+
+            `osxphotos import` can set metadata (title, description, keywords, and location) for
+            imported photos/videos using several options.
+
+            If you have exiftool (https://exiftool.org/) installed, osxphotos can use
+            exiftool to extract metadata from the imported file and use this to update
+            the metadata in Photos.
+
+            The `--exiftool` option will automatically attempt to update title,
+            description, keywords, and location from the file's metadata:
+
+            `osxphotos import *.jpg --exiftool`
+
+            The following metadata fields are read (in priority order) and used to set
+            the metadata of the imported photo:
+
+            - Title: XMP:Title, IPTC:ObjectName, QuickTime:DisplayName
+            - Description: XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
+            - Keywords: XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
+            - Location: EXIF:GPSLatitude/EXIF:GPSLatitudeRef, EXIF:GPSLongitude/EXIF:GPSLongitudeRef, QuickTime:GPSCoordinates, UserData:GPSCoordinates
+
+            When importing photos, Photos itself will usually read most of these same fields
+            and set the metadata but when importing via AppleScript (which is how `osxphotos
+            import` interacts with Photos), Photos does not always reliably do this. It is
+            recommended you use `--exiftool` to ensure metadata gets correctly imported.
+
+            You can also use `--clear-metadata` to remove any metadata automatically set by
+            Photos upon import.
+
+            In addition to `--exiftool`, you can specify a template (see Template System below)
+            for setting title (`--title`), description (`--description`), and keywords (`--keywords`).
+            Location can be set using `--location`.  The album(s) of the imported file can likewise
+            be specified with `--album`.
+
+            `--title`, `--description`, `--keyword`, and `--album` all take a literal string or an
+            osxphotos template string.  If a template string is used, the template is rendered
+            using the osxphotos template language to produce the final value.
+
+            For example:
+
+            `--title "{exiftool:XMP:Title}"` sets the title of the imported file to whatever value
+            is in the `XMP:Title` metadata field (as read by `exiftool`).
+
+            `--keyword "Vacation"` sets the keyword for the imported file to the literal string "Vacation".
+
+            If the photo metadata or sidecar contains the names of persons in the image (e.g. `XMP:PersonInImage`),
+            you can use the `{person}` template to add the names of the persons to the keywords.  For example:
+
+            `--keyword "{person}"` will add the names of the persons in the image to the keywords.
+
+            This is helpful as Photos will not import person names from the metadata and osxphotos
+            cannot set person names in Photos (this is a limitation of Photos).
+
+            To use the `{person}` template, you must have exiftool installed and in your path or
+            the data must be in a sidecar file.
+
+            ## Template System
+
+            As mentioned above, the `--title`, `--description`, `--keyword`, and `--album` options
+            all take an osxphotos template language template string that is further rendered to
+            produce the final value.  The template system used by `osxphotos import` is a subset
+            of the template system used by `osxphotos export`. For a complete description of the
+            template system, see `osxphotos help export`.
+
+            Most fields in the osxphotos template system are not available to `osxphotos import` as
+            they are derived from data in the Photos library and the photos will obviously not be
+            imported yet. The following fields are available:
+
+            #### {exiftool}
+            - `{exiftool}`: Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org)
+            to extract metadata, in form GROUP:TAGNAME, from image.
+            E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract
+            keywords. See https://exiftooip=l.org/TagNames/ for list of valid tag names.
+            You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`.
+            exiftool must be installed in the path to use this template (alternatively, you can use
+            `--exiftool-path` to specify the path to exiftool.)
+
+            #### {filepath}
+
+            - `{filepath}`: The full path to the file being imported.
+            For example, `/Volumes/photos/img_1234.jpg`.
+
+            `{filepath}` has several subfields that
+            allow you to access various parts of the path using the following subfield modifiers:
+
+            - `{filepath.parent}`: the parent directory
+            - `{filepath.name}`: the name of the file or final sub-directory
+            - `{filepath.stem}`: the name of the file without the extension
+            - `{filepath.suffix}`: the suffix of the file including the leading '.'
+
+            For example, if the field `{filepath}` is '/Shared/Backup/Photos/IMG_1234.JPG':
+            - `{filepath.parent}` is '/Shared/Backup/Photos'
+            - `{filepath.name}` is 'IMG_1234.JPG'
+            - `{filepath.stem}` is 'IMG_1234'
+            - `{filepath.suffix}` is '.JPG'
+
+            Subfields may be chained, for example, `{filepath.parent.parent}` in the above
+            example would be `/Shared/Backup` and `{filepath.parent.name}` would be `Photos`.
+
+            `{filepath}` may be modified using the `--relative-to` option.  For example,
+            if the path to the imported photo is `/Volumes/Photos/Folder1/Album1/IMG_1234.jpg`
+            and you specify `--relative-to "/Volumes/Photos"` then `{filepath}` will be set
+            to `Folder1/Album1/IMG_1234.jpg`
+            (a subset of the path relative to the value of `--relative-to`).
+
+            #### {created}
+
+            - `{created}`: The date the file was created.  `{created}` must be used with a subfield to
+            specify the format of the date.
+
+            - `{created.date}`: Photo's creation date in ISO format, e.g. '2020-03-22'
+            - `{created.year}`: 4-digit year of photo creation time
+            - `{created.yy}`: 2-digit year of photo creation time
+            - `{created.mm}`: 2-digit month of the photo creation time (zero padded)
+            - `{created.month}`: Month name in user's locale of the photo creation time
+            - `{created.mon}`: Month abbreviation in the user's locale of the photo creation time
+            - `{created.dd}`: 2-digit day of the month (zero padded) of photo creation time
+            - `{created.dow}`: Day of week in user's locale of the photo creation time
+            - `{created.doy}`: 3-digit day of year (e.g Julian day) of photo creation time, starting from 1 (zero padded)
+            - `{created.hour}`: 2-digit hour of the photo creation time
+            - `{created.min}`: 2-digit minute of the photo creation time
+            - `{created.sec}`: 2-digit second of the photo creation time
+            - `{created.strftime}`: Apply strftime template to file creation date/time. Should be used in form
+            `{created.strftime,TEMPLATE}` where TEMPLATE is a valid strftime template, e.g.
+            `{created.strftime,%Y-%U}` would result in year-week number of year: '2020-23'.
+            If used with no template will return null value.
+            See https://strftime.org/ for help on strftime templates.
+
+            You may find the `--check-templates` option useful for testing templates.
+            When run with `--check-templates` osxphotos will not actually import anything
+            but will instead print out the rendered value for each `--title`, `--description`,
+            `--keyword`, and `--album` option. It will also print out the values extracted by
+            the `--exiftool` option.
+
+            ## Parsing Dates/Times from File and Folder Names
+
+            The `--parse-date` option allows you to parse dates/times from the filename of the
+            file being imported.  This is useful if you have a large number of files with
+            dates/times embedded in the filename but not in the metadata.
+
+            Likewise, you can use `--parse-folder-date` to parse dates/times from the name of the
+            folder containing the file being imported.
+
+            The argument to `--parse-date` is a pattern string that is used to parse the date/time
+            from the filename. The pattern string is a superset of the python `strftime/strptime`
+            format with the following additions:
+
+            - *: Match any number of characters
+            - ^: Match the beginning of the string
+            - $: Match the end of the string
+            - {n}: Match exactly n characters
+            - {n,}: Match at least n characters
+            - {n,m}: Match at least n characters and at most m characters
+            - In addition to `%%` for a literal `%`, the following format codes are supported:
+                `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
+            - |: join multiple format codes; each code is tried in order until one matches
+            - Unlike the standard library, the leading zero is not optional for
+                %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
+            - For optional leading zero, use %-d, %-m, %-H, %-I, %-M, %-S, %-j, %-U, %-W, and %-V
+
+            For more information on strptime format codes, see:
+            https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
+
+            **Note**: The time zone of the parsed date/time is assumed to be the local time zone.
+            If the parse pattern includes a time zone, the photo's time will be converted from
+            the specified time zone to the local time zone. osxphotos import does not
+            currently support setting the time zone of imported photos.
+            See also `osxphotos help timewarp` for more information on the timewarp
+            command which can be used to change the time zone of photos after import.
+
+            ### Examples
+
+            If you have photos with embedded names in filenames like `IMG_1234_20200322_123456.jpg`
+            and `12345678_20200322.jpg`, you can parse the dates with the following pattern:
+            `--parse-date "IMG_*_%Y%m%d_%H%M%S|*_%Y%m%d.*"`. The first pattern matches the first format
+            and the second pattern matches the second. The `|` character is used to separate the two
+            patterns. The order is important as the first pattern will be tried first then the second
+            and so on. If you have multiple formats in your filenames you will want to order the patterns
+            from most specific to least specific to avoid false matches.
+
+            If your photos are organized by date into folders in format `YYYY/MM/DD`, for example,
+            `/Volumes/Photos/2020/03/22/IMG_1234.jpg`, you can parse the date from the folder name
+            using `--parse-folder-date "%Y/%m/%d$"`. In this example, the pattern is anchored to the
+            end of the string using `$` to avoid false matches if other parts of the path happen to match
+            the pattern.
+
+            ## Post Function
+
+            You can run a custom python function after each photo is imported using `--post-function`.
+            The format is `osxphotos import /file/to/import --post-function post_function.py::post_function`
+            where `post_function.py` is the name of the python file containing the function and `post_function`
+            is the name of the function. The function will be called with the following arguments:
+            `post_function(photo: photoscript.Photo, filepath: pathlib.Path, verbose: t.Callable, **kwargs)`
+
+            - photo: photoscript.Photo instance for the photo that's just been imported
+            - filepath: pathlib.Path to the file that was imported (this is the path to the source file, not the path inside the Photos library)
+            - verbose: A function to print verbose output if --verbose is set; if --verbose is not set, acts as a no-op (nothing gets printed)
+            - **kwargs: reserved for future use; recommend you include **kwargs so your function still works if additional arguments are added in future versions
+
+            The function will get called immediately after the photo has been imported into Photos
+            and all metadata been set (e.g. --exiftool, --title, etc.)
+
+            You may call more than one function by repeating the `--post-function` option.
+
+            See https://rhettbull.github.io/PhotoScript/
+            for documentation on photoscript and the Photo class that is passed to the function.
+
+            ## Google Takeout
+
+            If you have a Google Takeout archive of your Google Photos library, you can import
+            it using the following steps:
+
+            - Download the Google Takout archive from Google Photos
+            - Unzip the archive
+            - Run the following command to import the photos into Photos:
+
+            `osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv`
+
+            If you have persons tagged in Google Photos you can add this option to create keywords
+            for each person in the photo: `--keyword "{person}"`
+
+            Google Takeout does not preserve the timezone of the photo. The metadata JSON sidecar
+            produced by Google converts photo times to UTC. The import command will convert these
+            to the correct time in the local timezone upon import. If your photos contain the correct
+            date/time and timezone information in the metadata you can use the `--sidecar-ignore-date`
+            option to ignore the date/time in the sidecar and use the date/time from the photo metadata.
+
+        """
+        )
+        console = Console()
+        with console.capture() as capture:
+            console.print(Markdown(extra_help), width=min(HELP_WIDTH, console.width))
+        formatter.write(capture.get())
+        help_text += "\n\n" + formatter.getvalue()
+        return help_text
+
+
+@click.command(name="import", cls=ImportCommand)
+@click.option(
+    "--album",
+    "-a",
+    metavar="ALBUM_TEMPLATE",
+    multiple=True,
+    type=TemplateString(),
+    help="Import photos into album ALBUM_TEMPLATE. "
+    "ALBUM_TEMPLATE is an osxphotos template string. "
+    "Photos may be imported into more than one album by repeating --album. "
+    "See also --skip-dups, --dup-albums, --split-folder, --relative-to. "
+    "See Template System in help for additional information.",
+)
+@click.option(
+    "--title",
+    "-t",
+    metavar="TITLE_TEMPLATE",
+    type=TemplateString(),
+    help="Set title of imported photos to TITLE_TEMPLATE. "
+    "TITLE_TEMPLATE is a an osxphotos template string. "
+    "See Template System in help for additional information.",
+)
+@click.option(
+    "--description",
+    "-d",
+    metavar="DESCRIPTION_TEMPLATE",
+    type=TemplateString(),
+    help="Set description of imported photos to DESCRIPTION_TEMPLATE. "
+    "DESCRIPTION_TEMPLATE is a an osxphotos template string. "
+    "See Template System in help for additional information.",
+)
+@click.option(
+    "--keyword",
+    "-k",
+    metavar="KEYWORD_TEMPLATE",
+    multiple=True,
+    type=TemplateString(),
+    help="Set keywords of imported photos to KEYWORD_TEMPLATE. "
+    "KEYWORD_TEMPLATE is a an osxphotos template string. "
+    "More than one keyword may be set by repeating --keyword. "
+    "See Template System in help for additional information.",
+)
+@click.option(
+    "--merge-keywords",
+    "-m",
+    is_flag=True,
+    help="Merge keywords created by --exiftool, --sidecar, --sidecar-filename, or --keyword "
+    "with any keywords already associated with the photo. "
+    "Without --merge-keywords, existing keywords will be overwritten.",
+)
+@click.option(
+    "--location",
+    "-l",
+    metavar="LATITUDE LONGITUDE",
+    nargs=2,
+    type=click.Tuple([click.FloatRange(-90.0, 90.0), click.FloatRange(-180.0, 180.0)]),
+    help="Set location of imported photo to LATITUDE LONGITUDE. "
+    "Latitude is a number in the range -90.0 to 90.0; "
+    "positive latitudes are north of the equator, negative latitudes are south of the equator. "
+    "Longitude is a number in the range -180.0 to 180.0; "
+    "positive longitudes are east of the Prime Meridian; negative longitudes are west of the Prime Meridian.",
+)
+@click.option(
+    "--favorite-rating",
+    "-G",
+    metavar="RATING",
+    type=click.IntRange(1, 5),
+    help="If XMP:Rating is set to RATING or higher, mark imported photo as a favorite. "
+    "RATING must be in range 1 to 5. "
+    "XMP:Rating will be read from asset's metadata or from sidecar if --sidecar, --sidecare-filename is used. "
+    "Requires that exiftool be installed to read the rating from the asset's XMP data.",
+)
+@click.option(
+    "--auto-live",
+    "-E",
+    is_flag=True,
+    help="Automatically convert photo+video pairs into live images. "
+    "Live Photos (photo+video pair) exported from Photos contain a metadata content identifier that Photos "
+    "uses to associate the pair as a single Live Photo asset when re-imported. "
+    "Photo+video pairs taken on non-Apple devices will lack the content identifier and "
+    "thus will be imported as separate assets. "
+    "Use --auto-live to automatically convert these pairs to Live Photos upon import. "
+    "When --auto-live is used, a photo and a video with same base name, "
+    "for example 'IMG_1234.JPG' and 'IMG_1234.mov', in the same directory will be converted to Live Photos. "
+    "*NOTE*: Using this feature will modify the metadata in the files prior to import. "
+    "Ensure you have a backup of the original files if you want to preserve unmodified versions.",
+)
+@click.option(
+    "--parse-date",
+    "-P",
+    metavar="DATE_PATTERN",
+    type=StrpDateTimePattern(),
+    help="Parse date from filename using DATE_PATTERN. "
+    "If file does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
+    "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
+    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
+    "as the import command does not yet support setting time zone information. "
+    "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
+    "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
+    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name. "
+    "If the pattern matches only date or only time, the missing information will be set to the "
+    "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
+    "if it exists or the file modification date/time. "
+    "For example, if photos are named 'IMG_1234_2022_11_23.jpg' where the date is '2022-11-23', "
+    "you could use the pattern '%Y_%m_%d' to set the date but the time would be set from the EXIF "
+    "or the file's modification time. "
+    "See also --parse-folder-date, --check-templates.",
+)
+@click.option(
+    "--parse-folder-date",
+    "-F",
+    metavar="DATE_PATTERN",
+    type=StrpDateTimePattern(),
+    help="Parse date from folder name using DATE_PATTERN. "
+    "If folder does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
+    "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
+    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
+    "as the import command does not yet support setting time zone information. "
+    "For example, if your photos are in folder '2023/12/17/IMG_1234.jpg` where the date is "
+    "'2023-12-17', you could use the pattern '%Y/%m/%d$' as the DATE_PATTERN. "
+    "If the pattern matches only date or only time, the missing information will be set to the "
+    "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
+    "if it exists or the file modification date/time. "
+    "See also --parse-folder-date, --check-templates.",
+)
+@click.option(
+    "--clear-metadata",
+    "-X",
+    is_flag=True,
+    help="Clear any metadata set automatically "
+    "by Photos upon import. Normally, Photos will set title, description, and keywords "
+    "from XMP metadata in the imported file.  If you specify --clear-metadata, any metadata "
+    "set by Photos will be cleared after import.",
+)
+@click.option(
+    "--clear-location",
+    "-L",
+    is_flag=True,
+    help="Clear any location data automatically imported by Photos. "
+    "Normally, Photos will set location of the photo to the location data found in the "
+    "metadata in the imported file.  If you specify --clear-location, "
+    "this data will be cleared after import.",
+)
+@click.option(
+    "--exiftool",
+    "-e",
+    is_flag=True,
+    help="Use third party tool exiftool (https://exiftool.org/) to automatically "
+    "update metadata (title, description, keywords, location) in imported photos from "
+    "the imported file's metadata. "
+    "See also --sidecar, --sidecar-filename, --exportdb. "
+    "Note: importing keywords from video files is not currently supported.",
+)
+@click.option(
+    "--exiftool-path",
+    "-p",
+    metavar="EXIFTOOL_PATH",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
+)
+@click.option(
+    "--sidecar",
+    "-s",
+    is_flag=True,
+    help="Use sidecar files to import metadata (title, description, keywords, location). "
+    "Sidecar files must be in the same directory as the imported file and have the same name. "
+    "For example, if image is named img_1234.jpg, sidecar must be named one of: "
+    "img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json. "
+    "Supported sidecar formats are XMP and JSON (as generated by exiftool). "
+    "If both JSON and XMP sidecars are found, the JSON sidecar will be used. "
+    "If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
+    "See also --sidecar-filename if you need control over the sidecar name. "
+    "See also --sidecar-ignore-date, --exiftool, --exportdb. "
+    "Note: --sidecar and --sidecar-filename are mutually exclusive.",
+)
+@click.option(
+    "--sidecar-filename",
+    "-T",
+    "sidecar_filename_template",
+    metavar="TEMPLATE",
+    type=TemplateString(),
+    help="Use sidecar files to import metadata (title, description, keywords, location). "
+    "The TEMPLATE is an osxphotos template string that is rendered to produce the sidecar filename. "
+    "The path to the current file is available as {filepath}. "
+    "Thus if file is named 'IMG_1234.jpg' and sidecar is named 'IMG_1234.xmp', "
+    "you would use the template '{filepath.parent}/{filepath.stem}.xmp'. "
+    "If the sidecar name was 'IMG_1234.jpg.xmp', you would use the template "
+    "'{filepath}.xmp'. "
+    "If the sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
+    "See Template System in help for additional information. "
+    "See also --sidecar-ignore-date, --exiftool, --exportdb. "
+    "Note: --sidecar and --sidecar-filename are mutually exclusive.",
+)
+@click.option(
+    "--edited-suffix",
+    metavar="TEMPLATE",
+    help="Optional suffix template used for naming edited photos. "
+    "This is used to associate sidecars to the edited version of a file when --sidecar or --sidecar-filename is used. "
+    f"By default, osxphotos will look for edited photos using default 'osxphotos export' suffix of '{DEFAULT_EDITED_SUFFIX}' "
+    "If your edited photos have a different suffix you can use '--edited-suffix' to specify the suffix. "
+    "For example, with '--edited-suffix _bearbeiten', the import command will look for a file named 'photoname_bearbeiten.ext' "
+    "and associated that with a sidecar named 'photoname.xmp', etc. "
+    "The --edited-suffix option is only valid when used with --sidecar or --sidecar-filename. "
+    "Multi-value templates (see Templating System in the OSXPhotos docs) are not permitted with --edited-suffix.",
+    type=TemplateString(),
+)
+@click.option(
+    "--sidecar-ignore-date",
+    "-i",
+    is_flag=True,
+    help="Do not use date in sidecar to set photo date/time. "
+    "Setting the timezone from sidecar files is not currently supported so when using --sidecar "
+    "or --sidecar-filename, the date/time found in the sidecar will be converted to the local timezone "
+    "and that value will be used to set the photo date/time. "
+    "If your photos have correct timezone information in the embedded metadata you can use "
+    "--sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the "
+    "file (which will be read by Photos on import).",
+)
+@click.option(
+    "--exportdb",
+    "-B",
+    metavar="EXPORTDB_PATH",
+    help="Use an osxphotos export database (created by 'osxphotos export') "
+    "to set metadata (title, description, keywords, location, album). "
+    "See also --sidecar, --sidecar-filename, --exiftool.",
+)
+@click.option(
+    "--relative-to",
+    "-r",
+    metavar="RELATIVE_TO_PATH",
+    type=click.Path(exists=True, file_okay=False, resolve_path=True),
+    help="If set, the '{filepath}' template "
+    "will be computed relative to RELATIVE_TO_PATH. "
+    "For example, if path to import is '/Volumes/photos/import/album/img_1234.jpg' "
+    "then '{filepath}' will be this same value. "
+    "If you set '--relative-to /Volumes/photos/import' "
+    "then '{filepath}' will be set to 'album/img_1234.jpg'",
+)
+@click.option(
+    "--dup-check",
+    "-D",
+    is_flag=True,
+    help="Use Photos' built-in duplicate checkign to check for duplicates on import. "
+    "Using --dup-check will cause Photos to display a dialog box for each duplicate photo found, "
+    "requesting confirmation to import the duplicate. See also --skip-dups.",
+)
+@click.option(
+    "--skip-dups",
+    "-S",
+    is_flag=True,
+    help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. "
+    "Unlike --dup-check, this does not use Photos' built in duplicate checking feature and "
+    "does not display a dialog box for each duplicate found. See also --dup-check and --dup-albums.",
+)
+@click.option(
+    "--signature",
+    "-U",
+    type=TemplateString(),
+    help="Custom template for signature when using --skip-dups, --dup-check, and --dup-albums. "
+    "The signature is used to match photos in the library to those being imported. "
+    "If you do not use --signature, the fingerprint will be used for photos "
+    "and lowercase filename + size will be used for videos "
+    "(a fingerprint is not always stored for videos in the Photos library). "
+    "*Note*: When using --signature, the Photos library will be scanned before import "
+    "which may take some time. If there are duplicates files in the list of files to be imported, "
+    "these will not be detected as each imported file will only be compared to the state of the Photos "
+    "library at the start of the import.",
+)
+@click.option(
+    "--dup-albums",
+    "-A",
+    is_flag=True,
+    help="If used with --skip-dups, the matching duplicate already in the Photos library "
+    "will be added to any albums the current file would have been added to had it not been skipped. "
+    "This is useful if you have duplicate photos in separate folders and want to avoid duplicates "
+    "in Photos but keep the photos organized in albums that match the folder structure. "
+    "Must be used with --skip-dups and --album or --exportdb. See also --skip-dups.",
+)
+@click.option(
+    "--split-folder",
+    "-f",
+    help="Automatically create hierarchal folders for albums as needed by splitting album name "
+    "into folders and album. You must specify the character used to split folders and "
+    "albums. For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
+    "into folder 'Folder' and album 'Album'. ",
+)
+@click.option(
+    "--walk", "-w", is_flag=True, help="Recursively walk through directories."
+)
+@click.option(
+    "--glob",
+    "-g",
+    metavar="GLOB",
+    multiple=True,
+    help="Only import files matching GLOB. "
+    "GLOB is a Unix shell-style glob pattern, for example: '--glob \"*.jpg\"'. "
+    "GLOB may be repeated to import multiple patterns.",
+)
+@click.option(
+    "--check",
+    "-c",
+    is_flag=True,
+    help="Check which FILES have been previously imported but do not actually import anything. "
+    "Prints a report showing which files have been imported (and when they were added) "
+    "and which files have not been imported. "
+    "See also, --check-not.",
+)
+@click.option(
+    "--check-not",
+    "-C",
+    is_flag=True,
+    help="Check which FILES have not been previously imported but do not actually import anything. "
+    "Prints the path to each file that has not been previously imported. "
+    "See also, --check.",
+)
+@click.option(
+    "--dry-run",
+    "-n",
+    is_flag=True,
+    help="Dry run; do not actually import. Useful with --verbose to see what would be imported.",
+)
+@click.option(
+    "--report",
+    "-o",
+    metavar="REPORT_FILE",
+    help="Write a report of all files that were imported. "
+    "The extension of the report filename will be used to determine the format. "
+    "Valid extensions are: "
+    ".csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). "
+    "REPORT_FILE may be a template string (see Template System), for example, "
+    "--report 'export_{today.date}.csv' will write a CSV report file named with today's date. "
+    "See also --append.",
+    type=TemplateString(),
+)
+@click.option(
+    "--resume",
+    "-R",
+    is_flag=True,
+    help="Resume previous import. "
+    f"Note: data on each imported file is kept in a database in '{get_data_dir() / IMPORT_DB}'. "
+    "This data can be used to resume a previous import if there was an error or the import was cancelled.",
+)
+@click.option(
+    "--append",
+    "-O",
+    is_flag=True,
+    help="If used with --report, add data to existing report file instead of overwriting it. "
+    "See also --report.",
+)
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
+@click.option(
+    "--no-progress",
+    "-N",
+    is_flag=True,
+    help="Do not display progress bar during import.",
+)
+@click.option(
+    "--check-templates",
+    is_flag=True,
+    help="Don't actually import anything; "
+    "renders template strings and date patterns so you can verify they are correct.",
+)
+@click.option(
+    "--post-function",
+    metavar="filename.py::function",
+    nargs=1,
+    type=FunctionCall(),
+    multiple=True,
+    help="Run python function after importing file."
+    "Use this in format: --post-function filename.py::function where filename.py is a python "
+    "file you've created and function is the name of the function in the python file you want to call. "
+    "The function will be passed a reference to the photo object and the path to the file that was imported. "
+    "You can run more than one function by repeating the '--post-function' option with different arguments. "
+    "You may also specify a post function using a URL in format --post-function 'https://path/to/module.py::function' "
+    "See Post Function below.",
+)
+@click.option(
+    "--stop-on-error",
+    metavar="COUNT",
+    help="Stops importing after COUNT errors. "
+    "Useful if you experience a large number of errors during import.",
+    type=click.IntRange(min=0),
+)
+@click.option(
+    "--library",
+    metavar="LIBRARY_PATH",
+    type=click.Path(exists=True),
+    help="Path to the Photos library you are importing into. This is not usually needed. "
+    "You will only need to specify this if osxphotos cannot determine the path to the library "
+    "in which case osxphotos will tell you to use the --library option when you run the import command.",
+)
+@THEME_OPTION
+@click.argument("FILES_OR_DIRS", nargs=-1)
+@click.pass_obj
+@click.pass_context
+def import_main(
+    ctx: click.Context,
+    cli_obj: CLI_Obj,
+    album: tuple[str, ...],
+    append: bool,
+    auto_live: bool,
+    check: bool,
+    check_not: bool,
+    check_templates: bool,
+    clear_location: bool,
+    clear_metadata: bool,
+    description: str | None,
+    dry_run: bool,
+    dup_albums: bool,
+    dup_check: bool,
+    edited_suffix: str | None,
+    exiftool: bool,
+    exiftool_path: str | None,
+    exportdb: str | None,
+    favorite_rating: int | None,
+    files_or_dirs: tuple[str, ...],
+    glob: tuple[str, ...],
+    keyword: tuple[str, ...],
+    library: str | None,
+    location: tuple[float, float],
+    merge_keywords: bool,
+    no_progress: bool,
+    parse_date: str | None,
+    parse_folder_date: str | None,
+    post_function: tuple[Callable[..., None]],
+    relative_to: str | None,
+    report: str | None,
+    resume: bool,
+    sidecar: bool,
+    sidecar_ignore_date: bool,
+    sidecar_filename_template: str | None,
+    signature: str | None,
+    skip_dups: bool,
+    split_folder: str | None,
+    stop_on_error: int | None,
+    theme: str | None,
+    timestamp: bool,
+    title: str | None,
+    verbose_flag: bool,
+    walk: bool,
+):
+    """Import photos and videos into Photos. Photos will be imported into the
+    most recently opened Photos library.
+
+    Limitations:
+
+    - Photos are imported one at a time thus the "Imports" album in Photos will show
+    a new import group for each photo imported. Exception: Live photos (photo+video pair),
+    burst photos, and RAW+JPEG pairs will be imported together so that Photos processes
+    them correctly.
+
+    - If there's an edited version of a photo along with the original, they will be imported as separate files, not as a single asset.
+    """
+
+    kwargs = locals()
+    kwargs.pop("ctx")
+    kwargs.pop("cli_obj")
+    import_cli(**kwargs)
+
+
+def import_cli(
+    album: tuple[str, ...] = (),
+    append: bool = False,
+    auto_live: bool = False,
+    check: bool = False,
+    check_not: bool = False,
+    check_templates: bool = False,
+    clear_location: bool = False,
+    clear_metadata: bool = False,
+    description: str | None = None,
+    dry_run: bool = False,
+    dup_albums: bool = False,
+    dup_check: bool = False,
+    edited_suffix: str | None = None,
+    exiftool: bool = False,
+    exiftool_path: str | None = None,
+    exportdb: str | None = None,
+    favorite_rating: int | None = None,
+    files_or_dirs: tuple[str, ...] = (),
+    glob: tuple[str, ...] = (),
+    keyword: tuple[str, ...] = (),
+    library: str | None = None,
+    location: tuple[float, float] = (),
+    merge_keywords: bool = False,
+    no_progress: bool = False,
+    parse_date: str | None = None,
+    parse_folder_date: str | None = None,
+    post_function: tuple[Callable[..., None]] = (),
+    relative_to: str | None = None,
+    report: str | None = None,
+    resume: bool = False,
+    sidecar: bool = False,
+    sidecar_ignore_date: bool = False,
+    sidecar_filename_template: str | None = None,
+    signature: str | None = None,
+    skip_dups: bool = False,
+    split_folder: str | None = None,
+    stop_on_error: int | None = None,
+    theme: str | None = None,
+    timestamp: bool = False,
+    title: str | None = None,
+    verbose_flag: bool = False,
+    walk: bool = False,
+):
+    """Import photos and videos into Photos. Photos will be imported into the
+    most recently opened Photos library.
+
+    Photos are imported one at a time thus the "Imports" album in Photos will show
+    a new import group for each photo imported.
+
+    This function is called by import_main() and is pulled out as a separate function
+    so it could be called directly in your own code without the Click instrumentation.
+    """
+    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
+
+    if not files_or_dirs:
+        echo("Nothing to import", err=True)
+        return
+
+    report_file = render_and_validate_report(report) if report else None
+    relative_to = pathlib.Path(relative_to) if relative_to else None
+
+    files_or_dirs = collect_files_to_import(files_or_dirs, walk, glob)
+    if check_templates:
+        check_templates_and_exit(
+            files=files_or_dirs,
+            relative_to=relative_to,
+            title=title,
+            description=description,
+            keyword=keyword,
+            album=album,
+            exiftool_path=exiftool_path,
+            exiftool=exiftool,
+            parse_date=parse_date,
+            parse_folder_date=parse_folder_date,
+            sidecar=sidecar,
+            sidecar_filename_template=sidecar_filename_template,
+            edited_suffix=edited_suffix,
+            signature=signature,
+        )
+
+    files_to_import = group_files_to_import(files_or_dirs, auto_live)
+
+    # need to get the library path to initialize FingerprintQuery
+    last_library = library or get_last_library_path()
+    if not last_library:
+        rich_echo_error(
+            "[error]Could not determine path to Photos library. "
+            "Please specify path to library with --library option."
+        )
+        raise click.Abort()
+
+    if check:
+        check_imported_files(
+            files_to_import,
+            relative_to,
+            last_library,
+            signature,
+            sidecar,
+            sidecar_filename_template,
+            edited_suffix,
+            exiftool_path,
+            verbose,
+        )
+        sys.exit(0)
+
+    if check_not:
+        check_not_imported_files(
+            files_to_import,
+            relative_to,
+            last_library,
+            signature,
+            sidecar,
+            sidecar_filename_template,
+            edited_suffix,
+            exiftool_path,
+            verbose,
+        )
+        sys.exit(0)
+
+    if exiftool and not exiftool_path:
+        # ensure exiftool is installed in path
+        try:
+            get_exiftool_path()
+        except FileNotFoundError as e:
+            rich_echo_error(f"[error] {e}")
+            raise click.Abort()
+
+    if sidecar and sidecar_filename_template:
+        rich_echo_error(
+            "[error] Only one of --sidecar or --sidecar-filename may be used"
+        )
+        raise click.Abort()
+
+    if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
+        rich_echo_error(
+            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
+        )
+        raise click.Abort()
+
+    if edited_suffix and not (sidecar or sidecar_filename_template):
+        rich_echo_error(
+            "[error] --edited-suffix must be used with --sidecar or --sidecar-filename"
+        )
+        raise click.Abort()
+
+    if dup_albums and not (skip_dups and (album or exportdb)):
+        rich_echo_error(
+            "[error] --dup-albums must be used with --skip-dups and --album"
+        )
+        raise click.Abort()
+
+    # initialize report data
+    # report data is set even if no report is generated
+    report_data: dict[pathlib.Path, ReportRecord] = {}
+
+    import_db = SQLiteKVStore(
+        str(get_data_dir() / IMPORT_DB),
+        wal=True,
+        serialize=ReportRecord.serialize,
+        deserialize=ReportRecord.deserialize,
+    )
+    import_db.about = f"osxphotos import database\n{OSXPHOTOS_ABOUT_STRING}"
+
+    imported_count, skipped_count, error_count = import_files(
+        last_library=last_library,
+        files=files_to_import,
+        no_progress=no_progress,
+        resume=resume,
+        clear_metadata=clear_metadata,
+        clear_location=clear_location,
+        edited_suffix=edited_suffix,
+        exiftool=exiftool,
+        exiftool_path=exiftool_path,
+        exportdb=exportdb,
+        favorite_rating=favorite_rating,
+        sidecar=sidecar,
+        sidecar_ignore_date=sidecar_ignore_date,
+        sidecar_filename_template=sidecar_filename_template,
+        merge_keywords=merge_keywords,
+        title=title,
+        description=description,
+        keyword=keyword,
+        location=location,
+        parse_date=parse_date,
+        parse_folder_date=parse_folder_date,
+        album=album,
+        dup_albums=dup_albums,
+        split_folder=split_folder,
+        post_function=post_function,
+        skip_dups=skip_dups,
+        dup_check=dup_check,
+        dry_run=dry_run,
+        report_data=report_data,
+        relative_to=relative_to,
+        import_db=import_db,
+        auto_live=auto_live,
+        signature=signature,
+        stop_on_error=stop_on_error,
+        verbose=verbose,
+    )
+
+    import_db.close()
+
+    if report and not dry_run:
+        write_report(report_file, report_data, append)
+        verbose(f"Wrote import report to [filepath]{report_file}[/]")
+
+    skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
+    echo(
+        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, "
+        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
+        f"{skipped_str}",
+        emoji=False,
+    )
+
+
+def collect_filepaths_for_import_check(
+    filegroup: Iterable[pathlib.Path],
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: pathlib.Path | None,
+) -> tuple[list[pathlib.Path], list[pathlib.Path]]:
+    """Collect filepaths for import check"""
+    filepaths = []
+    # exclude .AAE files
+    file_type = file_type_for_import_group(tuple(filegroup), False)
+    filegroup = [f for f in filegroup if not f.name.lower().endswith(".aae")]
+    if len(filegroup) == 1:
+        filepaths.append(filegroup[0])
+    elif file_type & IS_BURST_GROUP:
+        # include all burst images
+        filepaths.extend(filegroup)
+    elif file_type & IS_LIVE_PAIR:
+        # include only the image
+        filepaths.append(filegroup[0])
+    elif file_type & IS_RAW_JPEG_PAIR:
+        # Photos always makes the non-RAW image the original upon import
+        # only include the non-RAW image
+        filepaths.append(non_raw_file(filegroup))
+    elif file_type & HAS_EDITED_FILE and file_type & HAS_AAE_FILE:
+        # exclude the edited version
+        filepaths.extend(
+            non_edited_files(
+                filegroup, edited_suffix, relative_filepath, exiftool_path, sidecar
+            )
+        )
+    else:
+        # include everything else
+        filepaths.extend(filegroup)
+    return filepaths, [f for f in filegroup if f not in filepaths]
+
+
 def import_photo_group(
     filepaths: tuple[pathlib.Path, ...], dup_check: bool, verbose: Callable[..., None]
 ) -> tuple[Photo | None, str | None]:
@@ -1990,1063 +3047,6 @@ def import_files(
         except StopIteration:
             pass
     return imported_count, skipped_count, error_count
-
-
-class ImportCommand(click.Command):
-    """Custom click.Command that overrides get_help() to show additional help info for import"""
-
-    def get_help(self, ctx):
-        help_text = super().get_help(ctx)
-        formatter = click.HelpFormatter(width=HELP_WIDTH)
-        extra_help = dedent(
-            """
-            ## Examples
-
-            Import a file into Photos:
-            `osxphotos import /Volumes/photos/img_1234.jpg`
-
-            Import multiple jpg files into Photos:
-
-            `osxphotos import /Volumes/photos/*.jpg`
-
-            Import files into Photos and add to album:
-
-            `osxphotos import /Volumes/photos/*.jpg --album "My Album"`
-
-            Import files into Photos and add to album named for 4-digit year of file creation date:
-
-            `oxphotos import /Volumes/photos/*.jpg --album "{created.year}"`
-
-            Import files into Photos and add to album named for month of the year in folder named
-            for the 4-digit year of the file creation date:
-
-            `osxphotos import /Volumes/photos/*.jpg --album "{created.year}/{created.month}" --split-folder "/"`
-
-            ## Albums
-
-            The imported files may be added to one or more albums using the `--album` option.
-            The value passed to `--album` may be a literal string or an osxphotos template
-            (see Template System below).  For example:
-
-            `osxphotos import /Volumes/photos/*.jpg --album "Vacation"`
-
-            adds all photos to the album "Vacation".  The album will be created if it does not
-            already exist.
-
-            `osxphotos import /Volumes/photos/Madrid/*.jpg --album "{filepath.parent.name}"`
-
-            adds all photos to the album "Madrid" (the name of the file's parent folder).
-
-            ## Folders
-
-            If you want to organize the imported photos into both folders and albums, you can
-            use the `--split-folder` option.  For example, if your photos are organized into
-            folders as follows:
-
-                .
-                ├── 2021
-                │   ├── Family
-                │   └── Travel
-                └── 2022
-                    ├── Family
-                    └── Travel
-
-            You can recreate this hierarchal structure on import using
-
-            `--album "{filepath.parent}" --split-folder "/"`
-
-            In this example, `{filepath.parent}` renders to '2021/Family', '2021/Travel', etc.
-            and `--split-folder "/"` instructs osxphotos to split the album name into separate
-            parts '2021' and 'Family'.
-
-            If your photos are organized in a set of folders but you want to exclude one or more parent
-            folders from the list of folders and album, you can use the `--relative-to` option to specify
-            the parent path that all subsequent paths should be relative to.  For example, if your photos
-            are organized into photos as follows:
-
-                /
-                └── Volumes
-                    └── Photos
-                        ├── 2021
-                        │   ├── Family
-                        │   └── Travel
-                        └── 2022
-                            ├── Family
-                            └── Travel
-
-            and you want to exclude /Volumes/Photos from the folder/album path, you can do this:
-
-            `osxphotos import /Volumes/Photos/* --walk --album "{filepath.parent}" --relative-to "/Volumes/Photos" --split-folder "/"`
-
-            This will produce folders/albums `2021/Family`, `2021/Travel`, and so on.
-
-            Note: in Photos, only albums can contain photos and folders
-            may contain albums or other folders.
-
-            ## Duplicate Checking
-
-            By default, `osxphotos import` will import all files passed to it even if duplicates
-            exist in the Photos library. If you want to skip duplicate files, you can use the
-            `--skip-dups` option which will cause osxphotos to check for exact duplicates (based on file fingerprint)
-            and skip those files. Alternatively, you can use `--dup-check` to enable Photos' own duplicate
-            checking. If a duplicate is encountered with `--dup-check`, Photos will prompt you
-            to skip or import the duplicate file.
-
-            If you use the `--verbose` option, osxphotos will report on any duplicates it finds
-            even if you don't use `--skip-dups` or `--dup-check`.  This is useful with --dry-run
-            to see if any duplicates exist in the Photos library before importing.
-
-            ## Metadata
-
-            `osxphotos import` can set metadata (title, description, keywords, and location) for
-            imported photos/videos using several options.
-
-            If you have exiftool (https://exiftool.org/) installed, osxphotos can use
-            exiftool to extract metadata from the imported file and use this to update
-            the metadata in Photos.
-
-            The `--exiftool` option will automatically attempt to update title,
-            description, keywords, and location from the file's metadata:
-
-            `osxphotos import *.jpg --exiftool`
-
-            The following metadata fields are read (in priority order) and used to set
-            the metadata of the imported photo:
-
-            - Title: XMP:Title, IPTC:ObjectName, QuickTime:DisplayName
-            - Description: XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
-            - Keywords: XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
-            - Location: EXIF:GPSLatitude/EXIF:GPSLatitudeRef, EXIF:GPSLongitude/EXIF:GPSLongitudeRef, QuickTime:GPSCoordinates, UserData:GPSCoordinates
-
-            When importing photos, Photos itself will usually read most of these same fields
-            and set the metadata but when importing via AppleScript (which is how `osxphotos
-            import` interacts with Photos), Photos does not always reliably do this. It is
-            recommended you use `--exiftool` to ensure metadata gets correctly imported.
-
-            You can also use `--clear-metadata` to remove any metadata automatically set by
-            Photos upon import.
-
-            In addition to `--exiftool`, you can specify a template (see Template System below)
-            for setting title (`--title`), description (`--description`), and keywords (`--keywords`).
-            Location can be set using `--location`.  The album(s) of the imported file can likewise
-            be specified with `--album`.
-
-            `--title`, `--description`, `--keyword`, and `--album` all take a literal string or an
-            osxphotos template string.  If a template string is used, the template is rendered
-            using the osxphotos template language to produce the final value.
-
-            For example:
-
-            `--title "{exiftool:XMP:Title}"` sets the title of the imported file to whatever value
-            is in the `XMP:Title` metadata field (as read by `exiftool`).
-
-            `--keyword "Vacation"` sets the keyword for the imported file to the literal string "Vacation".
-
-            If the photo metadata or sidecar contains the names of persons in the image (e.g. `XMP:PersonInImage`),
-            you can use the `{person}` template to add the names of the persons to the keywords.  For example:
-
-            `--keyword "{person}"` will add the names of the persons in the image to the keywords.
-
-            This is helpful as Photos will not import person names from the metadata and osxphotos
-            cannot set person names in Photos (this is a limitation of Photos).
-
-            To use the `{person}` template, you must have exiftool installed and in your path or
-            the data must be in a sidecar file.
-
-            ## Template System
-
-            As mentioned above, the `--title`, `--description`, `--keyword`, and `--album` options
-            all take an osxphotos template language template string that is further rendered to
-            produce the final value.  The template system used by `osxphotos import` is a subset
-            of the template system used by `osxphotos export`. For a complete description of the
-            template system, see `osxphotos help export`.
-
-            Most fields in the osxphotos template system are not available to `osxphotos import` as
-            they are derived from data in the Photos library and the photos will obviously not be
-            imported yet. The following fields are available:
-
-            #### {exiftool}
-            - `{exiftool}`: Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org)
-            to extract metadata, in form GROUP:TAGNAME, from image.
-            E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract
-            keywords. See https://exiftooip=l.org/TagNames/ for list of valid tag names.
-            You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`.
-            exiftool must be installed in the path to use this template (alternatively, you can use
-            `--exiftool-path` to specify the path to exiftool.)
-
-            #### {filepath}
-
-            - `{filepath}`: The full path to the file being imported.
-            For example, `/Volumes/photos/img_1234.jpg`.
-
-            `{filepath}` has several subfields that
-            allow you to access various parts of the path using the following subfield modifiers:
-
-            - `{filepath.parent}`: the parent directory
-            - `{filepath.name}`: the name of the file or final sub-directory
-            - `{filepath.stem}`: the name of the file without the extension
-            - `{filepath.suffix}`: the suffix of the file including the leading '.'
-
-            For example, if the field `{filepath}` is '/Shared/Backup/Photos/IMG_1234.JPG':
-            - `{filepath.parent}` is '/Shared/Backup/Photos'
-            - `{filepath.name}` is 'IMG_1234.JPG'
-            - `{filepath.stem}` is 'IMG_1234'
-            - `{filepath.suffix}` is '.JPG'
-
-            Subfields may be chained, for example, `{filepath.parent.parent}` in the above
-            example would be `/Shared/Backup` and `{filepath.parent.name}` would be `Photos`.
-
-            `{filepath}` may be modified using the `--relative-to` option.  For example,
-            if the path to the imported photo is `/Volumes/Photos/Folder1/Album1/IMG_1234.jpg`
-            and you specify `--relative-to "/Volumes/Photos"` then `{filepath}` will be set
-            to `Folder1/Album1/IMG_1234.jpg`
-            (a subset of the path relative to the value of `--relative-to`).
-
-            #### {created}
-
-            - `{created}`: The date the file was created.  `{created}` must be used with a subfield to
-            specify the format of the date.
-
-            - `{created.date}`: Photo's creation date in ISO format, e.g. '2020-03-22'
-            - `{created.year}`: 4-digit year of photo creation time
-            - `{created.yy}`: 2-digit year of photo creation time
-            - `{created.mm}`: 2-digit month of the photo creation time (zero padded)
-            - `{created.month}`: Month name in user's locale of the photo creation time
-            - `{created.mon}`: Month abbreviation in the user's locale of the photo creation time
-            - `{created.dd}`: 2-digit day of the month (zero padded) of photo creation time
-            - `{created.dow}`: Day of week in user's locale of the photo creation time
-            - `{created.doy}`: 3-digit day of year (e.g Julian day) of photo creation time, starting from 1 (zero padded)
-            - `{created.hour}`: 2-digit hour of the photo creation time
-            - `{created.min}`: 2-digit minute of the photo creation time
-            - `{created.sec}`: 2-digit second of the photo creation time
-            - `{created.strftime}`: Apply strftime template to file creation date/time. Should be used in form
-            `{created.strftime,TEMPLATE}` where TEMPLATE is a valid strftime template, e.g.
-            `{created.strftime,%Y-%U}` would result in year-week number of year: '2020-23'.
-            If used with no template will return null value.
-            See https://strftime.org/ for help on strftime templates.
-
-            You may find the `--check-templates` option useful for testing templates.
-            When run with `--check-templates` osxphotos will not actually import anything
-            but will instead print out the rendered value for each `--title`, `--description`,
-            `--keyword`, and `--album` option. It will also print out the values extracted by
-            the `--exiftool` option.
-
-            ## Parsing Dates/Times from File and Folder Names
-
-            The `--parse-date` option allows you to parse dates/times from the filename of the
-            file being imported.  This is useful if you have a large number of files with
-            dates/times embedded in the filename but not in the metadata.
-
-            Likewise, you can use `--parse-folder-date` to parse dates/times from the name of the
-            folder containing the file being imported.
-
-            The argument to `--parse-date` is a pattern string that is used to parse the date/time
-            from the filename. The pattern string is a superset of the python `strftime/strptime`
-            format with the following additions:
-
-            - *: Match any number of characters
-            - ^: Match the beginning of the string
-            - $: Match the end of the string
-            - {n}: Match exactly n characters
-            - {n,}: Match at least n characters
-            - {n,m}: Match at least n characters and at most m characters
-            - In addition to `%%` for a literal `%`, the following format codes are supported:
-                `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
-            - |: join multiple format codes; each code is tried in order until one matches
-            - Unlike the standard library, the leading zero is not optional for
-                %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
-            - For optional leading zero, use %-d, %-m, %-H, %-I, %-M, %-S, %-j, %-U, %-W, and %-V
-
-            For more information on strptime format codes, see:
-            https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
-
-            **Note**: The time zone of the parsed date/time is assumed to be the local time zone.
-            If the parse pattern includes a time zone, the photo's time will be converted from
-            the specified time zone to the local time zone. osxphotos import does not
-            currently support setting the time zone of imported photos.
-            See also `osxphotos help timewarp` for more information on the timewarp
-            command which can be used to change the time zone of photos after import.
-
-            ### Examples
-
-            If you have photos with embedded names in filenames like `IMG_1234_20200322_123456.jpg`
-            and `12345678_20200322.jpg`, you can parse the dates with the following pattern:
-            `--parse-date "IMG_*_%Y%m%d_%H%M%S|*_%Y%m%d.*"`. The first pattern matches the first format
-            and the second pattern matches the second. The `|` character is used to separate the two
-            patterns. The order is important as the first pattern will be tried first then the second
-            and so on. If you have multiple formats in your filenames you will want to order the patterns
-            from most specific to least specific to avoid false matches.
-
-            If your photos are organized by date into folders in format `YYYY/MM/DD`, for example,
-            `/Volumes/Photos/2020/03/22/IMG_1234.jpg`, you can parse the date from the folder name
-            using `--parse-folder-date "%Y/%m/%d$"`. In this example, the pattern is anchored to the
-            end of the string using `$` to avoid false matches if other parts of the path happen to match
-            the pattern.
-
-            ## Post Function
-
-            You can run a custom python function after each photo is imported using `--post-function`.
-            The format is `osxphotos import /file/to/import --post-function post_function.py::post_function`
-            where `post_function.py` is the name of the python file containing the function and `post_function`
-            is the name of the function. The function will be called with the following arguments:
-            `post_function(photo: photoscript.Photo, filepath: pathlib.Path, verbose: t.Callable, **kwargs)`
-
-            - photo: photoscript.Photo instance for the photo that's just been imported
-            - filepath: pathlib.Path to the file that was imported (this is the path to the source file, not the path inside the Photos library)
-            - verbose: A function to print verbose output if --verbose is set; if --verbose is not set, acts as a no-op (nothing gets printed)
-            - **kwargs: reserved for future use; recommend you include **kwargs so your function still works if additional arguments are added in future versions
-
-            The function will get called immediately after the photo has been imported into Photos
-            and all metadata been set (e.g. --exiftool, --title, etc.)
-
-            You may call more than one function by repeating the `--post-function` option.
-
-            See https://rhettbull.github.io/PhotoScript/
-            for documentation on photoscript and the Photo class that is passed to the function.
-
-            ## Google Takeout
-
-            If you have a Google Takeout archive of your Google Photos library, you can import
-            it using the following steps:
-
-            - Download the Google Takout archive from Google Photos
-            - Unzip the archive
-            - Run the following command to import the photos into Photos:
-
-            `osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv`
-
-            If you have persons tagged in Google Photos you can add this option to create keywords
-            for each person in the photo: `--keyword "{person}"`
-
-            Google Takeout does not preserve the timezone of the photo. The metadata JSON sidecar
-            produced by Google converts photo times to UTC. The import command will convert these
-            to the correct time in the local timezone upon import. If your photos contain the correct
-            date/time and timezone information in the metadata you can use the `--sidecar-ignore-date`
-            option to ignore the date/time in the sidecar and use the date/time from the photo metadata.
-
-        """
-        )
-        console = Console()
-        with console.capture() as capture:
-            console.print(Markdown(extra_help), width=min(HELP_WIDTH, console.width))
-        formatter.write(capture.get())
-        help_text += "\n\n" + formatter.getvalue()
-        return help_text
-
-
-@click.command(name="import", cls=ImportCommand)
-@click.option(
-    "--album",
-    "-a",
-    metavar="ALBUM_TEMPLATE",
-    multiple=True,
-    type=TemplateString(),
-    help="Import photos into album ALBUM_TEMPLATE. "
-    "ALBUM_TEMPLATE is an osxphotos template string. "
-    "Photos may be imported into more than one album by repeating --album. "
-    "See also --skip-dups, --dup-albums, --split-folder, --relative-to. "
-    "See Template System in help for additional information.",
-)
-@click.option(
-    "--title",
-    "-t",
-    metavar="TITLE_TEMPLATE",
-    type=TemplateString(),
-    help="Set title of imported photos to TITLE_TEMPLATE. "
-    "TITLE_TEMPLATE is a an osxphotos template string. "
-    "See Template System in help for additional information.",
-)
-@click.option(
-    "--description",
-    "-d",
-    metavar="DESCRIPTION_TEMPLATE",
-    type=TemplateString(),
-    help="Set description of imported photos to DESCRIPTION_TEMPLATE. "
-    "DESCRIPTION_TEMPLATE is a an osxphotos template string. "
-    "See Template System in help for additional information.",
-)
-@click.option(
-    "--keyword",
-    "-k",
-    metavar="KEYWORD_TEMPLATE",
-    multiple=True,
-    type=TemplateString(),
-    help="Set keywords of imported photos to KEYWORD_TEMPLATE. "
-    "KEYWORD_TEMPLATE is a an osxphotos template string. "
-    "More than one keyword may be set by repeating --keyword. "
-    "See Template System in help for additional information.",
-)
-@click.option(
-    "--merge-keywords",
-    "-m",
-    is_flag=True,
-    help="Merge keywords created by --exiftool, --sidecar, --sidecar-filename, or --keyword "
-    "with any keywords already associated with the photo. "
-    "Without --merge-keywords, existing keywords will be overwritten.",
-)
-@click.option(
-    "--location",
-    "-l",
-    metavar="LATITUDE LONGITUDE",
-    nargs=2,
-    type=click.Tuple([click.FloatRange(-90.0, 90.0), click.FloatRange(-180.0, 180.0)]),
-    help="Set location of imported photo to LATITUDE LONGITUDE. "
-    "Latitude is a number in the range -90.0 to 90.0; "
-    "positive latitudes are north of the equator, negative latitudes are south of the equator. "
-    "Longitude is a number in the range -180.0 to 180.0; "
-    "positive longitudes are east of the Prime Meridian; negative longitudes are west of the Prime Meridian.",
-)
-@click.option(
-    "--favorite-rating",
-    "-G",
-    metavar="RATING",
-    type=click.IntRange(1, 5),
-    help="If XMP:Rating is set to RATING or higher, mark imported photo as a favorite. "
-    "RATING must be in range 1 to 5. "
-    "XMP:Rating will be read from asset's metadata or from sidecar if --sidecar, --sidecare-filename is used. "
-    "Requires that exiftool be installed to read the rating from the asset's XMP data.",
-)
-@click.option(
-    "--auto-live",
-    "-E",
-    is_flag=True,
-    help="Automatically convert photo+video pairs into live images. "
-    "Live Photos (photo+video pair) exported from Photos contain a metadata content identifier that Photos "
-    "uses to associate the pair as a single Live Photo asset when re-imported. "
-    "Photo+video pairs taken on non-Apple devices will lack the content identifier and "
-    "thus will be imported as separate assets. "
-    "Use --auto-live to automatically convert these pairs to Live Photos upon import. "
-    "When --auto-live is used, a photo and a video with same base name, "
-    "for example 'IMG_1234.JPG' and 'IMG_1234.mov', in the same directory will be converted to Live Photos. "
-    "*NOTE*: Using this feature will modify the metadata in the files prior to import. "
-    "Ensure you have a backup of the original files if you want to preserve unmodified versions.",
-)
-@click.option(
-    "--parse-date",
-    "-P",
-    metavar="DATE_PATTERN",
-    type=StrpDateTimePattern(),
-    help="Parse date from filename using DATE_PATTERN. "
-    "If file does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
-    "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
-    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
-    "as the import command does not yet support setting time zone information. "
-    "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
-    "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
-    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name. "
-    "If the pattern matches only date or only time, the missing information will be set to the "
-    "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
-    "if it exists or the file modification date/time. "
-    "For example, if photos are named 'IMG_1234_2022_11_23.jpg' where the date is '2022-11-23', "
-    "you could use the pattern '%Y_%m_%d' to set the date but the time would be set from the EXIF "
-    "or the file's modification time. "
-    "See also --parse-folder-date, --check-templates.",
-)
-@click.option(
-    "--parse-folder-date",
-    "-F",
-    metavar="DATE_PATTERN",
-    type=StrpDateTimePattern(),
-    help="Parse date from folder name using DATE_PATTERN. "
-    "If folder does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
-    "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
-    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
-    "as the import command does not yet support setting time zone information. "
-    "For example, if your photos are in folder '2023/12/17/IMG_1234.jpg` where the date is "
-    "'2023-12-17', you could use the pattern '%Y/%m/%d$' as the DATE_PATTERN. "
-    "If the pattern matches only date or only time, the missing information will be set to the "
-    "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
-    "if it exists or the file modification date/time. "
-    "See also --parse-folder-date, --check-templates.",
-)
-@click.option(
-    "--clear-metadata",
-    "-X",
-    is_flag=True,
-    help="Clear any metadata set automatically "
-    "by Photos upon import. Normally, Photos will set title, description, and keywords "
-    "from XMP metadata in the imported file.  If you specify --clear-metadata, any metadata "
-    "set by Photos will be cleared after import.",
-)
-@click.option(
-    "--clear-location",
-    "-L",
-    is_flag=True,
-    help="Clear any location data automatically imported by Photos. "
-    "Normally, Photos will set location of the photo to the location data found in the "
-    "metadata in the imported file.  If you specify --clear-location, "
-    "this data will be cleared after import.",
-)
-@click.option(
-    "--exiftool",
-    "-e",
-    is_flag=True,
-    help="Use third party tool exiftool (https://exiftool.org/) to automatically "
-    "update metadata (title, description, keywords, location) in imported photos from "
-    "the imported file's metadata. "
-    "See also --sidecar, --sidecar-filename, --exportdb. "
-    "Note: importing keywords from video files is not currently supported.",
-)
-@click.option(
-    "--exiftool-path",
-    "-p",
-    metavar="EXIFTOOL_PATH",
-    type=click.Path(exists=True, dir_okay=False),
-    help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
-)
-@click.option(
-    "--sidecar",
-    "-s",
-    is_flag=True,
-    help="Use sidecar files to import metadata (title, description, keywords, location). "
-    "Sidecar files must be in the same directory as the imported file and have the same name. "
-    "For example, if image is named img_1234.jpg, sidecar must be named one of: "
-    "img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json. "
-    "Supported sidecar formats are XMP and JSON (as generated by exiftool). "
-    "If both JSON and XMP sidecars are found, the JSON sidecar will be used. "
-    "If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
-    "See also --sidecar-filename if you need control over the sidecar name. "
-    "See also --sidecar-ignore-date, --exiftool, --exportdb. "
-    "Note: --sidecar and --sidecar-filename are mutually exclusive.",
-)
-@click.option(
-    "--sidecar-filename",
-    "-T",
-    "sidecar_filename_template",
-    metavar="TEMPLATE",
-    type=TemplateString(),
-    help="Use sidecar files to import metadata (title, description, keywords, location). "
-    "The TEMPLATE is an osxphotos template string that is rendered to produce the sidecar filename. "
-    "The path to the current file is available as {filepath}. "
-    "Thus if file is named 'IMG_1234.jpg' and sidecar is named 'IMG_1234.xmp', "
-    "you would use the template '{filepath.parent}/{filepath.stem}.xmp'. "
-    "If the sidecar name was 'IMG_1234.jpg.xmp', you would use the template "
-    "'{filepath}.xmp'. "
-    "If the sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. "
-    "See Template System in help for additional information. "
-    "See also --sidecar-ignore-date, --exiftool, --exportdb. "
-    "Note: --sidecar and --sidecar-filename are mutually exclusive.",
-)
-@click.option(
-    "--edited-suffix",
-    metavar="TEMPLATE",
-    help="Optional suffix template used for naming edited photos. "
-    "This is used to associate sidecars to the edited version of a file when --sidecar or --sidecar-filename is used. "
-    f"By default, osxphotos will look for edited photos using default 'osxphotos export' suffix of '{DEFAULT_EDITED_SUFFIX}' "
-    "If your edited photos have a different suffix you can use '--edited-suffix' to specify the suffix. "
-    "For example, with '--edited-suffix _bearbeiten', the import command will look for a file named 'photoname_bearbeiten.ext' "
-    "and associated that with a sidecar named 'photoname.xmp', etc. "
-    "The --edited-suffix option is only valid when used with --sidecar or --sidecar-filename. "
-    "Multi-value templates (see Templating System in the OSXPhotos docs) are not permitted with --edited-suffix.",
-    type=TemplateString(),
-)
-@click.option(
-    "--sidecar-ignore-date",
-    "-i",
-    is_flag=True,
-    help="Do not use date in sidecar to set photo date/time. "
-    "Setting the timezone from sidecar files is not currently supported so when using --sidecar "
-    "or --sidecar-filename, the date/time found in the sidecar will be converted to the local timezone "
-    "and that value will be used to set the photo date/time. "
-    "If your photos have correct timezone information in the embedded metadata you can use "
-    "--sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the "
-    "file (which will be read by Photos on import).",
-)
-@click.option(
-    "--exportdb",
-    "-B",
-    metavar="EXPORTDB_PATH",
-    help="Use an osxphotos export database (created by 'osxphotos export') "
-    "to set metadata (title, description, keywords, location, album). "
-    "See also --sidecar, --sidecar-filename, --exiftool.",
-)
-@click.option(
-    "--relative-to",
-    "-r",
-    metavar="RELATIVE_TO_PATH",
-    type=click.Path(exists=True, file_okay=False, resolve_path=True),
-    help="If set, the '{filepath}' template "
-    "will be computed relative to RELATIVE_TO_PATH. "
-    "For example, if path to import is '/Volumes/photos/import/album/img_1234.jpg' "
-    "then '{filepath}' will be this same value. "
-    "If you set '--relative-to /Volumes/photos/import' "
-    "then '{filepath}' will be set to 'album/img_1234.jpg'",
-)
-@click.option(
-    "--dup-check",
-    "-D",
-    is_flag=True,
-    help="Use Photos' built-in duplicate checkign to check for duplicates on import. "
-    "Using --dup-check will cause Photos to display a dialog box for each duplicate photo found, "
-    "requesting confirmation to import the duplicate. See also --skip-dups.",
-)
-@click.option(
-    "--skip-dups",
-    "-S",
-    is_flag=True,
-    help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. "
-    "Unlike --dup-check, this does not use Photos' built in duplicate checking feature and "
-    "does not display a dialog box for each duplicate found. See also --dup-check and --dup-albums.",
-)
-@click.option(
-    "--signature",
-    "-U",
-    type=TemplateString(),
-    help="Custom template for signature when using --skip-dups, --dup-check, and --dup-albums. "
-    "The signature is used to match photos in the library to those being imported. "
-    "If you do not use --signature, the fingerprint will be used for photos "
-    "and lowercase filename + size will be used for videos "
-    "(a fingerprint is not always stored for videos in the Photos library). "
-    "*Note*: When using --signature, the Photos library will be scanned before import "
-    "which may take some time. If there are duplicates files in the list of files to be imported, "
-    "these will not be detected as each imported file will only be compared to the state of the Photos "
-    "library at the start of the import.",
-)
-@click.option(
-    "--dup-albums",
-    "-A",
-    is_flag=True,
-    help="If used with --skip-dups, the matching duplicate already in the Photos library "
-    "will be added to any albums the current file would have been added to had it not been skipped. "
-    "This is useful if you have duplicate photos in separate folders and want to avoid duplicates "
-    "in Photos but keep the photos organized in albums that match the folder structure. "
-    "Must be used with --skip-dups and --album or --exportdb. See also --skip-dups.",
-)
-@click.option(
-    "--split-folder",
-    "-f",
-    help="Automatically create hierarchal folders for albums as needed by splitting album name "
-    "into folders and album. You must specify the character used to split folders and "
-    "albums. For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
-    "into folder 'Folder' and album 'Album'. ",
-)
-@click.option(
-    "--walk", "-w", is_flag=True, help="Recursively walk through directories."
-)
-@click.option(
-    "--glob",
-    "-g",
-    metavar="GLOB",
-    multiple=True,
-    help="Only import files matching GLOB. "
-    "GLOB is a Unix shell-style glob pattern, for example: '--glob \"*.jpg\"'. "
-    "GLOB may be repeated to import multiple patterns.",
-)
-@click.option(
-    "--check",
-    "-c",
-    is_flag=True,
-    help="Check which FILES have been previously imported but do not actually import anything. "
-    "Prints a report showing which files have been imported (and when they were added) "
-    "and which files have not been imported. "
-    "See also, --check-not.",
-)
-@click.option(
-    "--check-not",
-    "-C",
-    is_flag=True,
-    help="Check which FILES have not been previously imported but do not actually import anything. "
-    "Prints the path to each file that has not been previously imported. "
-    "See also, --check.",
-)
-@click.option(
-    "--dry-run",
-    "-n",
-    is_flag=True,
-    help="Dry run; do not actually import. Useful with --verbose to see what would be imported.",
-)
-@click.option(
-    "--report",
-    "-o",
-    metavar="REPORT_FILE",
-    help="Write a report of all files that were imported. "
-    "The extension of the report filename will be used to determine the format. "
-    "Valid extensions are: "
-    ".csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). "
-    "REPORT_FILE may be a template string (see Template System), for example, "
-    "--report 'export_{today.date}.csv' will write a CSV report file named with today's date. "
-    "See also --append.",
-    type=TemplateString(),
-)
-@click.option(
-    "--resume",
-    "-R",
-    is_flag=True,
-    help="Resume previous import. "
-    f"Note: data on each imported file is kept in a database in '{get_data_dir() / IMPORT_DB}'. "
-    "This data can be used to resume a previous import if there was an error or the import was cancelled.",
-)
-@click.option(
-    "--append",
-    "-O",
-    is_flag=True,
-    help="If used with --report, add data to existing report file instead of overwriting it. "
-    "See also --report.",
-)
-@VERBOSE_OPTION
-@TIMESTAMP_OPTION
-@click.option(
-    "--no-progress",
-    "-N",
-    is_flag=True,
-    help="Do not display progress bar during import.",
-)
-@click.option(
-    "--check-templates",
-    is_flag=True,
-    help="Don't actually import anything; "
-    "renders template strings and date patterns so you can verify they are correct.",
-)
-@click.option(
-    "--post-function",
-    metavar="filename.py::function",
-    nargs=1,
-    type=FunctionCall(),
-    multiple=True,
-    help="Run python function after importing file."
-    "Use this in format: --post-function filename.py::function where filename.py is a python "
-    "file you've created and function is the name of the function in the python file you want to call. "
-    "The function will be passed a reference to the photo object and the path to the file that was imported. "
-    "You can run more than one function by repeating the '--post-function' option with different arguments. "
-    "You may also specify a post function using a URL in format --post-function 'https://path/to/module.py::function' "
-    "See Post Function below.",
-)
-@click.option(
-    "--stop-on-error",
-    metavar="COUNT",
-    help="Stops importing after COUNT errors. "
-    "Useful if you experience a large number of errors during import.",
-    type=click.IntRange(min=0),
-)
-@click.option(
-    "--library",
-    metavar="LIBRARY_PATH",
-    type=click.Path(exists=True),
-    help="Path to the Photos library you are importing into. This is not usually needed. "
-    "You will only need to specify this if osxphotos cannot determine the path to the library "
-    "in which case osxphotos will tell you to use the --library option when you run the import command.",
-)
-@THEME_OPTION
-@click.argument("FILES_OR_DIRS", nargs=-1)
-@click.pass_obj
-@click.pass_context
-def import_main(
-    ctx: click.Context,
-    cli_obj: CLI_Obj,
-    album: tuple[str, ...],
-    append: bool,
-    auto_live: bool,
-    check: bool,
-    check_not: bool,
-    check_templates: bool,
-    clear_location: bool,
-    clear_metadata: bool,
-    description: str | None,
-    dry_run: bool,
-    dup_albums: bool,
-    dup_check: bool,
-    edited_suffix: str | None,
-    exiftool: bool,
-    exiftool_path: str | None,
-    exportdb: str | None,
-    favorite_rating: int | None,
-    files_or_dirs: tuple[str, ...],
-    glob: tuple[str, ...],
-    keyword: tuple[str, ...],
-    library: str | None,
-    location: tuple[float, float],
-    merge_keywords: bool,
-    no_progress: bool,
-    parse_date: str | None,
-    parse_folder_date: str | None,
-    post_function: tuple[Callable[..., None]],
-    relative_to: str | None,
-    report: str | None,
-    resume: bool,
-    sidecar: bool,
-    sidecar_ignore_date: bool,
-    sidecar_filename_template: str | None,
-    signature: str | None,
-    skip_dups: bool,
-    split_folder: str | None,
-    stop_on_error: int | None,
-    theme: str | None,
-    timestamp: bool,
-    title: str | None,
-    verbose_flag: bool,
-    walk: bool,
-):
-    """Import photos and videos into Photos. Photos will be imported into the
-    most recently opened Photos library.
-
-    Limitations:
-
-    - Photos are imported one at a time thus the "Imports" album in Photos will show
-    a new import group for each photo imported. Exception: Live photos (photo+video pair),
-    burst photos, and RAW+JPEG pairs will be imported together so that Photos processes
-    them correctly.
-
-    - If there's an edited version of a photo along with the original, they will be imported as separate files, not as a single asset.
-    """
-
-    kwargs = locals()
-    kwargs.pop("ctx")
-    kwargs.pop("cli_obj")
-    import_cli(**kwargs)
-
-
-def import_cli(
-    album: tuple[str, ...] = (),
-    append: bool = False,
-    auto_live: bool = False,
-    check: bool = False,
-    check_not: bool = False,
-    check_templates: bool = False,
-    clear_location: bool = False,
-    clear_metadata: bool = False,
-    description: str | None = None,
-    dry_run: bool = False,
-    dup_albums: bool = False,
-    dup_check: bool = False,
-    edited_suffix: str | None = None,
-    exiftool: bool = False,
-    exiftool_path: str | None = None,
-    exportdb: str | None = None,
-    favorite_rating: int | None = None,
-    files_or_dirs: tuple[str, ...] = (),
-    glob: tuple[str, ...] = (),
-    keyword: tuple[str, ...] = (),
-    library: str | None = None,
-    location: tuple[float, float] = (),
-    merge_keywords: bool = False,
-    no_progress: bool = False,
-    parse_date: str | None = None,
-    parse_folder_date: str | None = None,
-    post_function: tuple[Callable[..., None]] = (),
-    relative_to: str | None = None,
-    report: str | None = None,
-    resume: bool = False,
-    sidecar: bool = False,
-    sidecar_ignore_date: bool = False,
-    sidecar_filename_template: str | None = None,
-    signature: str | None = None,
-    skip_dups: bool = False,
-    split_folder: str | None = None,
-    stop_on_error: int | None = None,
-    theme: str | None = None,
-    timestamp: bool = False,
-    title: str | None = None,
-    verbose_flag: bool = False,
-    walk: bool = False,
-):
-    """Import photos and videos into Photos. Photos will be imported into the
-    most recently opened Photos library.
-
-    Photos are imported one at a time thus the "Imports" album in Photos will show
-    a new import group for each photo imported.
-
-    This function is called by import_main() and is pulled out as a separate function
-    so it could be called directly in your own code without the Click instrumentation.
-    """
-    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
-
-    if not files_or_dirs:
-        echo("Nothing to import", err=True)
-        return
-
-    report_file = render_and_validate_report(report) if report else None
-    relative_to = pathlib.Path(relative_to) if relative_to else None
-
-    files_or_dirs = collect_files_to_import(files_or_dirs, walk, glob)
-    if check_templates:
-        check_templates_and_exit(
-            files=files_or_dirs,
-            relative_to=relative_to,
-            title=title,
-            description=description,
-            keyword=keyword,
-            album=album,
-            exiftool_path=exiftool_path,
-            exiftool=exiftool,
-            parse_date=parse_date,
-            parse_folder_date=parse_folder_date,
-            sidecar=sidecar,
-            sidecar_filename_template=sidecar_filename_template,
-            edited_suffix=edited_suffix,
-            signature=signature,
-        )
-
-    files_to_import = group_files_to_import(files_or_dirs, auto_live)
-
-    # need to get the library path to initialize FingerprintQuery
-    last_library = library or get_last_library_path()
-    if not last_library:
-        rich_echo_error(
-            "[error]Could not determine path to Photos library. "
-            "Please specify path to library with --library option."
-        )
-        raise click.Abort()
-
-    if check:
-        check_imported_files(
-            files_to_import,
-            relative_to,
-            last_library,
-            signature,
-            sidecar,
-            sidecar_filename_template,
-            edited_suffix,
-            exiftool_path,
-            verbose,
-        )
-        sys.exit(0)
-
-    if check_not:
-        check_not_imported_files(
-            files_to_import,
-            relative_to,
-            last_library,
-            signature,
-            sidecar,
-            sidecar_filename_template,
-            edited_suffix,
-            exiftool_path,
-            verbose,
-        )
-        sys.exit(0)
-
-    if exiftool and not exiftool_path:
-        # ensure exiftool is installed in path
-        try:
-            get_exiftool_path()
-        except FileNotFoundError as e:
-            rich_echo_error(f"[error] {e}")
-            raise click.Abort()
-
-    if sidecar and sidecar_filename_template:
-        rich_echo_error(
-            "[error] Only one of --sidecar or --sidecar-filename may be used"
-        )
-        raise click.Abort()
-
-    if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
-        rich_echo_error(
-            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
-        )
-        raise click.Abort()
-
-    if edited_suffix and not (sidecar or sidecar_filename_template):
-        rich_echo_error(
-            "[error] --edited-suffix must be used with --sidecar or --sidecar-filename"
-        )
-        raise click.Abort()
-
-    if dup_albums and not (skip_dups and (album or exportdb)):
-        rich_echo_error(
-            "[error] --dup-albums must be used with --skip-dups and --album"
-        )
-        raise click.Abort()
-
-    # initialize report data
-    # report data is set even if no report is generated
-    report_data: dict[pathlib.Path, ReportRecord] = {}
-
-    import_db = SQLiteKVStore(
-        str(get_data_dir() / IMPORT_DB),
-        wal=True,
-        serialize=ReportRecord.serialize,
-        deserialize=ReportRecord.deserialize,
-    )
-    import_db.about = f"osxphotos import database\n{OSXPHOTOS_ABOUT_STRING}"
-
-    imported_count, skipped_count, error_count = import_files(
-        last_library=last_library,
-        files=files_to_import,
-        no_progress=no_progress,
-        resume=resume,
-        clear_metadata=clear_metadata,
-        clear_location=clear_location,
-        edited_suffix=edited_suffix,
-        exiftool=exiftool,
-        exiftool_path=exiftool_path,
-        exportdb=exportdb,
-        favorite_rating=favorite_rating,
-        sidecar=sidecar,
-        sidecar_ignore_date=sidecar_ignore_date,
-        sidecar_filename_template=sidecar_filename_template,
-        merge_keywords=merge_keywords,
-        title=title,
-        description=description,
-        keyword=keyword,
-        location=location,
-        parse_date=parse_date,
-        parse_folder_date=parse_folder_date,
-        album=album,
-        dup_albums=dup_albums,
-        split_folder=split_folder,
-        post_function=post_function,
-        skip_dups=skip_dups,
-        dup_check=dup_check,
-        dry_run=dry_run,
-        report_data=report_data,
-        relative_to=relative_to,
-        import_db=import_db,
-        auto_live=auto_live,
-        signature=signature,
-        stop_on_error=stop_on_error,
-        verbose=verbose,
-    )
-
-    import_db.close()
-
-    if report and not dry_run:
-        write_report(report_file, report_data, append)
-        verbose(f"Wrote import report to [filepath]{report_file}[/]")
-
-    skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
-    echo(
-        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, "
-        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
-        f"{skipped_str}",
-        emoji=False,
-    )
-
-
-def collect_filepaths_for_import_check(
-    filegroup: Iterable[pathlib.Path],
-    edited_suffix: str,
-    relative_filepath: pathlib.Path | None,
-    exiftool_path: str | None,
-    sidecar: pathlib.Path | None,
-) -> tuple[list[pathlib.Path], list[pathlib.Path]]:
-    """Collect filepaths for import check"""
-    filepaths = []
-    # exclude .AAE files
-    file_type = file_type_for_import_group(tuple(filegroup), False)
-    filegroup = [f for f in filegroup if not f.name.lower().endswith(".aae")]
-    if len(filegroup) == 1:
-        filepaths.append(filegroup[0])
-    elif file_type & IS_BURST_GROUP:
-        # include all burst images
-        filepaths.extend(filegroup)
-    elif file_type & IS_LIVE_PAIR:
-        # include only the image
-        filepaths.append(filegroup[0])
-    elif file_type & IS_RAW_JPEG_PAIR:
-        # Photos always makes the non-RAW image the original upon import
-        # only include the non-RAW image
-        filepaths.append(non_raw_file(filegroup))
-    elif file_type & HAS_EDITED_FILE and file_type & HAS_AAE_FILE:
-        # exclude the edited version
-        filepaths.extend(
-            non_edited_files(
-                filegroup, edited_suffix, relative_filepath, exiftool_path, sidecar
-            )
-        )
-    else:
-        # include everything else
-        filepaths.extend(filegroup)
-    return filepaths, [f for f in filegroup if f not in filepaths]
 
 
 def check_imported_files(
