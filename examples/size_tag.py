@@ -6,7 +6,7 @@
 
     If photo / video does not fit any of these categories, the function returns empty str.
 
-    Use:  osxphotos batch-edit --keyword "{function:/path/to/size_tag.py::size_tag}"
+    Use:  osxphotos batch-edit --keyword "{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/size_tag.py::size_tag}"
 
     You may place more than one template function in a single file as each is called by name using the {function:file.py::function_name} format
 """
@@ -31,7 +31,7 @@ def size_tag(
 
         If photo / video does not fit any of these categories, the function returns empty str.
 
-        Use:  osxphotos batch-edit --keyword "{function:/path/to/size_tag.py::size_tag}"
+        Use:  osxphotos batch-edit --keyword "{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/size_tag.py::size_tag}"
 
         You may place more than one template function in a single file as each is called by name using the {function:file.py::function_name} format
 
@@ -46,6 +46,9 @@ def size_tag(
     """
 
     x, y = sorted([photo.width, photo.height])
+    if not x or not y:
+        return ""
+
     if (x, y) == (240, 320):
         return "QVGA"
     elif (240 < x <= 480) and (320 < y <= 640):
