@@ -1695,13 +1695,13 @@ def test_import_edited_renamed_with_aae(tmp_path):
     source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
     source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
 
-    test_image_original = str(tmp_path / TEST_IMAGE_WITH_EDIT_ORIGINAL)
-    test_image_edited = str(tmp_path / TEST_IMAGE_WITH_EDIT_EDITED)
-    test_image_aae = str(tmp_path / TEST_IMAGE_WITH_EDIT_AAE)
+    shutil.copy(source_image_original, str(tmp_path))
+    shutil.copy(source_image_edited, str(tmp_path))
+    shutil.copy(source_image_aae, str(tmp_path))
 
-    shutil.copy(source_image_original, test_image_original)
-    shutil.copy(source_image_edited, test_image_edited)
-    shutil.copy(source_image_aae, test_image_aae)
+    test_image_original = str(tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_ORIGINAL).name)
+    test_image_edited = str(tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_EDITED).name)
+    test_image_aae = str(tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_AAE).name)
 
     runner = CliRunner()
     result = runner.invoke(
@@ -1713,10 +1713,11 @@ def test_import_edited_renamed_with_aae(tmp_path):
     assert result.exit_code == 0
     assert "Processing import group with .AAE file with edited version" in result.output
     import_data = parse_import_output(result.output)
-    file_1 = pathlib.Path(test_image_original).name
+
+    file_1 = f"IMG_0001_{pathlib.Path(TEST_IMAGE_WITH_EDIT_ORIGINAL).name}"
     uuid_1 = import_data[file_1]
 
     photosdb = PhotosDB()
     photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
     assert photo.hasadjustments
-    assert photo.original_filename == f"IMG_0001_{TEST_IMAGE_WITH_EDIT_ORIGINAL}"
+    assert photo.original_filename == file_1

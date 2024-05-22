@@ -709,12 +709,12 @@ class ImportCommand(click.Command):
     "--edited-suffix",
     metavar="TEMPLATE",
     help="Optional suffix template used for naming edited photos. "
-    "This is used to associate sidecars to the edited version of a file when --sidecar or --sidecar-filename is used. "
+    "This is used to associate sidecars to the edited version of a file when --sidecar or --sidecar-filename is used "
+    "and also to associate edited images to the original when importing adjustments exported with 'osxphotos export --export-aae'. "
     f"By default, osxphotos will look for edited photos using default 'osxphotos export' suffix of '{DEFAULT_EDITED_SUFFIX}' "
     "If your edited photos have a different suffix you can use '--edited-suffix' to specify the suffix. "
     "For example, with '--edited-suffix _bearbeiten', the import command will look for a file named 'photoname_bearbeiten.ext' "
     "and associated that with a sidecar named 'photoname.xmp', etc. "
-    "The --edited-suffix option is only valid when used with --sidecar or --sidecar-filename. "
     "Multi-value templates (see Templating System in the OSXPhotos docs) are not permitted with --edited-suffix.",
     type=TemplateString(),
 )
@@ -961,10 +961,30 @@ def import_main(
 
     - Photos are imported one at a time thus the "Imports" album in Photos will show
     a new import group for each photo imported. Exception: Live photos (photo+video pair),
-    burst photos, and RAW+JPEG pairs will be imported together so that Photos processes
-    them correctly.
+    burst photos, edited photos, and RAW+JPEG pairs will be imported together so that
+    Photos processes them correctly.
 
-    - If there's an edited version of a photo along with the original, they will be imported as separate files, not as a single asset.
+    Edited Photos:
+
+    The import command will attempt to preserve adjustments to photos so that the imported asset
+    preserves the non-destructive edits. For this to work, there must be an associated .AAE file
+    for the photo. For example, these can be written using 'osxphotos export --export-aae'. If the
+    original file is named IMG_1234.jpg, the .AAE file should be named IMG_1234.aae or IMG_1234.AAE.
+
+    The edited version of the file must also be named following one of these two conventions:
+
+        Original: IMG_1234.jpg, edited: IMG_E1234.jpg
+        Original: IMG_1234.jpg, original: IMG_1234_edited.jpg
+
+    In the first form, the original is named with 3 letters, followed by underscore, followed by
+    4 digits and the edited has the same name with "E" in front of the 4 digits.
+
+    In the second form, a suffix is appended to the original name, in this example, "_edited", which
+    is the default suffix used by 'osxphotos export'. If you have used a different suffix, you can specify
+    it using '--edited-suffix SUFFIX'.
+
+    If edited files do not contain an associated .AAE or if they do not match one of these two conventions,
+    they will be imported as separate assets.
     """
 
     kwargs = locals()
@@ -1118,12 +1138,6 @@ def import_cli(
     if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
         rich_echo_error(
             "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
-        )
-        raise click.Abort()
-
-    if edited_suffix and not (sidecar or sidecar_filename_template):
-        rich_echo_error(
-            "[error] --edited-suffix must be used with --sidecar or --sidecar-filename"
         )
         raise click.Abort()
 
@@ -1536,9 +1550,12 @@ def set_photo_metadata_from_exportdb(
     dry_run: bool,
 ):
     """Set photo's metadata by reading metadata from exportdb"""
-    if photoinfo := export_db_get_photoinfo_for_filepath(
-        exportdb_path=exportdb_path, filepath=filepath, exiftool=exiftool_path
-    ):
+    photoinfo = None
+    with suppress(ValueError):
+        photoinfo = export_db_get_photoinfo_for_filepath(
+            exportdb_path=exportdb_path, filepath=filepath, exiftool=exiftool_path
+        )
+    if photoinfo:
         metadata = metadata_from_photoinfo(photoinfo)
         verbose(
             f"Setting metadata and location from export database for [filename]{filepath.name}[/]"
@@ -3062,7 +3079,7 @@ def import_files(
                 if file_type & FILE_TYPE_HAS_NON_APPLE_AAE:
                     file_tuple = strip_non_apple_aae_file(file_tuple, verbose)
                 verbose(
-                    f"Processing {noun}: {', '.join([f'[filepath]{f.name}[/]' for f in file_tuple])}"
+                    f"Processing {noun}: {', '.join([f'[filename]{f.name}[/]' for f in file_tuple])}"
                 )
                 filepath = pathlib.Path(file_tuple[0]).resolve().absolute()
                 relative_filepath = get_relative_filepath(filepath, relative_to)
@@ -3126,12 +3143,12 @@ def import_files(
                 if duplicates := fq.possible_duplicates(filepath):
                     # duplicate of file already in Photos library
                     verbose(
-                        f"File [filepath]{filepath}[/] appears to be a duplicate of photos in the library: "
+                        f"File [filename]{filepath.name}[/] appears to be a duplicate of photos in the library: "
                         f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
                     )
 
                     if skip_dups:
-                        verbose(f"Skipping duplicate [filepath]{filepath}[/]")
+                        verbose(f"Skipping duplicate [filename]{filepath.name}[/]")
                         skipped_count += 1
                         report_record.imported = False
 
@@ -3171,14 +3188,15 @@ def import_files(
                     ) as temp_dir:
                         if file_type & FILE_TYPE_SHOULD_STAGE_FILES:
                             verbose(
-                                f"Staging files to {temp_dir} prior to import", level=2
+                                f"Staging files to [filepath]{temp_dir}[/] prior to import",
+                                level=2,
                             )
                             files_to_import = stage_files(file_tuple, temp_dir)
                         else:
                             files_to_import = file_tuple
                         if file_type & FILE_TYPE_AUTO_LIVE_PAIR:
                             verbose(
-                                f"Converting to live photo pair: [filepath]{files_to_import[0].name}[/], [filepath]{files_to_import[1].name}[/]"
+                                f"Converting to live photo pair: [filename]{files_to_import[0].name}[/], [filepath]{files_to_import[1].name}[/]"
                             )
                             try:
                                 makelive.make_live_photo(*files_to_import[:2])
@@ -3189,7 +3207,7 @@ def import_files(
                                 )
                         if file_type & FILE_TYPE_SHOULD_RENAME_EDITED:
                             verbose(
-                                f"Renaming edited group {', '.join(f'[filepath]{f}[/]' for f in files_to_import)}",
+                                f"Renaming edited group: {', '.join(f'[filename]{f.name}[/]' for f in files_to_import)}",
                                 level=2,
                             )
                             files_to_import = rename_edited_group(
@@ -3199,6 +3217,10 @@ def import_files(
                                 exiftool_path,
                                 sidecar,
                                 sidecar_filename_template,
+                            )
+                            verbose(
+                                f"Edited group renamed: {', '.join(f'[filename]{f.name}[/]' for f in files_to_import)}",
+                                level=2,
                             )
                         photo, error = import_photo_group(
                             files_to_import, dup_check, verbose
@@ -3590,8 +3612,6 @@ def stage_files(
     return tuple(staged)
 
 
-# ZZZ
-@watch
 def rename_edited_group(
     filepaths: list[pathlib.Path],
     edited_suffix: str | None,
@@ -3631,6 +3651,7 @@ def rename_edited_group(
     if edited_regex.match(str(edited_file)):
         return filepaths
 
+    # files are in a form that requires re-naming
     counter_value = _increment_image_counter()
 
     new_filepaths = []
@@ -3642,8 +3663,11 @@ def rename_edited_group(
         filepath.rename(new_filepath)
         new_filepaths.append(new_filepath)
 
+    # edited version needs to be renamed in format: IMG_0001_original_name.ext
+    original_stem = original_files[0].stem
+    edited_suffix = edited_file.suffix
     new_edited_filepath = pathlib.Path(
-        edited_file.parent, f"IMG_E{counter_value}_{edited_file.name}"
+        edited_file.parent, f"IMG_E{counter_value}_{original_stem}{edited_suffix}"
     )
     edited_file.rename(new_edited_filepath)
     new_filepaths.append(new_edited_filepath)

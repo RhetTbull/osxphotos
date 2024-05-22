@@ -9,6 +9,7 @@ import os
 import pathlib
 import sqlite3
 from typing import Any, Callable, Optional, Tuple, Union
+import tenacity
 
 import toml
 from rich import print
@@ -620,13 +621,18 @@ def export_db_get_photoinfo_for_filepath(
     if not exportdb_path:
         raise ValueError(f"Could not find export database at path: {exportdb_path}")
     exportdb = ExportDB(exportdb_path, last_export_dir)
-    if file_rec := exportdb.get_file_record(filepath):
-        if info_str := file_rec.photoinfo:
-            try:
-                info_dict = json.loads(info_str)
-            except Exception as e:
-                raise ValueError(f"Error loading PhotoInfo dict from database: {e}")
-            return photoinfo_from_dict(
-                info_dict, exiftool=str(exiftool) if exiftool else None
-            )
+    try:
+        # if the filepath is not in the export path, this will eventually fail with a RetryError
+        # as get_file_record keeps trying to read the database
+        if file_rec := exportdb.get_file_record(filepath):
+            if info_str := file_rec.photoinfo:
+                try:
+                    info_dict = json.loads(info_str)
+                except Exception as e:
+                    raise ValueError(f"Error loading PhotoInfo dict from database: {e}")
+                return photoinfo_from_dict(
+                    info_dict, exiftool=str(exiftool) if exiftool else None
+                )
+    except tenacity.RetryError:
+        return None
     return None
