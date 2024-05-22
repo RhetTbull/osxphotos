@@ -17,15 +17,11 @@ import sys
 import tempfile
 from collections.abc import Iterable
 from contextlib import suppress
-from functools import cache
 from textwrap import dedent
-from typing import TYPE_CHECKING, Callable, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, Tuple
 import re
 
-from cgmetadata.utils import is_video
 import click
-from cgmetadata import ImageMetadata
-from makelive.makelive import make_live_photo
 from rich.console import Console
 from rich.markdown import Markdown
 from strpdatetime import strpdatetime
@@ -37,7 +33,6 @@ from osxphotos.platform import assert_macos
 assert_macos()
 
 import makelive
-import osxmetadata
 from photoscript import Photo, PhotosLibrary
 
 import osxphotos.sqlite3_datetime as sqlite3_datetime
@@ -77,7 +72,6 @@ from osxphotos.image_file_utils import (
 )
 from osxphotos.metadata_reader import (
     MetaData,
-    get_sidecar_for_file,
     metadata_from_exiftool,
     metadata_from_photoinfo,
     metadata_from_sidecar,
@@ -86,7 +80,6 @@ from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photoinfo_file import (
     PhotoInfoFromFile,
     render_photo_template_from_filepath,
-    strip_edited_suffix,
 )
 from osxphotos.photosalbum import PhotosAlbumPhotoScript, PhotosAlbumPhotoScriptByPath
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
@@ -123,15 +116,28 @@ except FileNotFoundError:
     EXIFTOOL_PATH = None
 
 # bit mask for import groups, live, raw+jpeg, burst, and aae
-IS_IMPORT_GROUP = 1
-IS_LIVE_PAIR = 2
-IS_RAW_JPEG_PAIR = 4
-IS_BURST_GROUP = 8
-HAS_AAE_FILE = 16
-HAS_NON_APPLE_AAE = 32
-AUTO_LIVE_PAIR = 64
-SHOULD_STAGE_FILES = 128
-HAS_EDITED_FILE = 256
+FILE_TYPE_IS_IMPORT_GROUP = 1
+FILE_TYPE_IS_LIVE_PAIR = 2
+FILE_TYPE_IS_RAW_JPEG_PAIR = 4
+FILE_TYPE_IS_BURST_GROUP = 8
+FILE_TYPE_HAS_AAE_FILE = 16
+FILE_TYPE_HAS_NON_APPLE_AAE = 32
+FILE_TYPE_AUTO_LIVE_PAIR = 64
+FILE_TYPE_SHOULD_STAGE_FILES = 128
+FILE_TYPE_HAS_EDITED_FILE = 256
+FILE_TYPE_SHOULD_RENAME_EDITED = 512
+
+
+_global_image_counter = 1
+
+
+def _increment_image_counter() -> str:
+    global _global_image_counter
+    counter_str = f"{_global_image_counter:04d}"
+    _global_image_counter += 1
+    if _global_image_counter > 9999:
+        _global_image_counter = 1
+    return counter_str
 
 
 def echo(message, emoji=True, **kwargs):
@@ -1048,7 +1054,15 @@ def import_cli(
             signature=signature,
         )
 
-    files_to_import = group_files_to_import(files_or_dirs, auto_live)
+    files_to_import = group_files_to_import(
+        files_or_dirs,
+        auto_live,
+        edited_suffix,
+        relative_to,
+        exiftool_path,
+        sidecar,
+        sidecar_filename_template,
+    )
 
     # need to get the library path to initialize FingerprintQuery
     last_library = library or get_last_library_path()
@@ -1189,26 +1203,35 @@ def collect_filepaths_for_import_check(
     edited_suffix: str,
     relative_filepath: pathlib.Path | None,
     exiftool_path: str | None,
-    sidecar: pathlib.Path | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
 ) -> tuple[list[pathlib.Path], list[pathlib.Path]]:
     """Collect filepaths for import check"""
     filepaths = []
     # exclude .AAE files
-    file_type = file_type_for_import_group(tuple(filegroup), False)
+    file_type = file_type_for_import_group(
+        tuple(filegroup),
+        False,
+        edited_suffix,
+        relative_filepath,
+        exiftool_path,
+        sidecar,
+        sidecar_filename_template,
+    )
     filegroup = [f for f in filegroup if not f.name.lower().endswith(".aae")]
     if len(filegroup) == 1:
         filepaths.append(filegroup[0])
-    elif file_type & IS_BURST_GROUP:
+    elif file_type & FILE_TYPE_IS_BURST_GROUP:
         # include all burst images
         filepaths.extend(filegroup)
-    elif file_type & IS_LIVE_PAIR:
+    elif file_type & FILE_TYPE_IS_LIVE_PAIR:
         # include only the image
         filepaths.append(filegroup[0])
-    elif file_type & IS_RAW_JPEG_PAIR:
+    elif file_type & FILE_TYPE_IS_RAW_JPEG_PAIR:
         # Photos always makes the non-RAW image the original upon import
         # only include the non-RAW image
         filepaths.append(non_raw_file(filegroup))
-    elif file_type & HAS_EDITED_FILE and file_type & HAS_AAE_FILE:
+    elif file_type & FILE_TYPE_HAS_EDITED_FILE and file_type & FILE_TYPE_HAS_AAE_FILE:
         # exclude the edited version
         filepaths.extend(
             non_edited_files(
@@ -2530,7 +2553,13 @@ def collect_files_to_import(
 
 
 def group_files_to_import(
-    files: list[pathlib.Path], auto_live: bool
+    files: list[pathlib.Path],
+    auto_live: bool,
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
 ) -> list[tuple[pathlib.Path, ...]]:
     """Group files by live photo, burst UUID, raw+jpeg, etc."""
     # first collect all files by parent directory
@@ -2551,17 +2580,40 @@ def group_files_to_import(
         if bursts:
             grouped_files.extend(bursts)
         grouped_files, remainder = group_files_with_edited(grouped_files, remainder)
+        grouped_files, remainder = group_files_with_edited_suffix(
+            grouped_files,
+            remainder,
+            edited_suffix,
+            relative_filepath,
+            exiftool_path,
+            sidecar,
+            sidecar_filename_template,
+        )
         grouped_files.extend(tuple([r]) for r in remainder)
     files_to_import = []
     for group in grouped_files:
         files_to_import.append(sort_paths(group))
 
     # verify each group is a valid import type and if not, break in separate groups
-    return group_files_to_import_by_type(files_to_import, auto_live)
+    return group_files_to_import_by_type(
+        files_to_import,
+        auto_live,
+        edited_suffix,
+        relative_filepath,
+        exiftool_path,
+        sidecar,
+        sidecar_filename_template,
+    )
 
 
 def group_files_to_import_by_type(
-    files_to_import: list[tuple[pathlib.Path, ...]], auto_live: bool
+    files_to_import: list[tuple[pathlib.Path, ...]],
+    auto_live: bool,
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
 ) -> list[tuple[pathlib.Path, ...]]:
     """Given a list of import tuples created by group_files_to_import, validate the types and adjust the groups if needed
 
@@ -2571,10 +2623,30 @@ def group_files_to_import_by_type(
     """
     new_files_to_import = []
     for file_tuple in files_to_import:
-        if file_type := file_type_for_import_group(file_tuple, auto_live):
-            if file_type & HAS_EDITED_FILE and not file_type & HAS_AAE_FILE:
+        if file_type := file_type_for_import_group(
+            file_tuple,
+            auto_live,
+            edited_suffix,
+            relative_filepath,
+            exiftool_path,
+            sidecar,
+            sidecar_filename_template,
+        ):
+            if (
+                file_type & FILE_TYPE_HAS_EDITED_FILE
+                and not file_type & FILE_TYPE_HAS_AAE_FILE
+            ):
                 # edited versions can only be imported together with original + AAE
-                new_files_to_import.extend(split_edited_from_file_group(file_tuple))
+                new_files_to_import.extend(
+                    split_edited_from_file_group(
+                        file_tuple,
+                        relative_filepath,
+                        edited_suffix,
+                        exiftool_path,
+                        sidecar,
+                        sidecar_filename_template,
+                    )
+                )
             else:
                 new_files_to_import.append(file_tuple)
         else:
@@ -2584,28 +2656,70 @@ def group_files_to_import_by_type(
 
 
 def split_edited_from_file_group(
-    file_tuple: tuple[pathlib.Path, ...]
+    file_tuple: tuple[pathlib.Path, ...],
+    relative_filepath: pathlib.Path | None,
+    edited_suffix: str,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
 ) -> list[tuple[pathlib.Path, ...]]:
     """Split any edited files out from the file_tuple group.
 
     Args:
-        file_tuple: tuple of file paths to evaluate.
+        file_tuple (tuple[Path, ...]): Tuple of file paths to evaluate.
+        relative_filepath (Path | None): Relative file path for template generation.
+        edited_suffix (str): Suffix to denote edited files.
+        exiftool_path (str | None): Path to exiftool for metadata extraction.
+        sidecar (bool): Whether to use sidecar files.
+        sidecar_filename_template (str | None): Optional template to render sidecar filename
 
-    Returns a list of tuples that includes the original group with the edited file
-    split out as a individual tuple.
+    Returns:
+        list[tuple[Path, ...]]: List of tuples with the edited file as an individual tuple.
     """
-    new_files_group = []
-    new_file_list = []
-    for f in file_tuple:
-        if re.match(EDITED_RE, str(f)):
-            # add the edited file as it's own tuple
-            # ZZZ -- extend to add _edited suffix check
-            new_files_group.append((f,))
+    edited_files_group = []
+    original_file_list = []
+
+    for file in file_tuple:
+        if re.match(EDITED_RE, str(file)):
+            # Add the edited file as its own tuple
+            edited_files_group.append((file,))
         else:
-            new_file_list.append(f)
-    if new_file_list:
-        new_files_group.append(tuple(new_file_list))
-    return new_files_group
+            original_file_list.append(file)
+
+    possible_edited_files = []
+    for file in original_file_list:
+        sidecar_filename = (
+            get_sidecar_file_with_template(
+                filepath=file,
+                sidecar=sidecar,
+                sidecar_filename_template=sidecar_filename_template,
+                edited_suffix=edited_suffix,
+                exiftool_path=exiftool_path,
+            )
+            if sidecar
+            else None
+        )
+        edited_filename = edited_filename_from_template(
+            pathlib.Path(file),
+            relative_filepath,
+            edited_suffix,
+            exiftool_path,
+            sidecar_filename,
+        )
+        if edited_filename.is_file():
+            possible_edited_files.append(edited_filename)
+
+        original_file_list = [
+            file for file in original_file_list if file not in possible_edited_files
+        ]
+
+    for edited_file in possible_edited_files:
+        edited_files_group.append((edited_file,))
+
+    if original_file_list:
+        edited_files_group.append(tuple(original_file_list))
+
+    return edited_files_group
 
 
 def sort_paths(paths: tuple[pathlib.Path, ...]) -> tuple[pathlib.Path, ...]:
@@ -2700,36 +2814,127 @@ def group_files_with_edited(
     return new_files, remainder
 
 
+def group_files_with_edited_suffix(
+    files: list[tuple[pathlib.Path, ...]],
+    remainder: list[pathlib.Path],
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
+) -> tuple[list[tuple[pathlib.Path, ...]], list[pathlib.Path]]:
+    """Group files with edited suffix versions"""
+    new_files = []
+    remainder = remainder.copy()
+    for file_tuple in files:
+        new_file_list = list(file_tuple)
+        for f in file_tuple:
+            if edited_file := edited_suffix_file_in_list(
+                f,
+                remainder,
+                edited_suffix,
+                relative_filepath,
+                exiftool_path,
+                sidecar,
+                sidecar_filename_template,
+            ):
+                remainder.remove(edited_file)
+                new_file_list.append(edited_file)
+                break
+        new_files.append(tuple(new_file_list))
+
+    # Now look through remainder for any files that could be matches and weren't part of a previous tuple group
+    # This isn't efficient and could require N^2 comparisons
+    possible_edited_files = set()
+    for file in remainder:
+        sidecar_filename = get_sidecar_file_with_template(
+            filepath=file,
+            sidecar=sidecar,
+            sidecar_filename_template=sidecar_filename_template,
+            edited_suffix=edited_suffix,
+            exiftool_path=exiftool_path,
+        )
+        edited_filename = edited_filename_from_template(
+            file, relative_filepath, edited_suffix, exiftool_path, sidecar_filename
+        )
+        if edited_filename.is_file():
+            possible_edited_files.add(edited_filename)
+    possible_original_files = [r for r in remainder if r not in possible_edited_files]
+    for o in possible_original_files:
+        sidecar_filename = get_sidecar_file_with_template(
+            filepath=file,
+            sidecar=sidecar,
+            sidecar_filename_template=sidecar_filename_template,
+            edited_suffix=edited_suffix,
+            exiftool_path=exiftool_path,
+        )
+        e = edited_filename_from_template(
+            pathlib.Path(o),
+            relative_filepath,
+            edited_suffix,
+            exiftool_path,
+            sidecar_filename,
+        )
+        if e in possible_edited_files:
+            new_files.append((o, e))
+            remainder.remove(o)
+            remainder.remove(e)
+    return new_files, remainder
+
+
 def file_type_for_import_group(
-    file_tuple: tuple[pathlib.Path, ...], auto_live: bool
+    file_tuple: tuple[pathlib.Path, ...],
+    auto_live: bool,
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
 ) -> int:
     """Determine the file type for a given group of files; also strips non-Apple AAE files from file_tuple.
 
     Args:
         file_tuple: tuple of files to import
         auto_live: if True, find possible live pairs
+        edited_suffix: suffix template for edited files
+        relative_filepath: relative filepath for template generation
+        exiftool_path: path to exiftool for metadata extraction
+        sidecar: whether to use sidecar files
+        sidecar_filename_template: template for sidecar filename
 
     Returns: bit mask for the file type
     """
     file_type = 0
     if len(file_tuple) > 1:
         if burst_uuid_from_path(file_tuple[0]):
-            file_type |= IS_BURST_GROUP
+            file_type |= FILE_TYPE_IS_BURST_GROUP
         elif is_live_pair(*file_tuple[:2]):
-            file_type |= IS_LIVE_PAIR
+            file_type |= FILE_TYPE_IS_LIVE_PAIR
         elif is_raw_pair(*file_tuple[:2]):
-            file_type |= IS_RAW_JPEG_PAIR
+            file_type |= FILE_TYPE_IS_RAW_JPEG_PAIR
         elif auto_live and is_possible_live_pair(*file_tuple[:2]):
-            file_type |= AUTO_LIVE_PAIR
-            file_type |= SHOULD_STAGE_FILES
+            file_type |= FILE_TYPE_AUTO_LIVE_PAIR
+            file_type |= FILE_TYPE_SHOULD_STAGE_FILES
         if has_aae(file_tuple):
             if non_apple_aae_file := has_non_apple_aae(file_tuple):
-                file_type |= HAS_NON_APPLE_AAE
-                file_type |= SHOULD_STAGE_FILES
+                file_type |= FILE_TYPE_HAS_NON_APPLE_AAE
+                file_type |= FILE_TYPE_SHOULD_STAGE_FILES
             else:
-                file_type |= HAS_AAE_FILE
-        if has_original_and_edited(file_tuple):
-            file_type |= HAS_EDITED_FILE
+                file_type |= FILE_TYPE_HAS_AAE_FILE
+
+        if has_original_and_edited_suffix(
+            file_tuple,
+            edited_suffix,
+            relative_filepath,
+            exiftool_path,
+            sidecar,
+            sidecar_filename_template,
+        ):
+            file_type |= FILE_TYPE_HAS_EDITED_FILE
+            file_type |= FILE_TYPE_SHOULD_STAGE_FILES
+            file_type |= FILE_TYPE_SHOULD_RENAME_EDITED
+        elif has_original_and_edited(file_tuple):
+            file_type |= FILE_TYPE_HAS_EDITED_FILE
     return file_type
 
 
@@ -2742,19 +2947,19 @@ def noun_for_file_type(file_type: int) -> str:
     Returns: str with the noun / description of the file type
     """
     noun = "import group"
-    if file_type & IS_IMPORT_GROUP:
+    if file_type & FILE_TYPE_IS_IMPORT_GROUP:
         noun = "import group"
-    if file_type & IS_BURST_GROUP:
+    if file_type & FILE_TYPE_IS_BURST_GROUP:
         noun = "burst group"
-    if file_type & IS_LIVE_PAIR:
+    if file_type & FILE_TYPE_IS_LIVE_PAIR:
         noun = "live photo pair"
-    if file_type & IS_RAW_JPEG_PAIR:
+    if file_type & FILE_TYPE_IS_RAW_JPEG_PAIR:
         noun = "raw+jpeg pair"
-    if file_type & AUTO_LIVE_PAIR:
+    if file_type & FILE_TYPE_AUTO_LIVE_PAIR:
         noun = "live photo pair"
-    if file_type & HAS_AAE_FILE:
+    if file_type & FILE_TYPE_HAS_AAE_FILE:
         noun += " with .AAE file"
-    if file_type & HAS_EDITED_FILE:
+    if file_type & FILE_TYPE_HAS_EDITED_FILE:
         noun += " with edited version"
     return noun
 
@@ -2844,9 +3049,17 @@ def import_files(
         )
         try:
             for file_tuple in files:
-                file_type = file_type_for_import_group(file_tuple, auto_live)
+                file_type = file_type_for_import_group(
+                    file_tuple,
+                    auto_live,
+                    edited_suffix,
+                    relative_to,
+                    exiftool_path,
+                    sidecar,
+                    sidecar_filename_template,
+                )
                 noun = noun_for_file_type(file_type)
-                if file_type & HAS_NON_APPLE_AAE:
+                if file_type & FILE_TYPE_HAS_NON_APPLE_AAE:
                     file_tuple = strip_non_apple_aae_file(file_tuple, verbose)
                 verbose(
                     f"Processing {noun}: {', '.join([f'[filepath]{f.name}[/]' for f in file_tuple])}"
@@ -2875,20 +3088,25 @@ def import_files(
                 report_data[filepath] = ReportRecord(
                     filename=filepath.name,
                     filepath=filepath,
-                    burst=bool(file_type & IS_BURST_GROUP),
-                    burst_images=len(file_tuple) if file_type & IS_BURST_GROUP else 0,
-                    live_photo=bool(file_type & IS_LIVE_PAIR),
+                    burst=bool(file_type & FILE_TYPE_IS_BURST_GROUP),
+                    burst_images=(
+                        len(file_tuple) if file_type & FILE_TYPE_IS_BURST_GROUP else 0
+                    ),
+                    live_photo=bool(file_type & FILE_TYPE_IS_LIVE_PAIR),
                     live_video=(
                         str(file_tuple[1])
-                        if (file_type & IS_LIVE_PAIR) or (file_type & AUTO_LIVE_PAIR)
+                        if (file_type & FILE_TYPE_IS_LIVE_PAIR)
+                        or (file_type & FILE_TYPE_AUTO_LIVE_PAIR)
                         else ""
                     ),
-                    raw_pair=bool(file_type & IS_RAW_JPEG_PAIR),
+                    raw_pair=bool(file_type & FILE_TYPE_IS_RAW_JPEG_PAIR),
                     raw_image=(
-                        str(file_tuple[1]) if file_type & IS_RAW_JPEG_PAIR else ""
+                        str(file_tuple[1])
+                        if file_type & FILE_TYPE_IS_RAW_JPEG_PAIR
+                        else ""
                     ),
-                    aae_file=bool(file_type & HAS_AAE_FILE),
-                    skipped_aae_file=bool(file_type & HAS_NON_APPLE_AAE),
+                    aae_file=bool(file_type & FILE_TYPE_HAS_AAE_FILE),
+                    skipped_aae_file=bool(file_type & FILE_TYPE_HAS_NON_APPLE_AAE),
                 )
                 report_record = report_data[filepath]
 
@@ -2951,14 +3169,14 @@ def import_files(
                     with tempfile.TemporaryDirectory(
                         prefix="osxphotos_import_", ignore_cleanup_errors=True
                     ) as temp_dir:
-                        if file_type & SHOULD_STAGE_FILES:
+                        if file_type & FILE_TYPE_SHOULD_STAGE_FILES:
                             verbose(
                                 f"Staging files to {temp_dir} prior to import", level=2
                             )
                             files_to_import = stage_files(file_tuple, temp_dir)
                         else:
                             files_to_import = file_tuple
-                        if file_type & AUTO_LIVE_PAIR:
+                        if file_type & FILE_TYPE_AUTO_LIVE_PAIR:
                             verbose(
                                 f"Converting to live photo pair: [filepath]{files_to_import[0].name}[/], [filepath]{files_to_import[1].name}[/]"
                             )
@@ -2969,6 +3187,19 @@ def import_files(
                                     f"Error converting {files_to_import[0].name}, {files_to_import[1].name} to live photo pair: {e}",
                                     err=True,
                                 )
+                        if file_type & FILE_TYPE_SHOULD_RENAME_EDITED:
+                            verbose(
+                                f"Renaming edited group {', '.join(f'[filepath]{f}[/]' for f in files_to_import)}",
+                                level=2,
+                            )
+                            files_to_import = rename_edited_group(
+                                files_to_import,
+                                edited_suffix,
+                                relative_filepath,
+                                exiftool_path,
+                                sidecar,
+                                sidecar_filename_template,
+                            )
                         photo, error = import_photo_group(
                             files_to_import, dup_check, verbose
                         )
@@ -3055,7 +3286,7 @@ def check_imported_files(
     library: str,
     signature: str,
     sidecar: bool,
-    sidecar_template: str | None,
+    sidecar_filename_template: str | None,
     edited_suffix: str | None,
     exiftool_path: str | None,
     verbose: Callable[..., None],
@@ -3074,13 +3305,23 @@ def check_imported_files(
     )
     if signature:
         fq = SignatureQuery(
-            library, signature, sidecar, sidecar_template, edited_suffix, exiftool_path
+            library,
+            signature,
+            sidecar,
+            sidecar_filename_template,
+            edited_suffix,
+            exiftool_path,
         )
     else:
         fq = FingerprintQuery(library)
     for filegroup in files:
         filepaths, remainder = collect_filepaths_for_import_check(
-            filegroup, edited_suffix, relative_to, exiftool_path, sidecar
+            filegroup,
+            edited_suffix,
+            relative_to,
+            exiftool_path,
+            sidecar,
+            sidecar_filename_template,
         )
         for filepath in filepaths:
             group_str = (
@@ -3101,7 +3342,7 @@ def check_not_imported_files(
     library: str,
     signature: str,
     sidecar: bool,
-    sidecar_template: str | None,
+    sidecar_filename_template: str | None,
     edited_suffix: str | None,
     exiftool_path: str | None,
     verbose: Callable[..., None],
@@ -3120,13 +3361,23 @@ def check_not_imported_files(
     )
     if signature:
         fq = SignatureQuery(
-            library, signature, sidecar, sidecar_template, edited_suffix, exiftool_path
+            library,
+            signature,
+            sidecar,
+            sidecar_filename_template,
+            edited_suffix,
+            exiftool_path,
         )
     else:
         fq = FingerprintQuery(library)
     for filegroup in files:
         filepaths, remainder = collect_filepaths_for_import_check(
-            filegroup, edited_suffix, relative_to, exiftool_path, sidecar
+            filegroup,
+            edited_suffix,
+            relative_to,
+            exiftool_path,
+            sidecar,
+            sidecar_filename_template,
         )
         for filepath in filepaths:
             if fq.possible_duplicates(filepath):
@@ -3164,8 +3415,35 @@ def has_non_apple_aae(filepaths: Iterable[str | os.PathLike]) -> str | None:
     return None
 
 
-def has_original_and_edited(filepaths: Iterable[str | os.PathLike]) -> bool:
+def has_original_and_edited_suffix(
+    filepaths: Iterable[str | os.PathLike],
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
+) -> bool:
+    """Return True if any files in list appear to be an original and an edited version using _edited suffix"""
+
+    # first check the _edited form: e.g. "IMG_1234.jpeg" and "IMG_1234_edited.jpg"
+    if edited := edited_suffix_file(
+        filepaths,
+        edited_suffix,
+        relative_filepath,
+        exiftool_path,
+        sidecar,
+        sidecar_filename_template,
+    ):
+        return True
+    return False
+
+
+def has_original_and_edited(
+    filepaths: Iterable[str | os.PathLike],
+) -> bool:
     """Return True if any files in list appear to be an original and an edited version"""
+
+    # see if there's a match in form "IMG_1234.jpg" and "IMG_E1234.jpg"
     for filepath1 in filepaths:
         if not re.match(ORIGINAL_RE, str(filepath1)):
             continue
@@ -3200,7 +3478,77 @@ def non_edited_files(
         )
         for fp in filepaths
     )
-    return [fp for fp in filepaths if pathlib.Path(fp) not in edited_files]
+    non_edited = [fp for fp in filepaths if pathlib.Path(fp) not in edited_files]
+
+    # Also exclude any files that match EDITED_RE if a file in the filepaths matches ORIGINAL_RE
+    for filepath1 in filepaths:
+        if not re.match(ORIGINAL_RE, str(filepath1)):
+            continue
+        for filepath2 in filepaths:
+            if not re.match(EDITED_RE, str(filepath2)):
+                continue
+            if is_edited_version_of_file(filepath1, filepath2):
+                non_edited = [fp for fp in non_edited if fp != filepath2]
+    return non_edited
+
+
+def edited_suffix_file(
+    filepaths: Iterable[str | os.PathLike],
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
+) -> os.PathLike | None:
+    """Return the first file in filepaths that is the same as another file in filepaths but with edited_suffix otherwise None"""
+
+    edited_files = set()
+    for file in filepaths:
+        sidecar_filename = get_sidecar_file_with_template(
+            filepath=file,
+            sidecar=sidecar,
+            sidecar_filename_template=sidecar_filename_template,
+            edited_suffix=edited_suffix,
+            exiftool_path=exiftool_path,
+        )
+        edited_files.add(
+            edited_filename_from_template(
+                pathlib.Path(file),
+                relative_filepath,
+                edited_suffix,
+                exiftool_path,
+                sidecar_filename,
+            )
+        )
+    return next(
+        iter([fp for fp in filepaths if pathlib.Path(fp) in edited_files]), None
+    )
+
+
+def edited_suffix_file_in_list(
+    filepath: str | os.PathLike,
+    filepaths: Iterable[str | os.PathLike],
+    edited_suffix: str,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
+) -> os.PathLike | None:
+    """Return the first file in filepaths that is the same as filepath but with edited_suffix otherwise None"""
+
+    sidecar_filename = get_sidecar_file_with_template(
+        filepath=filepath,
+        sidecar=sidecar,
+        sidecar_filename_template=sidecar_filename_template,
+        edited_suffix=edited_suffix,
+        exiftool_path=exiftool_path,
+    )
+    edited_file = edited_filename_from_template(
+        filepath, relative_filepath, edited_suffix, exiftool_path, sidecar_filename
+    )
+    if edited_file in filepaths:
+        return edited_file
+    return None
 
 
 def edited_filename_from_template(
@@ -3224,7 +3572,10 @@ def edited_filename_from_template(
         raise ValueError(
             f"Could not get edited path for {filepath} from template {template}"
         )
-    return pathlib.Path(edited_name[0])
+    return (
+        pathlib.Path(filepath.parent)
+        / f"{filepath.stem}{edited_name[0]}{filepath.suffix}"
+    )
 
 
 def stage_files(
@@ -3237,3 +3588,64 @@ def stage_files(
         FileUtilMacOS.copy(str(source), dest)
         staged.append(pathlib.Path(dest))
     return tuple(staged)
+
+
+# ZZZ
+@watch
+def rename_edited_group(
+    filepaths: list[pathlib.Path],
+    edited_suffix: str | None,
+    relative_filepath: pathlib.Path | None,
+    exiftool_path: str | None,
+    sidecar: bool,
+    sidecar_filename_template: str | None,
+) -> list[pathlib.Path]:
+    edited_regex = re.compile(EDITED_RE)
+
+    edited_file = None
+    original_files = list(filepaths)
+
+    for filepath in filepaths:
+        if edited_regex.match(str(filepath)):
+            if edited_file:
+                raise ValueError("Multiple edited files matching the regex detected.")
+            edited_file = filepath
+            original_files.remove(edited_file)
+            break
+
+    if not edited_file:
+        # look for edited file using template
+        if edited_file := edited_suffix_file(
+            filepaths,
+            edited_suffix,
+            relative_filepath,
+            exiftool_path,
+            sidecar,
+            sidecar_filename_template,
+        ):
+            original_files.remove(edited_file)
+
+    if not edited_file:
+        return filepaths
+
+    if edited_regex.match(str(edited_file)):
+        return filepaths
+
+    counter_value = _increment_image_counter()
+
+    new_filepaths = []
+
+    for filepath in original_files:
+        new_filepath = pathlib.Path(
+            filepath.parent, f"IMG_{counter_value}_{filepath.name}"
+        )
+        filepath.rename(new_filepath)
+        new_filepaths.append(new_filepath)
+
+    new_edited_filepath = pathlib.Path(
+        edited_file.parent, f"IMG_E{counter_value}_{edited_file.name}"
+    )
+    edited_file.rename(new_edited_filepath)
+    new_filepaths.append(new_edited_filepath)
+
+    return new_filepaths
