@@ -10,6 +10,8 @@ from contextlib import suppress
 from functools import cache
 from typing import Any
 from weakref import ref
+import subprocess
+import logging
 
 from osxphotos.platform import assert_macos
 
@@ -19,6 +21,8 @@ import cgmetadata
 import makelive
 import osxmetadata
 
+logger = logging.getLogger("osxphotos")
+
 # regular expressions to match original + edited pairs
 # if a pair of photos matching these regular expressions is imported, Photos creates an edited photo on import
 ORIGINAL_RE = r"^(.*\/?)([A-Za-z]{3})_(\d{4}).*$"
@@ -27,8 +31,30 @@ EDITED_RE = r"^.*\/?[A-Za-z]{3}_E\d{4}.*$"
 
 def content_tree(filepath: str | os.PathLike) -> list[str]:
     """Return the content tree for a file"""
-    md = osxmetadata.OSXMetaData(str(filepath))
-    return md.get("kMDItemContentTypeTree") or []
+    try:
+        md = osxmetadata.OSXMetaData(str(filepath))
+        return md.get("kMDItemContentTypeTree") or []
+    except Exception as e:
+        # sometimes osxmetadata fails on certain external volumes, so try using mdls
+        return content_tree_mdls(filepath)
+
+
+def content_tree_mdls(filepath: str | os.PathLike) -> list[str]:
+    try:
+        result = subprocess.run(
+            ["mdls", "-raw", "-name", "kMDItemContentTypeTree", filepath],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        # Clean up the output by removing the enclosing parentheses and splitting into a list
+        output = result.stdout.strip()
+        output = output.strip("()%")
+        content_types = [item.strip().strip('"') for item in output.split(",")]
+        return content_types
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Error executing mdls command to get content tree: {e}")
+        return []
 
 
 @cache
