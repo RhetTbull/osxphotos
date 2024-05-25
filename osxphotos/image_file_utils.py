@@ -19,7 +19,9 @@ assert_macos()
 
 import cgmetadata
 import makelive
-import osxmetadata
+import objc
+from Foundation import NSURL, NSURLTypeIdentifierKey
+from UniformTypeIdentifiers import UTType, UTTypeImage, UTTypeMovie
 
 logger = logging.getLogger("osxphotos")
 
@@ -29,50 +31,37 @@ ORIGINAL_RE = r"^(.*\/?)([A-Za-z]{3})_(\d{4}).*$"
 EDITED_RE = r"^.*\/?[A-Za-z]{3}_E\d{4}.*$"
 
 
-def content_tree(filepath: str | os.PathLike) -> list[str]:
-    """Return the content tree for a file"""
-    try:
-        md = osxmetadata.OSXMetaData(str(filepath))
-        return md.get("kMDItemContentTypeTree") or []
-    except Exception as e:
-        # sometimes osxmetadata fails on certain external volumes, so try using mdls
-        return content_tree_mdls(filepath)
-
-
-def content_tree_mdls(filepath: str | os.PathLike) -> list[str]:
-    try:
-        result = subprocess.run(
-            ["mdls", "-raw", "-name", "kMDItemContentTypeTree", filepath],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        # Clean up the output by removing the enclosing parentheses and splitting into a list
-        output = result.stdout.strip()
-        output = output.strip("()%")
-        content_types = [item.strip().strip('"') for item in output.split(",")]
-        return content_types
-    except subprocess.CalledProcessError as e:
-        logger.warning(f"Error executing mdls command to get content tree: {e}")
-        return []
+def file_conforms_to_uti(path: str | os.PathLike, uti: str) -> bool:
+    file_url = NSURL.fileURLWithPath_(str(path))
+    resource_values, error = file_url.resourceValuesForKeys_error_(
+        [NSURLTypeIdentifierKey], None
+    )
+    if error:
+        raise ValueError(f"Error getting file type: {error}")
+    file_type = resource_values[NSURLTypeIdentifierKey]
+    file_uttype = UTType.typeWithIdentifier_(file_type)
+    uti_target = UTType.typeWithIdentifier_(uti)
+    if file_uttype.conformsToType_(uti_target):
+        return True
+    return False
 
 
 @cache
 def is_image_file(filepath: str | os.PathLike) -> bool:
     """Return True if filepath is an image file"""
-    return "public.image" in content_tree(filepath)
+    return file_conforms_to_uti(filepath, "public.image")
 
 
 @cache
 def is_video_file(filepath: str | os.PathLike) -> bool:
     """Return True if filepath is a video file"""
-    return "public.movie" in content_tree(filepath)
+    return file_conforms_to_uti(filepath, "public.movie")
 
 
 @cache
 def is_raw_image(filepath: str | os.PathLike) -> bool:
     """Return True if filepath is a RAW image"""
-    return "public.camera-raw-image" in content_tree(filepath)
+    return file_conforms_to_uti(filepath, "public.camera-raw-image")
 
 
 def is_raw_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> bool:
