@@ -3667,8 +3667,8 @@ def rename_edited_group(
     sidecar_filename_template: str | None,
 ) -> list[pathlib.Path]:
     """Rename files if necessary so originals+edited+aae are correctly imported by Photos"""
+    original_regex = re.compile(r"^(.*\/?)([A-Za-z]{3})_(\d{4})(.*)\.([a-zA-Z0-9]+)$")
     edited_regex = re.compile(r"^.*\/?(.*_E\d{4}).*$")
-    original_regex = re.compile(r"^(.*\/?)([A-Za-z]{3})_(\d{4}).*$")
 
     edited_file = None
     original_files = list(filepaths)
@@ -3701,10 +3701,11 @@ def rename_edited_group(
         # second format: ABC_1234.jpg, ABC_1234_suffix.jpg
         prefix = original_match.group(2)
         counter_value = original_match.group(3)
+        postfix = original_match.group(4)
         new_edited_filepath = pathlib.Path(
-            edited_file.parent, f"{prefix}_E{counter_value}{edited_file.suffix}"
+            edited_file.parent,
+            f"{prefix}_E{counter_value}{postfix}{edited_file.suffix}",
         )
-        print(f"{edited_file=} {new_edited_filepath=}")
         edited_file.rename(new_edited_filepath)
 
         return [filepath for filepath in original_files] + [new_edited_filepath]
