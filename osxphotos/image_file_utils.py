@@ -11,7 +11,6 @@ import subprocess
 from contextlib import suppress
 from functools import cache
 from typing import Any
-from weakref import ref
 
 from osxphotos.platform import assert_macos
 
