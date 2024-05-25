@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import pathlib
 import plistlib
 import re
+import subprocess
 from contextlib import suppress
 from functools import cache
 from typing import Any
 from weakref import ref
-import subprocess
-import logging
 
 from osxphotos.platform import assert_macos
 
