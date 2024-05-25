@@ -12,6 +12,7 @@ import logging
 import os
 import os.path
 import pathlib
+import re
 import sqlite3
 import sys
 import tempfile
@@ -19,12 +20,11 @@ from collections.abc import Iterable
 from contextlib import suppress
 from textwrap import dedent
 from typing import TYPE_CHECKING, Callable, Tuple
-import re
 
 import click
 from rich.console import Console
 from rich.markdown import Markdown
-from rich.progress import SpinnerColumn, Progress
+from rich.progress import Progress, SpinnerColumn
 from strpdatetime import strpdatetime
 
 from osxphotos.fileutil import FileUtilMacOS
@@ -59,17 +59,17 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db_utils import export_db_get_photoinfo_for_filepath
 from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.image_file_utils import (
+    EDITED_RE,
+    ORIGINAL_RE,
     burst_uuid_from_path,
     is_apple_photos_aae_file,
+    is_edited_version_of_file,
     is_image_file,
     is_live_pair,
     is_possible_live_pair,
     is_raw_image,
     is_raw_pair,
     is_video_file,
-    ORIGINAL_RE,
-    EDITED_RE,
-    is_edited_version_of_file,
 )
 from osxphotos.metadata_reader import (
     MetaData,
@@ -3666,7 +3666,9 @@ def rename_edited_group(
     sidecar: bool,
     sidecar_filename_template: str | None,
 ) -> list[pathlib.Path]:
-    edited_regex = re.compile(EDITED_RE)
+    """Rename files if necessary so originals+edited+aae are correctly imported by Photos"""
+    edited_regex = re.compile(r"^.*\/?(.*_E\d{4}).*$")
+    original_regex = re.compile(r"^(.*\/?)([A-Za-z]{3})_(\d{4}).*$")
 
     edited_file = None
     original_files = list(filepaths)
@@ -3694,28 +3696,40 @@ def rename_edited_group(
     if not edited_file:
         return filepaths
 
-    if edited_regex.match(str(edited_file)):
-        return filepaths
-
-    # files are in a form that requires re-naming
-    counter_value = _increment_image_counter()
-
-    new_filepaths = []
-
-    for filepath in original_files:
-        new_filepath = pathlib.Path(
-            filepath.parent, f"IMG_{counter_value}_{filepath.name}"
+    original_match = original_regex.match(str(original_files[0]))
+    if original_match:
+        # second format: ABC_1234.jpg, ABC_1234_suffix.jpg
+        prefix = original_match.group(2)
+        counter_value = original_match.group(3)
+        new_edited_filepath = pathlib.Path(
+            edited_file.parent, f"{prefix}_E{counter_value}{edited_file.suffix}"
         )
-        filepath.rename(new_filepath)
-        new_filepaths.append(new_filepath)
+        print(f"{edited_file=} {new_edited_filepath=}")
+        edited_file.rename(new_edited_filepath)
 
-    # edited version needs to be renamed in format: IMG_0001_original_name.ext
-    original_stem = original_files[0].stem
-    edited_suffix = edited_file.suffix
-    new_edited_filepath = pathlib.Path(
-        edited_file.parent, f"IMG_E{counter_value}_{original_stem}{edited_suffix}"
-    )
-    edited_file.rename(new_edited_filepath)
-    new_filepaths.append(new_edited_filepath)
+        return [filepath for filepath in original_files] + [new_edited_filepath]
+    else:
+        # third format: ImageName.jpg, ImageName_edited.jpg
+        prefix = "IMG"
+        counter_value = _increment_image_counter()
+        new_filepaths = []
 
-    return new_filepaths
+        for filepath in original_files:
+            new_filepath = pathlib.Path(
+                filepath.parent,
+                f"{prefix}_{counter_value}_{filepath.stem}{filepath.suffix}",
+            )
+            filepath.rename(new_filepath)
+            new_filepaths.append(new_filepath)
+
+        # edited version needs to be renamed in format: ABC_E0001_ImageName.jpg
+        original_stem = original_files[0].stem
+        edited_suffix = edited_file.suffix
+        new_edited_filepath = pathlib.Path(
+            edited_file.parent,
+            f"{prefix}_E{counter_value}_{original_stem}{edited_suffix}",
+        )
+        edited_file.rename(new_edited_filepath)
+        new_filepaths.append(new_edited_filepath)
+
+        return new_filepaths

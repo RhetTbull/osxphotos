@@ -1699,7 +1699,9 @@ def test_import_edited_renamed_with_aae(tmp_path):
     shutil.copy(source_image_edited, str(tmp_path))
     shutil.copy(source_image_aae, str(tmp_path))
 
-    test_image_original = str(tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_ORIGINAL).name)
+    test_image_original = str(
+        tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_ORIGINAL).name
+    )
     test_image_edited = str(tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_EDITED).name)
     test_image_aae = str(tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_AAE).name)
 
@@ -1721,3 +1723,40 @@ def test_import_edited_renamed_with_aae(tmp_path):
     photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
     assert photo.hasadjustments
     assert photo.original_filename == file_1
+
+
+@pytest.mark.test_import
+def test_import_edited_renamed_with_aae_2(tmp_path):
+    """Test import of image with edited file and AAE sidecar that needs to be renamed to be recognized by Photos as edited pair"""
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
+    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
+    source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
+
+    original_name = "IMG_1234.jpg"
+    edited_name = "IMG_1234_edited.jpg"
+    aae_name = "IMG_1234.aae"
+    shutil.copy(source_image_original, str(tmp_path / original_name))
+    shutil.copy(source_image_edited, str(tmp_path / edited_name))
+    shutil.copy(source_image_aae, str(tmp_path / aae_name))
+
+    test_image_original = str(tmp_path / original_name)
+    test_image_edited = str(tmp_path / edited_name)
+    test_image_aae = str(tmp_path / aae_name)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_original, test_image_edited, test_image_aae],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert "Processing import group with .AAE file with edited version" in result.output
+    import_data = parse_import_output(result.output)
+    uuid_1 = import_data[original_name]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert photo.hasadjustments
+    assert photo.original_filename == original_name
