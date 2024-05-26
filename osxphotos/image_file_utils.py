@@ -26,7 +26,7 @@ logger = logging.getLogger("osxphotos")
 
 # regular expressions to match original + edited pairs
 # if a pair of photos matching these regular expressions is imported, Photos creates an edited photo on import
-ORIGINAL_RE = r"^(.*\/?)([A-Za-z]{3})_(\d{4}).*$"
+ORIGINAL_RE = r"^(.*\/?)([A-Za-z]{3})_(\d{4})(.*)\.([a-zA-Z0-9]+)$"
 EDITED_RE = r"^.*\/?[A-Za-z]{3}_E\d{4}.*$"
 
 
@@ -125,6 +125,6 @@ def is_apple_photos_aae_file(filepath: str | os.PathLike) -> bool:
 def is_edited_version_of_file(file1: pathlib.Path, file2: pathlib.Path) -> bool:
     """Return True if file2 appears to be an edited version of file1"""
     if match := re.match(ORIGINAL_RE, str(file1)):
-        if re.match(f"{match.group(1)}{match.group(2)}_E{match.group(3)}", str(file2)):
+        if re.match(f"{match.group(1)}{match.group(2)}_E{match.group(3)}{match.group(4)}", str(file2)):
             return True
     return False
