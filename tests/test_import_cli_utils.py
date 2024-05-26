@@ -37,14 +37,14 @@ TEST_DATA = [
     ),
     (
         (
-            "GOP01234.JPG",
-            "GOP01234_edited.JPG",
-            "GOP01234.AAE",
+            "GOPR0123.JPG",
+            "GOPR0123_edited.JPG",
+            "GOPR0123.AAE",
         ),
         (
-            "IMG_0001_GOP01234.JPG",
-            "IMG_E0001_GOP01234.JPG",
-            "IMG_0001_GOP01234.AAE",
+            "IMG_0001_GOPR0123.JPG",
+            "IMG_E0001_GOPR0123.JPG",
+            "IMG_0001_GOPR0123.AAE",
         ),
     ),
     (
