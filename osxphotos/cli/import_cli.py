@@ -765,7 +765,7 @@ class ImportCommand(click.Command):
     is_flag=True,
     help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. "
     "Unlike --dup-check, this does not use Photos' built in duplicate checking feature and "
-    "does not display a dialog box for each duplicate found. See also --dup-check and --dup-albums.",
+    "does not display a dialog box for each duplicate found. See also --dup-check, --dup-albums, and --resume.",
 )
 @click.option(
     "--signature",
@@ -851,9 +851,10 @@ class ImportCommand(click.Command):
     "--resume",
     "-R",
     is_flag=True,
-    help="Resume previous import. "
+    help="Resume previous import, skipping any files which have already been imported. "
     f"Note: data on each imported file is kept in a database in '{get_data_dir() / IMPORT_DB}'. "
-    "This data can be used to resume a previous import if there was an error or the import was cancelled.",
+    "This data can be used to resume a previous import if there was an error or the import was cancelled. "
+    "Any files which were already imported will be skipped. See also --skip-dups.",
 )
 @click.option(
     "--append",
