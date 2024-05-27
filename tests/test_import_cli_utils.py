@@ -74,7 +74,7 @@ RENAME_TEST_DATA = [
 # Test images for group_files_to_import
 LIVE_PHOTO_ORIGINAL_PHOTO = "IMG_1853.HEIC"
 LIVE_PHOTO_EDITED_PHOTO = "IMG_E1853.heic"
-LIVE_PHOTO_ORIGNAL_VIDEO = "IMG_1853.MOV"
+LIVE_PHOTO_ORIGINAL_VIDEO = "IMG_1853.MOV"
 LIVE_PHOTO_EDITED_VIDEO = "IMG_E1853.mov"
 LIVE_PHOTO_AAE = "IMG_1853.AAE"
 NOT_LIVE_PHOTO = "not_live.jpeg"
@@ -98,7 +98,7 @@ BURST_IMAGES = [
 GROUP_FILES_EXPECTED = [
     (
         LIVE_PHOTO_ORIGINAL_PHOTO,
-        LIVE_PHOTO_ORIGNAL_VIDEO,
+        LIVE_PHOTO_ORIGINAL_VIDEO,
         LIVE_PHOTO_EDITED_PHOTO,
         LIVE_PHOTO_EDITED_VIDEO,
         LIVE_PHOTO_AAE,
@@ -204,7 +204,7 @@ def stage_photo_files(tmp_path: pathlib.Path) -> list[pathlib.Path]:
     staged.append(tmp_path / "IMG_1853.HEIC")
     copy_file(LIVE_PHOTO_EDITED_PHOTO, "IMG_E1853.heic")
     staged.append(tmp_path / "IMG_E1853.heic")
-    copy_file(LIVE_PHOTO_ORIGNAL_VIDEO, "IMG_1853.MOV")
+    copy_file(LIVE_PHOTO_ORIGINAL_VIDEO, "IMG_1853.MOV")
     staged.append(tmp_path / "IMG_1853.MOV")
     copy_file(LIVE_PHOTO_EDITED_VIDEO, "IMG_E1853.mov")
     staged.append(tmp_path / "IMG_E1853.mov")
@@ -216,7 +216,7 @@ def stage_photo_files(tmp_path: pathlib.Path) -> list[pathlib.Path]:
     staged.append(tmp_path / "LivePhoto.HEIC")
     copy_file(LIVE_PHOTO_EDITED_PHOTO, "LivePhoto_edited.HEIC")
     staged.append(tmp_path / "LivePhoto_edited.HEIC")
-    copy_file(LIVE_PHOTO_ORIGNAL_VIDEO, "LivePhoto.MOV")
+    copy_file(LIVE_PHOTO_ORIGINAL_VIDEO, "LivePhoto.MOV")
     staged.append(tmp_path / "LivePhoto.MOV")
     copy_file(LIVE_PHOTO_EDITED_VIDEO, "LivePhoto_edited.MOV")
     staged.append(tmp_path / "LivePhoto_edited.MOV")

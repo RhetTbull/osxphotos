@@ -57,6 +57,12 @@ TEST_AAE_VALID_AAE = "tests/test-images/wedding.AAE"
 TEST_IMAGE_WITH_EDIT_ORIGINAL = "tests/test-images/wedding.jpg"
 TEST_IMAGE_WITH_EDIT_EDITED = "tests/test-images/wedding_edited.jpg"
 TEST_IMAGE_WITH_EDIT_AAE = "tests/test-images/wedding.aae"
+TEST_LIVE_PHOTO_ORIGINAL_PHOTO = "IMG_1853.HEIC"
+TEST_LIVE_PHOTO_EDITED_PHOTO = "IMG_E1853.heic"
+TEST_LIVE_PHOTO_ORIGINAL_VIDEO = "IMG_1853.MOV"
+TEST_LIVE_PHOTO_EDITED_VIDEO = "IMG_E1853.mov"
+TEST_LIVE_PHOTO_AAE = "IMG_1853.AAE"
+TEST_LIVE_PHOTO_GLOB = "*1853*"
 
 TEST_DATA = {
     TEST_IMAGE_1: {
@@ -1754,6 +1760,51 @@ def test_import_edited_renamed_with_aae_2(tmp_path):
 
     assert "Processing import group with .AAE file with edited version" in result.output
     import_data = parse_import_output(result.output)
+    uuid_1 = import_data[original_name]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert photo.hasadjustments
+    assert photo.original_filename == original_name
+
+
+@pytest.mark.test_import
+def test_import_edited_live(tmp_path):
+    """Test import of edited live photo"""
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(
+        cwd, "tests/test-images", TEST_LIVE_PHOTO_ORIGINAL_PHOTO
+    )
+    source_image_edited = os.path.join(
+        cwd, "tests/test-images", TEST_LIVE_PHOTO_EDITED_PHOTO
+    )
+    source_video_original = os.path.join(
+        cwd, "tests/test-images", TEST_LIVE_PHOTO_ORIGINAL_VIDEO
+    )
+    source_video_edited = os.path.join(
+        cwd, "tests/test-images", TEST_LIVE_PHOTO_EDITED_VIDEO
+    )
+    source_image_aae = os.path.join(cwd, "tests/test-images", TEST_LIVE_PHOTO_AAE)
+
+    shutil.copy(source_image_original, str(tmp_path))
+    shutil.copy(source_image_edited, str(tmp_path))
+    shutil.copy(source_image_aae, str(tmp_path))
+    shutil.copy(source_video_original, str(tmp_path))
+    shutil.copy(source_video_edited, str(tmp_path))
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", str(tmp_path), "--glob", TEST_LIVE_PHOTO_GLOB],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert (
+        "Processing live photo pair with .AAE file with edited version" in result.output
+    )
+    import_data = parse_import_output(result.output)
+    original_name = TEST_LIVE_PHOTO_ORIGINAL_PHOTO
     uuid_1 = import_data[original_name]
 
     photosdb = PhotosDB()
