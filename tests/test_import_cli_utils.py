@@ -17,6 +17,9 @@ if is_macos:
         sort_paths,
     )
 
+# skip all tests if not macOS
+pytestmark = pytest.mark.skipif(not is_macos, reason="macOS specific test")
+
 ORIGINAL_FILE = "tests/test-images/wedding.JPG"
 EDITED_FILE = "tests/test-images/wedding_edited.JPG"
 AAE_FILE = "tests/test-images/wedding.AAE"
@@ -270,7 +273,6 @@ def convert_and_lowercase_tuples(tuples_list):
     return [tuple(str(element).lower() for element in tup) for tup in tuples_list]
 
 
-@pytest.mark.skipif(not is_macos, reason="macOS specific test")
 @pytest.mark.parametrize("test_input,expected", RENAME_TEST_DATA)
 def test_renamed_edited_group(tmp_path, test_input, expected):
     """Test rename_edited_group"""
@@ -294,8 +296,6 @@ def test_renamed_edited_group(tmp_path, test_input, expected):
     assert sorted(new_names) == sorted(expected)
 
 
-@pytest.mark.skipif(not is_macos, reason="macOS specific test")
-# @pytest.mark.parametrize("test_input,expected", GROUP_FILES_TEST_DATA)
 def test_group_files_to_import(tmp_path):
     """Test group_files_to_import"""
     staged_files = stage_photo_files(tmp_path)
