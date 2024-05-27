@@ -85,6 +85,7 @@ def is_possible_live_pair(
     filepath1: str | os.PathLike, filepath2: str | os.PathLike
 ) -> bool:
     """Return True if photos could be a live photo pair (even if files lack the Content ID metadata"""
+    print(f"{filepath1=}, {filepath2=}")
     if is_image_file(filepath1) and is_video_file(filepath2):
         return True
     return False
@@ -125,6 +126,9 @@ def is_apple_photos_aae_file(filepath: str | os.PathLike) -> bool:
 def is_edited_version_of_file(file1: pathlib.Path, file2: pathlib.Path) -> bool:
     """Return True if file2 appears to be an edited version of file1"""
     if match := re.match(ORIGINAL_RE, str(file1)):
-        if re.match(f"{match.group(1)}{match.group(2)}_E{match.group(3)}{match.group(4)}", str(file2)):
+        if re.match(
+            f"{match.group(1)}{match.group(2)}_E{match.group(3)}{match.group(4)}",
+            str(file2),
+        ):
             return True
     return False

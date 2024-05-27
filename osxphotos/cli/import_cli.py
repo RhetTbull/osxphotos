@@ -194,7 +194,7 @@ class ImportCommand(click.Command):
 
             Import files into Photos and add to album named for 4-digit year of file creation date:
 
-            `oxphotos import /Volumes/photos/*.jpg --album "{created.year}"`
+            `osxphotos import /Volumes/photos/*.jpg --album "{created.year}"`
 
             Import files into Photos and add to album named for month of the year in folder named
             for the 4-digit year of the file creation date:
@@ -2570,24 +2570,6 @@ def collect_files_to_import(
     verbose(f"Getting absolute path of each import file...", level=2)
     files_to_import = [pathlib.Path(f).absolute() for f in files_to_import]
 
-    # files_to_import = [
-    #     f for f in files_to_import if f.suffix.lower() not in [".json", ".xmp"]
-    # ]
-
-    # # strip osxphotos export db in case importing an osxphotos export
-    # files_to_import = [f for f in files_to_import if not f.name == OSXPHOTOS_EXPORT_DB]
-
-    # # strip any files starting with a .
-    # files_to_import = [f for f in files_to_import if not f.name.startswith(".")]
-
-    # keep only image files, video files, and .aae files
-    # files_to_import = [
-    #     f
-    #     for f in files_to_import
-    #     if is_image_file(f) or is_video_file(f) or f.suffix.lower() == ".aae"
-    # ]
-    # return files_to_import
-
     # keep only image files, video files, and .aae files
     filtered_file_list = []
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
@@ -2634,23 +2616,16 @@ def group_files_to_import(
             "Grouping files into import groups...", total=len(files_by_parent)
         )
         for parent, files in files_by_parent.items():
-            files_by_stem, remainder = group_files_by_stem(files)
-            if files_by_stem:
-                grouped_files.extend(files_by_stem)
-            bursts, remainder = group_files_by_burst_uuid(remainder)
-            if bursts:
-                grouped_files.extend(bursts)
-            grouped_files, remainder = group_files_with_edited(grouped_files, remainder)
-            grouped_files, remainder = group_files_with_edited_suffix(
-                grouped_files,
-                remainder,
+            grouped = group_files_by_stem(
+                files,
                 edited_suffix,
                 relative_filepath,
                 exiftool_path,
                 sidecar,
                 sidecar_filename_template,
+                auto_live,
             )
-            grouped_files.extend(tuple([r]) for r in remainder)
+            grouped_files.extend(grouped)
             progress.advance(task)
 
     files_to_import = []
@@ -2785,164 +2760,81 @@ def split_edited_from_file_group(
     return edited_files_group
 
 
-def sort_paths(paths: tuple[pathlib.Path, ...]) -> tuple[pathlib.Path, ...]:
-    """Seort paths into desired order for import so the key file is first"""
+def sort_paths(paths: Iterable[pathlib.Path]) -> tuple[pathlib.Path, ...]:
+    """Sort paths into desired order for import so the key file is first
 
-    def path_key(path: pathlib.Path) -> Tuple[int, int, str]:
+    Sort order is : alphabetically, length of filename (shorter first), MOV files, AAE file
+
+    For example:
+
+    ABC_1234.jpg, ABC_1234.mov, ABC_1234.aae, ABC_1234_edited.mov, IMG_1234.jpg
+
+    """
+
+    def path_key(path: pathlib.Path) -> tuple[str, int, int, int, int]:
         extension = path.suffix.lower()
-        is_aae = extension in [".aae"]
-        is_mov = extension in [".mov"]
-        return (is_aae, is_mov, str(path))
+        is_aae = extension == ".aae"
+        is_mov = extension == ".mov"
+        base_name = path.stem.split("_")[0]  # Extract the base name without suffixes
+        return (base_name, len(path.stem), is_aae, is_mov)
 
     return tuple(sorted(paths, key=path_key))
 
 
 def group_files_by_stem(
     files: list[pathlib.Path],
-) -> tuple[list[tuple[pathlib.Path, ...]], list[pathlib.Path]]:
-    """Group files by stem (filename without extension) and
-    return list of tuples of files with same stem and list of files without a match"""
-    file_dict = {}
-    for path in files:
-        stem = path.stem.lower()
-        if stem in file_dict:
-            file_dict[stem].append(path)
-        else:
-            file_dict[stem] = [path]
-
-    same_stem = []
-    remainder = []
-    for files in file_dict.values():
-        if len(files) > 1:
-            same_stem.append(tuple(files))
-        else:
-            remainder.extend(files)
-    return same_stem, remainder
-
-
-def group_files_by_burst_uuid(
-    files: list[pathlib.Path],
-) -> tuple[list[tuple[pathlib.Path, ...]], list[pathlib.Path]]:
-    """Group files by burst UUI"""
-    burst_dict = {}
-    remainder = []
-    for path in files:
-        if not is_image_file(path):
-            remainder.append(path)
-            continue
-        if burst_uuid := burst_uuid_from_path(path):
-            if burst_uuid in burst_dict:
-                burst_dict[burst_uuid].append(path)
-            else:
-                burst_dict[burst_uuid] = [path]
-        else:
-            remainder.append(path)
-
-    same_burst = []
-    for files in burst_dict.values():
-        if len(files) > 1:
-            same_burst.append(tuple(files))
-        else:
-            remainder.extend(files)
-
-    return same_burst, remainder
-
-
-def group_files_with_edited(
-    files: list[tuple[pathlib.Path, ...]], remainder: list[pathlib.Path]
-) -> tuple[list[tuple[pathlib.Path, ...]], list[pathlib.Path]]:
-    """Group files with edited versions"""
-    new_files = []
-    remainder = remainder.copy()
-    for file_tuple in files:
-        new_file_list = list(file_tuple)
-        for f in file_tuple:
-            for r in remainder:
-                if is_edited_version_of_file(f, r):
-                    remainder.remove(r)
-                    new_file_list.append(r)
-                    break
-        new_files.append(tuple(new_file_list))
-
-    # Now look through remainder for any files that could be matches and weren't part of a previous tuple group
-    # This isn't efficient and could require N^2 comparisons
-    possible_originals = [f for f in remainder if re.match(ORIGINAL_RE, str(f))]
-    possible_edited = [f for f in remainder if re.match(EDITED_RE, str(f))]
-    for o in possible_originals:
-        for e in possible_edited:
-            if is_edited_version_of_file(o, e):
-                new_files.append((o, e))
-                remainder.remove(o)
-                remainder.remove(e)
-    return new_files, remainder
-
-
-def group_files_with_edited_suffix(
-    files: list[tuple[pathlib.Path, ...]],
-    remainder: list[pathlib.Path],
     edited_suffix: str,
     relative_filepath: pathlib.Path | None,
     exiftool_path: str | None,
     sidecar: bool,
     sidecar_filename_template: str | None,
-) -> tuple[list[tuple[pathlib.Path, ...]], list[pathlib.Path]]:
-    """Group files with edited suffix versions"""
-    new_files = []
-    remainder = remainder.copy()
-    for file_tuple in files:
-        new_file_list = list(file_tuple)
-        for f in file_tuple:
-            if edited_file := edited_suffix_file_in_list(
-                f,
-                remainder,
-                edited_suffix,
-                relative_filepath,
-                exiftool_path,
-                sidecar,
-                sidecar_filename_template,
-            ):
-                remainder.remove(edited_file)
-                new_file_list.append(edited_file)
-                break
-        new_files.append(tuple(new_file_list))
+    auto_live: bool,
+) -> list[tuple[pathlib.Path, ...]]:
+    """Group files by stem (filename without extension) and
+    return list of tuples of files with same stem and list of files without a match"""
+    if not files:
+        return []
 
-    # Now look through remainder for any files that could be matches and weren't part of a previous tuple group
-    # This isn't efficient and could require N^2 comparisons
-    possible_edited_files = set()
-    for file in remainder:
-        sidecar_filename = get_sidecar_file_with_template(
-            filepath=file,
-            sidecar=sidecar,
-            sidecar_filename_template=sidecar_filename_template,
-            edited_suffix=edited_suffix,
-            exiftool_path=exiftool_path,
-        )
-        edited_filename = edited_filename_from_template(
-            file, relative_filepath, edited_suffix, exiftool_path, sidecar_filename
-        )
-        if edited_filename.is_file():
-            possible_edited_files.add(edited_filename)
-    possible_original_files = [r for r in remainder if r not in possible_edited_files]
-    for o in possible_original_files:
-        sidecar_filename = get_sidecar_file_with_template(
-            filepath=file,
-            sidecar=sidecar,
-            sidecar_filename_template=sidecar_filename_template,
-            edited_suffix=edited_suffix,
-            exiftool_path=exiftool_path,
-        )
-        e = edited_filename_from_template(
-            pathlib.Path(o),
-            relative_filepath,
+    # avoid foot-gun by verifying that all paths have the same parent
+    parent = files[0].parent
+    for f in files:
+        if f.parent != parent:
+            raise ValueError("All files must have the same parent path")
+
+    file_list = list(sort_paths(files))
+    grouped_files = []
+    i = 0
+    while i < len(file_list):
+        path1 = file_list[i]
+        stem1 = path1.stem.lower()
+        edited_stem1 = filepath_with_edited_suffix(
+            path1,
             edited_suffix,
+            relative_filepath,
             exiftool_path,
-            sidecar_filename,
-        )
-        if e in possible_edited_files:
-            new_files.append((o, e))
-            remainder.remove(o)
-            remainder.remove(e)
-    return new_files, remainder
+            sidecar,
+            sidecar_filename_template,
+        ).stem.lower()
+        burst_uuid1 = burst_uuid_from_path(path1)
+        group = [path1]
+        j = i + 1
+
+        while j < len(file_list):
+            path2 = file_list[j]
+            stem2 = path2.stem.lower()
+            if (
+                (stem1 == stem2)
+                or (is_edited_version_of_file(path1, path2))
+                or (path2.stem.lower() == edited_stem1)
+                or (burst_uuid1 and burst_uuid_from_path(path2) == burst_uuid1)
+            ):
+                group.append(path2)
+                file_list.pop(j)
+            else:
+                j = j + 1
+        file_list.pop(i)
+        grouped_files.append(tuple(group))
+    return grouped_files
 
 
 def file_type_for_import_group(
@@ -3242,7 +3134,7 @@ def import_files(
                             files_to_import = file_tuple
                         if file_type & FILE_TYPE_AUTO_LIVE_PAIR:
                             verbose(
-                                f"Converting to live photo pair: [filename]{files_to_import[0].name}[/], [filepath]{files_to_import[1].name}[/]"
+                                f"Converting to live photo pair: [filename]{files_to_import[0].name}[/], [filename]{files_to_import[1].name}[/]"
                             )
                             try:
                                 makelive.make_live_photo(*files_to_import[:2])
@@ -3493,7 +3385,6 @@ def has_original_and_edited_suffix(
 ) -> bool:
     """Return True if any files in list appear to be an original and an edited version using _edited suffix"""
 
-    # first check the _edited form: e.g. "IMG_1234.jpeg" and "IMG_1234_edited.jpg"
     if edited := edited_suffix_file(
         filepaths,
         edited_suffix,
@@ -3561,7 +3452,7 @@ def non_edited_files(
 
 
 def edited_suffix_file(
-    filepaths: Iterable[str | os.PathLike],
+    filepaths: Iterable[pathlib.Path],
     edited_suffix: str,
     relative_filepath: pathlib.Path | None,
     exiftool_path: str | None,
@@ -3586,23 +3477,20 @@ def edited_suffix_file(
                 edited_suffix,
                 exiftool_path,
                 sidecar_filename,
-            )
+            ).stem
         )
-    return next(
-        iter([fp for fp in filepaths if pathlib.Path(fp) in edited_files]), None
-    )
+    return next(iter([fp for fp in filepaths if fp.stem in edited_files]), None)
 
 
-def edited_suffix_file_in_list(
-    filepath: str | os.PathLike,
-    filepaths: Iterable[str | os.PathLike],
+def filepath_with_edited_suffix(
+    filepath: pathlib.Path,
     edited_suffix: str,
     relative_filepath: pathlib.Path | None,
     exiftool_path: str | None,
     sidecar: bool,
     sidecar_filename_template: str | None,
-) -> os.PathLike | None:
-    """Return the first file in filepaths that is the same as filepath but with edited_suffix otherwise None"""
+) -> os.PathLike:
+    """Return the file name of the filepath with the given edited_suffix rendered"""
 
     sidecar_filename = get_sidecar_file_with_template(
         filepath=filepath,
@@ -3614,9 +3502,7 @@ def edited_suffix_file_in_list(
     edited_file = edited_filename_from_template(
         filepath, relative_filepath, edited_suffix, exiftool_path, sidecar_filename
     )
-    if edited_file in filepaths:
-        return edited_file
-    return None
+    return edited_file
 
 
 def edited_filename_from_template(
