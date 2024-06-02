@@ -999,6 +999,7 @@ def import_main(
 
     The edited version of the file must also be named following one of these two conventions:
 
+        \b
         Original: IMG_1234.jpg, edited: IMG_E1234.jpg
         Original: IMG_1234.jpg, original: IMG_1234_edited.jpg
 
