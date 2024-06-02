@@ -32,6 +32,7 @@ from tests.conftest import get_os_version
 if is_macos:
     from photoscript import Photo
 
+    import osxphotos.cli.import_cli as import_cli
     from osxphotos.cli.export import export
     from osxphotos.cli.import_cli import import_main
 else:
@@ -130,6 +131,38 @@ PARSE_DATE_TEST_DATA = [
     ["test_parse_date.jpg", PARSE_DATE_DEFAULT_DATE],
 ]
 
+LIVE_PHOTO_FILENAMES = [
+    (
+        (
+            "IMG_1853.heic",
+            "IMG_1853.mov",
+            "IMG_E1853.heic",
+            "IMG_E1853.mov",
+            "IMG_1853.aae",
+        ),
+        "IMG_1853.heic",
+    ),
+    (
+        (
+            "IMG_1853.heic",
+            "IMG_1853.mov",
+            "IMG_1853_edited.heic",
+            "IMG_1853_edited.mov",
+            "IMG_1853.aae",
+        ),
+        "IMG_1853.heic",
+    ),
+    (
+        (
+            "LivePhoto.heic",
+            "LivePhoto.mov",
+            "LivePhoto_edited.heic",
+            "LivePhoto_edited.mov",
+            "LivePhoto.aae",
+        ),
+        "IMG_0001_LivePhoto.heic",
+    ),
+]
 
 # set timezone to avoid issues with comparing dates
 # @pytest.fixture(scope="module", autouse=True)
@@ -1769,8 +1802,14 @@ def test_import_edited_renamed_with_aae_2(tmp_path):
 
 
 @pytest.mark.test_import
-def test_import_edited_live(tmp_path):
+@pytest.mark.parametrize("filenames,imported_name", LIVE_PHOTO_FILENAMES)
+def test_import_edited_live(filenames, imported_name):
     """Test import of edited live photo"""
+
+    # reset the counter in import_cli
+    import_cli._global_image_counter = 1
+
+    live_photo, live_video, live_photo_edited, live_video_edited, live_aae = filenames
 
     cwd = os.getcwd()
     source_image_original = os.path.join(
@@ -1787,27 +1826,35 @@ def test_import_edited_live(tmp_path):
     )
     source_image_aae = os.path.join(cwd, "tests/test-images", TEST_LIVE_PHOTO_AAE)
 
-    shutil.copy(source_image_original, str(tmp_path))
-    shutil.copy(source_image_edited, str(tmp_path))
-    shutil.copy(source_image_aae, str(tmp_path))
-    shutil.copy(source_video_original, str(tmp_path))
-    shutil.copy(source_video_edited, str(tmp_path))
+    # need a clean temporary directory for each test so use TemporaryDirectory() rather than pytest's tmp_path
+    with TemporaryDirectory() as tmp_path:
+        live_photo = os.path.join(tmp_path, live_photo)
+        live_video = os.path.join(tmp_path, live_video)
+        live_photo_edited = os.path.join(tmp_path, live_photo_edited)
+        live_video_edited = os.path.join(tmp_path, live_video_edited)
+        live_aae = os.path.join(tmp_path, live_aae)
 
-    runner = CliRunner()
-    result = runner.invoke(
-        import_main,
-        ["--verbose", str(tmp_path), "--glob", TEST_LIVE_PHOTO_GLOB],
-        terminal_width=TERMINAL_WIDTH,
-    )
+        shutil.copy(source_image_original, live_photo)
+        shutil.copy(source_video_original, live_video)
+        shutil.copy(source_image_edited, live_photo_edited)
+        shutil.copy(source_video_edited, live_video_edited)
+        shutil.copy(source_image_aae, live_aae)
 
-    assert (
-        "Processing live photo pair with .AAE file with edited version" in result.output
-    )
-    import_data = parse_import_output(result.output)
-    original_name = TEST_LIVE_PHOTO_ORIGINAL_PHOTO
-    uuid_1 = import_data[original_name]
+        runner = CliRunner()
+        result = runner.invoke(
+            import_main,
+            ["--verbose", tmp_path],
+            terminal_width=TERMINAL_WIDTH,
+        )
 
-    photosdb = PhotosDB()
-    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
-    assert photo.hasadjustments
-    assert photo.original_filename == original_name
+        assert (
+            "Processing live photo pair with .AAE file with edited version"
+            in result.output
+        )
+        import_data = parse_import_output(result.output)
+        uuid_1 = import_data[imported_name]
+
+        photosdb = PhotosDB()
+        photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+        assert photo.hasadjustments
+        assert photo.original_filename == imported_name

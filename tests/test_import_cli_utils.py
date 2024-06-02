@@ -71,6 +71,57 @@ RENAME_TEST_DATA = [
     ),
 ]
 
+RENAME_TEST_DATA_LIVE_EDITED = [
+    (
+        (
+            "IMG_1853.heic",
+            "IMG_1853.mov",
+            "IMG_1853_edited.heic",
+            "IMG_1853_edited.mov",
+            "IMG_1853.aae",
+        ),
+        (
+            "IMG_1853.heic",
+            "IMG_1853.mov",
+            "IMG_E1853.heic",
+            "IMG_E1853.mov",
+            "IMG_1853.aae",
+        ),
+    ),
+    (
+        (
+            "IMG_1853.heic",
+            "IMG_1853.mov",
+            "IMG_E1853.heic",
+            "IMG_E1853.mov",
+            "IMG_1853.aae",
+        ),
+        (
+            "IMG_1853.heic",
+            "IMG_1853.mov",
+            "IMG_E1853.heic",
+            "IMG_E1853.mov",
+            "IMG_1853.aae",
+        ),
+    ),
+    (
+        (
+            "LiveImage.heic",
+            "LiveImage.mov",
+            "LiveImage_edited.heic",
+            "LiveImage_edited.mov",
+            "LiveImage.aae",
+        ),
+        (
+            "IMG_0001_LiveImage.heic",
+            "IMG_0001_LiveImage.mov",
+            "IMG_E0001_LiveImage.heic",
+            "IMG_E0001_LiveImage.mov",
+            "IMG_0001_LiveImage.aae",
+        ),
+    ),
+]
+
 # Test images for group_files_to_import
 LIVE_PHOTO_ORIGINAL_PHOTO = "IMG_1853.HEIC"
 LIVE_PHOTO_EDITED_PHOTO = "IMG_E1853.heic"
@@ -291,6 +342,51 @@ def test_renamed_edited_group(tmp_path, test_input, expected):
 
     # run rename_edited_group
     original_group = (original_file, edited_file, aae_file)
+    new_group = rename_edited_group(original_group, "_edited", None, None, False, None)
+    new_names = tuple(new.name for new in new_group)
+    assert sorted(new_names) == sorted(expected)
+
+
+@pytest.mark.parametrize("test_input,expected", RENAME_TEST_DATA_LIVE_EDITED)
+def test_renamed_edited_group_live_edited(tmp_path, test_input, expected):
+    """Test rename_edited_group"""
+
+    cwd = pathlib.Path().cwd()
+
+    def copy_file(src, dest):
+        shutil.copy(str(cwd / "tests/test-images" / src), str(tmp_path / dest))
+
+    # reset the counter in import_cli
+    import_cli._global_image_counter = 1
+
+    # copy test files to tmp_path with the test_input names
+    (
+        original_file_photo,
+        original_file_video,
+        edited_file_photo,
+        edited_file_video,
+        aae_file,
+    ) = test_input
+    original_file_photo = tmp_path / original_file_photo
+    original_file_video = tmp_path / original_file_video
+    edited_file_photo = tmp_path / edited_file_photo
+    edited_file_video = tmp_path / edited_file_video
+    aae_file = tmp_path / aae_file
+
+    copy_file(LIVE_PHOTO_ORIGINAL_PHOTO, original_file_photo)
+    copy_file(LIVE_PHOTO_ORIGINAL_VIDEO, original_file_video)
+    copy_file(LIVE_PHOTO_EDITED_PHOTO, edited_file_photo)
+    copy_file(LIVE_PHOTO_EDITED_VIDEO, edited_file_video)
+    copy_file(LIVE_PHOTO_AAE, aae_file)
+
+    # run rename_edited_group
+    original_group = (
+        original_file_photo,
+        original_file_video,
+        edited_file_photo,
+        edited_file_video,
+        aae_file,
+    )
     new_group = rename_edited_group(original_group, "_edited", None, None, False, None)
     new_names = tuple(new.name for new in new_group)
     assert sorted(new_names) == sorted(expected)

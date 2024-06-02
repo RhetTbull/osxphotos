@@ -2582,7 +2582,11 @@ def collect_files_to_import(
             if is_image_file(f) or is_video_file(f) or f.suffix.lower() == ".aae":
                 filtered_file_list.append(f)
             progress.advance(task)
-    return filtered_file_list
+
+    # there may be duplicates if user passed both a directory and files in that directory
+    # e.g. /Volumes/import /Volumes/import/IMG_1234.*
+    # so strip duplicates before returning the list
+    return list(set(filtered_file_list))
 
 
 def group_files_to_import(
@@ -3386,7 +3390,7 @@ def has_original_and_edited_suffix(
 ) -> bool:
     """Return True if any files in list appear to be an original and an edited version using _edited suffix"""
 
-    if edited := edited_suffix_file(
+    if edited := edited_suffix_files(
         filepaths,
         edited_suffix,
         relative_filepath,
@@ -3452,15 +3456,15 @@ def non_edited_files(
     return non_edited
 
 
-def edited_suffix_file(
+def edited_suffix_files(
     filepaths: Iterable[pathlib.Path],
     edited_suffix: str,
     relative_filepath: pathlib.Path | None,
     exiftool_path: str | None,
     sidecar: bool,
     sidecar_filename_template: str | None,
-) -> os.PathLike | None:
-    """Return the first file in filepaths that is the same as another file in filepaths but with edited_suffix otherwise None"""
+) -> list[os.PathLike]:
+    """Return filepaths in filepaths that are the same as another file in filepaths but with edited_suffix otherwise empty list"""
 
     edited_files = set()
     for file in filepaths:
@@ -3480,7 +3484,7 @@ def edited_suffix_file(
                 sidecar_filename,
             ).stem
         )
-    return next(iter([fp for fp in filepaths if fp.stem in edited_files]), None)
+    return [fp for fp in filepaths if fp.stem in edited_files]
 
 
 def filepath_with_edited_suffix(
@@ -3557,20 +3561,17 @@ def rename_edited_group(
     original_regex = re.compile(r"^(.*\/?)([A-Za-z]{3})_(\d{4})(.*)\.([a-zA-Z0-9]+)$")
     edited_regex = re.compile(r"^.*\/?(.*_E\d{4}).*$")
 
-    edited_file = None
+    edited_files = []
     original_files = list(filepaths)
 
     for filepath in filepaths:
         if edited_regex.match(str(filepath)):
-            if edited_file:
-                raise ValueError("Multiple edited files matching the regex detected.")
-            edited_file = filepath
-            original_files.remove(edited_file)
-            break
+            edited_files.append(filepath)
+            original_files.remove(filepath)
 
-    if not edited_file:
+    if not edited_files:
         # look for edited file using template
-        if edited_file := edited_suffix_file(
+        if edited_files := edited_suffix_files(
             filepaths,
             edited_suffix,
             relative_filepath,
@@ -3578,24 +3579,28 @@ def rename_edited_group(
             sidecar,
             sidecar_filename_template,
         ):
-            original_files.remove(edited_file)
+            for e in edited_files:
+                original_files.remove(e)
 
-    if not edited_file:
+    if not edited_files:
         return filepaths
 
     original_match = original_regex.match(str(original_files[0]))
     if original_match:
         # second format: ABC_1234.jpg, ABC_1234_suffix.jpg
+        new_edited_files = []
         prefix = original_match.group(2)
         counter_value = original_match.group(3)
         postfix = original_match.group(4)
-        new_edited_filepath = pathlib.Path(
-            edited_file.parent,
-            f"{prefix}_E{counter_value}{postfix}{edited_file.suffix}",
-        )
-        edited_file.rename(new_edited_filepath)
+        for edited_file in edited_files:
+            new_edited_filepath = pathlib.Path(
+                edited_file.parent,
+                f"{prefix}_E{counter_value}{postfix}{edited_file.suffix}",
+            )
+            edited_file.rename(new_edited_filepath)
+            new_edited_files.append(new_edited_filepath)
 
-        return [filepath for filepath in original_files] + [new_edited_filepath]
+        return original_files + new_edited_files
     else:
         # third format: ImageName.jpg, ImageName_edited.jpg
         prefix = "IMG"
@@ -3612,12 +3617,13 @@ def rename_edited_group(
 
         # edited version needs to be renamed in format: ABC_E0001_ImageName.jpg
         original_stem = original_files[0].stem
-        edited_suffix = edited_file.suffix
-        new_edited_filepath = pathlib.Path(
-            edited_file.parent,
-            f"{prefix}_E{counter_value}_{original_stem}{edited_suffix}",
-        )
-        edited_file.rename(new_edited_filepath)
-        new_filepaths.append(new_edited_filepath)
+        for edited_file in edited_files:
+            edited_suffix = edited_file.suffix
+            new_edited_filepath = pathlib.Path(
+                edited_file.parent,
+                f"{prefix}_E{counter_value}_{original_stem}{edited_suffix}",
+            )
+            edited_file.rename(new_edited_filepath)
+            new_filepaths.append(new_edited_filepath)
 
         return new_filepaths
