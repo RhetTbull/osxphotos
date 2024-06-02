@@ -1729,6 +1729,9 @@ def test_import_edited_without_aae(tmp_path):
 def test_import_edited_renamed_with_aae(tmp_path):
     """Test import of image with edited file and AAE sidecar that needs to be renamed to be recognized by Photos as edited pair"""
 
+    # reset the counter in import_cli
+    import_cli._global_image_counter = 1
+
     cwd = os.getcwd()
     source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
     source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
