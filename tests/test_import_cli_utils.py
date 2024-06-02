@@ -24,6 +24,8 @@ ORIGINAL_FILE = "tests/test-images/wedding.JPG"
 EDITED_FILE = "tests/test-images/wedding_edited.JPG"
 AAE_FILE = "tests/test-images/wedding.AAE"
 
+# test data for rename_edited_group
+# first tuple is input, second tuple is expected output
 RENAME_TEST_DATA = [
     (
         ("IMG_1234.JPG", "IMG_E1234.JPG", "IMG_1234.AAE"),
@@ -71,6 +73,8 @@ RENAME_TEST_DATA = [
     ),
 ]
 
+# test data for rename_edited_group with live photos
+# first tuple is input, second tuple is expected output
 RENAME_TEST_DATA_LIVE_EDITED = [
     (
         (
@@ -146,6 +150,7 @@ BURST_IMAGES = [
     "IMG_8208.JPG",
 ]
 
+# test data for group_files_to_import
 GROUP_FILES_EXPECTED = [
     (
         LIVE_PHOTO_ORIGINAL_PHOTO,
@@ -174,6 +179,8 @@ GROUP_FILES_EXPECTED = [
     tuple(BURST_IMAGES),
 ]
 
+# test data for sort_paths
+# first list is input, second tuple is expected output
 SORT_PATHS_DATA = [
     (
         [

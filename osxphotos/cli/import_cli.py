@@ -56,7 +56,10 @@ from osxphotos.datetime_utils import (
     datetime_utc_to_local,
 )
 from osxphotos.exiftool import get_exiftool_path
-from osxphotos.export_db_utils import export_db_get_photoinfo_for_filepath
+from osxphotos.export_db_utils import (
+    export_db_get_photoinfo_for_filepath,
+    export_db_migrate_photos_library,
+)
 from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.image_file_utils import (
     EDITED_RE,
@@ -735,9 +738,29 @@ class ImportCommand(click.Command):
     "--exportdb",
     "-B",
     metavar="EXPORTDB_PATH",
+    type=click.Path(exists=True),
     help="Use an osxphotos export database (created by 'osxphotos export') "
     "to set metadata (title, description, keywords, location, album). "
-    "See also --sidecar, --sidecar-filename, --exiftool.",
+    "See also --exportdir, --sidecar, --sidecar-filename, --exiftool.",
+)
+@click.option(
+    "--exportdir",
+    "-I",
+    metavar="EXPORT_DIR_PATH",
+    type=click.Path(exists=True),
+    help="Specify the path to the export directory when using --exportdb "
+    "to import metadata from an osxphotos export database created by 'osxphotos export'. "
+    "This is only needed if you have moved the exported files to a new location since the export. "
+    "If you have moved the exported files, osxphotos will need to know the path to the top-level of "
+    "the export directory in order to use --exportdb to read the metadata for the files. "
+    "For example, if you used 'osxphotos export' to export photos to '/Volumes/Exported' "
+    "but you subsequently moved the files to '/Volumes/PhotosBackup' you would use: "
+    "'--exportdb /Volumes/PhotosBackup --exportdir /Volumes/PhotosBackup' to import the metadata "
+    "from the export database. This is needed because osxphotos needs to know both the path to the "
+    "export database and the root folder of the exported files in order to match the files to the "
+    "correct entry in the export database and the database may be in a different location than the "
+    "exported files. "
+    "See also --exportdb.",
 )
 @click.option(
     "--relative-to",
@@ -929,6 +952,7 @@ def import_main(
     exiftool: bool,
     exiftool_path: str | None,
     exportdb: str | None,
+    exportdir: str | None,
     favorite_rating: int | None,
     files_or_dirs: tuple[str, ...],
     glob: tuple[str, ...],
@@ -988,7 +1012,6 @@ def import_main(
     If edited files do not contain an associated .AAE or if they do not match one of these two conventions,
     they will be imported as separate assets.
     """
-
     kwargs = locals()
     kwargs.pop("ctx")
     kwargs.pop("cli_obj")
@@ -1012,6 +1035,7 @@ def import_cli(
     exiftool: bool = False,
     exiftool_path: str | None = None,
     exportdb: str | None = None,
+    exportdir: str | None = None,
     favorite_rating: int | None = None,
     files_or_dirs: tuple[str, ...] = (),
     glob: tuple[str, ...] = (),
@@ -1176,6 +1200,7 @@ def import_cli(
         exiftool=exiftool,
         exiftool_path=exiftool_path,
         exportdb=exportdb,
+        exportdir=exportdir,
         favorite_rating=favorite_rating,
         sidecar=sidecar,
         sidecar_ignore_date=sidecar_ignore_date,
@@ -1364,6 +1389,7 @@ def add_photo_to_albums_from_exportdb(
     photo: Photo | None,
     filepath: pathlib.Path,
     exportdb_path: str,
+    exportdir_path: str | None,
     exiftool_path: str,
     verbose: Callable[..., None],
     dry_run: bool,
@@ -1371,7 +1397,10 @@ def add_photo_to_albums_from_exportdb(
     """Add photo to one or more albums from data found in export database"""
     with suppress(ValueError):
         if photoinfo := export_db_get_photoinfo_for_filepath(
-            exportdb_path=exportdb_path, filepath=filepath, exiftool=exiftool_path
+            exportdb_path=exportdb_path,
+            filepath=filepath,
+            exiftool=exiftool_path,
+            exportdir_path=exportdir_path,
         ):
             if photoinfo.album_info:
                 verbose(
@@ -1444,6 +1473,7 @@ def add_duplicate_to_albums_from_exportdb(
     duplicates: list[tuple[str, datetime.datetime, str]],
     filepath: pathlib.Path,
     exportdb_path: str,
+    exportdir_path: str | None,
     exiftool_path: str,
     verbose: Callable[..., None],
     dry_run: bool,
@@ -1453,6 +1483,7 @@ def add_duplicate_to_albums_from_exportdb(
     duplicates: list of tuples of (uuid, date, filename) for duplicates as returned by FingerprintQuery.possible_duplicates
     filepath: path to file to import
     exportdb_path: path to the export db
+    exportdir_path: path to the export directory if it cannot be determined from exportdb_path (e.g. the export was moved)
     exiftool_path: path to exiftool
     verbose: verbose function
     dry_run: dry run
@@ -1479,6 +1510,7 @@ def add_duplicate_to_albums_from_exportdb(
         dup_photo,
         filepath,
         exportdb_path,
+        exportdir_path,
         exiftool_path,
         verbose,
         dry_run,
@@ -1551,6 +1583,7 @@ def set_photo_metadata_from_exportdb(
     photo: Photo | None,
     filepath: pathlib.Path,
     exportdb_path: pathlib.Path,
+    exportdir_path: pathlib.Path | None,
     exiftool_path: str,
     merge_keywords: bool,
     verbose: Callable[..., None],
@@ -1560,7 +1593,10 @@ def set_photo_metadata_from_exportdb(
     photoinfo = None
     with suppress(ValueError):
         photoinfo = export_db_get_photoinfo_for_filepath(
-            exportdb_path=exportdb_path, filepath=filepath, exiftool=exiftool_path
+            exportdb_path=exportdb_path,
+            filepath=filepath,
+            exiftool=exiftool_path,
+            exportdir_path=exportdir_path,
         )
     if photoinfo:
         metadata = metadata_from_photoinfo(photoinfo)
@@ -1893,6 +1929,7 @@ def apply_photo_metadata(
     exiftool: bool,
     exiftool_path: str,
     exportdb: pathlib.Path | None,
+    exportdir: pathlib.Path | None,
     favorite_rating: bool,
     filepath: pathlib.Path,
     keyword: str | None,
@@ -1920,6 +1957,7 @@ def apply_photo_metadata(
             photo,
             filepath,
             exportdb,
+            exportdir,
             exiftool_path,
             merge_keywords,
             verbose,
@@ -2020,6 +2058,7 @@ def apply_photo_albums(
     exiftool: bool,
     exiftool_path: str | None,
     exportdb: str | None,
+    exportdir: str | None,
     filepath: pathlib.Path,
     photo: Photo,
     relative_filepath: pathlib.Path,
@@ -2045,7 +2084,7 @@ def apply_photo_albums(
     if exportdb:
         # add photo to any albums defined in the exportdb data
         report_record.albums += add_photo_to_albums_from_exportdb(
-            photo, filepath, exportdb, exiftool_path, verbose, dry_run
+            photo, filepath, exportdb, exportdir, exiftool_path, verbose, dry_run
         )
 
 
@@ -2954,6 +2993,7 @@ def import_files(
     exiftool: bool,
     exiftool_path: str,
     exportdb: str | None,
+    exportdir: str | None,
     favorite_rating: int | None,
     sidecar: bool,
     sidecar_ignore_date: bool,
@@ -3117,6 +3157,7 @@ def import_files(
                                     duplicates,
                                     filepath,
                                     exportdb,
+                                    exportdir,
                                     exiftool_path,
                                     verbose,
                                     dry_run,
@@ -3192,6 +3233,7 @@ def import_files(
                     exiftool=exiftool,
                     exiftool_path=exiftool_path,
                     exportdb=exportdb,
+                    exportdir=exportdir,
                     favorite_rating=favorite_rating,
                     filepath=filepath,
                     keyword=keyword,
@@ -3213,6 +3255,7 @@ def import_files(
                     exiftool=exiftool,
                     exiftool_path=exiftool_path,
                     exportdb=exportdb,
+                    exportdir=exportdir,
                     filepath=filepath,
                     photo=photo,
                     relative_filepath=relative_filepath,

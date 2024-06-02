@@ -605,17 +605,19 @@ def export_db_get_photoinfo_for_filepath(
     exportdb_path: str | os.PathLike,
     filepath: str | os.PathLike,
     exiftool: str | os.PathLike | None = None,
+    exportdir_path: str | os.PathLike | None = None,
 ) -> PhotoInfoFromDict | None:
     """Return photoinfo object for a given filepath
 
     Args:
         exportdb: path to the export database
+        exportdir: path to the export directory or None
         filepath: absolute path to the file to retrieve info for from the database
         exiftool: optional path to exiftool to be passed to the PhotoInfoFromDict object
 
     Returns: PhotoInfoFromDict | None
     """
-    last_export_dir = export_db_get_last_export_dir(exportdb_path)
+    last_export_dir = exportdir_path or export_db_get_last_export_dir(exportdb_path)
     if not pathlib.Path(exportdb_path).is_file():
         exportdb_path = find_export_db_for_filepath(exportdb_path)
     if not exportdb_path:

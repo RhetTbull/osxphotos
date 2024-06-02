@@ -1,8 +1,11 @@
-""" Tests which require user interaction to run for osxphotos import command; run with pytest --test-import """
+""" Tests which require user interaction to run for osxphotos import command.
+run with pytest tests/test_cli_import.py --test-import
+"""
 
 import csv
 import datetime
 import filecmp
+import hashlib
 import json
 import os
 import os.path
@@ -13,17 +16,17 @@ import sqlite3
 import sys
 import time
 import unicodedata
+from string import Template
 from tempfile import TemporaryDirectory
 from typing import Dict
 from zoneinfo import ZoneInfo
-import hashlib
 
 import pytest
 from click.testing import CliRunner
 from pytest import MonkeyPatch, approx
 
 from osxphotos import PhotosDB, QueryOptions
-from osxphotos._constants import UUID_PATTERN
+from osxphotos._constants import OSXPHOTOS_EXPORT_DB, UUID_PATTERN
 from osxphotos.datetime_utils import datetime_remove_tz, get_local_tz
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
@@ -63,7 +66,6 @@ TEST_LIVE_PHOTO_EDITED_PHOTO = "IMG_E1853.heic"
 TEST_LIVE_PHOTO_ORIGINAL_VIDEO = "IMG_1853.MOV"
 TEST_LIVE_PHOTO_EDITED_VIDEO = "IMG_E1853.mov"
 TEST_LIVE_PHOTO_AAE = "IMG_1853.AAE"
-TEST_LIVE_PHOTO_GLOB = "*1853*"
 
 TEST_DATA = {
     TEST_IMAGE_1: {
@@ -1588,6 +1590,7 @@ def test_import_exportdb(tmp_path):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
     results = parse_import_output(result.output)
     photosdb = PhotosDB()
     photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
@@ -1596,6 +1599,58 @@ def test_import_exportdb(tmp_path):
     assert photo.keywords == ["wedding"]
     assert "I have a deleted twin" in photo.albums
     assert "AlbumInFolder" in photo.albums
+
+
+@pytest.mark.test_import
+def test_import_exportdb_exportdir(tmp_path):
+    """Test osxphotos import with --exportdb option and --exportdir"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # move the export dir to a different directory
+    with TemporaryDirectory() as new_export_dir:
+        # need to get fully resolved path to the new temp dir as it may be /var but really -> /private/var
+        # which causes the exportdir lookup to fail
+        # this is a quirk of the test configuration
+        new_export_dir = str(pathlib.Path(new_export_dir).resolve().absolute())
+        shutil.copy(str(tmp_path / "wedding.jpg"), new_export_dir)
+
+        # now import that exported photo with --exportdb
+        result = runner.invoke(
+            import_main,
+            [
+                new_export_dir,
+                "--verbose",
+                "--exportdb",
+                str(tmp_path),
+                "--exportdir",
+                new_export_dir,
+            ],
+            terminal_width=TERMINAL_WIDTH,
+        )
+        assert result.exit_code == 0
+        assert "Setting metadata and location from export database" in result.output
+        results = parse_import_output(result.output)
+        photosdb = PhotosDB()
+        photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+        assert not photo.title
+        assert photo.description == "Bride Wedding day"
+        assert photo.keywords == ["wedding"]
+        assert "I have a deleted twin" in photo.albums
+        assert "AlbumInFolder" in photo.albums
 
 
 @pytest.mark.test_import
