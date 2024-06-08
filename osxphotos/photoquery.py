@@ -45,7 +45,6 @@ class IncompatibleQueryOptions(Exception):
 
 @dataclass
 class QueryOptions:
-
     """QueryOptions class for PhotosDB.query
 
     Attributes:

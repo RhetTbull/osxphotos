@@ -40,7 +40,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "9.1"
+OSXPHOTOS_EXPORTDB_VERSION = "10.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -92,34 +92,40 @@ class ExportDB:
 
     Args:
         dbfile: path to osxphotos export database file
-        export_dir: path to directory where exported files are stored
+        export_dir: path to directory where exported files are stored; if None will read value from database
         version: if supplied, creates database with this version; otherwise uses current version;
             (must be >= "4.3" and <= OSXPHOTOS_EXPORTDB_VERSION)
             For testing only; in normal usage, omit this argument
+
+    Note: export_dir = None must only be used when opening an existing database to read and not to export
     """
 
     def __init__(
         self,
-        dbfile: pathlib.Path | str,
-        export_dir: pathlib.Path | str,
+        dbfile: str | os.PathLike,
+        export_dir: str | os.PathLike | None,
         version: str | None = None,
     ):
         """Create a new ExportDB object
 
         Args:
             dbfile: path to osxphotos export database file
-            export_dir: path to directory where exported files are stored
+            export_dir: path to directory where exported files are stored; if None will read value from database
             version: if supplied, creates database with this version; otherwise uses current version;
                 (must be >= "4.3" and <= OSXPHOTOS_EXPORTDB_VERSION)
                 For testing only; in normal usage, omit this argument
+
+        Note: export_dir = None must only be used when opening an existing database to read and not to export
         """
 
         self._dbfile: str = str(dbfile)
-        # export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to
-        # relative paths to this path
+
+        # export_dir allows the database to located in a different path than the export
+        # all paths are stored as relative paths to this path
         # this allows the entire export tree to be moved to a new disk/location
         # whilst preserving the UUID to filename mapping
-        self._path: str = str(export_dir)
+        self._path: str | None = str(export_dir) if export_dir else None
+
         self.was_upgraded: tuple[str, str] | tuple = ()
         self.was_created = False
 
@@ -128,6 +134,7 @@ class ExportDB:
         self._conn = self._open_export_db(self._dbfile, version)
         self._perform_db_maintenance(self._conn)
         self._insert_run_info()
+        self._insert_export_dir()
 
     @property
     def path(self) -> str:
@@ -145,7 +152,7 @@ class ExportDB:
         return self._conn or self._get_db_connection(self._dbfile)
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
-    def get_file_record(self, filename: pathlib.Path | str) -> "ExportRecord" | None:
+    def get_file_record(self, filename: str | os.PathLike) -> "ExportRecord" | None:
         """get info for filename
 
         Returns: an ExportRecord object or None if filename not found
@@ -167,7 +174,7 @@ class ExportDB:
         retry=retry_if_not_exception_type(sqlite3.IntegrityError),
     )
     def create_file_record(
-        self, filename: pathlib.Path | str, uuid: str
+        self, filename: str | os.PathLike, uuid: str
     ) -> "ExportRecord":
         """create a new record for filename and uuid
 
@@ -191,7 +198,7 @@ class ExportDB:
         retry=retry_if_not_exception_type(sqlite3.IntegrityError),
     )
     def create_or_get_file_record(
-        self, filename: pathlib.Path | str, uuid: str
+        self, filename: str | os.PathLike, uuid: str
     ) -> "ExportRecord":
         """create a new record for filename and uuid or return existing record
 
@@ -266,9 +273,7 @@ class ExportDB:
             conn.commit()
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
-    def get_target_for_file(
-        self, uuid: str, filename: pathlib.Path | str
-    ) -> str | None:
+    def get_target_for_file(self, uuid: str, filename: str | os.PathLike) -> str | None:
         """query database for file matching file name and return the matching filename if there is one;
            otherwise return None; looks for file.ext, file (1).ext, file (2).ext and so on to find the
            actual target name that was used to export filename
@@ -410,7 +415,7 @@ class ExportDB:
             return count
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
-    def delete_data_for_filepath(self, filepath: pathlib.Path | str):
+    def delete_data_for_filepath(self, filepath: str | os.PathLike):
         """Delete all exportdb data for given filepath"""
         with self.lock:
             conn = self.connection
@@ -425,7 +430,7 @@ class ExportDB:
     # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def set_history(
         self,
-        filename: pathlib.Path | str,
+        filename: str | os.PathLike,
         uuid: str,
         action: str,
         diff: str | None,
@@ -460,7 +465,7 @@ class ExportDB:
 
     # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_history(
-        self, filepath: pathlib.Path | str | None = None, uuid: str | None = None
+        self, filepath: str | os.PathLike | None = None, uuid: str | None = None
     ):
         """Get history for a filepath or uuid
 
@@ -501,6 +506,24 @@ class ExportDB:
                 raise ValueError("Must specify filepath or uuid")
             return results
 
+    # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def get_last_export_directory(self) -> str | None:
+        """Return the last export directory from the database"""
+        with self.lock:
+            conn = self.connection
+            c = conn.cursor()
+            results = c.execute(
+                """
+                SELECT export_directory
+                FROM export_directory
+                ORDER BY id DESC
+                LIMIT 1;
+                """
+            ).fetchone()
+            if not results:
+                return None
+            return results[0]
+
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def close(self):
         """close the database connection"""
@@ -527,7 +550,7 @@ class ExportDB:
             conn = self._get_db_connection(dbfile)
             self.was_created = False
             version_info = self._get_database_version(conn)
-            if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
+            if float(version_info[1]) < float(OSXPHOTOS_EXPORTDB_VERSION):
                 self._create_or_migrate_db_tables(conn)
                 self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
             else:
@@ -578,16 +601,18 @@ class ExportDB:
         except Exception as e:
             version_info = (__version__, "4.3")
 
-        version = version or OSXPHOTOS_EXPORTDB_VERSION
-        if version < "4.3":
+        max_version = float(OSXPHOTOS_EXPORTDB_VERSION)
+        version = float(version) if version else max_version
+        current_version = float(version_info[1])
+        if version < float("4.3"):
             raise ValueError(
                 f"Requested database version {version} is older than minimum supported version 4.3"
             )
-        if version > OSXPHOTOS_EXPORTDB_VERSION:
+        if version > max_version:
             raise ValueError(
                 f"Requested database version {version} is newer than maximum supported version {OSXPHOTOS_EXPORTDB_VERSION}"
             )
-        if version_info[1] > version:
+        if current_version > version:
             raise ValueError(
                 f"Database version {version_info[1]} is newer than requested version {version}"
             )
@@ -597,7 +622,7 @@ class ExportDB:
             """ CREATE TABLE IF NOT EXISTS version (
                     id INTEGER PRIMARY KEY,
                     osxphotos TEXT,
-                    exportdb TEXT 
+                    exportdb TEXT
                     ); """,
             """ CREATE TABLE IF NOT EXISTS about (
                     id INTEGER PRIMARY KEY,
@@ -621,17 +646,17 @@ class ExportDB:
                     python_path TEXT,
                     script_name TEXT,
                     args TEXT,
-                    cwd TEXT 
+                    cwd TEXT
                     ); """,
             """ CREATE TABLE IF NOT EXISTS info (
                     id INTEGER PRIMARY KEY,
                     uuid text NOT NULL,
-                    json_info JSON 
+                    json_info JSON
                     ); """,
             """ CREATE TABLE IF NOT EXISTS exifdata (
                     id INTEGER PRIMARY KEY,
                     filepath_normalized TEXT NOT NULL,
-                    json_exifdata JSON 
+                    json_exifdata JSON
                     ); """,
             """ CREATE TABLE IF NOT EXISTS edited (
                     id INTEGER PRIMARY KEY,
@@ -668,6 +693,7 @@ class ExportDB:
             """ CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);""",
             """ CREATE UNIQUE INDEX IF NOT EXISTS idx_detected_text on detected_text (uuid);""",
         ]
+
         # create the tables if needed
         with self.lock:
             c = conn.cursor()
@@ -681,35 +707,39 @@ class ExportDB:
             conn.commit()
 
         # perform needed migrations
-        if version_info[1] < "4.3":
+        # compare float(str) to avoid any issues with comparing float(str) to float
+        if current_version < float("4.3"):
             self._migrate_normalized_filepath(conn)
 
-        if version_info[1] < "5.0" and version >= "5.0":
+        if current_version < float("5.0") and version >= float("5.0"):
             self._migrate_4_3_to_5_0(conn)
 
-        if version_info[1] < "6.0" and version >= "6.0":
+        if current_version < float("6.0") and version >= float("6.0"):
             # create export_data table
             self._migrate_5_0_to_6_0(conn)
 
-        if version_info[1] < "7.0" and version >= "7.0":
+        if current_version < float("7.0") and version >= float("7.0"):
             # create report_data table
             self._migrate_6_0_to_7_0(conn)
 
-        if version_info[1] < "7.1" and version >= "7.1":
+        if current_version < float("7.1") and version >= float("7.1"):
             # add timestamp to export_data
             self._migrate_7_0_to_7_1(conn)
 
-        if version_info[1] < "8.0" and version >= "8.0":
+        if current_version < float("8.0") and version >= float("8.0"):
             # add error to export_data
             self._migrate_7_1_to_8_0(conn)
 
-        if version_info[1] < "9.0" and version >= "9.0":
+        if current_version < float("9.0") and version >= float("9.0"):
             # add history table
             self._migrate_8_0_to_9_0(conn)
 
-        if version_info[1] < "9.1" and version >= "9.1":
+        if current_version < float("9.1") and version >= float("9.1"):
             # Add history index
             self._migrate_9_0_to_9_1(conn)
+
+        if current_version < float("10.0") and version >= float("10.0"):
+            self._migrate_9_1_to_10_0(conn)
 
         with self.lock:
             conn.execute("VACUUM;")
@@ -722,6 +752,7 @@ class ExportDB:
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def _insert_run_info(self):
+        """Insert run info into runs table"""
         dt = datetime.datetime.now(datetime.timezone.utc).isoformat()
         python_path = sys.executable
         cmd = sys.argv[0]
@@ -736,15 +767,47 @@ class ExportDB:
             )
             conn.commit()
 
-    def _relative_filepath(self, filepath: pathlib.Path | str) -> str:
-        """return filepath relative to self._path"""
-        return str(pathlib.Path(filepath).relative_to(self._path))
+    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def _insert_export_dir(self):
+        """Insert export_directory info into export_directory table"""
 
-    def _normalize_filepath(self, filepath: pathlib.Path | str) -> str:
+        if float(self.version) < float("10.0"):
+            return
+
+        if self._path is None:
+            # database opened without a path specified, do not update
+            return
+
+        with self.lock:
+            conn = self.connection
+            c = conn.cursor()
+            c.execute(
+                """
+                INSERT INTO export_directory (export_directory)
+                SELECT ?
+                WHERE ? <> (
+                    SELECT export_directory
+                    FROM export_directory
+                    ORDER BY rowid DESC
+                    LIMIT 1
+                ) OR NOT EXISTS (
+                    SELECT 1 FROM export_directory
+                )
+            """,
+                (self._path, self._path),
+            )
+
+            conn.commit()
+
+    def _relative_filepath(self, filepath: str | os.PathLike) -> str:
+        """return filepath relative to self.export_dir"""
+        return str(pathlib.Path(filepath).relative_to(self.export_dir))
+
+    def _normalize_filepath(self, filepath: str | os.PathLike) -> str:
         """normalize filepath for unicode, lower case"""
         return normalize_fs_path(str(filepath)).lower()
 
-    def _normalize_filepath_relative(self, filepath: pathlib.Path | str) -> str:
+    def _normalize_filepath_relative(self, filepath: str | os.PathLike) -> str:
         """normalize filepath for unicode, relative path (to export dir), lower case"""
         filepath = self._relative_filepath(filepath)
         return normalize_fs_path(str(filepath)).lower()
@@ -829,30 +892,30 @@ class ExportDB:
                 """ INSERT INTO export_data (filepath_normalized, filepath, uuid) SELECT filepath_normalized, filepath, uuid FROM files;""",
             )
             c.execute(
-                """ UPDATE export_data 
-                    SET (src_mode, src_size, src_mtime) = 
-                    (SELECT mode, size, mtime 
-                    FROM edited 
+                """ UPDATE export_data
+                    SET (src_mode, src_size, src_mtime) =
+                    (SELECT mode, size, mtime
+                    FROM edited
                     WHERE export_data.filepath_normalized = edited.filepath_normalized);
                 """,
             )
             c.execute(
-                """ UPDATE export_data 
-                    SET (dest_mode, dest_size, dest_mtime) = 
-                    (SELECT orig_mode, orig_size, orig_mtime 
-                    FROM files 
+                """ UPDATE export_data
+                    SET (dest_mode, dest_size, dest_mtime) =
+                    (SELECT orig_mode, orig_size, orig_mtime
+                    FROM files
                     WHERE export_data.filepath_normalized = files.filepath_normalized);
                 """,
             )
             c.execute(
-                """ UPDATE export_data SET digest = 
-                            (SELECT metadata FROM files 
+                """ UPDATE export_data SET digest =
+                            (SELECT metadata FROM files
                             WHERE files.filepath_normalized = export_data.filepath_normalized
                             ); """
             )
             c.execute(
-                """ UPDATE export_data SET exifdata = 
-                            (SELECT json_exifdata FROM exifdata 
+                """ UPDATE export_data SET exifdata =
+                            (SELECT json_exifdata FROM exifdata
                             WHERE exifdata.filepath_normalized = export_data.filepath_normalized
                             ); """
             )
@@ -862,7 +925,7 @@ class ExportDB:
                 """ CREATE TABLE IF NOT EXISTS config (
                         id INTEGER PRIMARY KEY,
                         datetime TEXT,
-                        config TEXT 
+                        config TEXT
                 ); """
             )
 
@@ -1023,9 +1086,24 @@ class ExportDB:
 
             conn.commit()
 
+    def _migrate_9_1_to_10_0(self, conn: sqlite3.Connection):
+        """Add export_directory table"""
+        with self.lock:
+            c = conn.cursor()
+
+            c.execute(
+                """ CREATE TABLE IF NOT EXISTS export_directory (
+                    id INTEGER PRIMARY KEY,
+                    export_directory TEXT
+                    );
+                    """
+            )
+
+            conn.commit()
+
     def _perform_db_maintenance(self, conn: sqlite3.Connection):
         """Perform database maintenance"""
-        if self.version < "6.0":
+        if float(self.version) < float("6.0"):
             return
         with self.lock:
             c = conn.cursor()
@@ -1044,38 +1122,41 @@ class ExportDBInMemory(ExportDB):
     """In memory version of ExportDB
 
     Args:
-        dbfile (str): path to database file
-        export_dir (str): path to export directory
+        dbfile: path to osxphotos export database file
+        export_dir: path to directory where exported files are stored; if None will read value from database
         version: if supplied, creates database with this version; otherwise uses current version;
             (must be >= "4.3" and <= OSXPHOTOS_EXPORTDB_VERSION)
             For testing only; in normal usage, omit this argument
 
     Note:
-        Copies the on-disk database into memory so it may be operated on without
-        modifying the on-disk version
+        Copies the on-disk database into memory so it may be operated on without modifying the on-disk version
+        export_dir = None must only be used when opening an existing database to read and not to export
     """
 
     def __init__(
         self,
-        dbfile: pathlib.Path | str,
-        export_dir: pathlib.Path | str,
+        dbfile: str | os.PathLike,
+        export_dir: str | os.PathLike | None,
         version: str | None = None,
     ):
         """ "Initialize ExportDBInMemory
 
         Args:
-            dbfile (str): path to database file
-            export_dir (str): path to export directory
+            dbfile: path to osxphotos export database file
+            export_dir: path to directory where exported files are stored; if None will read value from database
             version: if supplied, creates database with this version; otherwise uses current version;
                 (must be >= "4.3" and <= OSXPHOTOS_EXPORTDB_VERSION)
                 For testing only; in normal usage, omit this argument
+
+        Note: export_dir = None must only be used when opening an existing database to read and not to export
         """
-        self._dbfile = str(dbfile) or f"./{OSXPHOTOS_EXPORT_DB}"
-        # export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to
-        # relative paths to this path
+        self._dbfile: str = str(dbfile) or f"./{OSXPHOTOS_EXPORT_DB}"
+
+        # export_dir allows the database to located in a different path than the export
+        # all paths are stored as relative paths to this path
         # this allows the entire export tree to be moved to a new disk/location
         # whilst preserving the UUID to filename mapping
-        self._path = str(export_dir)
+        self._path: str | None = str(export_dir) if export_dir else None
 
         self.was_upgraded: tuple[str, str] | tuple = ()
         self.was_created = False
@@ -1084,6 +1165,7 @@ class ExportDBInMemory(ExportDB):
 
         self._conn = self._open_export_db(self._dbfile, version=version)
         self._insert_run_info()
+        self._insert_export_dir()
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def write_to_disk(self):
@@ -1128,8 +1210,13 @@ class ExportDBInMemory(ExportDB):
     def _open_export_db(
         self, dbfile: str, version: str | None = None
     ):  # sourcery skip: raise-specific-error
-        """open export database and return a db connection
-        returns: connection to the database
+        """Open export database and return a db connection
+
+        Args:
+            dbfile: path to database file
+            version: database version to create if database doesn't exist
+
+        Returns: connection to the database
         """
         if not os.path.isfile(dbfile):
             # database doesn't exist so create it in-memory
@@ -1143,7 +1230,7 @@ class ExportDBInMemory(ExportDB):
             return src
 
         if version:
-            raise ValueError("Cannot specify version when copying an existing database")
+            raise ValueError("Cannot specify version when opening an existing database")
 
         # database exists so copy it to memory
         src = sqlite3.connect(dbfile, check_same_thread=SQLITE_CHECK_SAME_THREAD)
@@ -1156,7 +1243,7 @@ class ExportDBInMemory(ExportDB):
 
         self.was_created = False
         version_info = self._get_database_version(dst)
-        if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
+        if float(version_info[1]) < float(OSXPHOTOS_EXPORTDB_VERSION):
             self._create_or_migrate_db_tables(dst)
             self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
         else:
@@ -1204,8 +1291,9 @@ class ExportDBTemp(ExportDBInMemory):
 
         self._conn = self._open_export_db(self._dbfile, version)
         self._insert_run_info()
+        self._insert_export_dir()
 
-    def _relative_filepath(self, filepath: pathlib.Path | str) -> str:
+    def _relative_filepath(self, filepath: str | os.PathLike) -> str:
         """Overrides _relative_filepath to return a path for use in the temp db"""
         filepath = str(filepath)
         return filepath[1:] if filepath[0] == "/" else filepath

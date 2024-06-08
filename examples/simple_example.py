@@ -1,4 +1,5 @@
 """ Simple usage of the package """
+
 import os.path
 
 import osxphotos

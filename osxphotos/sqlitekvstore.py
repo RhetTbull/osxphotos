@@ -1,6 +1,5 @@
 """Simple key-value store using sqlite3"""
 
-
 import contextlib
 import os.path
 import sqlite3

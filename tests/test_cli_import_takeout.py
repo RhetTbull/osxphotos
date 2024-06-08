@@ -129,7 +129,7 @@ def test_import_google_takeout(tmp_path):
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
         c.execute("SELECT COUNT(*) FROM report")
-        assert c.fetchone()[0] == 33
+        assert c.fetchone()[0] == 31
 
         # test a photo that was imported
         row = c.execute(

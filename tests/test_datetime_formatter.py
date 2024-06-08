@@ -1,4 +1,5 @@
 """ test datetime_formatter.DateTimeFormatter """
+
 import pytest
 
 from .locale_util import setlocale

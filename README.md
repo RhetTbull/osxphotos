@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-79-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-80-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
@@ -2976,6 +2976,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kitschpatrol"><img src="https://avatars.githubusercontent.com/u/194164?v=4?s=75" width="75px;" alt="Eric Mika"/><br /><sub><b>Eric Mika</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Akitschpatrol" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://odedia.org"><img src="https://avatars.githubusercontent.com/u/2992180?v=4?s=75" width="75px;" alt="odedia"/><br /><sub><b>odedia</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aodedia" title="Bug reports">🐛</a> <a href="#ideas-odedia" title="Ideas, Planning, & Feedback">🤔</a> <a href="#research-odedia" title="Research">🔬</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/torarnv"><img src="https://avatars.githubusercontent.com/u/7536?v=4?s=75" width="75px;" alt="Tor Arne Vestbø"/><br /><sub><b>Tor Arne Vestbø</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Atorarnv" title="Bug reports">🐛</a> <a href="#research-torarnv" title="Research">🔬</a></td>
     </tr>
   </tbody>
 </table>

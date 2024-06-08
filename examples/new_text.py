@@ -20,9 +20,9 @@ def new_text(photos: list[osxphotos.PhotoInfo], **kwargs):
                 "photo": photo.original_filename,
                 "path": photo.path,
                 "uuid": photo.uuid,
-                "date_added": photo.date_added.isoformat()
-                if photo.date_added
-                else None,
+                "date_added": (
+                    photo.date_added.isoformat() if photo.date_added else None
+                ),
                 "text": text,
             }
             results.append(data)

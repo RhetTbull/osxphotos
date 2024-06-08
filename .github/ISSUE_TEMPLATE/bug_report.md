@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-** Before submitting a bug report, please ensure you are running the most recent version of osxphotos and that the bug is reproducible on the latest version **
+**Before submitting a bug report, please ensure you are running the most recent version of osxphotos and that the bug is reproducible on the latest version**
 
 - If you installed with pipx: `pipx upgrade osxphotos`
 - If you installed with pip: `pip install --upgrade osxphotos`

@@ -1,6 +1,5 @@
 """install/uninstall/run commands for osxphotos CLI"""
 
-
 import contextlib
 import sys
 from runpy import run_module, run_path

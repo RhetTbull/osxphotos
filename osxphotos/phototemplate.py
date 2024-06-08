@@ -1,6 +1,5 @@
 """ Custom template system for osxphotos, implements metadata template language (MTL) """
 
-
 import datetime
 import locale
 import os
@@ -10,7 +9,7 @@ import shlex
 import sys
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 from textx import TextXSyntaxError, metamodel_from_file
 
@@ -28,6 +27,9 @@ from .utils import (
     load_function,
     uuid_to_shortuuid,
 )
+
+if TYPE_CHECKING:
+    from .photoinfo import PhotoInfo
 
 __all__ = [
     "RenderOptions",
@@ -1016,7 +1018,6 @@ class PhotoTemplate:
             field_value = getattr(self, field_stem)
         except AttributeError as e:
             raise ValueError(f"Unknown path-like field: {field_stem}") from e
-
         value = _get_pathlib_value(field, field_value, self.quote)
 
         if self.filename:
@@ -1601,12 +1602,11 @@ def _get_pathlib_value(field, value, quote):
     """Get the value for a pathlib.Path type template
 
     Args:
-        field: the path field, e.g. "filename.stem"
+        field: the path field, e.g. "filepath.stem"
         value: the value for the path component
         quote: bool; if true, quotes the returned path for safe execution in the shell
     """
     parts = field.split(".")
-
     if len(parts) == 1:
         return shlex.quote(str(value)) if quote else str(value)
 

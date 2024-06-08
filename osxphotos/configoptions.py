@@ -1,4 +1,5 @@
 """ ConfigOptions class to load/save config settings for osxphotos CLI """
+
 import bitmath
 import toml
 

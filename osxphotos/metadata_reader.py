@@ -6,9 +6,11 @@ import datetime
 import json
 import pathlib
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Callable, Optional, Tuple
+
+from osxphotos.photoinfo_protocol import PhotoInfoProtocol
 
 from .datetime_utils import (
     datetime_has_tz,
@@ -34,21 +36,38 @@ class MetaData:
         keywords: list of keywords for photo
         location: tuple of lat, long or None, None if not set
         favorite: bool, True if photo marked favorite
+        rating: int, rating of photo 0-5
         persons: list of persons in photo
         date: datetime for photo as naive datetime.datetime in local timezone or None if not set
         timezone: timezone or None of original date (before conversion to local naive datetime)
         tz_offset_sec: int or None if not set, offset from UTC in seconds
+        height: int or None if not set, height of photo in pixels
+        width: int or None if not set, width of photo in pixels
     """
 
-    title: str
-    description: str
-    keywords: list[str]
-    location: tuple[Optional[float], Optional[float]]
+    title: str = ""
+    description: str = ""
+    keywords: list[str] = field(default_factory=list)
+    location: tuple[Optional[float], Optional[float]] = (None, None)
     favorite: bool = False
+    rating: int = 0
     persons: list[str] = field(default_factory=list)
     date: datetime.datetime | None = None
     timezone: datetime.tzinfo | None = None
     tz_offset_sec: float | None = None
+    height: int | None = None
+    width: int | None = None
+
+    def __ior__(self, other):
+        if isinstance(other, MetaData):
+            for field in fields(self):
+                other_value = getattr(other, field.name)
+                self_value = getattr(self, field.name)
+                if other_value:
+                    setattr(self, field.name, other_value)
+        else:
+            raise TypeError("Unsupported operand type")
+        return self
 
 
 class SidecarFileType(Enum):
@@ -121,11 +140,11 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
     filepath = (
         pathlib.Path(filepath) if not isinstance(filepath, pathlib.Path) else filepath
     )
-    for ext in ["json", "xmp"]:
-        sidecar = pathlib.Path(f"{filepath}.{ext}")
+    for ext in [".json", ".xmp"]:
+        sidecar = pathlib.Path(f"{filepath}{ext}")
         if sidecar.is_file():
             return sidecar
-        sidecar = filepath.with_suffix("." + ext)
+        sidecar = filepath.with_suffix(ext)
         if sidecar.is_file():
             return sidecar
 
@@ -135,13 +154,14 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
     # in form img_1234(1).jpg but the sidecar may be named img_1234.jpg(1).json
 
     stem = filepath.stem
-    if stem.endswith("-edited"):
-        # strip off -edited suffix
+    # strip off -edited suffix (Google Takeout) or _edited (OSXPhotos edited images with default suffix)
+    if stem.endswith("-edited") or stem.endswith("_edited"):
+        # strip off -edited/_edited suffix
         stem = stem[:-7]
         new_filepath = filepath.with_stem(stem)
         return get_sidecar_for_file(new_filepath)
 
-    # strip off (1) suffix
+    # strip off (1) suffix for Google takeout naming scheme
     if match := re.match(r"(.*)(\(\d+\))$", stem):
         stem = match.groups()[0]
         new_filepath = pathlib.Path(
@@ -185,7 +205,9 @@ def convert_exiftool_longitude(lon_string, lon_ref):
     return longitude
 
 
-def metadata_from_file(filepath: str | pathlib.Path, exiftool_path: str) -> MetaData:
+def metadata_from_exiftool(
+    filepath: str | pathlib.Path, exiftool_path: str | None
+) -> MetaData:
     """Get metadata from file with exiftool
 
     Returns the following metadata from EXIF/XMP/IPTC fields as a MetaData named tuple
@@ -193,6 +215,9 @@ def metadata_from_file(filepath: str | pathlib.Path, exiftool_path: str) -> Meta
         description: str, XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
         keywords: str, XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
         location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef,  EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
+        rating: int, XMP:Rating
+        height: int, ImageHeight
+        width: int, ImageWidth
     """
     exiftool = ExifToolCaching(filepath, exiftool_path)
     metadata = exiftool.asdict()
@@ -209,6 +234,7 @@ def metadata_from_sidecar(
     description: str, XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
     keywords: str, XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
     location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef,  EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
+    rating: int, XMP:Rating
 
     Raises:
         ValueError if error reading sidecar file
@@ -315,6 +341,30 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         or metadata.get("Keywords")
     )
 
+    rating = metadata.get("XMP:Rating") or metadata.get("Rating")
+
+    height = (
+        metadata.get("File:ImageHeight")
+        or metadata.get("EXIF:ImageHeight")
+        or metadata.get("ImageHeight")
+        or metadata.get("QuickTime:ImageHeight")
+    )
+    width = (
+        metadata.get("File:ImageWidth")
+        or metadata.get("EXIF:ImageWidth")
+        or metadata.get("ImageWidth")
+        or metadata.get("QuickTime:ImageWidth")
+    )
+
+    # adjust width, height if needed for the EXIF orientation
+    # Note: this may not work properly for QuickTime files
+    orientation = (
+        metadata.get("EXIF:Orientation")
+        or metadata.get("Orientation")
+        or metadata.get("QuickTime:VideoOrientation")
+    )
+    width, height = width_height_for_orientation(width, height, orientation)
+
     persons = metadata.get("XMP:PersonInImage", []) or metadata.get("PersonInImage", [])
     if persons and not isinstance(persons, (tuple, list)):
         persons = [persons]
@@ -341,11 +391,14 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         description=description,
         keywords=keywords,
         location=location,
+        rating=rating or 0,
         favorite=False,
         persons=persons,
         date=date,
         timezone=timezone,
         tz_offset_sec=tz_offset,
+        height=height,
+        width=width,
     )
 
 
@@ -449,3 +502,39 @@ def location_from_metadata_dict(
         # couldn't convert one of the numbers to float
         return None, None
     return latitude, longitude
+
+
+def width_height_for_orientation(
+    width: int | None, height: int | None, orientation: int | None
+) -> tuple[int | None, int | None]:
+    """Return width, height for given orientation"""
+    if orientation is None:
+        return width, height
+
+    swap_orientations = {5, 6, 7, 8}
+    if orientation in swap_orientations:
+        return height, width
+    else:
+        return width, height
+
+
+def metadata_from_photoinfo(photoinfo: PhotoInfoProtocol) -> MetaData:
+    """Create a MetaData object from a PhotoInfo instance"""
+    tz_offset = utc_offset_seconds(photoinfo.date)
+    timezone = photoinfo.date.tzinfo
+    date = datetime_remove_tz(datetime_utc_to_local(datetime_tz_to_utc(photoinfo.date)))
+    location = tuple(photoinfo.location) if photoinfo.location else (None, None)
+    return MetaData(
+        title=photoinfo.title,
+        description=photoinfo.description,
+        keywords=photoinfo.keywords,
+        location=location,
+        rating=photoinfo.rating or 0,
+        favorite=photoinfo.favorite,
+        persons=photoinfo.persons,
+        date=date,
+        timezone=timezone,
+        tz_offset_sec=tz_offset,
+        height=photoinfo.height,
+        width=photoinfo.width,
+    )

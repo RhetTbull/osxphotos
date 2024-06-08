@@ -1,6 +1,5 @@
 """Test ExifWriter class"""
 
-
 import json
 import os
 import pathlib

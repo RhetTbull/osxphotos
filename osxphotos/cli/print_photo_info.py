@@ -134,9 +134,7 @@ def print_photo_fields(
             field_value = (
                 rendered_value[0]
                 if len(rendered_value) == 1
-                else ",".join(rendered_value)
-                if not json_format
-                else rendered_value
+                else ",".join(rendered_value) if not json_format else rendered_value
             )
             record[field[0]] = field_value
         data.append(record)

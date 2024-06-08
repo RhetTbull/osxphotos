@@ -1,4 +1,5 @@
 """repl command for osxphotos CLI"""
+
 from __future__ import annotations
 
 import os
