@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import unicodedata
-from typing import List, Optional
+from collections.abc import Iterable
+from typing import Any, Callable, Optional
 
 from more_itertools import chunked
 
@@ -28,7 +29,9 @@ def get_unicode_variants(s: str) -> list[str]:
     return variants
 
 
-def folder_by_path(folders: List[str], verbose: Optional[callable] = None) -> Folder:
+def folder_by_path(
+    folders: list[str], verbose: Optional[Callable[..., Any]] = None
+) -> Folder:
     """Get (and create if necessary) a Photos Folder by path (passed as list of folder names)"""
     library = PhotosLibrary()
     verbose = verbose or noop
@@ -56,7 +59,7 @@ def folder_by_path(folders: List[str], verbose: Optional[callable] = None) -> Fo
 
 
 def album_by_path(
-    folders_album: List[str], verbose: Optional[callable] = None
+    folders_album: list[str], verbose: Optional[Callable[..., Any]] = None
 ) -> Album:
     """Get (and create if necessary) a Photos Album by path (pass as list of folders, album name)"""
     library = PhotosLibrary()
@@ -96,7 +99,7 @@ class PhotosAlbum:
     def __init__(
         self,
         name: str,
-        verbose: Optional[callable] = None,
+        verbose: Optional[Callable[..., Any]] = None,
         split_folder: Optional[str] = None,
         rich: bool = False,
     ):
@@ -126,21 +129,29 @@ class PhotosAlbum:
             f"Added {self._format_name(photo.original_filename)} ({self._format_uuid(photo.uuid)}) to album {self._format_album(self.name)}"
         )
 
-    def add_list(self, photo_list: List[PhotoInfo]):
-        photos = []
-        for p in photo_list:
+    def update(self, photos: Iterable[PhotoInfo]):
+        photoscript_photos = []
+        for p in photos:
             try:
-                photos.append(photoscript.Photo(p.uuid))
+                photoscript_photos.append(photoscript.Photo(p.uuid))
             except Exception as e:
                 self.verbose(
                     f"Error creating Photo object for photo {self._format_uuid(p.uuid)}: {e}"
                 )
-        for photolist in chunked(photos, 10):
+        for photolist in chunked(photoscript_photos, 10):
             self.album.add(photolist)
-        photo_len = len(photo_list)
+        photo_len = len(photos)
         self.verbose(
             f"Added {self._format_num(photo_len)} {pluralize(photo_len, 'photo', 'photos')} to album {self._format_album(self.name)}"
         )
+
+    def append(self, photo: PhotoInfo):
+        """Add photo to album"""
+        self.add(photo)
+
+    def extend(self, photos: Iterable[PhotoInfo]):
+        """Add list of photos to album"""
+        self.update(photos)
 
     def photos(self):
         return self.album.photos()
@@ -171,14 +182,21 @@ class PhotosAlbumPhotoScript(PhotosAlbum):
             f"Added {self._format_name(photo.filename)} ({self._format_uuid(photo.uuid)}) to album {self._format_album(self.name)}"
         )
 
-    def add_list(self, photo_list: List[Photo]):
-        for photolist in chunked(photo_list, 10):
+    def update(self, photos: Iterable[Photo]):
+        for photolist in chunked(photos, 10):
             self.album.add(photolist)
-        photo_len = len(photo_list)
+        photo_len = len(photos)
         self.verbose(
             f"Added {self._format_num(photo_len)} {pluralize(photo_len, 'photo', 'photos')} to album {self._format_album(self.name)}"
         )
 
+    def append(self, photo: Photo):
+        """Add photo to album"""
+        self.add(photo)
+
+    def extend(self, photos: Iterable[Photo]):
+        """Add list of photos to album"""
+        self.update(photos)
 
 class PhotosAlbumPhotoScriptByPath(PhotosAlbumPhotoScript):
     """Add photoscript.Photo objects to album"""

@@ -33,12 +33,12 @@ def test_unicode_album(addalbum_library):
     # get the album
     album_name_nfc = UNICODE_ALBUM_NFC
     album_nfc = PhotosAlbum(album_name_nfc, split_folder=None)
-    album_nfc.add_list(photos)
+    album_nfc.update(photos)
 
     # again with NFD
     album_name_nfd = UNICODE_ALBUM_NFD
     album_nfd = PhotosAlbum(album_name_nfd, split_folder=None)
-    album_nfd.add_list(photos)
+    album_nfd.update(photos)
 
     assert album_nfc.album.uuid == album_nfd.album.uuid
 
@@ -55,12 +55,12 @@ def test_unicode_folder_album_1(addalbum_library):
     # get the album
     album_name_nfc = f"{UNICODE_FOLDER_NFC}/{UNICODE_ALBUM_NFC}"
     album_nfc = PhotosAlbum(album_name_nfc, split_folder="/")
-    album_nfc.add_list(photos)
+    album_nfc.update(photos)
 
     # again with NFD
     album_name_nfd = f"{UNICODE_FOLDER_NFD}/{UNICODE_ALBUM_NFD}"
     album_nfd = PhotosAlbum(album_name_nfd, split_folder="/")
-    album_nfd.add_list(photos)
+    album_nfd.update(photos)
 
     assert album_nfc.album.uuid == album_nfd.album.uuid
 
@@ -80,11 +80,11 @@ def test_unicode_folder_album_2(addalbum_library):
     # get the album
     album_name_nfc = f"{UNICODE_FOLDER_NFC}/{UNICODE_ALBUM_NFC}"
     album_nfc = PhotosAlbum(album_name_nfc, split_folder="/")
-    album_nfc.add_list(photos)
+    album_nfc.update(photos)
 
     # again with NFD
     album_name_nfd = f"{UNICODE_FOLDER_NFC}/{UNICODE_ALBUM_NFD}"
     album_nfd = PhotosAlbum(album_name_nfd, split_folder="/")
-    album_nfd.add_list(photos)
+    album_nfd.update(photos)
 
     assert album_nfc.album.uuid == album_nfd.album.uuid

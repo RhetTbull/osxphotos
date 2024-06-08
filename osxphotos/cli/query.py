@@ -165,7 +165,7 @@ def query(
             err=True,
         )
         try:
-            album_query.add_list(photos)
+            album_query.update(photos)
         except Exception as e:
             click.secho(
                 f"Error adding photos to album {add_to_album}: {e}",
