@@ -66,6 +66,7 @@ from .photoquery import QueryOptions, photo_query
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 from .scoreinfo import ScoreInfo
+from .sqlite_utils import sqlite_columns
 from .unicode import normalize_unicode
 from .uti import get_preferred_uti_extension, get_uti_for_path
 from .utils import hexdigest, noop, path_exists
@@ -176,7 +177,11 @@ class iPhotoDB:
         """Load the Library.apdb database"""
 
         library_db = self.library_path.joinpath("Database/apdb/Library.apdb")
-        query = """
+        conn = sqlite3.connect(library_db)
+        rkfolder_columns = sqlite_columns(conn, "RKFolder")
+        rkmaster_columns = sqlite_columns(conn, "RKMaster")
+
+        query = f"""
         SELECT
         RKVersion.modelId AS id,
         RKVersion.masterId AS master_id,
@@ -185,8 +190,8 @@ class iPhotoDB:
         RKFolder.modelId AS roll,
         RKFolder.minImageDate AS roll_min_image_date,
         RKFolder.maxImageDate AS roll_max_image_date,
-        RKFolder.minImageTimeZoneName AS roll_min_image_tz,
-        RKFolder.maxImageTimeZoneName AS roll_max_image_tz,
+        {"RKFolder.minImageTimeZoneName" if "minImageTimeZoneName" in rkfolder_columns else "NULL"} AS roll_min_image_tz,
+        {"RKFolder.maxImageTimeZoneName" if "maxImageTimeZoneName" in rkfolder_columns else "NULL"} AS roll_max_image_tz,
         RKFolder.posterVersionUuid AS poster_version_uuid,
         -- event thumbnail image uuid
         RKFolder.createDate AS date_foldercreation,
@@ -238,7 +243,7 @@ class iPhotoDB:
         RKMaster.isTrulyRaw AS truly_raw,
         RKMaster.fileIsReference AS is_reference,
         RKMaster.originalFileSize as original_filesize,
-        RKMaster.burstUuid as burst_uuid
+        {"RKMaster.burstUuid" if "burstUuid" in rkmaster_columns else "NULL"} as burst_uuid
         FROM RKVersion
         LEFT JOIN RKFolder ON RKVersion.projectUuid = RKFolder.uuid
         LEFT JOIN RKMaster ON RKMaster.uuid = RKVersion.masterUuid
@@ -247,8 +252,6 @@ class iPhotoDB:
         """
         logger.debug(f"Executing query: {query}")
 
-        # open the database
-        conn = sqlite3.connect(library_db)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         results = cursor.execute(query).fetchall()
@@ -505,6 +508,7 @@ class iPhotoDB:
         """Load edited face info for each photo from database"""
 
         library_db = self.library_path.joinpath("Database/apdb/Library.apdb")
+        conn = sqlite3.connect(library_db)
 
         # get edited face info
         query = """
@@ -513,19 +517,32 @@ class iPhotoDB:
             RKVersionFaceContent.versionId AS version_id,
             RKVersionFaceContent.masterId AS master_id,
             RKVersionFaceContent.faceKey AS face_key,
+        """
+        if "faceRectLeft" in sqlite_columns(conn, "RKVersionFaceContent"):
+            query += """
             RKVersionFaceContent.faceRectLeft AS topLeftX, -- use same naming scheme as in 'faces'
             1 - RKVersionFaceContent.faceRectTop AS bottomRightY, -- Y values are counted from the bottom in this table!
             RKVersionFaceContent.faceRectWidth AS width,
             RKVersionFaceContent.faceRectHeight AS height,
             RKVersionFaceContent.faceRectWidth + RKVersionFaceContent.faceRectLeft AS bottomRightX,
             1 - RKVersionFaceContent.faceRectTop - RKVersionFaceContent.faceRectHeight AS topLeftY
+            """
+        else:
+            query += """
+            0 as topLeftX,
+            0 as bottomRightY,
+            0 as width,
+            0 as height,
+            0 as bottomRightX,
+            0 as topLeftY
+            """
+        query += """
             FROM RKVersionFaceContent
             WHERE RKVersionFaceContent.versionId = ? -- id of the photo
             ORDER BY RKVersionFaceContent.versionId
         """
         logger.debug(f"Executing query: {query}")
 
-        conn = sqlite3.connect(library_db)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         self.verbose("Loading edited face info from iPhoto library")
@@ -562,8 +579,10 @@ class iPhotoDB:
         #    Folders are just a pseudo hierarchy and can contain Albums and Smart Albums.
 
         library_db = self.library_path.joinpath("Database/apdb/Library.apdb")
+        conn = sqlite3.connect(library_db)
+        rkfolder_columns = sqlite_columns(conn, "RKFolder")
 
-        query = """
+        query = f"""
             SELECT
             modelId,
             uuid,
@@ -575,13 +594,12 @@ class iPhotoDB:
             createDate as date,
             minImageDate AS min_image_date,
             maxImageDate AS max_image_date,
-            minImageTimeZoneName AS min_image_tz,
-            maxImageTimeZoneName AS max_image_tz
+            {"minImageTimeZoneName" if "minImageTimeZoneName" in rkfolder_columns else "NULL"} AS min_image_tz,
+            {"maxImageTimeZoneName" if "maxImageTimeZoneName" in rkfolder_columns else "NULL"} AS max_image_tz
             FROM RKFolder
         """
         logger.debug(f"Executing query: {query}")
 
-        conn = sqlite3.connect(library_db)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         self.verbose("Loading folders from iPhoto library")
