@@ -132,10 +132,10 @@ I recommend you create a [virtual environment](https://docs.python.org/3/tutoria
 >  The git repo for this project is very large (> 3GB) because it contains multiple Photos libraries used for testing on different versions of macOS.  If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or `pipx` as described above. Alternatively, to clone the repository
 without the test data:
 
-   git clone --filter=blob:none --no-checkout --sparse https://github.com/RhetTbull/osxphotos.git
-   cd osxphotos
-   git sparse-checkout set --no-cone '/*' '!tests'
-   git checkout
+    git clone --filter=blob:none --no-checkout --sparse https://github.com/RhetTbull/osxphotos.git
+    cd osxphotos
+    git sparse-checkout set --no-cone '/*' '!tests'
+    git checkout
 
 Next, install the required dependencies, and `osxphotos` itself. I recommend you create a
 [virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing osxphotos.
