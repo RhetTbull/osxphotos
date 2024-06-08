@@ -589,12 +589,8 @@ class PhotoExporter:
         staged = StagedFiles()
 
         if options.use_photos_export:
-            # use Photos AppleScript or PhotoKit to do the export
-            return (
-                self._stage_photo_for_export_with_photokit(options=options)
-                if options.use_photokit
-                else self._stage_photo_for_export_with_applescript(options=options)
-            )
+            return self._stage_missing_photos_for_export_helper(
+                options=options)
 
         if options.raw_photo and self.photo.has_raw:
             staged.raw = self.photo.path_raw
@@ -649,17 +645,21 @@ class PhotoExporter:
             preview=options.preview and not staged.preview,
             raw_photo=self.photo.has_raw and options.raw_photo and not staged.raw,
             live_photo=self.photo.live_photo and options.live_photo and not live_photo,
+            use_photokit=options.use_photokit,
         )
-        if options.use_photokit:
-            missing_staged = self._stage_photo_for_export_with_photokit(
-                options=missing_options
-            )
-        else:
-            missing_staged = self._stage_photo_for_export_with_applescript(
-                options=missing_options
-            )
+        missing_staged = self._stage_missing_photos_for_export_helper(
+            options=missing_options)
         staged |= missing_staged
         return staged
+
+    def _stage_missing_photos_for_export_helper(
+        self, options: ExportOptions
+    ) -> StagedFiles:
+        """Stage a photo for export with AppleScript or PhotoKit"""
+        if options.use_photokit:
+            return self._stage_photo_for_export_with_photokit(options=options)
+        else:
+            return self._stage_photo_for_export_with_applescript(options=options)
 
     def _stage_photo_for_export_with_photokit(
         self,
