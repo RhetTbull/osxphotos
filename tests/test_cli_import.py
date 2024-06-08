@@ -1,7 +1,11 @@
-""" Tests which require user interaction to run for osxphotos import command; run with pytest --test-import """
+""" Tests which require user interaction to run for osxphotos import command.
+run with pytest tests/test_cli_import.py --test-import
+"""
 
 import csv
 import datetime
+import filecmp
+import hashlib
 import json
 import os
 import os.path
@@ -12,16 +16,18 @@ import sqlite3
 import sys
 import time
 import unicodedata
+from string import Template
 from tempfile import TemporaryDirectory
 from typing import Dict
+from zoneinfo import ZoneInfo
 
 import pytest
 from click.testing import CliRunner
 from pytest import MonkeyPatch, approx
 
 from osxphotos import PhotosDB, QueryOptions
-from osxphotos._constants import UUID_PATTERN
-from osxphotos.datetime_utils import datetime_remove_tz
+from osxphotos._constants import OSXPHOTOS_EXPORT_DB, UUID_PATTERN
+from osxphotos.datetime_utils import datetime_remove_tz, get_local_tz
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
 from tests.conftest import get_os_version
@@ -29,11 +35,16 @@ from tests.conftest import get_os_version
 if is_macos:
     from photoscript import Photo
 
+    import osxphotos.cli.import_cli as import_cli
+    from osxphotos.cli.export import export
     from osxphotos.cli.import_cli import import_main
 else:
     pytest.skip(allow_module_level=True)
 
+
 TERMINAL_WIDTH = 250
+
+TEST_EXPORT_LIBRARY = "tests/Test-13.0.0.photoslibrary"
 
 TEST_IMAGES_DIR = "tests/test-images"
 TEST_IMAGE_1 = "tests/test-images/IMG_4179.jpeg"
@@ -41,6 +52,20 @@ TEST_IMAGE_2 = "tests/test-images/faceinfo/exif1.jpg"
 TEST_IMAGE_NO_EXIF = "tests/test-images/IMG_NO_EXIF.jpeg"
 TEST_VIDEO_1 = "tests/test-images/Jellyfish.mov"
 TEST_VIDEO_2 = "tests/test-images/IMG_0670B_NOGPS.MOV"
+TEST_NOT_LIVE_PHOTO = "tests/test-images/not_live.jpeg"
+TEST_NOT_LIVE_VIDEO = "tests/test-images/not_live.mov"
+TEST_IMAGE_INVALID_AAE = "tests/test-images/St James Park.jpg"
+TEST_AAE_INVALID_AAE = "tests/test-images/St James Park.AAE"
+TEST_IMAGE_VALID_AAE = "tests/test-images/wedding.jpg"
+TEST_AAE_VALID_AAE = "tests/test-images/wedding.AAE"
+TEST_IMAGE_WITH_EDIT_ORIGINAL = "tests/test-images/wedding.jpg"
+TEST_IMAGE_WITH_EDIT_EDITED = "tests/test-images/wedding_edited.jpg"
+TEST_IMAGE_WITH_EDIT_AAE = "tests/test-images/wedding.aae"
+TEST_LIVE_PHOTO_ORIGINAL_PHOTO = "IMG_1853.HEIC"
+TEST_LIVE_PHOTO_EDITED_PHOTO = "IMG_E1853.heic"
+TEST_LIVE_PHOTO_ORIGINAL_VIDEO = "IMG_1853.MOV"
+TEST_LIVE_PHOTO_EDITED_VIDEO = "IMG_E1853.mov"
+TEST_LIVE_PHOTO_AAE = "IMG_1853.AAE"
 
 TEST_DATA = {
     TEST_IMAGE_1: {
@@ -50,6 +75,7 @@ TEST_DATA = {
         "lat": 33.7150638888889,
         "lon": -118.319672222222,
         "check_templates": [
+            "sidecar file: None",
             "exiftool title: Waves crashing on rocks",
             "exiftool description: Used for testing osxphotos",
             "exiftool keywords: ['osxphotos', 'Sümmer']",
@@ -88,9 +114,18 @@ TEST_DATA = {
 
 PARSE_DATE_DEFAULT_DATE = datetime.datetime(1999, 1, 2, 3, 4, 5)
 PARSE_DATE_TEST_DATA = [
-    ["img_1234_2020_11_22_12_34_56.jpg", datetime.datetime(2020, 11, 22, 12, 34, 56)],
-    ["img_1234_20211122.jpg", datetime.datetime(2021, 11, 22, 3, 4, 5)],
-    ["19991231_20221122.jpg", datetime.datetime(2022, 11, 22, 3, 4, 5)],
+    [
+        "img_1234_2020_11_22_12_34_56.jpg",
+        datetime.datetime(2020, 11, 22, 12, 34, 56),
+    ],
+    [
+        "img_1234_20211122.jpg",
+        datetime.datetime(2021, 11, 22, 3, 4, 5),
+    ],
+    [
+        "19991231_20221122.jpg",
+        datetime.datetime(2022, 11, 22, 3, 4, 5),
+    ],
     [
         "img-123456.jpg",
         datetime.datetime(1999, 1, 2, 12, 34, 56),
@@ -98,20 +133,52 @@ PARSE_DATE_TEST_DATA = [
     ["test_parse_date.jpg", PARSE_DATE_DEFAULT_DATE],
 ]
 
+LIVE_PHOTO_FILENAMES = [
+    (
+        (
+            "IMG_1853.heic",
+            "IMG_1853.mov",
+            "IMG_E1853.heic",
+            "IMG_E1853.mov",
+            "IMG_1853.aae",
+        ),
+        "IMG_1853.heic",
+    ),
+    (
+        (
+            "IMG_1853.heic",
+            "IMG_1853.mov",
+            "IMG_1853_edited.heic",
+            "IMG_1853_edited.mov",
+            "IMG_1853.aae",
+        ),
+        "IMG_1853.heic",
+    ),
+    (
+        (
+            "LivePhoto.heic",
+            "LivePhoto.mov",
+            "LivePhoto_edited.heic",
+            "LivePhoto_edited.mov",
+            "LivePhoto.aae",
+        ),
+        "IMG_0001_LivePhoto.heic",
+    ),
+]
 
 # set timezone to avoid issues with comparing dates
-@pytest.fixture(scope="module", autouse=True)
-def set_timezone():
-    """Set timezone to US/Pacific for all tests"""
-    old_tz = os.environ.get("TZ")
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
-    yield
-    if old_tz:
-        os.environ["TZ"] = old_tz
-    else:
-        del os.environ["TZ"]
-    time.tzset()
+# @pytest.fixture(scope="module", autouse=True)
+# def set_timezone():
+#     """Set timezone to US/Pacific for all tests"""
+#     old_tz = os.environ.get("TZ")
+#     os.environ["TZ"] = "US/Pacific"
+#     time.tzset()
+#     yield
+#     if old_tz:
+#         os.environ["TZ"] = old_tz
+#     else:
+#         del os.environ["TZ"]
+#     time.tzset()
 
 
 @pytest.fixture(autouse=True)
@@ -159,6 +226,14 @@ def parse_import_output(output: str) -> Dict[str, str]:
             uuid = match[2]
             results[file] = uuid
     return results
+
+
+def file_md5(file_path):
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 
 ########## Interactive tests run first ##########
@@ -272,6 +347,42 @@ def test_import_skip_dups():
     assert result.exit_code == 0
     assert "Skipping duplicate" in result.output
     assert "2 skipped" in result.output
+
+
+@pytest.mark.test_import
+def test_import_skip_dups_signature():
+    """Test basic import with --skip_dups with --signature"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    test_image_2 = os.path.join(cwd, TEST_VIDEO_1)
+    runner = CliRunner()
+
+    # import first to ensure photo is in library
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_1, test_image_2],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    # now import again with --skip-dups and --signature
+    # The signature template is designed to be unique only for video files
+    # so only the video file will be re-imported
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--skip-dups",
+            "--signature",
+            "{photo.isphoto?{photo.original_filename},counter:{counter}}",
+            test_image_1,
+            test_image_2,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Skipping duplicate" in result.output
+    assert "1 skipped" in result.output
 
 
 @pytest.mark.test_import
@@ -543,7 +654,6 @@ def test_import_exiftool_video_no_metadata():
     )
 
     assert result.exit_code == 0
-
     import_data = parse_import_output(result.output)
     file_1 = pathlib.Path(test_image_1).name
     uuid_1 = import_data[file_1]
@@ -845,9 +955,41 @@ def test_import_sidecar_filename():
     assert photo_1.title == TEST_DATA[TEST_IMAGE_1]["sidecar"]["title"]
     assert photo_1.description == TEST_DATA[TEST_IMAGE_1]["sidecar"]["description"]
     assert photo_1.keywords == TEST_DATA[TEST_IMAGE_1]["sidecar"]["keywords"]
+    assert not photo_1.favorite
     lat, lon = photo_1.location
     assert lat == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lat"])
     assert lon == approx(TEST_DATA[TEST_IMAGE_1]["sidecar"]["lon"])
+
+
+@pytest.mark.test_import
+def test_import_favorite_rating():
+    """Test import file with --favorite-rating"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--sidecar",
+            "--favorite-rating",
+            5,
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Setting favorite status" in result.output
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert photo_1.favorite
 
 
 @pytest.mark.test_import
@@ -863,7 +1005,7 @@ def test_import_glob():
     )
 
     assert result.exit_code == 0
-    assert "imported 4 files" in result.output
+    assert "imported 4 file groups" in result.output
 
 
 @pytest.mark.test_import
@@ -888,7 +1030,7 @@ def test_import_glob_walk():
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
-    assert "imported 4 files" in result.output
+    assert "imported 4 file groups" in result.output
 
     import_data = parse_import_output(result.output)
     file_1 = pathlib.Path(TEST_IMAGE_2).name
@@ -1241,7 +1383,6 @@ def test_import_parse_date(tmp_path: pathlib.Path, data: tuple[str, datetime.dat
     date = data[1]
 
     # set up test images
-    os.environ["TZ"] = "US/Pacific"
     cwd = os.getcwd()
     test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
 
@@ -1278,7 +1419,6 @@ def test_import_parse_folder_date(tmp_path: pathlib.Path):
     """Test import with --parse-folder-date"""
 
     # set up test images
-    os.environ["TZ"] = "US/Pacific"
     cwd = os.getcwd()
     test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
 
@@ -1375,3 +1515,404 @@ def test_import_check_not():
     )
     assert result.exit_code == 0
     assert "tests/test-images/IMG_3984.jpeg" in result.output
+
+
+@pytest.mark.test_import
+def test_import_auto_live(tmp_path):
+    """Test import with --auto-live"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_NOT_LIVE_PHOTO)
+    test_video_1 = os.path.join(cwd, TEST_NOT_LIVE_VIDEO)
+
+    shutil.copy(test_image_1, tmp_path)
+    shutil.copy(test_video_1, tmp_path)
+    test_image_1 = str(tmp_path / pathlib.Path(test_image_1).name)
+    test_video_1 = str(tmp_path / pathlib.Path(test_video_1).name)
+
+    # store md5 of test images before import
+    md5_test_image_1 = file_md5(test_image_1)
+    md5_test_video_1 = file_md5(test_video_1)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", "--auto-live", test_image_1, test_video_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Converting to live photo pair" in result.output
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+
+    # verify that the photo was imported as live photo
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert photo.live_photo
+
+    # verify the originals were not modified (test that staging worked)
+    assert file_md5(test_image_1) == md5_test_image_1
+    assert file_md5(test_video_1) == md5_test_video_1
+
+
+@pytest.mark.test_import
+def test_import_exportdb(tmp_path):
+    """Test osxphotos import with --exportdb option"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    assert not photo.title
+    assert photo.description == "Bride Wedding day"
+    assert photo.keywords == ["wedding"]
+    assert "I have a deleted twin" in photo.albums
+    assert "AlbumInFolder" in photo.albums
+
+
+@pytest.mark.test_import
+def test_import_exportdb_exportdir(tmp_path):
+    """Test osxphotos import with --exportdb option and --exportdir"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # move the export dir to a different directory
+    with TemporaryDirectory() as new_export_dir:
+        # need to get fully resolved path to the new temp dir as it may be /var but really -> /private/var
+        # which causes the exportdir lookup to fail
+        # this is a quirk of the test configuration
+        new_export_dir = str(pathlib.Path(new_export_dir).resolve().absolute())
+        shutil.copy(str(tmp_path / "wedding.jpg"), new_export_dir)
+
+        # now import that exported photo with --exportdb
+        result = runner.invoke(
+            import_main,
+            [
+                new_export_dir,
+                "--verbose",
+                "--exportdb",
+                str(tmp_path),
+                "--exportdir",
+                new_export_dir,
+            ],
+            terminal_width=TERMINAL_WIDTH,
+        )
+        assert result.exit_code == 0
+        assert "Setting metadata and location from export database" in result.output
+        results = parse_import_output(result.output)
+        photosdb = PhotosDB()
+        photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+        assert not photo.title
+        assert photo.description == "Bride Wedding day"
+        assert photo.keywords == ["wedding"]
+        assert "I have a deleted twin" in photo.albums
+        assert "AlbumInFolder" in photo.albums
+
+
+@pytest.mark.test_import
+def test_import_aae(tmp_path):
+    """Test import with aae files; test that invalid AAE are ignored during import"""
+    cwd = os.getcwd()
+    shutil.copy(TEST_IMAGE_VALID_AAE, os.path.join(tmp_path, "valid_aae.jpg"))
+    shutil.copy(TEST_AAE_VALID_AAE, os.path.join(tmp_path, "valid_aae.aae"))
+    shutil.copy(TEST_IMAGE_INVALID_AAE, os.path.join(tmp_path, "invalid_aae.jpg"))
+    shutil.copy(TEST_AAE_INVALID_AAE, os.path.join(tmp_path, "invalid_aae.aae"))
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", str(tmp_path), "--glob", "*aae*"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    results = parse_import_output(result.output)
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["valid_aae.jpg"]]))[0]
+    assert photo.hasadjustments
+    photo = photosdb.query(QueryOptions(uuid=[results["invalid_aae.jpg"]]))[0]
+    assert not photo.hasadjustments
+
+
+@pytest.mark.test_import
+def test_import_same_stem(tmp_path):
+    """Test import of two files with same stem"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_NOT_LIVE_PHOTO)
+    test_video_1 = os.path.join(cwd, TEST_NOT_LIVE_VIDEO)
+
+    shutil.copy(test_image_1, tmp_path)
+    shutil.copy(test_video_1, tmp_path)
+    test_image_1 = str(tmp_path / pathlib.Path(test_image_1).name)
+    test_video_1 = str(tmp_path / pathlib.Path(test_video_1).name)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_1, test_video_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    file_2 = pathlib.Path(test_video_1).name
+    uuid_2 = import_data[file_2]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert not photo.live_photo
+    video = photosdb.query(QueryOptions(uuid=[uuid_2]))[0]
+    assert video.ismovie
+
+
+@pytest.mark.test_import
+def test_import_edited_with_aae(tmp_path):
+    """Test import of image with edited file and AAE sidecar"""
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
+    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
+    source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
+
+    test_image_original = str(tmp_path / "IMG_1234.jpg")
+    test_image_edited = str(tmp_path / "IMG_E1234.jpg")
+    test_image_aae = str(tmp_path / "IMG_1234.AAE")
+
+    shutil.copy(source_image_original, test_image_original)
+    shutil.copy(source_image_edited, test_image_edited)
+    shutil.copy(source_image_aae, test_image_aae)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_original, test_image_edited, test_image_aae],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_original).name
+    uuid_1 = import_data[file_1]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert photo.hasadjustments
+    assert photo.original_filename == "IMG_1234.jpg"
+    exported = photo.export(str(tmp_path), "edited.jpg", edited=True)
+    assert filecmp.cmp(exported[0], test_image_edited)
+
+
+@pytest.mark.test_import
+def test_import_edited_without_aae(tmp_path):
+    """Test import of image with edited file without AAE sidecar"""
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
+    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
+
+    test_image_original = str(tmp_path / "IMG_1234.jpg")
+    test_image_edited = str(tmp_path / "IMG_E1234.jpg")
+
+    shutil.copy(source_image_original, test_image_original)
+    shutil.copy(source_image_edited, test_image_edited)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_original, test_image_edited],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_original).name
+    uuid_1 = import_data[file_1]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert not photo.hasadjustments
+    assert photo.original_filename == "IMG_1234.jpg"
+
+
+@pytest.mark.test_import
+def test_import_edited_renamed_with_aae(tmp_path):
+    """Test import of image with edited file and AAE sidecar that needs to be renamed to be recognized by Photos as edited pair"""
+
+    # reset the counter in import_cli
+    import_cli._global_image_counter = 1
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
+    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
+    source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
+
+    shutil.copy(source_image_original, str(tmp_path))
+    shutil.copy(source_image_edited, str(tmp_path))
+    shutil.copy(source_image_aae, str(tmp_path))
+
+    test_image_original = str(
+        tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_ORIGINAL).name
+    )
+    test_image_edited = str(tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_EDITED).name)
+    test_image_aae = str(tmp_path / pathlib.Path(TEST_IMAGE_WITH_EDIT_AAE).name)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_original, test_image_edited, test_image_aae],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "Processing import group with .AAE file with edited version" in result.output
+    import_data = parse_import_output(result.output)
+
+    file_1 = f"IMG_0001_{pathlib.Path(TEST_IMAGE_WITH_EDIT_ORIGINAL).name}"
+    uuid_1 = import_data[file_1]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert photo.hasadjustments
+    assert photo.original_filename == file_1
+
+
+@pytest.mark.test_import
+def test_import_edited_renamed_with_aae_2(tmp_path):
+    """Test import of image with edited file and AAE sidecar that needs to be renamed to be recognized by Photos as edited pair"""
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_ORIGINAL)
+    source_image_edited = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_EDITED)
+    source_image_aae = os.path.join(cwd, TEST_IMAGE_WITH_EDIT_AAE)
+
+    original_name = "IMG_1234.jpg"
+    edited_name = "IMG_1234_edited.jpg"
+    aae_name = "IMG_1234.aae"
+    shutil.copy(source_image_original, str(tmp_path / original_name))
+    shutil.copy(source_image_edited, str(tmp_path / edited_name))
+    shutil.copy(source_image_aae, str(tmp_path / aae_name))
+
+    test_image_original = str(tmp_path / original_name)
+    test_image_edited = str(tmp_path / edited_name)
+    test_image_aae = str(tmp_path / aae_name)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        ["--verbose", test_image_original, test_image_edited, test_image_aae],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert "Processing import group with .AAE file with edited version" in result.output
+    import_data = parse_import_output(result.output)
+    uuid_1 = import_data[original_name]
+
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+    assert photo.hasadjustments
+    assert photo.original_filename == original_name
+
+
+@pytest.mark.test_import
+@pytest.mark.parametrize("filenames,imported_name", LIVE_PHOTO_FILENAMES)
+def test_import_edited_live(filenames, imported_name):
+    """Test import of edited live photo"""
+
+    # reset the counter in import_cli
+    import_cli._global_image_counter = 1
+
+    live_photo, live_video, live_photo_edited, live_video_edited, live_aae = filenames
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(
+        cwd, "tests/test-images", TEST_LIVE_PHOTO_ORIGINAL_PHOTO
+    )
+    source_image_edited = os.path.join(
+        cwd, "tests/test-images", TEST_LIVE_PHOTO_EDITED_PHOTO
+    )
+    source_video_original = os.path.join(
+        cwd, "tests/test-images", TEST_LIVE_PHOTO_ORIGINAL_VIDEO
+    )
+    source_video_edited = os.path.join(
+        cwd, "tests/test-images", TEST_LIVE_PHOTO_EDITED_VIDEO
+    )
+    source_image_aae = os.path.join(cwd, "tests/test-images", TEST_LIVE_PHOTO_AAE)
+
+    # need a clean temporary directory for each test so use TemporaryDirectory() rather than pytest's tmp_path
+    with TemporaryDirectory() as tmp_path:
+        live_photo = os.path.join(tmp_path, live_photo)
+        live_video = os.path.join(tmp_path, live_video)
+        live_photo_edited = os.path.join(tmp_path, live_photo_edited)
+        live_video_edited = os.path.join(tmp_path, live_video_edited)
+        live_aae = os.path.join(tmp_path, live_aae)
+
+        shutil.copy(source_image_original, live_photo)
+        shutil.copy(source_video_original, live_video)
+        shutil.copy(source_image_edited, live_photo_edited)
+        shutil.copy(source_video_edited, live_video_edited)
+        shutil.copy(source_image_aae, live_aae)
+
+        runner = CliRunner()
+        result = runner.invoke(
+            import_main,
+            ["--verbose", tmp_path],
+            terminal_width=TERMINAL_WIDTH,
+        )
+
+        assert (
+            "Processing live photo pair with .AAE file with edited version"
+            in result.output
+        )
+        import_data = parse_import_output(result.output)
+        uuid_1 = import_data[imported_name]
+
+        photosdb = PhotosDB()
+        photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+        assert photo.hasadjustments
+        assert photo.original_filename == imported_name

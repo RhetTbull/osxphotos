@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+import os
 import pathlib
 import sqlite3
 
@@ -40,7 +41,7 @@ class FingerprintQuery:
         asset_table = _DB_TABLE_NAMES[self.photos_version]["ASSET"]
         sql = f"""
             SELECT
-            {asset_table}.ZUUID, 
+            {asset_table}.ZUUID,
             {asset_table}.ZADDEDDATE,
             ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
             ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME
@@ -66,10 +67,10 @@ class FingerprintQuery:
         asset_table = _DB_TABLE_NAMES[self.photos_version]["ASSET"]
         sql = f"""
             SELECT
-            {asset_table}.ZUUID, 
+            {asset_table}.ZUUID,
             {asset_table}.ZADDEDDATE,
             ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
-            ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME 
+            ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME
             FROM {asset_table}
             JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
             WHERE ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE = ?
@@ -87,7 +88,7 @@ class FingerprintQuery:
         return results
 
     def possible_duplicates(
-        self, filepath: str, in_trash: bool = False
+        self, filepath: str | os.PathLike, in_trash: bool = False
     ) -> list[tuple[str, datetime.datetime, str]]:
         """Return a list of tuples of (uuid, date_added, filename) for all photos that might be duplicates of filepath
 
@@ -102,6 +103,7 @@ class FingerprintQuery:
         """
         # first check by fingerprint
         # Photos stores fingerprint for photos but not videos
+        filepath = str(filepath)
         if results := self.photos_by_fingerprint(fingerprint(filepath), in_trash):
             return results
 

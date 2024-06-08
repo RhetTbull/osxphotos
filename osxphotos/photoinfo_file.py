@@ -1,4 +1,4 @@
-"""A mock PhotoInfo class for a file or a dict instead of an asset in the Photos library"""
+"""A mock PhotoInfo class for a file instead of an asset in the Photos library"""
 
 from __future__ import annotations
 
@@ -9,14 +9,16 @@ import pathlib
 import uuid
 from typing import Optional, Union
 
+from ._constants import _OSXPHOTOS_NONE_SENTINEL
 from .datetime_utils import datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
-from .metadata_reader import MetaData, metadata_from_file, metadata_from_sidecar
+from .metadata_reader import MetaData, metadata_from_exiftool, metadata_from_sidecar
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 
 if is_macos:
     from .fingerprint import fingerprint
+    from .image_file_utils import is_image_file, is_video_file
 
 try:
     EXIFTOOL_PATH = get_exiftool_path()
@@ -25,7 +27,7 @@ except FileNotFoundError:
 
 logger = logging.getLogger("osxphotos")
 
-__all__ = ["PhotoInfoFromDict", "PhotoInfoFromFile"]
+__all__ = ["PhotoInfoFromFile"]
 
 
 class PhotoInfoFromFile:
@@ -44,16 +46,13 @@ class PhotoInfoFromFile:
         self._exiftool_path = exiftool or EXIFTOOL_PATH
         self._uuid = str(uuid.uuid1()).upper()
         self._sidecar = sidecar
-        if sidecar:
-            self._metadata = metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
-        elif self._exiftool_path:
-            self._metadata = metadata_from_file(
+        self._metadata = MetaData()
+        if self._exiftool_path:
+            self._metadata |= metadata_from_exiftool(
                 pathlib.Path(filepath), self._exiftool_path
             )
-        else:
-            self._metadata = MetaData(
-                title="", description="", keywords=[], location=(None, None)
-            )
+        if sidecar:
+            self._metadata |= metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
 
     @property
     def uuid(self):
@@ -70,6 +69,20 @@ class PhotoInfoFromFile:
     @property
     def original_filesize(self) -> int:
         return os.stat(pathlib.Path(self._path)).st_size
+
+    @property
+    def isphoto(self) -> bool | None:
+        """Return True if file is an image file otherwise False; if not on macOS, returns None"""
+        if not is_macos:
+            return None
+        return is_image_file(self._path)
+
+    @property
+    def ismovie(self) -> bool | None:
+        """Return True if file is a video file otherwise False; if not on macOS, returns None"""
+        if not is_macos:
+            return None
+        return is_video_file(self._path)
 
     @property
     def date(self):
@@ -108,11 +121,26 @@ class PhotoInfoFromFile:
         return self._metadata.description
 
     @property
+    def rating(self) -> int:
+        """rating of picture; reads XMP:Rating from the photo or sidecar file if available, else returns 0"""
+        return self._metadata.rating
+
+    @property
     def fingerprint(self) -> str | None:
         """Returns fingerprint of original photo as a string or None if not on macOS"""
         if is_macos:
             return fingerprint(self._path)
         return None
+
+    @property
+    def height(self) -> int:
+        """height of photo in pixels"""
+        return self._metadata.height
+
+    @property
+    def width(self) -> int:
+        """width of photo in pixels"""
+        return self._metadata.width
 
     @property
     def exiftool(self):
@@ -153,7 +181,7 @@ class PhotoInfoFromFile:
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
         """
-        options = options or RenderOptions(caller="import")
+        options = options or RenderOptions(caller="import", filepath=self.path)
         template = PhotoTemplate(self, exiftool_path=self._exiftool_path)
         return template.render(template_str, options)
 
@@ -164,19 +192,64 @@ class PhotoInfoFromFile:
         raise AttributeError()
 
 
-class PhotoInfoFromDict:
-    """Rehydrate a PhotoInfo class from a dict"""
+def render_photo_template_from_filepath(
+    filepath: pathlib.Path,
+    relative_filepath: pathlib.Path | None,
+    template: str,
+    exiftool_path: str | None,
+    sidecar: pathlib.Path | None,
+):
+    """Render template string for a photo from a file instead of a PhotoInfo object
 
-    def __init__(
-        self,
-        data: dict,
-        exiftool: str | None = None,
-    ):
-        self._data = data
-        self._exiftool_path = exiftool or EXIFTOOL_PATH
+    Args:
+        filepath: path to the photo being rendered
+        relative_filepath: path to the photo relative to the library or import root; if None, uses filepath
+        template: template string to render
+        exiftool_path: path to exiftool to retrieve metadata
+        sidecar: path to sidecar file if it exists for retrieving metadata
 
-    def __getattr__(self, name):
-        """Return dict value or None for non-private attribute"""
-        if not name.startswith("_"):
-            return self._data.get(name)
-        raise AttributeError()
+    Returns: list of rendered strings
+    """
+    photoinfo = PhotoInfoFromFile(
+        filepath, exiftool=exiftool_path, sidecar=str(sidecar) if sidecar else None
+    )
+    render_filepath = relative_filepath or filepath
+    options = RenderOptions(
+        none_str=_OSXPHOTOS_NONE_SENTINEL,
+        # filepath=str(relative_filepath),
+        filepath=str(render_filepath),
+        caller="import",
+    )
+    template_values, _ = photoinfo.render_template(template, options=options)
+    # filter out empty strings
+    template_values = [v.replace(_OSXPHOTOS_NONE_SENTINEL, "") for v in template_values]
+    template_values = [v for v in template_values if v]
+    return template_values
+
+
+def strip_edited_suffix(
+    filepath: pathlib.Path,
+    edited_suffix: str | None,
+    exiftool_path: str | None,
+) -> pathlib.Path:
+    """Strip edited suffix from filename if present
+
+    Args:
+        filepath: path to photo file
+        edited_suffix: str: suffix template to strip from filename
+        exiftool_path: path to exiftool
+
+    Returns: pathlib.Path with edited suffix stripped
+    """
+    photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path, sidecar=None)
+    if not edited_suffix:
+        return filepath
+
+    options = RenderOptions()
+    template_values, _ = photoinfo.render_template(edited_suffix, options=options)
+    if len(template_values) != 1:
+        raise ValueError(
+            f"edited_suffix template {edited_suffix} must return exactly one value"
+        )
+    suffix = template_values[0]
+    return filepath.with_name(filepath.stem[: -len(suffix)] + filepath.suffix)

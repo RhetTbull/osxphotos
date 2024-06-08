@@ -21,8 +21,10 @@ from osxphotos.export_db_utils import (
     export_db_check_signatures,
     export_db_get_about,
     export_db_get_errors,
+    export_db_get_last_export_dir,
     export_db_get_last_library,
     export_db_get_last_run,
+    export_db_get_runs,
     export_db_get_version,
     export_db_migrate_photos_library,
     export_db_save_config_to_file,
@@ -70,9 +72,17 @@ from .verbose import get_verbose_console, verbose_print
     help="Touch files on disk to match created date in Photos library and update export database signatures",
 )
 @click.option(
+    "--runs",
+    is_flag=True,
+    help="List osxphotos commands used with this database. See also --last-run.",
+)
+@click.option(
     "--last-run",
     is_flag=True,
-    help="Show last run osxphotos commands used with this database.",
+    help="Show last run osxphotos commands used with this database. See also --runs.",
+)
+@click.option(
+    "--last-export-dir", is_flag=True, help="Print path to last used export directory"
 )
 @click.option(
     "--save-config",
@@ -192,7 +202,7 @@ from .verbose import get_verbose_console, verbose_print
     is_flag=True,
     help="Run in dry-run mode (don't actually update files); for example, use with --update-signatures or --migrate-photos-library.",
 )
-@click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path(exists=True))
+@click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path())
 def exportdb(
     append,
     check,
@@ -204,10 +214,12 @@ def exportdb(
     info,
     errors,
     last_errors,
+    last_export_dir,
     last_run,
     migrate_photos_library,
     repair,
     report,
+    runs,
     save_config,
     sql,
     theme,
@@ -255,9 +267,11 @@ def exportdb(
             create,
             info,
             last_run,
+            last_export_dir,
             upgrade,
             repair,
             report,
+            runs,
             save_config,
             sql,
             touch_file,
@@ -303,7 +317,7 @@ def exportdb(
             )
             sys.exit(1)
 
-        if not "4.3" <= create <= OSXPHOTOS_EXPORTDB_VERSION:
+        if not float("4.3") <= float(create) <= float(OSXPHOTOS_EXPORTDB_VERSION):
             rich_echo_error(
                 f"[error]Error: invalid version number {create}: must be between >= 4.3, <= {OSXPHOTOS_EXPORTDB_VERSION}[/]"
             )
@@ -366,6 +380,17 @@ def exportdb(
             )
             sys.exit(0)
 
+    if runs:
+        try:
+            run_info = export_db_get_runs(export_db)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+        else:
+            for run in run_info:
+                rich_echo(f"[time]{run[0]}[/]: {run[1]} {run[2]}")
+            sys.exit(0)
+
     if last_run:
         try:
             last_run_info = export_db_get_last_run(export_db)
@@ -374,8 +399,22 @@ def exportdb(
             sys.exit(1)
         else:
             rich_echo(f"last run at [time]{last_run_info[0]}:")
-            rich_echo(f"osxphotos {last_run_info[1]}")
+            rich_echo(f"{last_run_info[1]}")
             sys.exit(0)
+
+    if last_export_dir:
+        try:
+            last_path = export_db_get_last_export_dir(export_db)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+        else:
+            if last_path:
+                rich_echo(f"[filepath]{last_path}[/]")
+                sys.exit(0)
+            else:
+                rich_echo(f"No last export directory found")
+                sys.exit(1)
 
     if save_config:
         try:
@@ -590,7 +629,7 @@ def exportdb(
         rich_echo(
             dedent(
                 f"""
-        [warning]:warning-emoji:  This command will update your export database ([filepath]{export_db}[/]) 
+        [warning]:warning-emoji:  This command will update your export database ([filepath]{export_db}[/])
         to use [filepath]{migrate_photos_library}[/] as the new source library.
         The last library used was [filepath]{last_library}[/].
         This will allow you to use the export database with the new library but it will

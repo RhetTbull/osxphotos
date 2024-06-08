@@ -1,4 +1,5 @@
 """persons command for osxphotos CLI"""
+
 import json
 
 import click

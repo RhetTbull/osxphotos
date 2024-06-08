@@ -1,4 +1,5 @@
 """ pytest test configuration """
+
 import os
 import pathlib
 import shutil
@@ -39,6 +40,8 @@ TEST_BATCH_EDIT = False
 
 # don't clean up crash logs (configured with --no-cleanup)
 NO_CLEANUP = False
+
+LIBRARY_COPY_DELAY = 5
 
 
 def get_os_version():
@@ -95,35 +98,35 @@ else:
 def setup_photos_timewarp():
     if not TEST_TIMEWARP:
         return
-    copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=5)
+    copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=LIBRARY_COPY_DELAY)
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import():
     if not TEST_IMPORT:
         return
-    copy_photos_library(TEST_LIBRARY_IMPORT, delay=10)
+    copy_photos_library(TEST_LIBRARY_IMPORT, delay=LIBRARY_COPY_DELAY)
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import_takeout():
     if not TEST_IMPORT_TAKEOUT:
         return
-    copy_photos_library(TEST_LIBRARY_TAKEOUT, delay=10)
+    copy_photos_library(TEST_LIBRARY_TAKEOUT, delay=LIBRARY_COPY_DELAY)
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_sync():
     if not TEST_SYNC:
         return
-    copy_photos_library(TEST_LIBRARY_SYNC, delay=10)
+    copy_photos_library(TEST_LIBRARY_SYNC, delay=LIBRARY_COPY_DELAY)
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_add_locations():
     if not TEST_ADD_LOCATIONS:
         return
-    copy_photos_library(TEST_LIBRARY_ADD_LOCATIONS, delay=10)
+    copy_photos_library(TEST_LIBRARY_ADD_LOCATIONS, delay=LIBRARY_COPY_DELAY)
 
 
 @pytest.fixture(autouse=True)
