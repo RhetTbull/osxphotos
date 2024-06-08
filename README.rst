@@ -57,51 +57,63 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
 
 .. code-block::
 
-   > osxphotos
-   Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
+Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
-   Options:
-     --db <Photos database path>  Specify Photos database path. Path to Photos
-                                 library/database can be specified using either
-                                 --db or directly as PHOTOS_LIBRARY positional
-                                 argument. If neither --db or PHOTOS_LIBRARY
-                                 provided, will attempt to find the library to
-                                 use in the following order: 1. last opened
-                                 library, 2. system library, 3.
-                                 ~/Pictures/Photos Library.photoslibrary
-     --json                      Print output in JSON format.
-     -v, --version                Show the version and exit.
-     -h, --help                   Show this message and exit.
+  OSXPhotos: the multi-tool for your Photos library.
 
+  To get help on a specific command, use "osxphotos COMMAND --help" or
+  "osxphotos help COMMAND"; for example, "osxphotos help export".
 
-   Commands:
-     about      Print information about osxphotos including license.
-     albums     Print out albums found in the Photos library.
-     diff       Compare two Photos databases and print out differences
-     docs       Open osxphotos documentation in your browser.
-     dump       Print list of all photos & associated info from the Photos...
-     exiftool   Run exiftool on previously exported files to update metadata.
-     export     Export photos from the Photos database.
-     exportdb   Utilities for working with the osxphotos export database
-     help       Print help; for help on commands: help <command>.
-     info       Print out descriptive info of the Photos library database.
-     inspect    Interactively inspect photos selected in Photos.
-     install    Install Python packages into the same environment as osxphotos
-     keywords   Print out keywords found in the Photos library.
-     labels     Print out image classification labels found in the Photos...
-     list       Print list of Photos libraries found on the system.
-     persons    Print out persons (faces) found in the Photos library.
-     places     Print out places found in the Photos library.
-     query      Query the Photos database using 1 or more search options; if...
-     repl       Run interactive osxphotos REPL shell (useful for debugging,...
-     run        Run a python file using same environment as osxphotos
-     snap       Create snapshot of Photos database to use with diff command
-     theme      Manage osxphotos color themes.
-     timewarp   Adjust date/time/timezone of photos in Apple Photos.
-     tutorial   Display osxphotos tutorial.
-     uninstall  Uninstall Python packages from the osxphotos environment
-     uuid       Print out unique IDs (UUID) of photos selected in Photos
-     version    Check for new version of osxphotos.
+  To search help for a specific topic within a command, run "osxphotos help
+  COMMAND TOPIC"; for example, "osxphotos help export keyword" to get help
+  related to keywords when using the export command.
+
+  To see the full documentation in your browser, run "osxphotos docs".
+
+  Some advanced commands are hidden by default. To see all commands, run
+  "OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help". Some commands also have hidden
+  options. These can be seen by running "OSXPHOTOS_SHOW_HIDDEN=1 osxphotos
+  help COMMAND".
+
+Options:
+  -v, --version  Show the version and exit.
+  -h, --help     Show this message and exit.
+
+Commands:
+  about          Print information about osxphotos including license.
+  add-locations  Add missing location data to photos in Photos.app using...
+  albums         Print out albums found in the Photos library.
+  batch-edit     Batch edit photo metadata such as title, description,...
+  compare        Compare two Photos libraries to find differences
+  docs           Open osxphotos documentation in your browser.
+  dump           Print list of all photos & associated info from the...
+  exiftool       Run exiftool on previously exported files to update...
+  export         Export photos from the Photos database.
+  exportdb       Utilities for working with the osxphotos export database
+  help           Print help; for help on commands: help <command>.
+  import         Import photos and videos into Photos.
+  info           Print out descriptive info of the Photos library database.
+  inspect        Interactively inspect photos selected in Photos.
+  install        Install Python packages into the same environment as...
+  keywords       Print out keywords found in the Photos library.
+  labels         Print out image classification labels found in the...
+  list           Print list of Photos libraries found on the system.
+  orphans        Find orphaned photos in a Photos library
+  persons        Print out persons (faces) found in the Photos library.
+  places         Print out places found in the Photos library.
+  push-exif      Write photo metadata to original files in the Photos...
+  query          Query the Photos database using 1 or more search...
+  repl           Run interactive osxphotos REPL shell (useful for...
+  run            Run a python file using same environment as osxphotos.
+  show           Show photo, album, or folder in Photos from UUID_OR_NAME
+  sync           Sync metadata and albums between Photos libraries.
+  template       Interactively render templates for selected photo.
+  theme          Manage osxphotos color themes.
+  timewarp       Adjust date/time/timezone of photos in Apple Photos.
+  tutorial       Display osxphotos tutorial.
+  uninstall      Uninstall Python packages from the osxphotos environment
+  uuid           Print out unique IDs (UUID) of photos selected in Photos
+  version        Check for new version of osxphotos.
 
 To get help on a specific command, use ``osxphotos help <command_name>``
 
