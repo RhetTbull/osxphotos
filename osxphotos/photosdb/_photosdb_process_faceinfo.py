@@ -1,7 +1,6 @@
 """ Methods for PhotosDB to add Photos face info 
 """
 
-
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..sqlite_utils import sqlite_open_ro
 from ..unicode import normalize_unicode
@@ -313,9 +312,9 @@ def _process_faceinfo_5(photosdb):
         face["roll"] = row[35]
         face["size"] = row[36]
         face["masteridentifier"] = row[38]
-        face[
-            "yaw"
-        ] = 0  # Photos 4 only (this is in Photos 5-7, but dropped in Ventura so just don't support it)
+        face["yaw"] = (
+            0  # Photos 4 only (this is in Photos 5-7, but dropped in Ventura so just don't support it)
+        )
         face["pitch"] = 0  # not defined in Photos 5
 
         photosdb._db_faceinfo_pk[pk] = face

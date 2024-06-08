@@ -150,6 +150,7 @@ class ExportResults:
         missing_album: list of tuples of (file, album) for any files that were missing from an album
         new: list of files that were new
         aae_written: list of files where .AAE file was written
+        aae_skipped: list of files where .AAE file was written
         sidecar_exiftool_skipped: list of files where exiftool sidecar was skipped
         sidecar_exiftool_written: list of files where exiftool sidecar was written
         sidecar_json_skipped: list of files where json sidecar was skipped
@@ -195,6 +196,7 @@ class ExportResults:
         "missing_album",
         "new",
         "aae_written",
+        "aae_skipped",
         "sidecar_exiftool_skipped",
         "sidecar_exiftool_written",
         "sidecar_json_skipped",
@@ -232,6 +234,7 @@ class ExportResults:
         missing_album: list[tuple[str, str]] | None = None,
         new: list[str] | None = None,
         aae_written: list[str] | None = None,
+        aae_skipped: list[str] | None = None,
         sidecar_exiftool_skipped: list[str] | None = None,
         sidecar_exiftool_written: list[str] | None = None,
         sidecar_json_skipped: list[str] | None = None,
@@ -282,6 +285,7 @@ class ExportResults:
             + self.touched
             + self.converted_to_jpeg
             + self.aae_written
+            + self.aae_skipped
             + self.sidecar_json_written
             + self.sidecar_json_skipped
             + self.sidecar_exiftool_written

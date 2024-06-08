@@ -1,6 +1,5 @@
 """Simple interface to SQLiteKVStore for storing state between runs of the CLI tool."""
 
-
 from __future__ import annotations
 
 import atexit

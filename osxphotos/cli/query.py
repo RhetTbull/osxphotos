@@ -35,17 +35,19 @@ from .print_photo_info import print_photo_fields, print_photo_info
 from .verbose import get_verbose_console
 
 MACOS_OPTIONS = make_click_option_decorator(
-    *[
-        click.Option(
-            ["--add-to-album"],
-            metavar="ALBUM",
-            help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
-            "if it doesn't exist.  All photos in the query results will be added to this album. "
-            "This only works if the Photos library being queried is the last-opened (default) library in Photos. ",
-        ),
-    ]
-    if is_macos
-    else []
+    *(
+        [
+            click.Option(
+                ["--add-to-album"],
+                metavar="ALBUM",
+                help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
+                "if it doesn't exist.  All photos in the query results will be added to this album. "
+                "This only works if the Photos library being queried is the last-opened (default) library in Photos. ",
+            ),
+        ]
+        if is_macos
+        else []
+    )
 )
 
 
@@ -163,7 +165,7 @@ def query(
             err=True,
         )
         try:
-            album_query.add_list(photos)
+            album_query.update(photos)
         except Exception as e:
             click.secho(
                 f"Error adding photos to album {add_to_album}: {e}",

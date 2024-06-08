@@ -3854,6 +3854,50 @@ def test_export_aae_as_hardlink():
         assert sorted(files) == sorted(CLI_EXPORT_AAE_FILENAMES)
 
 
+def test_export_aae_update():
+    """Test export with --export-aae --update"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--export-aae",
+                f"--uuid={CLI_EXPORT_AAE_UUID}",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORT_AAE_FILENAMES)
+
+        # now update
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--export-aae",
+                f"--uuid={CLI_EXPORT_AAE_UUID}",
+                "--update",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Error" not in result.output
+        assert re.findall(
+            r"Skipped up to date file (.*\.AAE)", result.output, re.MULTILINE
+        )
+
+
 def test_export_sidecar():
     """test --sidecar"""
 
@@ -6496,7 +6540,7 @@ def test_export_ignore_signature():
 def test_export_ignore_signature_sidecar():
     """test export with --ignore-signature and --sidecar"""
     """
-    Test the following use cases: 
+    Test the following use cases:
     If the metadata (in Photos) that went into the sidecar did not change, the sidecar will not be updated
     If the metadata (in Photos) that went into the sidecar did change, a new sidecar is written but a new image file is not
     If a sidecar does not exist for the photo, a sidecar will be written whether or not the photo file was written

@@ -6,7 +6,8 @@ import datetime
 import os
 
 from .photoinfo import PhotoInfo
-from .photoinfo_file import PhotoInfoFromDict, PhotoInfoFromFile
+from .photoinfo_dict import PhotoInfoFromDict, photoinfo_from_dict
+from .photoinfo_file import PhotoInfoFromFile
 from .platform import is_macos
 
 if is_macos:
@@ -19,7 +20,7 @@ def photo_signature(
 ) -> str:
     """Compute photo signature for a PhotoInfo, a PhotoInfo dict, or file path"""
     if isinstance(photo, dict):
-        photo = PhotoInfoFromDict(photo)
+        photo = photoinfo_from_dict(photo)
     elif not isinstance(photo, PhotoInfo):
         photo = PhotoInfoFromFile(photo, exiftool=exiftool)
 

@@ -1,4 +1,5 @@
 """repl command for osxphotos CLI"""
+
 from __future__ import annotations
 
 import os
@@ -75,6 +76,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     from osxphotos.momentinfo import MomentInfo
     from osxphotos.photoexporter import PhotoExporter
     from osxphotos.photoquery import QueryOptions
+    from osxphotos.photosalbum import PhotosAlbum
     from osxphotos.placeinfo import PlaceInfo
     from osxphotos.scoreinfo import ScoreInfo
     from osxphotos.searchinfo import SearchInfo
@@ -122,7 +124,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     print(
         "- AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportOptions, ExportResults, "
         "PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo, "
-        "SidecarWriter, ExifWriter\n"
+        "SidecarWriter, ExifWriter, PhotosAlbum\n"
     )
     print("The following variables are defined:")
     print(f"- photosdb: PhotosDB() instance for '{photosdb.library_path}'")

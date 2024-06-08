@@ -1,4 +1,5 @@
 """ Test PlaceInfo """
+
 import pytest
 from bpylist2 import archiver
 

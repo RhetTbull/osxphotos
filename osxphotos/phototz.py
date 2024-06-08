@@ -1,4 +1,5 @@
 """ Update the timezone of a photo in Apple Photos' library """
+
 # WARNING: This is a hack.  It might destroy your Photos library.
 # Ensure you have a backup before using!
 # You have been warned.

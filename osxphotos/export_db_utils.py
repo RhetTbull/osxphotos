@@ -9,11 +9,13 @@ import os
 import pathlib
 import sqlite3
 from typing import Any, Callable, Optional, Tuple, Union
+import tenacity
 
 import toml
 from rich import print
 
 from osxphotos.photoinfo import PhotoInfo
+from osxphotos.photoinfo_dict import PhotoInfoFromDict, photoinfo_from_dict
 
 from ._constants import OSXPHOTOS_EXPORT_DB, SQLITE_CHECK_SAME_THREAD
 from ._version import __version__
@@ -29,8 +31,11 @@ __all__ = [
     "export_db_check_signatures",
     "export_db_get_about",
     "export_db_get_errors",
+    "export_db_get_last_export_dir",
     "export_db_get_last_library",
     "export_db_get_last_run",
+    "export_db_get_photoinfo_for_filepath",
+    "export_db_get_runs",
     "export_db_get_version",
     "export_db_migrate_photos_library",
     "export_db_save_config_to_file",
@@ -48,7 +53,7 @@ def isotime_from_ts(ts: int) -> str:
 
 
 def export_db_get_version(
-    dbfile: Union[str, pathlib.Path]
+    dbfile: str | os.PathLike,
 ) -> Tuple[Optional[int], Optional[int]]:
     """returns version from export database as tuple of (osxphotos version, export_db version)"""
     conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
@@ -60,7 +65,7 @@ def export_db_get_version(
     return (None, None)
 
 
-def export_db_get_about(dbfile: Union[str, pathlib.Path]) -> str:
+def export_db_get_about(dbfile: str | os.PathLike) -> str:
     """Returns the about string from the export database"""
     # read the last entry in the about table
     conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
@@ -70,7 +75,7 @@ def export_db_get_about(dbfile: Union[str, pathlib.Path]) -> str:
     return ""
 
 
-def export_db_vacuum(dbfile: Union[str, pathlib.Path]) -> None:
+def export_db_vacuum(dbfile: str | os.PathLike) -> None:
     """Vacuum export database"""
     conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
@@ -79,8 +84,8 @@ def export_db_vacuum(dbfile: Union[str, pathlib.Path]) -> None:
 
 
 def export_db_update_signatures(
-    dbfile: Union[str, pathlib.Path],
-    export_dir: Union[str, pathlib.Path],
+    dbfile: str | os.PathLike,
+    export_dir: str | os.PathLike,
     verbose_: Callable = noop,
     dry_run: bool = False,
 ) -> Tuple[int, int]:
@@ -121,8 +126,21 @@ def export_db_update_signatures(
     return (updated, skipped)
 
 
+def export_db_get_runs(
+    export_db: str | os.PathLike,
+) -> list[Tuple[str, str, str]]:
+    """Get last run from export database"""
+    conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
+    c = conn.cursor()
+    if rows := c.execute(
+        "SELECT datetime, script_name, args FROM runs ORDER BY id DESC;"
+    ).fetchall():
+        return rows
+    return []
+
+
 def export_db_get_last_run(
-    export_db: Union[str, pathlib.Path]
+    export_db: str | os.PathLike,
 ) -> Tuple[Optional[str], Optional[str]]:
     """Get last run from export database"""
     conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
@@ -135,7 +153,7 @@ def export_db_get_last_run(
 
 
 def export_db_get_errors(
-    export_db: Union[str, pathlib.Path]
+    export_db: str | os.PathLike,
 ) -> Tuple[Optional[str], Optional[str]]:
     """Get errors from export database"""
     conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
@@ -151,7 +169,7 @@ def export_db_get_errors(
 
 
 def export_db_save_config_to_file(
-    export_db: Union[str, pathlib.Path], config_file: Union[str, pathlib.Path]
+    export_db: str | os.PathLike, config_file: str | os.PathLike
 ) -> None:
     """Save export_db last run config to file"""
     export_db = pathlib.Path(export_db)
@@ -160,13 +178,13 @@ def export_db_save_config_to_file(
     c = conn.cursor()
     row = c.execute("SELECT config FROM config ORDER BY id DESC LIMIT 1;").fetchone()
     if not row:
-        return ValueError("No config found in export_db")
+        raise ValueError("No config found in export_db")
     with config_file.open("w") as f:
         f.write(row[0])
 
 
 def export_db_get_config(
-    export_db: Union[str, pathlib.Path], config: ConfigOptions, override=False
+    export_db: str | os.PathLike, config: ConfigOptions, override=False
 ) -> ConfigOptions:
     """Load last run config to config
 
@@ -185,8 +203,8 @@ def export_db_get_config(
 
 
 def export_db_check_signatures(
-    dbfile: Union[str, pathlib.Path],
-    export_dir: Union[str, pathlib.Path],
+    dbfile: str | os.PathLike,
+    export_dir: str | os.PathLike,
     verbose_: Callable = noop,
 ) -> Tuple[int, int, int]:
     """Check signatures for all files found in the export database to verify what matches the on disk files
@@ -228,8 +246,8 @@ def export_db_check_signatures(
 
 
 def export_db_touch_files(
-    dbfile: Union[str, pathlib.Path],
-    export_dir: Union[str, pathlib.Path],
+    dbfile: str | os.PathLike,
+    export_dir: str | os.PathLike,
     verbose_: Callable = noop,
     dry_run: bool = False,
 ) -> Tuple[int, int, int]:
@@ -318,8 +336,8 @@ def export_db_touch_files(
 
 
 def export_db_migrate_photos_library(
-    dbfile: Union[str, pathlib.Path],
-    photos_library: Union[str, pathlib.Path],
+    dbfile: str | os.PathLike,
+    photos_library: str | os.PathLike,
     verbose: Callable = noop,
     dry_run: bool = False,
 ):
@@ -345,12 +363,12 @@ def export_db_migrate_photos_library(
     photosdb_name_size = {}
     for photo in photosdb.photos():
         photosdb_signature[photo_signature(photo)] = photo.uuid
-        photosdb_cloud_guid[
-            f"{photo.original_filename}:{photo.cloud_guid}"
-        ] = photo.uuid
-        photosdb_name_size[
-            f"{photo.original_filename}:{photo.original_filesize}"
-        ] = photo.uuid
+        photosdb_cloud_guid[f"{photo.original_filename}:{photo.cloud_guid}"] = (
+            photo.uuid
+        )
+        photosdb_name_size[f"{photo.original_filename}:{photo.original_filesize}"] = (
+            photo.uuid
+        )
     verbose("Matching photos in export database to photos in Photos library")
     matched = 0
     notmatched = 0
@@ -457,7 +475,7 @@ def export_db_update_uuid(
         return (False, str(e))
 
 
-def export_db_backup(dbpath: Union[str, pathlib.Path]) -> str:
+def export_db_backup(dbpath: str | os.PathLike) -> str:
     """Backup export database, returns name of backup file"""
     dbpath = pathlib.Path(dbpath)
     # create backup with .bak extension and datestamp in YYYYMMDDHHMMSS format
@@ -473,7 +491,7 @@ def export_db_backup(dbpath: Union[str, pathlib.Path]) -> str:
     return backup_file
 
 
-def export_db_get_last_library(dbpath: Union[str, pathlib.Path]) -> str:
+def export_db_get_last_library(dbpath: str | os.PathLike) -> str:
     """Return the last library used to export from
 
     This isn't stored separately in the database but can be extracted from the
@@ -482,7 +500,7 @@ def export_db_get_last_library(dbpath: Union[str, pathlib.Path]) -> str:
     library name from the photoinfo table.
 
     Args:
-        dbpath (Union[str, pathlib.Path]): path to export database
+        dbpath (str | os.PathLike): path to export database
 
     Returns:
         str: name of library used to export from or "" if not found
@@ -495,10 +513,10 @@ def export_db_get_last_library(dbpath: Union[str, pathlib.Path]) -> str:
             SELECT json_extract(photoinfo.photoinfo, '$.library')
             FROM photoinfo
             WHERE photoinfo.uuid = (
-                SELECT export_data.uuid 
-                FROM export_data 
+                SELECT export_data.uuid
+                FROM export_data
                 WHERE export_data.timestamp = (
-                    SELECT MAX(export_data.timestamp) 
+                    SELECT MAX(export_data.timestamp)
                     FROM export_data))
     """
     ).fetchone():
@@ -534,11 +552,11 @@ def compute_photoinfo_digest(photoinfo: dict[str, Any], photo: PhotoInfo) -> str
     return hexdigest(json.dumps(new_dict, sort_keys=True))
 
 
-def find_export_db_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
+def find_export_db_for_filepath(filepath: str | os.PathLike) -> str:
     """Walk up a directory tree looking for an export database
 
     Args:
-        filepath (Union[str, pathlib.Path]): path to file or directory
+        filepath (str | os.PathLike): path to file or directory
 
     Returns:
         str: path to export database or "" if not found
@@ -556,11 +574,11 @@ def find_export_db_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
     return ""
 
 
-def get_uuid_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
+def get_uuid_for_filepath(filepath: str | os.PathLike) -> str:
     """Find the UUID for a given filepath, traversing the directory tree to find the export database.
 
     Args:
-        filepath (Union[str, pathlib.Path]): path to file or directory
+        filepath (str | os.PathLike): path to file or directory
 
     Returns:
         str: UUID for file or "" if not found
@@ -571,3 +589,52 @@ def get_uuid_for_filepath(filepath: Union[str, pathlib.Path]) -> str:
         exportdb = ExportDB(export_db_path, export_root)
         return record.uuid if (record := exportdb.get_file_record(filepath)) else ""
     return ""
+
+
+def export_db_get_last_export_dir(filepath: str | os.PathLike) -> str | None:
+    """Return path to last export directory from database"""
+    filepath = pathlib.Path(filepath)
+    if export_db_path := find_export_db_for_filepath(filepath):
+        export_root = pathlib.Path(export_db_path).parent
+        exportdb = ExportDB(export_db_path, None)
+        return exportdb.get_last_export_directory()
+    return None
+
+
+def export_db_get_photoinfo_for_filepath(
+    exportdb_path: str | os.PathLike,
+    filepath: str | os.PathLike,
+    exiftool: str | os.PathLike | None = None,
+    exportdir_path: str | os.PathLike | None = None,
+) -> PhotoInfoFromDict | None:
+    """Return photoinfo object for a given filepath
+
+    Args:
+        exportdb: path to the export database
+        exportdir: path to the export directory or None
+        filepath: absolute path to the file to retrieve info for from the database
+        exiftool: optional path to exiftool to be passed to the PhotoInfoFromDict object
+
+    Returns: PhotoInfoFromDict | None
+    """
+    last_export_dir = exportdir_path or export_db_get_last_export_dir(exportdb_path)
+    if not pathlib.Path(exportdb_path).is_file():
+        exportdb_path = find_export_db_for_filepath(exportdb_path)
+    if not exportdb_path:
+        raise ValueError(f"Could not find export database at path: {exportdb_path}")
+    exportdb = ExportDB(exportdb_path, last_export_dir)
+    try:
+        # if the filepath is not in the export path, this will eventually fail with a RetryError
+        # as get_file_record keeps trying to read the database
+        if file_rec := exportdb.get_file_record(filepath):
+            if info_str := file_rec.photoinfo:
+                try:
+                    info_dict = json.loads(info_str)
+                except Exception as e:
+                    raise ValueError(f"Error loading PhotoInfo dict from database: {e}")
+                return photoinfo_from_dict(
+                    info_dict, exiftool=str(exiftool) if exiftool else None
+                )
+    except tenacity.RetryError:
+        return None
+    return None

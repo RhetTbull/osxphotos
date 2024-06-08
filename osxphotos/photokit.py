@@ -73,15 +73,15 @@ __all__ = [
 
 ### constants
 # which version to export, use either PHOTOS_VERSION_X or the longer PhotoKit name
-PHOTOS_VERSION_ORIGINAL = (
-    PHImageRequestOptionsVersionOriginal
-) = Photos.PHImageRequestOptionsVersionOriginal
-PHOTOS_VERSION_UNADJUSTED = (
-    PHImageRequestOptionsVersionUnadjusted
-) = Photos.PHImageRequestOptionsVersionUnadjusted
-PHOTOS_VERSION_CURRENT = (
-    PHImageRequestOptionsVersionCurrent
-) = Photos.PHImageRequestOptionsVersionCurrent
+PHOTOS_VERSION_ORIGINAL = PHImageRequestOptionsVersionOriginal = (
+    Photos.PHImageRequestOptionsVersionOriginal
+)
+PHOTOS_VERSION_UNADJUSTED = PHImageRequestOptionsVersionUnadjusted = (
+    Photos.PHImageRequestOptionsVersionUnadjusted
+)
+PHOTOS_VERSION_CURRENT = PHImageRequestOptionsVersionCurrent = (
+    Photos.PHImageRequestOptionsVersionCurrent
+)
 
 # notification that gets sent to Notification Center
 PHOTOKIT_NOTIFICATION_FINISHED_REQUEST = "PyPhotoKitNotificationFinishedRequest"

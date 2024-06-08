@@ -16,6 +16,7 @@ import subprocess
 import sys
 import urllib.parse
 import uuid
+from collections.abc import Iterable
 from functools import cache
 from plistlib import load as plistload
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, TypeVar, Union
@@ -500,8 +501,10 @@ def get_latest_version() -> Tuple[Optional[str], str]:
         return None, e
 
 
-def pluralize(count: Optional[int], singular: str, plural: str) -> str:
+def pluralize(count: Optional[int] | Iterable, singular: str, plural: str) -> str:
     """Return singular or plural based on count"""
+    if isinstance(count, Iterable):
+        return singular if len(count) == 1 else plural
     return singular if count == 1 else plural
 
 

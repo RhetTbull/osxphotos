@@ -1,6 +1,5 @@
 """Write metadata to files using exiftool"""
 
-
 from __future__ import annotations
 
 import contextlib
