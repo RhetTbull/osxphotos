@@ -79,13 +79,14 @@ Once you've installed osxphotos with pipx, to upgrade to the latest version:
 
     pipx upgrade osxphotos
 
-**Note**: When installing other packages with homebrew, homebrew may update the version of Python installed which would then cause any app (including osxphotos) installed with `pipx` to fail. If this happens, the easiest fix is to reinstall osxphotos with:
-
-    pipx reinstall osxphotos
-
-Alternatively, you can reinstall all apps installed with `pipx` with:
-
-    pipx reinstall-all
+> [!NOTE]  
+> When installing other packages with homebrew, homebrew may update the version of Python installed which would then cause any app (including osxphotos) installed with `pipx` to fail. If this happens, the easiest fix is to reinstall osxphotos with:
+>
+>     pipx reinstall osxphotos
+>
+> Alternatively, you can reinstall all apps installed with `pipx` with:
+>
+>     pipx reinstall-all
 
 ### Installation using pip
 
@@ -124,6 +125,11 @@ Next, install the required dependencies, and `osxphotos` itself. I recommend you
     python3 -m pip install -r dev_requirements.txt
     python3 -m pip install -r requirements.txt
     python3 -m pip install -e .
+
+I recommend you create a [virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing osxphotos.
+
+> [!NOTE]  
+> The git repo for this project is very large (> 3GB) because it contains multiple Photos libraries used for testing on different versions of macOS.  If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or `pipx` as described above.
 
 Once you've installed osxphotos via the git repository, to upgrade to the latest version:
 
@@ -284,7 +290,8 @@ The design philosophy for osxphotos is "make the easy things easy and make the h
 
 This command exports all your photos to the `/path/to/export` directory.
 
-**Note**: osxphotos uses the term 'photo' to refer to a generic media asset in your Photos Library.  A photo may be an image, a video file, a combination of still image and video file (e.g. an Apple "Live Photo" which is an image and an associated "live preview" video file), a JPEG image with an associated RAW image, etc.
+> [!NOTE]  
+> osxphotos uses the term 'photo' to refer to a generic media asset in your Photos Library.  A photo may be an image, a video file, a combination of still image and video file (e.g. an Apple "Live Photo" which is an image and an associated "live preview" video file), a JPEG image with an associated RAW image, etc.
 
 #### Export by date
 
@@ -310,7 +317,10 @@ Of course, some photos might not have an associated place name so the template s
 
 `osxphotos export /path/to/export --directory "{created.year}/{place.name.country,No-Country}"`
 
-The value after the ',' in the template string is the default value, in this case 'No-Country'.  **Note**: If you don't specify a default value and a template field is null, osxphotos will use "_" (underscore character) as the default.
+The value after the ',' in the template string is the default value, in this case 'No-Country'.
+
+> [!NOTE]  
+> If you don't specify a default value and a template field is null, osxphotos will use "_" (underscore character) as the default.
 
 Some template fields, such as `{keyword}`, may expand to more than one value.  For example, if a photo has keywords of "Travel" and "Vacation", `{keyword}` would expand to "Travel", "Vacation".  When used with `--directory`, this would result in the photo being exported to more than one directory (thus more than one copy of the photo would be exported).  For example, if `IMG_1234.JPG` has keywords `Travel`, and `Vacation` and you run the following command:
 
@@ -388,7 +398,12 @@ the exported files would be:
 
 #### Edited photos
 
-If a photo has been edited in Photos (e.g. cropped, adjusted, etc.) there will be both an original image and an edited image in the Photos Library.  By default, osxphotos will export both the original and the edited image.  To distinguish between them, osxphotos will append "_edited" to the edited image.  For example, if the original image was named `IMG_1234.JPG`, osxphotos will export the original as `IMG_1234.JPG` and the edited version as `IMG_1234_edited.jpeg`.  **Note:** Photos changes the extension of edited images to ".jpeg" even if the original was named ".JPG".  You can change the suffix appended to edited images using the `--edited-suffix` option:
+If a photo has been edited in Photos (e.g. cropped, adjusted, etc.) there will be both an original image and an edited image in the Photos Library.  By default, osxphotos will export both the original and the edited image.  To distinguish between them, osxphotos will append "_edited" to the edited image.  For example, if the original image was named `IMG_1234.JPG`, osxphotos will export the original as `IMG_1234.JPG` and the edited version as `IMG_1234_edited.jpeg`.  
+
+> [!NOTE]  
+> Photos changes the extension of edited images to ".jpeg" even if the original was named ".JPG".
+
+You can change the suffix appended to edited images using the `--edited-suffix` option:
 
 `osxphotos export /path/to/export --edited-suffix "_EDIT"`
 
@@ -472,9 +487,10 @@ If some of your photos contain a keyword you do not want to be added to the expo
 
 In this example, `|remove(MyKeyword)` is a filter which removes `MyKeyword` from the keyword list of every photo being processed.  The `--replace-keywords` option instructs osxphotos to replace the keywords in the exported file with the filtered keywords from `--keyword-template`.
 
-**Note**: When evaluating templates for `--directory` and `--filename`, osxphotos inserts the automatic default value "_" for any template field which is null (empty or blank).  This is to ensure that there's never a null directory or filename created.  For metadata templates such as `--keyword-template`, osxphotos does not provide an automatic default value thus if the template field is null, no keyword would be created.  Of course, you can provide a default value if desired and osxphotos will use this.  For example, to add "nolabel" as a keyword for any photo that doesn't have labels:
-
-`osxphotos export /path/to/export --exiftool --keyword-template "{label,nolabel}"`
+> [!NOTE]  
+> When evaluating templates for `--directory` and `--filename`, osxphotos inserts the automatic default value "_" for any template field which is null (empty or blank).  This is to ensure that there's never a null directory or filename created.  For metadata templates such as `--keyword-template`, osxphotos does not provide an automatic default value thus if the template field is null, no keyword would be created.  Of course, you can provide a default value if desired and osxphotos will use this.  For example, to add "nolabel" as a keyword for any photo that doesn't have labels:
+>
+> `osxphotos export /path/to/export --exiftool --keyword-template "{label,nolabel}"`
 
 #### Sidecar files
 
@@ -490,7 +506,11 @@ Sidecar files are named "photoname.ext.sidecar_ext".  For example, if the photo 
 
 #### Updating a previous export
 
-If you want to use osxphotos to perform periodic backups of your Photos library rather than a one-time export, use the `--update` option.  When `osxphotos export` is run, it creates a database file named `.osxphotos_export.db` in the export folder.  (**Note** Because the filename starts with a ".", you won't see it in Finder which treats "dot-files" like this as hidden.  You will see the file in the Terminal.) . If you run osxphotos with the `--update` option, it will look for this database file and, if found, use it to retrieve state information from the last time it was run to only export new or changed files.  For example:
+If you want to use osxphotos to perform periodic backups of your Photos library rather than a one-time export, use the `--update` option.  When `osxphotos export` is run, it creates a database file named `.osxphotos_export.db` in the export folder. 
+> [!NOTE]  
+> Because the filename starts with a ".", you won't see it in Finder which treats "dot-files" like this as hidden.  You will see the file in the Terminal.
+
+If you run osxphotos with the `--update` option, it will look for this database file and, if found, use it to retrieve state information from the last time it was run to only export new or changed files.  For example:
 
 `osxphotos export /path/to/export --update`
 
