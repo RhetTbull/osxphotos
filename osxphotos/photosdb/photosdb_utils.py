@@ -21,6 +21,8 @@ from .._constants import (
 )
 from ..sqlite_utils import sqlite_open_ro
 
+logger = logging.getLogger("osxphotos")
+
 __all__ = [
     "get_db_version",
     "get_model_version",
@@ -73,25 +75,36 @@ def get_db_version(db_file):
     return version
 
 
-def get_model_version(db_file: str) -> str:
+def get_model_version(db_file: str) -> str | None:
     """Returns the database model version from Z_METADATA
 
     Args:
         db_file: path to Photos.sqlite database file containing Z_METADATA table
 
-    Returns: model version as str
+    Returns: model version as str or None if model version not found
     """
 
     (conn, c) = sqlite_open_ro(db_file)
 
     # get database version
-    c.execute("SELECT MAX(Z_VERSION), Z_PLIST FROM Z_METADATA")
-    results = c.fetchone()
+    try:
+        c.execute("SELECT MAX(Z_VERSION), Z_PLIST FROM Z_METADATA")
+        results = c.fetchone()
+    except Exception as e:
+        logger.warning(f"Error getting model version: {e}")
+        return None
 
     conn.close()
 
-    plist = plistlib.loads(results[1])
-    return plist["PLModelVersion"]
+    if results[0] is None:
+        return None
+
+    try:
+        plist = plistlib.loads(results[1])
+        return plist["PLModelVersion"]
+    except KeyError:
+        logger.warning(f"Error getting model version: {results}")
+        return None
 
 
 def get_photos_version_from_model(db_file: str) -> int:
@@ -105,20 +118,26 @@ def get_photos_version_from_model(db_file: str) -> int:
     """
 
     model_ver = get_model_version(db_file)
+    if model_ver is None:
+        logger.warning(
+            f"Could not determine model version for {db_file}; assuming latest version"
+        )
+        return 9
+    model_ver = int(model_ver)
     if _PHOTOS_5_MODEL_VERSION[0] <= model_ver <= _PHOTOS_5_MODEL_VERSION[1]:
         return 5
-    elif _PHOTOS_6_MODEL_VERSION[0] <= model_ver <= _PHOTOS_6_MODEL_VERSION[1]:
+    if _PHOTOS_6_MODEL_VERSION[0] <= model_ver <= _PHOTOS_6_MODEL_VERSION[1]:
         return 6
-    elif _PHOTOS_7_MODEL_VERSION[0] <= model_ver <= _PHOTOS_7_MODEL_VERSION[1]:
+    if _PHOTOS_7_MODEL_VERSION[0] <= model_ver <= _PHOTOS_7_MODEL_VERSION[1]:
         return 7
-    elif _PHOTOS_8_MODEL_VERSION[0] <= model_ver <= _PHOTOS_8_MODEL_VERSION[1]:
+    if _PHOTOS_8_MODEL_VERSION[0] <= model_ver <= _PHOTOS_8_MODEL_VERSION[1]:
         return 8
-    elif _PHOTOS_9_MODEL_VERSION[0] <= model_ver <= _PHOTOS_9_MODEL_VERSION[1]:
+    if _PHOTOS_9_MODEL_VERSION[0] <= model_ver <= _PHOTOS_9_MODEL_VERSION[1]:
         return 9
-    else:
-        logging.warning(f"Unknown model version: {model_ver}")
-        # cross our fingers and try latest version
-        return 9
+    logger.warning(
+        f"Unknown db / model version for {db_file}: model_ver={model_ver}; assuming latest version"
+    )
+    return 9
 
 
 def get_photos_library_version(library_path: str | pathlib.Path) -> int:
@@ -142,22 +161,7 @@ def get_photos_library_version(library_path: str | pathlib.Path) -> int:
 
     # assume it's a Photos 5+ library, get the model version to determine which version
     library_path = library_path.parent / "Photos.sqlite"
-    model_ver = get_model_version(str(library_path))
-    model_ver = int(model_ver)
-    if _PHOTOS_5_MODEL_VERSION[0] <= model_ver <= _PHOTOS_5_MODEL_VERSION[1]:
-        return 5
-    if _PHOTOS_6_MODEL_VERSION[0] <= model_ver <= _PHOTOS_6_MODEL_VERSION[1]:
-        return 6
-    if _PHOTOS_7_MODEL_VERSION[0] <= model_ver <= _PHOTOS_7_MODEL_VERSION[1]:
-        return 7
-    if _PHOTOS_8_MODEL_VERSION[0] <= model_ver <= _PHOTOS_8_MODEL_VERSION[1]:
-        return 8
-    if _PHOTOS_9_MODEL_VERSION[0] <= model_ver <= _PHOTOS_9_MODEL_VERSION[1]:
-        return 9
-    logging.warning(
-        f"Unknown db / model version: db_ver={db_ver}, model_ver={model_ver}; assuming Photos 8"
-    )
-    return 9
+    return get_photos_version_from_model(str(library_path))
 
 
 def get_db_path_for_library(photos_library: str | pathlib.Path) -> pathlib.Path:
