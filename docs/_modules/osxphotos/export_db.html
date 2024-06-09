@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.export_db - osxphotos 0.67.7 documentation</title>
+        <title>osxphotos.export_db - osxphotos 0.67.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.7 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -238,7 +238,7 @@
     <span class="s2">&quot;ExportDBTemp&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">OSXPHOTOS_EXPORTDB_VERSION</span> <span class="o">=</span> <span class="s2">&quot;9.1&quot;</span>
+<span class="n">OSXPHOTOS_EXPORTDB_VERSION</span> <span class="o">=</span> <span class="s2">&quot;10.0&quot;</span>
 <span class="n">OSXPHOTOS_ABOUT_STRING</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Created by osxphotos version </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2"> (https://github.com/RhetTbull/osxphotos) on </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
 
 <span class="c1"># max retry attempts for methods which use tenacity.retry</span>
@@ -292,34 +292,40 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        dbfile: path to osxphotos export database file</span>
-<span class="sd">        export_dir: path to directory where exported files are stored</span>
+<span class="sd">        export_dir: path to directory where exported files are stored; if None will read value from database</span>
 <span class="sd">        version: if supplied, creates database with this version; otherwise uses current version;</span>
 <span class="sd">            (must be &gt;= &quot;4.3&quot; and &lt;= OSXPHOTOS_EXPORTDB_VERSION)</span>
 <span class="sd">            For testing only; in normal usage, omit this argument</span>
+
+<span class="sd">    Note: export_dir = None must only be used when opening an existing database to read and not to export</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dbfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">export_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dbfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">export_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new ExportDB object</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dbfile: path to osxphotos export database file</span>
-<span class="sd">            export_dir: path to directory where exported files are stored</span>
+<span class="sd">            export_dir: path to directory where exported files are stored; if None will read value from database</span>
 <span class="sd">            version: if supplied, creates database with this version; otherwise uses current version;</span>
 <span class="sd">                (must be &gt;= &quot;4.3&quot; and &lt;= OSXPHOTOS_EXPORTDB_VERSION)</span>
 <span class="sd">                For testing only; in normal usage, omit this argument</span>
+
+<span class="sd">        Note: export_dir = None must only be used when opening an existing database to read and not to export</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dbfile</span><span class="p">)</span>
-        <span class="c1"># export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to</span>
-        <span class="c1"># relative paths to this path</span>
+
+        <span class="c1"># export_dir allows the database to located in a different path than the export</span>
+        <span class="c1"># all paths are stored as relative paths to this path</span>
         <span class="c1"># this allows the entire export tree to be moved to a new disk/location</span>
         <span class="c1"># whilst preserving the UUID to filename mapping</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">export_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">export_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">export_dir</span> <span class="k">else</span> <span class="kc">None</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">was_upgraded</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">was_created</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -328,6 +334,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_export_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_perform_db_maintenance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_insert_run_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_insert_export_dir</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -347,7 +354,7 @@
 <div class="viewcode-block" id="ExportDB.get_file_record">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_file_record">[docs]</a>
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
-    <span class="k">def</span> <span class="nf">get_file_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportRecord&quot;</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_file_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportRecord&quot;</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;get info for filename</span>
 
 <span class="sd">        Returns: an ExportRecord object or None if filename not found</span>
@@ -372,7 +379,7 @@
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">create_file_record</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportRecord&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;create a new record for filename and uuid</span>
 
@@ -399,7 +406,7 @@
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">def</span> <span class="nf">create_or_get_file_record</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportRecord&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;create a new record for filename and uuid or return existing record</span>
 
@@ -489,9 +496,7 @@
 <div class="viewcode-block" id="ExportDB.get_target_for_file">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_target_for_file">[docs]</a>
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
-    <span class="k">def</span> <span class="nf">get_target_for_file</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_target_for_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;query database for file matching file name and return the matching filename if there is one;</span>
 <span class="sd">           otherwise return None; looks for file.ext, file (1).ext, file (2).ext and so on to find the</span>
 <span class="sd">           actual target name that was used to export filename</span>
@@ -654,7 +659,7 @@
 <div class="viewcode-block" id="ExportDB.delete_data_for_filepath">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_filepath">[docs]</a>
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
-    <span class="k">def</span> <span class="nf">delete_data_for_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">delete_data_for_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete all exportdb data for given filepath&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
@@ -672,7 +677,7 @@
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_history">[docs]</a>
     <span class="k">def</span> <span class="nf">set_history</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
         <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">diff</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -710,7 +715,7 @@
 <div class="viewcode-block" id="ExportDB.get_history">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_history">[docs]</a>
     <span class="k">def</span> <span class="nf">get_history</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get history for a filepath or uuid</span>
 
@@ -752,6 +757,27 @@
             <span class="k">return</span> <span class="n">results</span></div>
 
 
+    <span class="c1"># @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))</span>
+<div class="viewcode-block" id="ExportDB.get_last_export_directory">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_last_export_directory">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_last_export_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the last export directory from the database&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                SELECT export_directory</span>
+<span class="sd">                FROM export_directory</span>
+<span class="sd">                ORDER BY id DESC</span>
+<span class="sd">                LIMIT 1;</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="ExportDB.close">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.close">[docs]</a>
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
@@ -781,7 +807,7 @@
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_db_connection</span><span class="p">(</span><span class="n">dbfile</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">was_created</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">version_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_database_version</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_create_or_migrate_db_tables</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">was_upgraded</span> <span class="o">=</span> <span class="p">(</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -832,16 +858,18 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">version_info</span> <span class="o">=</span> <span class="p">(</span><span class="n">__version__</span><span class="p">,</span> <span class="s2">&quot;4.3&quot;</span><span class="p">)</span>
 
-        <span class="n">version</span> <span class="o">=</span> <span class="n">version</span> <span class="ow">or</span> <span class="n">OSXPHOTOS_EXPORTDB_VERSION</span>
-        <span class="k">if</span> <span class="n">version</span> <span class="o">&lt;</span> <span class="s2">&quot;4.3&quot;</span><span class="p">:</span>
+        <span class="n">max_version</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">version</span><span class="p">)</span> <span class="k">if</span> <span class="n">version</span> <span class="k">else</span> <span class="n">max_version</span>
+        <span class="n">current_version</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;4.3&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Requested database version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> is older than minimum supported version 4.3&quot;</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">version</span> <span class="o">&gt;</span> <span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">&gt;</span> <span class="n">max_version</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Requested database version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> is newer than maximum supported version </span><span class="si">{</span><span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">version</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&gt;</span> <span class="n">version</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Database version </span><span class="si">{</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> is newer than requested version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
@@ -851,7 +879,7 @@
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS version (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    osxphotos TEXT,</span>
-<span class="sd">                    exportdb TEXT </span>
+<span class="sd">                    exportdb TEXT</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS about (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
@@ -875,17 +903,17 @@
 <span class="sd">                    python_path TEXT,</span>
 <span class="sd">                    script_name TEXT,</span>
 <span class="sd">                    args TEXT,</span>
-<span class="sd">                    cwd TEXT </span>
+<span class="sd">                    cwd TEXT</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS info (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    uuid text NOT NULL,</span>
-<span class="sd">                    json_info JSON </span>
+<span class="sd">                    json_info JSON</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS exifdata (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
 <span class="sd">                    filepath_normalized TEXT NOT NULL,</span>
-<span class="sd">                    json_exifdata JSON </span>
+<span class="sd">                    json_exifdata JSON</span>
 <span class="sd">                    ); &quot;&quot;&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS edited (</span>
 <span class="sd">                    id INTEGER PRIMARY KEY,</span>
@@ -922,6 +950,7 @@
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);&quot;&quot;&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; CREATE UNIQUE INDEX IF NOT EXISTS idx_detected_text on detected_text (uuid);&quot;&quot;&quot;</span><span class="p">,</span>
         <span class="p">]</span>
+
         <span class="c1"># create the tables if needed</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -935,35 +964,39 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
         <span class="c1"># perform needed migrations</span>
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">&quot;4.3&quot;</span><span class="p">:</span>
+        <span class="c1"># compare float(str) to avoid any issues with comparing float(str) to float</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;4.3&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_normalized_filepath</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">&quot;5.0&quot;</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="s2">&quot;5.0&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;5.0&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;5.0&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_4_3_to_5_0</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">&quot;6.0&quot;</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="s2">&quot;6.0&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;6.0&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;6.0&quot;</span><span class="p">):</span>
             <span class="c1"># create export_data table</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_5_0_to_6_0</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">&quot;7.0&quot;</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="s2">&quot;7.0&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;7.0&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;7.0&quot;</span><span class="p">):</span>
             <span class="c1"># create report_data table</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_6_0_to_7_0</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">&quot;7.1&quot;</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="s2">&quot;7.1&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;7.1&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;7.1&quot;</span><span class="p">):</span>
             <span class="c1"># add timestamp to export_data</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_7_0_to_7_1</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">&quot;8.0&quot;</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="s2">&quot;8.0&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;8.0&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;8.0&quot;</span><span class="p">):</span>
             <span class="c1"># add error to export_data</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_7_1_to_8_0</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">&quot;9.0&quot;</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="s2">&quot;9.0&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;9.0&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;9.0&quot;</span><span class="p">):</span>
             <span class="c1"># add history table</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_8_0_to_9_0</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">&quot;9.1&quot;</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="s2">&quot;9.1&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;9.1&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;9.1&quot;</span><span class="p">):</span>
             <span class="c1"># Add history index</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_9_0_to_9_1</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;10.0&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;10.0&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_9_1_to_10_0</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;VACUUM;&quot;</span><span class="p">)</span>
@@ -976,6 +1009,7 @@
 
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">_insert_run_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert run info into runs table&quot;&quot;&quot;</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
         <span class="n">python_path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -990,15 +1024,47 @@
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_relative_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return filepath relative to self._path&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">))</span>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">_insert_export_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert export_directory info into export_directory table&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_normalize_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;10.0&quot;</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># database opened without a path specified, do not update</span>
+            <span class="k">return</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                INSERT INTO export_directory (export_directory)</span>
+<span class="sd">                SELECT ?</span>
+<span class="sd">                WHERE ? &lt;&gt; (</span>
+<span class="sd">                    SELECT export_directory</span>
+<span class="sd">                    FROM export_directory</span>
+<span class="sd">                    ORDER BY rowid DESC</span>
+<span class="sd">                    LIMIT 1</span>
+<span class="sd">                ) OR NOT EXISTS (</span>
+<span class="sd">                    SELECT 1 FROM export_directory</span>
+<span class="sd">                )</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">),</span>
+            <span class="p">)</span>
+
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_relative_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return filepath relative to self.export_dir&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_dir</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_normalize_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;normalize filepath for unicode, lower case&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_normalize_filepath_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_normalize_filepath_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;normalize filepath for unicode, relative path (to export dir), lower case&quot;&quot;&quot;</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_filepath</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -1083,30 +1149,30 @@
 <span class="w">                </span><span class="sd">&quot;&quot;&quot; INSERT INTO export_data (filepath_normalized, filepath, uuid) SELECT filepath_normalized, filepath, uuid FROM files;&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data </span>
-<span class="sd">                    SET (src_mode, src_size, src_mtime) = </span>
-<span class="sd">                    (SELECT mode, size, mtime </span>
-<span class="sd">                    FROM edited </span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data</span>
+<span class="sd">                    SET (src_mode, src_size, src_mtime) =</span>
+<span class="sd">                    (SELECT mode, size, mtime</span>
+<span class="sd">                    FROM edited</span>
 <span class="sd">                    WHERE export_data.filepath_normalized = edited.filepath_normalized);</span>
 <span class="sd">                &quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data </span>
-<span class="sd">                    SET (dest_mode, dest_size, dest_mtime) = </span>
-<span class="sd">                    (SELECT orig_mode, orig_size, orig_mtime </span>
-<span class="sd">                    FROM files </span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data</span>
+<span class="sd">                    SET (dest_mode, dest_size, dest_mtime) =</span>
+<span class="sd">                    (SELECT orig_mode, orig_size, orig_mtime</span>
+<span class="sd">                    FROM files</span>
 <span class="sd">                    WHERE export_data.filepath_normalized = files.filepath_normalized);</span>
 <span class="sd">                &quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data SET digest = </span>
-<span class="sd">                            (SELECT metadata FROM files </span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data SET digest =</span>
+<span class="sd">                            (SELECT metadata FROM files</span>
 <span class="sd">                            WHERE files.filepath_normalized = export_data.filepath_normalized</span>
 <span class="sd">                            ); &quot;&quot;&quot;</span>
             <span class="p">)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data SET exifdata = </span>
-<span class="sd">                            (SELECT json_exifdata FROM exifdata </span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; UPDATE export_data SET exifdata =</span>
+<span class="sd">                            (SELECT json_exifdata FROM exifdata</span>
 <span class="sd">                            WHERE exifdata.filepath_normalized = export_data.filepath_normalized</span>
 <span class="sd">                            ); &quot;&quot;&quot;</span>
             <span class="p">)</span>
@@ -1116,7 +1182,7 @@
 <span class="w">                </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS config (</span>
 <span class="sd">                        id INTEGER PRIMARY KEY,</span>
 <span class="sd">                        datetime TEXT,</span>
-<span class="sd">                        config TEXT </span>
+<span class="sd">                        config TEXT</span>
 <span class="sd">                ); &quot;&quot;&quot;</span>
             <span class="p">)</span>
 
@@ -1277,9 +1343,24 @@
 
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
+    <span class="k">def</span> <span class="nf">_migrate_9_1_to_10_0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add export_directory table&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot; CREATE TABLE IF NOT EXISTS export_directory (</span>
+<span class="sd">                    id INTEGER PRIMARY KEY,</span>
+<span class="sd">                    export_directory TEXT</span>
+<span class="sd">                    );</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
+            <span class="p">)</span>
+
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
     <span class="k">def</span> <span class="nf">_perform_db_maintenance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform database maintenance&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">&lt;</span> <span class="s2">&quot;6.0&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;6.0&quot;</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -1299,38 +1380,41 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;In memory version of ExportDB</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        dbfile (str): path to database file</span>
-<span class="sd">        export_dir (str): path to export directory</span>
+<span class="sd">        dbfile: path to osxphotos export database file</span>
+<span class="sd">        export_dir: path to directory where exported files are stored; if None will read value from database</span>
 <span class="sd">        version: if supplied, creates database with this version; otherwise uses current version;</span>
 <span class="sd">            (must be &gt;= &quot;4.3&quot; and &lt;= OSXPHOTOS_EXPORTDB_VERSION)</span>
 <span class="sd">            For testing only; in normal usage, omit this argument</span>
 
 <span class="sd">    Note:</span>
-<span class="sd">        Copies the on-disk database into memory so it may be operated on without</span>
-<span class="sd">        modifying the on-disk version</span>
+<span class="sd">        Copies the on-disk database into memory so it may be operated on without modifying the on-disk version</span>
+<span class="sd">        export_dir = None must only be used when opening an existing database to read and not to export</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dbfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">export_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dbfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">export_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; &quot;Initialize ExportDBInMemory</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            dbfile (str): path to database file</span>
-<span class="sd">            export_dir (str): path to export directory</span>
+<span class="sd">            dbfile: path to osxphotos export database file</span>
+<span class="sd">            export_dir: path to directory where exported files are stored; if None will read value from database</span>
 <span class="sd">            version: if supplied, creates database with this version; otherwise uses current version;</span>
 <span class="sd">                (must be &gt;= &quot;4.3&quot; and &lt;= OSXPHOTOS_EXPORTDB_VERSION)</span>
 <span class="sd">                For testing only; in normal usage, omit this argument</span>
+
+<span class="sd">        Note: export_dir = None must only be used when opening an existing database to read and not to export</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dbfile</span><span class="p">)</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="n">OSXPHOTOS_EXPORT_DB</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="c1"># export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to</span>
-        <span class="c1"># relative paths to this path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dbfile</span><span class="p">)</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="n">OSXPHOTOS_EXPORT_DB</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># export_dir allows the database to located in a different path than the export</span>
+        <span class="c1"># all paths are stored as relative paths to this path</span>
         <span class="c1"># this allows the entire export tree to be moved to a new disk/location</span>
         <span class="c1"># whilst preserving the UUID to filename mapping</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">export_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">export_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">export_dir</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">was_upgraded</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">was_created</span> <span class="o">=</span> <span class="kc">False</span>
@@ -1339,6 +1423,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_export_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_insert_run_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_insert_export_dir</span><span class="p">()</span>
 
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">write_to_disk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1383,8 +1468,13 @@
     <span class="k">def</span> <span class="nf">_open_export_db</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dbfile</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>  <span class="c1"># sourcery skip: raise-specific-error</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;open export database and return a db connection</span>
-<span class="sd">        returns: connection to the database</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open export database and return a db connection</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dbfile: path to database file</span>
+<span class="sd">            version: database version to create if database doesn&#39;t exist</span>
+
+<span class="sd">        Returns: connection to the database</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dbfile</span><span class="p">):</span>
             <span class="c1"># database doesn&#39;t exist so create it in-memory</span>
@@ -1398,7 +1488,7 @@
             <span class="k">return</span> <span class="n">src</span>
 
         <span class="k">if</span> <span class="n">version</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify version when copying an existing database&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify version when opening an existing database&quot;</span><span class="p">)</span>
 
         <span class="c1"># database exists so copy it to memory</span>
         <span class="n">src</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dbfile</span><span class="p">,</span> <span class="n">check_same_thread</span><span class="o">=</span><span class="n">SQLITE_CHECK_SAME_THREAD</span><span class="p">)</span>
@@ -1411,7 +1501,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">was_created</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">version_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_database_version</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_or_migrate_db_tables</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">was_upgraded</span> <span class="o">=</span> <span class="p">(</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">OSXPHOTOS_EXPORTDB_VERSION</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1461,8 +1551,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_export_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_insert_run_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_insert_export_dir</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_relative_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_relative_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Overrides _relative_filepath to return a path for use in the temp db&quot;&quot;&quot;</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">filepath</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">filepath</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span> <span class="k">else</span> <span class="n">filepath</span></div>
@@ -1950,7 +2041,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=bbe6f006"></script>
+</div><script src="../../_static/documentation_options.js?v=1337ec41"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

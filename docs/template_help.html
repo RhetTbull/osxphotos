@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Package Overview" href="package_overview.html" /><link rel="prev" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>OSXPhotos Template System - osxphotos 0.67.10 documentation</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
+        <title>OSXPhotos Template System - osxphotos 0.68.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.68.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,7 +198,7 @@
         </div>
         <article role="main">
           <section id="osxphotos-template-system">
-<h1>OSXPhotos Template System<a class="headerlink" href="#osxphotos-template-system" title="Link to this heading">#</a></h1>
+<h1>OSXPhotos Template System<a class="headerlink" href="#osxphotos-template-system" title="Link to this heading">¶</a></h1>
 <p>The templating system converts one or template statements, written in osxphotos metadata templating language, to one or more rendered values using information from the photo being processed.</p>
 <p>In its simplest form, a template statement has the form: <code class="docutils literal notranslate"><span class="pre">&quot;{template_field}&quot;</span></code>, for example <code class="docutils literal notranslate"><span class="pre">&quot;{title}&quot;</span></code> which would resolve to the title of the photo.</p>
 <p>Template statements may contain one or more modifiers.  The full syntax is:</p>
@@ -328,7 +328,7 @@
 <p>If you need to use a <code class="docutils literal notranslate"><span class="pre">%</span></code> (percent sign character), you can escape the percent sign by using <code class="docutils literal notranslate"><span class="pre">%%</span></code>.  You can also use the <code class="docutils literal notranslate"><span class="pre">{percent}</span></code> template field where a template field is required. For example:</p>
 <p><code class="docutils literal notranslate"><span class="pre">{title[:,%%]}</span></code> replaces the <code class="docutils literal notranslate"><span class="pre">:</span></code> with <code class="docutils literal notranslate"><span class="pre">%</span></code> and <code class="docutils literal notranslate"><span class="pre">{title</span> <span class="pre">contains</span> <span class="pre">Foo?{title}{percent},{title}}</span></code> adds <code class="docutils literal notranslate"><span class="pre">%</span></code> to the  title if it contains <code class="docutils literal notranslate"><span class="pre">Foo</span></code>.</p>
 <section id="id1">
-<h2>Template Substitutions<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<h2>Template Substitutions<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper docutils container">
 <table class="docutils align-default">
 <thead>
@@ -622,7 +622,7 @@
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.67.10’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.68.0’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -764,8 +764,8 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=1337ec41"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+</div><script src="_static/documentation_options.js?v=c67ccf4f"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>

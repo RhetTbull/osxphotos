@@ -96,7 +96,8 @@ def get_model_version(db_file: str) -> str | None:
 
     conn.close()
 
-    if results[0] is None:
+    if not results or results[0] is None:
+        logger.warning(f"Error getting model version; no results from query")
         return None
 
     try:
