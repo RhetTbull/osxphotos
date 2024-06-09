@@ -985,22 +985,26 @@ def import_main(
 
     Limitations:
 
-    - Photos are imported one at a time thus the "Imports" album in Photos will show
-    a new import group for each photo imported. Exception: Live photos (photo+video pair),
-    burst photos, edited photos, and RAW+JPEG pairs will be imported together so that
-    Photos processes them correctly.
+    - Photos are imported one at a time
+
+    Thus the "Imports" album in Photos will show a new import group for each photo imported.
+
+    Exception: Live photos (photo+video pair), burst photos, edited photos, and RAW+JPEG pairs
+    will be imported together so that Photos processes them correctly.
 
     Edited Photos:
 
     The import command will attempt to preserve adjustments to photos so that the imported asset
     preserves the non-destructive edits. For this to work, there must be an associated .AAE file
-    for the photo. For example, these can be written using 'osxphotos export --export-aae'. If the
-    original file is named IMG_1234.jpg, the .AAE file should be named IMG_1234.aae or IMG_1234.AAE.
+    for the photo. The .AAE file stores non-destructive edits to the photo and can be exported with
+    'osxphotos export ... --export-aae'. If the original file is named IMG_1234.jpg, the .AAE file
+    should be named IMG_1234.aae or IMG_1234.AAE.
 
     The edited version of the file must also be named following one of these two conventions:
 
         \b
         Original: IMG_1234.jpg, edited: IMG_E1234.jpg
+
         Original: IMG_1234.jpg, original: IMG_1234_edited.jpg
 
     In the first form, the original is named with 3 letters, followed by underscore, followed by
