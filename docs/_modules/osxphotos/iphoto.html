@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.iphoto - osxphotos 0.67.5 documentation</title>
+        <title>osxphotos.iphoto - osxphotos 0.67.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.5 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.5 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -264,6 +264,7 @@
 <span class="kn">from</span> <span class="nn">.phototemplate</span> <span class="kn">import</span> <span class="n">PhotoTemplate</span><span class="p">,</span> <span class="n">RenderOptions</span>
 <span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">is_macos</span>
 <span class="kn">from</span> <span class="nn">.scoreinfo</span> <span class="kn">import</span> <span class="n">ScoreInfo</span>
+<span class="kn">from</span> <span class="nn">.sqlite_utils</span> <span class="kn">import</span> <span class="n">sqlite_columns</span>
 <span class="kn">from</span> <span class="nn">.unicode</span> <span class="kn">import</span> <span class="n">normalize_unicode</span>
 <span class="kn">from</span> <span class="nn">.uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span><span class="p">,</span> <span class="n">get_uti_for_path</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">hexdigest</span><span class="p">,</span> <span class="n">noop</span><span class="p">,</span> <span class="n">path_exists</span>
@@ -376,7 +377,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the Library.apdb database&quot;&quot;&quot;</span>
 
         <span class="n">library_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;Database/apdb/Library.apdb&quot;</span><span class="p">)</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">library_db</span><span class="p">)</span>
+        <span class="n">rkfolder_columns</span> <span class="o">=</span> <span class="n">sqlite_columns</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;RKFolder&quot;</span><span class="p">)</span>
+        <span class="n">rkmaster_columns</span> <span class="o">=</span> <span class="n">sqlite_columns</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;RKMaster&quot;</span><span class="p">)</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        SELECT</span>
 <span class="s2">        RKVersion.modelId AS id,</span>
 <span class="s2">        RKVersion.masterId AS master_id,</span>
@@ -385,8 +390,8 @@
 <span class="s2">        RKFolder.modelId AS roll,</span>
 <span class="s2">        RKFolder.minImageDate AS roll_min_image_date,</span>
 <span class="s2">        RKFolder.maxImageDate AS roll_max_image_date,</span>
-<span class="s2">        RKFolder.minImageTimeZoneName AS roll_min_image_tz,</span>
-<span class="s2">        RKFolder.maxImageTimeZoneName AS roll_max_image_tz,</span>
+<span class="s2">        </span><span class="si">{</span><span class="s2">&quot;RKFolder.minImageTimeZoneName&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="s2">&quot;minImageTimeZoneName&quot;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">rkfolder_columns</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;NULL&quot;</span><span class="si">}</span><span class="s2"> AS roll_min_image_tz,</span>
+<span class="s2">        </span><span class="si">{</span><span class="s2">&quot;RKFolder.maxImageTimeZoneName&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="s2">&quot;maxImageTimeZoneName&quot;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">rkfolder_columns</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;NULL&quot;</span><span class="si">}</span><span class="s2"> AS roll_max_image_tz,</span>
 <span class="s2">        RKFolder.posterVersionUuid AS poster_version_uuid,</span>
 <span class="s2">        -- event thumbnail image uuid</span>
 <span class="s2">        RKFolder.createDate AS date_foldercreation,</span>
@@ -438,7 +443,7 @@
 <span class="s2">        RKMaster.isTrulyRaw AS truly_raw,</span>
 <span class="s2">        RKMaster.fileIsReference AS is_reference,</span>
 <span class="s2">        RKMaster.originalFileSize as original_filesize,</span>
-<span class="s2">        RKMaster.burstUuid as burst_uuid</span>
+<span class="s2">        </span><span class="si">{</span><span class="s2">&quot;RKMaster.burstUuid&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="s2">&quot;burstUuid&quot;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">rkmaster_columns</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;NULL&quot;</span><span class="si">}</span><span class="s2"> as burst_uuid</span>
 <span class="s2">        FROM RKVersion</span>
 <span class="s2">        LEFT JOIN RKFolder ON RKVersion.projectUuid = RKFolder.uuid</span>
 <span class="s2">        LEFT JOIN RKMaster ON RKMaster.uuid = RKVersion.masterUuid</span>
@@ -447,8 +452,6 @@
 <span class="s2">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Executing query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># open the database</span>
-        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">library_db</span><span class="p">)</span>
         <span class="n">conn</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Row</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
@@ -705,6 +708,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load edited face info for each photo from database&quot;&quot;&quot;</span>
 
         <span class="n">library_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;Database/apdb/Library.apdb&quot;</span><span class="p">)</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">library_db</span><span class="p">)</span>
 
         <span class="c1"># get edited face info</span>
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -713,19 +717,32 @@
 <span class="s2">            RKVersionFaceContent.versionId AS version_id,</span>
 <span class="s2">            RKVersionFaceContent.masterId AS master_id,</span>
 <span class="s2">            RKVersionFaceContent.faceKey AS face_key,</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;faceRectLeft&quot;</span> <span class="ow">in</span> <span class="n">sqlite_columns</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;RKVersionFaceContent&quot;</span><span class="p">):</span>
+            <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            RKVersionFaceContent.faceRectLeft AS topLeftX, -- use same naming scheme as in &#39;faces&#39;</span>
 <span class="s2">            1 - RKVersionFaceContent.faceRectTop AS bottomRightY, -- Y values are counted from the bottom in this table!</span>
 <span class="s2">            RKVersionFaceContent.faceRectWidth AS width,</span>
 <span class="s2">            RKVersionFaceContent.faceRectHeight AS height,</span>
 <span class="s2">            RKVersionFaceContent.faceRectWidth + RKVersionFaceContent.faceRectLeft AS bottomRightX,</span>
 <span class="s2">            1 - RKVersionFaceContent.faceRectTop - RKVersionFaceContent.faceRectHeight AS topLeftY</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            0 as topLeftX,</span>
+<span class="s2">            0 as bottomRightY,</span>
+<span class="s2">            0 as width,</span>
+<span class="s2">            0 as height,</span>
+<span class="s2">            0 as bottomRightX,</span>
+<span class="s2">            0 as topLeftY</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            FROM RKVersionFaceContent</span>
 <span class="s2">            WHERE RKVersionFaceContent.versionId = ? -- id of the photo</span>
 <span class="s2">            ORDER BY RKVersionFaceContent.versionId</span>
 <span class="s2">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Executing query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">library_db</span><span class="p">)</span>
         <span class="n">conn</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Row</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Loading edited face info from iPhoto library&quot;</span><span class="p">)</span>
@@ -735,9 +752,9 @@
             <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;edited_faces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
                 <span class="n">row</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-                <span class="n">row</span><span class="p">[</span>
-                    <span class="s2">&quot;confidence&quot;</span>
-                <span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># TODO: figure out original face and use those values</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="mf">0.0</span>  <span class="c1"># TODO: figure out original face and use those values</span>
+                <span class="p">)</span>
                 <span class="n">face_key</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;face_key&quot;</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_persons</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">face_key</span> <span class="o">==</span> <span class="n">person</span><span class="p">[</span><span class="s2">&quot;face_key&quot;</span><span class="p">]:</span>
@@ -762,8 +779,10 @@
         <span class="c1">#    Folders are just a pseudo hierarchy and can contain Albums and Smart Albums.</span>
 
         <span class="n">library_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;Database/apdb/Library.apdb&quot;</span><span class="p">)</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">library_db</span><span class="p">)</span>
+        <span class="n">rkfolder_columns</span> <span class="o">=</span> <span class="n">sqlite_columns</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;RKFolder&quot;</span><span class="p">)</span>
 
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT</span>
 <span class="s2">            modelId,</span>
 <span class="s2">            uuid,</span>
@@ -775,13 +794,12 @@
 <span class="s2">            createDate as date,</span>
 <span class="s2">            minImageDate AS min_image_date,</span>
 <span class="s2">            maxImageDate AS max_image_date,</span>
-<span class="s2">            minImageTimeZoneName AS min_image_tz,</span>
-<span class="s2">            maxImageTimeZoneName AS max_image_tz</span>
+<span class="s2">            </span><span class="si">{</span><span class="s2">&quot;minImageTimeZoneName&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="s2">&quot;minImageTimeZoneName&quot;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">rkfolder_columns</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;NULL&quot;</span><span class="si">}</span><span class="s2"> AS min_image_tz,</span>
+<span class="s2">            </span><span class="si">{</span><span class="s2">&quot;maxImageTimeZoneName&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="s2">&quot;maxImageTimeZoneName&quot;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">rkfolder_columns</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;NULL&quot;</span><span class="si">}</span><span class="s2"> AS max_image_tz</span>
 <span class="s2">            FROM RKFolder</span>
 <span class="s2">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Executing query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">library_db</span><span class="p">)</span>
         <span class="n">conn</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Row</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Loading folders from iPhoto library&quot;</span><span class="p">)</span>
@@ -2861,7 +2879,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=2866fe75"></script>
+</div><script src="../../_static/documentation_options.js?v=1337ec41"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

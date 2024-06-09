@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos" href="overview.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
         <title>osxphotos 0.67.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
@@ -198,7 +198,7 @@
         </div>
         <article role="main">
           <section id="welcome-to-osxphotos-s-documentation">
-<h1>Welcome to OSXPhotos’s documentation!<a class="headerlink" href="#welcome-to-osxphotos-s-documentation" title="Link to this heading">#</a></h1>
+<h1>Welcome to OSXPhotos’s documentation!<a class="headerlink" href="#welcome-to-osxphotos-s-documentation" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">OSXPhotos</a><ul>
@@ -582,6 +582,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-exifwriter-exifwriter-a"><span class="raw-html-m2r"><a name="exifwriter">ExifWriter</a></span></a></li>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-sidecarwriter-sidecarwriter-a"><span class="raw-html-m2r"><a name="sidecarwriter">SidecarWriter</a></span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-photosalbum-photosalbum-a"><span class="raw-html-m2r"><a name="photosalbum">PhotosAlbum</a></span></a></li>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-textdetection-text-detection-a"><span class="raw-html-m2r"><a name="textdetection">Text Detection</a></span></a></li>
 <li class="toctree-l3"><a class="reference internal" href="API_README.html#a-name-comparelibraries-compare-libraries-a"><span class="raw-html-m2r"><a name="comparelibraries">Compare Libraries</a></span></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="API_README.html#compare-photos-libraries"><code class="docutils literal notranslate"><span class="pre">compare_photos_libraries()</span></code></a></li>
@@ -643,6 +644,7 @@
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_file_record"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_file_record()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_files_for_uuid"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_files_for_uuid()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_history"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_history()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_last_export_directory"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_last_export_directory()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_photoinfo_for_uuid"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_photoinfo_for_uuid()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_previous_uuids"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_previous_uuids()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_target_for_file"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_target_for_file()</span></code></a></li>
@@ -911,8 +913,16 @@
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.render"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.render()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbum"><code class="docutils literal notranslate"><span class="pre">PhotosAlbum</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbumPhotoScript"><code class="docutils literal notranslate"><span class="pre">PhotosAlbumPhotoScript</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbum"><code class="docutils literal notranslate"><span class="pre">PhotosAlbum</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbum.append"><code class="docutils literal notranslate"><span class="pre">PhotosAlbum.append()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbum.extend"><code class="docutils literal notranslate"><span class="pre">PhotosAlbum.extend()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbumPhotoScript"><code class="docutils literal notranslate"><span class="pre">PhotosAlbumPhotoScript</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbumPhotoScript.append"><code class="docutils literal notranslate"><span class="pre">PhotosAlbumPhotoScript.append()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbumPhotoScript.extend"><code class="docutils literal notranslate"><span class="pre">PhotosAlbumPhotoScript.extend()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotosDB"><code class="docutils literal notranslate"><span class="pre">PhotosDB</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.album_info"><code class="docutils literal notranslate"><span class="pre">PhotosDB.album_info</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.album_info_shared"><code class="docutils literal notranslate"><span class="pre">PhotosDB.album_info_shared</span></code></a></li>
@@ -1230,7 +1240,7 @@
 </div>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">#</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -1278,7 +1288,7 @@
     </aside>
   </div>
 </div><script src="_static/documentation_options.js?v=1337ec41"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
