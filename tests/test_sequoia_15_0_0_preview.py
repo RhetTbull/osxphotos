@@ -12,6 +12,7 @@ PHOTOS_DB = "./tests/Test-15.0.0_dev_preview.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-15.0.0_dev_preview.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-15.0.0_dev_preview.photoslibrary"
 
+
 PHOTOS_DB_LEN = 16
 PHOTOS_NOT_IN_TRASH_LEN = 14
 PHOTOS_IN_TRASH_LEN = 2
