@@ -8,9 +8,9 @@ import pytest
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 
-PHOTOS_DB = "./tests/Test-15.0.0_dev_preview.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-15.0.0_dev_preview.photoslibrary/database/photos.db"
-PHOTOS_LIBRARY_PATH = "/Test-15.0.0_dev_preview.photoslibrary"
+PHOTOS_DB = "./tests/Test-15.0.0_Dev_Preview.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-15.0.0_Dev_Preview.photoslibrary/database/photos.db"
+PHOTOS_LIBRARY_PATH = "/Test-15.0.0_Dev_Preview.photoslibrary"
 
 
 PHOTOS_DB_LEN = 16
