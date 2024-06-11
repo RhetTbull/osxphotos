@@ -431,7 +431,7 @@ def test_attributes(photosdb):
     assert sorted(p.albums) == ["Pumpkin Farm", "Test Album"]
     assert p.persons == ["Katie"]
     assert p.path.endswith(
-        "tests/Test-15.0.0_dev_preview.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
+        "tests/Test-15.0.0_Dev_Preview.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
     )
     assert not p.ismissing
 
@@ -461,7 +461,7 @@ def test_attributes_2(photosdb):
     assert sorted(p.albums) == ["AlbumInFolder", "I have a deleted twin"]
     assert p.persons == ["Maria"]
     assert p.path.endswith(
-        "tests/Test-15.0.0_dev_preview.photoslibrary/originals/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51.jpeg"
+        "tests/Test-15.0.0_Dev_Preview.photoslibrary/originals/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51.jpeg"
     )
     assert not p.ismissing
     assert p.hasadjustments
