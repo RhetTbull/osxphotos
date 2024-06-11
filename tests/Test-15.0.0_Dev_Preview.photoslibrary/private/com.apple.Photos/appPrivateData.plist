@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CollapsedSidebarSectionIdentifiers</key>
+	<array/>
+	<key>ExpandedSidebarItemIdentifiers</key>
+	<array>
+		<string>92D68107-B6C7-453B-96D2-97B0F26D5B8B/L0/020</string>
+		<string>88A5F8B8-5B9A-43C7-BB85-3952B81580EB/L0/020</string>
+		<string>29EF7A97-7E76-4D5F-A5E0-CC0A93E8524C/L0/020</string>
+		<string>2C2AF115-BD1D-4434-A747-D1C8BD8E2045/L0/020</string>
+		<string>CB051A4C-2CB7-4B90-B59B-08CC4D0C2823/L0/020</string>
+	</array>
+	<key>IPXWorkspaceControllerZoomLevelsKey</key>
+	<dict>
+		<key>kZoomLevelIdentifierPhotosGrid</key>
+		<integer>2</integer>
+	</dict>
+	<key>PXPeopleCandidateWidgetKey</key>
+	<dict>
+		<key>PXPeopleCandidateWidgetKey2023.01.22</key>
+		<array>
+			<string>3DDC8F83-FDAB-4943-AE53-19428BEEED9D/L0/070</string>
+		</array>
+	</dict>
+	<key>PXPeopleHomeSortingType</key>
+	<integer>0</integer>
+	<key>PeoplePetsHomeVisibilitySourceLastKnownHasHumans</key>
+	<true/>
+	<key>PeoplePetsHomeVisibilitySourceLastKnownHasPets</key>
+	<false/>
+	<key>Photos</key>
+	<dict>
+		<key>CollapsedSidebarSectionIdentifiers</key>
+		<array/>
+		<key>ExpandedSidebarItemIdentifiers</key>
+		<array>
+			<string>TopLevelAlbums</string>
+			<string>TopLevelSlideshows</string>
+		</array>
+		<key>IPXWorkspaceControllerZoomLevelsKey</key>
+		<dict>
+			<key>kZoomLevelIdentifierAlbums</key>
+			<integer>7</integer>
+			<key>kZoomLevelIdentifierVersions</key>
+			<integer>7</integer>
+		</dict>
+		<key>lastAddToDestination</key>
+		<dict>
+			<key>key</key>
+			<integer>1</integer>
+			<key>lastKnownDisplayName</key>
+			<string>September 28, 2018</string>
+			<key>type</key>
+			<string>album</string>
+			<key>uuid</key>
+			<string>DFFKmHt3Tk+AGzZLe2Xq+g</string>
+		</dict>
+		<key>lastKnownItemCounts</key>
+		<dict>
+			<key>other</key>
+			<integer>0</integer>
+			<key>photos</key>
+			<integer>7</integer>
+			<key>videos</key>
+			<integer>0</integer>
+		</dict>
+	</dict>
+</dict>
+</plist>
