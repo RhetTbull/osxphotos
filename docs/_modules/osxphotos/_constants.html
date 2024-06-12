@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos._constants - osxphotos 0.67.10 documentation</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
+        <title>osxphotos._constants - osxphotos 0.68.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.68.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -251,6 +251,7 @@
 <span class="n">_PHOTOS_7_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15000</span><span class="p">,</span> <span class="mi">15999</span><span class="p">]</span>  <span class="c1"># Dev preview: 15134, 12.1: 15331</span>
 <span class="n">_PHOTOS_8_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">16000</span><span class="p">,</span> <span class="mi">16999</span><span class="p">]</span>  <span class="c1"># Ventura dev preview: 16119</span>
 <span class="n">_PHOTOS_9_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">17000</span><span class="p">,</span> <span class="mi">17999</span><span class="p">]</span>  <span class="c1"># Sonoma dev preview: 17120</span>
+<span class="n">_PHOTOS_10_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">18000</span><span class="p">,</span> <span class="mi">18999</span><span class="p">]</span>  <span class="c1"># Sequoia dev preview: 18164</span>
 
 <span class="c1"># the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing</span>
 <span class="n">_PHOTOS_SYNDICATION_MODEL_VERSION</span> <span class="o">=</span> <span class="mi">15323</span>  <span class="c1"># 12.0.1</span>
@@ -273,6 +274,8 @@
         <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZCUSTOMRENDEREDVALUE&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSON&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZGENERICASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="mi">6</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
@@ -287,6 +290,8 @@
         <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZCUSTOMRENDEREDVALUE&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSON&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="mi">7</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
@@ -301,6 +306,8 @@
         <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSON&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="mi">8</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
@@ -315,6 +322,8 @@
         <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSON&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="mi">9</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
@@ -329,6 +338,24 @@
         <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSONFORFACE&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSETFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_48KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_31ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_SORT_ORDER&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_31ASSETS.Z_FOK_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IMPORT_FOK&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZDEPTHTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZCOMPACTUTI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_31ASSETS.Z_31ALBUMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_31ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSONFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSETFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZADJUSTMENTSSTATE&quot;</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span>
 
@@ -760,8 +787,8 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=1337ec41"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+</div><script src="../../_static/documentation_options.js?v=62044b56"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

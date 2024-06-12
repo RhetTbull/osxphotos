@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.67.10 documentation</title>
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.68.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.68.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1917,6 +1917,8 @@
         <span class="n">depth_state</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">]</span>
         <span class="n">uti_original_column</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">]</span>
         <span class="n">hdr_type_column</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">]</span>
+        <span class="n">master_fingerprint</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">]</span>
+        <span class="n">has_adjustments</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photos_ver</span><span class="p">][</span><span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">]</span>
 
         <span class="c1"># Look for all combinations of persons and pictures</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Getting information about persons&quot;</span><span class="p">)</span>
@@ -2174,7 +2176,7 @@
         <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Processing photo details.&quot;</span><span class="p">)</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT,</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">master_fingerprint</span><span class="si">}</span><span class="s2">,</span>
 <span class="s2">                ZADDITIONALASSETATTRIBUTES.ZTITLE,</span>
 <span class="s2">                ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMODIFICATIONDATE,</span>
@@ -2188,7 +2190,7 @@
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZFILENAME,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZLATITUDE,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZLONGITUDE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZHASADJUSTMENTS,</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">has_adjustments</span><span class="si">}</span><span class="s2">,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDBATCHPUBLISHDATE,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZKIND,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUNIFORMTYPEIDENTIFIER,</span>
@@ -2557,7 +2559,7 @@
         <span class="c1"># get information about adjusted/edited photos</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZHASADJUSTMENTS,</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">has_adjustments</span><span class="si">}</span><span class="s2">,</span>
 <span class="s2">                ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER</span>
 <span class="s2">                FROM </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">, ZUNMANAGEDADJUSTMENT</span>
 <span class="s2">                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK</span>
@@ -2635,7 +2637,7 @@
 <span class="s2">                ZINTERNALRESOURCE.ZREMOTEAVAILABILITY</span>
 <span class="s2">                FROM </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span>
 <span class="s2">                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK</span>
-<span class="s2">                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT &quot;&quot;&quot;</span>
+<span class="s2">                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = </span><span class="si">{</span><span class="n">master_fingerprint</span><span class="si">}</span><span class="s2"> &quot;&quot;&quot;</span>
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
@@ -3463,8 +3465,8 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=1337ec41"></script>
-    <script src="../../../_static/doctools.js?v=888ff710"></script>
+</div><script src="../../../_static/documentation_options.js?v=62044b56"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
