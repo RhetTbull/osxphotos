@@ -2,6 +2,74 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.68.1](https://github.com/RhetTbull/osxphotos/compare/v0_68_0...v0_68_1)
+
+Added alpha support for macOS Sequoia. Some features not yet tested. This adds ability to read a Photos library created by Photos version 10, macOS Sequoia / 15.0.
+
+#### Added
+
+- Alpha support for macOS Sequoia dev preview.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+#### Contributors
+
+- @tural-ali [@tural-ali](https://github.com/tural-ali) for providing access to macOS Sequoia library for testing.
+
+## [v0.68.0](https://github.com/RhetTbull/osxphotos/compare/v0.67.10...v0_68_0)
+
+### v0.68.0 (2024-06-08)
+
+The Importapalooza release. This release adds a number of new features to `osxphotos import` to support recreating a library from an osxphotos export and improve the import experience. It also includes some minor bug fixes and improvements in other parts of the code.
+
+To export in a form that maximizes the ability to recreate the library, I suggest at a minimum using the following options:
+
+```shell
+osxphotos export /path/to/export --sidecar xmp --export-aae`
+```
+
+To import and preserve as much metadata as possible, use the following options:
+
+```shell
+osxphotos import /path/to/export --exportdb /path/to/export --exportdir /path/to/export --sidecar
+```
+
+This will preserve metadata such as titles, captions, keywords, favorites, and albums.
+
+Technically, the use of `--sidecar` is not necessary if using `--exportdb` which reads metadata from the osxphotos export database but I'm a belt-and-suspenders kind of person and like to have the metadata in the sidecar files as well. The sidecar files provide compatibility with other software and can be used to recover metadata if the export database is lost or corrupted (with the exception of albums which are not currently exported to sidecars).
+
+#### Added
+
+- Added correct handling of live, edited, raw+jpeg, and burst files when importing (#1464, #1267)
+- Added --exportdb, --exportdir to read metadata for imported photos from an export created by `osxphotos export`.
+- Added --auto-live to automatically convert photo+video pairs to Live Photos upon import (#1399).
+- Added --favorite-rating to set favorite status for imported photos (#1373).
+- Added --signature to specify custom signature for comparing duplicates when importing (#1374).
+- Added --edited-suffix to specify custom suffix for associating edited files when importing.
+
+#### Fixed
+
+- Apply --sidecar to edited files when importing (#1470)
+- Normalize unicode characters in album names when importing (#1475)
+- Handle missing PLModelVersion info in Photos library (#1557)
+
+#### Changed
+
+- Add list and set methods to PhotosAlbum (#1524)
+- `osxphotos import` now accepts files or directories as arguments
+
+#### Removed
+
+#### Contributors
+
+- Added @torarnv[@torarnv](https://github.com/torarnv) as new contributor for code.
+- Added @odedia [@odedia](https://github.com/odedia) as a new contributor for ideas and research.
+- @oPromessa [@oPromessa](https://github.com/oPromessa) for documentation and testing.
+
 ## [v0.67.10](https://github.com/RhetTbull/osxphotos/compare/v0.67.9...v0.67.10)
 
 ### v0.67.10 - 2024-03-30
