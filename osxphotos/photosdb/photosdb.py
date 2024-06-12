@@ -1714,6 +1714,8 @@ class PhotosDB:
         depth_state = _DB_TABLE_NAMES[photos_ver]["DEPTH_STATE"]
         uti_original_column = _DB_TABLE_NAMES[photos_ver]["UTI_ORIGINAL"]
         hdr_type_column = _DB_TABLE_NAMES[photos_ver]["HDR_TYPE"]
+        master_fingerprint = _DB_TABLE_NAMES[photos_ver]["MASTER_FINGERPRINT"]
+        has_adjustments = _DB_TABLE_NAMES[photos_ver]["HAS_ADJUSTMENTS"]
 
         # Look for all combinations of persons and pictures
         logger.debug(f"Getting information about persons")
@@ -1971,7 +1973,7 @@ class PhotosDB:
         verbose("Processing photo details.")
         c.execute(
             f"""SELECT {asset_table}.ZUUID,
-                ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT,
+                {master_fingerprint},
                 ZADDITIONALASSETATTRIBUTES.ZTITLE,
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME,
                 {asset_table}.ZMODIFICATIONDATE,
@@ -1985,7 +1987,7 @@ class PhotosDB:
                 {asset_table}.ZFILENAME,
                 {asset_table}.ZLATITUDE,
                 {asset_table}.ZLONGITUDE,
-                {asset_table}.ZHASADJUSTMENTS,
+                {has_adjustments},
                 {asset_table}.ZCLOUDBATCHPUBLISHDATE,
                 {asset_table}.ZKIND,
                 {asset_table}.ZUNIFORMTYPEIDENTIFIER,
@@ -2354,7 +2356,7 @@ class PhotosDB:
         # get information about adjusted/edited photos
         c.execute(
             f"""SELECT {asset_table}.ZUUID,
-                {asset_table}.ZHASADJUSTMENTS,
+                {has_adjustments},
                 ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER
                 FROM {asset_table}, ZUNMANAGEDADJUSTMENT
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
@@ -2432,7 +2434,7 @@ class PhotosDB:
                 ZINTERNALRESOURCE.ZREMOTEAVAILABILITY
                 FROM {asset_table}
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
-                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT """
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = {master_fingerprint} """
         )
 
         for row in c:

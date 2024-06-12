@@ -1,4 +1,4 @@
-"""Test macOS 13.0 Photos library"""
+"""Test macOS 14.0 Photos library"""
 
 import json
 from collections import namedtuple
