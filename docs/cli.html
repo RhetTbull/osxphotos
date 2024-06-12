@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.68.0 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.68.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.68.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.68.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2511,21 +2511,22 @@ to modify this behavior.</p>
 most recently opened Photos library.</p>
 <p>Limitations:</p>
 <ul class="simple">
-<li><p>Photos are imported one at a time thus the “Imports” album in Photos will show</p></li>
+<li><p>Photos are imported one at a time</p></li>
 </ul>
-<p>a new import group for each photo imported. Exception: Live photos (photo+video pair),
-burst photos, edited photos, and RAW+JPEG pairs will be imported together so that
-Photos processes them correctly.</p>
+<p>Thus the “Imports” album in Photos will show a new import group for each photo imported.</p>
+<p>Exception: Live photos (photo+video pair), burst photos, edited photos, and RAW+JPEG pairs
+will be imported together so that Photos processes them correctly.</p>
 <p>Edited Photos:</p>
 <p>The import command will attempt to preserve adjustments to photos so that the imported asset
 preserves the non-destructive edits. For this to work, there must be an associated .AAE file
-for the photo. For example, these can be written using ‘osxphotos export –export-aae’. If the
-original file is named IMG_1234.jpg, the .AAE file should be named IMG_1234.aae or IMG_1234.AAE.</p>
+for the photo. The .AAE file stores non-destructive edits to the photo and can be exported with
+‘osxphotos export … –export-aae’. If the original file is named IMG_1234.jpg, the .AAE file
+should be named IMG_1234.aae or IMG_1234.AAE.</p>
 <p>The edited version of the file must also be named following one of these two conventions:</p>
 <blockquote>
 <div><p>
-Original: IMG_1234.jpg, edited: IMG_E1234.jpg
-Original: IMG_1234.jpg, original: IMG_1234_edited.jpg</p>
+Original: IMG_1234.jpg, edited: IMG_E1234.jpg</p>
+<p>Original: IMG_1234.jpg, original: IMG_1234_edited.jpg</p>
 </div></blockquote>
 <p>In the first form, the original is named with 3 letters, followed by underscore, followed by
 4 digits and the edited has the same name with “E” in front of the 4 digits.</p>
@@ -6068,7 +6069,7 @@ Commands:
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=c67ccf4f"></script>
+</div><script src="_static/documentation_options.js?v=62044b56"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
