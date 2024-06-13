@@ -7,7 +7,7 @@ import datetime
 import os
 import pathlib
 import sys
-from functools import cache, partial
+from functools import cache
 
 import click
 import xattr
