@@ -177,7 +177,7 @@ def get_edited_path(
 def edited_path_for_ext(
     library_path: pathlib.Path, uuid: str, ext: str
 ) -> pathlib.Path | None:
-    """Return edted path for extension"""
+    """Return edited path for extension"""
     directory = uuid[0]
     if ext in ["heic", "jpeg", "jpg"]:
         edited_path = (
