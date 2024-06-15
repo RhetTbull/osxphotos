@@ -136,7 +136,11 @@ def get_date_time(path: pathlib.Path) -> datetime.datetime:
     """Return the original date and time for a photo"""
     exif = ExifTool(path).asdict()
     dt_info = get_exif_date_time_offset(exif, True)
-    return dt_info.datetime
+    if dt_info.datetime:
+        return dt_info.datetime
+    else:
+        # fall back to file modification time
+        return datetime.datetime.fromtimestamp(path.stat().st_mtime)
 
 
 @cache
