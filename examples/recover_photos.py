@@ -14,6 +14,7 @@ import xattr
 
 import osxphotos
 from osxphotos.cli.click_rich_echo import rich_echo as echo
+from osxphotos.cli.click_rich_echo import rich_echo_error as echo_error
 from osxphotos.cli.import_cli import rename_edited_group
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.exifutils import get_exif_date_time_offset
@@ -76,10 +77,13 @@ def main(library_path: str, destination: str, dry_run: bool):
     edited_count = 0
     aae_count = 0
     for original in originals:
-        counts = export_file(library_path, destination, original, dry_run)
-        original_count += counts[0]
-        edited_count += counts[1]
-        aae_count += counts[2]
+        try:
+            counts = export_file(library_path, destination, original, dry_run)
+            original_count += counts[0]
+            edited_count += counts[1]
+            aae_count += counts[2]
+        except Exception as e:
+            echo_error(f"[error]Error processing [filename]{original}[/]: {e}")
 
     echo(
         f"Done. Recovered [num]{original_count}[/] original photos, "
@@ -245,32 +249,45 @@ def export_file(
     if not dry_run:
         os.makedirs(output_path.parent, exist_ok=True)
 
-    echo(f"Copying [filepath]{path}[/] to [filepath]{output_path}[/]")
-    fileutil.copy(path, output_path)
-    exported_files.append(output_path)
-    original_count += 1
+    if output_path.exists():
+        echo_error(f"[error]Error copying file {path}: {output_path} already exists")
+    else:
+        echo(f"Copying [filepath]{path}[/] to [filepath]{output_path}[/]")
+        fileutil.copy(path, output_path)
+        exported_files.append(output_path)
+        original_count += 1
 
     if edited_path:
         edited_filename = output_path.stem + "_edited" + edited_path.suffix
         edited_output_path = output_path.parent / edited_filename
-        echo(
-            f"Copying edited file [filepath]{edited_path}[/] to [filepath]{edited_output_path}[/]"
-        )
-        fileutil.copy(edited_path, edited_output_path)
-        exported_files.append(edited_output_path)
-        edited_count += 1
+        if edited_output_path.exists():
+            echo_error(
+                f"[error]Error copying edited file {edited_path}: {edited_output_path} already exists"
+            )
+        else:
+            echo(
+                f"Copying edited file [filepath]{edited_path}[/] to [filepath]{edited_output_path}[/]"
+            )
+            fileutil.copy(edited_path, edited_output_path)
+            exported_files.append(edited_output_path)
+            edited_count += 1
     else:
         edited_output_path = None
 
     if aae_path:
         aae_filename = output_path.stem + ".aae"
         aae_output_path = output_path.parent / aae_filename
-        echo(
-            f"Copying AAE file [filepath]{aae_path}[/] to [filepath]{aae_output_path}[/]"
-        )
-        fileutil.copy(aae_path, aae_output_path)
-        exported_files.append(aae_output_path)
-        aae_count += 1
+        if aae_output_path.exists():
+            echo_error(
+                f"[error]Error copying AAE file [filepath]{aae_path}[/]: [filepath]{aae_output_path}[/] already exists"
+            )
+        else:
+            echo(
+                f"Copying AAE file [filepath]{aae_path}[/] to [filepath]{aae_output_path}[/]"
+            )
+            fileutil.copy(aae_path, aae_output_path)
+            exported_files.append(aae_output_path)
+            aae_count += 1
     else:
         aae_output_path = None
 
@@ -279,7 +296,10 @@ def export_file(
             f"Setting file modification and access time to [time]{date_time}[/] for [filepath]{path}[/]"
         )
         if not dry_run:
-            touch_file(path, date_time)
+            try:
+                touch_file(path, date_time)
+            except Exception as e:
+                echo_error(f"[error]Error touching date/time on {path}: {e}")
 
     if edited_output_path or aae_output_path:
         echo(f"Renaming edited group")
@@ -289,17 +309,20 @@ def export_file(
                 edited_group.append(edited_output_path)
             if aae_output_path:
                 edited_group.append(aae_output_path)
-            renamed_files = rename_edited_group(
-                edited_group,
-                "_edited",
-                None,
-                None,
-                False,
-                None,
-            )
-            echo(
-                f"Renamed files: {', '.join('[filename]'+f.name+'[/]' for f in renamed_files)}"
-            )
+            try:
+                renamed_files = rename_edited_group(
+                    edited_group,
+                    "_edited",
+                    None,
+                    None,
+                    False,
+                    None,
+                )
+                echo(
+                    f"Renamed files: {', '.join('[filename]'+f.name+'[/]' for f in renamed_files)}"
+                )
+            except Exception as e:
+                echo_error(f"[error]Error renaming edited group: {e}")
 
     return original_count, edited_count, aae_count
 
