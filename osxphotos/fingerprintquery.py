@@ -39,6 +39,8 @@ class FingerprintQuery:
         """Return a list of tuples of (uuid, date_added, filename) for all photos matching fingerprint"""
 
         asset_table = _DB_TABLE_NAMES[self.photos_version]["ASSET"]
+        fingerprint_column = _DB_TABLE_NAMES[self.photos_version]["MASTER_FINGERPRINT"]
+
         sql = f"""
             SELECT
             {asset_table}.ZUUID,
@@ -47,7 +49,7 @@ class FingerprintQuery:
             ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME
             FROM {asset_table}
             JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
-            WHERE ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT = ?
+            WHERE {fingerprint_column} = ?
             """
         if not in_trash:
             sql += f"\nAND {asset_table}.ZTRASHEDSTATE = 0"
