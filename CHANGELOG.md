@@ -2,9 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.68.2](https://github.com/RhetTbull/osxphotos/compare/v0_68_1...v0.68.2)
+
+Added alpha support for import command on macOS Sequoia
+
+### v0.68.2 (2024-06-16)
+
+#### Added
+
+- Alpha support for macOS Sequoia dev preview with osxphotos import.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+#### Contributors
+
+- @tural-ali [@tural-ali](https://github.com/tural-ali) for testing.
+
 ## [v0.68.1](https://github.com/RhetTbull/osxphotos/compare/v0_68_0...v0_68_1)
 
 Added alpha support for macOS Sequoia. Some features not yet tested. This adds ability to read a Photos library created by Photos version 10, macOS Sequoia / 15.0.
+
+### v0.68.1 (2024-06-11)
 
 #### Added
 
