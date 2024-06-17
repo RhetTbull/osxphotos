@@ -773,6 +773,15 @@
         "code",
         "doc"
       ]
+    },
+    {
+      "login": "garz75",
+      "name": "Frederic Garzon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6645395?v=4",
+      "profile": "https://github.com/garz75",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
