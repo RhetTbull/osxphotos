@@ -135,8 +135,8 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
         f"[num]{edited_count}[/] edited photos, and [num]{aae_count}[/] AAE files. "
         f"Errors: [num]{error_count}[/]"
     )
-    echo(f"Log written to [filepath]{log_file}[/]")
     _global_log_file.close()
+    echo(f"Log written to [filepath]{log_file}[/]")
 
 
 def read_originals(library_path: pathlib.Path) -> list[pathlib.Path]:
