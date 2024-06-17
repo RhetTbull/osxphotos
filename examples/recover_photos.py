@@ -314,6 +314,7 @@ def export_file(
         os.makedirs(output_path.parent, exist_ok=True)
 
     if output_path.exists():
+        # This shouldn't happen as get_output_path increments the filename if it already exists
         error(f"Error copying file {path}: {output_path} already exists")
         error_count += 1
     else:
