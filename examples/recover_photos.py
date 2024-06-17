@@ -12,9 +12,15 @@ from functools import cache
 import click
 import xattr
 from rich import print
+from rich.console import Console
 
 import osxphotos
-from osxphotos.cli.click_rich_echo import get_rich_console, rich_echo, set_rich_console
+from osxphotos.cli.click_rich_echo import (
+    get_rich_console,
+    get_rich_theme,
+    rich_echo,
+    set_rich_console,
+)
 from osxphotos.cli.import_cli import rename_edited_group
 from osxphotos.cli.rich_progress import Progress
 from osxphotos.exiftool import ExifTool, get_exiftool_path
@@ -30,7 +36,7 @@ _global_log_file = None
 def echo(*args, **kwargs):
     """Print message to console and to log file"""
     if args:
-        args = f"{datetime.datetime.now()} {args[0]}", *args[1:]
+        args = f"[time]{datetime.datetime.now()}[/time] {args[0]}", *args[1:]
     if _global_log_file:
         print(*args, **kwargs, file=_global_log_file)
     rich_echo(*args, **kwargs)
@@ -121,7 +127,7 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
     error_count = 0
     # save console to restore after progress bar is done
     console = get_rich_console()
-    with Progress() as progress:
+    with Progress(console=Console(theme=get_rich_theme())) as progress:
         task = progress.add_task("Recovering photos", total=len(originals))
         # set console to progress console so echo messages show up correctly
         set_rich_console(progress.console)
