@@ -11,23 +11,48 @@ from functools import cache
 
 import click
 import xattr
+from rich import print
 
 import osxphotos
-from osxphotos.cli.click_rich_echo import rich_echo as echo
-from osxphotos.cli.click_rich_echo import rich_echo_error as echo_error
+from osxphotos.cli.click_rich_echo import get_rich_console, rich_echo, set_rich_console
 from osxphotos.cli.import_cli import rename_edited_group
+from osxphotos.cli.rich_progress import Progress
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.exifutils import get_exif_date_time_offset
 from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp
 from osxphotos.image_file_utils import is_image_file, is_raw_image, is_video_file
 from osxphotos.utils import increment_filename
 
+_global_verbose = False
+_global_log_file = None
+
+
+def echo(*args, **kwargs):
+    """Print message to console and to log file"""
+    if args:
+        args = f"{datetime.datetime.now()} {args[0]}", *args[1:]
+    if _global_log_file:
+        print(*args, **kwargs, file=_global_log_file)
+    rich_echo(*args, **kwargs)
+
+
+def verbose(*args, **kwargs):
+    if _global_verbose:
+        echo(*args, **kwargs)
+
+
+def error(*args, **kwargs):
+    if args:
+        args = (f":warning-emoji: [bold red]{args[0]}",) + args[1:]
+    echo(*args, **kwargs, err=True)
+
 
 @click.command()
 @click.option("--dry-run", is_flag=True, help="Dry run: don't actually copy files")
+@click.option("--verbose", is_flag=True, help="Verbose output")
 @click.argument("library_path", type=click.Path(exists=True))
 @click.argument("destination", type=click.Path(dir_okay=True, file_okay=False))
-def main(library_path: str, destination: str, dry_run: bool):
+def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
     """Recover photos from a Photos library where the database has been corrupted or is missing
 
     This script will scan the 'originals' directory of the Photos library to recover original photos
@@ -63,9 +88,19 @@ def main(library_path: str, destination: str, dry_run: bool):
     try:
         get_exiftool_path()
     except FileNotFoundError as e:
-        echo(f"Error: {e}")
+        error(f"Error: {e}")
         sys.exit(1)
 
+    if verbose:
+        global _global_verbose
+        _global_verbose = True
+
+    log_file = pathlib.Path(
+        f"recover_photos_{datetime.datetime.now().strftime('%Y%m%d')}.log"
+    )
+    global _global_log_file
+    _global_log_file = open(log_file, "w")
+    echo(f"Writing log to [filepath]{log_file}[/]")
     library_path = pathlib.Path(library_path)
     destination = pathlib.Path(destination)
     originals = read_originals(library_path)
@@ -76,19 +111,30 @@ def main(library_path: str, destination: str, dry_run: bool):
     original_count = 0
     edited_count = 0
     aae_count = 0
-    for original in originals:
-        try:
-            counts = export_file(library_path, destination, original, dry_run)
-            original_count += counts[0]
-            edited_count += counts[1]
-            aae_count += counts[2]
-        except Exception as e:
-            echo_error(f"[error]Error processing [filename]{original}[/]: {e}")
+    error_count = 0
+    console = get_rich_console()
+    with Progress() as progress:
+        task = progress.add_task("Recovering photos", total=len(originals))
+        set_rich_console(progress.console)
+        for original in originals:
+            try:
+                counts = export_file(library_path, destination, original, dry_run)
+                original_count += counts[0]
+                edited_count += counts[1]
+                aae_count += counts[2]
+                error_count += counts[3]
+            except Exception as e:
+                error(f"Error processing [filename]{original}[/]: {e}")
+            progress.update(task, advance=1)
 
+    set_rich_console(console)
     echo(
-        f"Done. Recovered [num]{original_count}[/] original photos, "
-        f"[num]{edited_count}[/] edited photos, and [num]{aae_count}[/] AAE files."
+        f"Done. "
+        f"Recovered [num]{original_count}[/] original photos, "
+        f"[num]{edited_count}[/] edited photos, and [num]{aae_count}[/] AAE files. "
+        f"Errors: [num]{error_count}[/]"
     )
+    echo(f"Log written to [filepath]{log_file}[/]")
 
 
 def read_originals(library_path: pathlib.Path) -> list[pathlib.Path]:
@@ -234,7 +280,7 @@ def export_file(
     destination: pathlib.Path,
     path: pathlib.Path,
     dry_run: bool,
-) -> tuple[int, int, int]:
+) -> tuple[int, int, int, int]:
     """Export a file to the destination, returns count of original, edited, and aae files exported"""
     exported_files = []
     fileutil = FileUtilNoOp if dry_run else FileUtilMacOS()
@@ -246,13 +292,15 @@ def export_file(
     original_count = 0
     edited_count = 0
     aae_count = 0
+    error_count = 0
     if not dry_run:
         os.makedirs(output_path.parent, exist_ok=True)
 
     if output_path.exists():
-        echo_error(f"[error]Error copying file {path}: {output_path} already exists")
+        error(f"Error copying file {path}: {output_path} already exists")
+        error_count += 1
     else:
-        echo(f"Copying [filepath]{path}[/] to [filepath]{output_path}[/]")
+        verbose(f"Copying [filepath]{path}[/] to [filepath]{output_path}[/]")
         fileutil.copy(path, output_path)
         exported_files.append(output_path)
         original_count += 1
@@ -261,11 +309,12 @@ def export_file(
         edited_filename = output_path.stem + "_edited" + edited_path.suffix
         edited_output_path = output_path.parent / edited_filename
         if edited_output_path.exists():
-            echo_error(
-                f"[error]Error copying edited file {edited_path}: {edited_output_path} already exists"
+            error(
+                f"Error copying edited file {edited_path}: {edited_output_path} already exists"
             )
+            error_count += 1
         else:
-            echo(
+            verbose(
                 f"Copying edited file [filepath]{edited_path}[/] to [filepath]{edited_output_path}[/]"
             )
             fileutil.copy(edited_path, edited_output_path)
@@ -278,11 +327,12 @@ def export_file(
         aae_filename = output_path.stem + ".aae"
         aae_output_path = output_path.parent / aae_filename
         if aae_output_path.exists():
-            echo_error(
-                f"[error]Error copying AAE file [filepath]{aae_path}[/]: [filepath]{aae_output_path}[/] already exists"
+            error(
+                f"Error copying AAE file [filepath]{aae_path}[/]: [filepath]{aae_output_path}[/] already exists"
             )
+            error_count += 1
         else:
-            echo(
+            verbose(
                 f"Copying AAE file [filepath]{aae_path}[/] to [filepath]{aae_output_path}[/]"
             )
             fileutil.copy(aae_path, aae_output_path)
@@ -292,17 +342,18 @@ def export_file(
         aae_output_path = None
 
     for path in exported_files:
-        echo(
+        verbose(
             f"Setting file modification and access time to [time]{date_time}[/] for [filepath]{path}[/]"
         )
         if not dry_run:
             try:
                 touch_file(path, date_time)
             except Exception as e:
-                echo_error(f"[error]Error touching date/time on {path}: {e}")
+                error(f"Error touching date/time on {path}: {e}")
+                error_count += 1
 
     if edited_output_path or aae_output_path:
-        echo(f"Renaming edited group")
+        verbose(f"Renaming edited group")
         if not dry_run:
             edited_group = [output_path]
             if edited_output_path:
@@ -318,13 +369,14 @@ def export_file(
                     False,
                     None,
                 )
-                echo(
+                verbose(
                     f"Renamed files: {', '.join('[filename]'+f.name+'[/]' for f in renamed_files)}"
                 )
             except Exception as e:
-                echo_error(f"[error]Error renaming edited group: {e}")
+                error(f"Error renaming edited group: {e}")
+                error_count += 1
 
-    return original_count, edited_count, aae_count
+    return original_count, edited_count, aae_count, error_count
 
 
 def touch_file(path: pathlib.Path, dt: datetime.datetime):
