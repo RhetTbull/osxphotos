@@ -136,6 +136,7 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
         f"Errors: [num]{error_count}[/]"
     )
     echo(f"Log written to [filepath]{log_file}[/]")
+    _global_log_file.close()
 
 
 def read_originals(library_path: pathlib.Path) -> list[pathlib.Path]:
