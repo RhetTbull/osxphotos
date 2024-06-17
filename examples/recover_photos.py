@@ -103,6 +103,7 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
     echo(f"Writing log to [filepath]{log_file}[/]")
     library_path = pathlib.Path(library_path)
     destination = pathlib.Path(destination)
+    echo(f"Scanning for files in [filepath]{library_path}/originals[/]")
     originals = read_originals(library_path)
 
     echo(
