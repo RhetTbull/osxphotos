@@ -200,6 +200,9 @@ class PhotoInfoProtocol(Protocol):
     def screenshot(self) -> bool: ...
 
     @property
+    def screen_recording(self) -> bool: ...
+
+    @property
     def portrait(self) -> bool: ...
 
     @property
@@ -376,6 +379,7 @@ class PhotoInfoMixin:
             "time_lapse",
             "hdr",
             "screenshot",
+            "screen_recording",
             "portrait",
             "selfie",
             "has_raw",

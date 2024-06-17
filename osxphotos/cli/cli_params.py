@@ -387,6 +387,14 @@ _QUERY_PARAMETERS_DICT = {
         is_flag=True,
         help="Search for photos that are not screenshot photos.",
     ),
+    "--screen-recording": click.Option(
+        ["--screen-recording"], is_flag=True, help="Search for screen-recording videos."
+    ),
+    "--not-screen-recording": click.Option(
+        ["--not-screen-recording"],
+        is_flag=True,
+        help="Search for photos that are not screen recording videos.",
+    ),
     "--slow-mo": click.Option(
         ["--slow-mo"], is_flag=True, help="Search for slow motion videos."
     ),

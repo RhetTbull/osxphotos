@@ -1026,6 +1026,7 @@ See `queryoptions.py <https://github.com/RhetTbull/osxphotos/blob/master/osxphot
 * ``not_portrait``\ : search for non-portrait photos
 * ``not_reference``\ : search for photos not stored by reference (that is, they are managed by Photos)
 * ``not_screenshot``\ : search for non-screenshot photos
+* ``not_screen_recording``\ : search for non-screen recording videos
 * ``not_selfie``\ : search for non-selfie photos
 * ``not_shared``\ : search for non-shared photos
 * ``not_slow_mo``\ : search for non-slow-mo photos
@@ -1038,6 +1039,7 @@ See `queryoptions.py <https://github.com/RhetTbull/osxphotos/blob/master/osxphot
 * ``query_eval``\ : list of query expressions to evaluate
 * ``regex``\ : list of regular expressions to search for
 * ``screenshot``\ : search for screenshot photos
+* ``screen_recording``\ : search for screen recording videos
 * ``selected``\ : search for selected photos
 * ``selfie``\ : search for selfie photos
 * ``shared``\ : search for shared photos
@@ -2853,7 +2855,7 @@ The following template field substitutions are availabe for use the templating s
    * - {descr}
      - Description of the photo
    * - {media_type}
-     - Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'
+     - Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, screen_recording, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'
    * - {photo_or_video}
      - 'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'
    * - {hdr}
