@@ -101,10 +101,16 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
     global _global_log_file
     _global_log_file = open(log_file, "w")
     echo(f"Writing log to [filepath]{log_file}[/]")
+
     library_path = pathlib.Path(library_path)
     destination = pathlib.Path(destination)
+
     echo(f"Scanning for files in [filepath]{library_path}/originals[/]")
-    originals = read_originals(library_path)
+    try:
+        originals = read_originals(library_path)
+    except FileNotFoundError:
+        error(f"Error: Could not find originals directory in {library_path}")
+        sys.exit(1)
 
     echo(
         f"Attempting recovery of [num]{len(originals)}[/] photos from [filepath]{library_path}[/] to [filepath]{destination}[/]"
@@ -113,9 +119,11 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
     edited_count = 0
     aae_count = 0
     error_count = 0
+    # save console to restore after progress bar is done
     console = get_rich_console()
     with Progress() as progress:
         task = progress.add_task("Recovering photos", total=len(originals))
+        # set console to progress console so echo messages show up correctly
         set_rich_console(progress.console)
         for original in originals:
             try:
@@ -128,6 +136,7 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
                 error(f"Error processing [filename]{original}[/]: {e}")
             progress.update(task, advance=1)
 
+    # restore console to original console as progress bar is done
     set_rich_console(console)
     echo(
         f"Done. "
@@ -135,15 +144,15 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
         f"[num]{edited_count}[/] edited photos, and [num]{aae_count}[/] AAE files. "
         f"Errors: [num]{error_count}[/]"
     )
-    _global_log_file.close()
     echo(f"Log written to [filepath]{log_file}[/]")
+    _global_log_file.close()
 
 
 def read_originals(library_path: pathlib.Path) -> list[pathlib.Path]:
     """Read the originals directory from a Photos library"""
     originals_path = library_path / "originals"
     if not originals_path.exists():
-        raise ValueError(f"Originals path not found: {originals_path}")
+        raise FileNotFoundError(f"originals path not found: {originals_path}")
     # return list of files in the originals directory excluding directories
     # and files that start with a dot
     return [
