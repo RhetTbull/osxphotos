@@ -2170,7 +2170,7 @@ class PhotoInfo:
             dict_data["shared_moment"] = self.shared_moment
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
-            # dict_data["screen_recording"] = self.screen_recording
+            dict_data["screen_recording"] = self.screen_recording
 
         return dict_data
 

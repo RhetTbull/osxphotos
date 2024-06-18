@@ -1204,6 +1204,8 @@ class PhotosDB:
                 True if (row[25] == 5 or row[25] == 8) else False
             )
             self._dbphotos[uuid]["screenshot"] = True if row[25] == 6 else False
+            # screen-recording (not available <= _PHOTOS_4_VERSION)
+            self._dbphotos[uuid]["screen_recording"] = None
             self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
 
             # selfies (front facing camera, RKVersion.selfPortrait == 1)
