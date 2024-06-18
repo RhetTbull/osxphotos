@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.personinfo - osxphotos 0.67.10 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+        <title>osxphotos.personinfo - osxphotos 0.68.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.68.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -212,9 +212,7 @@
 <span class="n">MPRI_Reg_Rect</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MPRI_Reg_Rect&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">])</span>
 
 
-<div class="viewcode-block" id="PersonInfo">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">:</span>
+<div class="viewcode-block" id="PersonInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo">[docs]</a><span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Info about a person in the Photos library&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="s2">&quot;osxphotos.PhotosDB&quot;</span><span class="p">,</span> <span class="n">pk</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
@@ -305,9 +303,7 @@
             <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="PersonInfo.asdict">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo.asdict">[docs]</a>
-    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PersonInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dictionary representation of class instance&quot;&quot;&quot;</span>
         <span class="n">keyphoto</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyphoto</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyphoto</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -322,13 +318,9 @@
             <span class="s2">&quot;feature_less&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_less</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-
-<div class="viewcode-block" id="PersonInfo.json">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo.json">[docs]</a>
-    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PersonInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns JSON representation of class instance&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div>
-
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;PersonInfo(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, display_name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">, uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">, facecount=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">facecount</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -347,10 +339,7 @@
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="FaceInfo">
-<a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">FaceInfo</span><span class="p">:</span>
+<div class="viewcode-block" id="FaceInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo">[docs]</a><span class="k">class</span> <span class="nc">FaceInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Info about a face in the Photos library&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -488,9 +477,7 @@
 
         <span class="k">return</span> <span class="n">MPRI_Reg_Rect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FaceInfo.face_rect">
-<a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo.face_rect">[docs]</a>
-    <span class="k">def</span> <span class="nf">face_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FaceInfo.face_rect"><a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo.face_rect">[docs]</a>    <span class="k">def</span> <span class="nf">face_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get face rectangle coordinates for current version of the associated image</span>
 <span class="sd">            If image has been edited, rectangle applies to edited version, otherwise original version</span>
 <span class="sd">            Coordinates in format and reference frame used by PIL</span>
@@ -506,10 +493,7 @@
         <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">radius</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">radius</span>
         <span class="k">return</span> <span class="p">[(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)]</span></div>
 
-
-<div class="viewcode-block" id="FaceInfo.roll_pitch_yaw">
-<a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo.roll_pitch_yaw">[docs]</a>
-    <span class="k">def</span> <span class="nf">roll_pitch_yaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FaceInfo.roll_pitch_yaw"><a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo.roll_pitch_yaw">[docs]</a>    <span class="k">def</span> <span class="nf">roll_pitch_yaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Roll, pitch, yaw of face in radians as tuple&quot;&quot;&quot;</span>
         <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span>
         <span class="n">roll</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;roll&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;roll&quot;</span><span class="p">]</span>
@@ -517,7 +501,6 @@
         <span class="n">yaw</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;yaw&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;yaw&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">roll</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">yaw</span><span class="p">)</span></div>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -620,9 +603,7 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">xr</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">yr</span><span class="p">))</span>
 
-<div class="viewcode-block" id="FaceInfo.asdict">
-<a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo.asdict">[docs]</a>
-    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FaceInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dict representation of class instance&quot;&quot;&quot;</span>
         <span class="n">roll</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">yaw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roll_pitch_yaw</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -659,13 +640,9 @@
             <span class="s2">&quot;smile_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">smile_type</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-
-<div class="viewcode-block" id="FaceInfo.json">
-<a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo.json">[docs]</a>
-    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FaceInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.FaceInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return JSON representation of FaceInfo instance&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div>
-
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FaceInfo(uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">, center_x=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="si">}</span><span class="s2">, center_y = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">center_y</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">, person=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, asset_uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -683,7 +660,6 @@
 
     <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
-
 
 
 <span class="k">def</span> <span class="nf">rotate_image_point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xmid</span><span class="p">,</span> <span class="n">ymid</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
@@ -745,11 +721,11 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=1337ec41"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
     </body>
 </html>

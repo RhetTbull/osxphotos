@@ -1,16 +1,16 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="./">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Package Overview" href="package_overview.html" /><link rel="prev" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
         <title>OSXPhotos Template System - osxphotos 0.68.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -198,7 +198,7 @@
         </div>
         <article role="main">
           <section id="osxphotos-template-system">
-<h1>OSXPhotos Template System<a class="headerlink" href="#osxphotos-template-system" title="Link to this heading">¶</a></h1>
+<h1>OSXPhotos Template System<a class="headerlink" href="#osxphotos-template-system" title="Permalink to this heading">#</a></h1>
 <p>The templating system converts one or template statements, written in osxphotos metadata templating language, to one or more rendered values using information from the photo being processed.</p>
 <p>In its simplest form, a template statement has the form: <code class="docutils literal notranslate"><span class="pre">&quot;{template_field}&quot;</span></code>, for example <code class="docutils literal notranslate"><span class="pre">&quot;{title}&quot;</span></code> which would resolve to the title of the photo.</p>
 <p>Template statements may contain one or more modifiers.  The full syntax is:</p>
@@ -328,7 +328,7 @@
 <p>If you need to use a <code class="docutils literal notranslate"><span class="pre">%</span></code> (percent sign character), you can escape the percent sign by using <code class="docutils literal notranslate"><span class="pre">%%</span></code>.  You can also use the <code class="docutils literal notranslate"><span class="pre">{percent}</span></code> template field where a template field is required. For example:</p>
 <p><code class="docutils literal notranslate"><span class="pre">{title[:,%%]}</span></code> replaces the <code class="docutils literal notranslate"><span class="pre">:</span></code> with <code class="docutils literal notranslate"><span class="pre">%</span></code> and <code class="docutils literal notranslate"><span class="pre">{title</span> <span class="pre">contains</span> <span class="pre">Foo?{title}{percent},{title}}</span></code> adds <code class="docutils literal notranslate"><span class="pre">%</span></code> to the  title if it contains <code class="docutils literal notranslate"><span class="pre">Foo</span></code>.</p>
 <section id="id1">
-<h2>Template Substitutions<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<h2>Template Substitutions<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
 <div class="table-wrapper docutils container">
 <table class="docutils align-default">
 <thead>
@@ -350,7 +350,7 @@
 <td><p>Description of the photo</p></td>
 </tr>
 <tr class="row-even"><td><p>{media_type}</p></td>
-<td><p>Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, portrait, live_photo, burst, photo, video. Defaults to ‘photo’ or ‘video’ if no special type. Customize one or more media types using format: ‘{media_type,video=vidéo;time_lapse=vidéo_accélérée}’</p></td>
+<td><p>Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, screen_recording, portrait, live_photo, burst, photo, video. Defaults to ‘photo’ or ‘video’ if no special type. Customize one or more media types using format: ‘{media_type,video=vidéo;time_lapse=vidéo_accélérée}’</p></td>
 </tr>
 <tr class="row-odd"><td><p>{photo_or_video}</p></td>
 <td><p>‘photo’ or ‘video’ depending on what type the image is. To customize, use default value as in ‘{photo_or_video,photo=fotos;video=videos}’</p></td>
@@ -764,11 +764,11 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=55fcc13c"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     </body>
 </html>

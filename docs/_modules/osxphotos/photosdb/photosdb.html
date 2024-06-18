@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.68.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.68.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.68.1 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.68.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -279,9 +279,7 @@
     <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="PhotosDB">
-<a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB">[docs]</a>
-<span class="k">class</span> <span class="nc">PhotosDB</span><span class="p">:</span>
+<div class="viewcode-block" id="PhotosDB"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB">[docs]</a><span class="k">class</span> <span class="nc">PhotosDB</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Processes a Photos.app library database to extract information about photos&quot;&quot;&quot;</span>
 
     <span class="c1"># import additional methods</span>
@@ -862,16 +860,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns version of Photos app that created the library&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span>
 
-<div class="viewcode-block" id="PhotosDB.get_db_connection">
-<a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.get_db_connection">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotosDB.get_db_connection"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.get_db_connection">[docs]</a>    <span class="k">def</span> <span class="nf">get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get connection to the working copy of the Photos database</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple of (connection, cursor) to sqlite3 database</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">sqlite_open_ro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_copy_db_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;copies the sqlite database file to a temp file&quot;&quot;&quot;</span>
@@ -1389,7 +1384,7 @@
             <span class="c1"># 6 == screenshot</span>
             <span class="c1"># 7 == JPEG/RAW pair</span>
             <span class="c1"># 8 == HDR live photo</span>
-            <span class="c1"># 9 = portrait</span>
+            <span class="c1"># 9 == portrait</span>
 
             <span class="c1"># get info on special types</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;specialType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span>
@@ -2370,9 +2365,12 @@
             <span class="c1"># 100 = shared movie (MP4) ??</span>
             <span class="c1"># 101 = slow-motion video</span>
             <span class="c1"># 102 = Time lapse video</span>
+            <span class="c1"># 103 = Screen Recordings</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;subtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;live_photo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">False</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;screenshot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span> <span class="o">==</span> <span class="mi">10</span> <span class="k">else</span> <span class="kc">False</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;screen_recording&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span> <span class="o">==</span> <span class="mi">103</span> <span class="k">else</span> <span class="kc">False</span>
+
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;slow_mo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span> <span class="o">==</span> <span class="mi">101</span> <span class="k">else</span> <span class="kc">False</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;time_lapse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span> <span class="o">==</span> <span class="mi">102</span> <span class="k">else</span> <span class="kc">False</span>
 
@@ -3204,9 +3202,7 @@
         <span class="n">album_uuids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_album_uuids</span><span class="p">(</span><span class="n">shared</span><span class="o">=</span><span class="n">shared</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">album</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">album_uuids</span><span class="p">})</span>
 
-<div class="viewcode-block" id="PhotosDB.photos">
-<a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.photos">[docs]</a>
-    <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span>
+<div class="viewcode-block" id="PhotosDB.photos"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.photos">[docs]</a>    <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">uuid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3343,10 +3339,7 @@
 
         <span class="k">return</span> <span class="n">photoinfo</span></div>
 
-
-<div class="viewcode-block" id="PhotosDB.get_photo">
-<a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.get_photo">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotosDB.get_photo"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.get_photo">[docs]</a>    <span class="k">def</span> <span class="nf">get_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a single photo matching uuid</span>
 
 <span class="sd">        Arguments:</span>
@@ -3360,10 +3353,7 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-
-<div class="viewcode-block" id="PhotosDB.photos_by_uuid">
-<a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.photos_by_uuid">[docs]</a>
-    <span class="k">def</span> <span class="nf">photos_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuids</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotosDB.photos_by_uuid"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.photos_by_uuid">[docs]</a>    <span class="k">def</span> <span class="nf">photos_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuids</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of photos with UUID in uuids.</span>
 <span class="sd">            Does not generate error if invalid or missing UUID passed.</span>
 <span class="sd">            This is faster than using PhotosDB.photos if you have list of UUIDs.</span>
@@ -3381,10 +3371,7 @@
             <span class="k">if</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span>
         <span class="p">]</span></div>
 
-
-<div class="viewcode-block" id="PhotosDB.query">
-<a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.query">[docs]</a>
-    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">QueryOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]:</span>
+<div class="viewcode-block" id="PhotosDB.query"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">QueryOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a query against PhotosDB to extract the photos based on user supplied options</span>
 
 <span class="sd">        Args:</span>
@@ -3392,15 +3379,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">photo_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="PhotosDB.execute">
-<a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.execute">[docs]</a>
-    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
+<div class="viewcode-block" id="PhotosDB.execute"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute sql statement and return cursor&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_db_connection</span><span class="p">()</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_duplicate_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute a signature for finding possible duplicates&quot;&quot;&quot;</span>
@@ -3432,7 +3415,6 @@
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_db_connection&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
-
 </pre></div>
         </article>
       </div>
@@ -3465,11 +3447,11 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=62044b56"></script>
-    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/scripts/furo.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
     </body>
 </html>

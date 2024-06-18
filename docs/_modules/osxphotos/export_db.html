@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.export_db - osxphotos 0.67.10 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+        <title>osxphotos.export_db - osxphotos 0.68.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.68.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -285,9 +285,7 @@
     <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="ExportDB">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB">[docs]</a>
-<span class="k">class</span> <span class="nc">ExportDB</span><span class="p">:</span>
+<div class="viewcode-block" id="ExportDB"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB">[docs]</a><span class="k">class</span> <span class="nc">ExportDB</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface to sqlite3 database used to store state information for osxphotos export command</span>
 
 <span class="sd">    Args:</span>
@@ -351,9 +349,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns sqlite3 connection&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ExportDB.get_file_record">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_file_record">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_file_record"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_file_record">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_file_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportRecord&quot;</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;get info for filename</span>
 
@@ -371,10 +367,7 @@
             <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.create_file_record">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.create_file_record">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span>
+<div class="viewcode-block" id="ExportDB.create_file_record"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.create_file_record">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
@@ -398,10 +391,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.create_or_get_file_record">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.create_or_get_file_record">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span>
+<div class="viewcode-block" id="ExportDB.create_or_get_file_record"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.create_or_get_file_record">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
@@ -425,10 +415,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.get_uuid_for_file">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_uuid_for_file">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_uuid_for_file"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_uuid_for_file">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_uuid_for_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;query database for filename and return UUID</span>
 <span class="sd">        returns None if filename not found in database</span>
@@ -445,10 +432,7 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">results</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.get_files_for_uuid">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_files_for_uuid">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_files_for_uuid"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_files_for_uuid">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_files_for_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;query database for UUID and return list of files associated with UUID or empty list&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -461,10 +445,7 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.get_photoinfo_for_uuid">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_photoinfo_for_uuid">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_photoinfo_for_uuid"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_photoinfo_for_uuid">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_photoinfo_for_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the photoinfo JSON string for a UUID or None if not found&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -474,10 +455,7 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">results</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.set_photoinfo_for_uuid">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_photoinfo_for_uuid">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span>
+<div class="viewcode-block" id="ExportDB.set_photoinfo_for_uuid"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_photoinfo_for_uuid">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
@@ -492,10 +470,7 @@
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.get_target_for_file">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_target_for_file">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_target_for_file"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_target_for_file">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_target_for_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;query database for file matching file name and return the matching filename if there is one;</span>
 <span class="sd">           otherwise return None; looks for file.ext, file (1).ext, file (2).ext and so on to find the</span>
@@ -526,10 +501,7 @@
 
             <span class="k">return</span> <span class="kc">None</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.get_previous_uuids">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_previous_uuids">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_previous_uuids"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_previous_uuids">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_previous_uuids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of UUIDs of previously exported photos found in export database&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -539,10 +511,7 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.set_config">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_config">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span>
+<div class="viewcode-block" id="ExportDB.set_config"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_config">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
@@ -558,10 +527,7 @@
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.set_export_results">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_export_results">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span>
+<div class="viewcode-block" id="ExportDB.set_export_results"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_export_results">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span>
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
@@ -585,10 +551,7 @@
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.get_export_results">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_export_results">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_export_results"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_export_results">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_export_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;osxphotos.photoexporter.ExportResults&quot;</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -623,10 +586,7 @@
                 <span class="n">results</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="n">results</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.get_exported_files">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_exported_files">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.get_exported_files"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_exported_files">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">get_exported_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns tuple of (uuid, filepath) for all paths of all exported files tracked in the database&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -638,10 +598,7 @@
                 <span class="k">yield</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">return</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.delete_data_for_uuid">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_uuid">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.delete_data_for_uuid"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_uuid">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">delete_data_for_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete all exportdb data for given UUID&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -655,10 +612,7 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">count</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.delete_data_for_filepath">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_filepath">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.delete_data_for_filepath"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.delete_data_for_filepath">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">delete_data_for_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete all exportdb data for given filepath&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
@@ -671,11 +625,8 @@
             <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
             <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delete_data_for_uuid</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">)</span></div>
 
-
     <span class="c1"># @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))</span>
-<div class="viewcode-block" id="ExportDB.set_history">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_history">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_history</span><span class="p">(</span>
+<div class="viewcode-block" id="ExportDB.set_history"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_history">[docs]</a>    <span class="k">def</span> <span class="nf">set_history</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
         <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -710,11 +661,8 @@
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-
     <span class="c1"># @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))</span>
-<div class="viewcode-block" id="ExportDB.get_history">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_history">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_history</span><span class="p">(</span>
+<div class="viewcode-block" id="ExportDB.get_history"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_history">[docs]</a>    <span class="k">def</span> <span class="nf">get_history</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get history for a filepath or uuid</span>
@@ -756,11 +704,8 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify filepath or uuid&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">results</span></div>
 
-
     <span class="c1"># @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))</span>
-<div class="viewcode-block" id="ExportDB.get_last_export_directory">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_last_export_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_last_export_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ExportDB.get_last_export_directory"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_last_export_directory">[docs]</a>    <span class="k">def</span> <span class="nf">get_last_export_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the last export directory from the database&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
@@ -777,16 +722,12 @@
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
-
-<div class="viewcode-block" id="ExportDB.close">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.close">[docs]</a>
-    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+<div class="viewcode-block" id="ExportDB.close"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.close">[docs]</a>    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;close the database connection&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="kc">None</span></div>
-
 
     <span class="k">def</span> <span class="nf">_open_export_db</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dbfile</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1375,7 +1316,6 @@
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
 
-
 <span class="k">class</span> <span class="nc">ExportDBInMemory</span><span class="p">(</span><span class="n">ExportDB</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;In memory version of ExportDB</span>
 
@@ -1529,9 +1469,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="ExportDBTemp">
-<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDBTemp">[docs]</a>
-<span class="k">class</span> <span class="nc">ExportDBTemp</span><span class="p">(</span><span class="n">ExportDBInMemory</span><span class="p">):</span>
+<div class="viewcode-block" id="ExportDBTemp"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDBTemp">[docs]</a><span class="k">class</span> <span class="nc">ExportDBTemp</span><span class="p">(</span><span class="n">ExportDBInMemory</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Temporary in-memory version of ExportDB</span>
 
 <span class="sd">    Args:</span>
@@ -1557,7 +1495,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Overrides _relative_filepath to return a path for use in the temp db&quot;&quot;&quot;</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">filepath</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">filepath</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span> <span class="k">else</span> <span class="n">filepath</span></div>
-
 
 
 <span class="k">class</span> <span class="nc">ExportRecord</span><span class="p">:</span>
@@ -2041,11 +1978,11 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=1337ec41"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
     </body>
 </html>

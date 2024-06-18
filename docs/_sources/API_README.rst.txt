@@ -1026,7 +1026,6 @@ See `queryoptions.py <https://github.com/RhetTbull/osxphotos/blob/master/osxphot
 * ``not_portrait``\ : search for non-portrait photos
 * ``not_reference``\ : search for photos not stored by reference (that is, they are managed by Photos)
 * ``not_screenshot``\ : search for non-screenshot photos
-* ``not_screen_recording``\ : search for non-screen recording videos
 * ``not_selfie``\ : search for non-selfie photos
 * ``not_shared``\ : search for non-shared photos
 * ``not_slow_mo``\ : search for non-slow-mo photos
@@ -1039,7 +1038,6 @@ See `queryoptions.py <https://github.com/RhetTbull/osxphotos/blob/master/osxphot
 * ``query_eval``\ : list of query expressions to evaluate
 * ``regex``\ : list of regular expressions to search for
 * ``screenshot``\ : search for screenshot photos
-* ``screen_recording``\ : search for screen recording videos
 * ``selected``\ : search for selected photos
 * ``selfie``\ : search for selfie photos
 * ``shared``\ : search for shared photos
