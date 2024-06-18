@@ -5,7 +5,7 @@ I'm still trying to learn sphinx and come up with a workflow for building docs. 
 - `python3 -m pip -r dev_requirements.txt`
 - Download and install [MacTeX](https://tug.org/mactex/)
 - Add `/Library/TeX/texbin` to your `$PATH`
-- `cd docs`
+- `cd docsrc`
 - `make html`
 - `make latexpdf`
 - `cp _build/latex/osxphotos.pdf .`
