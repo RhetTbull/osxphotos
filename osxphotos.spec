@@ -55,11 +55,11 @@ block_cipher = None
 a = Analysis(
     ["cli.py"],
     pathex=[pathex],
-    binaries=[],
+    binaries=[("build/libdisclaim.dylib", ".")],
     datas=datas,
     hiddenimports=["pkg_resources.py2_warn"],
     hookspath=[],
-    runtime_hooks=[],
+    runtime_hooks=["disclaim.py"],
     excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
