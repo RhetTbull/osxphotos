@@ -16,7 +16,26 @@ These are notes for developers working on osxphotos. They're mostly to help me r
 
 See the [test README.md](tests/README.md) for more information on running tests.
 
-## Building the package
+## Opening a pull request
+
+If you want to contribute to osxphotos, please open a pull request. Here's how to do it:
+
+- Fork the repo on GitHub
+- Clone your fork: `git clone git@github.com:YOUR_USERNAME/osxphotos.git`
+- Create a virtual environment and install osxphotos as described above
+- Create a branch for your changes: `git checkout -b my_branch`
+- Make your changes
+- Add tests for your changes
+- Run the tests: `pytest`
+- Update the README.md and other files as needed
+- Add your changes using `git add`
+- Commit your changes: `git commit -m "My changes description"`
+- Push your changes to your fork: `git push origin my_branch`
+- Open a [pull request on GitHub](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
+
+## Building the package and executable
+
+**Note**: Do not do this unless you are releasing a new version of osxphotos. This should not be run for normal pull requests. In general, only the maintainer should run the build script.
 
 - Run `./build.sh` to run the build script.
 

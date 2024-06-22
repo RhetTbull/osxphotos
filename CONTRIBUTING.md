@@ -8,6 +8,8 @@ If you want to contribute source code, I recommend you explore the [wiki](https:
 
 See the [README.md](tests/README.md) in the tests directory before running any tests.
 
+Before contributing, please read [README_DEV.md](README_DEV.md) for information on setting up a development environment and opening a pull request.
+
 ## Code of Conduct
 
 Be nice to each other.  Treat everyone with dignity and respect.
