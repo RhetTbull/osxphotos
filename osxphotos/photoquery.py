@@ -107,6 +107,7 @@ class QueryOptions:
         not_portrait: search for non-portrait photos
         not_reference: search for photos not stored by reference (that is, they are managed by Photos)
         not_screenshot: search for non-screenshot photos
+        not_screen_recording: search for non-screen recordings videos
         not_selfie: search for non-selfie photos
         not_shared: search for non-shared photos
         not_slow_mo: search for non-slow-mo photos
@@ -119,6 +120,7 @@ class QueryOptions:
         query_eval: list of query expressions to evaluate
         regex: list of regular expressions to search for
         screenshot: search for screenshot photos
+        screen_recording: search for screen recording videos
         selected: search for selected photos
         selfie: search for selfie photos
         shared: search for shared photos
@@ -199,6 +201,7 @@ class QueryOptions:
     not_portrait: Optional[bool] = None
     not_reference: Optional[bool] = None
     not_screenshot: Optional[bool] = None
+    not_screen_recording: Optional[bool] = None
     not_selfie: Optional[bool] = None
     not_shared: Optional[bool] = None
     not_slow_mo: Optional[bool] = None
@@ -211,6 +214,7 @@ class QueryOptions:
     query_eval: Optional[Iterable[str]] = None
     regex: Optional[Iterable[Tuple[str, str]]] = None
     screenshot: Optional[bool] = None
+    screen_recording: Optional[bool] = None
     selected: Optional[bool] = None
     selfie: Optional[bool] = None
     shared: Optional[bool] = None
@@ -292,6 +296,7 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         ("panorama", "not_panorama"),
         ("portrait", "not_portrait"),
         ("screenshot", "not_screenshot"),
+        ("screen_recording", "not_screen_recording"),
         ("selfie", "not_selfie"),
         ("shared", "not_shared"),
         ("slow_mo", "not_slow_mo"),
@@ -602,6 +607,11 @@ def photo_query(
         photos = [p for p in photos if p.screenshot]
     elif options.not_screenshot:
         photos = [p for p in photos if not p.screenshot]
+
+    if options.screen_recording:
+        photos = [p for p in photos if p.screen_recording]
+    elif options.not_screen_recording:
+        photos = [p for p in photos if not p.screen_recording]
 
     if options.slow_mo:
         photos = [p for p in photos if p.slow_mo]

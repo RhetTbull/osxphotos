@@ -1216,6 +1216,11 @@ class PhotoInfo:
         return self._info["screenshot"]
 
     @property
+    def screen_recording(self) -> bool:
+        """Returns True if video is a screen_recording, otherwise False"""
+        return self._info["screen_recording"]
+
+    @property
     def portrait(self) -> bool:
         """Returns True if photo is a portrait, otherwise False"""
         return self._info["portrait"]
@@ -2010,6 +2015,7 @@ class PhotoInfo:
             "date_modified": date_modified_iso,
             "portrait": self.portrait,
             "screenshot": self.screenshot,
+            "screen_recording": self.screen_recording,
             "slow_mo": self.slow_mo,
             "time_lapse": self.time_lapse,
             "hdr": self.hdr,
@@ -2164,6 +2170,7 @@ class PhotoInfo:
             dict_data["shared_moment"] = self.shared_moment
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
+            dict_data["screen_recording"] = self.screen_recording
 
         return dict_data
 

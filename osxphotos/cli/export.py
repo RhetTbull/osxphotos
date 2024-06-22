@@ -1014,6 +1014,7 @@ def export(
     not_portrait: bool,
     not_reference: bool,
     not_screenshot: bool,
+    not_screen_recording: bool,
     not_selfie: bool,
     not_shared: bool,
     not_slow_mo: bool,
@@ -1044,6 +1045,7 @@ def export(
     retry: int | None,
     save_config: bool,
     screenshot: bool,
+    screen_recording: bool,
     selfie: bool,
     shared: bool,
     export_aae: bool,
@@ -1218,6 +1220,7 @@ def export_cli(
     not_portrait: bool = False,
     not_reference: bool = False,
     not_screenshot: bool = False,
+    not_screen_recording: bool = False,
     not_selfie: bool = False,
     not_shared: bool = False,
     not_slow_mo: bool = False,
@@ -1248,6 +1251,7 @@ def export_cli(
     retry: int | None = None,
     save_config: bool = False,
     screenshot: bool = False,
+    screen_recording: bool = False,
     selfie: bool = False,
     shared: bool = False,
     export_aae: bool = False,
@@ -1460,6 +1464,7 @@ def export_cli(
         not_reference = cfg.not_reference
         not_saved_to_library = cfg.not_saved_to_library
         not_screenshot = cfg.not_screenshot
+        not_screen_recording = cfg.not_screen_recording
         not_selfie = cfg.not_selfie
         not_shared = cfg.not_shared
         not_shared_library = cfg.not_shared_library
@@ -1493,6 +1498,7 @@ def export_cli(
         retry = cfg.retry
         saved_to_library = cfg.saved_to_library
         screenshot = cfg.screenshot
+        screen_recording = cfg.screen_recording
         selected = cfg.selected
         selfie = cfg.selfie
         shared = cfg.shared
@@ -1574,6 +1580,7 @@ def export_cli(
         ("place", "no_place"),
         ("portrait", "not_portrait"),
         ("screenshot", "not_screenshot"),
+        ("screen_recording", "not_screen_recording"),
         ("selfie", "not_selfie"),
         ("shared", "not_shared"),
         ("skip_edited", "skip_original_if_edited"),

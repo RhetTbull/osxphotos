@@ -57,6 +57,7 @@ MEDIA_TYPE_DEFAULTS = {
     "panorama": "panorama",
     "slow_mo": "slow_mo",
     "screenshot": "screenshot",
+    "screen_recording": "screen_recording",
     "portrait": "portrait",
     "live_photo": "live_photo",
     "burst": "burst",
@@ -1535,6 +1536,8 @@ class PhotoTemplate:
             return default_dict["slow_mo"]
         elif p.screenshot:
             return default_dict["screenshot"]
+        elif p.screen_recording:
+            return default_dict["screen_recording"]
         elif p.portrait:
             return default_dict["portrait"]
         elif p.live_photo:

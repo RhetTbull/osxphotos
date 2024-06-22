@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.photosalbum - osxphotos 0.67.10 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+        <title>osxphotos.photosalbum - osxphotos 0.68.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.68.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -291,9 +291,7 @@
     <span class="k">return</span> <span class="n">album</span>
 
 
-<div class="viewcode-block" id="PhotosAlbum">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbum">[docs]</a>
-<span class="k">class</span> <span class="nc">PhotosAlbum</span><span class="p">:</span>
+<div class="viewcode-block" id="PhotosAlbum"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbum">[docs]</a><span class="k">class</span> <span class="nc">PhotosAlbum</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add osxphotos.photoinfo.PhotoInfo objects to album&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -345,19 +343,13 @@
             <span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_num</span><span class="p">(</span><span class="n">photo_len</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pluralize</span><span class="p">(</span><span class="n">photo_len</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;photo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;photos&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to album </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_album</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="PhotosAlbum.append">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbum.append">[docs]</a>
-    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotosAlbum.append"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbum.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add photo to album&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="PhotosAlbum.extend">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbum.extend">[docs]</a>
-    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]):</span>
+<div class="viewcode-block" id="PhotosAlbum.extend"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbum.extend">[docs]</a>    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add list of photos to album&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
@@ -379,10 +371,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[num]</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">[/num]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rich</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="PhotosAlbumPhotoScript">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbumPhotoScript">[docs]</a>
-<span class="k">class</span> <span class="nc">PhotosAlbumPhotoScript</span><span class="p">(</span><span class="n">PhotosAlbum</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotosAlbumPhotoScript"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbumPhotoScript">[docs]</a><span class="k">class</span> <span class="nc">PhotosAlbumPhotoScript</span><span class="p">(</span><span class="n">PhotosAlbum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add photoscript.Photo objects to album&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">Photo</span><span class="p">):</span>
@@ -399,20 +388,13 @@
             <span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_num</span><span class="p">(</span><span class="n">photo_len</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pluralize</span><span class="p">(</span><span class="n">photo_len</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;photo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;photos&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to album </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_album</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="PhotosAlbumPhotoScript.append">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbumPhotoScript.append">[docs]</a>
-    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">Photo</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotosAlbumPhotoScript.append"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbumPhotoScript.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">Photo</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add photo to album&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="PhotosAlbumPhotoScript.extend">
-<a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbumPhotoScript.extend">[docs]</a>
-    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Photo</span><span class="p">]):</span>
+<div class="viewcode-block" id="PhotosAlbumPhotoScript.extend"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotosAlbumPhotoScript.extend">[docs]</a>    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Photo</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add list of photos to album&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span></div>
-</div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span></div></div>
 
 <span class="k">class</span> <span class="nc">PhotosAlbumPhotoScriptByPath</span><span class="p">(</span><span class="n">PhotosAlbumPhotoScript</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add photoscript.Photo objects to album&quot;&quot;&quot;</span>
@@ -468,11 +450,11 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=1337ec41"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
     </body>
 </html>

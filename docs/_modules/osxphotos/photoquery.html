@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="../../">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>osxphotos.photoquery - osxphotos 0.67.10 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+        <title>osxphotos.photoquery - osxphotos 0.68.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.67.10 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.68.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.67.10 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -241,9 +241,7 @@
     <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="QueryOptions">
-<a class="viewcode-back" href="../../reference.html#osxphotos.QueryOptions">[docs]</a>
-<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="QueryOptions"><a class="viewcode-back" href="../../reference.html#osxphotos.QueryOptions">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">QueryOptions</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;QueryOptions class for PhotosDB.query</span>
 
@@ -307,6 +305,7 @@
 <span class="sd">        not_portrait: search for non-portrait photos</span>
 <span class="sd">        not_reference: search for photos not stored by reference (that is, they are managed by Photos)</span>
 <span class="sd">        not_screenshot: search for non-screenshot photos</span>
+<span class="sd">        not_screen_recording: search for non-screen recordings videos</span>
 <span class="sd">        not_selfie: search for non-selfie photos</span>
 <span class="sd">        not_shared: search for non-shared photos</span>
 <span class="sd">        not_slow_mo: search for non-slow-mo photos</span>
@@ -319,6 +318,7 @@
 <span class="sd">        query_eval: list of query expressions to evaluate</span>
 <span class="sd">        regex: list of regular expressions to search for</span>
 <span class="sd">        screenshot: search for screenshot photos</span>
+<span class="sd">        screen_recording: search for screen recording videos</span>
 <span class="sd">        selected: search for selected photos</span>
 <span class="sd">        selfie: search for selfie photos</span>
 <span class="sd">        shared: search for shared photos</span>
@@ -399,6 +399,7 @@
     <span class="n">not_portrait</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_reference</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_screenshot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_screen_recording</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_selfie</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_shared</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">not_slow_mo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -411,6 +412,7 @@
     <span class="n">query_eval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">regex</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">screenshot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">screen_recording</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">selected</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">selfie</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">shared</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -433,7 +435,6 @@
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
-
 
 
 <span class="k">def</span> <span class="nf">query_options_from_kwargs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QueryOptions</span><span class="p">:</span>
@@ -493,6 +494,7 @@
         <span class="p">(</span><span class="s2">&quot;panorama&quot;</span><span class="p">,</span> <span class="s2">&quot;not_panorama&quot;</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;portrait&quot;</span><span class="p">,</span> <span class="s2">&quot;not_portrait&quot;</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;screenshot&quot;</span><span class="p">,</span> <span class="s2">&quot;not_screenshot&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;screen_recording&quot;</span><span class="p">,</span> <span class="s2">&quot;not_screen_recording&quot;</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;selfie&quot;</span><span class="p">,</span> <span class="s2">&quot;not_selfie&quot;</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;shared&quot;</span><span class="p">,</span> <span class="s2">&quot;not_shared&quot;</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;slow_mo&quot;</span><span class="p">,</span> <span class="s2">&quot;not_slow_mo&quot;</span><span class="p">),</span>
@@ -803,6 +805,11 @@
         <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">screenshot</span><span class="p">]</span>
     <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">not_screenshot</span><span class="p">:</span>
         <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">screenshot</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">screen_recording</span><span class="p">:</span>
+        <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">screen_recording</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">not_screen_recording</span><span class="p">:</span>
+        <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">screen_recording</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">slow_mo</span><span class="p">:</span>
         <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">slow_mo</span><span class="p">]</span>
@@ -1137,11 +1144,11 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=1337ec41"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
-    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../_static/copybutton.js?v=f281be69"></script>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
     </body>
 </html>

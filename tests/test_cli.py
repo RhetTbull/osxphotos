@@ -59,6 +59,7 @@ RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
 COMMENTS_PHOTOS_DB = "tests/Test-Cloud-10.15.6.photoslibrary"
 PLACES_PHOTOS_DB = "tests/Test-Places-Catalina-10_15_1.photoslibrary"
 PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
+SCREENRECORDING_PHOTOS_DB_13 = "tests/Test-Screen-Recording-12.0.1.photoslibrary/"
 PHOTOS_DB_15_7 = "tests/Test-10.15.7.photoslibrary"
 PHOTOS_DB_TOUCH = PHOTOS_DB_15_7
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
@@ -1121,6 +1122,26 @@ UUID_IPHOTO_RATING = "RgISIEPbThGVoco5LyiLjQ"  # wedding.jpg, rating=5
 # number of photos in test library with Make=Canon
 EXIF_MAKE_CANON = 7
 
+UUID_SCREEN_RECORDING = [
+    "891249FE-C4F6-4B05-ADB1-7846C4469178",
+]
+
+UUID_NOT_SCREEN_RECORDING = [
+    "A92D9C26-3A50-4197-9388-CB5F7DB9FA91",
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C",
+    "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96",
+    "8846E3E6-8AC8-4857-8448-E3D025784410",
+    "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A",
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
+    "DC99FBDD-7A52-4100-A5BB-344131646C30",
+]
 
 @pytest.fixture(scope="module")
 def local_photosdb():
@@ -10405,3 +10426,49 @@ def test_query_field_json():
         json_results = json.loads(result.output)
         assert json_results[0]["uuid"] == UUID_FAVORITE
         assert json_results[0]["name"] == FILE_FAVORITE
+
+
+def test_query_screen_recording():
+    """Test query with --screen-recording"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db", 
+            os.path.join(cwd, SCREENRECORDING_PHOTOS_DB_13), 
+            "--screen-recording"
+        ],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_SCREEN_RECORDING)
+
+
+def test_query_not_screen_recording():
+    """Test query with --not-screen-recording"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--mute",
+            "--db",
+            os.path.join(cwd, SCREENRECORDING_PHOTOS_DB_13),
+            "--not-screen-recording",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_NOT_SCREEN_RECORDING) 

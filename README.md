@@ -816,6 +816,9 @@ Options:
   --screenshot                    Search for screenshot photos.
   --not-screenshot                Search for photos that are not screenshot
                                   photos.
+  --screen-recording              Search for screen-recording videos.
+  --not-screen-recording          Search for photos that are not screen
+                                  recording videos.
   --slow-mo                       Search for slow motion videos.
   --not-slow-mo                   Search for photos that are not slow motion
                                   videos.
@@ -2058,11 +2061,12 @@ Substitution                    Description
 {descr}                         Description of the photo
 {media_type}                    Special media type resolved in this
                                 precedence: selfie, time_lapse, panorama,
-                                slow_mo, screenshot, portrait, live_photo,
-                                burst, photo, video. Defaults to 'photo' or
-                                'video' if no special type. Customize one or
-                                more media types using format: '{media_type,
-                                video=vidéo;time_lapse=vidéo_accélérée}'
+                                slow_mo, screenshot, screen_recording,
+                                portrait, live_photo, burst, photo, video.
+                                Defaults to 'photo' or 'video' if no special
+                                type. Customize one or more media types
+                                using format: '{media_type,video=vidéo;time_
+                                lapse=vidéo_accélérée}'
 {photo_or_video}                'photo' or 'video' depending on what type
                                 the image is. To customize, use default
                                 value as in
@@ -2751,7 +2755,7 @@ The following template field substitutions are availabe for use the templating s
 |{original_name}|Photo's original filename when imported to Photos|
 |{title}|Title of the photo|
 |{descr}|Description of the photo|
-|{media_type}|Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'|
+|{media_type}|Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, screen_recording, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'|
 |{photo_or_video}|'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'|
 |{hdr}|Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
 |{edited}|True if photo has been edited (has adjustments), otherwise False; use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'|

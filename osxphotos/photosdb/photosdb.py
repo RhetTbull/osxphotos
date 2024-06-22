@@ -1186,7 +1186,7 @@ class PhotosDB:
             # 6 == screenshot
             # 7 == JPEG/RAW pair
             # 8 == HDR live photo
-            # 9 = portrait
+            # 9 == portrait
 
             # get info on special types
             self._dbphotos[uuid]["specialType"] = row[25]
@@ -1204,6 +1204,8 @@ class PhotosDB:
                 True if (row[25] == 5 or row[25] == 8) else False
             )
             self._dbphotos[uuid]["screenshot"] = True if row[25] == 6 else False
+            # screen-recording (not available <= _PHOTOS_4_VERSION)
+            self._dbphotos[uuid]["screen_recording"] = None
             self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
 
             # selfies (front facing camera, RKVersion.selfPortrait == 1)
@@ -2167,9 +2169,12 @@ class PhotosDB:
             # 100 = shared movie (MP4) ??
             # 101 = slow-motion video
             # 102 = Time lapse video
+            # 103 = Screen Recordings
             info["subtype"] = row[21]
             info["live_photo"] = True if row[21] == 2 else False
             info["screenshot"] = True if row[21] == 10 else False
+            info["screen_recording"] = True if row[21] == 103 else False
+
             info["slow_mo"] = True if row[21] == 101 else False
             info["time_lapse"] = True if row[21] == 102 else False
 
