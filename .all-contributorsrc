@@ -782,6 +782,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "felciano",
+      "name": "Ramon Felciano",
+      "avatar_url": "https://avatars.githubusercontent.com/u/407700?v=4",
+      "profile": "https://github.com/felciano",
+      "contributions": [
+        "research",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
