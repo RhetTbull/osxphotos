@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
         <title>osxphotos.iphoto - osxphotos 0.68.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -275,7 +275,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="iPhotoDB"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB">[docs]</a><span class="k">class</span> <span class="nc">iPhotoDB</span><span class="p">:</span>
+<div class="viewcode-block" id="iPhotoDB">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB">[docs]</a>
+<span class="k">class</span> <span class="nc">iPhotoDB</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Read an iPhoto library database; interface matches osxphotos.PhotosDB&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1011,7 +1013,9 @@
         <span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_version</span><span class="si">}</span><span class="s2">&quot;</span>
 
-<div class="viewcode-block" id="iPhotoDB.get_db_connection"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB.get_db_connection">[docs]</a>    <span class="k">def</span> <span class="nf">get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Cursor</span><span class="p">]:</span>
+<div class="viewcode-block" id="iPhotoDB.get_db_connection">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB.get_db_connection">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Cursor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get connection to the working copy of the Photos database</span>
 
 <span class="sd">        Returns:</span>
@@ -1021,6 +1025,7 @@
 <span class="sd">            NotImplementedError on iPhoto</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_db_connection not implemented for iPhoto&quot;</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">keywords_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
@@ -1077,7 +1082,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of album names&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">albums_as_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-<div class="viewcode-block" id="iPhotoDB.photos"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB.photos">[docs]</a>    <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span>
+<div class="viewcode-block" id="iPhotoDB.photos">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB.photos">[docs]</a>
+    <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">uuid</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1154,19 +1161,26 @@
             <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">photo</span> <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">photo</span><span class="o">.</span><span class="n">intrash</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">photos</span></div>
 
-<div class="viewcode-block" id="iPhotoDB.get_photo"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB.get_photo">[docs]</a>    <span class="k">def</span> <span class="nf">get_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">iPhotoPhotoInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoDB.get_photo">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB.get_photo">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">iPhotoPhotoInfo</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return photo by uuid&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Photo with uuid </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">iPhotoPhotoInfo</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="iPhotoDB.query"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">QueryOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">iPhotoPhotoInfo</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="iPhotoDB.query">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoDB.query">[docs]</a>
+    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">QueryOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">iPhotoPhotoInfo</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a query against PhotosDB to extract the photos based on user supplied options</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            options: a QueryOptions instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">photo_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;osxphotos.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(dbfile=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
@@ -1176,7 +1190,10 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photos</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="iPhotoPhotoInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo">[docs]</a><span class="k">class</span> <span class="nc">iPhotoPhotoInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoPhotoInfo">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">iPhotoPhotoInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;PhotoInfo implementation for iPhoto&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">iPhotoDB</span><span class="p">):</span>
@@ -1596,7 +1613,9 @@
             <span class="k">return</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">angle_to_exif_orientation</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span>
 
-<div class="viewcode-block" id="iPhotoPhotoInfo.export"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
+<div class="viewcode-block" id="iPhotoPhotoInfo.export">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.export">[docs]</a>
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dest</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1701,7 +1720,10 @@
         <span class="n">results</span> <span class="o">=</span> <span class="n">exporter</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">exported</span></div>
 
-<div class="viewcode-block" id="iPhotoPhotoInfo.render_template"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.render_template">[docs]</a>    <span class="k">def</span> <span class="nf">render_template</span><span class="p">(</span>
+
+<div class="viewcode-block" id="iPhotoPhotoInfo.render_template">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.render_template">[docs]</a>
+    <span class="k">def</span> <span class="nf">render_template</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">template_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">RenderOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders a template string for iPhotoPhotoInfo instance using PhotoTemplate</span>
@@ -1716,6 +1738,7 @@
         <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="n">RenderOptions</span><span class="p">()</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">PhotoTemplate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exiftool_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_exiftool_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">template_str</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span></div>
+
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">exiftool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExifToolCaching</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -1738,7 +1761,9 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">exiftool</span>
 
-<div class="viewcode-block" id="iPhotoPhotoInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shallow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="iPhotoPhotoInfo.asdict">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.asdict">[docs]</a>
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shallow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return dict representation of iPhotoPhotoInfo object.</span>
 
 <span class="sd">        Args:</span>
@@ -1874,7 +1899,10 @@
 
         <span class="k">return</span> <span class="n">dict_data</span></div>
 
-<div class="viewcode-block" id="iPhotoPhotoInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shallow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoPhotoInfo.json">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPhotoInfo.json">[docs]</a>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shallow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return JSON representation</span>
 
 <span class="sd">        Args:</span>
@@ -1902,6 +1930,7 @@
             <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">dict_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_json_hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;JSON for use by hexdigest()&quot;&quot;&quot;</span>
@@ -2017,7 +2046,10 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="iPhotoPersonInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPersonInfo">[docs]</a><span class="k">class</span> <span class="nc">iPhotoPersonInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoPersonInfo">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPersonInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">iPhotoPersonInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;PersonInfo implementation for iPhoto&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">face</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">db</span><span class="p">:</span> <span class="n">iPhotoDB</span><span class="p">):</span>
@@ -2096,7 +2128,9 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not implemented for iPhoto&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="iPhotoPersonInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPersonInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="iPhotoPersonInfo.asdict">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPersonInfo.asdict">[docs]</a>
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return person as dict&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
@@ -2110,12 +2144,19 @@
             <span class="s2">&quot;feature_less&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_less</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="iPhotoPersonInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPersonInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoPersonInfo.json">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoPersonInfo.json">[docs]</a>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return person as json&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div></div>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div>
+</div>
 
 
-<div class="viewcode-block" id="iPhotoFaceInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo">[docs]</a><span class="k">class</span> <span class="nc">iPhotoFaceInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoFaceInfo">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">iPhotoFaceInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;FaceInfo implementation for iPhoto&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">iPhotoPhotoInfo</span><span class="p">,</span> <span class="n">face</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">db</span><span class="p">:</span> <span class="n">iPhotoDB</span><span class="p">):</span>
@@ -2212,9 +2253,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;iPhotoPersonInfo object for face&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">iPhotoPersonInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_face</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">)</span>
 
-<div class="viewcode-block" id="iPhotoFaceInfo.roll_pitch_yaw"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo.roll_pitch_yaw">[docs]</a>    <span class="k">def</span> <span class="nf">roll_pitch_yaw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<div class="viewcode-block" id="iPhotoFaceInfo.roll_pitch_yaw">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo.roll_pitch_yaw">[docs]</a>
+    <span class="k">def</span> <span class="nf">roll_pitch_yaw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Roll, pitch, yaw of face in radians as tuple&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2292,7 +2336,9 @@
 
         <span class="k">return</span> <span class="n">MPRI_Reg_Rect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
 
-<div class="viewcode-block" id="iPhotoFaceInfo.face_rect"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo.face_rect">[docs]</a>    <span class="k">def</span> <span class="nf">face_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<div class="viewcode-block" id="iPhotoFaceInfo.face_rect">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo.face_rect">[docs]</a>
+    <span class="k">def</span> <span class="nf">face_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get face rectangle coordinates for current version of the associated image</span>
 <span class="sd">            If image has been edited, rectangle applies to edited version, otherwise original version</span>
 <span class="sd">            Coordinates in format and reference frame used by PIL</span>
@@ -2325,7 +2371,10 @@
             <span class="n">y1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_face</span><span class="p">[</span><span class="s2">&quot;bottomRightY&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">image_height</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)]</span></div>
 
-<div class="viewcode-block" id="iPhotoFaceInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="iPhotoFaceInfo.asdict">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo.asdict">[docs]</a>
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dict representation of class instance&quot;&quot;&quot;</span>
         <span class="c1"># roll, pitch, yaw = self.roll_pitch_yaw()</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -2343,12 +2392,19 @@
             <span class="c1"># &quot;source_height&quot;: self.source_height,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="iPhotoFaceInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoFaceInfo.json">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFaceInfo.json">[docs]</a>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return JSON representation of iPhotoFaceInfo instance&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div></div>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div>
+</div>
 
 
-<div class="viewcode-block" id="iPhotoAlbumInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoAlbumInfo">[docs]</a><span class="k">class</span> <span class="nc">iPhotoAlbumInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoAlbumInfo">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoAlbumInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">iPhotoAlbumInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;AlbumInfo class for iPhoto&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">db</span><span class="p">:</span> <span class="n">iPhotoDB</span><span class="p">):</span>
@@ -2416,12 +2472,17 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not implemented for iPhoto&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="iPhotoAlbumInfo.photo_index"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoAlbumInfo.photo_index">[docs]</a>    <span class="k">def</span> <span class="nf">photo_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">iPhotoPhotoInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="iPhotoAlbumInfo.photo_index">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoAlbumInfo.photo_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">photo_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">iPhotoPhotoInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return index of photo in album; not implemented, always 0&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not implemented for iPhoto&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="iPhotoAlbumInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoAlbumInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="iPhotoAlbumInfo.asdict">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoAlbumInfo.asdict">[docs]</a>
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return album info as a dict; does not include photos&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
@@ -2432,16 +2493,23 @@
             <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="iPhotoAlbumInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoAlbumInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoAlbumInfo.json">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoAlbumInfo.json">[docs]</a>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;JSON representation of album&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div>
+
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;return number of photos contained in album&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photos</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="iPhotoFolderInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFolderInfo">[docs]</a><span class="k">class</span> <span class="nc">iPhotoFolderInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoFolderInfo">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFolderInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">iPhotoFolderInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Info about a specific folder, contains all the details about the folder</span>
 <span class="sd">    including folders, albums, etc</span>
@@ -2505,7 +2573,9 @@
                 <span class="n">subfolders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iPhotoFolderInfo</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">subfolders</span>
 
-<div class="viewcode-block" id="iPhotoFolderInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFolderInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="iPhotoFolderInfo.asdict">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFolderInfo.asdict">[docs]</a>
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return folder info as a dict&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
@@ -2515,13 +2585,18 @@
             <span class="s2">&quot;albums&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">],</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="iPhotoFolderInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFolderInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="iPhotoFolderInfo.json">
+<a class="viewcode-back" href="../../reference.html#osxphotos.iPhotoFolderInfo.json">[docs]</a>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return folder info as json&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div>
+
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns count of folders + albums contained in the folder&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subfolders</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span></div>
+
 
 
 <span class="k">class</span> <span class="nc">iPhotoEventInfo</span><span class="p">:</span>
@@ -2806,11 +2881,11 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/scripts/furo.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
+</div><script src="../../_static/documentation_options.js?v=55fcc13c"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>
 </html>
