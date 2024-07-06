@@ -19,16 +19,23 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip' # caching pip dependencies
-    - name: Activate virtualenv
-      run: |
-        python3 -m venv .venv
-        . .venv/bin/activate
-        echo PATH=$PATH >> $GITHUB_ENV
-    - name: Install dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install -r dev_requirements.txt
-        python3 -m pip install -r requirements.txt
+    - uses: syphar/restore-virtualenv@v1
+      id: cache-virtualenv
+      with:
+        requirement_files: "*requirements.txt"
+    - uses: syphar/restore-pip-download-cache@v1
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      # the package installation will only be executed when the
+      # requirements-files have changed.
+    - run: pip install -r requirements.txt
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+    - run: pip install -r dev_requirements.txt
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+    # - name: Install dependencies
+    #   run: |
+    #     python3 -m pip install --upgrade pip
+    #     python3 -m pip install -r dev_requirements.txt
+    #     python3 -m pip install -r requirements.txt
     - name: Install exiftool
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
