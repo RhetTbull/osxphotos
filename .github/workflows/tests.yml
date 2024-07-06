@@ -19,6 +19,8 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip' # caching pip dependencies
+    # virtual env must be used on Linux to avoid issue with setuptools
+    # this action creates and activates a virtual env while also caching it
     - uses: syphar/restore-virtualenv@v1
       id: cache-virtualenv
       with:
