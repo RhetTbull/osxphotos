@@ -9,8 +9,8 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        # os: [macos-14, ubuntu-latest]
-        os: [macos-14]
+        os: [macos-14, ubuntu-latest]
+        # os: [macos-14]
         python-version: ['3.10', '3.11', '3.12']
     steps:
     - uses: actions/checkout@v4
@@ -19,11 +19,25 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip' # caching pip dependencies
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r dev_requirements.txt
-        pip install -r requirements.txt
+    # virtual env must be used on Linux to avoid issue with setuptools
+    # this action creates and activates a virtual env while also caching it
+    - uses: syphar/restore-virtualenv@v1
+      id: cache-virtualenv
+      with:
+        requirement_files: "*requirements.txt"
+    - uses: syphar/restore-pip-download-cache@v1
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      # the package installation will only be executed when the
+      # requirements-files have changed.
+    - run: pip install -r requirements.txt
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+    - run: pip install -r dev_requirements.txt
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+    # - name: Install dependencies
+    #   run: |
+    #     python3 -m pip install --upgrade pip
+    #     python3 -m pip install -r dev_requirements.txt
+    #     python3 -m pip install -r requirements.txt
     - name: Install exiftool
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
