@@ -64,6 +64,7 @@ from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
+from osxphotos.photokit_utils import wait_for_photokit_authorization
 from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos
@@ -1684,17 +1685,16 @@ def export_cli(
     else:
         report_writer = ReportWriterNoOp()
 
-    # if use_photokit and not check_photokit_authorization():
-    #     click.echo(
-    #         "Requesting access to use your Photos library. Click 'OK' on the dialog box to grant access."
-    #     )
-    #     request_photokit_authorization()
-    #     click.confirm("Have you granted access?")
-    #     if not check_photokit_authorization():
-    #         click.echo(
-    #             "Failed to get access to the Photos library which is needed with `--use-photokit`."
-    #         )
-    #         return
+    if (use_photokit or use_photos_export) and not check_photokit_authorization():
+        click.echo(
+            "Requesting access to use your Photos library. "
+            "Click 'Allow Access to All Photos' in the dialog box to grant access."
+        )
+        if not wait_for_photokit_authorization():
+            rich_click_echo(
+                f"[error]Error: could not get authorization to access Photos library.[/]"
+            )
+            return 1
 
     # initialize export flags
     # by default, will export all versions of photos unless skip flag is set

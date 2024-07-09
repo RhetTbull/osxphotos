@@ -9,6 +9,7 @@ import click
 
 from osxphotos._constants import PROFILE_SORT_KEYS
 from osxphotos._version import __version__
+from osxphotos.disclaim import disclaim, pyinstaller, pyapp
 from osxphotos.platform import is_macos
 
 from .about import about
@@ -106,6 +107,11 @@ def cli_main(ctx, profile, profile_sort, **kwargs):
     # the debug options are handled in cli/__init__.py
     # before this function is called
     ctx.obj = CLI_Obj(group=cli_main)
+
+    if pyinstaller() or pyapp():
+        # Running from executable, run disclaimer
+        disclaim()
+
     if profile:
         click.echo("Profiling...")
         profile_sort = profile_sort or ["cumulative"]
