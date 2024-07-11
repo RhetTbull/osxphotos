@@ -245,7 +245,7 @@ def get_photo_categories(
     slow_mo = [p for p in all_assets if p.slow_mo]
     time_lapse = [p for p in all_assets if p.time_lapse]
     screenshot = [p for p in all_assets if p.screenshot]
-    screen_recording = [p for p in all_assets if p.screen_recording]
+    # screen_recording = [p for p in all_assets if p.screen_recording]
     portrait = [p for p in all_assets if p.portrait]
 
     has_keywords = [p for p in all_assets if p.keywords]
@@ -317,7 +317,7 @@ def get_photo_categories(
     categories["slow_mo"] = slow_mo
     categories["time_lapse"] = time_lapse
     categories["screenshot"] = screenshot
-    categories["screen_recording"] = screen_recording
+    # categories["screen_recording"] = screen_recording
     categories["portrait"] = portrait
 
     categories["has_raw"] = has_raw
@@ -549,8 +549,8 @@ def print_counts(counts: dict[str, int], photosdb: osxphotos.PhotosDB):
         + num(counts["time_lapse"])
         + ", screenshots: "
         + num(counts["screenshot"])
-        + ", screen recordings: "
-        + num(counts["screen_recording"])        
+        # + ", screen recordings: "
+        # + num(counts["screen_recording"])
         + ", portrait: "
         + num(counts["portrait"])
     )
