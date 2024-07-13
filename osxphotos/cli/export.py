@@ -75,6 +75,7 @@ from osxphotos.utils import (
     is_mounted_volume,
     is_photoslibrary_path,
     pluralize,
+    terminal,
     under_test,
 )
 
@@ -1691,8 +1692,12 @@ def export_cli(
             "Click 'Allow Access to All Photos' in the dialog box to grant access."
         )
         if not wait_for_photokit_authorization():
+            if term := terminal():
+                term = f"terminal app ({term})" if term else "terminal app"
             rich_click_echo(
-                f"[error]Error: could not get authorization to access Photos library.[/]"
+                f"[error]Error: could not get authorization to access Photos library\n"
+                f"Please ensure that your {term} is granted access in "
+                "'System Settings > Privacy & Security > Photos'"
             )
             return 1
 

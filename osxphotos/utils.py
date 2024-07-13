@@ -662,3 +662,11 @@ def download_url_to_temp_dir(url: str) -> str:
     # these files will be deleted when the system cleans the temp directory (usually on reboot)
     tmpdir = tempdir.tempdir("downloads")
     return download_url_to_dir(url, tmpdir, unique=True)
+
+
+def terminal() -> str:
+    """Return name of terminal app that launched the calling script or empty string if terminal cannot be determined.
+
+    Note: This only works on macOS
+    """
+    return os.environ.get("TERM_PROGRAM", "")
