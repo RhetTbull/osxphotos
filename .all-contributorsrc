@@ -792,6 +792,15 @@
         "research",
         "ideas"
       ]
+    },
+    {
+      "login": "dweston",
+      "name": "Dion Weston",
+      "avatar_url": "https://avatars.githubusercontent.com/u/631241?v=4",
+      "profile": "https://github.com/dweston",
+      "contributions": [
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
