@@ -43,9 +43,11 @@ from a Photos library on a Linux machine.
 
 Tested on macOS Sierra (10.12.6) through macOS Sonoma (14.1). Tested on both x86 and Apple silicon (M1).
 
+**OSXPhotos does not yet work with macOS Sequoia (15.0). The beta 1 release of macOS 15.0 may work with OSXPhotos but later betas will not work.**
+
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
-| 15.0 dev preview  | Sequoia    | 10.0 (alpha support)|
+| 15.0 beta 1       | Sequoia    | 10.0 (alpha support)|
 | 14.0 - 14.3       | Sonoma     | 9.0 ✅              |
 | 13.0 - 13.6       | Ventura    | 8.0 ✅              |
 | 12.0 - 12.7       | Monterey   | 7.0 ✅              |
