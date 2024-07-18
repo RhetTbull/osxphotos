@@ -348,7 +348,7 @@ def test_db_version(photosdb):
 
 
 def test_photos_version(photosdb):
-    assert photosdb.photos_version == 10
+    assert photosdb.photos_version == 9.9 # dev preview 1 isn't version 10 yet
 
 
 def test_persons(photosdb):
