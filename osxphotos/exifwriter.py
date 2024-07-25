@@ -191,7 +191,7 @@ class ExifWriter(_ExifMixin):
             exiftool=self.photo._exiftool_path,
         ) as exiftool:
             for exiftag, val in exif_info.items():
-                if type(val) == list:
+                if isinstance(val, (list, tuple)):
                     for v in val:
                         exiftool.setvalue(exiftag, v)
                 else:
@@ -485,32 +485,30 @@ class ExifWriter(_ExifMixin):
         else:
             w = self.photo.width
             h = self.photo.height
-        exif = {}
-        exif["XMP:RegionAppliedToDimensionsW"] = w
-        exif["XMP:RegionAppliedToDimensionsH"] = h
-        exif["XMP:RegionAppliedToDimensionsUnit"] = "pixel"
-        exif["XMP:RegionName"] = []
-        exif["XMP:RegionType"] = []
-        exif["XMP:RegionAreaX"] = []
-        exif["XMP:RegionAreaY"] = []
-        exif["XMP:RegionAreaW"] = []
-        exif["XMP:RegionAreaH"] = []
-        exif["XMP:RegionAreaUnit"] = []
-        exif["XMP:RegionPersonDisplayName"] = []
-        # exif["XMP:RegionRectangle"] = []
+
+        exif = {
+            "XMP-mwg-rs:RegionInfo": {
+                "AppliedToDimensions": {"W": w, "H": h, "Unit": "pixel"},
+                "RegionList": [],
+            }
+        }
+
         for face in self.photo.face_info:
             if not face.name:
                 continue
             area = face.mwg_rs_area
-            exif["XMP:RegionName"].append(face.name)
-            exif["XMP:RegionType"].append("Face")
-            exif["XMP:RegionAreaX"].append(area.x)
-            exif["XMP:RegionAreaY"].append(area.y)
-            exif["XMP:RegionAreaW"].append(area.w)
-            exif["XMP:RegionAreaH"].append(area.h)
-            exif["XMP:RegionAreaUnit"].append("normalized")
-            exif["XMP:RegionPersonDisplayName"].append(face.name)
-            # exif["XMP:RegionRectangle"].append(f"{area.x},{area.y},{area.h},{area.w}")
+            region = {
+                "Name": face.name,
+                "Type": "Face",
+                "Area": {
+                    "X": area.x,
+                    "Y": area.y,
+                    "W": area.w,
+                    "H": area.h,
+                    "Unit": "normalized",
+                },
+            }
+            exif["XMP-mwg-rs:RegionInfo"]["RegionList"].append(region)
         return exif
 
     def exiftool_json_sidecar(

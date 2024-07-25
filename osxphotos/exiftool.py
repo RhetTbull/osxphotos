@@ -1,10 +1,12 @@
-""" Yet another simple exiftool wrapper 
-    I rolled my own for following reasons: 
+""" Yet another simple exiftool wrapper
+    I rolled my own for following reasons:
     1. I wanted something under MIT license (best alternative was licensed under GPL/BSD)
     2. I wanted singleton behavior so only a single exiftool process was ever running
     3. When used as a context manager, I wanted the operations to batch until exiting the context (improved performance)
-    If these aren't important to you, I recommend you consider Sven Marnach's excellent 
+    If these aren't important to you, I recommend you consider Sven Marnach's excellent
     pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality """
+
+from __future__ import annotations
 
 import atexit
 import contextlib
@@ -17,6 +19,7 @@ import re
 import shutil
 import subprocess
 from functools import lru_cache  # pylint: disable=syntax-error
+from typing import Any
 
 __all__ = [
     "escape_str",
@@ -149,7 +152,7 @@ class _ExifToolProc:
             logging.warning("exiftool already running: {self._process}")
             return
 
-        # open exiftool process
+        # open exiftool procGess
         # make sure /usr/bin at start of path so exiftool can find xattr (see #636)
         env = os.environ.copy()
         env["PATH"] = f'/usr/bin/:{env["PATH"]}'
@@ -237,12 +240,12 @@ class ExifTool:
     def _process(self):
         return self._exiftoolproc.process
 
-    def setvalue(self, tag, value):
+    def setvalue(self, tag: str, value: Any):
         """Set tag to value(s); if value is None, will delete tag
 
         Args:
             tag: str; name of tag to set
-            value: str; value to set tag to
+            value: Any; value to set tag to
 
         Returns:
             True if success otherwise False
@@ -255,6 +258,10 @@ class ExifTool:
         if value is None:
             value = ""
         value = escape_str(value)
+        if isinstance(value, dict):
+            # need to convert structs to a format exiftool expects
+            # exiftool's format is basically JSON where keys are unquoted
+            value = convert_dict_to_unquoted_json(value)
         command = [f"-{tag}={value}"]
         if self.overwrite and not self._context_mgr:
             command.append("-overwrite_original")
@@ -522,3 +529,27 @@ class _ExifToolCaching(ExifTool):
         """Clear cached data so that calls to json or asdict return fresh data"""
         self._json_cache = None
         self._asdict_cache = {}
+
+
+def convert_dict_to_unquoted_json(data: dict | list) -> str:
+    """Convert a dict to a JSON-like format where keys are unquoted. This is needed to feed structs to exiftool.
+
+    Reference: https://exiftool.org/forum/index.php?topic=15629.msg83986#msg83986
+    """
+
+    def process_value(v):
+        if isinstance(v, (dict, list)):
+            return convert_dict_to_unquoted_json(v)
+        elif isinstance(v, str):
+            return f'"{v}"'
+        else:
+            return str(v)
+
+    if isinstance(data, dict):
+        items = [f"{k}={process_value(v)}" for k, v in data.items()]
+        return "{" + ",".join(items) + "}"
+    elif isinstance(data, list):
+        items = [process_value(v) for v in data]
+        return "[" + ",".join(items) + "]"
+    else:
+        return str(data)
