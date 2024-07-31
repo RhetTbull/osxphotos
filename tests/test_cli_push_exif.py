@@ -560,7 +560,7 @@ def test_cli_push_exif_replace_keywords(monkeypatch):
 def test_cli_push_exif_metadata_arg(monkeypatch):
     """Test push-exif command with combinations of the METADATA argument"""
 
-    # Note: this is a big test that tests a lot of combinations of the METADATA argument
+    # Note: this is a big integration test that tests a lot of combinations of the METADATA argument
     # it's easier to test this way than to write a bunch of individual tests which would require
     # copying the library for each test
 
@@ -739,7 +739,7 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         )
         assert result.exit_code == 0
 
-        # verify non-location metadata not pushed
+        # verify non-faces metadata not pushed
         photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
         exif = ExifTool(photo.path).asdict()
         assert "IPTC:Keywords" not in exif
@@ -748,7 +748,9 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         assert "XMP:Title" not in exif
         assert "EXIF:DateTimeOriginal" not in exif
         assert "EXIF:CreateDate" not in exif
-        assert get_exiftool_tag_as_list(photo, "XMP:RegionName") == photo.persons
+
+        # verify faces were pushed
+        assert sorted(get_exiftool_tag_as_list(photo, "XMP:RegionsRegionListName")) == sorted(photo.persons)
 
         # clear metadata
         photosdb = PhotosDB(test_library)
@@ -784,7 +786,7 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         assert "XMP:Title" not in exif
         assert "EXIF:DateTimeOriginal" not in exif
         assert "EXIF:CreateDate" not in exif
-        assert get_exiftool_tag_as_list(photo, "XMP:RegionName") == sorted(
+        assert get_exiftool_tag_as_list(photo, "XMP:RegionsRegionListName") == sorted(
             photo.persons
         )
         assert get_exiftool_persons(photo) == sorted(photo.persons)
@@ -821,7 +823,7 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         assert "IPTC:Keywords" not in exif
         assert "XMP:Description" not in exif
         assert "XMP:Title" not in exif
-        assert "XMP:RegionName" not in exif
+        assert "XMP:RegionsRegionListName" not in exif
         assert "XMP:PersonInImage" not in exif
         assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:DateTimeOriginal"]
 
@@ -856,7 +858,7 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         exif = ExifTool(photo.path).asdict()
         assert "IPTC:Keywords" not in exif
         assert "XMP:Description" not in exif
-        assert "XMP:RegionName" not in exif
+        assert "XMP:RegionsRegionListName" not in exif
         assert "XMP:PersonInImage" not in exif
         assert "EXIF:DateTimeOriginal" not in exif
         assert photo.title == exif["XMP:Title"]
@@ -891,7 +893,7 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
         exif = ExifTool(photo.path).asdict()
         assert "IPTC:Keywords" not in exif
-        assert "XMP:RegionName" not in exif
+        assert "XMP:RegionsRegionListName" not in exif
         assert "XMP:PersonInImage" not in exif
         assert "EXIF:DateTimeOriginal" not in exif
         assert "XMP:Title" not in exif
@@ -926,7 +928,7 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         # verify non-location metadata not pushed
         photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
         exif = ExifTool(photo.path).asdict()
-        assert "XMP:RegionName" not in exif
+        assert "XMP:RegionsRegionListName" not in exif
         assert "EXIF:DateTimeOriginal" not in exif
         assert "XMP:Title" not in exif
         assert get_exiftool_keywords(photo) == sorted(photo.keywords)

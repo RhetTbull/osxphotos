@@ -363,15 +363,15 @@ def test_exifwriter_face_regions(photosdb: PhotosDB, tmp_path: pathlib.Path):
     exif_writer.write_exif_data(exported, exif_options)
 
     exif_data = ExifTool(exported).asdict()
-    assert "XMP:RegionPersonDisplayName" not in exif_data
+    assert "XMP:RegionsRegionListName" not in exif_data
 
     # with face_region
     exif_options = ExifOptions()
     exif_writer.write_exif_data(exported, exif_options)
 
     exif_data = ExifTool(exported).asdict()
-    assert "XMP:RegionPersonDisplayName" in exif_data
-    assert sorted(exif_data["XMP:RegionPersonDisplayName"]) == sorted(photo.persons)
+    assert "XMP:RegionsRegionListName" in exif_data
+    assert sorted(exif_data["XMP:RegionsRegionListName"]) == sorted(photo.persons)
 
 
 def test_exifwriter_render_options(photosdb: PhotosDB, tmp_path: pathlib.Path):

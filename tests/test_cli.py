@@ -1143,6 +1143,7 @@ UUID_NOT_SCREEN_RECORDING = [
     "DC99FBDD-7A52-4100-A5BB-344131646C30",
 ]
 
+
 @pytest.fixture(scope="module")
 def local_photosdb():
     """Return a PhotosDB object for the local Photos library"""
@@ -5280,7 +5281,8 @@ def test_export_sidecar_keyword_template():
 
         json_expected = json.loads(
             """
-            [{
+            [
+              {
                 "SourceFile": "Pumkins2.jpg",
                 "ExifTool:ExifToolVersion": "12.00",
                 "File:FileName": "Pumkins2.jpg",
@@ -5289,54 +5291,26 @@ def test_export_sidecar_keyword_template():
                 "IPTC:Caption-Abstract": "Girl holding pumpkin",
                 "XMP:Title": "I found one!",
                 "IPTC:ObjectName": "I found one!",
-                "IPTC:Keywords": [
-                    "Kids",
-                    "Multi Keyword",
-                    "Pumpkin Farm",
-                    "Test Album"
-                ],
-                "XMP:Subject": [
-                    "Kids",
-                    "Multi Keyword",
-                    "Pumpkin Farm",
-                    "Test Album"
-                ],
-                "XMP:TagsList": [
-                    "Kids",
-                    "Multi Keyword",
-                    "Pumpkin Farm",
-                    "Test Album"
-                ],
-                "XMP:PersonInImage": [
-                    "Katie"
-                ],
-                "XMP:RegionAppliedToDimensionsW": 1365,
-                "XMP:RegionAppliedToDimensionsH": 2048,
-                "XMP:RegionAppliedToDimensionsUnit": "pixel",
-                "XMP:RegionName": [
-                    "Katie"
-                ],
-                "XMP:RegionType": [
-                    "Face"
-                ],
-                "XMP:RegionAreaX": [
-                    0.5898191407322884
-                ],
-                "XMP:RegionAreaY": [
-                    0.28164292871952057
-                ],
-                "XMP:RegionAreaW": [
-                    0.22411711513996124
-                ],
-                "XMP:RegionAreaH": [
-                    0.14937493269826518
-                ],
-                "XMP:RegionAreaUnit": [
-                    "normalized"
-                ],
-                "XMP:RegionPersonDisplayName": [
-                    "Katie"
-                ],
+                "IPTC:Keywords": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"],
+                "XMP:Subject": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"],
+                "XMP:TagsList": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"],
+                "XMP:PersonInImage": ["Katie"],
+                "XMP-mwg-rs:RegionInfo": {
+                  "AppliedToDimensions": { "W": 1365, "H": 2048, "Unit": "pixel" },
+                  "RegionList": [
+                    {
+                      "Name": "Katie",
+                      "Type": "Face",
+                      "Area": {
+                        "X": 0.5898191407322884,
+                        "Y": 0.28164292871952057,
+                        "W": 0.22411711513996124,
+                        "H": 0.14937493269826518,
+                        "Unit": "normalized"
+                      }
+                    }
+                  ]
+                },
                 "EXIF:GPSLatitude": 41.256566,
                 "EXIF:GPSLongitude": -95.940257,
                 "EXIF:GPSLatitudeRef": "N",
@@ -5347,7 +5321,9 @@ def test_export_sidecar_keyword_template():
                 "IPTC:DateCreated": "2018:09:28",
                 "IPTC:TimeCreated": "16:07:07-04:00",
                 "EXIF:ModifyDate": "2018:09:28 16:07:07"
-        }]"""
+              }
+            ]
+            """
         )[0]
 
         with open("Pumkins2.jpg.json", "r") as json_file:
@@ -10438,9 +10414,9 @@ def test_query_screen_recording():
         [
             "--json",
             "--mute",
-            "--db", 
-            os.path.join(cwd, SCREENRECORDING_PHOTOS_DB_13), 
-            "--screen-recording"
+            "--db",
+            os.path.join(cwd, SCREENRECORDING_PHOTOS_DB_13),
+            "--screen-recording",
         ],
     )
     assert result.exit_code == 0
@@ -10471,4 +10447,4 @@ def test_query_not_screen_recording():
     # build list of uuids we got from the output JSON
     json_got = json.loads(result.output)
     uuid_got = [photo["uuid"] for photo in json_got]
-    assert sorted(uuid_got) == sorted(UUID_NOT_SCREEN_RECORDING) 
+    assert sorted(uuid_got) == sorted(UUID_NOT_SCREEN_RECORDING)
