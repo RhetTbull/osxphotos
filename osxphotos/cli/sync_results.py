@@ -32,28 +32,36 @@ class SyncResults:
         updated: bool,
         before: str | list[str] | bool | None,
         after: str | list[str] | bool | None,
+        error: str | None = None,
     ):
         """Add result for a single photo"""
         if uuid not in self._results:
             self._results[uuid] = {
                 "filename": filename,
                 "fingerprint": fingerprint,
-                "properties": {
-                    property: {
-                        "updated": updated,
-                        "datetime": datetime.datetime.now().isoformat(),
-                        "before": before,
-                        "after": after,
-                    },
-                },
+                "error": error,
             }
+            self._results[uuid]["properties"] = {}
+            if property:
+                self._results[uuid]["properties"][property] = {
+                    "updated": updated,
+                    "datetime": datetime.datetime.now().isoformat(),
+                    "before": before,
+                    "after": after,
+                }
         else:
-            self._results[uuid]["properties"][property] = {
-                "updated": updated,
-                "datetime": datetime.datetime.now().isoformat(),
-                "before": before,
-                "after": after,
-            }
+            if property:
+                self._results[uuid]["properties"][property] = {
+                    "updated": updated,
+                    "datetime": datetime.datetime.now().isoformat(),
+                    "before": before,
+                    "after": after,
+                }
+            if error:
+                if self._results[uuid]["error"]:
+                    self._results[uuid]["error"] += f", {error}"
+                else:
+                    self._results[uuid]["error"] = error
 
     @property
     def results(self):
@@ -79,6 +87,7 @@ class SyncResults:
                     )
                 else:
                     row.extend([False, "", "", ""])
+            row.append(record.get("error", ""))
             results.append(row)
         return results
 
@@ -91,6 +100,7 @@ class SyncResults:
                 f"{property}_{column}"
                 for column in ["updated", "datetime", "before", "after"]
             )
+        header.append("error")
         return header
 
     @property
@@ -114,6 +124,7 @@ class SyncResults:
                         "before": None,
                         "after": None,
                     }
+            results[uuid]["error"] = record.get("error", "")
         return results
 
     def results_summary(self):
@@ -153,6 +164,7 @@ class SyncResults:
                     values["updated"],
                     values["before"],
                     values["after"],
+                    values["error"],
                 )
         return self
 
@@ -169,6 +181,16 @@ class SyncResults:
                     values["before"],
                     values["after"],
                 )
+            self.add_result(
+                uuid,
+                other._results[uuid]["filename"],
+                other._results[uuid]["fingerprint"],
+                None,
+                False,
+                None,
+                None,
+                other._results[uuid].get("error", None),
+            )
         return self
 
     def __str__(self):
