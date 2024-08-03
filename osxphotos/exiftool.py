@@ -262,7 +262,6 @@ class ExifTool:
             # need to convert structs to a format exiftool expects
             # exiftool's format is basically JSON where keys are unquoted
             value = convert_dict_to_unquoted_json(value)
-            print(f"{value=}")
         command = [f"-{tag}={value}"]
         if self.overwrite and not self._context_mgr:
             command.append("-overwrite_original")
