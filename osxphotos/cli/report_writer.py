@@ -651,9 +651,9 @@ class SyncReportWriterSQLite(ReportWriterABC):
                 "description_updated, description_datetime, description_before, description_after, "
                 "favorite_updated, favorite_datetime, favorite_before, favorite_after, "
                 "keywords_updated, keywords_datetime, keywords_before, keywords_after, "
-                "title_updated, title_datetime, title_before, title_after)"
+                "title_updated, title_datetime, title_before, title_after, error)"
                 "VALUES "
-                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (report_id, *data),
             )
         self._conn.commit()
@@ -713,7 +713,13 @@ class SyncReportWriterSQLite(ReportWriterABC):
                 datetime TEXT
             );"""
         )
+
         self._conn.commit()
+
+        # add error column to report table if it doesn't exist
+        if "error" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute("ALTER TABLE report ADD COLUMN error TEXT;")
+            self._conn.commit()
 
         # create report_summary view
         c.execute("DROP VIEW IF EXISTS report_summary;")

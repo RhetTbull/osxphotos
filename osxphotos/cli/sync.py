@@ -349,6 +349,26 @@ def import_metadata_for_photo(
     metadata = json.loads(metadata)
 
     results = SyncResults()
+
+    # verify the photo can be accessed via AppleScript (#1623)
+    try:
+        _ = photoscript.Photo(uuid=photo.uuid)
+    except ValueError:
+        echo_error(
+            f"[error]Unable to access photo [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) via AppleScript. Skipping."
+        )
+        results.add_result(
+            photo.uuid,
+            photo.original_filename,
+            photo.fingerprint,
+            None,
+            False,
+            None,
+            None,
+            "Could not access with AppleScript",
+        )
+        return results
+
     if "albums" in set_ or "albums" in merge:
         # behavior is the same for albums for set and merge:
         # add photo to any new albums but do not remove from existing albums

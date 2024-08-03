@@ -113,3 +113,4 @@ def test_sync_export_import():
         for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
             assert report_data[uuid]["updated"]
             assert report_data[uuid]["albums"]["updated"]
+            assert not report_data[uuid]["error"]
