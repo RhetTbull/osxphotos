@@ -53,8 +53,8 @@ _PHOTOS_6_MODEL_VERSION = [14000, 14999]
 _PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Dev preview: 15134, 12.1: 15331
 _PHOTOS_8_MODEL_VERSION = [16000, 16999]  # Ventura dev preview: 16119
 _PHOTOS_9_MODEL_VERSION = [17000, 17999]  # Sonoma dev preview: 17120
-_PHOTOS_10B1_MODEL_VERSION = [18000, 18164]  # Sequoia dev preview 1: 18164
-_PHOTOS_10_MODEL_VERSION = [18165, 18999]
+_PHOTOS_10B1_MODEL_VERSION = [18000, 18200]  # Sequoia dev preview 1: 18164
+_PHOTOS_10_MODEL_VERSION = [18201, 18999]
 
 # the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing
 _PHOTOS_SYNDICATION_MODEL_VERSION = 15323  # 12.0.1
