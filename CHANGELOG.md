@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.68.3](se.mdhttps://github.com/RhetTbull/osxphotos/compare/v0.68.2...v0.68.3)
+
+This release fixes errors when running on macOS 14.6 and 15.0 beta due to Photos database schema changes.
+It also adds support for Screen Recording media type and fixes bugs with the `sync` command and changes
+how face regions are handled to avoid exiftool warnings.
+
+**Note**: The change to face region handling may cause exports using `--update` to re-export photos
+and/or sidecars if `--exiftool` or `--sidecar` is in use as the face region data will be different.
+If re-exported during `--update`, the subsequent export will have the correct face region data and should
+not be re-exported again.
+
+**Note**: When using the pre-built executable, the executable will now be the responsible process for
+requesting permissions from the user to access the Photos library. This means you may see a dialog
+box stating that osxphotos is requesting permission to access the Photos library. This is normal
+and expected behavior. If you are using the Python package, the terminal will be the responsible
+and will request permission to access the Photos library. If you have previously granted permissions
+for osxphotos via the terminal, you will need to do this again the first time you run the pre-built
+executable. Thank you to @torarnv for the code to make this change.
+
+This will enable the eventual transition to [PyApp](https://github.com/ofek/pyapp) for building the
+executable and for enabling PhotoKit support by default in a future release.
+See [this discussion](https://github.com/RhetTbull/osxphotos/discussions/1558) for additional information.
+
+### v0.68.3 (2024-08-04)
+
+#### Added
+
+- Added support for media type Screen Recording (`PhotoInfo.screen_recording` property)
+
+#### Changed
+
+- Ensure osxphotos executable is the responsible process for requesting permissions (applies only to pre-built binaries).
+- Changed how face regions are handled to avoid exiftool warnings.
+
+#### Removed
+
+#### Fixed
+
+- Fixed schema for macOS 14.6 and 15.0 beta.
+- Fixed error when using `sync` command and photo could not be found via AppleScript (#1623).
+- Fixed exiftool warning with face regions (#1619).
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @teh-hippo [@teh-hippo](https://github.com/teh-hippo) for testing.
+- @dweston [@dweston](https://github.com/dweston) for testing.
+- @oPromessa [@oPromessa](https://github.com/oPromessa) screen recording code.
+- @torarnv[@torarnv](https://github.com/torarnv) for responsible process code.
+
 ## [v0.68.2](https://github.com/RhetTbull/osxphotos/compare/v0_68_1...v0.68.2)
 
 Added alpha support for import command on macOS Sequoia
