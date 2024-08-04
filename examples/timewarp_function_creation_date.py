@@ -26,6 +26,10 @@ def creation_date(
         tuple of (file creation date/time as datetime.datetime, and new timezone offset from UTC in seconds as int)
     """
 
+    if not path:
+        verbose(f"Could not get path for photo {photo.original_filename} ({photo.uuid}); skipping")
+        return photo.date, tz_sec
+
     # this example uses's the file's creation date/time; the timezone is not changed
     return get_file_creation_date(str(path)), tz_sec
 
