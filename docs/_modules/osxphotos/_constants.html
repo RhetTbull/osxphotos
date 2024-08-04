@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
-        <title>osxphotos._constants - osxphotos 0.68.2 documentation</title>
+        <title>osxphotos._constants - osxphotos 0.68.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.68.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.68.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -250,8 +250,10 @@
 <span class="n">_PHOTOS_6_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">14000</span><span class="p">,</span> <span class="mi">14999</span><span class="p">]</span>
 <span class="n">_PHOTOS_7_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15000</span><span class="p">,</span> <span class="mi">15999</span><span class="p">]</span>  <span class="c1"># Dev preview: 15134, 12.1: 15331</span>
 <span class="n">_PHOTOS_8_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">16000</span><span class="p">,</span> <span class="mi">16999</span><span class="p">]</span>  <span class="c1"># Ventura dev preview: 16119</span>
-<span class="n">_PHOTOS_9_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">17000</span><span class="p">,</span> <span class="mi">17999</span><span class="p">]</span>  <span class="c1"># Sonoma dev preview: 17120</span>
-<span class="n">_PHOTOS_10_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">18000</span><span class="p">,</span> <span class="mi">18999</span><span class="p">]</span>  <span class="c1"># Sequoia dev preview: 18164</span>
+<span class="n">_PHOTOS_9_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">17000</span><span class="p">,</span> <span class="mi">17599</span><span class="p">]</span>  <span class="c1"># Sonoma dev preview: 17120</span>
+<span class="n">_PHOTOS_9_14_6_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">17600</span><span class="p">,</span> <span class="mi">17999</span><span class="p">]</span>  <span class="c1"># macOS 14.6 changed the schema</span>
+<span class="n">_PHOTOS_10B1_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">18000</span><span class="p">,</span> <span class="mi">18200</span><span class="p">]</span>  <span class="c1"># Sequoia dev preview 1: 18164</span>
+<span class="n">_PHOTOS_10_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">18201</span><span class="p">,</span> <span class="mi">18999</span><span class="p">]</span>
 
 <span class="c1"># the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing</span>
 <span class="n">_PHOTOS_SYNDICATION_MODEL_VERSION</span> <span class="o">=</span> <span class="mi">15323</span>  <span class="c1"># 12.0.1</span>
@@ -261,7 +263,7 @@
 
 <span class="c1"># some table names differ between Photos 5 and later versions</span>
 <span class="n">_DB_TABLE_NAMES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">5</span><span class="p">:</span> <span class="p">{</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 10.15</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZGENERICASSET&quot;</span><span class="p">,</span>
         <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_37KEYWORDS&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS.Z_34ASSETS&quot;</span><span class="p">,</span>
@@ -277,7 +279,7 @@
         <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZGENERICASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="mi">6</span><span class="p">:</span> <span class="p">{</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 11.0</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
         <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_36KEYWORDS&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
@@ -293,7 +295,7 @@
         <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="mi">7</span><span class="p">:</span> <span class="p">{</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 12.0</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
         <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_38KEYWORDS&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_27ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
@@ -309,7 +311,7 @@
         <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="mi">8</span><span class="p">:</span> <span class="p">{</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 13.0</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
         <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_40KEYWORDS&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_28ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
@@ -325,7 +327,7 @@
         <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="mi">9</span><span class="p">:</span> <span class="p">{</span>
+    <span class="mi">9</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 14.0</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
         <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_40KEYWORDS&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_28ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
@@ -341,7 +343,23 @@
         <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="mi">10</span><span class="p">:</span> <span class="p">{</span>
+    <span class="mf">9.6</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 14.6</span>
+        <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_40KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_29ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_SORT_ORDER&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_29ASSETS.Z_FOK_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IMPORT_FOK&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZDEPTHTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZCOMPACTUTI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_29ASSETS.Z_29ALBUMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_29ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSONFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSETFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZHASADJUSTMENTS&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="mf">9.9</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 15.0 beta 1</span>
         <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
         <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_48KEYWORDS&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_31ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
@@ -351,6 +369,22 @@
         <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZCOMPACTUTI&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_31ASSETS.Z_31ALBUMS&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_31ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSONFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSETFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZADJUSTMENTSSTATE&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 15</span>
+        <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_48KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_30ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_SORT_ORDER&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_30ASSETS.Z_FOK_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IMPORT_FOK&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZDEPTHTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZCOMPACTUTI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_30ASSETS.Z_30ALBUMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_30ASSETS&quot;</span><span class="p">,</span>
         <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSONFORFACE&quot;</span><span class="p">,</span>
         <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSETFORFACE&quot;</span><span class="p">,</span>
@@ -403,6 +437,8 @@
     <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="c1"># Photos 5 has persons who are empty string if unidentified face</span>
@@ -789,7 +825,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=55fcc13c"></script>
+</div><script src="../../_static/documentation_options.js?v=f1844525"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
