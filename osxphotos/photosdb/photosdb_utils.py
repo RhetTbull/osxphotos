@@ -20,6 +20,7 @@ from .._constants import (
     _PHOTOS_10_MODEL_VERSION,
     _PHOTOS_10B1_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
+    _PHOTOS_9_14_6_MODEL_VERSION,
 )
 from ..sqlite_utils import sqlite_open_ro
 
@@ -137,6 +138,8 @@ def get_photos_version_from_model(db_file: str) -> int:
         return 8
     if _PHOTOS_9_MODEL_VERSION[0] <= model_ver <= _PHOTOS_9_MODEL_VERSION[1]:
         return 9
+    if _PHOTOS_9_14_6_MODEL_VERSION[0] <= model_ver <= _PHOTOS_9_14_6_MODEL_VERSION[1]:
+        return 9.6
     if _PHOTOS_10B1_MODEL_VERSION[0] <= model_ver <= _PHOTOS_10B1_MODEL_VERSION[1]:
         return 9.9
     if _PHOTOS_10_MODEL_VERSION[0] <= model_ver <= _PHOTOS_10_MODEL_VERSION[1]:
