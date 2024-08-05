@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>cpa_cache_demographicSummary</key>
+	<dict>
+		<key>cpa_demographic_userAgeRange</key>
+		<string>Unknown</string>
+		<key>cpa_demographic_userGender</key>
+		<string>Unknown</string>
+	</dict>
+	<key>cpa_cache_lastCacheTime</key>
+	<date>2022-11-12T21:54:15Z</date>
+	<key>cpa_cache_librarySummary</key>
+	<dict>
+		<key>cpa_common_collectionCount</key>
+		<integer>16</integer>
+		<key>cpa_common_faceAnalysisProgress</key>
+		<real>1</real>
+		<key>cpa_common_fullAnalysisProgress</key>
+		<real>0.92307692307692313</real>
+		<key>cpa_common_icpl_enabled</key>
+		<false/>
+		<key>cpa_common_icpl_exceedingQuota</key>
+		<false/>
+		<key>cpa_common_icpl_hasChangesToProcess</key>
+		<false/>
+		<key>cpa_common_icpl_lowDiskSpace</key>
+		<false/>
+		<key>cpa_common_icpl_veryLowDiskSpace</key>
+		<false/>
+		<key>cpa_common_momentCount</key>
+		<integer>10</integer>
+		<key>cpa_common_personCount</key>
+		<integer>3</integer>
+		<key>cpa_common_photoCount</key>
+		<integer>16</integer>
+		<key>cpa_common_sceneAnalysisProgress</key>
+		<real>1</real>
+		<key>cpa_common_videoCount</key>
+		<integer>0</integer>
+	</dict>
+	<key>cpa_music_hasAppleMusicSubscription</key>
+	<true/>
+</dict>
+</plist>
