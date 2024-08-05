@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-84-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-85-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
@@ -3018,6 +3018,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/felciano"><img src="https://avatars.githubusercontent.com/u/407700?v=4?s=75" width="75px;" alt="Ramon Felciano"/><br /><sub><b>Ramon Felciano</b></sub></a><br /><a href="#research-felciano" title="Research">🔬</a> <a href="#ideas-felciano" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dweston"><img src="https://avatars.githubusercontent.com/u/631241?v=4?s=75" width="75px;" alt="Dion Weston"/><br /><sub><b>Dion Weston</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=dweston" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://andyblyler.com"><img src="https://avatars.githubusercontent.com/u/137642?v=4?s=75" width="75px;" alt="Andy Blyler"/><br /><sub><b>Andy Blyler</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=ablyler" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/lasjoe"><img src="https://avatars.githubusercontent.com/u/91013368?v=4?s=75" width="75px;" alt="lasjoe"/><br /><sub><b>lasjoe</b></sub></a><br /><a href="#data-lasjoe" title="Data">🔣</a></td>
     </tr>
   </tbody>
 </table>
