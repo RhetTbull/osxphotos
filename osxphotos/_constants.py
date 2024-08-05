@@ -179,7 +179,7 @@ _DB_TABLE_NAMES = {
     },
     10: {  # macOS 15
         "ASSET": "ZASSET",
-        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_48KEYWORDS",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_47KEYWORDS",
         "ALBUM_JOIN": "Z_30ASSETS.Z_3ASSETS",
         "ALBUM_SORT_ORDER": "Z_30ASSETS.Z_FOK_3ASSETS",
         "IMPORT_FOK": "null",
