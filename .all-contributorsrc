@@ -810,6 +810,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "lasjoe",
+      "name": "lasjoe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91013368?v=4",
+      "profile": "https://github.com/lasjoe",
+      "contributions": [
+        "data"
+      ]
     }
   ],
   "contributorsPerLine": 7,
