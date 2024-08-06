@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>embeddingVersion</key>
+	<string>1</string>
+	<key>featureFlags</key>
+	<string>0</string>
+	<key>featuredContentAllowed</key>
+	<string>1</string>
+	<key>localeIdentifier</key>
+	<string>en_GB</string>
+	<key>sceneTaxonomySHA</key>
+	<string>369901436fd615bca250de71d821f7fbf8ec8691f3eb4712a79087d7201201a3,0c16d1e369b4e72de7d61ab7ebaf163472abb06c991d4330610e46a7400b24b1</string>
+	<key>searchIndexVersion</key>
+	<string>16046</string>
+</dict>
+</plist>
