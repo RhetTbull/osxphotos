@@ -43,7 +43,7 @@ from a Photos library on a Linux machine.
 
 Tested on macOS Sierra (10.12.6) through macOS Sonoma (14.1). Tested on both x86 and Apple silicon (M1).
 
-**OSXPhotos does not yet work with macOS Sequoia (15.0). The beta 1 release of macOS 15.0 may work with OSXPhotos but later betas will not work.**
+**OSXPhotos has been minimally tested with macOS Sequoia (15 beta) but new beta versions may break osxphotos support. If you encounter problems with macOS 15.0, please open an issue.**
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
