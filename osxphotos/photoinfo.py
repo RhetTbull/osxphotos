@@ -55,7 +55,7 @@ from .adjustmentsinfo import AdjustmentsInfo
 from .albuminfo import AlbumInfo, ImportInfo, ProjectInfo
 from .bookmark import resolve_bookmark_path
 from .commentinfo import CommentInfo, LikeInfo
-from .exifinfo import ExifInfo
+from .exifinfo import ExifInfo, exifinfo_factory
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .exportoptions import ExportOptions
 from .momentinfo import MomentInfo
@@ -1604,52 +1604,10 @@ class PhotoInfo:
 
         try:
             exif = self._db._db_exifinfo_uuid[self.uuid]
-            exif_info = ExifInfo(
-                iso=exif["ZISO"],
-                flash_fired=True if exif["ZFLASHFIRED"] == 1 else False,
-                metering_mode=exif["ZMETERINGMODE"],
-                sample_rate=exif["ZSAMPLERATE"],
-                track_format=exif["ZTRACKFORMAT"],
-                white_balance=exif["ZWHITEBALANCE"],
-                aperture=exif["ZAPERTURE"],
-                bit_rate=exif["ZBITRATE"],
-                duration=exif["ZDURATION"],
-                exposure_bias=exif["ZEXPOSUREBIAS"],
-                focal_length=exif["ZFOCALLENGTH"],
-                fps=exif["ZFPS"],
-                latitude=exif["ZLATITUDE"],
-                longitude=exif["ZLONGITUDE"],
-                shutter_speed=exif["ZSHUTTERSPEED"],
-                camera_make=exif["ZCAMERAMAKE"],
-                camera_model=exif["ZCAMERAMODEL"],
-                codec=exif["ZCODEC"],
-                lens_model=exif["ZLENSMODEL"],
-            )
+            return exifinfo_factory(exif)
         except KeyError:
             logger.debug(f"Could not find exif record for uuid {self.uuid}")
-            exif_info = ExifInfo(
-                iso=None,
-                flash_fired=None,
-                metering_mode=None,
-                sample_rate=None,
-                track_format=None,
-                white_balance=None,
-                aperture=None,
-                bit_rate=None,
-                duration=None,
-                exposure_bias=None,
-                focal_length=None,
-                fps=None,
-                latitude=None,
-                longitude=None,
-                shutter_speed=None,
-                camera_make=None,
-                camera_model=None,
-                codec=None,
-                lens_model=None,
-            )
-
-        return exif_info
+            return exifinfo_factory(None)
 
     @property
     def exiftool(self) -> ExifToolCaching | None:
