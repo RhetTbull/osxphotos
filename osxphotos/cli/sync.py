@@ -463,7 +463,7 @@ def _merge_location_for_photo(
         not any(x is None for x in value):
 
             if value != before:
-                verbose(f"\Merging {field} to {value} from {before}")
+                verbose(f"\tMerging {field} to {value} from {before}")
                 if not dry_run:
                     set_photo_property(photo_, field, value)
             else:
