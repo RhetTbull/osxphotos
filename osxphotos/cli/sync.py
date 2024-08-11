@@ -55,6 +55,7 @@ SYNC_IMPORT_TYPES = [
     "title",
     "description",
     "favorite",
+    "location",
 ]
 SYNC_IMPORT_TYPES_ALL = ["all"] + SYNC_IMPORT_TYPES
 
@@ -374,9 +375,113 @@ def import_metadata_for_photo(
         # add photo to any new albums but do not remove from existing albums
         results += _update_albums_for_photo(photo, metadata, dry_run, verbose)
 
+    if "location" in set_:
+        # If --set use origin location in the destination photo
+        results += _set_location_for_photo(photo, metadata, dry_run, verbose)
+    elif "location" in merge:
+        # if --merge 
+        #   and property is set in the destination then no action is taken;
+        #   if property is not set in the destination but is set in the source,
+        #      then the value is copied to destination.
+        results += _merge_location_for_photo(photo, metadata, dry_run, verbose)
+
     results += _set_metadata_for_photo(photo, metadata, set_, dry_run, verbose)
     results += _merge_metadata_for_photo(photo, metadata, merge, dry_run, verbose)
 
+    return results
+
+
+def _set_location_for_photo(
+    photo: PhotoInfo,
+    metadata: dict[str, Any],
+    dry_run: bool,
+    verbose: Callable[..., None],
+) -> SyncResults:
+    """If different, set metadata location for photo"""
+    field = "location"
+
+    results = SyncResults()
+    photo_ = photoscript.Photo(photo.uuid)
+
+    value = metadata[field]
+    # convert location lat/long list into tuple lat/long
+    value = ( value[0], value[1])
+
+    before = getattr(photo, field)
+
+    # ( lat, long ) tuples must not include None
+    if isinstance(value, tuple) and len(value) == 2 and \
+       not any(x is None for x in value) and \
+       isinstance(before, tuple) and len(before) == 2:
+
+        if value != before:
+            verbose(f"\tSetting {field} to {value} from {before}")
+            if not dry_run:
+                set_photo_property(photo_, field, value)
+        else:
+            verbose(f"\tNothing to do for {field}", level=2)
+    else:
+        verbose(f"\tEmpty/Improper location data. Nothing done for {field}", level=2)
+
+    results.add_result(
+        photo.uuid,
+        photo.original_filename,
+        photo.fingerprint,
+        field,
+        value != before,
+        before,
+        value,
+    )
+    return results
+
+
+def _merge_location_for_photo(
+    photo: PhotoInfo,
+    metadata: dict[str, Any],
+    dry_run: bool,
+    verbose: Callable[..., None],
+) -> SyncResults:
+    """If location is set on destination, no action is taken
+       If location is not set on destination, but is set in source, copy source to destination
+    """
+    field = "location"
+
+    results = SyncResults()
+    photo_ = photoscript.Photo(photo.uuid)
+
+    value = metadata[field]
+    # convert location lat/long list into tuple lat/long
+    value = ( value[0], value[1])
+
+    before = getattr(photo, field)
+
+    # ( lat, long ) tuples must not include None
+    if isinstance(before, tuple) and len(before) == 2 and \
+       all(x is None for x in before):
+
+        if isinstance(value, tuple) and len(value) == 2 and \
+        not any(x is None for x in value):
+
+            if value != before:
+                verbose(f"\Merging {field} to {value} from {before}")
+                if not dry_run:
+                    set_photo_property(photo_, field, value)
+            else:
+                verbose(f"\tNothing to do for {field}", level=2)
+        else:
+            verbose(f"\tEmpty/Improper location data. Nothing done for {field}", level=2)
+    else:
+        verbose(f"\tLocation already set. Nothing done for {field}", level=2)
+
+    results.add_result(
+        photo.uuid,
+        photo.original_filename,
+        photo.fingerprint,
+        field,
+        value != before,
+        before,
+        value,
+    )
     return results
 
 
@@ -438,9 +543,12 @@ def _set_metadata_for_photo(
         if field == "albums":
             continue
 
+        if field == "location":
+            continue
+
         value = metadata[field]
         before = getattr(photo, field)
-
+    
         if isinstance(value, list):
             value = sorted(value)
         if isinstance(before, list):
@@ -478,6 +586,9 @@ def _merge_metadata_for_photo(
 
     for field in merge:
         if field == "albums":
+            continue
+
+        if field == "location":
             continue
 
         value = metadata[field]
@@ -547,6 +658,8 @@ def set_photo_property(photo: photoscript.Photo, property: str, value: Any):
         raise ValueError(f"{property} must be a str, not {type(value)}")
     elif property == "favorite":
         value = bool(value)
+    elif property == "location":
+        value = (value[0], value[1])
     elif property not in {"title", "description", "favorite", "keywords"}:
         raise ValueError(f"Unknown property: {property}")
     setattr(photo, property, value)
