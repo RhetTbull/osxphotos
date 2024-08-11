@@ -19,10 +19,9 @@ from ._constants import (
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_FOLDER_KIND,
     _PHOTOS_5_VERSION,
-    TIME_DELTA,
     AlbumSortOrder,
 )
-from .datetime_utils import get_local_tz
+from .photos_datetime import photos_datetime_local
 
 __all__ = [
     "sort_list_by_keys",
@@ -67,9 +66,6 @@ class AlbumInfoBaseClass:
         self._creation_date_timestamp = self._db._dbalbum_details[uuid]["creation_date"]
         self._start_date_timestamp = self._db._dbalbum_details[uuid]["start_date"]
         self._end_date_timestamp = self._db._dbalbum_details[uuid]["end_date"]
-        self._local_tz = get_local_tz(
-            datetime.fromtimestamp(self._creation_date_timestamp + TIME_DELTA)
-        )
 
     @property
     def uuid(self):
@@ -82,20 +78,9 @@ class AlbumInfoBaseClass:
         try:
             return self._creation_date
         except AttributeError:
-            try:
-                self._creation_date = (
-                    datetime.fromtimestamp(
-                        self._creation_date_timestamp + TIME_DELTA
-                    ).astimezone(tz=self._local_tz)
-                    if self._creation_date_timestamp
-                    else datetime(1970, 1, 1, 0, 0, 0).astimezone(
-                        tz=timezone(timedelta(0))
-                    )
-                )
-            except ValueError:
-                self._creation_date = datetime(1970, 1, 1, 0, 0, 0).astimezone(
-                    tz=timezone(timedelta(0))
-                )
+            self._creation_date = photos_datetime_local(
+                self._creation_date_timestamp, True
+            )
             return self._creation_date
 
     @property
@@ -105,16 +90,7 @@ class AlbumInfoBaseClass:
         try:
             return self._start_date
         except AttributeError:
-            try:
-                self._start_date = (
-                    datetime.fromtimestamp(
-                        self._start_date_timestamp + TIME_DELTA
-                    ).astimezone(tz=self._local_tz)
-                    if self._start_date_timestamp
-                    else None
-                )
-            except ValueError:
-                self._start_date = None
+            self._start_date = photos_datetime_local(self._start_date_timestamp, False)
             return self._start_date
 
     @property
@@ -125,16 +101,7 @@ class AlbumInfoBaseClass:
         try:
             return self._end_date
         except AttributeError:
-            try:
-                self._end_date = (
-                    datetime.fromtimestamp(
-                        self._end_date_timestamp + TIME_DELTA
-                    ).astimezone(tz=self._local_tz)
-                    if self._end_date_timestamp
-                    else None
-                )
-            except ValueError:
-                self._end_date = None
+            self._end_date = photos_datetime_local(self._end_date_timestamp, False)
             return self._end_date
 
     @property
@@ -324,9 +291,6 @@ class ImportInfo(AlbumInfoBaseClass):
         self._start_date_timestamp = self._creation_date_timestamp
         self._end_date_timestamp = self._creation_date_timestamp
         self._title = import_session[2]
-        self._local_tz = get_local_tz(
-            datetime.fromtimestamp(self._creation_date_timestamp + TIME_DELTA)
-        )
 
     @property
     def title(self):
