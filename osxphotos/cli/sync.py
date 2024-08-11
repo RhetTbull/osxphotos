@@ -390,6 +390,52 @@ def import_metadata_for_photo(
 
     return results
 
+def _process_location_for_photo(
+    photo: PhotoInfo,
+    metadata: dict[str, Any],
+    dry_run: bool,
+    verbose: Callable[..., None],
+    merge: bool = False,
+) -> SyncResults:
+    """Set or merge location metadata for a photo."""
+    field = "location"
+    updated = False
+    results = SyncResults()
+    photo_ = photoscript.Photo(photo.uuid)
+
+    value = tuple(metadata.get(field, (None, None)))
+    before = getattr(photo, field, (None, None))
+
+    if merge:
+        if all(coord is None for coord in before):
+            if value != before:
+                updated = True
+                verbose(f"\tMerging {field} to {value} from {before}")
+                if not dry_run:
+                    set_photo_property(photo_, field, value)
+            else:
+                verbose(f"\tNothing to do for {field}", level=2)
+        else:
+            verbose(f"\tLocation already set. Nothing done for {field}", level=2)
+    else:
+        if value != before:
+            updated = True
+            verbose(f"\tSetting {field} to {value} from {before}")
+            if not dry_run:
+                set_photo_property(photo_, field, value)
+        else:
+            verbose(f"\tNothing to do for {field}", level=2)
+
+    results.add_result(
+        photo.uuid,
+        photo.original_filename,
+        photo.fingerprint,
+        field,
+        updated,
+        before,
+        value)
+    return results
+
 
 def _set_location_for_photo(
     photo: PhotoInfo,
@@ -397,42 +443,8 @@ def _set_location_for_photo(
     dry_run: bool,
     verbose: Callable[..., None],
 ) -> SyncResults:
-    """If different, set metadata location for photo"""
-    field = "location"
-
-    results = SyncResults()
-    photo_ = photoscript.Photo(photo.uuid)
-
-    value = metadata[field]
-    # convert location lat/long list into tuple lat/long
-    value = ( value[0], value[1])
-
-    before = getattr(photo, field)
-
-    # ( lat, long ) tuples must not include None
-    if isinstance(value, tuple) and len(value) == 2 and \
-       not any(x is None for x in value) and \
-       isinstance(before, tuple) and len(before) == 2:
-
-        if value != before:
-            verbose(f"\tSetting {field} to {value} from {before}")
-            if not dry_run:
-                set_photo_property(photo_, field, value)
-        else:
-            verbose(f"\tNothing to do for {field}", level=2)
-    else:
-        verbose(f"\tEmpty/Improper location data. Nothing done for {field}", level=2)
-
-    results.add_result(
-        photo.uuid,
-        photo.original_filename,
-        photo.fingerprint,
-        field,
-        value != before,
-        before,
-        value,
-    )
-    return results
+    """Set location metadata 9even if (None, None) for a photo, if different."""
+    return _process_location_for_photo(photo, metadata, dry_run, verbose, merge=False)
 
 
 def _merge_location_for_photo(
@@ -441,48 +453,8 @@ def _merge_location_for_photo(
     dry_run: bool,
     verbose: Callable[..., None],
 ) -> SyncResults:
-    """If location is set on destination, no action is taken
-       If location is not set on destination, but is set in source, copy source to destination
-    """
-    field = "location"
-
-    results = SyncResults()
-    photo_ = photoscript.Photo(photo.uuid)
-
-    value = metadata[field]
-    # convert location lat/long list into tuple lat/long
-    value = ( value[0], value[1])
-
-    before = getattr(photo, field)
-
-    # ( lat, long ) tuples must not include None
-    if isinstance(before, tuple) and len(before) == 2 and \
-       all(x is None for x in before):
-
-        if isinstance(value, tuple) and len(value) == 2 and \
-        not any(x is None for x in value):
-
-            if value != before:
-                verbose(f"\tMerging {field} to {value} from {before}")
-                if not dry_run:
-                    set_photo_property(photo_, field, value)
-            else:
-                verbose(f"\tNothing to do for {field}", level=2)
-        else:
-            verbose(f"\tEmpty/Improper location data. Nothing done for {field}", level=2)
-    else:
-        verbose(f"\tLocation already set. Nothing done for {field}", level=2)
-
-    results.add_result(
-        photo.uuid,
-        photo.original_filename,
-        photo.fingerprint,
-        field,
-        value != before,
-        before,
-        value,
-    )
-    return results
+    """Merge location metadata for a photo if not already set."""
+    return _process_location_for_photo(photo, metadata, dry_run, verbose, merge=True)
 
 
 def _update_albums_for_photo(
