@@ -6,7 +6,7 @@ import datetime
 
 import pytest
 
-from osxphotos.photos_datetime import photos_datetime
+from osxphotos.photos_datetime import photos_datetime, photos_datetime_local
 
 # data is timestamp, tzoffset, expected datetime
 TEST_DATA = [
@@ -28,6 +28,139 @@ TEST_DATA = [
     (744897809.3687729, -18000, False, "2024-08-09 07:03:29.368773-05:00"),
 ]
 
+TEST_DATA_LOCAL = [
+    (
+        585926353.706262,
+        datetime.datetime(
+            2019,
+            7,
+            27,
+            8,
+            19,
+            13,
+            706262,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400), "CDT"),
+        ),
+    ),
+    (
+        597444332.900475,
+        datetime.datetime(
+            2019,
+            12,
+            7,
+            14,
+            45,
+            32,
+            900475,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=64800), "CST"),
+        ),
+    ),
+    (
+        597444345.353661,
+        datetime.datetime(
+            2019,
+            12,
+            7,
+            14,
+            45,
+            45,
+            353661,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=64800), "CST"),
+        ),
+    ),
+    (
+        608321109.224879,
+        datetime.datetime(
+            2020,
+            4,
+            11,
+            13,
+            5,
+            9,
+            224879,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400), "CDT"),
+        ),
+    ),
+    (
+        610122315.01428,
+        datetime.datetime(
+            2020,
+            5,
+            2,
+            9,
+            25,
+            15,
+            14280,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400), "CDT"),
+        ),
+    ),
+    (
+        613234428.439275,
+        datetime.datetime(
+            2020,
+            6,
+            7,
+            9,
+            53,
+            48,
+            439275,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400), "CDT"),
+        ),
+    ),
+    (
+        613234481.584484,
+        datetime.datetime(
+            2020,
+            6,
+            7,
+            9,
+            54,
+            41,
+            584484,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400), "CDT"),
+        ),
+    ),
+    (
+        620539511.367272,
+        datetime.datetime(
+            2020,
+            8,
+            30,
+            23,
+            5,
+            11,
+            367272,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400), "CDT"),
+        ),
+    ),
+    (
+        621736496.804132,
+        datetime.datetime(
+            2020,
+            9,
+            13,
+            19,
+            34,
+            56,
+            804132,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400), "CDT"),
+        ),
+    ),
+    (
+        745072616.284746,
+        datetime.datetime(
+            2024,
+            8,
+            11,
+            7,
+            36,
+            56,
+            284746,
+            tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400), "CDT"),
+        ),
+    ),
+]
+
 
 @pytest.mark.parametrize("timestamp, tzoffset, default, expected", TEST_DATA)
 def test_photos_datetime(
@@ -37,3 +170,10 @@ def test_photos_datetime(
     dt = photos_datetime(timestamp, tzoffset, default)
     dt_expected = datetime.datetime.fromisoformat(expected) if expected else None
     assert dt == dt_expected
+
+
+@pytest.mark.parametrize("timestamp, expected", TEST_DATA_LOCAL)
+def test_photos_datetime_local(timestamp: float, expected: datetime.datetime):
+    """Test photos_datetime_local"""
+    dt = photos_datetime_local(timestamp)
+    assert dt == expected
