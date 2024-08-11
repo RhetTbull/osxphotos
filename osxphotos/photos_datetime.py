@@ -9,7 +9,7 @@ import datetime
 TIME_DELTA = (datetime.datetime(2001, 1, 1, 0, 0) - datetime.datetime(1970, 1, 1, 0, 0)).total_seconds()
 
 # Default datetime for when we can't determine the date
-DEFAULT_DATETIME = datetime.datetime(1970, 1, 1).astimezone(tz=datetime.timezone.utc)
+DEFAULT_DATETIME = datetime.datetime(1970, 1, 1, 0, tzinfo=datetime.timezone.utc)
 
 __all__ = ["photos_datetime"]
 
