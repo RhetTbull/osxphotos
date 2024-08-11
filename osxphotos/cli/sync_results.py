@@ -13,6 +13,7 @@ SYNC_PROPERTIES = [
     "favorite",
     "keywords",
     "title",
+    "location",
 ]
 
 
