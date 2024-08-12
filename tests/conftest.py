@@ -68,7 +68,7 @@ def get_os_version():
 
 
 OS_VER = get_os_version() if is_macos else [None, None]
-if OS_VER[0] == "10" and OS_VER[1] == "15":
+if OS_VER[0] == "10" and OS_VER[1] in ("15", "16"):
     # Catalina
     TEST_LIBRARY = "tests/Test-10.15.7.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
