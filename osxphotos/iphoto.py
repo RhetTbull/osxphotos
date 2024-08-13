@@ -62,7 +62,7 @@ from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
-from .photos_datetime import TIME_DELTA, photos_datetime, photos_datetime_local
+from .photos_datetime import photos_datetime, photos_datetime_local
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 from .scoreinfo import ScoreInfo
