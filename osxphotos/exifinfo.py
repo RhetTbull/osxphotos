@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime
 from dataclasses import dataclass
 from typing import Any
+
 from osxphotos.photos_datetime import photos_datetime
 
 __all__ = ["ExifInfo", "exifinfo_factory"]
@@ -37,6 +38,7 @@ class ExifInfo:
     tzoffset: int | None = None
     tzname: str | None = None
 
+
 def exifinfo_factory(data: dict[str, Any] | None) -> ExifInfo:
     """Create an ExifInfo object from a dictionary of EXIF data"""
     if data is None:
@@ -63,7 +65,9 @@ def exifinfo_factory(data: dict[str, Any] | None) -> ExifInfo:
         codec=data["ZCODEC"],
         lens_model=data["ZLENSMODEL"],
         # ZDATECREATED, ZTIMEZONEOFFSET, ZTIMEZONENAME added in Ventura / Photos 8 so may not be present
-        date=photos_datetime(data.get("ZDATECREATED"), data.get("ZTIMEZONEOFFSET"), False),
+        date=photos_datetime(
+            data.get("ZDATECREATED"), data.get("ZTIMEZONEOFFSET"), default=False
+        ),
         tzoffset=data.get("ZTIMEZONEOFFSET"),
         tzname=data.get("ZTIMEZONENAME"),
     )

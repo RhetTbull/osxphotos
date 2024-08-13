@@ -167,7 +167,7 @@ def test_photos_datetime(
     timestamp: float, tzoffset: int, default: bool, expected: str | None
 ):
     """Test photos_datetime"""
-    dt = photos_datetime(timestamp, tzoffset, default)
+    dt = photos_datetime(timestamp, tzoffset, default=default)
     dt_expected = datetime.datetime.fromisoformat(expected) if expected else None
     assert dt == dt_expected
 
