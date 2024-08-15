@@ -819,6 +819,16 @@
       "contributions": [
         "data"
       ]
+    },
+    {
+      "login": "danVnest",
+      "name": "Daniel Vogelnest",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4771860?v=4",
+      "profile": "http://daniel-vogelnest.tk",
+      "contributions": [
+        "bug",
+        "data"
+      ]
     }
   ],
   "contributorsPerLine": 7,
