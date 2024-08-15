@@ -829,6 +829,16 @@
         "bug",
         "data"
       ]
+    },
+    {
+      "login": "alban73",
+      "name": "alban73",
+      "avatar_url": "https://avatars.githubusercontent.com/u/74853805?v=4",
+      "profile": "https://github.com/alban73",
+      "contributions": [
+        "bug",
+        "data"
+      ]
     }
   ],
   "contributorsPerLine": 7,
