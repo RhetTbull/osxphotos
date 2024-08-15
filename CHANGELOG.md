@@ -2,7 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v0.68.3](se.mdhttps://github.com/RhetTbull/osxphotos/compare/v0.68.2...v0.68.3)
+## [v0.68.5](https://github.com/RhetTbull/osxphotos/compare/v0.68.4...v0.68.5)
+
+Hot fix for unknown UTI type during export. Also incorporates changes to the `sync` command
+to allow syncing of location data.
+
+#### Added
+
+- Added support for syncing location data in `sync` command thanks to @oPromessa.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fixed unknown UTI type during export (#1643).
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @oPromessa [@oPromessa](https://github.com/oPromessa) for code.
+
+## [v0.68.4](https://github.com/RhetTbull/osxphotos/compare/v0.68.3...v0.68.4)
+
+Hot fix for macOS 14.6 and 15.0/15.1. This release updates the Photos library database schema to support
+macOS 14.6 and 15.0/15.1. It also fixes an issue with the `sync` command when the photo could not be found.
+
+#### Added
+
+#### Changed
+
+- Updated Photos library database schema for macOS 14.6 and 15.0/15.1.
+
+#### Removed
+
+#### Fixed
+
+- Fixed error when using `sync` command and photo could not be found via AppleScript (#1623).
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
+## [v0.68.3](https://github.com/RhetTbull/osxphotos/compare/v0.68.2...v0.68.3)
 
 This release fixes errors when running on macOS 14.6 and 15.0 beta due to Photos database schema changes.
 It also adds support for Screen Recording media type and fixes bugs with the `sync` command and changes
