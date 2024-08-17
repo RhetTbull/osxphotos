@@ -7,7 +7,7 @@ import datetime
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ._constants import TIME_DELTA
+from .photos_datetime import photos_datetime_local
 
 if TYPE_CHECKING:
     from .photosdb import PhotosDB
@@ -72,7 +72,7 @@ class ShareInfo:
             "start_date",
         ]:
             if val := getattr(self, field):
-                setattr(self, field, datetime.datetime.fromtimestamp(val + TIME_DELTA))
+                setattr(self, field, photos_datetime_local(val))
 
     def asdict(self):
         """Return info as dict"""
