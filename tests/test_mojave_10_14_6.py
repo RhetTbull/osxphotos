@@ -579,14 +579,10 @@ def test_multi_person(photosdb):
 
 def test_date_invalid(photosdb):
     """Test date is invalid"""
-    from datetime import datetime, timedelta, timezone
-
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
-    delta = timedelta(seconds=p.tzoffset)
-    tz = timezone(delta)
-    assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
+    assert p.date == datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
 
 def test_date_modified_invalid(photosdb):

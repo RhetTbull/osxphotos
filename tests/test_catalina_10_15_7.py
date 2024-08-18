@@ -1,5 +1,6 @@
 """ Basic tests for Photos 5 on MacOS 10.15.7 """
 
+import collections
 import datetime
 import json
 import os
@@ -15,6 +16,7 @@ import pytest
 import osxphotos
 from osxphotos import PhotosDB
 from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.adjustmentsinfo import AdjustmentsInfo
 from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
@@ -1164,17 +1166,11 @@ def test_from_to_date_tz(photosdb):
 def test_date_invalid():
     """Test date is invalid"""
     # doesn't run correctly with the module-level fixture
-    from datetime import datetime, timedelta, timezone
-
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
-    delta = timedelta(seconds=p.tzoffset)
-    tz = timezone(delta)
-    assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
+    assert p.date == datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
 
 def test_date_modified_invalid(photosdb):
