@@ -131,12 +131,24 @@ class PhotoInfo:
 
     @property
     def date(self) -> datetime.datetime:
-        """image creation date as timezone aware datetime object"""
+        """Asset creation date as timezone aware datetime object"""
         return self._info["imageDate"]
 
     @property
+    def date_original(self) -> datetime.datetime:
+        """Original creation date of asset as timezone aware datetime object.
+        If user has changed the asset's creation date in Photos, use this to access the original creation date
+        set when the asset was imported. Photos 5+; on Photos version < 5, returns the same value as `date`.
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return self.date
+        if self.exif_info and self.exif_info.date:
+            return self.exif_info.date
+        return self.date
+
+    @property
     def date_modified(self) -> datetime.datetime | None:
-        """image modification date as timezone aware datetime object
+        """Asset modification date as timezone aware datetime object
         or None if no modification date set"""
 
         # Photos <= 4 provides no way to get date of adjustment and will update
@@ -1590,7 +1602,7 @@ class PhotoInfo:
         except:
             return []
 
-    @property
+    @cached_property
     def exif_info(self) -> ExifInfo | None:
         """Returns an ExifInfo object with the EXIF data for photo
         Note: the returned EXIF data is the data Photos stores in the database on import;
@@ -2129,6 +2141,7 @@ class PhotoInfo:
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
             dict_data["screen_recording"] = self.screen_recording
+            dict_data["date_original"] = self.date_original
 
         return dict_data
 

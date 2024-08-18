@@ -154,6 +154,14 @@ UTI_ORIGINAL_DICT = {
 }
 
 
+UUID_DATE_ORIGINAL = [
+    (
+        "8846E3E6-8AC8-4857-8448-E3D025784410",
+        "1970-01-01 00:00:00+00:00",
+        "2020-05-12 18:47:13-04:00",
+    ),
+]
+
 RawInfo = namedtuple(
     "RawInfo",
     [
@@ -1272,3 +1280,13 @@ def test_tables(photosdb: osxphotos.PhotosDB):
     assert tables.ZADDITIONALASSETATTRIBUTES.ZTITLE[0] == photo.title
     assert len(tables.ZASSET.rows()) == 1
     assert tables.ZASSET.rows_dict()[0]["ZUUID"] == photo.uuid
+
+
+@pytest.mark.parametrize("uuid,date,date_original", UUID_DATE_ORIGINAL)
+def test_date_original(
+    photosdb: osxphotos.PhotosDB, uuid: str, date: str, date_original: str
+):
+    """Test PhotoInfo.date_original"""
+    photo = photosdb.get_photo(uuid)
+    assert photo.date == datetime.datetime.fromisoformat(date)
+    assert photo.date_original == datetime.datetime.fromisoformat(date_original)

@@ -163,6 +163,8 @@ RAW_DICT = {
 
 UUID_FINGERPRINT = {"6bxcNnzRQKGnK4uPrCJ9UQ": "ASs96bJvsunOg9Vxo5hK7VU3HegE"}
 
+UUID_DATE_ORIGINAL = "URxYNAiXR9CTkXbUvWweAA"
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -701,3 +703,9 @@ def test_tables(photosdb: osxphotos.PhotosDB):
     photo = photosdb.get_photo(UUID_DICT["favorite"])
     tables = photo.tables()
     assert tables is None
+
+
+def test_date_original(photosdb: osxphotos.PhotosDB):
+    """Test PhotoInfo.date_original, which on Photos <5 == PhotoInfo.date"""
+    photo = photosdb.get_photo(UUID_DATE_ORIGINAL)
+    assert photo.date_original == photo.date

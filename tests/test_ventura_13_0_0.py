@@ -154,6 +154,13 @@ UTI_ORIGINAL_DICT = {
     "4D521201-92AC-43E5-8F7C-59BC41C37A96": "public.jpeg",
 }
 
+UUID_DATE_ORIGINAL = [
+    (
+        "8846E3E6-8AC8-4857-8448-E3D025784410",
+        "1970-01-01 00:00:00+00:00",
+        "2020-05-12 18:47:13-04:00",
+    ),
+]
 
 RawInfo = namedtuple(
     "RawInfo",
@@ -1326,3 +1333,13 @@ def test_photosdb_library_path():
         assert photosdb.library_path == PHOTOS_LIBRARY_PATH
         assert photosdb.db_path == dbpath
         assert len(photosdb) == PHOTOS_DB_LEN
+
+
+@pytest.mark.parametrize("uuid,date,date_original", UUID_DATE_ORIGINAL)
+def test_date_original(
+    photosdb: osxphotos.PhotosDB, uuid: str, date: str, date_original: str
+):
+    """Test PhotoInfo.date_original"""
+    photo = photosdb.get_photo(uuid)
+    assert photo.date == datetime.datetime.fromisoformat(date)
+    assert photo.date_original == datetime.datetime.fromisoformat(date_original)
