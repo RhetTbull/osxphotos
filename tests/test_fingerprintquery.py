@@ -5,7 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from osxphotos.fingerprintquery import FingerprintQuery, fingerprint
+from osxphotos.platform import is_macos
+
+if is_macos:
+    from osxphotos.fingerprintquery import FingerprintQuery, fingerprint
+else:
+    pytest.skip(allow_module_level=True)
 
 TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary/database/Photos.sqlite"
 TEST_IMAGE_DATA = [
