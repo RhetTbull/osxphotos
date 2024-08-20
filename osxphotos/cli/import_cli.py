@@ -3415,7 +3415,7 @@ def has_aae(filepaths: Iterable[str | os.PathLike]) -> bool:
 
 
 def has_non_apple_aae(filepaths: Iterable[str | os.PathLike]) -> str | None:
-    """Return truthy value if any file in the list are an AAE file but not an Apple AAE file (external edits)"""
+    """Return True value if any file in the list are an AAE file but not an Apple AAE file (external edits)"""
     for filepath in filepaths:
         filepath = (
             pathlib.Path(filepath)
