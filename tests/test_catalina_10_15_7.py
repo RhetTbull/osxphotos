@@ -20,6 +20,8 @@ from osxphotos.adjustmentsinfo import AdjustmentsInfo
 from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
+from .dt_utils import dt_to_local
+
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
 SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"
 PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
@@ -701,7 +703,9 @@ def test_photoinfo_intrash_1(photosdb):
 
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]], intrash=True)[0]
     assert p.intrash
-    assert p.date_trashed.isoformat() == "2120-06-10T11:24:47.685857-05:00"
+    assert dt_to_local(p.date_trashed) == dt_to_local(
+        datetime.datetime.fromisoformat("2120-06-10T11:24:47.685857-05:00")
+    )
 
 
 def test_photoinfo_intrash_2(photosdb):

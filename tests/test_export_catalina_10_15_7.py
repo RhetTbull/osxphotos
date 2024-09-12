@@ -430,6 +430,10 @@ def test_exiftool_json_sidecar_keyword_template(photosdb):
     json_got = json.loads(json_got)[0]
 
     for k, v in json_got.items():
+        if k in {"EXIF:ModifyDate", "EXIF:OffsetTime"}:
+            # these will change based on local time of machine running test
+            # so these are not checked in this test
+            continue
         assert v == json_expected[0].get(k)
 
 
@@ -455,12 +459,17 @@ def test_exiftool_json_sidecar_use_albums_keywords(photosdb):
     with open(
         str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_albums_as_keywords.json"), "r"
     ) as fp:
-        json_expected = json.load(fp)
+        json_expected = json.load(fp)[0]
 
     json_got = exiftool_json_sidecar(photo, ExportOptions(use_albums_as_keywords=True))
-    json_got = json.loads(json_got)
+    json_got = json.loads(json_got)[0]
 
-    assert json_got == json_expected
+    for k, v in json_got.items():
+        if k in {"EXIF:ModifyDate", "EXIF:OffsetTime"}:
+            # these will change based on local time of machine running test
+            # so these are not checked in this test
+            continue
+        assert v == json_expected.get(k)
 
 
 def test_exiftool_sidecar(photosdb):
@@ -474,6 +483,10 @@ def test_exiftool_sidecar(photosdb):
     json_got = json.loads(json_got)[0]
     json_expected = json.loads(json_expected)[0]
     for k, v in json_got.items():
+        if k in {"ModifyDate", "OffsetTime"}:
+            # these will change based on local time of machine running test
+            # so these are not checked in this test
+            continue
         assert v == json_expected.get(k)
 
 
