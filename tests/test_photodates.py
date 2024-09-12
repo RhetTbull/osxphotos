@@ -11,13 +11,13 @@ import zoneinfo
 
 import pytest
 
-from osxphotos.photodates import get_photo_date_added, get_photo_date_original
 from osxphotos.platform import is_macos
 from tests.conftest import get_os_version
 
 if not is_macos:
     pytest.skip("Skipping macOS only tests", allow_module_level=True)
 
+from osxphotos.photodates import get_photo_date_added, get_photo_date_original
 from photoscript import Photo
 
 if int(get_os_version()[0]) < 13:
