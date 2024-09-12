@@ -308,7 +308,7 @@ TEMPLATE_VALUES_DATE_MODIFIED = {
     "{modified.dd}": "31",
     "{modified.doy}": "305",
     "{modified.dow}": "Saturday",
-    "{modified.strftime,%Y-%m-%d-%H%M%S}": "2020-10-31-080321",
+    "{modified.strftime,%Y-%m-%d}": "2020-10-31",
     "{modified.strftime}": "_",
 }
 

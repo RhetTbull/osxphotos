@@ -80,7 +80,7 @@ osxphotos timewarp has been well tested on macOS Catalina (10.15).  It should wo
 
 **Caution**: This app directly modifies your Photos library database using undocumented features.  It may corrupt, damage, or destroy your Photos library.  Use at your own caution.  I strongly recommend you make a backup of your Photos library before using this script (e.g. use Time Machine).
 
-## Examples 
+## Examples
 
 **Add 1 day to the date of each photo**
 
@@ -130,7 +130,7 @@ For this to work, you'll need to install the third-party exiftool (https://exift
 
 `osxphotos timewarp --compare-exif`
 
-**Read the date/time/timezone from the photos' original EXIF metadata to update the photos' date/time/timezone; 
+**Read the date/time/timezone from the photos' original EXIF metadata to update the photos' date/time/timezone;
 if the EXIF data is missing, use the file modification date/time; show verbose output**
 
 `osxphotos timewarp --pull-exif --use-file-time --verbose`
@@ -151,14 +151,14 @@ format with the following additions:
 - {n}: Match exactly n characters
 - {n,}: Match at least n characters
 - {n,m}: Match at least n characters and at most m characters
-- In addition to `%%` for a literal `%`, the following format codes are supported: 
+- In addition to `%%` for a literal `%`, the following format codes are supported:
     `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
 - |: join multiple format codes; each code is tried in order until one matches
-- Unlike the standard library, the leading zero is not optional for 
+- Unlike the standard library, the leading zero is not optional for
     %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
 - For optional leading zero, use %-d, %-m, %-H, %-I, %-M, %-S, %-j, %-U, %-W, and %-V
 
-For more information on strptime format codes, see: 
+For more information on strptime format codes, see:
 https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
 
 **Note**: The time zone of the parsed date/time is assumed to be the local time zone.
@@ -243,6 +243,13 @@ command which can be used to change the time zone of photos after import.
     help="Set date/time added for selected photos to the date/time the photo was taken. "
     "This changes the date added or imported date in Photos but "
     "does not change the date/time/timezone of the photo itself. ",
+)
+@click.option(
+    "--reset",
+    "-R",
+    is_flag=True,
+    help="Reset date/time/timezone for selected photos to the original values. "
+    "This only works on macOS >= 13.0 (Ventura).",
 )
 @click.option(
     "--inspect",
@@ -405,6 +412,7 @@ def timewarp(
     plain,
     timestamp,
     force,
+    reset,
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
@@ -429,6 +437,7 @@ def timewarp(
             parse_date,
             pull_exif,
             push_exif,
+            reset,
             time_delta,
             time,
             timezone,
@@ -437,7 +446,7 @@ def timewarp(
         raise click.UsageError(
             "At least one of --date, --date-delta, --time, --time-delta, "
             "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif, "
-            "--parse-date, --function, --date-added, or --date-added-from-photo "
+            "--parse-date, --reset, --function, --date-added, or --date-added-from-photo "
             "must be specified."
         )
 
@@ -452,6 +461,8 @@ def timewarp(
 
     if add_to_album and not compare_exif:
         raise click.UsageError("--add-to-album must be used with --compare-exif.")
+
+    # ZZZ add check for --reset and Photos >= 8 , warn if not supported
 
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
@@ -491,6 +502,7 @@ def timewarp(
                 parse_date,
                 pull_exif,
                 push_exif,
+                reset,
                 time_delta,
                 time,
                 timezone,
@@ -575,7 +587,7 @@ def timewarp(
             tz_seconds, tz_str, tz_name = tzinfo.get_timezone(photo)
             photo_date_local = datetime_naive_to_local(photo.date)
             photo_date_tz = datetime_to_new_tz(photo_date_local, tz_seconds)
-            date_added = datetime_naive_to_local(get_photo_date_added_(photo))
+            date_added = get_photo_date_added_(photo)
             echo(
                 f"[filename]{photo.filename}[/filename], [uuid]{photo.uuid}[/uuid], "
                 f"[time]{photo_date_local.strftime(DATETIME_FORMAT)}[/time], "

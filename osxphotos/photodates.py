@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+import os
 import pathlib
 import sqlite3
 from typing import Callable
@@ -19,6 +20,7 @@ from .datetime_utils import (
     datetime_utc_to_local,
     utc_offset_seconds,
 )
+from .photos_datetime import photos_datetime, photos_datetime_local
 from .photosdb.photosdb_utils import get_photos_library_version
 from .phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from .timeutils import update_datetime
@@ -26,6 +28,11 @@ from .timezones import Timezone
 from .utils import get_last_library_path, get_system_library_path
 
 MACOS_TIME_EPOCH = datetime.datetime(2001, 1, 1, 0, 0, 0)
+
+
+def reset_photo_date_time_tz(photo: photoscript.Photo, verbose: Callable[..., None]):
+    """Reset the date/time/timezone of a photo to the original values"""
+    ...
 
 
 def update_photo_date_time(
@@ -212,10 +219,23 @@ def set_photo_date_added(
     stop=stop_after_attempt(10),
 )
 def _set_date_added(library_path: str, uuid: str, date_added: datetime.datetime):
-    """Set the ADDEDDATE of a photo"""
+    """Set the ADDEDDATE of a photo
+
+    Args:
+            library_path: Path to Photos library
+            uuid: UUID of photo
+            date_added: New date added for photo
+
+    Raises:
+        FileNotFoundError: If Photos library path is not found or Photos database is not found
+    """
     # Use retry decorator to retry if database is locked
+    if not os.path.exists(library_path):
+        raise FileNotFoundError(f"Photos library path not found: {library_path}")
     photos_version = get_photos_library_version(library_path)
     db_path = str(pathlib.Path(library_path) / "database/Photos.sqlite")
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"Photos database not found: {db_path}")
     asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
 
     timestamp = datetime_to_photos_timestamp(date_added)
@@ -242,14 +262,9 @@ def _get_photos_library_path(library_path: str | None = None) -> str:
     return library_path
 
 
-def datetime_to_photos_timestamp(dt: datetime.datetime) -> int:
-    """Convert datetime to Photos timestamp (seconds since 2001-01-01)"""
-    return int((dt - MACOS_TIME_EPOCH).total_seconds())
-
-
-def photos_timestamp_to_datetime(ts: int) -> datetime.datetime:
-    """Convert Photos timestamp (seconds since 2001-01-01) to datetime"""
-    return MACOS_TIME_EPOCH + datetime.timedelta(seconds=ts)
+def datetime_to_photos_timestamp(dt: datetime.datetime) -> float:
+    """Convert naive datetime to Photos timestamp (seconds since 2001-01-01)"""
+    return float((dt - MACOS_TIME_EPOCH).total_seconds())
 
 
 @retry(
@@ -260,20 +275,163 @@ def get_photo_date_added(
     photo: photoscript.Photo,
     library_path: str | None = None,
 ) -> datetime.datetime | None:
-    """Get the ADDEDDATE of a photo"""
+    """Get the ADDEDDATE of a photo
+
+    Args:
+        photo: Photo to get date added
+        library_path: Path to Photos library; if not provided, will attempt to determine automatically
+
+    Returns: datetime.datetime: date added of photo or None if date added cannot be determined
+
+    Raises:
+        ValueError if library_path is None and Photos library path cannot be determined
+        FileNotFoundError if Photos database path cannot be found
+    """
 
     if not (library_path := _get_photos_library_path(library_path)):
         raise ValueError("Could not determine Photos library path")
 
     photos_version = get_photos_library_version(library_path)
     db_path = str(pathlib.Path(library_path) / "database/Photos.sqlite")
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"Photos database not found at {db_path}")
     asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
     conn = sqlite3.connect(db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
     c.execute(
-        f"SELECT ZADDEDDATE FROM {asset_table} WHERE ZUUID=?",
+        f"SELECT ZADDEDDATE FROM {asset_table} WHERE ZUUID=?;",
         (photo.uuid,),
     )
     row = c.fetchone()
     conn.close()
-    return photos_timestamp_to_datetime(row[0])
+    return photos_datetime_local(row[0])
+
+
+@retry(
+    wait=wait_exponential(multiplier=1, min=0.100, max=5),
+    stop=stop_after_attempt(5),
+)
+def _get_photo_date_original(
+    photo: photoscript.Photo,
+    library_path: str | None = None,
+) -> datetime.datetime | None:
+    """Get the original date of a photo as timezone aware datetime
+    (date Photos recorded as creation date at import) or None if not found
+
+    Args:
+        photo: photoscript.Photo object
+        library_path: path to Photos library or None to use last opened library
+
+    Raises:
+        ValueError if library_path is None and Photos library path cannot be determined
+        FileNotFoundError if Photos database path cannot be found
+    """
+
+    if not (library_path := _get_photos_library_path(library_path)):
+        raise ValueError("Could not determine Photos library path")
+
+    photos_version = get_photos_library_version(library_path)
+    db_path = str(pathlib.Path(library_path) / "database/Photos.sqlite")
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"Photos database not found at {db_path}")
+    asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
+    conn = sqlite3.connect(db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD)
+    c = conn.cursor()
+    try:
+        c.execute(
+            f"""
+            SELECT
+                ZEXTENDEDATTRIBUTES.ZDATECREATED,
+                ZEXTENDEDATTRIBUTES.ZTIMEZONEOFFSET,
+                ZEXTENDEDATTRIBUTES.ZTIMEZONENAME
+            FROM ZEXTENDEDATTRIBUTES
+            JOIN {asset_table}
+                ON ZEXTENDEDATTRIBUTES.ZASSET = {asset_table}.Z_PK
+            WHERE {asset_table}.ZUUID = ?;
+            """,
+            (photo.uuid,),
+        )
+        row = c.fetchone()
+    except sqlite3.OperationalError as e:
+        # error will be no such column: ZEXTENDEDATTRIBUTES.ZDATECREATED
+        # if on Photos < 8.0 / Ventura
+        if "ZEXTENDEDATTRIBUTES.ZDATECREATED" in str(e):
+            row = None
+        else:
+            raise e
+    conn.close()
+    if row and row[0] is not None:
+        return photos_datetime(timestamp=row[0], tzoffset=row[1], tzname=row[2])
+    else:
+        return None
+
+
+@retry(
+    wait=wait_exponential(multiplier=1, min=0.100, max=5),
+    stop=stop_after_attempt(5),
+)
+def _get_photo_date_created(
+    photo: photoscript.Photo,
+    library_path: str | None = None,
+) -> datetime.datetime:
+    """Get the creation date of a photo as timezone aware datetime or default date if not found or error converting date
+
+    Args:
+        photo: photoscript.Photo object
+        library_path: path to Photos library or None to use last opened library
+
+    Raises:
+        ValueError if library_path is None and Photos library path cannot be determined
+        FileNotFoundError if Photos database path cannot be found
+    """
+
+    if not (library_path := _get_photos_library_path(library_path)):
+        raise ValueError("Could not determine Photos library path")
+
+    photos_version = get_photos_library_version(library_path)
+    db_path = str(pathlib.Path(library_path) / "database/Photos.sqlite")
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"Photos database not found at {db_path}")
+    asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
+    conn = sqlite3.connect(db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD)
+    c = conn.cursor()
+    c.execute(
+        f"""
+        SELECT
+            {asset_table}.ZDATECREATED,
+            ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
+            ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME
+        FROM {asset_table}
+        JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
+        WHERE {asset_table}.ZUUID = ?;
+        """,
+        (photo.uuid,),
+    )
+    row = c.fetchone()
+    conn.close()
+    if row and row[0] is not None:
+        return photos_datetime(
+            timestamp=row[0], tzoffset=row[1], tzname=row[2], default=True
+        )
+    else:
+        return photos_datetime(None, default=True)
+
+
+def get_photo_date_original(
+    photo: photoscript.Photo,
+    library_path: str | None = None,
+) -> datetime.datetime | None:
+    """Get the original date of a photo as timezone aware datetime
+    (date Photos recorded as creation date at import) or None if not found
+
+    Args:
+        photo: photoscript.Photo object
+        library_path: path to Photos library or None to use last opened library
+
+    Raises:
+        ValueError if library_path is None and Photos library path cannot be determined
+        FileNotFoundError if Photos database path cannot be found
+    """
+    return _get_photo_date_original(photo, library_path) or _get_photo_date_created(
+        photo, library_path
+    )

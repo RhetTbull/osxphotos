@@ -148,8 +148,8 @@ class PhotoInfo:
 
     @property
     def date_modified(self) -> datetime.datetime | None:
-        """Asset modification date as timezone aware datetime object
-        or None if no modification date set"""
+        """Asset modification date as timezone aware datetime.datetime object
+        in local timezone or None if no modification date set"""
 
         # Photos <= 4 provides no way to get date of adjustment and will update
         # lastmodifieddate anytime photo database record is updated (e.g. adding tags)
@@ -158,17 +158,11 @@ class PhotoInfo:
         if not self.hasadjustments and self._db._db_version <= _PHOTOS_4_VERSION:
             return None
 
-        if imagedate := self._info["lastmodifieddate"]:
-            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-            delta = timedelta(seconds=seconds)
-            tz = timezone(delta)
-            return imagedate.astimezone(tz=tz)
-        else:
-            return None
+        return self._info["lastmodifieddate"] or None
 
     @property
     def tzoffset(self) -> int:
-        """timezone offset from UTC in seconds"""
+        """timezone offset from UTC in seconds for the Photo creation date"""
         return self._info["imageTimeZoneOffsetSeconds"]
 
     @property
@@ -784,34 +778,18 @@ class PhotoInfo:
 
     @property
     def date_trashed(self) -> datetime.datetime | None:
-        """Date asset was placed in the trash or None"""
-        # TODO: add add_timezone(dt, offset_seconds) to datetime_utils
-        # also update date_modified
-        trasheddate = self._info["trasheddate"]
-        if trasheddate:
-            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-            delta = timedelta(seconds=seconds)
-            tz = timezone(delta)
-            return trasheddate.astimezone(tz=tz)
-        else:
-            return None
+        """Date asset was placed in the trash or None.
+
+        Returns a timezone aware datetime.datetime object in the local timezone."""
+        return self._info["trasheddate"] or None
 
     @property
     def date_added(self) -> datetime.datetime | None:
-        """Date photo was added to the database"""
-        try:
-            return self._date_added
-        except AttributeError:
-            added_date = self._info["added_date"]
-            if added_date:
-                seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-                delta = timedelta(seconds=seconds)
-                tz = timezone(delta)
-                self._date_added = added_date.astimezone(tz=tz)
-            else:
-                self._date_added = None
+        """Date photo was added to the database or None if no added date is recorded.
 
-            return self._date_added
+        Returns a timezone aware datetime.datetime object in the local timezone
+        """
+        return self._info["added_date"] or None
 
     @property
     def location(self) -> tuple[float, float] | tuple[None, None]:

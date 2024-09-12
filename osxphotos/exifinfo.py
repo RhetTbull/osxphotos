@@ -65,10 +65,13 @@ def exifinfo_factory(data: dict[str, Any] | None) -> ExifInfo:
         codec=data["ZCODEC"],
         lens_model=data["ZLENSMODEL"],
         # ZDATECREATED, ZTIMEZONEOFFSET, ZTIMEZONENAME added in Ventura / Photos 8 so may not be present
-        date=photos_datetime(
-            data.get("ZDATECREATED"), data.get("ZTIMEZONEOFFSET"), default=False
-        ),
         tzoffset=data.get("ZTIMEZONEOFFSET"),
         tzname=data.get("ZTIMEZONENAME"),
+        date=photos_datetime(
+            data.get("ZDATECREATED"),
+            data.get("ZTIMEZONEOFFSET"),
+            data.get("ZTIMEZONENAME"),
+            default=False,
+        ),
     )
     return exif_info

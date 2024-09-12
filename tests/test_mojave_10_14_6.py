@@ -475,7 +475,9 @@ def test_photos_intrash_2(photosdb):
     photos = photosdb.photos(intrash=True)
     for p in photos:
         assert p.intrash
-        assert p.date_trashed.isoformat() == "2305-12-17T13:19:08.978144-07:00"
+        assert p.date_trashed == datetime.datetime.fromisoformat(
+            "2305-12-17T13:19:08.978144-07:00"
+        )
 
 
 def test_photos_not_intrash(photosdb):

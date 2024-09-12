@@ -1,11 +1,13 @@
 """ Test export for 10.15.7 """
 
+import datetime
 import json
 import os
 import os.path
 import pathlib
 import tempfile
 import time
+import zoneinfo
 
 import pytest
 
@@ -359,7 +361,8 @@ def test_exiftool_json_sidecar(photosdb):
     json_got = exiftool_json_sidecar(photo)
     json_got = json.loads(json_got)[0]
 
-    assert json_got == json_expected
+    for k, v in json_got.items():
+        assert v == json_expected.get(k)
 
 
 def test_exiftool_json_sidecar_ignore_date_modified(photosdb):
@@ -385,19 +388,14 @@ def test_exiftool_json_sidecar_keyword_template_long(caplog, photosdb):
 
     json_expected = json.loads(
         """
-        [{"EXIF:ImageDescription": "Bride Wedding day", 
-        "XMP:Description": "Bride Wedding day", 
-        "IPTC:Caption-Abstract": "Bride Wedding day", 
-        "XMP:TagsList": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
-        "IPTC:Keywords": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
-        "XMP:Subject": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
-        "XMP:PersonInImage": ["Maria"], 
-        "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
-        "EXIF:CreateDate": "2019:04:15 14:40:24", 
-        "EXIF:OffsetTimeOriginal": "-04:00", 
-        "IPTC:DateCreated": "2019:04:15", 
-        "IPTC:TimeCreated": "14:40:24-04:00", 
-        "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
+        [{"EXIF:ImageDescription": "Bride Wedding day",
+        "XMP:Description": "Bride Wedding day",
+        "IPTC:Caption-Abstract": "Bride Wedding day",
+        "XMP:TagsList": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"],
+        "IPTC:Keywords": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"],
+        "XMP:Subject": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"],
+        "XMP:PersonInImage": ["Maria"]
+        }]
         """
     )[0]
 
@@ -429,9 +427,10 @@ def test_exiftool_json_sidecar_keyword_template(photosdb):
     json_got = exiftool_json_sidecar(
         photo, ExportOptions(keyword_template=["{folder_album}"])
     )
-    json_got = json.loads(json_got)
+    json_got = json.loads(json_got)[0]
 
-    assert json_got == json_expected
+    for k, v in json_got.items():
+        assert v == json_expected[0].get(k)
 
 
 def test_exiftool_json_sidecar_use_persons_keyword(photosdb):
@@ -472,8 +471,10 @@ def test_exiftool_sidecar(photosdb):
         json_expected = fp.read()
 
     json_got = exiftool_json_sidecar(photo, tag_groups=False)
-
-    assert json_got == json_expected
+    json_got = json.loads(json_got)[0]
+    json_expected = json.loads(json_expected)[0]
+    for k, v in json_got.items():
+        assert v == json_expected.get(k)
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")

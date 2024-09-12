@@ -1,6 +1,10 @@
+import datetime
+
 import pytest
 
 import osxphotos
+
+from .dt_utils import dt_to_local
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.14.6.photoslibrary/database/photos.db"
@@ -19,8 +23,9 @@ def photosdb():
 
 def test_modified(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["modified"]])
-    assert photos[0].date_modified is not None
-    assert photos[0].date_modified.isoformat() == "2019-12-01T11:43:45.714123-04:00"
+    assert photos[0].date_modified == dt_to_local(
+        datetime.datetime.fromisoformat("2019-12-01T09:43:45.714123-04:00")
+    )
 
 
 # no non-modified photos in the 10.14.6 database
