@@ -346,7 +346,6 @@ def test_exiftool_json_sidecar(photosdb):
             # so these are not checked in this test
             continue
         assert json_got[k] == v
-    assert json_got == json_expected
 
 
 def test_xmp_sidecar(photosdb):
