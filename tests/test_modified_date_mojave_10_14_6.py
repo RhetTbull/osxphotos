@@ -6,8 +6,6 @@ import pytest
 
 import osxphotos
 
-from .dt_utils import dt_to_local
-
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-Shared-10.14.6.photoslibrary"

@@ -22,8 +22,6 @@ from osxphotos.adjustmentsinfo import AdjustmentsInfo
 from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
-from .dt_utils import dt_to_local
-
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
 SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"
 PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
