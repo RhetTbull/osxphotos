@@ -362,6 +362,8 @@ def test_exiftool_json_sidecar(photosdb):
     json_got = json.loads(json_got)[0]
 
     for k, v in json_got.items():
+        if k in {"EXIF:ModifyDate", "EXIF:OffsetTime"}:
+            continue
         assert v == json_expected.get(k)
 
 

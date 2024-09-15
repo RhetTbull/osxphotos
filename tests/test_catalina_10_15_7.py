@@ -10,6 +10,8 @@ import sqlite3
 import tempfile
 import time
 from collections import Counter, namedtuple
+from unittest import mock
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -703,9 +705,15 @@ def test_photoinfo_intrash_1(photosdb):
 
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]], intrash=True)[0]
     assert p.intrash
-    assert dt_to_local(p.date_trashed) == dt_to_local(
-        datetime.datetime.fromisoformat("2120-06-10T11:24:47.685857-05:00")
-    )
+    mock_local_timezone = ZoneInfo("America/Chicago")
+    with mock.patch("datetime.datetime", wraps=datetime.datetime) as mock_datetime:
+        mock_datetime.now.return_value = datetime.datetime(
+            2120, 6, 10, 11, 24, 47, 685857, tzinfo=mock_local_timezone
+        )
+        expected = datetime.datetime(
+            2120, 6, 10, 11, 24, 47, 685857, tzinfo=mock_local_timezone
+        )
+        assert p.date_trashed == expected
 
 
 def test_photoinfo_intrash_2(photosdb):
