@@ -4,8 +4,6 @@
 # library be active in the Photos library (uses AppleScript)
 
 
-
-
 import datetime
 import zoneinfo
 
@@ -17,8 +15,9 @@ from tests.conftest import get_os_version
 if not is_macos:
     pytest.skip("Skipping macOS only tests", allow_module_level=True)
 
-from osxphotos.photodates import get_photo_date_added, get_photo_date_original
 from photoscript import Photo
+
+from osxphotos.photodates import get_photo_date_added, get_photo_date_original
 
 if int(get_os_version()[0]) < 13:
     pytest.skip("Skipping; requires macOS >= 13.0 (Ventura)", allow_module_level=True)

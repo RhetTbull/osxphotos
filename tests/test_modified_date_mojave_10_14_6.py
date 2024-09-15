@@ -1,4 +1,6 @@
 import datetime
+from unittest import mock
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -23,9 +25,15 @@ def photosdb():
 
 def test_modified(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["modified"]])
-    assert photos[0].date_modified == dt_to_local(
-        datetime.datetime.fromisoformat("2019-12-01T09:43:45.714123-04:00")
-    )
+    mock_local_timezone = ZoneInfo("America/Chicago")
+    with mock.patch("datetime.datetime", wraps=datetime.datetime) as mock_datetime:
+        mock_datetime.now.return_value = datetime.datetime(
+            2019, 12, 1, 9, 43, 45, 714123, tzinfo=mock_local_timezone
+        )
+        expected = datetime.datetime(
+            2019, 12, 1, 9, 43, 45, 714123, tzinfo=mock_local_timezone
+        )
+        assert photos[0].date_modified == expected
 
 
 # no non-modified photos in the 10.14.6 database
