@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.68.6](https://github.com/RhetTbull/osxphotos/compare/v0.68.5...v0.68.6)
+
+Various bug fixes for macOS 15 Sequoia.
+
+### v0.68.6 (2024-09-18)
+
+#### Added
+
+#### Changed
+
+- Check for AAE files for video files on import (#1653, thanks to @oPromessa)
+
+#### Removed
+
+#### Fixed
+
+- Fix for error running on macOS 10.15 (#1680)
+- Fix for `osxphotos import --auto-live` for some video files (#1670)
+- Fix for edited photos on macOS 15 Sequoia (#1687)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @oPromessa [@oPromessa](https://github.com/oPromessa) for code.
+
 ## [v0.68.5](https://github.com/RhetTbull/osxphotos/compare/v0.68.4...v0.68.5)
 
 Hot fix for unknown UTI type during export. Also incorporates changes to the `sync` command
