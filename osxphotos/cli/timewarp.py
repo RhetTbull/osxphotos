@@ -18,6 +18,7 @@ from osxphotos.exif_datetime_updater import ExifDateTimeUpdater
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.photodates import (
     get_photo_date_added,
+    reset_photo_date_time_tz,
     set_photo_date_added,
     set_photo_date_from_filename,
     update_photo_date_time,
@@ -163,10 +164,8 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
 
 **Note**: The time zone of the parsed date/time is assumed to be the local time zone.
 If the parse pattern includes a time zone, the photo's time will be converted from
-the specified time zone to the local time zone. osxphotos import does not
-currently support setting the time zone of imported photos.
-See also `osxphotos help timewarp` for more information on the timewarp
-command which can be used to change the time zone of photos after import.
+the specified time zone to the local time zone. The timewarp command does not currently
+setting the timezone when parsing the filename.
 
 
 """  # noqa: E501
@@ -462,7 +461,10 @@ def timewarp(
     if add_to_album and not compare_exif:
         raise click.UsageError("--add-to-album must be used with --compare-exif.")
 
-    # ZZZ add check for --reset and Photos >= 8 , warn if not supported
+    if reset and float(PhotosLibrary().version) < 8.0:
+        raise click.UsageError(
+            "--reset may only be used with Photos version 8.0 and later (macOS Ventura and later)"
+        )
 
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
@@ -562,6 +564,12 @@ def timewarp(
         library_path=library,
     )
 
+    reset_photo_date_time_ = partial(
+        reset_photo_date_time_tz,
+        library_path=library,
+        verbose=verbose,
+    )
+
     if function:
         update_photo_from_function_ = partial(
             update_photo_from_function,
@@ -650,10 +658,11 @@ def timewarp(
             )
         sys.exit(0)
 
-    if timezone:
-        tz_updater = PhotoTimeZoneUpdater(
-            timezone, verbose=verbose, library_path=library
-        )
+    tz_updater = (
+        PhotoTimeZoneUpdater(timezone, verbose=verbose, library_path=library)
+        if timezone
+        else None
+    )
 
     if any([push_exif, pull_exif, function]):
         # ExifDateTimeUpdater used to get photo path for --function
@@ -672,6 +681,8 @@ def timewarp(
         )
         for photo in photos:
             set_crash_data("photo", f"{photo.uuid} {photo.filename}")
+            if reset:
+                reset_photo_date_time_(photo)
             if parse_date:
                 set_photo_date_from_filename_(photo, photo.filename, parse_date)
             if pull_exif:

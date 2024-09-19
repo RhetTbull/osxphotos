@@ -30,9 +30,39 @@ from .utils import get_last_library_path, get_system_library_path
 MACOS_TIME_EPOCH = datetime.datetime(2001, 1, 1, 0, 0, 0)
 
 
-def reset_photo_date_time_tz(photo: photoscript.Photo, verbose: Callable[..., None]):
-    """Reset the date/time/timezone of a photo to the original values"""
-    ...
+def reset_photo_date_time_tz(
+    photo: photoscript.Photo, library_path: str, verbose: Callable[..., None]
+):
+    """Reset the date/time/timezone of a photo to the original values
+    Args:
+            photo: photo to reset
+            library_path: path to the Photos library
+            verbose: callable to print verbose output
+    """
+    date_original = get_photo_date_original(photo, library_path)
+    if not date_original:
+        verbose(
+            f"Could not get original date for photo {photo.filename} ({photo.uuid})"
+        )
+        return
+    date_current = get_photo_date_created(photo, library_path)
+    tz = date_original.tzinfo.key
+    tz_updater = PhotoTimeZoneUpdater(
+        timezone=Timezone(tz), verbose=verbose, library_path=library_path
+    )
+    tz_updater.update_photo(photo)
+    update_photo_date_time(
+        photo=photo,
+        date=date_original.date(),
+        time=date_original.time(),
+        date_delta=None,
+        time_delta=None,
+        verbose=verbose,
+    )
+    verbose(
+        f"Reset original date/time for photo [filename]{photo.filename}[/filename] "
+        f"([uuid]{photo.uuid}[/uuid]) from: [time]{date_current}[/time] to [time]{date_original}[/time]"
+    )
 
 
 def update_photo_date_time(
@@ -370,7 +400,7 @@ def _get_photo_date_original(
     wait=wait_exponential(multiplier=1, min=0.100, max=5),
     stop=stop_after_attempt(5),
 )
-def _get_photo_date_created(
+def get_photo_date_created(
     photo: photoscript.Photo,
     library_path: str | None = None,
 ) -> datetime.datetime:
@@ -432,6 +462,6 @@ def get_photo_date_original(
         ValueError if library_path is None and Photos library path cannot be determined
         FileNotFoundError if Photos database path cannot be found
     """
-    return _get_photo_date_original(photo, library_path) or _get_photo_date_created(
+    return _get_photo_date_original(photo, library_path) or get_photo_date_created(
         photo, library_path
     )
