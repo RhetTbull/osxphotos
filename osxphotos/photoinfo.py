@@ -699,7 +699,7 @@ class PhotoInfo:
     @property
     def hasadjustments(self) -> bool:
         """True if picture has adjustments / edits"""
-        return self._info["hasAdjustments"] == 1
+        return bool(self._info["hasAdjustments"])
 
     @property
     def adjustments_path(self) -> pathlib.Path | None:

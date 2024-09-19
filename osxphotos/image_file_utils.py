@@ -16,8 +16,18 @@ from osxphotos.platform import assert_macos
 
 assert_macos()
 
-import cgmetadata
-import makelive
+try:
+    # won't be installed on macOS < 11
+    import cgmetadata
+except ImportError:
+    cgmetadata = None
+
+try:
+    # won't be installed on macOS < 11
+    import makelive
+except ImportError:
+    makelive = None
+
 import objc
 from Foundation import NSURL, NSURLTypeIdentifierKey
 from UniformTypeIdentifiers import UTType, UTTypeImage, UTTypeMovie
@@ -75,9 +85,13 @@ def is_raw_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> b
 
 def is_live_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> bool:
     """Return True if photos are a live photo pair"""
+    if not makelive:
+        return False
+
     if not is_image_file(filepath1) or not is_video_file(filepath2):
         # expects live pairs to be image, video
         return False
+
     return makelive.is_live_photo_pair(filepath1, filepath2)
 
 
@@ -85,8 +99,9 @@ def is_possible_live_pair(
     filepath1: str | os.PathLike, filepath2: str | os.PathLike
 ) -> bool:
     """Return True if photos could be a live photo pair (even if files lack the Content ID metadata"""
-    print(f"{filepath1=}, {filepath2=}")
-    if is_image_file(filepath1) and is_video_file(filepath2):
+    if (is_image_file(filepath1) and is_video_file(filepath2)) or (
+        is_video_file(filepath1) and is_image_file(filepath2)
+    ):
         return True
     return False
 
@@ -94,6 +109,9 @@ def is_possible_live_pair(
 def burst_uuid_from_path(path: pathlib.Path) -> str | None:
     """Get burst UUID of a file"""
     if not is_image_file(path):
+        return None
+
+    if not cgmetadata:
         return None
 
     md = cgmetadata.ImageMetadata(path)
@@ -118,7 +136,10 @@ def load_aae_file(filepath: str | os.PathLike) -> dict[str, Any] | None:
 def is_apple_photos_aae_file(filepath: str | os.PathLike) -> bool:
     """Return True if filepath is an AAE file containing Apple Photos adjustments; returns False is file contains adjustments for an external editor"""
     if plist := load_aae_file(filepath):
-        if plist.get("adjustmentFormatIdentifier") in ["com.apple.photo", "com.apple.video", ]:
+        if plist.get("adjustmentFormatIdentifier") in [
+            "com.apple.photo",
+            "com.apple.video",
+        ]:
             return True
     return False
 
