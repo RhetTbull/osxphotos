@@ -78,10 +78,10 @@ setup(
     install_requires=[
         "bitmath>=1.3.3.1,<1.4.0.0",
         "bpylist2>=4.1.1,<5.0.0",
-        "cgmetadata>=0.1.6; sys_platform == 'darwin'",
+        "cgmetadata>=0.1.6; sys_platform == 'darwin' and platform_release >= '20.0.0'",  # not compatible on macOS <= 10.15.x
         "Click>=8.1.3,<9.0",
         "mac-alias>=2.2.2,<3.0.0; sys_platform == 'darwin'",
-        "makelive>=0.5.0; sys_platform == 'darwin'",
+        "makelive>=0.5.0; sys_platform == 'darwin' and platform_release >= '20.0.0'",  # not compatible on macOS <= 10.15.x'",
         "Mako>=1.2.2,<1.3.0",
         "more-itertools>=8.8.0,<9.0.0",
         "objexplore>=1.6.3,<2.0.0",

@@ -33,7 +33,12 @@ from osxphotos.platform import assert_macos
 
 assert_macos()
 
-import makelive
+try:
+    # makelive does not work on macOS <= 10.15.x
+    import makelive
+except ImportError:
+    makelive = None
+
 from photoscript import Photo, PhotosLibrary
 
 import osxphotos.sqlite3_datetime as sqlite3_datetime
@@ -601,7 +606,8 @@ class ImportCommand(click.Command):
     "When --auto-live is used, a photo and a video with same base name, "
     "for example 'IMG_1234.JPG' and 'IMG_1234.mov', in the same directory will be converted to Live Photos. "
     "*NOTE*: Using this feature will modify the metadata in the files prior to import. "
-    "Ensure you have a backup of the original files if you want to preserve unmodified versions.",
+    "Ensure you have a backup of the original files if you want to preserve unmodified versions. "
+    "*NOTE*: this option does not work on macOS < 11.0.",
 )
 @click.option(
     "--parse-date",
@@ -989,8 +995,9 @@ def import_main(
 
     Thus the "Imports" album in Photos will show a new import group for each photo imported.
 
-    Exception: Live photos (photo+video pair), burst photos, edited photos, and RAW+JPEG pairs
-    will be imported together so that Photos processes them correctly.
+    Exception: On macOS >= 11.0, Live photos (photo+video pair), burst photos, edited photos,
+    and RAW+JPEG pairs will be imported together so that Photos processes them correctly.
+    Automatic grouping of live photos and burst photos is not supported on macOS <= 10.15.
 
     Edited Photos:
 
@@ -3188,6 +3195,10 @@ def import_files(
                                 f"Converting to live photo pair: [filename]{files_to_import[0].name}[/], [filename]{files_to_import[1].name}[/]"
                             )
                             try:
+                                if not makelive:
+                                    raise RuntimeError(
+                                        "makelive not compatible with this version of macOS"
+                                    )
                                 makelive.make_live_photo(*files_to_import[:2])
                             except Exception as e:
                                 echo(
