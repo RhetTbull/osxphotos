@@ -33,8 +33,7 @@ A couple of tests require interaction with Photos and configuring a specific tes
 - --timewarp: test `osxphotos timewarp` (pytest -vv --timewarp tests/test_cli_timewarp.py)
 - --test-import: test `osxphotos import` (pytest -vv --test-import tests/test_cli_import.py)
 - --test-sync: test `osxphotos sync` (pytest -vv --test-sync tests/test_cli_sync.py)
-- --test-add-locations: test `osxphotos add-locations` (pytest -vv 
---test-add-locations tests/test_cli_add_locations.py)
+- --test-add-locations: test `osxphotos add-locations` (pytest -vv --test-add-locations tests/test_cli_add_locations.py)
 - --test-batch-edit: test `osxphotos batch-edit` (pytest -vv --test-batch-edit -k batch)
 
 ## Test Photo Libraries

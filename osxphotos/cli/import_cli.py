@@ -2830,7 +2830,7 @@ def sort_paths(paths: Iterable[pathlib.Path]) -> tuple[pathlib.Path, ...]:
     def path_key(path: pathlib.Path) -> tuple[str, int, int, int, int]:
         extension = path.suffix.lower()
         is_aae = extension == ".aae"
-        is_mov = extension == ".mov"
+        is_mov = extension in (".mov", ".mp4")
         base_name = path.stem.split("_")[0]  # Extract the base name without suffixes
         return (base_name, len(path.stem), is_aae, is_mov)
 
