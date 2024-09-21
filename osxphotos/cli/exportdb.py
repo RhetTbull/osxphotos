@@ -59,12 +59,14 @@ from .verbose import get_verbose_console, verbose_print
 @click.option(
     "--check-signatures",
     is_flag=True,
-    help="Check signatures for all exported photos in the database to find signatures that don't match.",
+    help="Check signatures for all exported photos in the database to find signatures that don't match. "
+    "See also option --export-dir.",
 )
 @click.option(
     "--update-signatures",
     is_flag=True,
-    help="Update signatures for all exported photos in the database to match on-disk signatures.",
+    help="Update signatures for all exported photos in the database to match on-disk signatures. "
+    "See also option --export-dir.",
 )
 @click.option(
     "--touch-file",
@@ -268,6 +270,7 @@ def exportdb(
             info,
             last_run,
             last_export_dir,
+            migrate_photos_library,
             upgrade,
             repair,
             report,
@@ -323,47 +326,63 @@ def exportdb(
             )
             sys.exit(1)
 
-        try:
-            ExportDB(export_db, export_dir, create)
-        except Exception as e:
-            rich_echo_error(f"[error]Error: {e}[/error]")
-            sys.exit(1)
+        if not dry_run:
+            try:
+                ExportDB(export_db, export_dir, create)
+            except Exception as e:
+                rich_echo_error(f"[error]Error: {e}[/error]")
+                sys.exit(1)
+            else:
+                rich_echo(f"Created export database [filepath]{export_db}[/]")
+                sys.exit(0)
         else:
-            rich_echo(f"Created export database [filepath]{export_db}[/]")
+            rich_echo(f"[Dryrun] Created export database [filepath]{export_db}[/]")
             sys.exit(0)
 
     if check:
-        errors = sqlite_check_integrity(export_db)
-        if not errors:
-            rich_echo(f"Ok: [filepath]{export_db}[/]")
-            sys.exit(0)
+        if not dry_run:
+            errors = sqlite_check_integrity(export_db)
+            if not errors:
+                rich_echo(f"Ok: [filepath]{export_db}[/]")
+                sys.exit(0)
+            else:
+                rich_echo_error(f"[error]Errors: [filepath]{export_db}[/][/error]")
+                for error in errors:
+                    rich_echo_error(error)
+                sys.exit(1)
         else:
-            rich_echo_error(f"[error]Errors: [filepath]{export_db}[/][/error]")
-            for error in errors:
-                rich_echo_error(error)
-            sys.exit(1)
+            rich_echo(f"[Dryrun] Check [filepath]{export_db}[/]")
+            sys.exit(0)
 
     if repair:
-        try:
-            sqlite_repair_db(export_db)
-        except Exception as e:
-            rich_echo_error(f"[error]Error: {e}[/error]")
-            sys.exit(1)
+        if not dry_run:
+            try:
+                sqlite_repair_db(export_db)
+            except Exception as e:
+                rich_echo_error(f"[error]Error: {e}[/error]")
+                sys.exit(1)
+            else:
+                rich_echo(f"Ok: [filepath]{export_db}[/]")
+                sys.exit(0)
         else:
-            rich_echo(f"Ok: [filepath]{export_db}[/]")
+            rich_echo(f"[Dryrun] Repair [filepath]{export_db}[/]")
             sys.exit(0)
 
     if vacuum:
-        try:
-            start_size = pathlib.Path(export_db).stat().st_size
-            export_db_vacuum(export_db)
-        except Exception as e:
-            rich_echo_error(f"[error]Error: {e}[/error]")
-            sys.exit(1)
+        if not dry_run:
+            try:
+                start_size = pathlib.Path(export_db).stat().st_size
+                export_db_vacuum(export_db)
+            except Exception as e:
+                rich_echo_error(f"[error]Error: {e}[/error]")
+                sys.exit(1)
+            else:
+                rich_echo(
+                    f"Vacuumed {export_db}! [num]{start_size}[/] bytes -> [num]{pathlib.Path(export_db).stat().st_size}[/] bytes"
+                )
+                sys.exit(0)
         else:
-            rich_echo(
-                f"Vacuumed {export_db}! [num]{start_size}[/] bytes -> [num]{pathlib.Path(export_db).stat().st_size}[/] bytes"
-            )
+            rich_echo(f"[Dryrun] Vacuum [filepath]{export_db}[/]")
             sys.exit(0)
 
     if update_signatures:
@@ -417,13 +436,17 @@ def exportdb(
                 sys.exit(1)
 
     if save_config:
-        try:
-            export_db_save_config_to_file(export_db, save_config)
-        except Exception as e:
-            rich_echo_error(f"[error]Error: {e}[/error]")
-            sys.exit(1)
+        if not dry_run:
+            try:
+                export_db_save_config_to_file(export_db, save_config)
+            except Exception as e:
+                rich_echo_error(f"[error]Error: {e}[/error]")
+                sys.exit(1)
+            else:
+                rich_echo(f"Saved configuration to [filepath]{save_config}")
+                sys.exit(0)
         else:
-            rich_echo(f"Saved configuration to [filepath]{save_config}")
+            rich_echo(f"[Dryrun] Saved configuration to [filepath]{save_config}")
             sys.exit(0)
 
     if check_signatures:
@@ -561,10 +584,11 @@ def exportdb(
         exportdb = ExportDB(export_db, export_dir)
         for uuid in delete_uuid:
             rich_echo(f"Deleting uuid [uuid]{uuid}[/] from database.")
-            count = exportdb.delete_data_for_uuid(uuid)
-            rich_echo(
-                f"Deleted [num]{count}[/] {pluralize(count, 'record', 'records')}."
-            )
+            if not dry_run:
+                count = exportdb.delete_data_for_uuid(uuid)
+                rich_echo(
+                    f"Deleted [num]{count}[/] {pluralize(count, 'record', 'records')}."
+                )
         sys.exit(0)
 
     if delete_file:
@@ -572,10 +596,11 @@ def exportdb(
         exportdb = ExportDB(export_db, export_dir)
         for filepath in delete_file:
             rich_echo(f"Deleting file [filepath]{filepath}[/] from database.")
-            count = exportdb.delete_data_for_filepath(filepath)
-            rich_echo(
-                f"Deleted [num]{count}[/] {pluralize(count, 'record', 'records')}."
-            )
+            if not dry_run:
+                count = exportdb.delete_data_for_filepath(filepath)
+                rich_echo(
+                    f"Deleted [num]{count}[/] {pluralize(count, 'record', 'records')}."
+                )
             sys.exit(0)
 
     if report:
@@ -599,28 +624,40 @@ def exportdb(
         sys.exit(0)
 
     if upgrade:
-        exportdb = ExportDB(export_db, export_dir)
-        if upgraded := exportdb.was_upgraded:
-            rich_echo(
-                f"Upgraded export database [filepath]{export_db}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
-            )
+        if not dry_run:
+            exportdb = ExportDB(export_db, export_dir)
+            if upgraded := exportdb.was_upgraded:
+                rich_echo(
+                    f"Upgraded export database [filepath]{export_db}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
+                )
+            else:
+                rich_echo(
+                    f"Export database [filepath]{export_db}[/] is already at latest version [num]{OSXPHOTOS_EXPORTDB_VERSION}[/]"
+                )
         else:
+            # Does OSXPHOTOS_EXPORTDB_VERSION reflect the actual exportdb file version?
             rich_echo(
-                f"Export database [filepath]{export_db}[/] is already at latest version [num]{OSXPHOTOS_EXPORTDB_VERSION}[/]"
+                f"[Dryrun] Upgrading database [filepath]{export_db}[/]"
             )
         sys.exit(0)
 
     if sql:
-        exportdb = ExportDB(export_db, export_dir)
-        try:
-            c = exportdb._conn.cursor()
-            results = c.execute(sql)
-        except Exception as e:
-            rich_echo_error(f"[error]Error: {e}[/error]")
-            sys.exit(1)
+        if not dry_run:
+            exportdb = ExportDB(export_db, export_dir)
+            try:
+                c = exportdb._conn.cursor()
+                results = c.execute(sql)
+            except Exception as e:
+                rich_echo_error(f"[error]Error: {e}[/error]")
+                sys.exit(1)
+            else:
+                for row in results:
+                    print(row)
+                sys.exit(0)
         else:
-            for row in results:
-                print(row)
+            rich_echo(
+                f"[Dryrun] SQL_STATEMENT: [filepath]{sql}[/]"
+            )
             sys.exit(0)
 
     if migrate_photos_library:
