@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.68.4 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.68.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.68.4 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.68.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.68.6 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2538,8 +2538,9 @@ most recently opened Photos library.</p>
 <li><p>Photos are imported one at a time</p></li>
 </ul>
 <p>Thus the “Imports” album in Photos will show a new import group for each photo imported.</p>
-<p>Exception: Live photos (photo+video pair), burst photos, edited photos, and RAW+JPEG pairs
-will be imported together so that Photos processes them correctly.</p>
+<p>Exception: On macOS &gt;= 11.0, Live photos (photo+video pair), burst photos, edited photos,
+and RAW+JPEG pairs will be imported together so that Photos processes them correctly.
+Automatic grouping of live photos and burst photos is not supported on macOS &lt;= 10.15.</p>
 <p>Edited Photos:</p>
 <p>The import command will attempt to preserve adjustments to photos so that the imported asset
 preserves the non-destructive edits. For this to work, there must be an associated .AAE file
@@ -2608,7 +2609,7 @@ they will be imported as separate assets.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-E">
 <span id="cmdoption-osxphotos-import-auto-live"></span><span class="sig-name descname"><span class="pre">-E</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--auto-live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-E" title="Link to this definition">¶</a></dt>
-<dd><p>Automatically convert photo+video pairs into live images. Live Photos (photo+video pair) exported from Photos contain a metadata content identifier that Photos uses to associate the pair as a single Live Photo asset when re-imported. Photo+video pairs taken on non-Apple devices will lack the content identifier and thus will be imported as separate assets. Use –auto-live to automatically convert these pairs to Live Photos upon import. When –auto-live is used, a photo and a video with same base name, for example ‘IMG_1234.JPG’ and ‘IMG_1234.mov’, in the same directory will be converted to Live Photos. <em>NOTE</em>: Using this feature will modify the metadata in the files prior to import. Ensure you have a backup of the original files if you want to preserve unmodified versions.</p>
+<dd><p>Automatically convert photo+video pairs into live images. Live Photos (photo+video pair) exported from Photos contain a metadata content identifier that Photos uses to associate the pair as a single Live Photo asset when re-imported. Photo+video pairs taken on non-Apple devices will lack the content identifier and thus will be imported as separate assets. Use –auto-live to automatically convert these pairs to Live Photos upon import. When –auto-live is used, a photo and a video with same base name, for example ‘IMG_1234.JPG’ and ‘IMG_1234.mov’, in the same directory will be converted to Live Photos. <em>NOTE</em>: Using this feature will modify the metadata in the files prior to import. Ensure you have a backup of the original files if you want to preserve unmodified versions. <em>NOTE</em>: this option does not work on macOS &lt; 11.0.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -5075,13 +5076,13 @@ two different computers, you can export the metadata to a shared folder.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-sync-s">
 <span id="cmdoption-osxphotos-sync-set"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--set</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;METADATA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-sync-s" title="Link to this definition">¶</a></dt>
-<dd><p>When used with –import, set metadata in local Photos library to match import data. Multiple metadata properties can be specified by repeating the –set option or by using a comma-separated list. METADATA can be one of: all, keywords, albums, title, description, favorite. For example, to set keywords and favorite, use <cite>–set keywords –set favorite</cite> or <cite>–set keywords,favorite</cite>. If <cite>–set all</cite> is specified, all metadata will be set. Note that using –set overwrites any existing metadata in the local Photos library. For example, if a photo is marked as favorite in the local library but not in the import source, –set favorite will clear the favorite status in the local library. The exception to this is that <cite>–set albums</cite> will not remove the photo from any existing albums in the local library but will add the photo to any new albums specified in the import source.See also –merge.</p>
+<dd><p>When used with –import, set metadata in local Photos library to match import data. Multiple metadata properties can be specified by repeating the –set option or by using a comma-separated list. METADATA can be one of: all, keywords, albums, title, description, favorite, location. For example, to set keywords and favorite, use <cite>–set keywords –set favorite</cite> or <cite>–set keywords,favorite</cite>. If <cite>–set all</cite> is specified, all metadata will be set. Note that using –set overwrites any existing metadata in the local Photos library. For example, if a photo is marked as favorite in the local library but not in the import source, –set favorite will clear the favorite status in the local library. The exception to this is that <cite>–set albums</cite> will not remove the photo from any existing albums in the local library but will add the photo to any new albums specified in the import source.See also –merge.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-sync-m">
 <span id="cmdoption-osxphotos-sync-merge"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--merge</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;METADATA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-sync-m" title="Link to this definition">¶</a></dt>
-<dd><p>When used with –import, merge metadata in local Photos library with import data. Multiple metadata properties can be specified by repeating the –merge option or by using a comma-separated list. METADATA can be one of: all, keywords, albums, title, description, favorite. For example, to merge keywords and favorite, use <cite>–merge keywords –merge favorite</cite> or <cite>–merge keywords,favorite</cite>. If <cite>–merge all</cite> is specified, all metadata will be merged. Note that using –merge does not overwrite any existing metadata in the local Photos library. For example, if a photo is marked as favorite in the local library but not in the import source, –merge favorite will not change the favorite status in the local library. See also –set.</p>
+<dd><p>When used with –import, merge metadata in local Photos library with import data. Multiple metadata properties can be specified by repeating the –merge option or by using a comma-separated list. METADATA can be one of: all, keywords, albums, title, description, favorite, location. For example, to merge keywords and favorite, use <cite>–merge keywords –merge favorite</cite> or <cite>–merge keywords,favorite</cite>. If <cite>–merge all</cite> is specified, all metadata will be merged. Note that using –merge does not overwrite any existing metadata in the local Photos library. For example, if a photo is marked as favorite in the local library but not in the import source, –merge favorite will not change the favorite status in the local library. See also –set.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -6141,7 +6142,7 @@ Commands:
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=3a0dd5e8"></script>
+</div><script src="_static/documentation_options.js?v=a98ddb9b"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

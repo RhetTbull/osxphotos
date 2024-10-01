@@ -819,6 +819,53 @@
       "contributions": [
         "data"
       ]
+    },
+    {
+      "login": "danVnest",
+      "name": "Daniel Vogelnest",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4771860?v=4",
+      "profile": "http://daniel-vogelnest.tk",
+      "contributions": [
+        "bug",
+        "data"
+      ]
+    },
+    {
+      "login": "alban73",
+      "name": "alban73",
+      "avatar_url": "https://avatars.githubusercontent.com/u/74853805?v=4",
+      "profile": "https://github.com/alban73",
+      "contributions": [
+        "bug",
+        "data"
+      ]
+    },
+    {
+      "login": "justaLoli",
+      "name": "justaLoli",
+      "avatar_url": "https://avatars.githubusercontent.com/u/92238102?v=4",
+      "profile": "https://github.com/justaLoli",
+      "contributions": [
+        "ideas"
+      ]
+    },
+    {
+      "login": "arthurward",
+      "name": "arthurward",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8432358?v=4",
+      "profile": "https://github.com/arthurward",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "svet-b",
+      "name": "svet-b",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12831860?v=4",
+      "profile": "https://github.com/svet-b",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
