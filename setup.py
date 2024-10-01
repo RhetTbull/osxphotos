@@ -81,7 +81,7 @@ setup(
         "cgmetadata>=0.2.0; sys_platform == 'darwin'",
         "Click>=8.1.3,<9.0",
         "mac-alias>=2.2.2,<3.0.0; sys_platform == 'darwin'",
-        "makelive>=0.5.0; sys_platform == 'darwin'",
+        "makelive>=0.6.2; sys_platform == 'darwin'",
         "Mako>=1.2.2,<1.3.0",
         "more-itertools>=8.8.0,<9.0.0",
         "objexplore>=1.6.3,<2.0.0",
