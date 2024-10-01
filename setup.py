@@ -78,7 +78,7 @@ setup(
     install_requires=[
         "bitmath>=1.3.3.1,<1.4.0.0",
         "bpylist2>=4.1.1,<5.0.0",
-        "cgmetadata>=0.1.6; sys_platform == 'darwin'",
+        "cgmetadata>=0.2.0; sys_platform == 'darwin'",
         "Click>=8.1.3,<9.0",
         "mac-alias>=2.2.2,<3.0.0; sys_platform == 'darwin'",
         "makelive>=0.5.0; sys_platform == 'darwin'",
@@ -122,6 +122,7 @@ setup(
         "tenacity>=8.0.1,<9.0.0",
         "textx>=4.0.1,<5.0.0",
         "toml>=0.10.2,<0.11.0",
+        "utitools>=0.1.2",
         "wrapt>=1.14.1,<2.0.0",
         "wurlitzer>=3.0.2,<4.0.0",
         "xdg==5.1.1; python_version <= '3.9'",
