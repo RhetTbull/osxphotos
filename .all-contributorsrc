@@ -857,6 +857,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "svet-b",
+      "name": "svet-b",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12831860?v=4",
+      "profile": "https://github.com/svet-b",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
