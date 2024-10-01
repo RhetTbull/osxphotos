@@ -178,6 +178,7 @@ def test_time(photoslib, suspend_capture, input_value, expected):
         ["--inspect", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
+    assert result.exit_code == 0
     output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == expected
 

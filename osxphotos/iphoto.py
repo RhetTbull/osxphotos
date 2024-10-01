@@ -53,7 +53,6 @@ from ._constants import (
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
-    TIME_DELTA,
 )
 from .datetime_utils import datetime_has_tz, datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
@@ -63,6 +62,7 @@ from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
+from .photos_datetime import photos_datetime, photos_datetime_local
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 from .scoreinfo import ScoreInfo
@@ -1064,25 +1064,28 @@ class iPhotoPhotoInfo:
     @property
     def date(self) -> datetime.datetime:
         """Date photo was taken"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_taken"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_taken"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=True,
         )
 
     @property
     def date_modified(self) -> datetime.datetime:
         """Date modified in library"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_modified"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_modified"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=False,
         )
 
     @property
     def date_added(self) -> datetime.datetime:
         """Date added to library"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_imported"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_imported"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=True,
         )
 
     @property
@@ -1092,7 +1095,7 @@ class iPhotoPhotoInfo:
         if not tzname:
             return 0
         tz = ZoneInfo(tzname)
-        return int(tz.utcoffset(datetime.datetime.now()).total_seconds())
+        return int(tz.utcoffset(self.date).total_seconds())
 
     @property
     def path(self) -> str | None:
@@ -2382,7 +2385,7 @@ class iPhotoEventInfo:
     def _date_created(self) -> datetime.datetime | None:
         """Date the event created in iPhoto."""
         # not common with Photos MomentInfo so leave private
-        return naive_iphoto_date_to_datetime(self._event["date"])
+        return photos_datetime_local(self._event["date"])
 
     @property
     def modification_date(self) -> datetime.datetime | None:
@@ -2457,49 +2460,6 @@ class iPhotoExifInfo:
 
 
 ### Utility functions ###
-
-
-def iphoto_date_to_datetime(
-    date: int | None, tz: str | None = None
-) -> datetime.datetime:
-    """ "Convert iPhoto date to datetime; if tz provided, will be timezone aware
-
-    Args:
-        date: iPhoto date
-        tz: timezone name
-
-    Returns:
-        datetime.datetime
-
-    Note:
-        If date is None or invalid, will return 1970-01-01 00:00:00
-    """
-    try:
-        dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
-    except (ValueError, TypeError):
-        dt = datetime.datetime(1970, 1, 1)
-    if tz:
-        dt = dt.replace(tzinfo=ZoneInfo(tz))
-    return dt
-
-
-def naive_iphoto_date_to_datetime(date: int) -> datetime.datetime:
-    """ "Convert iPhoto date to datetime with local timezone
-
-    Args:
-        date: iPhoto date
-
-    Returns:
-        timezone aware datetime.datetime in local timezone
-
-    Note:
-        If date is invalid, will return 1970-01-01 00:00:00
-    """
-    try:
-        dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
-    except ValueError:
-        dt = datetime.datetime(1970, 1, 1)
-    return datetime_naive_to_local(dt)
 
 
 def default_return_value(name: str) -> Any:

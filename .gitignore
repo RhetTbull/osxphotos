@@ -19,3 +19,4 @@ venv/
 .python-version
 cov.xml
 pyrightconfig.json
+.workingon
