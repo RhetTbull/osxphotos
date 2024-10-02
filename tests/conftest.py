@@ -9,6 +9,11 @@ from contextlib import contextmanager
 
 import pytest
 
+from osxphotos.datetime_utils import (
+    datetime_naive_to_local,
+    datetime_remove_tz,
+    get_local_tz,
+)
 from osxphotos.platform import is_macos
 
 if is_macos:
@@ -22,6 +27,9 @@ from osxphotos.exiftool import _ExifToolProc
 
 # run timewarp tests (configured with --timewarp)
 TEST_TIMEWARP = False
+
+# run photodates tests (configured with --photodates)
+TEST_PHOTODATES = False
 
 # run import tests (configured with --test-import)
 TEST_IMPORT = False
@@ -67,6 +75,8 @@ def get_os_version():
     return (ver, major, minor)
 
 
+# Configure test libraries for different OS versions
+# TODO: this is hacky and should be refactored
 OS_VER = get_os_version() if is_macos else [None, None]
 if OS_VER[0] == "10" and OS_VER[1] in ("15", "16"):
     # Catalina
@@ -75,6 +85,8 @@ if OS_VER[0] == "10" and OS_VER[1] in ("15", "16"):
     TEST_LIBRARY_SYNC = TEST_LIBRARY
     TEST_LIBRARY_TAKOUT = None
     from tests.config_timewarp_catalina import TEST_LIBRARY_TIMEWARP
+
+    TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
 
     TEST_LIBRARY_ADD_LOCATIONS = None
 elif OS_VER[0] == "13":
@@ -85,6 +97,8 @@ elif OS_VER[0] == "13":
     TEST_LIBRARY_TAKEOUT = "tests/Test-Empty-Library-Ventura-13-5.photoslibrary"
     from tests.config_timewarp_ventura import TEST_LIBRARY_TIMEWARP
 
+    TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
+
     TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
 else:
     TEST_LIBRARY = None
@@ -92,6 +106,7 @@ else:
     TEST_LIBRARY_SYNC = None
     TEST_LIBRARY_ADD_LOCATIONS = None
     TEST_LIBRARY_TAKEOUT = None
+    TEST_LIBRARY_PHOTODATES = None
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
@@ -99,6 +114,13 @@ def setup_photos_timewarp():
     if not TEST_TIMEWARP:
         return
     copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=LIBRARY_COPY_DELAY)
+
+
+@pytest.fixture(scope="session", autouse=is_macos)
+def setup_photos_photodates():
+    if not TEST_PHOTODATES:
+        return
+    copy_photos_library(TEST_LIBRARY_PHOTODATES, delay=LIBRARY_COPY_DELAY)
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
@@ -146,6 +168,12 @@ def pytest_addoption(parser):
         "--timewarp", action="store_true", default=False, help="run --timewarp tests"
     )
     parser.addoption(
+        "--photodates",
+        action="store_true",
+        default=False,
+        help="run --photodates tests",
+    )
+    parser.addoption(
         "--test-import",
         action="store_true",
         default=False,
@@ -185,6 +213,7 @@ def pytest_configure(config):
             for x in [
                 config.getoption("--addalbum"),
                 config.getoption("--timewarp"),
+                config.getoption("--photodates"),
                 config.getoption("--test-import"),
                 config.getoption("--test-import-takeout"),
                 config.getoption("--test-sync"),
@@ -203,6 +232,9 @@ def pytest_configure(config):
     )
     config.addinivalue_line(
         "markers", "timewarp: mark test as requiring --timewarp to run"
+    )
+    config.addinivalue_line(
+        "markers", "photodates: mark test as requiring --photodates to run"
     )
     config.addinivalue_line(
         "markers", "test_import: mark test as requiring --test-import to run"
@@ -226,6 +258,10 @@ def pytest_configure(config):
     if config.getoption("--timewarp"):
         global TEST_TIMEWARP
         TEST_TIMEWARP = True
+
+    if config.getoption("--photodates"):
+        global TEST_PHOTODATES
+        TEST_PHOTODATES = True
 
     if config.getoption("--test-import"):
         global TEST_IMPORT
@@ -264,6 +300,12 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "timewarp" in item.keywords:
                 item.add_marker(skip_timewarp)
+
+    if not (config.getoption("--photodates") and TEST_LIBRARY_PHOTODATES is not None):
+        skip_photodates = pytest.mark.skip(reason="need --photodates option to run")
+        for item in items:
+            if "photodates" in item.keywords:
+                item.add_marker(skip_photodates)
 
     if not (config.getoption("--test-import") and TEST_LIBRARY_IMPORT is not None):
         skip_test_import = pytest.mark.skip(reason="need --test-import option to run")
@@ -425,6 +467,13 @@ def set_timezone(timezone):
 @pytest.fixture
 def set_tz_pacific():
     timezone = "US/Pacific"
+    with set_timezone(timezone):
+        yield
+
+
+@pytest.fixture
+def set_tz_central():
+    timezone = "US/Central"
     with set_timezone(timezone):
         yield
 

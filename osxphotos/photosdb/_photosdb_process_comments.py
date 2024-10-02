@@ -5,8 +5,9 @@ import dataclasses
 import datetime
 from dataclasses import dataclass
 
-from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION, TIME_DELTA
+from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..commentinfo import CommentInfo, LikeInfo
+from ..photos_datetime import photos_datetime_local
 from ..sqlite_utils import sqlite_open_ro
 from ..unicode import normalize_unicode
 
@@ -85,7 +86,7 @@ def _process_comments_5(photosdb):
 
     results = conn.execute(
         f"""
-        SELECT 
+        SELECT
         {asset_table}.ZUUID, -- UUID of the photo
         ZCLOUDSHAREDCOMMENT.ZISLIKE, -- comment is actually a "like"
         ZCLOUDSHAREDCOMMENT.ZCOMMENTDATE, -- date of comment
@@ -118,10 +119,7 @@ def _process_comments_5(photosdb):
         except KeyError:
             user_name = None
 
-        try:
-            dt = datetime.datetime.fromtimestamp(row[2] + TIME_DELTA)
-        except:
-            dt = datetime.datetime(1970, 1, 1)
+        dt = photos_datetime_local(row[2], True)
 
         ismine = bool(row[5])
 

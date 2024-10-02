@@ -42,7 +42,6 @@ from .._constants import (
     BURST_KEY,
     BURST_PICK_TYPE_NONE,
     BURST_SELECTED,
-    TIME_DELTA,
 )
 from .._version import __version__
 from ..albuminfo import AlbumInfo, FolderInfo, ImportInfo, ProjectInfo
@@ -52,6 +51,7 @@ from ..iphoto import is_iphoto_library
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
 from ..photoquery import QueryOptions, photo_query
+from ..photos_datetime import photos_datetime, photos_datetime_local
 from ..platform import get_macos_version, is_macos
 from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
@@ -1102,28 +1102,16 @@ class PhotosDB:
             # I don't know what these mean but they will raise exception in datetime if
             # not accounted for
             self._dbphotos[uuid]["lastmodifieddate_timestamp"] = row[4]
-            try:
-                self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
-                    row[4] + TIME_DELTA
-                )
-            except (ValueError, TypeError):
-                # sometimes the date is invalid or null
-                self._dbphotos[uuid]["lastmodifieddate"] = None
+            self._dbphotos[uuid]["lastmodifieddate"] = photos_datetime_local(row[4])
 
             self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
             self._dbphotos[uuid]["imageDate_timestamp"] = row[5]
 
-            try:
-                imagedate = datetime.fromtimestamp(row[5] + TIME_DELTA)
-                seconds = self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] or 0
-                delta = timedelta(seconds=seconds)
-                tz = timezone(delta)
-                self._dbphotos[uuid]["imageDate"] = imagedate.astimezone(tz=tz)
-            except (ValueError, TypeError):
-                # sometimes imageDate is invalid so use 1 Jan 1970 as image date
-                imagedate = datetime(1970, 1, 1)
-                tz = timezone(timedelta(0))
-                self._dbphotos[uuid]["imageDate"] = imagedate.astimezone(tz=tz)
+            self._dbphotos[uuid]["imageDate"] = photos_datetime(
+                row[5],
+                self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] or 0,
+                default=True,
+            )
 
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
@@ -1258,12 +1246,7 @@ class PhotosDB:
             # recently deleted items
             self._dbphotos[uuid]["intrash"] = row[32] == 1
             self._dbphotos[uuid]["trasheddate_timestamp"] = row[41]
-            try:
-                self._dbphotos[uuid]["trasheddate"] = datetime.fromtimestamp(
-                    row[41] + TIME_DELTA
-                )
-            except (ValueError, TypeError):
-                self._dbphotos[uuid]["trasheddate"] = None
+            self._dbphotos[uuid]["trasheddate"] = photos_datetime_local(row[41])
 
             # height/width/orientation
             self._dbphotos[uuid]["height"] = row[33]
@@ -1569,11 +1552,14 @@ class PhotosDB:
                 import_session = self._db_import_group[
                     self._dbphotos[uuid]["import_uuid"]
                 ]
-                self._dbphotos[uuid]["added_date"] = datetime.fromtimestamp(
-                    import_session[3] + TIME_DELTA
+                self._dbphotos[uuid]["added_date"] = photos_datetime_local(
+                    import_session[3], default=True
                 )
-            except (ValueError, TypeError, KeyError):
-                self._dbphotos[uuid]["added_date"] = datetime(1970, 1, 1)
+            except (KeyError, IndexError):
+                # use the default datetime
+                self._dbphotos[uuid]["added_date"] = photos_datetime_local(
+                    None, default=True
+                )
 
         # build album_titles dictionary
         for album_id in self._dbalbum_details:
@@ -2084,26 +2070,13 @@ class PhotosDB:
             # I don't know what these mean but they will raise exception in datetime if
             # not accounted for
             info["lastmodifieddate_timestamp"] = row[37]
-            try:
-                info["lastmodifieddate"] = datetime.fromtimestamp(row[37] + TIME_DELTA)
-            except (ValueError, TypeError):
-                info["lastmodifieddate"] = None
+            info["lastmodifieddate"] = photos_datetime_local(row[37])
 
             info["imageTimeZoneOffsetSeconds"] = row[6]
             info["imageDate_timestamp"] = row[5]
-
-            try:
-                imagedate = datetime.fromtimestamp(row[5] + TIME_DELTA)
-                seconds = info["imageTimeZoneOffsetSeconds"] or 0
-                delta = timedelta(seconds=seconds)
-                tz = timezone(delta)
-                info["imageDate"] = imagedate.astimezone(tz=tz)
-            except (ValueError, TypeError):
-                # sometimes imageDate is invalid or null so use 1 Jan 1970 in UTC as image date (#1014)
-                imagedate = datetime(1970, 1, 1)
-                tz = timezone(timedelta(0))
-                info["imageDate"] = imagedate.astimezone(tz=tz)
-
+            info["imageDate"] = photos_datetime(
+                row[5], info["imageTimeZoneOffsetSeconds"] or 0, default=True
+            )
             info["hidden"] = row[9]
             info["favorite"] = row[10]
             info["originalFilename"] = normalize_unicode(row[3])
@@ -2225,10 +2198,7 @@ class PhotosDB:
             # recently deleted items
             info["intrash"] = True if row[28] == 1 else False
             info["trasheddate_timestamp"] = row[39]
-            try:
-                info["trasheddate"] = datetime.fromtimestamp(row[39] + TIME_DELTA)
-            except (ValueError, TypeError):
-                info["trasheddate"] = None
+            info["trasheddate"] = photos_datetime_local(row[39])
 
             # height/width/orientation
             info["height"] = row[29]
@@ -2252,10 +2222,7 @@ class PhotosDB:
             info["saved_asset_type"] = row[40]
             info["isreference"] = row[40] == 10
 
-            try:
-                info["added_date"] = datetime.fromtimestamp(row[41] + TIME_DELTA)
-            except (ValueError, TypeError):
-                info["added_date"] = datetime(1970, 1, 1)
+            info["added_date"] = photos_datetime_local(row[41], default=True)
 
             info["pk"] = row[42]
             info["cloudownerhashedpersonid"] = row[43]
@@ -2694,8 +2661,6 @@ class PhotosDB:
 
             # process date stamps
             offset_seconds = moment_info["timezoneOffset"] or 0
-            delta = timedelta(seconds=offset_seconds)
-            tz = timezone(delta)
             for date_name in [
                 "startDate",
                 "endDate",
@@ -2703,17 +2668,9 @@ class PhotosDB:
                 "representativeDate",
             ]:
                 date_stamp = moment_info[date_name]
-                try:
-                    moment_date = datetime.fromtimestamp(date_stamp + TIME_DELTA)
-                    # save raw time stamp valu
-                    moment_info[date_name + "_timestamp"] = moment_info[date_name]
-                    moment_info[date_name] = moment_date.astimezone(tz=tz)
-                except (ValueError, TypeError):
-                    # sometimes imageDate is invalid or null so use 1 Jan 1970 in UTC as image date
-                    moment_date = datetime(1970, 1, 1)
-                    tz = timezone(timedelta(0))
-                    moment_info[date_name + "_timestamp"] = date_stamp
-                    moment_info[date_name] = moment_date.astimezone(tz=tz)
+                moment_info[date_name + "_timestamp"] = moment_info[date_name]
+                moment_date = photos_datetime(date_stamp, offset_seconds, default=True)
+                moment_info[date_name] = moment_date
 
             # process title/subtitle
             # use unicodedata.normalize with KFKC instead of normalize_unicode as is done elsewhere

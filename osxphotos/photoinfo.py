@@ -55,7 +55,7 @@ from .adjustmentsinfo import AdjustmentsInfo
 from .albuminfo import AlbumInfo, ImportInfo, ProjectInfo
 from .bookmark import resolve_bookmark_path
 from .commentinfo import CommentInfo, LikeInfo
-from .exifinfo import ExifInfo
+from .exifinfo import ExifInfo, exifinfo_factory
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .exportoptions import ExportOptions
 from .momentinfo import MomentInfo
@@ -131,13 +131,25 @@ class PhotoInfo:
 
     @property
     def date(self) -> datetime.datetime:
-        """image creation date as timezone aware datetime object"""
+        """Asset creation date as timezone aware datetime object"""
         return self._info["imageDate"]
 
     @property
+    def date_original(self) -> datetime.datetime:
+        """Original creation date of asset as timezone aware datetime object.
+        If user has changed the asset's creation date in Photos, use this to access the original creation date
+        set when the asset was imported. Photos 5+; on Photos version < 5, returns the same value as `date`.
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return self.date
+        if self.exif_info and self.exif_info.date:
+            return self.exif_info.date
+        return self.date
+
+    @property
     def date_modified(self) -> datetime.datetime | None:
-        """image modification date as timezone aware datetime object
-        or None if no modification date set"""
+        """Asset modification date as timezone aware datetime.datetime object
+        in local timezone or None if no modification date set"""
 
         # Photos <= 4 provides no way to get date of adjustment and will update
         # lastmodifieddate anytime photo database record is updated (e.g. adding tags)
@@ -146,17 +158,11 @@ class PhotoInfo:
         if not self.hasadjustments and self._db._db_version <= _PHOTOS_4_VERSION:
             return None
 
-        if imagedate := self._info["lastmodifieddate"]:
-            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-            delta = timedelta(seconds=seconds)
-            tz = timezone(delta)
-            return imagedate.astimezone(tz=tz)
-        else:
-            return None
+        return self._info["lastmodifieddate"] or None
 
     @property
     def tzoffset(self) -> int:
-        """timezone offset from UTC in seconds"""
+        """timezone offset from UTC in seconds for the Photo creation date"""
         return self._info["imageTimeZoneOffsetSeconds"]
 
     @property
@@ -772,34 +778,18 @@ class PhotoInfo:
 
     @property
     def date_trashed(self) -> datetime.datetime | None:
-        """Date asset was placed in the trash or None"""
-        # TODO: add add_timezone(dt, offset_seconds) to datetime_utils
-        # also update date_modified
-        trasheddate = self._info["trasheddate"]
-        if trasheddate:
-            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-            delta = timedelta(seconds=seconds)
-            tz = timezone(delta)
-            return trasheddate.astimezone(tz=tz)
-        else:
-            return None
+        """Date asset was placed in the trash or None.
+
+        Returns a timezone aware datetime.datetime object in the local timezone."""
+        return self._info["trasheddate"] or None
 
     @property
     def date_added(self) -> datetime.datetime | None:
-        """Date photo was added to the database"""
-        try:
-            return self._date_added
-        except AttributeError:
-            added_date = self._info["added_date"]
-            if added_date:
-                seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-                delta = timedelta(seconds=seconds)
-                tz = timezone(delta)
-                self._date_added = added_date.astimezone(tz=tz)
-            else:
-                self._date_added = None
+        """Date photo was added to the database or None if no added date is recorded.
 
-            return self._date_added
+        Returns a timezone aware datetime.datetime object in the local timezone
+        """
+        return self._info["added_date"] or None
 
     @property
     def location(self) -> tuple[float, float] | tuple[None, None]:
@@ -1590,7 +1580,7 @@ class PhotoInfo:
         except:
             return []
 
-    @property
+    @cached_property
     def exif_info(self) -> ExifInfo | None:
         """Returns an ExifInfo object with the EXIF data for photo
         Note: the returned EXIF data is the data Photos stores in the database on import;
@@ -1604,52 +1594,10 @@ class PhotoInfo:
 
         try:
             exif = self._db._db_exifinfo_uuid[self.uuid]
-            exif_info = ExifInfo(
-                iso=exif["ZISO"],
-                flash_fired=True if exif["ZFLASHFIRED"] == 1 else False,
-                metering_mode=exif["ZMETERINGMODE"],
-                sample_rate=exif["ZSAMPLERATE"],
-                track_format=exif["ZTRACKFORMAT"],
-                white_balance=exif["ZWHITEBALANCE"],
-                aperture=exif["ZAPERTURE"],
-                bit_rate=exif["ZBITRATE"],
-                duration=exif["ZDURATION"],
-                exposure_bias=exif["ZEXPOSUREBIAS"],
-                focal_length=exif["ZFOCALLENGTH"],
-                fps=exif["ZFPS"],
-                latitude=exif["ZLATITUDE"],
-                longitude=exif["ZLONGITUDE"],
-                shutter_speed=exif["ZSHUTTERSPEED"],
-                camera_make=exif["ZCAMERAMAKE"],
-                camera_model=exif["ZCAMERAMODEL"],
-                codec=exif["ZCODEC"],
-                lens_model=exif["ZLENSMODEL"],
-            )
+            return exifinfo_factory(exif)
         except KeyError:
             logger.debug(f"Could not find exif record for uuid {self.uuid}")
-            exif_info = ExifInfo(
-                iso=None,
-                flash_fired=None,
-                metering_mode=None,
-                sample_rate=None,
-                track_format=None,
-                white_balance=None,
-                aperture=None,
-                bit_rate=None,
-                duration=None,
-                exposure_bias=None,
-                focal_length=None,
-                fps=None,
-                latitude=None,
-                longitude=None,
-                shutter_speed=None,
-                camera_make=None,
-                camera_model=None,
-                codec=None,
-                lens_model=None,
-            )
-
-        return exif_info
+            return exifinfo_factory(None)
 
     @property
     def exiftool(self) -> ExifToolCaching | None:
@@ -2171,6 +2119,7 @@ class PhotoInfo:
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
             dict_data["screen_recording"] = self.screen_recording
+            dict_data["date_original"] = self.date_original
 
         return dict_data
 

@@ -163,6 +163,8 @@ RAW_DICT = {
 
 UUID_FINGERPRINT = {"6bxcNnzRQKGnK4uPrCJ9UQ": "ASs96bJvsunOg9Vxo5hK7VU3HegE"}
 
+UUID_DATE_ORIGINAL = "URxYNAiXR9CTkXbUvWweAA"
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -473,7 +475,9 @@ def test_photos_intrash_2(photosdb):
     photos = photosdb.photos(intrash=True)
     for p in photos:
         assert p.intrash
-        assert p.date_trashed.isoformat() == "2305-12-17T13:19:08.978144-07:00"
+        assert p.date_trashed == datetime.datetime.fromisoformat(
+            "2305-12-17T13:19:08.978144-07:00"
+        )
 
 
 def test_photos_not_intrash(photosdb):
@@ -579,14 +583,10 @@ def test_multi_person(photosdb):
 
 def test_date_invalid(photosdb):
     """Test date is invalid"""
-    from datetime import datetime, timedelta, timezone
-
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
-    delta = timedelta(seconds=p.tzoffset)
-    tz = timezone(delta)
-    assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
+    assert p.date == datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
 
 def test_date_modified_invalid(photosdb):
@@ -705,3 +705,9 @@ def test_tables(photosdb: osxphotos.PhotosDB):
     photo = photosdb.get_photo(UUID_DICT["favorite"])
     tables = photo.tables()
     assert tables is None
+
+
+def test_date_original(photosdb: osxphotos.PhotosDB):
+    """Test PhotoInfo.date_original, which on Photos <5 == PhotoInfo.date"""
+    photo = photosdb.get_photo(UUID_DATE_ORIGINAL)
+    assert photo.date_original == photo.date
