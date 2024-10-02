@@ -97,8 +97,11 @@ def get_exif_date_time_offset(
     if use_file_modify_date:
         time_fields.extend(["File:FileModifyDate", "FileModifyDate"])
 
+    # print(f"{isphoto=} {ismovie=}")
+
     for dt_str in time_fields:
         dt = exif.get(dt_str)
+        # print(f"{dt_str=} {dt=}")
         # Some old mp4 may return ContentCreationDate as YYYY (eg. 2014) which
         # is converted to int causing re.match(pattern, dt) to fail.
         dt = str(dt) if isinstance(dt, int) else dt
@@ -116,6 +119,8 @@ def get_exif_date_time_offset(
     else:
         # no date/time found
         dt = None
+
+    # print(f"{dt=} for {dt_str=}")
 
     # try to get offset from EXIF:OffsetTimeOriginal
     offset = exif.get("EXIF:OffsetTimeOriginal") or exif.get("OffsetTimeOriginal")
