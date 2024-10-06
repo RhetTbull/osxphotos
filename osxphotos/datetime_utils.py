@@ -208,3 +208,40 @@ def utc_offset_seconds(dt: datetime.datetime) -> int:
         return dt.tzinfo.utcoffset(dt).total_seconds()
     else:
         raise ValueError("dt does not have timezone info")
+
+def datetime_add_tz(dt: datetime.datetime,
+        tzoffset: int | None = None,
+        tzname: str | None = None,
+    ) -> datetime.datetime:
+        """Add a timezone, either as an offset or named timezone, to a naive datetime.
+
+        Args:
+            dt: naive datetime
+            tzoffset: offset from UTC for timezone in seconds
+            tzname: name of timezone, for example, "America/Los_Angeles"
+
+        Returns: timezone-aware datetime with new timezone
+
+        Note: you may pass tzoffset, tzname or both. If both are passed, the offset will be tried
+        first
+        """
+        if timestamp is None:
+            return DEFAULT_DATETIME if default else None
+
+        tzoffset = tzoffset or 0
+        try:
+            dt = datetime.datetime.fromtimestamp(timestamp + TIME_DELTA)
+            # Try to use tzname if provided
+            if tzname:
+                try:
+                    tz = ZoneInfo(tzname)
+                    return dt.astimezone(tz)
+                except Exception:
+                    # If tzname fails, fall back to tzoffset
+                    pass
+
+            # Use tzoffset if tzname wasn't provided or failed
+            tz = datetime.timezone(datetime.timedelta(seconds=tzoffset))
+            return dt.astimezone(tz)
+        except (ValueError, TypeError):
+            return DEFAULT_DATETIME if default else None

@@ -40,18 +40,25 @@ def update_datetime(
         time_delta: a timedelta to apply
     """
     if date is not None:
+        print(f"{date=} {dt=}")
         dt = dt.replace(year=date.year, month=date.month, day=date.day)
+        print(f"{date=} {dt=}")
     if time is not None:
+        print(f"{time=} {dt=}")
         dt = dt.replace(
             hour=time.hour,
             minute=time.minute,
             second=time.second,
             microsecond=time.microsecond,
         )
+        print(f"{time=} {dt=}")
     if date_delta is not None:
         dt = dt + date_delta
     if time_delta is not None:
+        print(f"{time_delta=} {dt=}")
         dt = dt + time_delta
+        print(f"{time_delta=} {dt=}")
+    print(f"{dt=}")
     return dt
 
 

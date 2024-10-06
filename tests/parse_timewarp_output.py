@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 from collections import namedtuple
 from typing import List
 
@@ -76,3 +77,28 @@ def parse_compare_exif(output: str) -> List[CompareValues]:
         parts = [part.strip() for part in parts]
         values.append(CompareValues(*parts))
     return values
+
+def compare_inspect_output(value1: InspectValues | list[InspectValues], value2: InspectValues| list[InspectValues]) -> bool:
+    """Compare two InspectValues named tuples"""
+
+    if not isinstance(value1, list):
+        value1 = [value1]
+    if not isinstance(value2, list):
+        value2 = [value2]
+
+    if len(value1) != len(value2):
+        return False
+
+    fields = value1[0]._fields
+    for v1, v2 in zip(value1, value2):
+        for field in fields:
+            if field.startswith("date"):
+                # the date values need to be converted from ISO8601 to datetime objects for comparison
+                value1_date = datetime.datetime.fromisoformat(getattr(v1, field))
+                value2_date = datetime.datetime.fromisoformat(getattr(v2, field))
+                if value1_date != value2_date:
+                    return False
+            else:
+                if getattr(v1, field) != getattr(v2, field):
+                    return False
+    return True
