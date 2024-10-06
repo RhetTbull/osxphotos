@@ -1,14 +1,14 @@
 """ get UTI for a given file extension and the preferred extension for a given UTI
 
-    On macOS <= 11 (Big Sur), uses objective C CoreServices methods 
-    UTTypeCopyPreferredTagWithClass and UTTypeCreatePreferredIdentifierForTag to retrieve the 
+    On macOS <= 11 (Big Sur), uses objective C CoreServices methods
+    UTTypeCopyPreferredTagWithClass and UTTypeCreatePreferredIdentifierForTag to retrieve the
     UTI and the extension.  These are deprecated in 10.15 (Catalina) and no longer supported on Monterey.
 
-    On Monterey, these calls are replaced with Swift methods that I can't call from python so 
-    this code uses a cached dict of UTI values.  The code first checks to see if the extension or UTI 
-    is available in the cache and if so, returns it. If not, it performs a subprocess call to `mdls` to 
-    retrieve the UTI (by creating a temp file with the correct extension) and returns the UTI.  This only 
-    works for the extension -> UTI lookup. On Monterey, if there is no cached value for UTI -> extension lookup, 
+    On Monterey, these calls are replaced with Swift methods that I can't call from python so
+    this code uses a cached dict of UTI values.  The code first checks to see if the extension or UTI
+    is available in the cache and if so, returns it. If not, it performs a subprocess call to `mdls` to
+    retrieve the UTI (by creating a temp file with the correct extension) and returns the UTI.  This only
+    works for the extension -> UTI lookup. On Monterey, if there is no cached value for UTI -> extension lookup,
     returns None.
 
     Outside of macOS uses only the hardcoded list of UTIs.
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import csv
+import logging
 import os
 import pathlib
 import re
@@ -30,6 +31,8 @@ from .platform import get_macos_version, is_macos
 if is_macos:
     import CoreServices
     import objc
+
+logger = logging.getLogger("osxphotos")
 
 __all__ = ["get_preferred_uti_extension", "get_uti_for_extension", "get_uti_for_path"]
 
@@ -229,6 +232,7 @@ ods,org.oasis-open.opendocument.spreadsheet,ods,application/vnd.oasis.opendocume
 odt,org.oasis-open.opendocument.text,odt,application/vnd.oasis.opendocument.text
 omf,com.avid.open-media-framework,omf,None
 orf,com.olympus.raw-image,orf,None
+orf,com.olympus.or-raw-image,orf,None
 otc,public.opentype-collection-font,otc,None
 otf,public.opentype-font,otf,None
 otg,org.oasis-open.opendocument.graphics-template,otg,application/vnd.oasis.opendocument.graphics-template
@@ -576,10 +580,16 @@ def _get_ext_from_uti_dict(uti):
         return None
 
 
-def get_preferred_uti_extension(uti: str) -> str | None:
-    """get preferred extension for a UTI type
-    uti: UTI str, e.g. 'public.jpeg'
-    returns: preferred extension as str or None if cannot be determined"""
+def get_preferred_uti_extension(uti: str) -> str:
+    """Get preferred extension for a UTI type
+
+    Args:
+        uti: UTI str, e.g. 'public.jpeg'
+
+    Returns: preferred extension as str or empty string if extension cannot be determined
+
+    Note: Logs a warning if extension cannot be determined.
+    """
 
     if is_macos and (OS_VER, OS_MAJOR) <= (10, 16):
         # reference: https://developer.apple.com/documentation/coreservices/1442744-uttypecopypreferredtagwithclass?language=objc
@@ -595,9 +605,13 @@ def get_preferred_uti_extension(uti: str) -> str | None:
             if uti == "public.heic":
                 return "heic"
 
-            return None
+            logger.warning(f"Could not determine extension for UTI: {uti}")
+            return ""
 
-    return _get_ext_from_uti_dict(uti)
+    ext = _get_ext_from_uti_dict(uti) or ""
+    if not ext:
+        logger.warning(f"Could not determine extension for UTI: {uti}")
+    return ext
 
 
 def get_uti_for_extension(extension: str) -> str | None:

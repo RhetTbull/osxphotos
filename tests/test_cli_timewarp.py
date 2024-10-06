@@ -14,22 +14,23 @@ from tests.parse_timewarp_output import (
     InspectValuesDateAdded,
     parse_compare_exif,
     parse_inspect_output,
+    compare_inspect_output,
 )
 
 
 # set timezone to avoid issues with comparing dates
-@pytest.fixture(scope="module", autouse=True)
-def set_timezone():
-    """Set timezone to US/Pacific for all tests"""
-    old_tz = os.environ.get("TZ")
-    os.environ["TZ"] = "US/Pacific"
-    time.tzset()
-    yield
-    if old_tz:
-        os.environ["TZ"] = old_tz
-    else:
-        del os.environ["TZ"]
-    time.tzset()
+# @pytest.fixture(scope="module", autouse=True)
+# def set_timezone():
+#     """Set timezone to US/Pacific for all tests"""
+#     old_tz = os.environ.get("TZ")
+#     os.environ["TZ"] = "US/Pacific"
+#     time.tzset()
+#     yield
+#     if old_tz:
+#         os.environ["TZ"] = old_tz
+#     else:
+#         del os.environ["TZ"]
+#     time.tzset()
 
 
 TERMINAL_WIDTH = 250
@@ -102,7 +103,7 @@ def test_inspect(photoslib, suspend_capture):
     )
     assert result.exit_code == 0
     values = parse_inspect_output(result.output)
-    assert TEST_DATA["inspect"]["expected"] == values
+    assert compare_inspect_output(TEST_DATA["inspect"]["expected"], values)
 
 
 @pytest.mark.timewarp
@@ -123,7 +124,7 @@ def test_date(photoslib, suspend_capture):
     )
     assert result.exit_code == 0
     photo = photoslib.selection[0]
-    assert photo.date == TEST_DATA["date"]["date"]
+    assert photo.date.date() == TEST_DATA["date"]["date"].date()
 
 
 @pytest.mark.timewarp

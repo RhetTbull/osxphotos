@@ -525,8 +525,10 @@ def timewarp(
             abort=True,
         )
 
+    # ZZZ move below into timewarp_cli() and wrap that in the crash catcher, not the current function
     update_photo_date_time_ = partial(
         update_photo_date_time,
+        library_path=library,
         date=date,
         time=time,
         date_delta=date_delta,
@@ -690,7 +692,7 @@ def timewarp(
                     photo, use_file_modify_date=use_file_time
                 )
             if any([date, time, date_delta, time_delta]):
-                update_photo_date_time_(photo)
+                update_photo_date_time_(photo=photo)
             if match_time:
                 # need to adjust time before the timezone is updated
                 # or the old timezone will be overwritten in the database

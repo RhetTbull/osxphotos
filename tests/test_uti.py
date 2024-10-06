@@ -1,5 +1,7 @@
 """ test uti.py """
 
+import logging
+
 import pytest
 
 import osxphotos.uti
@@ -18,6 +20,13 @@ def test_get_preferred_uti_extension():
     """test get_preferred_uti_extension"""
     for uti in UTI_DICT:
         assert get_preferred_uti_extension(uti) == UTI_DICT[uti]
+
+
+def test_get_preferred_uti_extension_unknown(caplog):
+    """test get_preferred_uti_extension for unknown UTI #1643"""
+    caplog.set_level(logging.WARNING)
+    assert get_preferred_uti_extension("com.OSXPHOTOS.UNKNOWN.FOOBAR") == ""
+    assert "Could not determine extension for UTI" in caplog.text
 
 
 def test_get_uti_for_extension():

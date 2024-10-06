@@ -18,6 +18,7 @@ from .datetime_utils import (
     datetime_remove_tz,
     datetime_tz_to_utc,
     datetime_utc_to_local,
+    get_local_tz,
     utc_offset_seconds,
 )
 from .photos_datetime import photos_datetime, photos_datetime_local
@@ -66,17 +67,46 @@ def reset_photo_date_time_tz(
 
 
 def update_photo_date_time(
+    library_path: str,
     photo: photoscript.Photo,
-    date,
-    time,
-    date_delta,
-    time_delta,
-    verbose: Callable,
+    date: datetime.date | None,
+    time: datetime.time | None,
+    date_delta: datetime.timedelta | None,
+    time_delta: datetime.timedelta | None,
+    verbose: Callable[..., None],
 ):
-    """Update date, time in photo"""
+    """Update date, time in photo.
+
+    Args:
+        library_path: path to Photos library
+        photo: photo to update
+        date: new date
+        time: new time
+        date_delta: timedelta to add to date
+        time_delta: timedelta to add to time
+        verbose: callable to print verbose output
+
+    Raises:
+        ValueError: if date and date_delta are both set or if time and time_delta are both set
+
+    Note: date & date_delta, time & time_delta are mutually exclusive
+    """
+    if date and date_delta:
+        raise ValueError("date and date_delta are mutually exclusive")
+    if time and time_delta:
+        raise ValueError("time and time_delta are mutually exclusive")
     photo_date = photo.date
+    photo_timezone, _, tz_name = PhotoTimeZone(library_path=library_path).get_timezone(
+        photo
+    )
+    local_delta_sec = (
+        get_local_tz(photo_date).utcoffset(photo_date).total_seconds() - photo_timezone
+    )
+    local_delta = datetime.timedelta(seconds=local_delta_sec)
+    delta = time_delta or local_delta
+    print(f"{delta=} {local_delta=} {time_delta=} {tz_name=}")
     new_photo_date = update_datetime(
-        photo_date, date=date, time=time, date_delta=date_delta, time_delta=time_delta
+        photo_date, date=date, time=time, date_delta=date_delta, time_delta=delta
     )
     filename = photo.filename
     uuid = photo.uuid
