@@ -51,16 +51,28 @@ def get_exif_date_time_offset(
     # set to True if no date/time in EXIF and the FileModifyDate is used
     used_file_modify_date = False
 
+    # determine file type
+    mime_type = exif.get('File:MIMEType', 'image')
+    isphoto = mime_type.startswith("image")
+    ismovie = mime_type.startswith("video")
+
     # search these fields in this order for date/time/timezone
-    time_fields = [
+    # Prioritize QuickTime:ContentCreateDate over EXIF:DateTimeOriginal for videos
+    start_time_fields = [
         "Composite:DateTimeCreated",
         "Composite:SubSecDateTimeOriginal",
         "Composite:SubSecCreateDate",
+    ]
+    photo_time_fields = [
         "EXIF:DateTimeOriginal",
         "EXIF:CreateDate",
+    ]
+    movie_time_fields = [
         "QuickTime:ContentCreateDate",
         "QuickTime:CreationDate",
         "QuickTime:CreateDate",
+    ]
+    end_time_fields = [
         "IPTC:DateCreated",
         "XMP-exif:DateTimeOriginal",
         "XMP-xmp:DateCreated",
@@ -75,11 +87,24 @@ def get_exif_date_time_offset(
         "ContentCreateDate",
         "CreationDate",
     ]
+    if isphoto:
+        time_fields = start_time_fields + photo_time_fields + movie_time_fields + end_time_fields
+    elif ismovie:
+        time_fields = start_time_fields + movie_time_fields + photo_time_fields + end_time_fields
+    else:
+        time_fields = start_time_fields + photo_time_fields + movie_time_fields + end_time_fields
+        
     if use_file_modify_date:
         time_fields.extend(["File:FileModifyDate", "FileModifyDate"])
 
+    print(f"{isphoto=} {ismovie=}")
+
     for dt_str in time_fields:
         dt = exif.get(dt_str)
+        print(f"{dt_str=} {dt=}")
+        # Some old mp4 may return ContentCreationDate as YYYY (eg. 2014) which
+        # is converted to int causing re.match(pattern, dt) to fail.
+        dt = str(dt) if isinstance(dt, int) else dt
         if dt and dt_str in {"IPTC:DateCreated", "DateCreated"}:
             # also need time
             time_ = exif.get("IPTC:TimeCreated") or exif.get("TimeCreated")
@@ -97,6 +122,9 @@ def get_exif_date_time_offset(
 
     # try to get offset from EXIF:OffsetTimeOriginal
     offset = exif.get("EXIF:OffsetTimeOriginal") or exif.get("OffsetTimeOriginal")
+
+    print(f"{dt=} for {dt_str=} and {offset=}")
+
     if dt and offset is None:
         # see if offset set in the dt string
         for pattern in (
@@ -119,7 +147,14 @@ def get_exif_date_time_offset(
                 dt = f"{matched.group(1)} 00:00:00"
                 default_time = True
 
+    if offset is not None:
+        # make sure we have offset
+        if not re.match(r"([+-]\d{2}:\d{2})", offset):
+            offset = None
+
     offset_seconds = exif_offset_to_seconds(offset) if offset is not None else None
+
+    print(f"{offset_seconds=}")
 
     if dt:
         if offset is not None:
@@ -137,11 +172,16 @@ def get_exif_date_time_offset(
         # some files can have bad date/time data, (e.g. #24, Date/Time Original = 0000:00:00 00:00:00)
         try:
             dt = datetime.datetime.strptime(dt, dt_format)
+
+            print(f"Converted dt: {dt=} for {type(dt)=}")
+
         except ValueError:
             dt = None
 
     # format offset in form +/-hhmm
     offset_str = offset.replace(":", "") if offset else ""
+
+    print(f"FINAL {dt=}, {offset_seconds=}, {offset_str=}, {default_time=}, {used_file_modify_date=}")
     return ExifDateTime(
         dt, offset_seconds, offset_str, default_time, used_file_modify_date
     )
