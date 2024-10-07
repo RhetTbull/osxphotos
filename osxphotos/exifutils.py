@@ -80,6 +80,9 @@ def get_exif_date_time_offset(
 
     for dt_str in time_fields:
         dt = exif.get(dt_str)
+        # Some old mp4 may return ContentCreationDate as YYYY (eg. 2014) which
+        # is converted to int causing re.match(pattern, dt) to fail.
+        dt = str(dt) if isinstance(dt, int) else dt
         if dt and dt_str in {"IPTC:DateCreated", "DateCreated"}:
             # also need time
             time_ = exif.get("IPTC:TimeCreated") or exif.get("TimeCreated")
