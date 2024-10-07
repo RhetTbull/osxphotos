@@ -97,7 +97,7 @@ def get_exif_date_time_offset(
 
     # try to get offset from EXIF:OffsetTimeOriginal
     offset = exif.get("EXIF:OffsetTimeOriginal") or exif.get("OffsetTimeOriginal")
-    if dt and not offset:
+    if dt and offset is None:
         # see if offset set in the dt string
         for pattern in (
             r"\d{4}:\d{2}:\d{2}\s\d{2}:\d{2}:\d{2}([+-]\d{2}:\d{2})",
@@ -122,7 +122,7 @@ def get_exif_date_time_offset(
     offset_seconds = exif_offset_to_seconds(offset) if offset else None
 
     if dt:
-        if offset:
+        if offset is not None:
             # drop offset from dt string and add it back on in datetime %z format
             dt = re.sub(r"[+-]\d{2}:\d{2}$", "", dt)
             dt = re.sub(r"\.\d+$", "", dt)
