@@ -87,45 +87,45 @@ class PhotoCompare:
 
         return [photos_date_str, photos_tz_str, exif_date, exif_offset]
 
-    def compare_exif_with_markup(self, photo: Photo) -> ExifDiff:
+    def timewarp_compare_exif(self, photo: Photo, plain: bool = False) -> ExifDiff:
         """Compare date/time/timezone in Photos to the exif data and return an ExifDiff named tuple;
-        adds rich markup to strings to show differences
+        optionally adds rich markup to strings to show differences.
 
         Args:
             photo (Photo): Photo object to compare
-        """
+            plain (bool): Flag to determine if plain (True) or markup (False) should be applied
+        """ 
+        def compare_values(photo_value: str, exif_value: str) -> tuple:
+            """Compare two values and return them with or without markup.
+            
+            Affects nonlocal variable diff (from timewarp_compare_exif) with result.
+            """
+
+            nonlocal diff
+            if photo_value != exif_value:
+                diff = True
+                if not plain:
+                    return change(photo_value), change(exif_value)
+            else:
+                if not plain:
+                    return no_change(photo_value), no_change(exif_value)
+            return photo_value, exif_value
+        
+        # Get values from comparison function
         photos_date, photos_tz, exif_date, exif_tz = self.compare_exif(photo)
         diff = False
+
+        # Split date and time
         photos_date, photos_time = photos_date.split(" ", 1)
         try:
             exif_date, exif_time = exif_date.split(" ", 1)
         except ValueError:
-            exif_date = exif_date
-            exif_time = ""
+            exif_time = ""  # Handle missing time in exif_date
 
-        if photos_date != exif_date:
-            photos_date = change(photos_date)
-            exif_date = change(exif_date)
-            diff = True
-        else:
-            photos_date = no_change(photos_date)
-            exif_date = no_change(exif_date)
-
-        if photos_time != exif_time:
-            photos_time = change(photos_time)
-            exif_time = change(exif_time)
-            diff = True
-        else:
-            photos_time = no_change(photos_time)
-            exif_time = no_change(exif_time)
-
-        if photos_tz != exif_tz:
-            photos_tz = change(photos_tz)
-            exif_tz = change(exif_tz)
-            diff = True
-        else:
-            photos_tz = no_change(photos_tz)
-            exif_tz = no_change(exif_tz)
+        # Compare dates, times, and timezones
+        photos_date, exif_date = compare_values(photos_date, exif_date)
+        photos_time, exif_time = compare_values(photos_time, exif_time)
+        photos_tz, exif_tz = compare_values(photos_tz, exif_tz)
 
         return ExifDiff(
             diff,
@@ -136,37 +136,4 @@ class PhotoCompare:
             exif_time,
             exif_tz,
         )
-
-    def compare_exif_no_markup(self, photo: Photo) -> ExifDiff:
-        """Compare date/time/timezone in Photos to the exif data and return an ExifDiff named tuple;
-
-        Args:
-            photo (Photo): Photo object to compare
-        """
-        photos_date, photos_tz, exif_date, exif_tz = self.compare_exif(photo)
-        diff = False
-        photos_date, photos_time = photos_date.split(" ", 1)
-        try:
-            exif_date, exif_time = exif_date.split(" ", 1)
-        except ValueError:
-            exif_date = exif_date
-            exif_time = ""
-
-        if photos_date != exif_date:
-            diff = True
-
-        if photos_time != exif_time:
-            diff = True
-
-        if photos_tz != exif_tz:
-            diff = True
-
-        return ExifDiff(
-            diff,
-            photos_date,
-            photos_time,
-            photos_tz,
-            exif_date,
-            exif_time,
-            exif_tz,
-        )
+    
