@@ -178,7 +178,7 @@ class ExifDateTimeUpdater:
             )
             return None
 
-        if dtinfo.offset_seconds:
+        if dtinfo.offset_seconds is not None:
             # update timezone then update date/time
             timezone = Timezone(dtinfo.offset_seconds)
             tzupdater = PhotoTimeZoneUpdater(
