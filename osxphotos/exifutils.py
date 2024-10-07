@@ -97,11 +97,11 @@ def get_exif_date_time_offset(
     if use_file_modify_date:
         time_fields.extend(["File:FileModifyDate", "FileModifyDate"])
 
-    # print(f"{isphoto=} {ismovie=}")
+    print(f"{isphoto=} {ismovie=}")
 
     for dt_str in time_fields:
         dt = exif.get(dt_str)
-        # print(f"{dt_str=} {dt=}")
+        print(f"{dt_str=} {dt=}")
         # Some old mp4 may return ContentCreationDate as YYYY (eg. 2014) which
         # is converted to int causing re.match(pattern, dt) to fail.
         dt = str(dt) if isinstance(dt, int) else dt
@@ -120,10 +120,11 @@ def get_exif_date_time_offset(
         # no date/time found
         dt = None
 
-    # print(f"{dt=} for {dt_str=}")
-
     # try to get offset from EXIF:OffsetTimeOriginal
     offset = exif.get("EXIF:OffsetTimeOriginal") or exif.get("OffsetTimeOriginal")
+
+    print(f"{dt=} for {dt_str=} and {offset=}")
+
     if dt and not offset:
         # see if offset set in the dt string
         for pattern in (
@@ -153,6 +154,8 @@ def get_exif_date_time_offset(
 
     offset_seconds = exif_offset_to_seconds(offset) if offset else None
 
+    print(f"{offset_seconds=}")
+
     if dt:
         if offset:
             # drop offset from dt string and add it back on in datetime %z format
@@ -169,11 +172,16 @@ def get_exif_date_time_offset(
         # some files can have bad date/time data, (e.g. #24, Date/Time Original = 0000:00:00 00:00:00)
         try:
             dt = datetime.datetime.strptime(dt, dt_format)
+
+            print(f"Converted dt: {dt=} for {type(dt)=}")
+
         except ValueError:
             dt = None
 
     # format offset in form +/-hhmm
     offset_str = offset.replace(":", "") if offset else ""
+
+    print(f"FINAL {dt=}, {offset_seconds=}, {offset_str=}, {default_time=}, {used_file_modify_date=}")
     return ExifDateTime(
         dt, offset_seconds, offset_str, default_time, used_file_modify_date
     )

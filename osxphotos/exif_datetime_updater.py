@@ -178,7 +178,9 @@ class ExifDateTimeUpdater:
             )
             return None
 
-        if dtinfo.offset_seconds:
+        self.verbose(f"[bold]{dtinfo=} {type(dtinfo)=} {dtinfo.offset_seconds=}[/bold]")
+
+        if dtinfo.offset_seconds or dtinfo.offset_seconds == 0:
             # update timezone then update date/time
             timezone = Timezone(dtinfo.offset_seconds)
             tzupdater = PhotoTimeZoneUpdater(
