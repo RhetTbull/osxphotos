@@ -471,8 +471,8 @@ class ExifWriter(_ExifMixin):
                 if self.photo.date_modified is None or options.ignore_date_modified:
                     exif["QuickTime:ModifyDate"] = creationdate
                 else:
-                    exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
-                        exiftool_datetime(self.photo.date_modified)
+                    exif["QuickTime:ModifyDate"] = exiftool_datetime(
+                        datetime_tz_to_utc(self.photo.date_modified)
                     )
 
         # if photo in PNG remove any IPTC tags (#1031)
