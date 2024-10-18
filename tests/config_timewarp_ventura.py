@@ -7,6 +7,7 @@ import datetime
 import pathlib
 import time
 
+from osxphotos.timeutils import get_local_utc_offset_str
 from tests.parse_timewarp_output import (
     CompareValues,
     InspectValues,
@@ -285,7 +286,7 @@ VENTURA_PHOTOS_5 = {
                 f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
             ),
             "",
-            "-0700" if is_dst() else "-0800",
+            get_local_utc_offset_str(),
             "",
         ),
     },
@@ -382,10 +383,10 @@ VENTURA_PHOTOS_5 = {
         "expected": InspectValues(
             "20230120_010203-0400.jpg",
             "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
-            "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
-            "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
+            "2023-01-20 01:02:03-0800",
+            "2023-01-20 01:02:03-0800",
             "-0800",
-            "GMT-0800",
+            "America/Los_Angeles",
         ),
     },
     "parse_date_tz": {
@@ -394,10 +395,10 @@ VENTURA_PHOTOS_5 = {
         "expected": InspectValues(
             "20230120_010203-0400.jpg",
             "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
-            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+            "2023-01-19 21:02:03-0800",
             "2023-01-20 01:02:03-0400",
             "-0400",
-            "GMT-0400",
+            "America/Anguilla",
         ),
     },
     "date_added": {

@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime
 from zoneinfo import ZoneInfo
 
-from .datetime_utils import get_local_tz
+from .datetime_utils import datetime_naive_to_local, get_local_tz
 
 # Time delta: add this to Photos times to get unix time
 # Apple Epoch is Jan 1, 2001

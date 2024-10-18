@@ -14,8 +14,12 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from ._constants import _DB_TABLE_NAMES, SQLITE_CHECK_SAME_THREAD
 from .photosdb.photosdb_utils import get_photos_library_version
-from .timezones import Timezone
+from .platform import assert_macos
 from .utils import get_last_library_path, get_system_library_path, noop
+
+assert_macos()
+
+from .timezones import Timezone
 
 
 def tz_to_str(tz_seconds: int) -> str:
@@ -60,13 +64,13 @@ class PhotoTimeZone:
         """Return (timezone_seconds, timezone_str, timezone_name) of photo"""
         # Use retry decorator to retry if database is locked
         uuid = photo.uuid
-        sql = f"""  SELECT 
-                    ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, 
+        sql = f"""  SELECT
+                    ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
                     ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME
                     FROM ZADDITIONALASSETATTRIBUTES
-                    JOIN {self.ASSET_TABLE} 
+                    JOIN {self.ASSET_TABLE}
                     ON ZADDITIONALASSETATTRIBUTES.ZASSET = {self.ASSET_TABLE}.Z_PK
-                    WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}' 
+                    WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}'
             """
         with sqlite3.connect(
             self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
@@ -130,15 +134,15 @@ class PhotoTimeZoneUpdater:
         # Use retry decorator to retry if database is locked
         try:
             uuid = photo.uuid
-            sql = f"""  SELECT 
-                        ZADDITIONALASSETATTRIBUTES.Z_PK, 
-                        ZADDITIONALASSETATTRIBUTES.Z_OPT, 
-                        ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, 
+            sql = f"""  SELECT
+                        ZADDITIONALASSETATTRIBUTES.Z_PK,
+                        ZADDITIONALASSETATTRIBUTES.Z_OPT,
+                        ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
                         ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME
                         FROM ZADDITIONALASSETATTRIBUTES
-                        JOIN {self.ASSET_TABLE} 
+                        JOIN {self.ASSET_TABLE}
                         ON ZADDITIONALASSETATTRIBUTES.ZASSET = {self.ASSET_TABLE}.Z_PK
-                        WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}' 
+                        WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}'
                 """
             with sqlite3.connect(
                 self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
@@ -151,9 +155,9 @@ class PhotoTimeZoneUpdater:
             tz_offset = results[2]
             tz_name = results[3]
             sql_update = f"""   UPDATE ZADDITIONALASSETATTRIBUTES
-                                SET Z_OPT={z_opt}, 
-                                ZTIMEZONEOFFSET={self.tz_offset}, 
-                                ZTIMEZONENAME='{self.tz_name}' 
+                                SET Z_OPT={z_opt},
+                                ZTIMEZONEOFFSET={self.tz_offset},
+                                ZTIMEZONENAME='{self.tz_name}'
                                 WHERE Z_PK={z_pk};
                         """
             with sqlite3.connect(

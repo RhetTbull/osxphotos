@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import datetime
+import logging
 from collections import namedtuple
 from typing import List
+
+logger = logging.getLogger("osxphotos")
 
 # filename, uuid, photo time (local), photo time, timezone offset, timezone name
 InspectValues = namedtuple(
@@ -78,7 +81,11 @@ def parse_compare_exif(output: str) -> List[CompareValues]:
         values.append(CompareValues(*parts))
     return values
 
-def compare_inspect_output(value1: InspectValues | list[InspectValues], value2: InspectValues| list[InspectValues]) -> bool:
+
+def compare_inspect_output(
+    value1: InspectValues | list[InspectValues],
+    value2: InspectValues | list[InspectValues],
+) -> bool:
     """Compare two InspectValues named tuples"""
 
     if not isinstance(value1, list):
@@ -87,6 +94,9 @@ def compare_inspect_output(value1: InspectValues | list[InspectValues], value2: 
         value2 = [value2]
 
     if len(value1) != len(value2):
+        logger.warning(
+            f"compare_inspect_output: value1 and value2 have different lengths: {len(value1)} != {len(value2)}"
+        )
         return False
 
     fields = value1[0]._fields
@@ -97,8 +107,14 @@ def compare_inspect_output(value1: InspectValues | list[InspectValues], value2: 
                 value1_date = datetime.datetime.fromisoformat(getattr(v1, field))
                 value2_date = datetime.datetime.fromisoformat(getattr(v2, field))
                 if value1_date != value2_date:
+                    logger.warning(
+                        f"compare_inspect_output: {field} does not match: {value1_date} != {value2_date}"
+                    )
                     return False
             else:
                 if getattr(v1, field) != getattr(v2, field):
+                    logger.warning(
+                        f"compare_inspect_output: {field} does not match: {getattr(v1, field)} != {getattr(v2, field)}"
+                    )
                     return False
     return True

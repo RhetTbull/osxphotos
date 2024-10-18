@@ -12,11 +12,10 @@ from osxphotos.exiftool import ExifTool
 from tests.conftest import get_os_version
 from tests.parse_timewarp_output import (
     InspectValuesDateAdded,
+    compare_inspect_output,
     parse_compare_exif,
     parse_inspect_output,
-    compare_inspect_output,
 )
-
 
 # set timezone to avoid issues with comparing dates
 # @pytest.fixture(scope="module", autouse=True)
@@ -1009,7 +1008,7 @@ def test_function(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(result.output)
-    assert output_values[0] == expected
+    assert compare_inspect_output(output_values[0], expected)
 
 
 @pytest.mark.timewarp
@@ -1042,9 +1041,7 @@ def test_parse_date(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(result.output)
-    assert output_values[0].date_local == expected.date_local
-    assert output_values[0].date_tz == expected.date_tz
-    assert output_values[0].tz_offset == expected.tz_offset
+    assert compare_inspect_output(output_values[0], expected)
 
 
 @pytest.mark.timewarp
@@ -1071,9 +1068,7 @@ def test_parse_date_tz(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(result.output)
-    assert output_values[0].date_local == expected.date_local
-    assert output_values[0].date_tz == expected.date_tz
-    assert output_values[0].tz_offset == expected.tz_offset
+    assert compare_inspect_output(output_values[0], expected)
 
 
 @pytest.mark.timewarp

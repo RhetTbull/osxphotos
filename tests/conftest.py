@@ -89,7 +89,7 @@ if OS_VER[0] == "10" and OS_VER[1] in ("15", "16"):
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
 
     TEST_LIBRARY_ADD_LOCATIONS = None
-elif OS_VER[0] == "13":
+elif int(OS_VER[0]) >= 13:
     # Ventura
     TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY

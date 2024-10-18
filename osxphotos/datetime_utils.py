@@ -2,14 +2,16 @@
 
 # source: https://github.com/RhetTbull/datetime-utils
 
-__version__ = "2022.04.30"
+__version__ = "2024.10.07"
 
 import datetime
+from zoneinfo import ZoneInfo
 
 # TODO: probably shouldn't use replace here, see this:
 # https://stackoverflow.com/questions/13994594/how-to-add-timezone-into-a-naive-datetime-instance-in-python/13994611#13994611
 
 __all__ = [
+    "datetime_add_tz",
     "datetime_has_tz",
     "datetime_naive_to_local",
     "datetime_naive_to_utc",
@@ -209,39 +211,40 @@ def utc_offset_seconds(dt: datetime.datetime) -> int:
     else:
         raise ValueError("dt does not have timezone info")
 
-def datetime_add_tz(dt: datetime.datetime,
-        tzoffset: int | None = None,
-        tzname: str | None = None,
-    ) -> datetime.datetime:
-        """Add a timezone, either as an offset or named timezone, to a naive datetime.
 
-        Args:
-            dt: naive datetime
-            tzoffset: offset from UTC for timezone in seconds
-            tzname: name of timezone, for example, "America/Los_Angeles"
+def datetime_add_tz(
+    dt: datetime.datetime,
+    tzoffset: int | None = None,
+    tzname: str | None = None,
+) -> datetime.datetime:
+    """Add a timezone, either as an offset or named timezone, to a naive datetime.
 
-        Returns: timezone-aware datetime with new timezone
+    Args:
+        dt: naive datetime
+        tzoffset: offset from UTC for timezone in seconds
+        tzname: name of timezone, for example, "America/Los_Angeles"
 
-        Note: you may pass tzoffset, tzname or both. If both are passed, the offset will be tried
-        first
-        """
-        if timestamp is None:
-            return DEFAULT_DATETIME if default else None
+    Returns: timezone-aware datetime with new timezone
 
-        tzoffset = tzoffset or 0
+    Raises:
+        ValueError if both tzoffset and tzname are None
+        ValueError if dt is not naive
+    """
+    if datetime_has_tz(dt):
+        raise ValueError(f"dt must be naive datetime: {dt}")
+
+    if tzoffset is None and tzname is None:
+        raise ValueError("Both tzoffset and tzname cannot be None")
+
+    tzoffset = tzoffset or 0
+    if tzname:
         try:
-            dt = datetime.datetime.fromtimestamp(timestamp + TIME_DELTA)
-            # Try to use tzname if provided
-            if tzname:
-                try:
-                    tz = ZoneInfo(tzname)
-                    return dt.astimezone(tz)
-                except Exception:
-                    # If tzname fails, fall back to tzoffset
-                    pass
-
-            # Use tzoffset if tzname wasn't provided or failed
-            tz = datetime.timezone(datetime.timedelta(seconds=tzoffset))
+            tz = ZoneInfo(tzname)
             return dt.astimezone(tz)
-        except (ValueError, TypeError):
-            return DEFAULT_DATETIME if default else None
+        except Exception:
+            # If tzname fails, fall back to tzoffset
+            pass
+
+    # Use tzoffset if tzname wasn't provided or failed
+    tz = datetime.timezone(datetime.timedelta(seconds=tzoffset))
+    return dt.astimezone(tz)

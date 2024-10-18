@@ -49,7 +49,7 @@ from .param_types import (
     StrpDateTimePattern,
     TimeOffset,
     TimeString,
-    UTCOffset,
+    TimezoneOffset,
 )
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
@@ -74,6 +74,10 @@ class TimeWarpCommand(click.Command):
 Timewarp operates on photos selected in Apple Photos.  To use it, open Photos, select the photos for which you'd like to adjust the date/time/timezone, then run osxphotos timewarp from the command line:
 
 `osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone -0700 --verbose`
+
+A named timezone can also be specified:
+
+`osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone "America/Los_Angeles" --verbose`
 
 This example sets the date for all selected photos to `2021-09-10`, subtracts 1 hour from the time of each photo, and sets the timezone of each photo to `GMT -07:00` (Pacific Daylight Time).
 
@@ -213,15 +217,18 @@ setting the timezone when parsing the filename.
     "--timezone",
     "-z",
     metavar="TIMEZONE",
-    type=UTCOffset(),
-    help="Set timezone for selected photos as offset from UTC. "
-    "Format is one of '±HH:MM', '±H:MM', or '±HHMM'. "
+    type=TimezoneOffset(),
+    help="Set timezone for selected photos as offset from UTC or to named IANA timezone. "
+    "Format is one of '±HH:MM', '±H:MM', '±HHMM', or named timezone such as 'America/Los_Angeles'. "
     "The actual time of the photo is not adjusted which means, somewhat counterintuitively, "
     "that the time in the new timezone will be different. "
     "For example, if photo has time of 12:00 and timezone of GMT+01:00 and new timezone is specified as "
     "'--timezone +02:00' (one hour ahead of current GMT+01:00 timezone), the photo's new time will be 13:00 GMT+02:00, "
     "which is equivalent to the old time of 12:00+01:00. "
     "This is the same behavior exhibited by Photos when manually adjusting timezone in the Get Info window. "
+    "Note: when a named timezone is provided, daylight savings time will be considered when adjusting the time; "
+    "it will not be considered when a UTC offset is provided. "
+    "For list of valid IANA timezone names, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones "
     "See also --match-time. ",
 )
 @click.option(
