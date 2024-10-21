@@ -103,12 +103,13 @@ def time_string_to_datetime(time: str) -> datetime.time:
     )
 
 
-def get_local_utc_offset_str() -> str:
+def get_local_utc_offset_str(dt: datetime.datetime | str) -> str:
     """Get the local timezone offset from UTC as a string in the format ±HHMM, for example +0500 or -0700.""" ""
-    now = datetime.datetime.now()
-    local_tz = get_local_tz(now)
+    if isinstance(dt, str):
+        dt = datetime.datetime.fromisoformat(dt)
+    local_tz = get_local_tz(dt)
 
-    offset = local_tz.utcoffset(now)
+    offset = local_tz.utcoffset(dt)
     total_minutes = offset.total_seconds() / 60
     hours, minutes = divmod(abs(int(total_minutes)), 60)
 

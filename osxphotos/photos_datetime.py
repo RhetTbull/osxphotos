@@ -65,13 +65,10 @@ def photos_datetime_local(
     try:
         # Convert the timestamp to a datetime
         dt_naive = datetime.datetime.fromtimestamp(timestamp + TIME_DELTA)
-
         # Get the local timezone
         local_tz = get_local_tz(dt_naive.replace(tzinfo=None))
-
         # Convert naive datetime to local timezone
         dt_local = dt_naive.astimezone(local_tz)
-
         return dt_local
     except (ValueError, TypeError):
         return DEFAULT_DATETIME_LOCAL if default else None

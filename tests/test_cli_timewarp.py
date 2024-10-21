@@ -1100,7 +1100,7 @@ def test_date_added(
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(result.output, date_added=True)
-    assert output_values[0].date_added == expected.date_added
+    assert compare_inspect_output(output_values[0], expected)
 
 
 @pytest.mark.timewarp
@@ -1126,4 +1126,4 @@ def test_date_added_from_photo(photoslib, suspend_capture):
     )
     output_values = parse_inspect_output(result.output, date_added=True)
     expected = TEST_DATA["date_added_from_photo"]["expected"]
-    assert output_values[0].date_added == expected.date_added
+    assert compare_inspect_output(output_values[0], expected)

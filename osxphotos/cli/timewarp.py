@@ -241,14 +241,16 @@ setting the timezone when parsing the filename.
     "This is useful for removing photos from the Recents album, "
     "for example if you have imported old scanned photos. "
     "Format is 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'. "
-    "If time is not included, midnight is assumed.",
+    "If time is not included, midnight is assumed. "
+    "The date/time is assumed to be in the local time zone. ",
 )
 @click.option(
     "--date-added-from-photo",
     is_flag=True,
     help="Set date/time added for selected photos to the date/time the photo was taken. "
     "This changes the date added or imported date in Photos but "
-    "does not change the date/time/timezone of the photo itself. ",
+    "does not change the date/time/timezone of the photo itself. "
+    "The date/time added will be converted from the photo's timezone to the local time zone. ",
 )
 @click.option(
     "--reset",

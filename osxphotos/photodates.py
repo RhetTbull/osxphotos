@@ -311,16 +311,28 @@ def set_photo_date_added(
     date_added: datetime.datetime,
     verbose: Callable[..., None],
     library_path: str | None = None,
-) -> datetime.datetime | None:
-    """Modify the ADDEDDATE of a photo"""
+):
+    """Modify the ADDEDDATE of a photo
+
+    Args:
+        photo: Photo to modify
+        date_added: New date added for photo (naive datetime in local timezone)
+        verbose: verbose function to use for logging
+        library_path: Path to Photos library; if not provided, will attempt to determine automatically
+    """
 
     if not (library_path := _get_photos_library_path(library_path)):
         raise ValueError("Could not determine Photos library path")
     verbose(
         f"Setting date added for photo [filename]{photo.filename}[/] to [time]{date_added}[/]"
     )
+
+    # convert date_added form local timezone to UTC then remove timezone
+    date_added = datetime_naive_to_local(date_added)
+    date_added = date_added.astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
     _set_date_added(library_path, photo.uuid, date_added)
 
+    # Need to update the date on the photo to force Photos to sync date/time changes to iCloud
     photo.date = photo.date + datetime.timedelta(seconds=1)
     photo.date = photo.date - datetime.timedelta(seconds=1)
 
@@ -335,7 +347,7 @@ def _set_date_added(library_path: str, uuid: str, date_added: datetime.datetime)
     Args:
             library_path: Path to Photos library
             uuid: UUID of photo
-            date_added: New date added for photo
+            date_added: New date added for photo (naive in UTC)
 
     Raises:
         FileNotFoundError: If Photos library path is not found or Photos database is not found
