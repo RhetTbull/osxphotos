@@ -16,6 +16,17 @@ from tests.parse_timewarp_output import (
 
 TEST_LIBRARY_TIMEWARP = "tests/TestTimeWarp-13.1.0.photoslibrary"
 
+UUID_DICT = {
+    "pears": "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
+    "apple_tree": "1A61156A-5747-42DE-A9B3-4A468CC49D9E",
+    "marigolds": "C4D952AF-983D-438E-9070-6310B1BC4826",
+    "sunflowers": "53615D56-91F7-4908-81F1-B93B5DEA7449",
+    "pumpkins": "FD1E3A36-3E65-48AF-9B14-DCFF65A9D3D2",
+    "zinnias": "7E9DF2EE-A5B0-4077-80EC-30565221A3B9",
+    "palm_tree": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+    "sunset_video": "16BEC0BE-4188-44F1-A8F1-7250E978AD12",
+}
+
 
 def get_file_timestamp(file: str) -> str:
     """Get timestamp of file"""
@@ -62,7 +73,7 @@ VENTURA_PHOTOS_5 = {
     },
     "date_delta": {
         # IMG_6501.jpeg
-        "uuid": "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
+        "gguuid": "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
         "parameters": [
             ("1", "2020-09-02 12:40:07-0700"),
             ("1 day", "2020-09-03 12:40:07-0700"),

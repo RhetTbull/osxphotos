@@ -31,7 +31,7 @@ from osxphotos.utils import noop, pluralize
 
 assert_macos()
 
-from photoscript import PhotosLibrary
+from photoscript import Photo, PhotosLibrary
 
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 
@@ -46,6 +46,7 @@ from .param_types import (
     DateOffset,
     DateTimeISO8601,
     FunctionCall,
+    PathOrStdin,
     StrpDateTimePattern,
     TimeOffset,
     TimeString,
@@ -360,6 +361,26 @@ setting the timezone when parsing the filename.
     help="When used with --compare-exif, adds any photos with date/time/timezone differences "
     "between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.",
 )
+@click.option(
+    "--uuid",
+    "-u",
+    metavar="UUID",
+    default=None,
+    multiple=True,
+    help="Apple to photo(s) with UUID(s). "
+    "May be repeated to include multiple UUIDs.",
+)
+@click.option(
+    "--uuid-from-file",
+    "-U",
+    metavar="FILE",
+    default=None,
+    multiple=False,
+    help="Apply to photos with UUID(s) loaded from FILE. "
+    "Format is a single UUID per line. Lines preceded with # are ignored. "
+    "If FILE is '-', read UUIDs from stdin.",
+    type=PathOrStdin(exists=True),
+)
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
 @click.option(
@@ -412,6 +433,8 @@ def timewarp(
     match_time,
     use_file_time,
     add_to_album,
+    uuid,
+    uuid_from_file,
     exiftool_path,
     verbose_flag,
     library,
@@ -481,11 +504,13 @@ def timewarp(
         exiftool_path = exiftool_path or get_exiftool_path()
         verbose(f"exiftool path: [filename]{exiftool_path}[/filename]")
 
+    photos = []
+    if uuid:
+        photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
+    if uuid_from_file:
+        photos.extend(list(PhotosLibrary().photos(uuid=uuid_from_file)))
     try:
-        photos = PhotosLibrary().selection
-        if not photos:
-            echo_error("[warning]No photos selected[/]")
-            sys.exit(0)
+        photos.extend(PhotosLibrary().selection)
     except Exception as e:
         # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
         if "(-1728)" in str(e):
@@ -500,6 +525,11 @@ def timewarp(
                 f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
             )
         sys.exit(1)
+    if not photos:
+        echo_error("[warning]No photos selected[/]")
+        sys.exit(0)
+
+    photos = unique_photos(photos)
 
     # confirm with user before proceeding
     if (
@@ -728,3 +758,14 @@ def timewarp(
             progress.advance(task)
 
     echo("Done.")
+
+
+def unique_photos(photos: list[Photo]) -> list[Photo]:
+    """Return a unique list of Photo objects, removing any duplicates"""
+    seen = {}
+    unique = []
+    for photo in photos:
+        if photo.uuid not in seen:
+            seen[photo.uuid] = True
+            unique.append(photo)
+    return unique
