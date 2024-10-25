@@ -150,6 +150,13 @@ class PhotoTimeZoneUpdater:
                 c = conn.cursor()
                 c.execute(sql)
                 results = c.fetchone()
+
+            if results[2] == self.tz_offset and results[3] == self.tz_name:
+                self.verbose(
+                    f"Skipping timezone update for photo [filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]): nothing to do"
+                )
+                return
+
             z_opt = results[1] + 1
             z_pk = results[0]
             tz_offset = results[2]

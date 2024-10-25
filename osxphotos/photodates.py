@@ -53,12 +53,13 @@ def reset_photo_date_time_tz(
         )
         return
     date_current = get_photo_date_created(photo, library_path)
-    tz = date_original.tzinfo.key
+    tz = date_original.tzinfo.tzname(date_original)
     tz_updater = PhotoTimeZoneUpdater(
         timezone=Timezone(tz), verbose=verbose, library_path=library_path
     )
     tz_updater.update_photo(photo)
     update_photo_date_time(
+        library_path=library_path,
         photo=photo,
         date=date_original.date(),
         time=date_original.time(),

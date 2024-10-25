@@ -1169,3 +1169,25 @@ def test_date_added_from_photo(photoslib, suspend_capture):
     output_values = parse_inspect_output(result.output, date_added=True)
     expected = TEST_DATA["date_added_from_photo"]["expected"]
     assert compare_inspect_output(output_values[0], expected)
+
+
+@pytest.mark.timewarp
+def test_reset(photoslib, suspend_capture):
+    """Test --reset"""
+    from osxphotos.cli.timewarp import timewarp
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        ["--reset", "--plain", "--force", "--uuid", UUID_DICT["water_lily"]],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["water_lily"]],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    values = parse_inspect_output(result.output)
+    assert compare_inspect_output(TEST_DATA["reset"]["expected"], values)

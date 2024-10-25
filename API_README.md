@@ -993,22 +993,33 @@ Returns the original filename of the photo when it was imported to Photos.  **No
 
 #### `date`
 
-Returns the create date of the photo as a datetime.datetime object
+Returns the create date of the photo as a timezone aware datetime.datetime object
+
+#### `tzoffset`
+
+Returns the timezone offset from UTC in seconds for the Photo creation date
+
+#### `tzname`
+
+Returns the timezone name for the Photos creation date; on Photos version < 5, returns None
 
 #### `date_original`
 
-Returns the original creation date of the photo as a datetime.datetime object.
+Returns the original creation date of the photo as a timezone aware datetime.datetime object.
 If user changed the photo's date in Photos, this will return the original date Photos assigned
-as the creation date at the time of import.
+as the creation date at the time of import. The original date is stored by Photos at import time
+from the date in the photo's EXIF data. If this is not set (photo had no EXIF date) then `date_original`
+returns the same value as `date`.
+
 Photos 5+ only; on Photos < 5.0, this will return the same value as `date`.
 
 #### `date_added`
 
-Returns the date the photo was added to the Photos library as a timezone aware datetime.datetime object, or None if the data added cannot be determined
+Returns the date the photo was added to the Photos library as a timezone aware datetime.datetime object in the local timezone, or None if the data added cannot be determined
 
 #### `date_modified`
 
-Returns the modification date of the photo as a datetime.datetime object or None if photo has no modification date
+Returns the modification date of the photo as a timezone aware atetime.datetime object in the local timezone or None if photo has no modification date
 
 #### `description`
 
@@ -1164,7 +1175,7 @@ Returns `True` if the picture is in the trash ('Recently Deleted' folder), other
 
 #### `date_trashed`
 
-Returns the date the photo was placed in the trash as a datetime.datetime object or None if photo is not in the trash
+Returns the date the photo was placed in the trash as a timezone aware datetime.datetime object in the local timezone or None if photo is not in the trash
 
 #### `location`
 

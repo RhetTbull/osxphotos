@@ -14,7 +14,7 @@ from tests.parse_timewarp_output import (
     InspectValuesDateAdded,
 )
 
-TEST_LIBRARY_TIMEWARP = "tests/TestTimeWarp-13.1.0.photoslibrary"
+TEST_LIBRARY_TIMEWARP = "tests/TestTimeWarp-13.6.9.photoslibrary"
 
 UUID_DICT = {
     "pears": "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
@@ -25,6 +25,7 @@ UUID_DICT = {
     "zinnias": "7E9DF2EE-A5B0-4077-80EC-30565221A3B9",
     "palm_tree": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
     "sunset_video": "16BEC0BE-4188-44F1-A8F1-7250E978AD12",
+    "water_lily": "FD2D395E-A0DC-46F2-9ABA-826A15CEAC56",
 }
 
 
@@ -455,6 +456,18 @@ VENTURA_PHOTOS_5 = {
             "-0400",
             "America/Anguilla",
             "2023-01-19 21:02:03-0800",
+        ),
+    },
+    "reset": {
+        # IMG_8056.HEIC
+        "uuid": "FD2D395E-A0DC-46F2-9ABA-826A15CEAC56",
+        "expected": InspectValues(
+            "IMG_8056.HEIC",
+            "FD2D395E-A0DC-46F2-9ABA-826A15CEAC56",
+            "2024-06-30 13:44:52-0700",
+            "2024-06-30 13:44:52-0700",
+            "-0700",
+            "GMT-0700",
         ),
     },
 }

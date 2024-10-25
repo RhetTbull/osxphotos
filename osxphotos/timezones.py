@@ -43,13 +43,12 @@ if is_macos:
                     self.timezone = Foundation.NSTimeZone.timeZoneWithName_(tz)
                     if not self.timezone:
                         raise ValueError(f"Invalid timezone: {tz}")
-                    self._name = tz
                 elif isinstance(tz, int):
                     self.timezone = Foundation.NSTimeZone.timeZoneForSecondsFromGMT_(tz)
-                    self._name = self.timezone.name()
                     self._from_offset = True
                 else:
                     raise TypeError("Timezone must be a string or an int")
+                self._name = self.timezone.name()
 
         @property
         def name(self) -> str:
