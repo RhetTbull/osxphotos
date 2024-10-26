@@ -258,7 +258,8 @@ setting the timezone when parsing the filename.
     "-R",
     is_flag=True,
     help="Reset date/time/timezone for selected photos to the original values. "
-    "This only works on macOS >= 13.0 (Ventura).",
+    "This only works on macOS >= 13.0 (Ventura). Photos imported on older versions of macOS may not "
+    "have an original date/time stored in the Photos database so the command will have no effect for these photos.",
 )
 @click.option(
     "--inspect",
