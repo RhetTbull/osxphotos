@@ -1008,7 +1008,8 @@ Returns the timezone name for the Photos creation date; on Photos version < 5, r
 Returns the original creation date of the photo as a timezone aware datetime.datetime object.
 If user changed the photo's date in Photos, this will return the original date Photos assigned
 as the creation date at the time of import. The original date is stored by Photos at import time
-from the date in the photo's EXIF data. If this is not set (photo had no EXIF date) then `date_original`
+from the date in the photo's EXIF data. If this is not set (photo had no EXIF date or photo was
+imported on an older version of macOS that did not store original date) then `date_original`
 returns the same value as `date`.
 
 Photos 5+ only; on Photos < 5.0, this will return the same value as `date`.
