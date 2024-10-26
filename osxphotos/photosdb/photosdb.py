@@ -2077,7 +2077,10 @@ class PhotosDB:
             info["imageTimeZoneName"] = row[8]
             info["imageDate_timestamp"] = row[5]
             info["imageDate"] = photos_datetime(
-                row[5], info["imageTimeZoneOffsetSeconds"] or 0, default=True
+                timestamp=row[5],
+                tzoffset=info["imageTimeZoneOffsetSeconds"] or 0,
+                tzname=info["imageTimeZoneName"],
+                default=True,
             )
             info["hidden"] = row[9]
             info["favorite"] = row[10]

@@ -31,7 +31,9 @@ if is_macos:
 
     def known_timezone_names() -> list[str]:
         """Get list of valid timezones on macOS"""
-        return sorted(list(Foundation.NSTimeZone.knownTimeZoneNames()))
+        # sort by shortest length then alphabetically
+        timezones = list(Foundation.NSTimeZone.knownTimeZoneNames())
+        return sorted(timezones, key=lambda x: (len(x), x))
 
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
@@ -40,7 +42,10 @@ if is_macos:
             with objc.autorelease_pool():
                 self._from_offset = False
                 if isinstance(tz, str):
-                    self.timezone = Foundation.NSTimeZone.timeZoneWithName_(tz)
+                    # the NSTimeZone methods return nil if the timezone is invalid
+                    self.timezone = Foundation.NSTimeZone.timeZoneWithAbbreviation_(
+                        tz
+                    ) or Foundation.NSTimeZone.timeZoneWithName_(tz)
                     if not self.timezone:
                         raise ValueError(f"Invalid timezone: {tz}")
                 elif isinstance(tz, int):
