@@ -1333,7 +1333,6 @@ def export_cli(
         locals_,
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
-    print(f"{locals_=} {cfg=}")
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     if load_config:
