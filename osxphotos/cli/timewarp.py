@@ -223,17 +223,17 @@ setting the timezone when parsing the filename.
     metavar="TIMEZONE",
     type=TimezoneOffset(),
     help="Set timezone for selected photos as offset from UTC or to named IANA timezone. "
-    "Format is one of '±HH:MM', '±H:MM', '±HHMM', or named timezone such as 'America/Los_Angeles'. "
+    "Format is one of '±HH:MM', '±H:MM', '±HHMM', or named timezone such as 'America/Los_Angeles' or 'PST'. "
     "The actual time of the photo is not adjusted which means, somewhat counterintuitively, "
     "that the time in the new timezone will be different. "
     "For example, if photo has time of 12:00 and timezone of GMT+01:00 and new timezone is specified as "
     "'--timezone +02:00' (one hour ahead of current GMT+01:00 timezone), the photo's new time will be 13:00 GMT+02:00, "
     "which is equivalent to the old time of 12:00+01:00. "
     "This is the same behavior exhibited by Photos when manually adjusting timezone in the Get Info window. "
+    "See also --match-time which adjusts the time when adjusting the timezone. "
     "Note: when a named timezone is provided, daylight savings time will be considered when adjusting the time; "
     "it will not be considered when a UTC offset is provided. "
-    "For list of valid IANA timezone names, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones "
-    "See also --match-time. ",
+    "For list of valid IANA timezone names, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones ",
 )
 @click.option(
     "--date-added",
