@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import datetime
 import sys
 from functools import partial
 from textwrap import dedent
+from typing import Callable
 
 import click
 from rich.console import Console
@@ -27,6 +29,7 @@ from osxphotos.photodates import (
 )
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
+from osxphotos.timezones import Timezone
 from osxphotos.utils import noop, pluralize
 
 assert_macos()
@@ -419,32 +422,32 @@ setting the timezone when parsing the filename.
     f"osxphotos version: {__version__}",
 )
 def timewarp(
-    date,
-    date_delta,
-    time,
-    time_delta,
-    timezone,
-    date_added,
-    date_added_from_photo,
-    inspect,
-    compare_exif,
-    push_exif,
-    pull_exif,
-    function,
-    match_time,
-    use_file_time,
-    add_to_album,
-    uuid,
-    uuid_from_file,
-    exiftool_path,
-    verbose_flag,
-    library,
-    theme,
-    parse_date,
-    plain,
-    timestamp,
-    force,
-    reset,
+    date: datetime.datetime | None,
+    date_delta: datetime.timedelta | None,
+    time: datetime.time | None,
+    time_delta: datetime.timedelta | None,
+    timezone: Timezone | None,
+    date_added: datetime.datetime | None,
+    date_added_from_photo: bool,
+    inspect: bool,
+    compare_exif: bool,
+    push_exif: bool,
+    pull_exif: bool,
+    function: tuple[Callable, str] | None,
+    match_time: bool,
+    use_file_time: bool,
+    add_to_album: str | None,
+    uuid: tuple[str, ...] | None,
+    uuid_from_file: click.Path | str | None,
+    exiftool_path: click.Path | None,
+    verbose_flag: int,
+    library: click.Path | None,
+    theme: str | None,
+    parse_date: str | None,
+    plain: bool,
+    timestamp: bool,
+    force: bool,
+    reset: bool,
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
@@ -452,6 +455,51 @@ def timewarp(
     timewarp cannot operate on photos selected in a Smart Album;
     select photos in a regular album or in the 'All Photos' view.
     See Timewarp Overview below for additional information.
+    """
+
+    return_code = timewarp_cli(**locals())
+    sys.exit(return_code or 0)
+
+
+def timewarp_cli(
+    date: datetime.datetime | None,
+    date_delta: datetime.timedelta | None,
+    time: datetime.time | None,
+    time_delta: datetime.timedelta | None,
+    timezone: Timezone | None,
+    date_added: datetime.datetime | None,
+    date_added_from_photo: bool,
+    inspect: bool,
+    compare_exif: bool,
+    push_exif: bool,
+    pull_exif: bool,
+    function: tuple[Callable, str] | None,
+    match_time: bool,
+    use_file_time: bool,
+    add_to_album: str | None,
+    uuid: tuple[str, ...] | None,
+    uuid_from_file: click.Path | str | None,
+    exiftool_path: click.Path | None,
+    verbose_flag: int,
+    library: click.Path | None,
+    theme: str | None,
+    parse_date: str | None,
+    plain: bool,
+    timestamp: bool,
+    force: bool,
+    reset: bool,
+):
+    """Adjust date/time/timezone of photos in Apple Photos.
+
+    This is intended to be called by timewarp() which handles command line arguments.
+    If you want to call the timewarp function directly in your own code, you may call
+    timewarp_cli() directly. In this case you will be responsible for ensuring that all
+    arguments are passed and all arguments are of the correct type. For example, the
+    CLI argument `--date` converts user input in form `2023-01-01` to a
+    datetime.datetime object. If passing `date`, you will be responsible for
+    passing a datetime.datetime not the ISO string as is done on the command line.
+
+    Returns: 1 if error or 0 if no error
     """
 
     set_crash_data("locals", locals())
@@ -525,10 +573,10 @@ def timewarp(
             echo_error(
                 f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
             )
-        sys.exit(1)
+        return 1
     if not photos:
         echo_error("[warning]No photos selected[/]")
-        sys.exit(0)
+        return 0
 
     photos = unique_photos(photos)
 
@@ -565,7 +613,6 @@ def timewarp(
             abort=True,
         )
 
-    # ZZZ move below into timewarp_cli() and wrap that in the crash catcher, not the current function
     update_photo_date_time_ = partial(
         update_photo_date_time,
         library_path=library,
@@ -645,7 +692,7 @@ def timewarp(
                 f"[tz]{tz_str}[/tz], [tz]{tz_name}[/tz], "
                 f"[time]{date_added.strftime(DATETIME_FORMAT)}[/time]"
             )
-        sys.exit(0)
+        return 0
 
     if compare_exif:
         album = PhotosAlbumPhotoScript(add_to_album) if add_to_album else None
@@ -698,7 +745,7 @@ def timewarp(
                 f"that {pluralize(different_photos, 'is', 'are')} different and "
                 f"added {pluralize(different_photos, 'it', 'them')} to album '{album.name}'."
             )
-        sys.exit(0)
+        return 0
 
     tz_updater = (
         PhotoTimeZoneUpdater(timezone, verbose=verbose, library_path=library)
@@ -759,6 +806,7 @@ def timewarp(
             progress.advance(task)
 
     echo("Done.")
+    return 0
 
 
 def unique_photos(photos: list[Photo]) -> list[Photo]:
