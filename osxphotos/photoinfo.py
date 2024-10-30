@@ -138,7 +138,13 @@ class PhotoInfo:
     def date_original(self) -> datetime.datetime:
         """Original creation date of asset as timezone aware datetime object.
         If user has changed the asset's creation date in Photos, use this to access the original creation date
-        set when the asset was imported. Photos 5+; on Photos version < 5, returns the same value as `date`.
+        set when the asset was imported.
+
+        The original date is stored by Photos at import time
+        from the date in the photo's EXIF data. If this is not set (photo had no EXIF date) then `date_original`
+        returns the same value as `date`.
+
+        Photos 5+; on Photos version < 5, returns the same value as `date`.
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
             return self.date
@@ -162,8 +168,13 @@ class PhotoInfo:
 
     @property
     def tzoffset(self) -> int:
-        """timezone offset from UTC in seconds for the Photo creation date"""
+        """Timezone offset from UTC in seconds for the Photo creation date"""
         return self._info["imageTimeZoneOffsetSeconds"]
+
+    @property
+    def tzname(self) -> str | None:
+        """Timezone name for the Photos creation date; on Photos version < 5, returns None"""
+        return self._info["imageTimeZoneName"]
 
     @property
     def path(self) -> str | None:

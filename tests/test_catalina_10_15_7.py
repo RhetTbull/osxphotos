@@ -501,6 +501,8 @@ def test_attributes_2(photosdb):
     assert p.orientation == 1
     assert p.original_orientation == 1
     assert p.original_filesize == 460483
+    assert p.tzname == "GMT-0400"
+    assert p.tzoffset == -14400
 
 
 def test_missing(photosdb):

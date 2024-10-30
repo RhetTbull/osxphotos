@@ -1105,6 +1105,7 @@ class PhotosDB:
             self._dbphotos[uuid]["lastmodifieddate"] = photos_datetime_local(row[4])
 
             self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
+            self._dbphotos[uuid]["imageTimeZoneName"] = None  # Photos 5+
             self._dbphotos[uuid]["imageDate_timestamp"] = row[5]
 
             self._dbphotos[uuid]["imageDate"] = photos_datetime(
@@ -2073,9 +2074,13 @@ class PhotosDB:
             info["lastmodifieddate"] = photos_datetime_local(row[37])
 
             info["imageTimeZoneOffsetSeconds"] = row[6]
+            info["imageTimeZoneName"] = row[8]
             info["imageDate_timestamp"] = row[5]
             info["imageDate"] = photos_datetime(
-                row[5], info["imageTimeZoneOffsetSeconds"] or 0, default=True
+                timestamp=row[5],
+                tzoffset=info["imageTimeZoneOffsetSeconds"] or 0,
+                tzname=info["imageTimeZoneName"],
+                default=True,
             )
             info["hidden"] = row[9]
             info["favorite"] = row[10]

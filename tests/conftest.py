@@ -77,6 +77,13 @@ def get_os_version():
 
 # Configure test libraries for different OS versions
 # TODO: this is hacky and should be refactored
+TEST_LIBRARY = None
+TEST_LIBRARY_TIMEWARP = None
+TEST_LIBRARY_SYNC = None
+TEST_LIBRARY_ADD_LOCATIONS = None
+TEST_LIBRARY_TAKEOUT = None
+TEST_LIBRARY_PHOTODATES = None
+
 OS_VER = get_os_version() if is_macos else [None, None]
 if OS_VER[0] == "10" and OS_VER[1] in ("15", "16"):
     # Catalina
@@ -84,12 +91,11 @@ if OS_VER[0] == "10" and OS_VER[1] in ("15", "16"):
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
     TEST_LIBRARY_TAKOUT = None
-    from tests.config_timewarp_catalina import TEST_LIBRARY_TIMEWARP
-
+    TEST_LIBRARY_TIMEWARP = None  # these tests do not run on macOS < 13
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
 
     TEST_LIBRARY_ADD_LOCATIONS = None
-elif OS_VER[0] == "13":
+elif int(OS_VER[0]) >= 13:
     # Ventura
     TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
@@ -100,13 +106,6 @@ elif OS_VER[0] == "13":
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
 
     TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
-else:
-    TEST_LIBRARY = None
-    TEST_LIBRARY_TIMEWARP = None
-    TEST_LIBRARY_SYNC = None
-    TEST_LIBRARY_ADD_LOCATIONS = None
-    TEST_LIBRARY_TAKEOUT = None
-    TEST_LIBRARY_PHOTODATES = None
 
 
 @pytest.fixture(scope="session", autouse=is_macos)

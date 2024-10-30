@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime
 from zoneinfo import ZoneInfo
 
-from .datetime_utils import get_local_tz
+from .datetime_utils import datetime_naive_to_local, get_local_tz
 
 # Time delta: add this to Photos times to get unix time
 # Apple Epoch is Jan 1, 2001
@@ -65,13 +65,10 @@ def photos_datetime_local(
     try:
         # Convert the timestamp to a datetime
         dt_naive = datetime.datetime.fromtimestamp(timestamp + TIME_DELTA)
-
         # Get the local timezone
         local_tz = get_local_tz(dt_naive.replace(tzinfo=None))
-
         # Convert naive datetime to local timezone
         dt_local = dt_naive.astimezone(local_tz)
-
         return dt_local
     except (ValueError, TypeError):
         return DEFAULT_DATETIME_LOCAL if default else None

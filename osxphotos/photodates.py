@@ -7,6 +7,7 @@ import os
 import pathlib
 import sqlite3
 from typing import Callable
+from zoneinfo import ZoneInfo
 
 import photoscript
 from strpdatetime import strpdatetime
@@ -15,17 +16,23 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from ._constants import _DB_TABLE_NAMES, SQLITE_CHECK_SAME_THREAD
 from .datetime_utils import (
     datetime_has_tz,
+    datetime_naive_to_local,
     datetime_remove_tz,
     datetime_tz_to_utc,
     datetime_utc_to_local,
+    get_local_tz,
     utc_offset_seconds,
 )
+from .platform import assert_macos
+from .utils import get_last_library_path, get_system_library_path
+
+assert_macos()
+
 from .photos_datetime import photos_datetime, photos_datetime_local
 from .photosdb.photosdb_utils import get_photos_library_version
 from .phototz import PhotoTimeZone, PhotoTimeZoneUpdater
-from .timeutils import update_datetime
+from .timeutils import get_valid_timezone, timezone_for_delta_seconds, update_datetime
 from .timezones import Timezone
-from .utils import get_last_library_path, get_system_library_path
 
 MACOS_TIME_EPOCH = datetime.datetime(2001, 1, 1, 0, 0, 0)
 
@@ -46,12 +53,13 @@ def reset_photo_date_time_tz(
         )
         return
     date_current = get_photo_date_created(photo, library_path)
-    tz = date_original.tzinfo.key
+    tz = date_original.tzinfo.tzname(date_original)
     tz_updater = PhotoTimeZoneUpdater(
         timezone=Timezone(tz), verbose=verbose, library_path=library_path
     )
     tz_updater.update_photo(photo)
     update_photo_date_time(
+        library_path=library_path,
         photo=photo,
         date=date_original.date(),
         time=date_original.time(),
@@ -66,31 +74,83 @@ def reset_photo_date_time_tz(
 
 
 def update_photo_date_time(
+    library_path: str,
     photo: photoscript.Photo,
-    date,
-    time,
-    date_delta,
-    time_delta,
-    verbose: Callable,
-):
-    """Update date, time in photo"""
+    date: datetime.date | None,
+    time: datetime.time | None,
+    date_delta: datetime.timedelta | None,
+    time_delta: datetime.timedelta | None,
+    verbose: Callable[..., None],
+) -> datetime.datetime | None:
+    """Update date, time in photo.
+
+    Args:
+        library_path: path to Photos library
+        photo: photo to update
+        date: new date
+        time: new time
+        date_delta: timedelta to add to date
+        time_delta: timedelta to add to time
+        verbose: callable to print verbose output
+
+    Returns: datetime photo was set to or None if photo not updated
+
+    Raises:
+        ValueError: if date and date_delta are both set or if time and time_delta are both set
+        ValueError: if timezone cannot be set
+    Note: date & date_delta, time & time_delta are mutually exclusive
+    """
+    if date and date_delta:
+        raise ValueError("date and date_delta are mutually exclusive")
+    if time and time_delta:
+        raise ValueError("time and time_delta are mutually exclusive")
+
     photo_date = photo.date
+    tz_offset_sec, _, tz_name = PhotoTimeZone(library_path=library_path).get_timezone(
+        photo
+    )
+
+    # if adjusting time, need to adjust for timezone offset from local time
+    # as AppleScript sets time in local time
+    # if time_delta provided use that as setting time & time_delta are mutually exclusive
+    local_time_delta = time_delta or local_tz_delta_from_photo_tz(
+        photo_date, tz_offset_sec
+    )
     new_photo_date = update_datetime(
-        photo_date, date=date, time=time, date_delta=date_delta, time_delta=time_delta
+        photo_date,
+        date=date,
+        time=time,
+        date_delta=date_delta,
+        time_delta=time_delta,
+        local_time_delta=local_time_delta,
     )
     filename = photo.filename
     uuid = photo.uuid
     if new_photo_date != photo_date:
         photo.date = new_photo_date
+        # convert to photo's timezone for display
+        # if this isn't done then the time will be displayed in local time which may be confusing
+        try:
+            # a timezone like "GMT-0500", which is valid on macOS won't work for apply_tz_to_date
+            # so find a valid timezone if we can or use the local timezone
+            # this is just for display to user and doesn't affect the actual date/time
+            tz_name = get_valid_timezone(tz_name, photo.date)
+        except ValueError as e:
+            # use local timezone if we can't get a valid timezone
+            tz_name = get_local_tz(photo.date).tzname(photo.date)
+        photo_date_tz = apply_tz_to_date(photo_date, tz_name)
+        new_photo_date_tz = apply_tz_to_date(new_photo_date, tz_name)
         verbose(
             f"Updated date/time for photo [filename]{filename}[/filename] "
-            f"([uuid]{uuid}[/uuid]) from: [time]{photo_date}[/time] to [time]{new_photo_date}[/time]"
+            f"([uuid]{uuid}[/uuid]) from: [time]{photo_date_tz}[/time] to [time]{new_photo_date_tz}[/time]"
         )
+        return new_photo_date_tz
     else:
         verbose(
             f"Skipped date/time update for photo [filename]{filename}[/filename] "
             f"([uuid]{uuid}[/uuid]): nothing to do"
         )
+        return None
 
 
 def update_photo_from_function(
@@ -146,10 +206,10 @@ def update_photo_time_for_new_timezone(
     For example, photo time is 12:00+0100 and new timezone is +0200,
     so adjust photo time by 1 hour so it will now be 12:00+0200 instead of
     13:00+0200 as it would be with no adjustment to the time"""
-    old_timezone = PhotoTimeZone(library_path=library_path).get_timezone(photo)[0]
-    # need to move time in opposite direction of timezone offset so that
-    # photo time is the same time but in the new timezone
-    delta = old_timezone - new_timezone.offset
+    old_timezone_offset = PhotoTimeZone(library_path=library_path).get_timezone(photo)[
+        0
+    ]
+    delta = old_timezone_offset - new_timezone.offset
     photo_date = photo.date
     new_photo_date = update_datetime(
         dt=photo_date, time_delta=datetime.timedelta(seconds=delta)
@@ -159,8 +219,13 @@ def update_photo_time_for_new_timezone(
     if photo_date != new_photo_date:
         photo.date = new_photo_date
         verbose(
-            f"Adjusted date/time for photo [filename]{filename}[/] ([uuid]{uuid}[/]) to [time]{new_photo_date}[/] "
+            f"Adjusted local date/time for photo [filename]{filename}[/] ([uuid]{uuid}[/]) to [time]{new_photo_date}[/] "
             f"to match previous time [time]{photo_date}[/] but in new timezone [tz]{new_timezone}[/]."
+        )
+        # get datetime for photo in new timezone
+        new_photo_date_tz = apply_tz_to_date(new_photo_date, new_timezone.name)
+        verbose(
+            f"Photo date/time is now [time]{new_photo_date_tz}[/] in new timezone [tz]{new_timezone}[/]."
         )
     else:
         verbose(
@@ -175,8 +240,8 @@ def set_photo_date_from_filename(
     parse_date: str,
     verbose: Callable[..., None],
     library_path: str | None = None,
-) -> datetime.datetime | None:
-    """Set date of photo from filename
+):
+    """Set date/time of photo from filename
 
     Args:
         photo: Photo to set date
@@ -186,7 +251,7 @@ def set_photo_date_from_filename(
         library_path: Path to Photos library; if not provided, will attempt to determine automatically
 
     Returns:
-        datetime.datetime: date set on photo or None if date could not be parsed
+        datetime.datetime: date set on photo or None if date could not be parsed or photo not updated
     """
 
     if not isinstance(filepath, pathlib.Path):
@@ -196,16 +261,25 @@ def set_photo_date_from_filename(
         date = strpdatetime(filepath.name, parse_date)
     except ValueError:
         verbose(
-            f"[warning]Could not parse date from filename [filename]{filepath.name}[/][/]"
+            f"[warning]Could not parse date/time from filename [filename]{filepath.name}[/][/]"
         )
-        return None
+        return
 
-    # first, set date on photo without timezone (Photos will assume local timezone)
-    date_no_tz = datetime_remove_tz(date) if datetime_has_tz(date) else date
-    verbose(
-        f"Setting date of photo [filename]{filepath.name}[/] to [time]{date_no_tz.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+    new_date = update_photo_date_time(
+        library_path=library_path,
+        photo=photo,
+        date=date.date(),
+        time=date.time(),
+        date_delta=None,
+        time_delta=None,
+        verbose=verbose,
     )
-    photo.date = date_no_tz
+    # # first, set date on photo without timezone (Photos will assume local timezone)
+    # date_no_tz = datetime_remove_tz(date) if datetime_has_tz(date) else date
+    # verbose(
+    #     f"Setting date/time of photo [filename]{filepath.name}[/] to [time]{date_no_tz.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+    # )
+    # photo.date = date_no_tz
     if datetime_has_tz(date):
         # if timezone, need to update timezone and also the date/time to match
         photo_tz_sec, _, photo_tz_name = PhotoTimeZone(
@@ -213,7 +287,17 @@ def set_photo_date_from_filename(
         ).get_timezone(photo)
         tz_new_secs = int(utc_offset_seconds(date))
         if photo_tz_sec != tz_new_secs:
-            tz_new = Timezone(tz_new_secs)
+            # get named timezone that matches the new UTC offset
+            # this is a bit of a hack as the timezone name is not encoded in a string like an ISO8601 format
+            # but need to set the photo to a valid timezone which something like GMT-0400 is not
+            try:
+                tz_name = timezone_for_delta_seconds(tz_new_secs, date)
+            except ValueError:
+                verbose(
+                    f"Could not find matching timezone for delta seconds: {tz_new_secs} for date {date}"
+                )
+                return
+            tz_new = Timezone(tz_name)
             update_photo_time_for_new_timezone(library_path, photo, tz_new, verbose)
             tz_updater = PhotoTimeZoneUpdater(
                 timezone=tz_new,
@@ -222,24 +306,34 @@ def set_photo_date_from_filename(
             )
             tz_updater.update_photo(photo)
 
-    return date
-
 
 def set_photo_date_added(
     photo: photoscript.Photo,
     date_added: datetime.datetime,
     verbose: Callable[..., None],
     library_path: str | None = None,
-) -> datetime.datetime | None:
-    """Modify the ADDEDDATE of a photo"""
+):
+    """Modify the ADDEDDATE of a photo
+
+    Args:
+        photo: Photo to modify
+        date_added: New date added for photo (naive datetime in local timezone)
+        verbose: verbose function to use for logging
+        library_path: Path to Photos library; if not provided, will attempt to determine automatically
+    """
 
     if not (library_path := _get_photos_library_path(library_path)):
         raise ValueError("Could not determine Photos library path")
     verbose(
         f"Setting date added for photo [filename]{photo.filename}[/] to [time]{date_added}[/]"
     )
+
+    # convert date_added form local timezone to UTC then remove timezone
+    date_added = datetime_naive_to_local(date_added)
+    date_added = date_added.astimezone(ZoneInfo("UTC")).replace(tzinfo=None)
     _set_date_added(library_path, photo.uuid, date_added)
 
+    # Need to update the date on the photo to force Photos to sync date/time changes to iCloud
     photo.date = photo.date + datetime.timedelta(seconds=1)
     photo.date = photo.date - datetime.timedelta(seconds=1)
 
@@ -254,7 +348,7 @@ def _set_date_added(library_path: str, uuid: str, date_added: datetime.datetime)
     Args:
             library_path: Path to Photos library
             uuid: UUID of photo
-            date_added: New date added for photo
+            date_added: New date added for photo (naive in UTC)
 
     Raises:
         FileNotFoundError: If Photos library path is not found or Photos database is not found
@@ -465,3 +559,27 @@ def get_photo_date_original(
     return _get_photo_date_original(photo, library_path) or get_photo_date_created(
         photo, library_path
     )
+
+
+def local_tz_delta_from_photo_tz(
+    dt: datetime.datetime, tz_offset_sec: int
+) -> datetime.timedelta:
+    """Given a photo's datetime (naive) and the timezone offset in seconds, return the timedelta between the photo's timezone and the local timezone"""
+    local_delta_sec = get_local_tz(dt).utcoffset(dt).total_seconds() - tz_offset_sec
+    local_delta = datetime.timedelta(seconds=local_delta_sec)
+    return local_delta
+
+
+def apply_tz_to_date(dt: datetime.datetime, tz: str) -> datetime.datetime:
+    """Apply timezone to a naive datetime object.
+
+    Args:
+        dt: datetime.datetime object to apply timezone to
+        tz: timezone name (e.g. 'America/New_York')
+
+    Returns datetime object with timezone applied or original datetime object if error
+    """
+    try:
+        return datetime_naive_to_local(dt).astimezone(ZoneInfo(tz))
+    except Exception as e:
+        return dt
