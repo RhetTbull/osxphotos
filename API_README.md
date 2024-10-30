@@ -1602,6 +1602,9 @@ See also [Text Detection](#textdetection).
     camera_model: str
     codec: str
     lens_model: str
+    date: datetime.datetime | None
+    tzoffset: int | None
+    tzname: str | None
 ```
 
 For example:
