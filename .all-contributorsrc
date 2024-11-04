@@ -884,6 +884,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "mravery",
+      "name": "Avery Chan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1683929?v=4",
+      "profile": "https://github.com/mravery",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
