@@ -94,10 +94,11 @@ class PhotoCompare:
         Args:
             photo (Photo): Photo object to compare
             plain (bool): Flag to determine if plain (True) or markup (False) should be applied
-        """ 
+        """
+
         def compare_values(photo_value: str, exif_value: str) -> tuple:
             """Compare two values and return them with or without markup.
-            
+
             Affects nonlocal variable diff (from timewarp_compare_exif) with result.
             """
 
@@ -110,7 +111,7 @@ class PhotoCompare:
                 if not plain:
                     return no_change(photo_value), no_change(exif_value)
             return photo_value, exif_value
-        
+
         # Get values from comparison function
         photos_date, photos_tz, exif_date, exif_tz = self.compare_exif(photo)
         diff = False
@@ -136,4 +137,3 @@ class PhotoCompare:
             exif_time,
             exif_tz,
         )
-    

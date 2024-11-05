@@ -16,6 +16,7 @@ WAIT_FOR_AUTHORIZATION_TIMEOUT = 10
 # seconds to sleep between authorization check
 AUTHORIZATION_SLEEP = 0.25
 
+
 def wait_for_photokit_authorization() -> bool:
     """Request and wait for authorization to access Photos library."""
     if check_photokit_authorization():

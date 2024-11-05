@@ -27,7 +27,9 @@ def creation_date(
     """
 
     if not path:
-        verbose(f"Could not get path for photo {photo.original_filename} ({photo.uuid}); skipping")
+        verbose(
+            f"Could not get path for photo {photo.original_filename} ({photo.uuid}); skipping"
+        )
         return photo.date, tz_sec
 
     # this example uses's the file's creation date/time; the timezone is not changed

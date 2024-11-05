@@ -9,7 +9,7 @@ import click
 
 from osxphotos._constants import PROFILE_SORT_KEYS
 from osxphotos._version import __version__
-from osxphotos.disclaim import disclaim, pyinstaller, pyapp
+from osxphotos.disclaim import disclaim, pyapp, pyinstaller
 from osxphotos.platform import is_macos
 
 from .about import about

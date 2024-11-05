@@ -379,7 +379,7 @@ def import_metadata_for_photo(
         # If --set use origin location in the destination photo
         results += _set_location_for_photo(photo, metadata, dry_run, verbose)
     elif "location" in merge:
-        # if --merge 
+        # if --merge
         #   and property is set in the destination then no action is taken;
         #   if property is not set in the destination but is set in the source,
         #      then the value is copied to destination.
@@ -389,6 +389,7 @@ def import_metadata_for_photo(
     results += _merge_metadata_for_photo(photo, metadata, merge, dry_run, verbose)
 
     return results
+
 
 def _process_location_for_photo(
     photo: PhotoInfo,
@@ -433,7 +434,8 @@ def _process_location_for_photo(
         field,
         updated,
         before,
-        value)
+        value,
+    )
     return results
 
 
@@ -520,7 +522,7 @@ def _set_metadata_for_photo(
 
         value = metadata[field]
         before = getattr(photo, field)
-    
+
         if isinstance(value, list):
             value = sorted(value)
         if isinstance(before, list):

@@ -413,7 +413,7 @@ def get_photo_type(photo: PhotoInfo) -> str:
     if photo.screenshot:
         photo_type += " screenshot"
     if photo.screen_recording:
-        photo_type += " screen recording"        
+        photo_type += " screen recording"
     if photo.slow_mo:
         photo_type += " slow-mo"
     if photo.time_lapse:

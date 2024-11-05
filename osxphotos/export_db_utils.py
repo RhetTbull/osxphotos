@@ -9,8 +9,8 @@ import os
 import pathlib
 import sqlite3
 from typing import Any, Callable, Optional, Tuple, Union
-import tenacity
 
+import tenacity
 import toml
 from rich import print
 

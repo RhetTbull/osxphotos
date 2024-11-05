@@ -198,6 +198,7 @@ class PhotosAlbumPhotoScript(PhotosAlbum):
         """Add list of photos to album"""
         self.update(photos)
 
+
 class PhotosAlbumPhotoScriptByPath(PhotosAlbumPhotoScript):
     """Add photoscript.Photo objects to album"""
 

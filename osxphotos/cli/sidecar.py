@@ -225,9 +225,7 @@ def get_sidecar_file_with_template(
     if not sidecar_file or not sidecar_file.exists():
         if edited_suffix:
             # try again with the edited suffix removed
-            filepath = strip_edited_suffix(
-                filepath, edited_suffix, exiftool_path
-            )
+            filepath = strip_edited_suffix(filepath, edited_suffix, exiftool_path)
             return get_sidecar_file_with_template(
                 filepath,
                 sidecar,

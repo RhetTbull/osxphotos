@@ -532,7 +532,7 @@ def timewarp_cli(
 
     if inspect and compare_exif:
         raise click.UsageError("--inspect and --compare-exif are mutually exclusive.")
-    
+
     if date and date_delta:
         raise click.UsageError("--date and --date-delta are mutually exclusive.")
 
