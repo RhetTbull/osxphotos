@@ -530,6 +530,9 @@ def timewarp_cli(
             "must be specified."
         )
 
+    if inspect and compare_exif:
+        raise click.UsageError("--inspect and --compare-exif are mutually exclusive.")
+    
     if date and date_delta:
         raise click.UsageError("--date and --date-delta are mutually exclusive.")
 
@@ -709,11 +712,7 @@ def timewarp_cli(
                 )
         for photo in photos:
             set_crash_data("photo", f"{photo.uuid} {photo.filename}")
-            diff_results = (
-                photocomp.compare_exif_no_markup(photo)
-                if plain
-                else photocomp.compare_exif_with_markup(photo)
-            )
+            diff_results = photocomp.timewarp_compare_exif(photo, plain)
 
             if not plain:
                 filename = (
