@@ -27,6 +27,7 @@ If you want to contribute to osxphotos, please open a pull request. Here's how t
 - Make your changes
 - Add tests for your changes
 - Run the tests: `pytest`
+- Format the code: `isort .` then `black .`
 - Update the README.md and other files as needed
 - Add your changes using `git add`
 - Commit your changes: `git commit -m "My changes description"`

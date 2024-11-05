@@ -36,11 +36,13 @@ def test_timezone_by_offset():
     assert tz.offset_str == "-05:00"
     assert isinstance(tz.tzinfo(datetime.datetime.now()), ZoneInfo)
 
+
 @pytest.mark.skipif(not is_macos, reason="macOS only")
 def test_timezone_invalid_zone():
     """Test that Timezone creation fails with an invalid zone name."""
     with pytest.raises(ValueError, match="Invalid timezone: Invalid/Zone"):
         Timezone("Invalid/Zone")
+
 
 @pytest.mark.skipif(not is_macos, reason="macOS only")
 def test_timezone_invalid_offset():

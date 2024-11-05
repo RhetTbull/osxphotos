@@ -32,5 +32,6 @@ def main():
         album = PhotosAlbum(album_name)
         album.update(photos)
 
+
 if __name__ == "__main__":
     main()

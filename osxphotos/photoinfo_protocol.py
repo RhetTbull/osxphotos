@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
 __all__ = ["PhotoInfoProtocol", "PhotoInfoMixin"]
 
+
 @runtime_checkable
 class PhotoInfoProtocol(Protocol):
     @property

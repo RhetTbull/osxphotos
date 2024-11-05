@@ -750,7 +750,9 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         assert "EXIF:CreateDate" not in exif
 
         # verify faces were pushed
-        assert sorted(get_exiftool_tag_as_list(photo, "XMP:RegionsRegionListName")) == sorted(photo.persons)
+        assert sorted(
+            get_exiftool_tag_as_list(photo, "XMP:RegionsRegionListName")
+        ) == sorted(photo.persons)
 
         # clear metadata
         photosdb = PhotosDB(test_library)

@@ -589,8 +589,7 @@ class PhotoExporter:
         staged = StagedFiles()
 
         if options.use_photos_export:
-            return self._stage_missing_photos_for_export_helper(
-                options=options)
+            return self._stage_missing_photos_for_export_helper(options=options)
 
         if options.raw_photo and self.photo.has_raw:
             staged.raw = self.photo.path_raw
@@ -648,7 +647,8 @@ class PhotoExporter:
             use_photokit=options.use_photokit,
         )
         missing_staged = self._stage_missing_photos_for_export_helper(
-            options=missing_options)
+            options=missing_options
+        )
         staged |= missing_staged
         return staged
 
@@ -1233,7 +1233,10 @@ class PhotoExporter:
         if action == "skip":
             if dest.exists():
                 options.export_db.set_history(
-                    filename=str(dest), uuid=self.photo.uuid, action=f"AAE: {action}", diff=None
+                    filename=str(dest),
+                    uuid=self.photo.uuid,
+                    action=f"AAE: {action}",
+                    diff=None,
                 )
                 return ExportResults(aae_skipped=[str(dest)], skipped=[str(dest)])
             else:
