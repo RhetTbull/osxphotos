@@ -89,7 +89,7 @@ uv tool install osxphotos
 Once you've installed osxphotos with `uv`, to upgrade to the latest version:
 
 ```bash
-uv tool upgrade
+uv tool upgrade osxphotos
 ```
 
 If you want to try `osxphotos` without installing it, you can run `uv tool run osxphotos`.
