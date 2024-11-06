@@ -47,7 +47,7 @@ Tested on macOS Sierra (10.12.6) through macOS Sonoma (14.1). Tested on both x86
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
-| 15.0 beta         | Sequoia    | 10.0 (beta support) |
+| 15.0              | Sequoia    | 10.0 (beta support) |
 | 14.0 - 14.6       | Sonoma     | 9.0 ✅              |
 | 13.0 - 13.6       | Ventura    | 8.0 ✅              |
 | 12.0 - 12.7       | Monterey   | 7.0 ✅              |
@@ -67,41 +67,36 @@ For macOS 15.0 / Sequoia developer preview, alpha support is provided (very prel
 
 ## Installation
 
-** NOTE ** The instructions below regarding homewbrew and pipx are currently broken and will likely not work.
-This is because Python 3.13 has been released recently and homebrew insists on installing this version of Python
-for us with pipx. This version of Python is not yet supported by osxphotos and the installation will fail.
-I am aware of this and am working on a fix. In the meantime, you can try one of the other installation methods below
-or wait for the fix.
+The recommended way to install `osxphotos` is via the [uv](https://github.com/astral-sh/uv) python package manager tool.
 
-If you are new to python, I recommend you install osxphotos using pipx. See other options below. If installing on Linux, see instructions below.
-
-### Installation using pipx
-
-If you aren't familiar with installing python applications, I recommend you install `osxphotos` with [pipx](https://github.com/pipxproject/pipx). The easiest way to do this on a Mac is to use [homebrew](https://brew.sh/):
+### Installation using `uv`
 
 * Open `Terminal` (search for `Terminal` in Spotlight or look in `Applications/Utilities`)
-* Install `homebrew` according to instructions at [https://brew.sh/](https://brew.sh/)
-* Type the following into Terminal: `brew install pipx`
-* Ensure that pipx installed packages are accessible in your PATH by typing: `pipx ensurepath`
-* Then type this: `pipx install osxphotos`
+* Install `uv` by running the following command in Terminal:
+
+```bash
+curl -fsSL https://uv.astral.sh | sh
+```
+
+* Type the following into Terminal:
+
+```bash
+uv tool install osxphotos
+```
+
 * Now you should be able to run `osxphotos` by typing: `osxphotos`
 
-Once you've installed osxphotos with pipx, to upgrade to the latest version:
+Once you've installed osxphotos with `uv`, to upgrade to the latest version:
 
-    pipx upgrade osxphotos
+```bash
+uv tool upgrade
+```
 
-> [!NOTE]
-> When installing other packages with homebrew, homebrew may update the version of Python installed which would then cause any app (including osxphotos) installed with `pipx` to fail. If this happens, the easiest fix is to reinstall osxphotos with:
->
->     pipx reinstall osxphotos
->
-> Alternatively, you can reinstall all apps installed with `pipx` with:
->
->     pipx reinstall-all
+If you want to try `osxphotos` without installing it, you can run `uv tool run osxphotos`.
 
 ### Installation using pip
 
-You can also install directly from [pypi](https://pypi.org/project/osxphotos/):
+You can install `osxphotos` directly from [pypi](https://pypi.org/project/osxphotos/):
 
     python3 -m pip install osxphotos
 
@@ -139,7 +134,7 @@ If you want to work on osxphotos code or contribute to the project, you can inst
 > [!NOTE]
 > The git repo for this project is very large (> 3GB) because it contains multiple Photos libraries used for testing on different versions of macOS.
 >
-> If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or `pipx` as described above.
+> If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or with `uv` as described above.
 >
 > Alternatively, to clone the repository without the test data:
 >
@@ -166,7 +161,7 @@ See also the developer notes in [README_DEV.md](README_DEV.md).
 
 ### Installing pre-built executable
 
-You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page. Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x86_64_v0.63.5.zip`. In this case `v0.63.5` specifies version 0.63.5 and `x86_64` specifies Intel x86 platform; you should download the latest version available. For Apple Silicon, there is an equivalent `arm64` version of the executable. Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings. If you don't know how to do this, I recommend using `pipx` as described above.
+You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page. Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x86_64_v0.63.5.zip`. In this case `v0.63.5` specifies version 0.63.5 and `x86_64` specifies Intel x86 platform; you should download the latest version available. For Apple Silicon, there is an equivalent `arm64` version of the executable. Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings. If you don't know how to do this, I recommend using `uv` as described above.
 
 ## Documentation
 
