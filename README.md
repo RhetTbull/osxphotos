@@ -75,7 +75,13 @@ The recommended way to install `osxphotos` is via the [uv](https://github.com/as
 * Install `uv` by running the following command in Terminal:
 
 ```bash
-curl -fsSL https://uv.astral.sh | sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+If you previously installed `uv`, upgrade to the latest version:
+
+```bash
+uv self update
 ```
 
 * Type the following into Terminal:
@@ -92,7 +98,7 @@ Once you've installed osxphotos with `uv`, to upgrade to the latest version:
 uv tool upgrade osxphotos
 ```
 
-If you want to try `osxphotos` without installing it, you can run `uv tool run osxphotos`.
+If you want to try `osxphotos` without installing it, you can run `uv tool run osxphotos` or `uvx osxphotos`.
 
 ### Installation using pip
 
