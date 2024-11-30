@@ -29,7 +29,6 @@ def version(ctx, cli_obj, run):
     ) > packaging.version.parse(__version__):
         click.echo(
             f"A new version of osxphotos is available: {latest_version} (you have {__version__})\n"
-            "Run `pipx upgrade osxphotos` to upgrade (assuming you installed osxphotos with pipx).\n"
             f"See {OSXPHOTOS_URL} for more information."
         )
         if run:
