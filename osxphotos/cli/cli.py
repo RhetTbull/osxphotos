@@ -8,7 +8,6 @@ import pstats
 import click
 
 from osxphotos._constants import PROFILE_SORT_KEYS
-from osxphotos._version import __version__
 from osxphotos.disclaim import disclaim, pyapp, pyinstaller
 from osxphotos.platform import is_macos
 
@@ -39,6 +38,7 @@ from .snap_diff import diff, snap
 from .template_repl import template_repl
 from .theme import theme
 from .tutorial import tutorial
+from .update_command import update_command
 from .version import version
 
 if is_macos:
@@ -162,6 +162,7 @@ commands = [
     template_repl,
     uninstall,
     version,
+    update_command,
 ]
 
 if is_macos:

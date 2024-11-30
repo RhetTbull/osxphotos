@@ -42,7 +42,7 @@ class RunCommand(click.Command):
 @click.argument("packages", nargs=-1, required=False)
 def install(packages, upgrade, requirements_file):
     """Install Python packages into the same environment as osxphotos"""
-    args = ["pip", "install"]
+    args = ["pip", "--disable-pip-version-check", "--verbose", "install"]
     if upgrade:
         args += ["--upgrade"]
     if requirements_file:
