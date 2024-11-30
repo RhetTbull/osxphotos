@@ -6,11 +6,11 @@ furo
 isort
 m2r2==0.3.3.post2
 pdbpp
-pyinstaller==5.13.2
+pyinstaller>=6.11.1
 pytest-cov==4.0.0
 pytest-mock
-pytest==7.4.0
-ruff==0.7.2
+pytest>=7.4.0,<8.0.0
+ruff==0.8.1
 Sphinx
 sphinx_click
 sphinx_rtd_theme

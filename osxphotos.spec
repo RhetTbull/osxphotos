@@ -26,6 +26,7 @@ datas.extend(
 
 package_imports = [
     ["photoscript", ["photoscript.applescript"]],
+    ["utitools", ["uti.csv", "uti_tree.json"]],
 ]
 for package, files in package_imports:
     proot = os.path.dirname(importlib.import_module(package).__file__)

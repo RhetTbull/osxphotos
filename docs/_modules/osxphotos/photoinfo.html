@@ -4,12 +4,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
         <title>osxphotos.photoinfo - osxphotos 0.68.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
     
     
 
@@ -68,7 +68,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -83,22 +83,63 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
@@ -111,6 +152,8 @@
 <label class="overlay toc-overlay" for="__toc">
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
 
 
@@ -129,7 +172,8 @@
       <div class="theme-toggle-container theme-toggle-header">
         <button class="theme-toggle">
           <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
@@ -184,7 +228,8 @@
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
@@ -194,7 +239,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.photoinfo</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;PhotoInfo class: Represents a single photo in the Photos library and provides access to the photo&#39;s attributes</span>
 <span class="sd">PhotosDB.photos() returns a list of PhotoInfo objects</span>
@@ -253,7 +298,7 @@
 <span class="kn">from</span> <span class="nn">.albuminfo</span> <span class="kn">import</span> <span class="n">AlbumInfo</span><span class="p">,</span> <span class="n">ImportInfo</span><span class="p">,</span> <span class="n">ProjectInfo</span>
 <span class="kn">from</span> <span class="nn">.bookmark</span> <span class="kn">import</span> <span class="n">resolve_bookmark_path</span>
 <span class="kn">from</span> <span class="nn">.commentinfo</span> <span class="kn">import</span> <span class="n">CommentInfo</span><span class="p">,</span> <span class="n">LikeInfo</span>
-<span class="kn">from</span> <span class="nn">.exifinfo</span> <span class="kn">import</span> <span class="n">ExifInfo</span>
+<span class="kn">from</span> <span class="nn">.exifinfo</span> <span class="kn">import</span> <span class="n">ExifInfo</span><span class="p">,</span> <span class="n">exifinfo_factory</span>
 <span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifToolCaching</span><span class="p">,</span> <span class="n">get_exiftool_path</span>
 <span class="kn">from</span> <span class="nn">.exportoptions</span> <span class="kn">import</span> <span class="n">ExportOptions</span>
 <span class="kn">from</span> <span class="nn">.momentinfo</span> <span class="kn">import</span> <span class="n">MomentInfo</span>
@@ -331,13 +376,31 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;image creation date as timezone aware datetime object&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asset creation date as timezone aware datetime object&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imageDate&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">date_original</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Original creation date of asset as timezone aware datetime object.</span>
+<span class="sd">        If user has changed the asset&#39;s creation date in Photos, use this to access the original creation date</span>
+<span class="sd">        set when the asset was imported.</span>
+
+<span class="sd">        The original date is stored by Photos at import time</span>
+<span class="sd">        from the date in the photo&#39;s EXIF data. If this is not set (photo had no EXIF date) then `date_original`</span>
+<span class="sd">        returns the same value as `date`.</span>
+
+<span class="sd">        Photos 5+; on Photos version &lt; 5, returns the same value as `date`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span><span class="o">.</span><span class="n">date</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exif_info</span><span class="o">.</span><span class="n">date</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">date_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;image modification date as timezone aware datetime object</span>
-<span class="sd">        or None if no modification date set&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Asset modification date as timezone aware datetime.datetime object</span>
+<span class="sd">        in local timezone or None if no modification date set&quot;&quot;&quot;</span>
 
         <span class="c1"># Photos &lt;= 4 provides no way to get date of adjustment and will update</span>
         <span class="c1"># lastmodifieddate anytime photo database record is updated (e.g. adding tags)</span>
@@ -346,18 +409,17 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">imagedate</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;lastmodifieddate&quot;</span><span class="p">]:</span>
-            <span class="n">seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imageTimeZoneOffsetSeconds&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
-            <span class="n">delta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
-            <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">imagedate</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;lastmodifieddate&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tzoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;timezone offset from UTC in seconds&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Timezone offset from UTC in seconds for the Photo creation date&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imageTimeZoneOffsetSeconds&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tzname</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Timezone name for the Photos creation date; on Photos version &lt; 5, returns None&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imageTimeZoneName&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -972,34 +1034,18 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">date_trashed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Date asset was placed in the trash or None&quot;&quot;&quot;</span>
-        <span class="c1"># TODO: add add_timezone(dt, offset_seconds) to datetime_utils</span>
-        <span class="c1"># also update date_modified</span>
-        <span class="n">trasheddate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;trasheddate&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">trasheddate</span><span class="p">:</span>
-            <span class="n">seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imageTimeZoneOffsetSeconds&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
-            <span class="n">delta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
-            <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">trasheddate</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Date asset was placed in the trash or None.</span>
+
+<span class="sd">        Returns a timezone aware datetime.datetime object in the local timezone.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;trasheddate&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">date_added</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Date photo was added to the database&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_added</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">added_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;added_date&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">added_date</span><span class="p">:</span>
-                <span class="n">seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imageTimeZoneOffsetSeconds&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
-                <span class="n">delta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
-                <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_date_added</span> <span class="o">=</span> <span class="n">added_date</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_date_added</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Date photo was added to the database or None if no added date is recorded.</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_added</span>
+<span class="sd">        Returns a timezone aware datetime.datetime object in the local timezone</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;added_date&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
@@ -1170,6 +1216,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if photo is a live photo, otherwise False&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;live_photo&quot;</span><span class="p">]</span>
 
+<div class="viewcode-block" id="PhotoInfo.path_live_photo">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.path_live_photo">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">path_live_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the associated video file for a live photo</span>
@@ -1195,7 +1243,8 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="n">photopath</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_3.mov&quot;</span><span class="p">)</span>
         <span class="c1"># live photo may be missing, in which case return None</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span> <span class="k">if</span> <span class="n">photopath</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span> <span class="k">if</span> <span class="n">photopath</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span></div>
+
 
     <span class="k">def</span> <span class="nf">_path_live_photo_shared_5</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return path for live photo for shared photos&quot;&quot;&quot;</span>
@@ -1291,6 +1340,8 @@
                         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
+<div class="viewcode-block" id="PhotoInfo.path_derivatives">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.path_derivatives">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">path_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return any derivative (preview) images associated with the photo as a list of paths, sorted by file size (largest first)&quot;&quot;&quot;</span>
@@ -1343,7 +1394,8 @@
             <span class="c1"># ensure .mov is first in list as poster image could be larger than the movie preview</span>
             <span class="n">derivatives</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">derivatives</span>
+        <span class="k">return</span> <span class="n">derivatives</span></div>
+
 
     <span class="k">def</span> <span class="nf">_path_derivatives_4</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return paths to all derivative (preview) files for Photos &lt;= 4&quot;&quot;&quot;</span>
@@ -1672,6 +1724,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_search_info_normalized</span> <span class="o">=</span> <span class="n">SearchInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_info_normalized</span>
 
+<div class="viewcode-block" id="PhotoInfo.syndicated">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.syndicated">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">syndicated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return true if photo was shared via syndication (e.g. via Messages, etc.);</span>
@@ -1687,8 +1741,11 @@
                 <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.saved_to_library">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.saved_to_library">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">saved_to_library</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if syndicated photo has been saved to library;</span>
@@ -1702,13 +1759,19 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_syndication_uuid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;syndication_history&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.shared_moment">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.shared_moment">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">shared_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if photo is part of a shared moment otherwise False (Photos 7+ only)&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;moment_share&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;moment_share&quot;</span><span class="p">])</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.shared_moment_info">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.shared_moment_info">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">shared_moment_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ShareInfo</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ShareInfo object with information about the shared moment the photo is part of (Photos 7+ only)&quot;&quot;&quot;</span>
@@ -1718,8 +1781,11 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">get_moment_share_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.share_info">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.share_info">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">share_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ShareInfo</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ShareInfo object with information about the shared photo in a shared iCloud library (Photos 8+ only) (currently experimental)&quot;&quot;&quot;</span>
@@ -1729,21 +1795,30 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">get_share_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.shared_library">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.shared_library">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">shared_library</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if photo is in a shared iCloud library otherwise False (Photos 8+ only)&quot;&quot;&quot;</span>
         <span class="c1"># TODO: this is just a guess right now as I don&#39;t currently use shared libraries</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;active_library_participation_state&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;active_library_participation_state&quot;</span><span class="p">])</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.share_participant_info">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.share_participant_info">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">share_participant_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ShareParticipant</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of ShareParticipant objects with information on who the photo is shared with (Photos 8+ only)&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="n">get_share_participants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_share_participants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.share_participants">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.share_participants">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">share_participants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of names of people the photo is shared with (Photos 8+ only)&quot;&quot;&quot;</span>
@@ -1752,7 +1827,8 @@
         <span class="k">return</span> <span class="p">[</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name_components</span><span class="o">.</span><span class="n">given_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name_components</span><span class="o">.</span><span class="n">family_name</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_participant_info</span>
-        <span class="p">]</span>
+        <span class="p">]</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -1790,7 +1866,9 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="PhotoInfo.exif_info">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.exif_info">[docs]</a>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">exif_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExifInfo</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an ExifInfo object with the EXIF data for photo</span>
 <span class="sd">        Note: the returned EXIF data is the data Photos stores in the database on import;</span>
@@ -1804,52 +1882,11 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">exif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_exifinfo_uuid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">]</span>
-            <span class="n">exif_info</span> <span class="o">=</span> <span class="n">ExifInfo</span><span class="p">(</span>
-                <span class="n">iso</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZISO&quot;</span><span class="p">],</span>
-                <span class="n">flash_fired</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZFLASHFIRED&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="n">metering_mode</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZMETERINGMODE&quot;</span><span class="p">],</span>
-                <span class="n">sample_rate</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZSAMPLERATE&quot;</span><span class="p">],</span>
-                <span class="n">track_format</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZTRACKFORMAT&quot;</span><span class="p">],</span>
-                <span class="n">white_balance</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZWHITEBALANCE&quot;</span><span class="p">],</span>
-                <span class="n">aperture</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZAPERTURE&quot;</span><span class="p">],</span>
-                <span class="n">bit_rate</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZBITRATE&quot;</span><span class="p">],</span>
-                <span class="n">duration</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZDURATION&quot;</span><span class="p">],</span>
-                <span class="n">exposure_bias</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZEXPOSUREBIAS&quot;</span><span class="p">],</span>
-                <span class="n">focal_length</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZFOCALLENGTH&quot;</span><span class="p">],</span>
-                <span class="n">fps</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZFPS&quot;</span><span class="p">],</span>
-                <span class="n">latitude</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZLATITUDE&quot;</span><span class="p">],</span>
-                <span class="n">longitude</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZLONGITUDE&quot;</span><span class="p">],</span>
-                <span class="n">shutter_speed</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZSHUTTERSPEED&quot;</span><span class="p">],</span>
-                <span class="n">camera_make</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZCAMERAMAKE&quot;</span><span class="p">],</span>
-                <span class="n">camera_model</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZCAMERAMODEL&quot;</span><span class="p">],</span>
-                <span class="n">codec</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZCODEC&quot;</span><span class="p">],</span>
-                <span class="n">lens_model</span><span class="o">=</span><span class="n">exif</span><span class="p">[</span><span class="s2">&quot;ZLENSMODEL&quot;</span><span class="p">],</span>
-            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">exifinfo_factory</span><span class="p">(</span><span class="n">exif</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find exif record for uuid </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">exif_info</span> <span class="o">=</span> <span class="n">ExifInfo</span><span class="p">(</span>
-                <span class="n">iso</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">flash_fired</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">metering_mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">sample_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">track_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">white_balance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">aperture</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">bit_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">duration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">exposure_bias</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">focal_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">fps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">latitude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">longitude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">shutter_speed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">camera_make</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">camera_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">codec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">lens_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">exifinfo_factory</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
 
-        <span class="k">return</span> <span class="n">exif_info</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">exiftool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExifToolCaching</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -1878,12 +1915,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool</span> <span class="o">=</span> <span class="n">exiftool</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool</span>
 
+<div class="viewcode-block" id="PhotoInfo.hexdigest">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.hexdigest">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a unique digest of the photo&#39;s properties and metadata;</span>
 <span class="sd">        useful for detecting changes in any property/metadata of the photo&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_hexdigest</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json_hexdigest</span><span class="p">())</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.cloud_metadata">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.cloud_metadata">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">cloud_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict; Photos 5+ only&quot;&quot;&quot;</span>
@@ -1905,22 +1947,32 @@
         <span class="k">if</span> <span class="n">results</span> <span class="o">:=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_cloud_metadata</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,))</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
             <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
                 <span class="n">metadata</span> <span class="o">=</span> <span class="n">plistlib</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">metadata</span>
+        <span class="k">return</span> <span class="n">metadata</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.cloud_guid">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.cloud_guid">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">cloud_guid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the GUID of the photo in iCloud (Photos 5+ only)&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;cloudMasterGUID&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;cloudMasterGUID&quot;</span><span class="p">]</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.cloud_owner_hashed_id">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.cloud_owner_hashed_id">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">cloud_owner_hashed_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the hashed iCloud ID of the owner of the shared photo (Photos 5+ only)&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;cloudownerhashedpersonid&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;cloudownerhashedpersonid&quot;</span><span class="p">]</span></div>
 
+
+<div class="viewcode-block" id="PhotoInfo.fingerprint">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.fingerprint">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns fingerprint of original photo as a string or None if not available&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;masterFingerprint&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;masterFingerprint&quot;</span><span class="p">]</span></div>
+
 
 <div class="viewcode-block" id="PhotoInfo.detected_text">
 <a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.detected_text">[docs]</a>
@@ -2382,6 +2434,7 @@
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;shared_library&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_library</span>
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;rating&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rating</span>
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;screen_recording&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen_recording</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;date_original&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_original</span>
 
         <span class="k">return</span> <span class="n">dict_data</span></div>
 
@@ -2615,9 +2668,9 @@
     </aside>
   </div>
 </div><script src="../../_static/documentation_options.js?v=a98ddb9b"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>
