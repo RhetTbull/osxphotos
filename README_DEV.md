@@ -43,3 +43,5 @@ If you want to contribute to osxphotos, please open a pull request. Here's how t
 ## Other Notes
 
 [cogapp](https://nedbatchelder.com/code/cog/index.html) is used to update the README.md and other files. cog will be called from the build script as needed.
+
+There are some pre-built libraries in the `osxphotos/lib` directory. These are used by osxphotos to handle permissions. If you need to rebuild these libraries, see the [README_DEV.md](osxphotos/lib/README_DEV.md) file in the `osxphotos/lib` directory.

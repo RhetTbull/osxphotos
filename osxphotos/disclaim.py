@@ -9,6 +9,7 @@ Reference: http://qt.io/blog/the-curious-case-of-the-responsible-process
 
 import ctypes
 import os
+import platform
 import sys
 
 
@@ -49,8 +50,9 @@ def disclaim(library_path: str | None = None):
         os.environ["_MEIPASS2"] = sys._MEIPASS
 
     # Load the disclaim library and call the disclaim function
+    machine = platform.machine()
     library_path = library_path or os.path.join(
-        os.path.dirname(__file__), "libdisclaim.dylib"
+        os.path.dirname(__file__), "lib", f"libdisclaim_{machine}.dylib"
     )
     libdisclaim = ctypes.cdll.LoadLibrary(library_path)
     libdisclaim.disclaim()
