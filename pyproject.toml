@@ -1,11 +1,11 @@
 [tool.ruff]
 # Docs: https://beta.ruff.rs/docs/
 # Rules: https://beta.ruff.rs/docs/rules/
-target-version = "py39"
+target-version = "py310"
 line-length = 320
 # TODO: most of these can probasbly be removed but will require code cleanup
 # These were added to make ruff pass with code in current state
-ignore = [
+lint.ignore = [
     "E402",
     "E721",
     "E722",
