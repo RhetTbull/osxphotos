@@ -1,0 +1,15 @@
+# Example configuration file for osxphotos
+# This is a good starting point for a backup configuration to backup all photos in the Photos library
+# To use this, run osxphotos export /path/to/export --load-config /path/to/this/file/photos_backup.toml
+
+[export]
+download_missing = true # download missing photos from iCloud, remove if not using iCloud
+export_aae = true # export .AAE sidecar files for re-creating edits in Apple Photos
+export_by_date = true # export in YYYY/MM/DD/ format
+not_shared = true # skip photos in shared iCloud albums (remove if you want to include shared albums)
+preview_if_missing = true # export preview if original is missing
+ramdb = true # use in-memory database for faster processing with external disks
+sidecar = [ "xmp",] # export sidecar files in XMP format
+touch_file = true # touch file to set modify date to photo date
+update = true # update the export with any changes made in Photos since the last export
+cleanup = true # remove previously exported files that are no longer in the Photos library
