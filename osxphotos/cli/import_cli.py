@@ -2630,7 +2630,8 @@ def collect_files_to_import(
             total=len(files_to_import),
         )
         for f in files_to_import:
-            if is_image_file(f) or is_video_file(f) or f.suffix.lower() == ".aae":
+            # ignore files without ext (e.g. .DS_Store) as it raises an error in utitools
+            if len(f.suffix)>0 and (is_image_file(f) or is_video_file(f) or f.suffix.lower() == ".aae"):
                 filtered_file_list.append(f)
             progress.advance(task)
 
