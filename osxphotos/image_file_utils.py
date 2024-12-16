@@ -42,7 +42,7 @@ EDITED_RE = r"^.*\/?[A-Za-z]{3}_E\d{4}.*$"
 
 def file_conforms_to_uti(path: str | os.PathLike, uti: str) -> bool:
     """Return True if file at path conforms to UTI"""
-    return conforms_to_uti(uti_for_path(path), uti)
+    return conforms_to_uti(uti_for_path(path) or "", uti)
 
 
 @cache

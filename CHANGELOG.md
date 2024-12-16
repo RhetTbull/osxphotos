@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.69.2](https://github.com/RhetTbull/osxphotos/compare/v0.69.2...v0.69.0)
+
+Fix for crash on macOS 15.2
+
+### v0.69.2 (2024-12-14)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fixed crash on macOS 15.2 (#1757)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
 ## [v0.69.0](https://github.com/RhetTbull/osxphotos/compare/v0.68.6...v0.69.0)
 
 Added support for Python 3.13. Removed support for Python 3.9.

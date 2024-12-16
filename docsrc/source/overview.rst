@@ -93,6 +93,7 @@ This package will install a command line utility called ``osxphotos`` that allow
     timewarp       Adjust date/time/timezone of photos in Apple Photos.
     tutorial       Display osxphotos tutorial.
     uninstall      Uninstall Python packages from the osxphotos environment
+    update         Update the installation to the latest version.
     uuid           Print out unique IDs (UUID) of photos selected in Photos
     version        Check for new version of osxphotos.
 

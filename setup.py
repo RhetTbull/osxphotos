@@ -124,7 +124,7 @@ setup(
         "textx>=4.0.1,<5.0.0",
         "toml>=0.10.2,<0.11.0",
         "tzdata",
-        "utitools>=0.2.0",
+        "utitools>=0.3.0",
         "wrapt>=1.14.1,<2.0.0",
         "wurlitzer>=3.0.2,<4.0.0",
         "xdg==5.1.1; python_version <= '3.9'",
