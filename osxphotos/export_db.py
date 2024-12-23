@@ -40,7 +40,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "10.0"
+OSXPHOTOS_EXPORTDB_VERSION = "10.1"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -741,6 +741,9 @@ class ExportDB:
         if current_version < float("10.0") and version >= float("10.0"):
             self._migrate_9_1_to_10_0(conn)
 
+        if current_version < float("10.1") and version >= float("10.1"):
+            self._migrate_10_0_to_10_1(conn)
+
         with self.lock:
             conn.execute("VACUUM;")
             conn.commit()
@@ -1096,6 +1099,26 @@ class ExportDB:
                     id INTEGER PRIMARY KEY,
                     export_directory TEXT
                     );
+                    """
+            )
+
+            conn.commit()
+
+
+    def _migrate_10_0_to_10_1(self, conn: sqlite3.Connection):
+        """Add history related indexes"""
+        with self.lock:
+            c = conn.cursor()
+
+            c.execute(
+                """ CREATE INDEX IF NOT EXISTS idx_history_filepath_id 
+                    ON history (filepath_id);
+                    """
+            )
+
+            c.execute(
+                """ CREATE INDEX IF NOT EXISTS idx_history_path_uuid 
+                    ON history_path (uuid);
                     """
             )
 
