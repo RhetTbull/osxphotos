@@ -1,4 +1,19 @@
-"""Generate sidecar files for photos previously exported from Photos"""
+"""Generate sidecar files for photos previously exported from Photos.
+
+This can be run with:
+    osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/refs/heads/main/examples/generate_sidecars.py
+
+    or
+
+    osxphotos run generate_sidecars.py
+if you've downloaded the script to your Mac.
+
+Use --help to see help.
+
+This is hacked together using code from `osxphotos import` to allow generation of sidecar files for photos
+exported from Photos without the use of `osxphotos export`. If you exported photos using `osxphotos export`,
+add options `--update --sidecar xmp` to your export command and re-run it to generate the sidecar files.
+"""
 
 import os.path
 import pathlib
@@ -10,7 +25,7 @@ from osxphotos._constants import SIDECAR_EXIFTOOL, SIDECAR_JSON, SIDECAR_XMP
 from osxphotos.cli.click_rich_echo import rich_echo as echo
 from osxphotos.cli.click_rich_echo import rich_echo_error
 from osxphotos.cli.rich_progress import rich_progress
-from osxphotos.cli.verbose import get_verbose_console, set_verbose_level, verbose_print
+from osxphotos.cli.verbose import get_verbose_console, verbose_print
 from osxphotos.exportoptions import ExportOptions
 from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.image_file_utils import is_image_file, is_video_file
@@ -34,7 +49,8 @@ def verbose(*args, **kwargs):
     "--drop-ext",
     "-d",
     is_flag=True,
-    help="Drop image extension when adding sidecar extension.",
+    help="Drop image extension when adding sidecar extension. "
+    "For example, sidecar file would be 'IMG_1234.xmp' instead of 'IMG_1234.jpg.xmp'.",
 )
 @click.option(
     "--walk", "-w", is_flag=True, help="Walk directories looking for photo/video files."
@@ -64,6 +80,10 @@ def generate_sidecars(
 
     Any file paths passed will be matched to photos in Photos. If a matching photo is found,
     a sidecar file is generated and saved.
+
+    At least one of --xmp, --json, --exiftool must be used to generate the appropriate sidecar format.
+
+    Use --dry-run to test without actually generating sidecar files.
     """
     if not any([xmp, json_flag, exiftool]):
         raise click.UsageError(
