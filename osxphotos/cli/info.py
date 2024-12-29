@@ -20,7 +20,7 @@ from osxphotos._constants import (
     BURST_SELECTED,
 )
 from osxphotos.cli.click_rich_echo import rich_echo as echo
-from osxphotos.iphoto import is_iphoto_library
+from osxphotos.iphoto import iPhotoDB, is_iphoto_library
 from osxphotos.photoquery import QueryOptions
 
 from .cli_params import DB_ARGUMENT, DB_OPTION, JSON_OPTION
@@ -36,9 +36,12 @@ except ImportError:
 
 def get_non_analyzed_assets(photosdb: osxphotos.PhotosDB) -> list[osxphotos.PhotoInfo]:
     """Return list of all photosdb assets not yet analyzed"""
+    if isinstance(photosdb, iPhotoDB):
+        # not supported on iPhoto
+        return []
 
     photos_version = photosdb.photos_version
-    if photos_version < 5:
+    if int(photos_version) < 5:
         return []
 
     asset_table = _DB_TABLE_NAMES[photos_version]["ASSET"]
@@ -62,6 +65,9 @@ def get_non_analyzed_assets(photosdb: osxphotos.PhotosDB) -> list[osxphotos.Phot
 
 def get_latest_analysis_date(photosdb: osxphotos.PhotosDB) -> datetime.datetime | None:
     """Return list of all photosdb assets not yet analyzed"""
+    if isinstance(photosdb, iPhotoDB):
+        # not supported on iPhoto
+        return None
 
     photos_version = photosdb.photos_version
     if photos_version < 5:
@@ -84,6 +90,10 @@ def get_unnamed_person_photos(
     photosdb: osxphotos.PhotosDB,
 ) -> list[osxphotos.PhotoInfo]:
     """Get list of photos with unnamed persons"""
+    if isinstance(photosdb, iPhotoDB):
+        # not supported on iPhoto
+        return []
+
     photos_version = photosdb.photos_version
     if photos_version < 5:
         return []
@@ -106,6 +116,11 @@ def get_unnamed_person_photos(
 
 def get_face_count(photosdb: osxphotos.PhotosDB, manual: bool) -> int:
     """Get count of faces in library"""
+
+    if isinstance(photosdb, iPhotoDB):
+        # not supported on iPhoto
+        return 0
+
     manual_flag = 1 if manual else 0
     if photosdb.photos_version < 5:
         results = photosdb.execute(
@@ -137,12 +152,21 @@ def get_detected_face_count(photosdb: osxphotos.PhotosDB) -> int:
 
 def get_persons_count(photosdb: osxphotos.PhotosDB) -> int:
     """Get count of named persons in the database"""
+
+    if isinstance(photosdb, iPhotoDB):
+        return len(photosdb.persons_as_dict)
+
     return len(list(p for p in photosdb.person_info if p.name != _UNKNOWN_PERSON))
 
 
 def get_non_selected_bursts(photosdb: osxphotos.PhotosDB) -> list[osxphotos.PhotoInfo]:
     """Return list of all non-selected burst images"""
-    # TODO: this requires knowledge of inner workings of PhotosDB
+
+    if isinstance(photosdb, iPhotoDB):
+        # not supported for iPhoto
+        return []
+
+    # This requires knowledge of inner workings of PhotosDB and uses private data structs subject to change
     non_selected_uuid = []
     for p in photosdb._dbphotos:
         if photosdb._dbphotos[p]["burst"] and not (
@@ -375,22 +399,35 @@ def get_photosdb_counts(photosdb: osxphotos.PhotosDB) -> dict[str, Any]:
     counts["persons_count"] = get_persons_count(photosdb)
     counts["detected_faces"] = get_detected_face_count(photosdb)
     counts["manual_faces"] = get_manual_face_count(photosdb)
-    counts["keywords_count"] = len(photosdb.keywords)
+    counts["keywords_count"] = (
+        len(photosdb.keywords)
+        if not isinstance(photosdb, iPhotoDB)
+        else len(photosdb.keywords_as_dict)
+    )
     counts["albums_count"] = len(photosdb.album_info)
-    counts["folders"] = len(photosdb.folder_info)
-    counts["shared_albums"] = len(photosdb.album_info_shared)
-    counts["import_groups"] = len(photosdb.import_info)
+    counts["folders"] = (
+        len(photosdb.folder_info) if not isinstance(photosdb, iPhotoDB) else 0
+    )
+    counts["shared_albums"] = (
+        len(photosdb.album_info_shared) if not isinstance(photosdb, iPhotoDB) else 0
+    )
+    counts["import_groups"] = (
+        len(photosdb.import_info) if not isinstance(photosdb, iPhotoDB) else 0
+    )
 
     counts["keywords"] = photosdb.keywords_as_dict
     counts["albums"] = photosdb.albums_as_dict
     counts["persons"] = photosdb.persons_as_dict
-    counts["labels"] = photosdb.labels_as_dict
+    counts["labels"] = (
+        photosdb.labels_as_dict if not isinstance(photosdb, iPhotoDB) else dict()
+    )
 
     # moment_info is not implemented for PhotosDB (#1496)
     # so count unique momentID in each photo._info
     moment_ids = set()
-    for p in photosdb.photos():
-        moment_ids.add(p._info["momentID"])
+    if not isinstance(photosdb, iPhotoDB):
+        for p in photosdb.photos():
+            moment_ids.add(p._info["momentID"])
     counts["moments"] = len(moment_ids)
     return counts
 
@@ -462,6 +499,10 @@ def print_counts(counts: dict[str, int], photosdb: osxphotos.PhotosDB, verbose: 
         + ", [b]Photos version: [/]"
         + num(photosdb.photos_version)
     )
+    if isinstance(photosdb, iPhotoDB):
+        echo(
+            "[i]Note: this is an iPhoto library; not all info data is available for iPhoto libraries"
+        )
     echo(
         header(
             "Total Assets",
