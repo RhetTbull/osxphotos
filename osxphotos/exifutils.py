@@ -122,7 +122,7 @@ def get_exif_date_time_offset(
                 dt = f"{matched.group(1)} 00:00:00"
                 default_time = True
 
-    if offset:
+    if offset is not None:
         # make sure we have offset
         if not re.match(r"([+-]\d{2}:\d{2})", offset):
             offset = None
