@@ -128,6 +128,7 @@ class iPhotoDB:
 
         # initialize database dictionaries
         self._db_photos = {}  # mapping of uuid to photo data
+        self._dbphotos = self._db_photos  # for compatability with PhotosDB
         self._db_event_notes = {}  # mapping of modelId to event notes
         self._db_places = {}  # mapping of modelId to places
         self._db_properties = {}  # mapping of versionId to properties
@@ -139,9 +140,10 @@ class iPhotoDB:
         self._db_albums = {}  # mapping of modelId to albums
         self._db_volumes = {}  # mapping of volume uuid to volume name
 
-        # set _db_version and _photos_ver even though they're not used in iPhoto because other code depends on these
+        # set _db_version, _photos_ver, _model_ver even though they're not used in iPhoto because other code depends on these
         self._db_version = _IPHOTO_VERSION
         self._photos_ver = 0
+        self._model_ver = 0
 
         self._load_library()
 

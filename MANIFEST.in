@@ -3,6 +3,8 @@ include osxphotos/*.md
 include osxphotos/phototemplate.tx
 include osxphotos/queries/*
 include osxphotos/templates/*
+include osxphotos/lib/libdisclaim_arm64.dylib
+include osxphotos/lib/libdisclaim_x86_64.dylib
 include README.md
 include README.rst
 recursive-include osxphotos/docs *
