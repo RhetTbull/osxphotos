@@ -794,7 +794,7 @@ if TYPE_CHECKING:
     "--ignore-exportdb",
     "-F",
     is_flag=True,
-    help="If exporting to a directory that already contains an export database "
+    help="1) If exporting to a directory that already contains an export database "
     "and --update is not specified, do not prompt to continue but instead continue "
     "the export. "
     "Normally, if you export to a directory that already contains an export database "
@@ -803,7 +803,10 @@ if TYPE_CHECKING:
     "Use --ignore-exportdb to skip this prompt and continue the export. "
     "The resulting export database will contain the combined state of both export sets. "
     "Short option is '-F' (mnemonic: force export). "
-    "See also --update.",
+    "2) For advanced use: when used with --update, --ignore-exportdb will skip searching "
+    "for export database files in the parent or child of the export directory; "
+    "thus avoiding what could be a time comsuming search. "
+    "3) See also --update.",
 )
 @click.option(
     "--no-exportdb",
@@ -1591,7 +1594,6 @@ def export_cli(
         ("syndicated", "not_syndicated"),
         ("saved_to_library", "not_saved_to_library"),
         ("shared_moment", "not_shared_moment"),
-        ("ignore_exportdb", "update"),
         ("no_exportdb", "update"),
         ("no_exportdb", "force_update"),
     ]
@@ -1769,13 +1771,12 @@ def export_cli(
             return 1
 
     # check that export isn't in the parent or child of a previously exported library
-    other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
-    if other_db_files:
+    if not ignore_exportdb and (other_db_files := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)):
         rich_click_echo(
             "[warning]WARNING: found other export database files in this destination directory branch. "
-            + "This likely means you are attempting to export files into a directory "
-            + "that is either the parent or a child directory of a previous export. "
-            + "Proceeding may cause your exported files to be overwritten.",
+            "This likely means you are attempting to export files into a directory "
+            "that is either the parent or a child directory of a previous export. "
+            "Proceeding may cause your exported files to be overwritten.",
             err=True,
         )
         rich_click_echo(
@@ -3000,7 +3001,7 @@ def get_dirnames_from_template(
     return dest_paths
 
 
-def find_files_in_branch(pathname, filename):
+def find_first_file_in_branch(pathname, filename):
     """Search a directory branch to find file(s) named filename
         The branch searched includes all folders below pathname and
         the parent tree of pathname but not pathname itself.
