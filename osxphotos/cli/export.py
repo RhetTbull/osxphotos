@@ -1771,7 +1771,9 @@ def export_cli(
             return 1
 
     # check that export isn't in the parent or child of a previously exported library
-    if not ignore_exportdb and (other_db_files := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)):
+    if not ignore_exportdb and (
+        other_db_files := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)
+    ):
         rich_click_echo(
             "[warning]WARNING: found other export database files in this destination directory branch. "
             "This likely means you are attempting to export files into a directory "
@@ -3002,11 +3004,11 @@ def get_dirnames_from_template(
 
 
 def find_first_file_in_branch(pathname, filename):
-    """Search a directory branch to find file(s) named filename
-        The branch searched includes all folders below pathname and
-        the parent tree of pathname but not pathname itself.
+    """Search a directory branch to find file(s) named filename.
+       The branch searched includes all folders below pathname and
+       the parent tree of pathname but not pathname itself.
 
-        e.g. find filename in children folders and parent folders
+       e.g. find filename in children folders and parent folders
 
     Args:
         pathname: str, full path of directory to search
@@ -3016,14 +3018,12 @@ def find_first_file_in_branch(pathname, filename):
     """
 
     pathname = pathlib.Path(pathname).resolve()
-    files = []
 
     # walk down the tree
     for root, _, filenames in os.walk(pathname):
-        # for directory in directories:
         for fname in filenames:
             if fname == filename and pathlib.Path(root) != pathname:
-                files.append(os.path.join(root, fname))
+                return [os.path.join(root, fname)]
 
     # walk up the tree
     path = pathlib.Path(pathname)
@@ -3032,9 +3032,9 @@ def find_first_file_in_branch(pathname, filename):
         for fname in filenames:
             filepath = os.path.join(root, fname)
             if fname == filename and os.path.isfile(filepath):
-                files.append(os.path.join(root, fname))
+                return [filepath]
 
-    return files
+    return []
 
 
 def collect_files_to_keep(
