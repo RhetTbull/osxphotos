@@ -1767,11 +1767,16 @@ def export_cli(
             "Please confirm that you want to continue without using --update",
             err=True,
         )
-        if not ignore_exportdb and not click.confirm("Do you want to continue?"):
+        if ignore_exportdb:
+            rich_click_echo(
+                "[warning]Warning: option --ignore-exportdb enabled: ignoring export database; "
+                "osxphotos will not consider state of previous export which may result in duplicate files."
+            )
+        elif not click.confirm("Do you want to continue?"):
             return 1
 
     # check that export isn't in the parent or child of a previously exported library
-    if not ignore_exportdb and (
+    if not (ignore_exportdb or exportdb or no_exportdb) and (
         other_db_files := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)
     ):
         rich_click_echo(
