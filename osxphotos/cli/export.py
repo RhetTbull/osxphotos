@@ -1777,20 +1777,18 @@ def export_cli(
 
     # check that export isn't in the parent or child of a previously exported library
     if not (ignore_exportdb or exportdb or no_exportdb) and (
-        other_db_files := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)
+        other_db_file := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)
     ):
         rich_click_echo(
-            "[warning]WARNING: found other export database files in this destination directory branch. "
+            "[warning]WARNING: found other export database file in this destination directory branch. "
             "This likely means you are attempting to export files into a directory "
             "that is either the parent or a child directory of a previous export. "
             "Proceeding may cause your exported files to be overwritten.",
             err=True,
         )
         rich_click_echo(
-            f"You are exporting to {dest}, found {OSXPHOTOS_EXPORT_DB} files in:"
+            f"You are exporting to {dest}, found {OSXPHOTOS_EXPORT_DB} file in: {other_db_file}"
         )
-        for other_db in other_db_files:
-            rich_click_echo(f"{other_db}")
         if not click.confirm("Do you want to continue?"):
             return 1
 
@@ -3028,7 +3026,7 @@ def find_first_file_in_branch(pathname, filename):
     for root, _, filenames in os.walk(pathname):
         for fname in filenames:
             if fname == filename and pathlib.Path(root) != pathname:
-                return [os.path.join(root, fname)]
+                return os.path.join(root, fname)
 
     # walk up the tree
     path = pathlib.Path(pathname)
@@ -3037,9 +3035,9 @@ def find_first_file_in_branch(pathname, filename):
         for fname in filenames:
             filepath = os.path.join(root, fname)
             if fname == filename and os.path.isfile(filepath):
-                return [filepath]
+                return filepath
 
-    return []
+    return None
 
 
 def collect_files_to_keep(
