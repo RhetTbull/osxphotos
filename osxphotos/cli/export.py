@@ -1744,12 +1744,15 @@ def export_cli(
     if not no_exportdb and exportdb and exportdb != str(expected_exportdb):
         if expected_exportdb.exists():
             rich_click_echo(
-                f"[warning]Warning: export database is '{exportdb}' but found '{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
+                f"[warning]Warning: export database is '{exportdb}' but found "
+                f"'{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
                 err=True,
             )
         if pathlib.Path(exportdb).resolve().parent != pathlib.Path(dest):
             rich_click_echo(
-                f"[warning]Warning: export database '{pathlib.Path(exportdb).resolve()}' is in a different directory than export destination '{dest}'",
+                f"[warning]Warning: export database "
+                f"'{pathlib.Path(exportdb).resolve()}' is in a different "
+                f"directory than export destination '{dest}'",
                 err=True,
             )
 
