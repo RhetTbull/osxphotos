@@ -794,7 +794,7 @@ if TYPE_CHECKING:
     "--ignore-exportdb",
     "-F",
     is_flag=True,
-    help="If exporting to a directory that already contains an export database "
+    help="1) If exporting to a directory that already contains an export database "
     "and --update is not specified, do not prompt to continue but instead continue "
     "the export. "
     "Normally, if you export to a directory that already contains an export database "
@@ -803,7 +803,10 @@ if TYPE_CHECKING:
     "Use --ignore-exportdb to skip this prompt and continue the export. "
     "The resulting export database will contain the combined state of both export sets. "
     "Short option is '-F' (mnemonic: force export). "
-    "See also --update.",
+    "2) For advanced use: when used with --update, --ignore-exportdb will skip searching "
+    "for export database files in the parent or child of the export directory; "
+    "thus avoiding what could be a time comsuming search. "
+    "3) See also --update.",
 )
 @click.option(
     "--no-exportdb",
@@ -1591,7 +1594,6 @@ def export_cli(
         ("syndicated", "not_syndicated"),
         ("saved_to_library", "not_saved_to_library"),
         ("shared_moment", "not_shared_moment"),
-        ("ignore_exportdb", "update"),
         ("no_exportdb", "update"),
         ("no_exportdb", "force_update"),
     ]
@@ -1742,12 +1744,15 @@ def export_cli(
     if not no_exportdb and exportdb and exportdb != str(expected_exportdb):
         if expected_exportdb.exists():
             rich_click_echo(
-                f"[warning]Warning: export database is '{exportdb}' but found '{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
+                f"[warning]Warning: export database is '{exportdb}' but found "
+                f"'{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
                 err=True,
             )
         if pathlib.Path(exportdb).resolve().parent != pathlib.Path(dest):
             rich_click_echo(
-                f"[warning]Warning: export database '{pathlib.Path(exportdb).resolve()}' is in a different directory than export destination '{dest}'",
+                f"[warning]Warning: export database "
+                f"'{pathlib.Path(exportdb).resolve()}' is in a different "
+                f"directory than export destination '{dest}'",
                 err=True,
             )
 
@@ -1765,24 +1770,28 @@ def export_cli(
             "Please confirm that you want to continue without using --update",
             err=True,
         )
-        if not ignore_exportdb and not click.confirm("Do you want to continue?"):
+        if ignore_exportdb:
+            rich_click_echo(
+                "[warning]Warning: option --ignore-exportdb enabled: ignoring export database; "
+                "osxphotos will not consider state of previous export which may result in duplicate files."
+            )
+        elif not click.confirm("Do you want to continue?"):
             return 1
 
     # check that export isn't in the parent or child of a previously exported library
-    other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
-    if other_db_files:
+    if not (ignore_exportdb or exportdb or no_exportdb) and (
+        other_db_file := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)
+    ):
         rich_click_echo(
-            "[warning]WARNING: found other export database files in this destination directory branch. "
-            + "This likely means you are attempting to export files into a directory "
-            + "that is either the parent or a child directory of a previous export. "
-            + "Proceeding may cause your exported files to be overwritten.",
+            "[warning]WARNING: found other export database file in this destination directory branch. "
+            "This likely means you are attempting to export files into a directory "
+            "that is either the parent or a child directory of a previous export. "
+            "Proceeding may cause your exported files to be overwritten.",
             err=True,
         )
         rich_click_echo(
-            f"You are exporting to {dest}, found {OSXPHOTOS_EXPORT_DB} files in:"
+            f"You are exporting to {dest}, found {OSXPHOTOS_EXPORT_DB} file in: {other_db_file}"
         )
-        for other_db in other_db_files:
-            rich_click_echo(f"{other_db}")
         if not click.confirm("Do you want to continue?"):
             return 1
 
@@ -3000,12 +3009,12 @@ def get_dirnames_from_template(
     return dest_paths
 
 
-def find_files_in_branch(pathname, filename):
-    """Search a directory branch to find file(s) named filename
-        The branch searched includes all folders below pathname and
-        the parent tree of pathname but not pathname itself.
+def find_first_file_in_branch(pathname, filename):
+    """Search a directory branch to find file(s) named filename.
+       The branch searched includes all folders below pathname and
+       the parent tree of pathname but not pathname itself.
 
-        e.g. find filename in children folders and parent folders
+       e.g. find filename in children folders and parent folders
 
     Args:
         pathname: str, full path of directory to search
@@ -3015,14 +3024,12 @@ def find_files_in_branch(pathname, filename):
     """
 
     pathname = pathlib.Path(pathname).resolve()
-    files = []
 
     # walk down the tree
     for root, _, filenames in os.walk(pathname):
-        # for directory in directories:
         for fname in filenames:
             if fname == filename and pathlib.Path(root) != pathname:
-                files.append(os.path.join(root, fname))
+                return os.path.join(root, fname)
 
     # walk up the tree
     path = pathlib.Path(pathname)
@@ -3031,9 +3038,9 @@ def find_files_in_branch(pathname, filename):
         for fname in filenames:
             filepath = os.path.join(root, fname)
             if fname == filename and os.path.isfile(filepath):
-                files.append(os.path.join(root, fname))
+                return filepath
 
-    return files
+    return None
 
 
 def collect_files_to_keep(

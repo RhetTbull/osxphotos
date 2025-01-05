@@ -5623,7 +5623,7 @@ def test_export_update_child_folder():
             input="N\n",
         )
         assert result.exit_code != 0
-        assert "WARNING: found other export database files" in result.output
+        assert "WARNING: found other export database file" in result.output
 
 
 def test_export_update_parent_folder():
@@ -5647,7 +5647,7 @@ def test_export_update_parent_folder():
             input="N\n",
         )
         assert result.exit_code != 0
-        assert "WARNING: found other export database files" in result.output
+        assert "WARNING: found other export database file" in result.output
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
