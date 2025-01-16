@@ -209,19 +209,11 @@ def update_photo_time_for_new_timezone(
     old_timezone_offset = PhotoTimeZone(library_path=library_path).get_timezone(photo)[
         0
     ]
-    for k in PhotoTimeZone(library_path=library_path).get_timezone(photo):
-        verbose(f"DEBUG: Old Photo timezone: {k}")
-
     delta = old_timezone_offset - new_timezone.offset
-
-    verbose(f"DEBUG: Delta: {delta} old tz: {old_timezone_offset} new tz: {new_timezone.offset}")
-
     photo_date = photo.date
     new_photo_date = update_datetime(
         dt=photo_date, time_delta=datetime.timedelta(seconds=delta)
     )
-    verbose(f"DEBUG: Photo date: {photo_date} new photo date: {new_photo_date}")
-
     filename = photo.filename
     uuid = photo.uuid
     if photo_date != new_photo_date:
