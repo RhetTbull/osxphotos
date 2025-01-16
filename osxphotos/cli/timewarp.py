@@ -27,6 +27,7 @@ from osxphotos.photodates import (
     update_photo_from_function,
     update_photo_time_for_new_timezone,
 )
+from osxphotos.photoquery import load_uuid_from_file
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
 from osxphotos.timezones import Timezone
@@ -451,7 +452,9 @@ def timewarp(
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
-    Changes will be applied to all photos currently selected in Photos.
+    Changes will be applied to: 1) photos specified via --uuid and
+    --uuid-from-file 2) photos currently selected in Photos in 'All Photos'
+    or Album views 3) all photos in Album view, if no selection is made.
     timewarp cannot operate on photos selected in a Smart Album;
     select photos in a regular album or in the 'All Photos' view.
     See Timewarp Overview below for additional information.
@@ -560,23 +563,27 @@ def timewarp_cli(
     if uuid:
         photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
     if uuid_from_file:
-        photos.extend(list(PhotosLibrary().photos(uuid=uuid_from_file)))
-    try:
-        photos.extend(PhotosLibrary().selection)
-    except Exception as e:
-        # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
-        if "(-1728)" in str(e):
-            echo_error(
-                "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
-                "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
-                f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
-                "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
-            )
-        else:
-            echo_error(
-                f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
-            )
-        return 1
+        photos.extend(list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file))))
+
+    # If neither uuid nor uuid_from_file is specified, then operate over selected photos
+    if not (uuid or uuid_from_file):
+        try:
+            photos.extend(PhotosLibrary().selection)
+        except Exception as e:
+            # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
+            if "(-1728)" in str(e):
+                echo_error(
+                    "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
+                    "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
+                    f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
+                    "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
+                )
+            else:
+                echo_error(
+                    f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
+                )
+            return 1
+
     if not photos:
         echo_error("[warning]No photos selected[/]")
         return 0
