@@ -565,7 +565,8 @@ def timewarp_cli(
     if uuid_from_file:
         photos.extend(list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file))))
 
-    if len(photos) == 0:
+    # If neither uuid nor uuid_from_file is specified, then operate over selected photos
+    if not (uuid or uuid_from_file):
         try:
             photos.extend(PhotosLibrary().selection)
         except Exception as e:
