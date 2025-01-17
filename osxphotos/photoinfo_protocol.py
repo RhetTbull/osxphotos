@@ -42,6 +42,9 @@ class PhotoInfoProtocol(Protocol):
     def tzoffset(self) -> int: ...
 
     @property
+    def tzname(self) -> str: ...
+
+    @property
     def path(self) -> str | None: ...
 
     @property
@@ -346,6 +349,7 @@ class PhotoInfoMixin:
             "fingerprint",
             "syndicated",
             "shared_moment_info",
+            "tzname",
         ]:
             return None
         elif name in [

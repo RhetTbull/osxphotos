@@ -51,6 +51,22 @@ def test_timezone_invalid_offset():
         Timezone(1.23)  # Invalid offset input
 
 
+@pytest.mark.skipif(not is_macos, reason="macOS only")
+def test_timezone_offset_by_date():
+    """Test Timezone.offset_by_date method."""
+    tz = Timezone("America/New_York")
+    assert tz.offset_for_date(datetime.datetime(2021, 1, 1)) == -18000
+    assert tz.offset_for_date(datetime.datetime(2021, 6, 1)) == -14400
+
+
+@pytest.mark.skipif(not is_macos, reason="macOS only")
+def test_timezone_offset_str_for_date():
+    """Test Timezone.offset_by_date method."""
+    tz = Timezone("America/New_York")
+    assert tz.offset_str_for_date(datetime.datetime(2021, 1, 1)) == "-05:00"
+    assert tz.offset_str_for_date(datetime.datetime(2021, 6, 1)) == "-04:00"
+
+
 def test_format_offset():
     """Test the formatting of time offset to string."""
     # Testing UTC -4 hours (in seconds: -4 * 3600 = -14400)

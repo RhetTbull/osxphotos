@@ -71,6 +71,12 @@ if is_macos:
         def abbreviation(self) -> str:
             return self.timezone.abbreviation()
 
+        def offset_for_date(self, dt: datetime.datetime) -> int:
+            return self.timezone.secondsFromGMTForDate_(dt)
+
+        def offset_str_for_date(self, dt: datetime.datetime) -> str:
+            return format_offset_time(self.offset_for_date(dt))
+
         def tzinfo(self, dt: datetime.datetime) -> zoneinfo.ZoneInfo:
             """Return zoneinfo.ZoneInfo object for the timezone at the given datetime"""
             if not self._from_offset:

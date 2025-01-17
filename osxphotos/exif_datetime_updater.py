@@ -171,6 +171,7 @@ class ExifDateTimeUpdater:
         dtinfo = self.get_date_time_offset_from_exif(
             _photo.path, use_file_modify_date=use_file_modify_date
         )
+        print(f"{dtinfo=}")
         if dtinfo.used_file_modify_date:
             self.verbose(
                 "EXIF date/time missing, using file modify date/time for "

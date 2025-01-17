@@ -1616,7 +1616,7 @@ def set_photo_metadata_from_exportdb(
             f"Setting metadata and location from export database for [filename]{filepath.name}[/]"
         )
         set_photo_metadata_from_metadata(
-            photo, filepath, metadata, merge_keywords, True, verbose, dry_run
+            photo, filepath, metadata, merge_keywords, False, verbose, dry_run
         )
     else:
         verbose(
@@ -1676,8 +1676,7 @@ def set_photo_metadata_from_metadata(
         verbose(
             f"Set date for [filename]{filepath.name}[/]: [time]{metadata.date.isoformat()}[/]"
         )
-        if photo and not dry_run:
-            photo.date = metadata.date
+        set_photo_date(photo, metadata, verbose, dry_run)
 
     return metadata
 
@@ -1704,6 +1703,19 @@ def set_photo_metadata_from_sidecar(
     set_photo_metadata_from_metadata(
         photo, filepath, metadata, merge_keywords, sidecar_ignore_date, verbose, dry_run
     )
+
+
+def set_photo_date(
+    photo: Photo | None,
+    metadata: MetaData,
+    verbose: Callable[..., None],
+    dry_run: bool,
+) -> datetime.datetime:
+    """Set photo date from metadata"""
+    print(f"Setting date for {photo=} to {metadata.tz_offset_sec=} {metadata.tzname=}")
+    if photo and not dry_run:
+        # ZZZ
+        photo.date = metadata.date
 
 
 def set_photo_title(

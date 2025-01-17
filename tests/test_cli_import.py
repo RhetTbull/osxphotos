@@ -1602,6 +1602,46 @@ def test_import_exportdb(tmp_path):
 
 
 @pytest.mark.test_import
+def test_import_exportdb_datetime(tmp_path):
+    """Test osxphotos import with --exportdb option to verify date/time is set correctly"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "IMG_1693.tif",  # has an invalid date in the library so photo.date == 1970-01-01 00:00:00+00:00
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "IMG_1693.tif",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["IMG_1693.tif"]]))[0]
+    assert photo.date == datetime.datetime(1970, 1, 1)
+
+
+@pytest.mark.test_import
 def test_import_exportdb_exportdir(tmp_path):
     """Test osxphotos import with --exportdb option and --exportdir"""
 

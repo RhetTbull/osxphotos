@@ -610,10 +610,10 @@ def export_db_get_photoinfo_for_filepath(
     """Return photoinfo object for a given filepath
 
     Args:
-        exportdb: path to the export database
-        exportdir: path to the export directory or None
+        exportdb_path: path to the export database
         filepath: absolute path to the file to retrieve info for from the database
         exiftool: optional path to exiftool to be passed to the PhotoInfoFromDict object
+        exportdir_path: path to the export directory or None
 
     Returns: PhotoInfoFromDict | None
     """
