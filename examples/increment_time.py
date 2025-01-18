@@ -1,4 +1,4 @@
-"""Incrementally adjust the time of photos by a fixed amount."""
+"""Incrementally adjust the time of photos by a fixed amount, incrementing the time for each photo."""
 
 from __future__ import annotations
 
@@ -27,7 +27,12 @@ def increment(time_delta, dry_run, album_name, **kwargs):
 
         osxphotos run increment_time.py --time-delta 10 MyAlbum
 
-    will increment the time of all photos in the album "MyAlbum" by 10 seconds.
+    will increment the time of each photo in the album "MyAlbum" by 10 seconds
+    starting with the first photo in the album.  The time delta will be added to
+    the time of each photo in the album in the order they are sorted in the album.
+
+    Thus the first photo will be incremented by 10 seconds, the second photo by 20 seconds,
+    and so on.
 
     Photos will be processed using the current sort order for the album.
     """
@@ -48,13 +53,15 @@ def increment(time_delta, dry_run, album_name, **kwargs):
         return
 
     echo(f"Adjusting {len(photos)} photo(s) by {time_delta} seconds")
+    offset = datetime.timedelta(seconds=time_delta)
     for photo in photos:
         try:
             photo_ = photoscript.Photo(photo.uuid)
         except Exception as e:
             echo(f"Error accessing photo {photo.uuid}: {e}")
             continue
-        new_date = photo_.date + datetime.timedelta(seconds=time_delta)
+        new_date = photo_.date + offset
+        offset = offset + datetime.timedelta(seconds=time_delta)
         echo(
             f"Adjusting {photo.original_filename} ({photo.uuid}) from {photo_.date} to {new_date}"
         )
