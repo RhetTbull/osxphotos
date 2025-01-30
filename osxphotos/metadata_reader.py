@@ -401,6 +401,7 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         tz_offset_sec=tz_offset,
         height=height,
         width=width,
+        tzname=None,  # the sidecar doesn't store the timezone name
     )
 
 
