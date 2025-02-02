@@ -746,17 +746,18 @@ class ImportCommand(click.Command):
     "you may want to use --sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the photo metadata.",
 )
 @click.option(
-    "--timezone",
+    "--set-timezone",
     "-Z",
     is_flag=True,
-    help="Set the named timezone of the imported photos in the Photos database. "
+    help="Set the named timezone of the imported photos in the Photos database when used with "
+    "--exportdb, --exiftool, or --sidecar. "
     "Photos does not provide a way to set the timezone of a photo directly. "
     "Upon import, osxphotos can read the timezone from the export database if using --exportdb "
     "or infer the timezone from the photo latitude/longitude if using --exiftool or --sidecar. "
-    "The --timezone option will set the named timezone of the photo by directly writing the timezone name "
+    "The --set-timezone option will set the named timezone of the photo by directly writing the timezone name "
     "to the Photos database. This has been well tested but because it uses an undocumented Photos API, "
     "it may be possible to corrupt the Photos database. If you want to set the timezone of the imported photos, "
-    "use --timezone. ",
+    "use --set-timezone. ",
 )
 @click.option(
     "--exportdb",
@@ -1001,7 +1002,7 @@ def import_main(
     stop_on_error: int | None,
     theme: str | None,
     timestamp: bool,
-    timezone: bool,
+    set_timezone: bool,
     title: str | None,
     verbose_flag: bool,
     walk: bool,
@@ -1091,7 +1092,7 @@ def import_cli(
     stop_on_error: int | None = None,
     theme: str | None = None,
     timestamp: bool = False,
-    timezone: bool = False,
+    set_timezone: bool = False,
     title: str | None = None,
     verbose_flag: bool = False,
     walk: bool = False,
@@ -1259,7 +1260,7 @@ def import_cli(
         signature=signature,
         stop_on_error=stop_on_error,
         verbose=verbose,
-        timezone=timezone,
+        set_timezone=set_timezone,
     )
 
     import_db.close()
@@ -1690,7 +1691,7 @@ def set_photo_metadata_from_metadata(
     verbose: Callable[..., None],
     dry_run: bool,
     library: str,
-    timezone: bool,
+    set_timezone: bool,
 ) -> MetaData:
     """Set metadata from a MetaData object"""
     if any([metadata.title, metadata.description, metadata.keywords]):
@@ -1716,7 +1717,7 @@ def set_photo_metadata_from_metadata(
         verbose(f"No location to set for [filename]{filepath.name}[/]")
 
     if metadata.date is not None and not ignore_date:
-        set_photo_date(photo, metadata, verbose, dry_run, library, timezone)
+        set_photo_date(photo, metadata, verbose, dry_run, library, set_timezone)
 
     return metadata
 
@@ -1731,7 +1732,7 @@ def set_photo_metadata_from_sidecar(
     verbose: Callable[..., None],
     dry_run: bool,
     library: str,
-    timezone: bool,
+    set_timezone: bool,
 ):
     """Set photo's metadata by reading metadata from sidecar. If sidecar format is XMP, exiftool must be installed."""
     verbose(
@@ -1751,7 +1752,7 @@ def set_photo_metadata_from_sidecar(
         verbose,
         dry_run,
         library,
-        timezone,
+        set_timezone,
     )
 
 
@@ -1761,7 +1762,7 @@ def set_photo_date(
     verbose: Callable[..., None],
     dry_run: bool,
     library: str,
-    timezone: bool,
+    set_timezone: bool,
 ):
     """Set photo date from metadata.
 
@@ -1771,14 +1772,14 @@ def set_photo_date(
         verbose: Callable to print verbose output
         dry_run: if True, do not actually set date
         library: path to Photos library
-        timezone: if True, update timezone of photo
+        set_timezone: if True, update timezone of photo
     """
     if photo and not dry_run:
         verbose(
             f"Set date for [filename]{photo.filename}[/] ([uuid]{photo.uuid}[/]): [time]{metadata.date.isoformat()}[/]"
         )
         photo.date = metadata.date
-        if timezone and (metadata.tz_offset_sec is not None or metadata.tzname):
+        if set_timezone and (metadata.tz_offset_sec is not None or metadata.tzname):
             tz = Timezone(metadata.tzname or metadata.tz_offset_sec)
             tz_updater = PhotoTimeZoneUpdater(tz, verbose=verbose, library_path=library)
             tz_updater.update_photo(photo)
@@ -2034,7 +2035,7 @@ def apply_photo_metadata(
     title: str | None,
     verbose: Callable[..., None],
     library: str,
-    timezone: bool,
+    set_timezone: bool,
 ):
     """Set metdata for photo"""
 
@@ -2055,7 +2056,7 @@ def apply_photo_metadata(
             verbose,
             dry_run,
             library,
-            timezone,
+            set_timezone,
         )
     if exiftool:
         set_photo_metadata_from_exiftool(
@@ -2073,7 +2074,7 @@ def apply_photo_metadata(
             verbose,
             dry_run,
             library,
-            timezone,
+            set_timezone,
         )
 
     if title:
@@ -3115,7 +3116,7 @@ def import_files(
     auto_live: bool,
     stop_on_error: int | None,
     signature: str | None,
-    timezone: bool,
+    set_timezone: bool,
 ) -> tuple[int, int, int]:
     """Import files into Photos library
 
@@ -3349,7 +3350,7 @@ def import_files(
                     title=title,
                     verbose=verbose,
                     library=last_library,
-                    timezone=timezone,
+                    set_timezone=set_timezone,
                 )
 
                 apply_photo_albums(
