@@ -48,7 +48,7 @@ def test_timezone_invalid_zone():
 def test_timezone_invalid_offset():
     """Test that Timezone creation fails with bad input type."""
     with pytest.raises(TypeError, match="Timezone must be a string or an int"):
-        Timezone(1.23)  # Invalid offset input
+        Timezone(None)  # Invalid offset input
 
 
 @pytest.mark.skipif(not is_macos, reason="macOS only")
