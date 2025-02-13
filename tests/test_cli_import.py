@@ -14,9 +14,7 @@ import re
 import shutil
 import sqlite3
 import sys
-import time
 import unicodedata
-from string import Template
 from tempfile import TemporaryDirectory
 from typing import Dict
 from zoneinfo import ZoneInfo
@@ -30,7 +28,6 @@ from osxphotos._constants import OSXPHOTOS_EXPORT_DB, UUID_PATTERN
 from osxphotos.datetime_utils import datetime_remove_tz, get_local_tz
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
-from tests.conftest import get_os_version
 
 if is_macos:
     from photoscript import Photo
@@ -1558,6 +1555,51 @@ def test_import_auto_live(tmp_path):
 
 
 @pytest.mark.test_import
+def test_import_timezone(tmp_path):
+    """Test osxphotos import with --timezone option"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",  # has an invalid date in the library so photo.date == 1970-01-01 00:00:00+00:00
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--force",
+            "--timezone",
+            "America/New_York",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    actual_date = datetime.datetime(
+        2019, 4, 15, 14, 40, 24, tzinfo=ZoneInfo(key="America/New_York")
+    )
+    assert photo.date == actual_date
+    # verify timezone info set correctly
+    assert photo.date.tzinfo == actual_date.tzinfo
+
+
+@pytest.mark.test_import
 def test_import_exportdb(tmp_path):
     """Test osxphotos import with --exportdb option"""
 
@@ -1696,7 +1738,7 @@ def test_import_exportdb_datetime_2(tmp_path):
 
 
 @pytest.mark.test_import
-def test_import_exportdb_datetime_timezone(tmp_path):
+def test_import_exportdb_datetime_set_timezone(tmp_path):
     """Test osxphotos import with --exportdb option to verify date/time/timezone is set correctly"""
 
     # first, export an image
@@ -1725,6 +1767,7 @@ def test_import_exportdb_datetime_timezone(tmp_path):
             "--exportdb",
             str(tmp_path),
             "--set-timezone",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -1741,6 +1784,55 @@ def test_import_exportdb_datetime_timezone(tmp_path):
         40,
         24,
         tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
+    assert photo.date == actual_date
+    # verify timezone info set correctly
+    assert photo.date.tzinfo == actual_date.tzinfo
+
+
+@pytest.mark.test_import
+def test_import_exportdb_datetime_set_timezone_timezone(tmp_path):
+    """Test osxphotos import with --exportdb option to verify date/time/timezone is set correctly with --timezone"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",  # has an invalid date in the library so photo.date == 1970-01-01 00:00:00+00:00
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+            "--set-timezone",
+            "--force",
+            "--timezone",
+            "America/New_York",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    actual_date = datetime.datetime(
+        2019, 4, 15, 14, 40, 24, tzinfo=ZoneInfo(key="America/New_York")
     )
     assert photo.date == actual_date
     # verify timezone info set correctly
@@ -1878,6 +1970,7 @@ def test_import_exportdb_sidecar(tmp_path):
             "--exportdb",
             str(tmp_path),
             "--set-timezone",
+            "--force",
             "--sidecar",
         ],
         terminal_width=TERMINAL_WIDTH,
@@ -1987,6 +2080,7 @@ def test_import_exportdb_sidecar_sidecar_ignore_date(tmp_path):
             "--exportdb",
             str(tmp_path),
             "--set-timezone",
+            "--force",
             "--sidecar",
             "--sidecar-ignore-date",
         ],

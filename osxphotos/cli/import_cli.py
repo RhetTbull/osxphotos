@@ -28,8 +28,12 @@ from rich.progress import Progress, SpinnerColumn
 from strpdatetime import strpdatetime
 
 from osxphotos.fileutil import FileUtilMacOS
+from osxphotos.photodates import update_photo_time_for_new_timezone
 from osxphotos.photoinfo_protocol import PhotoInfoProtocol
 from osxphotos.platform import assert_macos
+
+from .help import rich_text
+from .param_types import TimezoneOffset
 
 assert_macos()
 
@@ -668,6 +672,25 @@ class ImportCommand(click.Command):
     "this data will be cleared after import.",
 )
 @click.option(
+    "--timezone",
+    "-z",
+    metavar="TIMEZONE",
+    type=TimezoneOffset(),
+    help="Set timezone for imported photos as offset from UTC or to named IANA timezone. "
+    "Format is one of '±HH:MM', '±H:MM', '±HHMM', or named timezone such as 'America/Los_Angeles' or 'PST'. "
+    "For list of valid IANA timezone names, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. "
+    "This option useful if your imported photos contain the correct date/time but not the timezone or an incorrect timezone. "
+    "If there is no timezone data, Photos will apply the current local timezone to the photo. "
+    "If you took the photos in a different timezone with a camera that did not apply timezone, "
+    "the --timezone option is useful to set the correct timezone. "
+    "When using --timezone, osxphotos will assume the date/time is correct for the target timezone "
+    "and will adjust the date/time as needed. "
+    "For example, if you took a photo at 9:00 AM in New York and you are currently in Los Angeles, "
+    "you would use --timezone 'America/New_York' to set the timezone to New_York. "
+    "The time of the photos will be adjusted to 6:00 AM in Los Angeles so that the photo is displayed "
+    "at the correct time (9:00 AM in New York) in the Photos app.",
+)
+@click.option(
     "--exiftool",
     "-e",
     is_flag=True,
@@ -948,6 +971,11 @@ class ImportCommand(click.Command):
     type=click.IntRange(min=0),
 )
 @click.option(
+    "--force",
+    is_flag=True,
+    help="Bypass confirmation prompt when using --timezone or --set-timezone .  Use with caution.",
+)
+@click.option(
     "--library",
     metavar="LIBRARY_PATH",
     type=click.Path(exists=True),
@@ -981,6 +1009,7 @@ def import_main(
     exportdir: str | None,
     favorite_rating: int | None,
     files_or_dirs: tuple[str, ...],
+    force: bool,
     glob: tuple[str, ...],
     keyword: tuple[str, ...],
     library: str | None,
@@ -993,6 +1022,7 @@ def import_main(
     relative_to: str | None,
     report: str | None,
     resume: bool,
+    set_timezone: bool,
     sidecar: bool,
     sidecar_ignore_date: bool,
     sidecar_filename_template: str | None,
@@ -1002,7 +1032,7 @@ def import_main(
     stop_on_error: int | None,
     theme: str | None,
     timestamp: bool,
-    set_timezone: bool,
+    timezone: Timezone | None,
     title: str | None,
     verbose_flag: bool,
     walk: bool,
@@ -1071,6 +1101,7 @@ def import_cli(
     exportdir: str | None = None,
     favorite_rating: int | None = None,
     files_or_dirs: tuple[str, ...] = (),
+    force: bool = False,
     glob: tuple[str, ...] = (),
     keyword: tuple[str, ...] = (),
     library: str | None = None,
@@ -1083,6 +1114,7 @@ def import_cli(
     relative_to: str | None = None,
     report: str | None = None,
     resume: bool = False,
+    set_timezone: bool = False,
     sidecar: bool = False,
     sidecar_ignore_date: bool = False,
     sidecar_filename_template: str | None = None,
@@ -1092,7 +1124,7 @@ def import_cli(
     stop_on_error: int | None = None,
     theme: str | None = None,
     timestamp: bool = False,
-    set_timezone: bool = False,
+    timezone: Timezone | None = None,
     title: str | None = None,
     verbose_flag: bool = False,
     walk: bool = False,
@@ -1108,9 +1140,52 @@ def import_cli(
     """
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
+    # input validation
     if not files_or_dirs:
         echo("Nothing to import", err=True)
         return
+
+    if (timezone or set_timezone) and not force:
+        click.confirm(
+            rich_text(
+                f":warning-emoji: Using --timezone or --set-timezone will directly modify "
+                "the Photos library database using undocumented features. "
+                "While this functionality has been well tested, it is possible this may "
+                "corrupt, damage, or destroy your Photos library. "
+                "[bold]Use at your own caution. No warranty is implied or provided.[/] "
+                "It is strongly recommended you make a backup of your Photos library "
+                "before using the import command with --timezone and/or --set-timezone "
+                "(for example, using Time Machine).\n\n"
+                "Proceed with import?"
+            ),
+            abort=True,
+        )
+
+    if exiftool and not exiftool_path:
+        # ensure exiftool is installed in path
+        try:
+            get_exiftool_path()
+        except FileNotFoundError as e:
+            rich_echo_error(f"[error] {e}")
+            raise click.Abort()
+
+    if sidecar and sidecar_filename_template:
+        rich_echo_error(
+            "[error] Only one of --sidecar or --sidecar-filename may be used"
+        )
+        raise click.Abort()
+
+    if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
+        rich_echo_error(
+            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
+        )
+        raise click.Abort()
+
+    if dup_albums and not (skip_dups and (album or exportdb)):
+        rich_echo_error(
+            "[error] --dup-albums must be used with --skip-dups and --album"
+        )
+        raise click.Abort()
 
     report_file = render_and_validate_report(report) if report else None
     relative_to = pathlib.Path(relative_to) if relative_to else None
@@ -1185,32 +1260,6 @@ def import_cli(
         )
         sys.exit(0)
 
-    if exiftool and not exiftool_path:
-        # ensure exiftool is installed in path
-        try:
-            get_exiftool_path()
-        except FileNotFoundError as e:
-            rich_echo_error(f"[error] {e}")
-            raise click.Abort()
-
-    if sidecar and sidecar_filename_template:
-        rich_echo_error(
-            "[error] Only one of --sidecar or --sidecar-filename may be used"
-        )
-        raise click.Abort()
-
-    if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
-        rich_echo_error(
-            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
-        )
-        raise click.Abort()
-
-    if dup_albums and not (skip_dups and (album or exportdb)):
-        rich_echo_error(
-            "[error] --dup-albums must be used with --skip-dups and --album"
-        )
-        raise click.Abort()
-
     # initialize report data
     # report data is set even if no report is generated
     report_data: dict[pathlib.Path, ReportRecord] = {}
@@ -1261,6 +1310,7 @@ def import_cli(
         stop_on_error=stop_on_error,
         verbose=verbose,
         set_timezone=set_timezone,
+        timezone=timezone,
     )
 
     import_db.close()
@@ -2036,8 +2086,9 @@ def apply_photo_metadata(
     verbose: Callable[..., None],
     library: str,
     set_timezone: bool,
+    timezone: Timezone | None,
 ):
-    """Set metdata for photo"""
+    """Set metadata for photo"""
 
     if clear_metadata:
         clear_photo_metadata(photo, filepath, verbose, dry_run)
@@ -2147,6 +2198,15 @@ def apply_photo_metadata(
             verbose,
             dry_run,
         )
+
+    if timezone:
+        update_photo_time_for_new_timezone(
+            library_path=library, photo=photo, new_timezone=timezone, verbose=verbose
+        )
+        tz_updater = PhotoTimeZoneUpdater(
+            timezone, verbose=verbose, library_path=library
+        )
+        tz_updater.update_photo(photo)
 
 
 def apply_photo_albums(
@@ -3117,6 +3177,7 @@ def import_files(
     stop_on_error: int | None,
     signature: str | None,
     set_timezone: bool,
+    timezone: Timezone | None,
 ) -> tuple[int, int, int]:
     """Import files into Photos library
 
@@ -3351,6 +3412,7 @@ def import_files(
                     verbose=verbose,
                     library=last_library,
                     set_timezone=set_timezone,
+                    timezone=timezone,
                 )
 
                 apply_photo_albums(
