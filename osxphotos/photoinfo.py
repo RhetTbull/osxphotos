@@ -173,7 +173,7 @@ class PhotoInfo:
 
     @property
     def tzname(self) -> str | None:
-        """Timezone name for the Photos creation date; on Photos version < 5, returns None"""
+        """Timezone name for the asset creation date; on Photos version < 5, returns None"""
         return self._info["imageTimeZoneName"]
 
     @property
@@ -2131,6 +2131,7 @@ class PhotoInfo:
             dict_data["rating"] = self.rating
             dict_data["screen_recording"] = self.screen_recording
             dict_data["date_original"] = self.date_original
+            dict_data["tzname"] = self.tzname
 
         return dict_data
 

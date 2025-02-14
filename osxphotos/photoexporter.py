@@ -20,6 +20,7 @@ from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
 from .exportoptions import ExportOptions, ExportResults
 from .fileutil import FileUtil
+from .photoinfo_common import photoinfo_minify_dict
 from .phototemplate import RenderOptions
 from .platform import is_macos
 from .rich_utils import add_rich_markup_tag
@@ -1045,7 +1046,7 @@ class PhotoExporter:
         # set data in the database
         with export_db.create_or_get_file_record(dest_str, self.photo.uuid) as rec:
             if rec.photoinfo:
-                last_data = json.loads(rec.photoinfo)
+                last_data = photoinfo_minify_dict(json.loads(rec.photoinfo))
                 # to avoid issues with datetime comparisons, list order
                 # need to deserialize from photo.json() instead of using photo.asdict()
                 current_data = json.loads(self.photo.json(shallow=True))
@@ -1067,7 +1068,7 @@ class PhotoExporter:
                 diff = json.dumps(diff, default=_json_default) if diff else None
             else:
                 diff = None
-            rec.photoinfo = self.photo.json(shallow=True)
+            rec.photoinfo = self.photo.json(shallow=False)
             rec.export_options = options.bit_flags
             # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
             if not options.ignore_signature:

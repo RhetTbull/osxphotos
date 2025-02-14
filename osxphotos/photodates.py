@@ -209,8 +209,8 @@ def update_photo_time_for_new_timezone(
     old_timezone_offset = PhotoTimeZone(library_path=library_path).get_timezone(photo)[
         0
     ]
-    delta = old_timezone_offset - new_timezone.offset
     photo_date = photo.date
+    delta = old_timezone_offset - new_timezone.offset_for_date(photo_date)
     new_photo_date = update_datetime(
         dt=photo_date, time_delta=datetime.timedelta(seconds=delta)
     )

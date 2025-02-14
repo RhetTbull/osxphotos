@@ -298,7 +298,9 @@ VENTURA_PHOTOS_5 = {
                 f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
             ),
             "",
-            get_local_utc_offset_str("2023-08-21 09:18:13"),
+            get_local_utc_offset_str(get_file_timestamp(
+                f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
+            )),
             "",
         ),
     },

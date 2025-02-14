@@ -28,8 +28,12 @@ from rich.progress import Progress, SpinnerColumn
 from strpdatetime import strpdatetime
 
 from osxphotos.fileutil import FileUtilMacOS
+from osxphotos.photodates import update_photo_time_for_new_timezone
 from osxphotos.photoinfo_protocol import PhotoInfoProtocol
 from osxphotos.platform import assert_macos
+
+from .help import rich_text
+from .param_types import TimezoneOffset
 
 assert_macos()
 
@@ -92,12 +96,14 @@ from osxphotos.photoinfo_file import (
 )
 from osxphotos.photosalbum import PhotosAlbumPhotoScript, PhotosAlbumPhotoScriptByPath
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.phototz import PhotoTimeZoneUpdater
 from osxphotos.sqlite_utils import sqlite_columns
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.strpdatetime_parts import (
     date_str_matches_date_time_codes,
     fmt_has_date_time_codes,
 )
+from osxphotos.timezones import Timezone
 from osxphotos.unicode import normalize_unicode
 from osxphotos.utils import get_last_library_path, pluralize
 
@@ -666,6 +672,25 @@ class ImportCommand(click.Command):
     "this data will be cleared after import.",
 )
 @click.option(
+    "--timezone",
+    "-z",
+    metavar="TIMEZONE",
+    type=TimezoneOffset(),
+    help="Set timezone for imported photos as offset from UTC or to named IANA timezone. "
+    "Format is one of '±HH:MM', '±H:MM', '±HHMM', or named timezone such as 'America/Los_Angeles' or 'PST'. "
+    "For list of valid IANA timezone names, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. "
+    "This option useful if your imported photos contain the correct date/time but not the timezone or an incorrect timezone. "
+    "If there is no timezone data, Photos will apply the current local timezone to the photo. "
+    "If you took the photos in a different timezone with a camera that did not apply timezone, "
+    "the --timezone option is useful to set the correct timezone. "
+    "When using --timezone, osxphotos will assume the date/time is correct for the target timezone "
+    "and will adjust the date/time as needed. "
+    "For example, if you took a photo at 9:00 AM in New York and you are currently in Los Angeles, "
+    "you would use --timezone 'America/New_York' to set the timezone to New_York. "
+    "The time of the photos will be adjusted to 6:00 AM in Los Angeles so that the photo is displayed "
+    "at the correct time (9:00 AM in New York) in the Photos app.",
+)
+@click.option(
     "--exiftool",
     "-e",
     is_flag=True,
@@ -732,13 +757,30 @@ class ImportCommand(click.Command):
     "--sidecar-ignore-date",
     "-i",
     is_flag=True,
-    help="Do not use date in sidecar to set photo date/time. "
-    "Setting the timezone from sidecar files is not currently supported so when using --sidecar "
-    "or --sidecar-filename, the date/time found in the sidecar will be converted to the local timezone "
-    "and that value will be used to set the photo date/time. "
-    "If your photos have correct timezone information in the embedded metadata you can use "
-    "--sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the "
-    "file (which will be read by Photos on import).",
+    help="Do not use date/time in sidecar to set photo date/time. "
+    "There may be situations where you want to apply the metadata from the sidecar but ignore the date/time in the sidecar. "
+    "One of these is when using --exportdb to restore from the export database. "
+    "The export database stores the named timezone of the photo and will set it "
+    "but the sidecar metadata standards do not support storing the named timezone. "
+    "Thus if using both --exportdb and --sidecar, you may want to use --sidecar-ignore-date "
+    "otherwise the date/time in the sidecar will overwrite the date/time (and timezone name) from the export database. "
+    "Additionally, Google Takeout does not preserve timezone information in the sidecar and converts all times "
+    "to UTC. If you are importing photos from Google Takeout and the photos contain the correct date/time and timezone offset, "
+    "you may want to use --sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the photo metadata.",
+)
+@click.option(
+    "--set-timezone",
+    "-Z",
+    is_flag=True,
+    help="Set the named timezone of the imported photos in the Photos database when used with "
+    "--exportdb, --exiftool, or --sidecar. "
+    "Photos does not provide a way to set the timezone of a photo directly. "
+    "Upon import, osxphotos can read the timezone from the export database if using --exportdb "
+    "or infer the timezone from the photo latitude/longitude if using --exiftool or --sidecar. "
+    "The --set-timezone option will set the named timezone of the photo by directly writing the timezone name "
+    "to the Photos database. This has been well tested but because it uses an undocumented Photos API, "
+    "it may be possible to corrupt the Photos database. If you want to set the timezone of the imported photos, "
+    "use --set-timezone. ",
 )
 @click.option(
     "--exportdb",
@@ -746,8 +788,9 @@ class ImportCommand(click.Command):
     metavar="EXPORTDB_PATH",
     type=click.Path(exists=True),
     help="Use an osxphotos export database (created by 'osxphotos export') "
-    "to set metadata (title, description, keywords, location, album). "
-    "See also --exportdir, --sidecar, --sidecar-filename, --exiftool.",
+    "to set metadata (title, description, keywords, location, album, date/time, timezone). "
+    "See also --exportdir, --sidecar, --sidecar-filename, --exiftool. "
+    "If using with --sidecar, it is recommended you also use --sidecar-ignore-date.",
 )
 @click.option(
     "--exportdir",
@@ -928,6 +971,11 @@ class ImportCommand(click.Command):
     type=click.IntRange(min=0),
 )
 @click.option(
+    "--force",
+    is_flag=True,
+    help="Bypass confirmation prompt when using --timezone or --set-timezone .  Use with caution.",
+)
+@click.option(
     "--library",
     metavar="LIBRARY_PATH",
     type=click.Path(exists=True),
@@ -961,6 +1009,7 @@ def import_main(
     exportdir: str | None,
     favorite_rating: int | None,
     files_or_dirs: tuple[str, ...],
+    force: bool,
     glob: tuple[str, ...],
     keyword: tuple[str, ...],
     library: str | None,
@@ -973,6 +1022,7 @@ def import_main(
     relative_to: str | None,
     report: str | None,
     resume: bool,
+    set_timezone: bool,
     sidecar: bool,
     sidecar_ignore_date: bool,
     sidecar_filename_template: str | None,
@@ -982,6 +1032,7 @@ def import_main(
     stop_on_error: int | None,
     theme: str | None,
     timestamp: bool,
+    timezone: Timezone | None,
     title: str | None,
     verbose_flag: bool,
     walk: bool,
@@ -1050,6 +1101,7 @@ def import_cli(
     exportdir: str | None = None,
     favorite_rating: int | None = None,
     files_or_dirs: tuple[str, ...] = (),
+    force: bool = False,
     glob: tuple[str, ...] = (),
     keyword: tuple[str, ...] = (),
     library: str | None = None,
@@ -1062,6 +1114,7 @@ def import_cli(
     relative_to: str | None = None,
     report: str | None = None,
     resume: bool = False,
+    set_timezone: bool = False,
     sidecar: bool = False,
     sidecar_ignore_date: bool = False,
     sidecar_filename_template: str | None = None,
@@ -1071,6 +1124,7 @@ def import_cli(
     stop_on_error: int | None = None,
     theme: str | None = None,
     timestamp: bool = False,
+    timezone: Timezone | None = None,
     title: str | None = None,
     verbose_flag: bool = False,
     walk: bool = False,
@@ -1086,9 +1140,52 @@ def import_cli(
     """
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
+    # input validation
     if not files_or_dirs:
         echo("Nothing to import", err=True)
         return
+
+    if (timezone or set_timezone) and not force:
+        click.confirm(
+            rich_text(
+                f":warning-emoji: Using --timezone or --set-timezone will directly modify "
+                "the Photos library database using undocumented features. "
+                "While this functionality has been well tested, it is possible this may "
+                "corrupt, damage, or destroy your Photos library. "
+                "[bold]Use at your own caution. No warranty is implied or provided.[/] "
+                "It is strongly recommended you make a backup of your Photos library "
+                "before using the import command with --timezone and/or --set-timezone "
+                "(for example, using Time Machine).\n\n"
+                "Proceed with import?"
+            ),
+            abort=True,
+        )
+
+    if exiftool and not exiftool_path:
+        # ensure exiftool is installed in path
+        try:
+            get_exiftool_path()
+        except FileNotFoundError as e:
+            rich_echo_error(f"[error] {e}")
+            raise click.Abort()
+
+    if sidecar and sidecar_filename_template:
+        rich_echo_error(
+            "[error] Only one of --sidecar or --sidecar-filename may be used"
+        )
+        raise click.Abort()
+
+    if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
+        rich_echo_error(
+            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
+        )
+        raise click.Abort()
+
+    if dup_albums and not (skip_dups and (album or exportdb)):
+        rich_echo_error(
+            "[error] --dup-albums must be used with --skip-dups and --album"
+        )
+        raise click.Abort()
 
     report_file = render_and_validate_report(report) if report else None
     relative_to = pathlib.Path(relative_to) if relative_to else None
@@ -1163,32 +1260,6 @@ def import_cli(
         )
         sys.exit(0)
 
-    if exiftool and not exiftool_path:
-        # ensure exiftool is installed in path
-        try:
-            get_exiftool_path()
-        except FileNotFoundError as e:
-            rich_echo_error(f"[error] {e}")
-            raise click.Abort()
-
-    if sidecar and sidecar_filename_template:
-        rich_echo_error(
-            "[error] Only one of --sidecar or --sidecar-filename may be used"
-        )
-        raise click.Abort()
-
-    if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
-        rich_echo_error(
-            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
-        )
-        raise click.Abort()
-
-    if dup_albums and not (skip_dups and (album or exportdb)):
-        rich_echo_error(
-            "[error] --dup-albums must be used with --skip-dups and --album"
-        )
-        raise click.Abort()
-
     # initialize report data
     # report data is set even if no report is generated
     report_data: dict[pathlib.Path, ReportRecord] = {}
@@ -1238,6 +1309,8 @@ def import_cli(
         signature=signature,
         stop_on_error=stop_on_error,
         verbose=verbose,
+        set_timezone=set_timezone,
+        timezone=timezone,
     )
 
     import_db.close()
@@ -1600,6 +1673,8 @@ def set_photo_metadata_from_exportdb(
     merge_keywords: bool,
     verbose: Callable[..., None],
     dry_run: bool,
+    library: str,
+    timezone: bool,
 ):
     """Set photo's metadata by reading metadata from exportdb"""
     photoinfo = None
@@ -1616,7 +1691,15 @@ def set_photo_metadata_from_exportdb(
             f"Setting metadata and location from export database for [filename]{filepath.name}[/]"
         )
         set_photo_metadata_from_metadata(
-            photo, filepath, metadata, merge_keywords, True, verbose, dry_run
+            photo,
+            filepath,
+            metadata,
+            merge_keywords,
+            False,
+            verbose,
+            dry_run,
+            library,
+            timezone,
         )
     else:
         verbose(
@@ -1631,12 +1714,21 @@ def set_photo_metadata_from_exiftool(
     merge_keywords: bool,
     verbose: Callable[..., None],
     dry_run: bool,
+    library: str,
 ):
     """Set photo's metadata by reading metadata from file with exiftool"""
     verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
     metadata = metadata_from_exiftool(filepath, exiftool_path)
     set_photo_metadata_from_metadata(
-        photo, filepath, metadata, merge_keywords, True, verbose, dry_run
+        photo,
+        filepath,
+        metadata,
+        merge_keywords,
+        True,
+        verbose,
+        dry_run,
+        library,
+        False,
     )
 
 
@@ -1648,6 +1740,8 @@ def set_photo_metadata_from_metadata(
     ignore_date: bool,
     verbose: Callable[..., None],
     dry_run: bool,
+    library: str,
+    set_timezone: bool,
 ) -> MetaData:
     """Set metadata from a MetaData object"""
     if any([metadata.title, metadata.description, metadata.keywords]):
@@ -1673,11 +1767,7 @@ def set_photo_metadata_from_metadata(
         verbose(f"No location to set for [filename]{filepath.name}[/]")
 
     if metadata.date is not None and not ignore_date:
-        verbose(
-            f"Set date for [filename]{filepath.name}[/]: [time]{metadata.date.isoformat()}[/]"
-        )
-        if photo and not dry_run:
-            photo.date = metadata.date
+        set_photo_date(photo, metadata, verbose, dry_run, library, set_timezone)
 
     return metadata
 
@@ -1691,6 +1781,8 @@ def set_photo_metadata_from_sidecar(
     merge_keywords: bool,
     verbose: Callable[..., None],
     dry_run: bool,
+    library: str,
+    set_timezone: bool,
 ):
     """Set photo's metadata by reading metadata from sidecar. If sidecar format is XMP, exiftool must be installed."""
     verbose(
@@ -1702,8 +1794,45 @@ def set_photo_metadata_from_sidecar(
         rich_echo_error(f"Error reading sidecar [filename]{sidecar.name}[/]: {e}")
         return
     set_photo_metadata_from_metadata(
-        photo, filepath, metadata, merge_keywords, sidecar_ignore_date, verbose, dry_run
+        photo,
+        filepath,
+        metadata,
+        merge_keywords,
+        sidecar_ignore_date,
+        verbose,
+        dry_run,
+        library,
+        set_timezone,
     )
+
+
+def set_photo_date(
+    photo: Photo | None,
+    metadata: MetaData,
+    verbose: Callable[..., None],
+    dry_run: bool,
+    library: str,
+    set_timezone: bool,
+):
+    """Set photo date from metadata.
+
+    Args:
+        photo: Photo object
+        metadata: MetaData object
+        verbose: Callable to print verbose output
+        dry_run: if True, do not actually set date
+        library: path to Photos library
+        set_timezone: if True, update timezone of photo
+    """
+    if photo and not dry_run:
+        verbose(
+            f"Set date for [filename]{photo.filename}[/] ([uuid]{photo.uuid}[/]): [time]{metadata.date.isoformat()}[/]"
+        )
+        photo.date = metadata.date
+        if set_timezone and (metadata.tz_offset_sec is not None or metadata.tzname):
+            tz = Timezone(metadata.tzname or metadata.tz_offset_sec)
+            tz_updater = PhotoTimeZoneUpdater(tz, verbose=verbose, library_path=library)
+            tz_updater.update_photo(photo)
 
 
 def set_photo_title(
@@ -1955,8 +2084,11 @@ def apply_photo_metadata(
     sidecar_ignore_date: bool,
     title: str | None,
     verbose: Callable[..., None],
+    library: str,
+    set_timezone: bool,
+    timezone: Timezone | None,
 ):
-    """Set metdata for photo"""
+    """Set metadata for photo"""
 
     if clear_metadata:
         clear_photo_metadata(photo, filepath, verbose, dry_run)
@@ -1974,10 +2106,12 @@ def apply_photo_metadata(
             merge_keywords,
             verbose,
             dry_run,
+            library,
+            set_timezone,
         )
     if exiftool:
         set_photo_metadata_from_exiftool(
-            photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
+            photo, filepath, exiftool_path, merge_keywords, verbose, dry_run, library
         )
 
     if sidecar_file:
@@ -1990,6 +2124,8 @@ def apply_photo_metadata(
             merge_keywords,
             verbose,
             dry_run,
+            library,
+            set_timezone,
         )
 
     if title:
@@ -2062,6 +2198,15 @@ def apply_photo_metadata(
             verbose,
             dry_run,
         )
+
+    if timezone:
+        update_photo_time_for_new_timezone(
+            library_path=library, photo=photo, new_timezone=timezone, verbose=verbose
+        )
+        tz_updater = PhotoTimeZoneUpdater(
+            timezone, verbose=verbose, library_path=library
+        )
+        tz_updater.update_photo(photo)
 
 
 def apply_photo_albums(
@@ -3031,6 +3176,8 @@ def import_files(
     auto_live: bool,
     stop_on_error: int | None,
     signature: str | None,
+    set_timezone: bool,
+    timezone: Timezone | None,
 ) -> tuple[int, int, int]:
     """Import files into Photos library
 
@@ -3263,6 +3410,9 @@ def import_files(
                     sidecar_ignore_date=sidecar_ignore_date,
                     title=title,
                     verbose=verbose,
+                    library=last_library,
+                    set_timezone=set_timezone,
+                    timezone=timezone,
                 )
 
                 apply_photo_albums(

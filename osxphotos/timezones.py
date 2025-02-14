@@ -38,7 +38,7 @@ if is_macos:
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
 
-        def __init__(self, tz: Union[str, int]):
+        def __init__(self, tz: Union[str, int, float]):
             with objc.autorelease_pool():
                 self._from_offset = False
                 if isinstance(tz, str):
@@ -48,8 +48,10 @@ if is_macos:
                     ) or Foundation.NSTimeZone.timeZoneWithName_(tz)
                     if not self.timezone:
                         raise ValueError(f"Invalid timezone: {tz}")
-                elif isinstance(tz, int):
-                    self.timezone = Foundation.NSTimeZone.timeZoneForSecondsFromGMT_(tz)
+                elif isinstance(tz, (int, float)):
+                    self.timezone = Foundation.NSTimeZone.timeZoneForSecondsFromGMT_(
+                        int(tz)
+                    )
                     self._from_offset = True
                 else:
                     raise TypeError("Timezone must be a string or an int")
@@ -70,6 +72,12 @@ if is_macos:
         @property
         def abbreviation(self) -> str:
             return self.timezone.abbreviation()
+
+        def offset_for_date(self, dt: datetime.datetime) -> int:
+            return self.timezone.secondsFromGMTForDate_(dt)
+
+        def offset_str_for_date(self, dt: datetime.datetime) -> str:
+            return format_offset_time(self.offset_for_date(dt))
 
         def tzinfo(self, dt: datetime.datetime) -> zoneinfo.ZoneInfo:
             """Return zoneinfo.ZoneInfo object for the timezone at the given datetime"""

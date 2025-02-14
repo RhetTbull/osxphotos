@@ -1073,6 +1073,11 @@ class iPhotoPhotoInfo:
         )
 
     @property
+    def date_original(self) -> datetime.datetime:
+        """Date photo was taken"""
+        return self.date
+
+    @property
     def date_modified(self) -> datetime.datetime:
         """Date modified in library"""
         return photos_datetime(
@@ -1098,6 +1103,11 @@ class iPhotoPhotoInfo:
             return 0
         tz = ZoneInfo(tzname)
         return int(tz.utcoffset(self.date).total_seconds())
+
+    @property
+    def tzname(self) -> str | None:
+        """Timezone name for the asset creation date"""
+        return self._db._db_photos[self._uuid]["timezone"] or None
 
     @property
     def path(self) -> str | None:
@@ -1678,6 +1688,9 @@ class iPhotoPhotoInfo:
             dict_data["shared_moment"] = self.shared_moment
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
+            dict_data["screen_recording"] = self.screen_recording
+            dict_data["date_original"] = self.date_original
+            dict_data["tzname"] = self.tzname
 
         return dict_data
 
