@@ -32,13 +32,16 @@ def update_captions(
     `osxphotos run captions_from_filenames.py --ignore "IMG_*"`
 
     """
-    echo(f"Updating {len(photos)} photo{'s' if len(photos) > 1 else ''}")
-    if ignore:
-        photos = filter_ignore(photos, ignore)
+    echo(f"Updating [num]{len(photos)}[/] photo{'s' if len(photos) > 1 else ''}")
     for photo in photos:
+        if match_ignore(photo, ignore):
+            echo(
+                f"Skipping [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]] due to ignore pattern"
+            )
+            continue
         stem = pathlib.Path(photo.original_filename).stem
         echo(
-            f"Setting caption for {photo.original_filename} ({photo.uuid}) to '{stem}'"
+            f"Setting caption for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) to '[filepath]{stem}[/]'"
         )
         if not dry_run:
             set_caption(photo, stem)
@@ -53,17 +56,9 @@ def set_caption(photo: osxphotos.PhotoInfo, caption: str):
         echo(f"Error setting caption for {photo.original_filename} ({photo.uuid}): {e}")
 
 
-def filter_ignore(
-    photos: list[osxphotos.PhotoInfo], ignore: tuple[str, ...]
-) -> list[osxphotos.PhotoInfo]:
-    """Filter photos based on ignore patterns"""
-    return [
-        photo
-        for photo in photos
-        if not any(
-            fnmatch.fnmatch(photo.original_filename, pattern) for pattern in ignore
-        )
-    ]
+def match_ignore(photo: osxphotos.PhotoInfo, ignore: tuple[str, ...]) -> bool:
+    """Check if photo matches any ignore patterns"""
+    return any(fnmatch.fnmatch(photo.original_filename, pattern) for pattern in ignore)
 
 
 if __name__ == "__main__":
