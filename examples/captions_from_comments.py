@@ -38,7 +38,11 @@ def main(walk: bool, dry_run: bool, paths: tuple[str]):
     library = get_last_library_path()
     fq = FingerprintQuery(library)
     for file in files:
-        md = osxmetadata.OSXMetaData(file)
+        try:
+            md = osxmetadata.OSXMetaData(file)
+        except Exception as e:
+            echo(f"Error reading metadata for file [filename]{file}[/]: {e}")
+            continue
         if not md.findercomment:
             echo(f"Skipping file [filename]{file}[/] because it has no Finder comment")
             continue
@@ -76,7 +80,7 @@ def scan_files(paths: tuple[str], walk: bool) -> list[str]:
             else:
                 files.extend(os.listdir(path))
         else:
-            files.append(path)
+            files.append(os.path.abspath(path))
 
     files = [file for file in files if is_image_file(file) or is_video_file(file)]
     return files
