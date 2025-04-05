@@ -21,3 +21,4 @@ cov.xml
 pyrightconfig.json
 .workingon
 docs/.buildinfo.bak
+.encrc
