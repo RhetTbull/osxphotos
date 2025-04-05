@@ -902,6 +902,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "JxxIT",
+      "name": "JxxIT",
+      "avatar_url": "https://avatars.githubusercontent.com/u/110342008?v=4",
+      "profile": "https://github.com/JxxIT",
+      "contributions": [
+        "bug",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
