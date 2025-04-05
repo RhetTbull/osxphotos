@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-94-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-95-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
@@ -3040,6 +3040,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://christiansievers.info"><img src="https://avatars.githubusercontent.com/u/20228200?v=4?s=75" width="75px;" alt="Christian Sievers"/><br /><sub><b>Christian Sievers</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=christiansievers" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mravery"><img src="https://avatars.githubusercontent.com/u/1683929?v=4?s=75" width="75px;" alt="Avery Chan"/><br /><sub><b>Avery Chan</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Amravery" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dobernhardt"><img src="https://avatars.githubusercontent.com/u/57567625?v=4?s=75" width="75px;" alt="dobernhardt"/><br /><sub><b>dobernhardt</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Adobernhardt" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JxxIT"><img src="https://avatars.githubusercontent.com/u/110342008?v=4?s=75" width="75px;" alt="JxxIT"/><br /><sub><b>JxxIT</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AJxxIT" title="Bug reports">🐛</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=JxxIT" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
