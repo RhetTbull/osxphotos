@@ -912,6 +912,15 @@
         "bug",
         "code"
       ]
+    },
+    {
+      "login": "KeyPlayerMaek",
+      "name": "Marek Toth",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25553779?v=4",
+      "profile": "https://github.com/KeyPlayerMaek",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
