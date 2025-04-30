@@ -340,7 +340,12 @@ def test_exiftool_json_sidecar(photosdb):
     json_got = exiftool_json_sidecar(photo)
     json_got = json.loads(json_got)[0]
 
-    assert json_got == json_expected
+    for k, v in json_expected.items():
+        if k in {"EXIF:ModifyDate", "EXIF:OffsetTime"}:
+            # these will change based on local time of machine running test
+            # so these are not checked in this test
+            continue
+        assert json_got[k] == v
 
 
 def test_xmp_sidecar(photosdb):

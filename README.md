@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-87-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-96-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
@@ -47,7 +47,7 @@ Tested on macOS Sierra (10.12.6) through macOS Sonoma (14.1). Tested on both x86
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
-| 15.0 beta         | Sequoia    | 10.0 (beta support) |
+| 15.0              | Sequoia    | 10.0 (beta support) |
 | 14.0 - 14.6       | Sonoma     | 9.0 ✅              |
 | 13.0 - 13.6       | Ventura    | 8.0 ✅              |
 | 12.0 - 12.7       | Monterey   | 7.0 ✅              |
@@ -61,41 +61,48 @@ Limited support is also provided for exporting photos and metadata from iPhoto l
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
-Requires python >= `3.9`, <= `3.12`. Reading iPhoto libraries requires python >= `3.10`.
+Requires python >= `3.10`, <= `3.13`.
 
 For macOS 15.0 / Sequoia developer preview, alpha support is provided (very preliminary, not guaranteed to work). Not all features of osxphotos have been tested and some features may not work. If you encounter issues, please open an issue on GitHub.
 
 ## Installation
 
-If you are new to python, I recommend you install osxphotos using pipx. See other options below. If installing on Linux, see instructions below.
+The recommended way to install `osxphotos` is via the [uv](https://github.com/astral-sh/uv) python package manager tool.
 
-### Installation using pipx
-
-If you aren't familiar with installing python applications, I recommend you install `osxphotos` with [pipx](https://github.com/pipxproject/pipx). The easiest way to do this on a Mac is to use [homebrew](https://brew.sh/):
+### Installation using `uv`
 
 * Open `Terminal` (search for `Terminal` in Spotlight or look in `Applications/Utilities`)
-* Install `homebrew` according to instructions at [https://brew.sh/](https://brew.sh/)
-* Type the following into Terminal: `brew install pipx`
-* Ensure that pipx installed packages are accessible in your PATH by typing: `pipx ensurepath`
-* Then type this: `pipx install osxphotos`
+* Install `uv` by running the following command in Terminal:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+If you previously installed `uv`, upgrade to the latest version:
+
+```bash
+uv self update
+```
+
+* Type the following into Terminal:
+
+```bash
+uv tool install --python 3.12 osxphotos
+```
+
 * Now you should be able to run `osxphotos` by typing: `osxphotos`
 
-Once you've installed osxphotos with pipx, to upgrade to the latest version:
+Once you've installed osxphotos with `uv`, to upgrade to the latest version:
 
-    pipx upgrade osxphotos
+```bash
+uv tool upgrade osxphotos
+```
 
-> [!NOTE]
-> When installing other packages with homebrew, homebrew may update the version of Python installed which would then cause any app (including osxphotos) installed with `pipx` to fail. If this happens, the easiest fix is to reinstall osxphotos with:
->
->     pipx reinstall osxphotos
->
-> Alternatively, you can reinstall all apps installed with `pipx` with:
->
->     pipx reinstall-all
+If you want to try `osxphotos` without installing it, you can run `uv tool run --python 3.12 osxphotos` or `uvx --python 3.12 osxphotos`.
 
 ### Installation using pip
 
-You can also install directly from [pypi](https://pypi.org/project/osxphotos/):
+You can install `osxphotos` directly from [pypi](https://pypi.org/project/osxphotos/):
 
     python3 -m pip install osxphotos
 
@@ -133,7 +140,7 @@ If you want to work on osxphotos code or contribute to the project, you can inst
 > [!NOTE]
 > The git repo for this project is very large (> 3GB) because it contains multiple Photos libraries used for testing on different versions of macOS.
 >
-> If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or `pipx` as described above.
+> If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or with `uv` as described above.
 >
 > Alternatively, to clone the repository without the test data:
 >
@@ -160,7 +167,7 @@ See also the developer notes in [README_DEV.md](README_DEV.md).
 
 ### Installing pre-built executable
 
-You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page. Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x86_64_v0.63.5.zip`. In this case `v0.63.5` specifies version 0.63.5 and `x86_64` specifies Intel x86 platform; you should download the latest version available. For Apple Silicon, there is an equivalent `arm64` version of the executable. Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings. If you don't know how to do this, I recommend using `pipx` as described above.
+You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page. Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x86_64_v0.63.5.zip`. In this case `v0.63.5` specifies version 0.63.5 and `x86_64` specifies Intel x86 platform; you should download the latest version available. For Apple Silicon, there is an equivalent `arm64` version of the executable. Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings. If you don't know how to do this, I recommend using `uv` as described above.
 
 ## Documentation
 
@@ -242,6 +249,7 @@ Commands:
   timewarp       Adjust date/time/timezone of photos in Apple Photos.
   tutorial       Display osxphotos tutorial.
   uninstall      Uninstall Python packages from the osxphotos environment
+  update         Update the installation to the latest version.
   uuid           Print out unique IDs (UUID) of photos selected in Photos
   version        Check for new version of osxphotos.
 
@@ -509,9 +517,9 @@ Another way to export metadata about your photos is through the use of sidecar f
 
 Unlike `--exiftool`, you do not need to install exiftool to use the `--sidecar` feature.  Many of the same configuration options that apply to `--exiftool` to modify metadata, for example, `--keyword-template` can also be used with `--sidecar`.  
 
-Sidecar files are named "photoname.ext.sidecar_ext".  For example, if the photo is named `IMG_1234.JPG` and the sidecar format is XMP, the sidecar would be named `IMG_1234.JPG.XMP`.  Some applications expect the sidecar in this case to be named `IMG_1234.XMP`.  You can use the `-sidecar-drop-ext` option to force osxphotos to name the sidecar files in this manner:
+Sidecar files are named "photoname.ext.sidecar_ext".  For example, if the photo is named `IMG_1234.JPG` and the sidecar format is XMP, the sidecar would be named `IMG_1234.JPG.XMP`.  Some applications expect the sidecar in this case to be named `IMG_1234.XMP`.  You can use the `--sidecar-drop-ext` option to force osxphotos to name the sidecar files in this manner:
 
-`osxphotos export /path/to/export --sidecar XMP -sidecar-drop-ext`
+`osxphotos export /path/to/export --sidecar XMP --sidecar-drop-ext`
 
 #### Updating a previous export
 
@@ -2362,7 +2370,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.68.5'
+{osxphotos_version}             The osxphotos version, e.g. '0.69.2'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2860,7 +2868,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.68.5'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.69.2'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -3023,6 +3031,17 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lasjoe"><img src="https://avatars.githubusercontent.com/u/91013368?v=4?s=75" width="75px;" alt="lasjoe"/><br /><sub><b>lasjoe</b></sub></a><br /><a href="#data-lasjoe" title="Data">🔣</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://daniel-vogelnest.tk"><img src="https://avatars.githubusercontent.com/u/4771860?v=4?s=75" width="75px;" alt="Daniel Vogelnest"/><br /><sub><b>Daniel Vogelnest</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AdanVnest" title="Bug reports">🐛</a> <a href="#data-danVnest" title="Data">🔣</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/alban73"><img src="https://avatars.githubusercontent.com/u/74853805?v=4?s=75" width="75px;" alt="alban73"/><br /><sub><b>alban73</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aalban73" title="Bug reports">🐛</a> <a href="#data-alban73" title="Data">🔣</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/justaLoli"><img src="https://avatars.githubusercontent.com/u/92238102?v=4?s=75" width="75px;" alt="justaLoli"/><br /><sub><b>justaLoli</b></sub></a><br /><a href="#ideas-justaLoli" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/arthurward"><img src="https://avatars.githubusercontent.com/u/8432358?v=4?s=75" width="75px;" alt="arthurward"/><br /><sub><b>arthurward</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aarthurward" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/svet-b"><img src="https://avatars.githubusercontent.com/u/12831860?v=4?s=75" width="75px;" alt="svet-b"/><br /><sub><b>svet-b</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Asvet-b" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Syntaxheld"><img src="https://avatars.githubusercontent.com/u/6772181?v=4?s=75" width="75px;" alt="Syntaxheld"/><br /><sub><b>Syntaxheld</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3ASyntaxheld" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://christiansievers.info"><img src="https://avatars.githubusercontent.com/u/20228200?v=4?s=75" width="75px;" alt="Christian Sievers"/><br /><sub><b>Christian Sievers</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=christiansievers" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mravery"><img src="https://avatars.githubusercontent.com/u/1683929?v=4?s=75" width="75px;" alt="Avery Chan"/><br /><sub><b>Avery Chan</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Amravery" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dobernhardt"><img src="https://avatars.githubusercontent.com/u/57567625?v=4?s=75" width="75px;" alt="dobernhardt"/><br /><sub><b>dobernhardt</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Adobernhardt" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JxxIT"><img src="https://avatars.githubusercontent.com/u/110342008?v=4?s=75" width="75px;" alt="JxxIT"/><br /><sub><b>JxxIT</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AJxxIT" title="Bug reports">🐛</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=JxxIT" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/KeyPlayerMaek"><img src="https://avatars.githubusercontent.com/u/25553779?v=4?s=75" width="75px;" alt="Marek Toth"/><br /><sub><b>Marek Toth</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AKeyPlayerMaek" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>

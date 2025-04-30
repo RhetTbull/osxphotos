@@ -2,6 +2,79 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.69.2](https://github.com/RhetTbull/osxphotos/compare/v0.69.2...v0.69.0)
+
+Fix for crash on macOS 15.2
+
+### v0.69.2 (2024-12-14)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fixed crash on macOS 15.2 (#1757)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
+## [v0.69.0](https://github.com/RhetTbull/osxphotos/compare/v0.68.6...v0.69.0)
+
+Added support for Python 3.13. Removed support for Python 3.9.
+
+### v0.69.0 (2024-11-29)
+
+#### Added
+
+#### Changed
+
+- Added support for Python 3.13.
+
+#### Removed
+
+- Removed Support for Python 3.9. OSPhotos may continue to work with Python 3.9 but it is no longer tested or supported.
+
+#### Fixed
+
+- Fix for timewarp pull-exif timezone fails to update Photos Timezone info when offset_seconds == 0 (#1703) (thanks to @oPromessa for the fix).
+- Fix for "push-exif datetime" fails updating edited video (#1706) (thanks to @oPromessa for the fix).
+- Added check for `osxphotos timewarp` to ensure `--inspect` and `--compare-exif` are mutually exclusive.
+- Fix for exiftool code when `OffsetTimeOriginal` is invalid (thanks to @oPromessa for the fix).
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @oPromessa [@oPromessa](https://github.com/oPromessa) for code.
+
+## [v0.68.6](https://github.com/RhetTbull/osxphotos/compare/v0.68.5...v0.68.6)
+
+Various bug fixes for macOS 15 Sequoia.
+
+### v0.68.6 (2024-09-18)
+
+#### Added
+
+#### Changed
+
+- Check for AAE files for video files on import (#1653, thanks to @oPromessa)
+
+#### Removed
+
+#### Fixed
+
+- Fix for error running on macOS 10.15 (#1680)
+- Fix for `osxphotos import --auto-live` for some video files (#1670)
+- Fix for edited photos on macOS 15 Sequoia (#1687)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @oPromessa [@oPromessa](https://github.com/oPromessa) for code.
+
 ## [v0.68.5](https://github.com/RhetTbull/osxphotos/compare/v0.68.4...v0.68.5)
 
 Hot fix for unknown UTI type during export. Also incorporates changes to the `sync` command

@@ -978,9 +978,7 @@ def test_date_invalid():
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
-    delta = datetime.timedelta(seconds=p.tzoffset)
-    tz = datetime.timezone(delta)
-    assert p.date == datetime.datetime(1970, 1, 1).astimezone(tz=tz)
+    assert p.date == datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
 
 def test_date_modified_invalid(photosdb):

@@ -1,5 +1,3 @@
-""" Constants used by osxphotos """
-
 from __future__ import annotations
 
 import logging
@@ -13,10 +11,6 @@ logger: logging.Logger = logging.getLogger("osxphotos")
 APP_NAME = "osxphotos"
 
 OSXPHOTOS_URL = "https://github.com/RhetTbull/osxphotos"
-
-# Time delta: add this to Photos times to get unix time
-# Apple Epoch is Jan 1, 2001
-TIME_DELTA = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622

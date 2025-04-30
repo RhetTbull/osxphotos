@@ -353,7 +353,9 @@ class PhotoAsset:
     @property
     def screen_recording(self):
         """return True if asset is screen recordings, otherwise False"""
-        return bool(self.media_subtypes & Photos.PHAssetMediaSubtypePhotoScreenRecording)
+        return bool(
+            self.media_subtypes & Photos.PHAssetMediaSubtypePhotoScreenRecording
+        )
 
     @property
     def live(self):

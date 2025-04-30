@@ -240,6 +240,11 @@ class FaceInfo:
         x, y = self.center_x, self.center_y
         x, y = self._fix_orientation((x, y))
 
+        # there are some rare cases where width or height is zero (#1810)
+        # in this case return a zero rectangle which doesn't make sense but neither does a zero width or height
+        if self.photo.width == 0 or self.photo.height == 0:
+            return MWG_RS_Area(0, 0, 0, 0)
+
         if self.photo.orientation in [5, 6, 7, 8]:
             w = self.size_pixels / self.photo.height
             h = self.size_pixels / self.photo.width
@@ -265,6 +270,11 @@ class FaceInfo:
         """
         x, y = self.center_x, self.center_y
         x, y = self._fix_orientation((x, y))
+
+        # there are some rare cases where width or height is zero (#1810)
+        # in this case return a zero rectangle which doesn't make sense but neither does a zero width or height
+        if self.photo.width == 0 or self.photo.height == 0:
+            return MPRI_Reg_Rect(0, 0, 0, 0)
 
         if self.photo.orientation in [5, 6, 7, 8]:
             w = self.size_pixels / self.photo.width

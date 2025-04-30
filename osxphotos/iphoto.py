@@ -53,7 +53,6 @@ from ._constants import (
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
-    TIME_DELTA,
 )
 from .datetime_utils import datetime_has_tz, datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
@@ -63,6 +62,7 @@ from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
+from .photos_datetime import photos_datetime, photos_datetime_local
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 from .scoreinfo import ScoreInfo
@@ -128,6 +128,7 @@ class iPhotoDB:
 
         # initialize database dictionaries
         self._db_photos = {}  # mapping of uuid to photo data
+        self._dbphotos = self._db_photos  # for compatability with PhotosDB
         self._db_event_notes = {}  # mapping of modelId to event notes
         self._db_places = {}  # mapping of modelId to places
         self._db_properties = {}  # mapping of versionId to properties
@@ -139,9 +140,10 @@ class iPhotoDB:
         self._db_albums = {}  # mapping of modelId to albums
         self._db_volumes = {}  # mapping of volume uuid to volume name
 
-        # set _db_version and _photos_ver even though they're not used in iPhoto because other code depends on these
+        # set _db_version, _photos_ver, _model_ver even though they're not used in iPhoto because other code depends on these
         self._db_version = _IPHOTO_VERSION
         self._photos_ver = 0
+        self._model_ver = 0
 
         self._load_library()
 
@@ -1064,25 +1066,33 @@ class iPhotoPhotoInfo:
     @property
     def date(self) -> datetime.datetime:
         """Date photo was taken"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_taken"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_taken"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=True,
         )
+
+    @property
+    def date_original(self) -> datetime.datetime:
+        """Date photo was taken"""
+        return self.date
 
     @property
     def date_modified(self) -> datetime.datetime:
         """Date modified in library"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_modified"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_modified"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=False,
         )
 
     @property
     def date_added(self) -> datetime.datetime:
         """Date added to library"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_imported"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_imported"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=True,
         )
 
     @property
@@ -1092,7 +1102,12 @@ class iPhotoPhotoInfo:
         if not tzname:
             return 0
         tz = ZoneInfo(tzname)
-        return int(tz.utcoffset(datetime.datetime.now()).total_seconds())
+        return int(tz.utcoffset(self.date).total_seconds())
+
+    @property
+    def tzname(self) -> str | None:
+        """Timezone name for the asset creation date"""
+        return self._db._db_photos[self._uuid]["timezone"] or None
 
     @property
     def path(self) -> str | None:
@@ -1673,6 +1688,9 @@ class iPhotoPhotoInfo:
             dict_data["shared_moment"] = self.shared_moment
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
+            dict_data["screen_recording"] = self.screen_recording
+            dict_data["date_original"] = self.date_original
+            dict_data["tzname"] = self.tzname
 
         return dict_data
 
@@ -2382,7 +2400,7 @@ class iPhotoEventInfo:
     def _date_created(self) -> datetime.datetime | None:
         """Date the event created in iPhoto."""
         # not common with Photos MomentInfo so leave private
-        return naive_iphoto_date_to_datetime(self._event["date"])
+        return photos_datetime_local(self._event["date"])
 
     @property
     def modification_date(self) -> datetime.datetime | None:
@@ -2457,49 +2475,6 @@ class iPhotoExifInfo:
 
 
 ### Utility functions ###
-
-
-def iphoto_date_to_datetime(
-    date: int | None, tz: str | None = None
-) -> datetime.datetime:
-    """ "Convert iPhoto date to datetime; if tz provided, will be timezone aware
-
-    Args:
-        date: iPhoto date
-        tz: timezone name
-
-    Returns:
-        datetime.datetime
-
-    Note:
-        If date is None or invalid, will return 1970-01-01 00:00:00
-    """
-    try:
-        dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
-    except (ValueError, TypeError):
-        dt = datetime.datetime(1970, 1, 1)
-    if tz:
-        dt = dt.replace(tzinfo=ZoneInfo(tz))
-    return dt
-
-
-def naive_iphoto_date_to_datetime(date: int) -> datetime.datetime:
-    """ "Convert iPhoto date to datetime with local timezone
-
-    Args:
-        date: iPhoto date
-
-    Returns:
-        timezone aware datetime.datetime in local timezone
-
-    Note:
-        If date is invalid, will return 1970-01-01 00:00:00
-    """
-    try:
-        dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
-    except ValueError:
-        dt = datetime.datetime(1970, 1, 1)
-    return datetime_naive_to_local(dt)
 
 
 def default_return_value(name: str) -> Any:

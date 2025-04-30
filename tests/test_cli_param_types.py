@@ -16,7 +16,7 @@ from osxphotos.cli.param_types import (
     TimeISO8601,
     TimeOffset,
     TimeString,
-    UTCOffset,
+    TimezoneOffset,
 )
 from osxphotos.timezones import Timezone
 
@@ -178,8 +178,8 @@ def test_timestring_invalid_format():
             TimeString().convert(timestring_str, None, None)
 
 
-def test_utcoffset():
-    """Test UTCOffset"""
+def test_timezoneoffset():
+    """Test TimezoneOffset"""
     utcoffset_data = {
         "+00:00": Timezone(0),
         "-00:00": Timezone(-0),
@@ -187,17 +187,15 @@ def test_utcoffset():
         "-01:00": Timezone(-3600),
         "+01:30": Timezone(5400),
         "-01:30": Timezone(-5400),
+        "America/Los_Angeles": Timezone("America/Los_Angeles"),
     }
-    for utcoffset_str, utcoffset_int in utcoffset_data.items():
-        assert UTCOffset().convert(utcoffset_str, None, None) == utcoffset_int
+    for utcoffset_str, tz in utcoffset_data.items():
+        assert TimezoneOffset().convert(utcoffset_str, None, None) == tz
 
 
 def test_utcoffset_invalid_format():
     """Test UTCOffset with invalid format"""
-    utcoffset_data = [
-        "20-01-01T00:00:00",
-        "20-01-1",
-    ]
+    utcoffset_data = ["20-01-01T00:00:00", "20-01-1", "Invalid/Timezone"]
     for utcoffset_str in utcoffset_data:
         with pytest.raises(BadParameter):
-            UTCOffset().convert(utcoffset_str, None, None)
+            TimezoneOffset().convert(utcoffset_str, None, None)

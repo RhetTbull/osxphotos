@@ -16,11 +16,11 @@ from .._constants import (
     _PHOTOS_6_MODEL_VERSION,
     _PHOTOS_7_MODEL_VERSION,
     _PHOTOS_8_MODEL_VERSION,
+    _PHOTOS_9_14_6_MODEL_VERSION,
     _PHOTOS_9_MODEL_VERSION,
     _PHOTOS_10_MODEL_VERSION,
     _PHOTOS_10B1_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
-    _PHOTOS_9_14_6_MODEL_VERSION,
 )
 from ..sqlite_utils import sqlite_open_ro
 

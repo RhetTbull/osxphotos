@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
 __all__ = ["PhotoInfoProtocol", "PhotoInfoMixin"]
 
+
 @runtime_checkable
 class PhotoInfoProtocol(Protocol):
     @property
@@ -39,6 +40,9 @@ class PhotoInfoProtocol(Protocol):
 
     @property
     def tzoffset(self) -> int: ...
+
+    @property
+    def tzname(self) -> str: ...
 
     @property
     def path(self) -> str | None: ...
@@ -345,6 +349,7 @@ class PhotoInfoMixin:
             "fingerprint",
             "syndicated",
             "shared_moment_info",
+            "tzname",
         ]:
             return None
         elif name in [

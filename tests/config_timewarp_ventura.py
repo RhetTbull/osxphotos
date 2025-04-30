@@ -7,13 +7,26 @@ import datetime
 import pathlib
 import time
 
+from osxphotos.timeutils import get_local_utc_offset_str
 from tests.parse_timewarp_output import (
     CompareValues,
     InspectValues,
     InspectValuesDateAdded,
 )
 
-TEST_LIBRARY_TIMEWARP = "tests/TestTimeWarp-13.1.0.photoslibrary"
+TEST_LIBRARY_TIMEWARP = "tests/TestTimeWarp-13.6.9.photoslibrary"
+
+UUID_DICT = {
+    "pears": "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
+    "apple_tree": "1A61156A-5747-42DE-A9B3-4A468CC49D9E",
+    "marigolds": "C4D952AF-983D-438E-9070-6310B1BC4826",
+    "sunflowers": "53615D56-91F7-4908-81F1-B93B5DEA7449",
+    "pumpkins": "FD1E3A36-3E65-48AF-9B14-DCFF65A9D3D2",
+    "zinnias": "7E9DF2EE-A5B0-4077-80EC-30565221A3B9",
+    "palm_tree": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+    "sunset_video": "16BEC0BE-4188-44F1-A8F1-7250E978AD12",
+    "water_lily": "FD2D395E-A0DC-46F2-9ABA-826A15CEAC56",
+}
 
 
 def get_file_timestamp(file: str) -> str:
@@ -61,7 +74,7 @@ VENTURA_PHOTOS_5 = {
     },
     "date_delta": {
         # IMG_6501.jpeg
-        "uuid": "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
+        "gguuid": "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
         "parameters": [
             ("1", "2020-09-02 12:40:07-0700"),
             ("1 day", "2020-09-03 12:40:07-0700"),
@@ -285,7 +298,9 @@ VENTURA_PHOTOS_5 = {
                 f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
             ),
             "",
-            "-0700" if is_dst() else "-0800",
+            get_local_utc_offset_str(get_file_timestamp(
+                f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
+            )),
             "",
         ),
     },
@@ -382,10 +397,10 @@ VENTURA_PHOTOS_5 = {
         "expected": InspectValues(
             "20230120_010203-0400.jpg",
             "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
-            "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
-            "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
+            "2023-01-20 01:02:03-0800",
+            "2023-01-20 01:02:03-0800",
             "-0800",
-            "GMT-0800",
+            "America/Los_Angeles",
         ),
     },
     "parse_date_tz": {
@@ -394,10 +409,10 @@ VENTURA_PHOTOS_5 = {
         "expected": InspectValues(
             "20230120_010203-0400.jpg",
             "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
-            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+            "2023-01-19 21:02:03-0800",
             "2023-01-20 01:02:03-0400",
             "-0400",
-            "GMT-0400",
+            "America/Anguilla",
         ),
     },
     "date_added": {
@@ -409,19 +424,12 @@ VENTURA_PHOTOS_5 = {
                 InspectValuesDateAdded(
                     "20230120_010203-0400.jpg",
                     "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
-                    (
-                        "2023-01-19 21:02:03-0800"
-                        if not is_dst()
-                        else "2023-01-19 20:02:03-0700"
-                    ),
+                    "2023-01-19 21:02:03-0800",
                     "2023-01-20 01:02:03-0400",
                     "-0400",
-                    "GMT-0400",
-                    (
-                        "2022-01-01 00:00:00-0800"
-                        if not is_dst()
-                        else "2022-01-01 00:00:00-0700"
-                    ),
+                    "America/Anguilla",
+                    "2022-01-01 00:00:00"
+                    + get_local_utc_offset_str("2022-01-01 00:00:00"),
                 ),
             ),
             (
@@ -429,19 +437,12 @@ VENTURA_PHOTOS_5 = {
                 InspectValuesDateAdded(
                     "20230120_010203-0400.jpg",
                     "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
-                    (
-                        "2023-01-19 21:02:03-0800"
-                        if not is_dst()
-                        else "2023-01-19 20:02:03-0700"
-                    ),
+                    "2023-01-19 21:02:03-0800",
                     "2023-01-20 01:02:03-0400",
                     "-0400",
-                    "GMT-0400",
-                    (
-                        "2022-01-01 01:02:03-0800"
-                        if not is_dst()
-                        else "2022-01-01 01:02:03-0700"
-                    ),
+                    "America/Anguilla",
+                    "2022-01-01 01:02:03"
+                    + get_local_utc_offset_str("2022-01-01 01:02:03"),
                 ),
             ),
         ],
@@ -452,11 +453,23 @@ VENTURA_PHOTOS_5 = {
         "expected": InspectValuesDateAdded(
             "20230120_010203-0400.jpg",
             "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
-            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+            "2023-01-19 21:02:03-0800",
             "2023-01-20 01:02:03-0400",
             "-0400",
-            "GMT-0400",
-            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+            "America/Anguilla",
+            "2023-01-19 21:02:03-0800",
+        ),
+    },
+    "reset": {
+        # IMG_8056.HEIC
+        "uuid": "FD2D395E-A0DC-46F2-9ABA-826A15CEAC56",
+        "expected": InspectValues(
+            "IMG_8056.HEIC",
+            "FD2D395E-A0DC-46F2-9ABA-826A15CEAC56",
+            "2024-06-30 13:44:52-0700",
+            "2024-06-30 13:44:52-0700",
+            "-0700",
+            "GMT-0700",
         ),
     },
 }

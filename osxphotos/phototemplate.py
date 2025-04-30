@@ -9,7 +9,7 @@ import shlex
 import sys
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from textx import TextXSyntaxError, metamodel_from_file
 

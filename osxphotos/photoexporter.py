@@ -20,6 +20,7 @@ from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
 from .exportoptions import ExportOptions, ExportResults
 from .fileutil import FileUtil
+from .photoinfo_common import photoinfo_minify_dict
 from .phototemplate import RenderOptions
 from .platform import is_macos
 from .rich_utils import add_rich_markup_tag
@@ -589,8 +590,7 @@ class PhotoExporter:
         staged = StagedFiles()
 
         if options.use_photos_export:
-            return self._stage_missing_photos_for_export_helper(
-                options=options)
+            return self._stage_missing_photos_for_export_helper(options=options)
 
         if options.raw_photo and self.photo.has_raw:
             staged.raw = self.photo.path_raw
@@ -648,7 +648,8 @@ class PhotoExporter:
             use_photokit=options.use_photokit,
         )
         missing_staged = self._stage_missing_photos_for_export_helper(
-            options=missing_options)
+            options=missing_options
+        )
         staged |= missing_staged
         return staged
 
@@ -1045,7 +1046,7 @@ class PhotoExporter:
         # set data in the database
         with export_db.create_or_get_file_record(dest_str, self.photo.uuid) as rec:
             if rec.photoinfo:
-                last_data = json.loads(rec.photoinfo)
+                last_data = photoinfo_minify_dict(json.loads(rec.photoinfo))
                 # to avoid issues with datetime comparisons, list order
                 # need to deserialize from photo.json() instead of using photo.asdict()
                 current_data = json.loads(self.photo.json(shallow=True))
@@ -1067,7 +1068,7 @@ class PhotoExporter:
                 diff = json.dumps(diff, default=_json_default) if diff else None
             else:
                 diff = None
-            rec.photoinfo = self.photo.json(shallow=True)
+            rec.photoinfo = self.photo.json(shallow=False)
             rec.export_options = options.bit_flags
             # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
             if not options.ignore_signature:
@@ -1233,7 +1234,10 @@ class PhotoExporter:
         if action == "skip":
             if dest.exists():
                 options.export_db.set_history(
-                    filename=str(dest), uuid=self.photo.uuid, action=f"AAE: {action}", diff=None
+                    filename=str(dest),
+                    uuid=self.photo.uuid,
+                    action=f"AAE: {action}",
+                    diff=None,
                 )
                 return ExportResults(aae_skipped=[str(dest)], skipped=[str(dest)])
             else:

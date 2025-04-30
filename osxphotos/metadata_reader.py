@@ -43,6 +43,7 @@ class MetaData:
         tz_offset_sec: int or None if not set, offset from UTC in seconds
         height: int or None if not set, height of photo in pixels
         width: int or None if not set, width of photo in pixels
+        tzname: str or None if not set, timezone name for timezone
     """
 
     title: str = ""
@@ -57,6 +58,7 @@ class MetaData:
     tz_offset_sec: float | None = None
     height: int | None = None
     width: int | None = None
+    tzname: str | None = None
 
     def __ior__(self, other):
         if isinstance(other, MetaData):
@@ -399,6 +401,7 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
         tz_offset_sec=tz_offset,
         height=height,
         width=width,
+        tzname=None,  # the sidecar doesn't store the timezone name
     )
 
 
@@ -537,4 +540,5 @@ def metadata_from_photoinfo(photoinfo: PhotoInfoProtocol) -> MetaData:
         tz_offset_sec=tz_offset,
         height=photoinfo.height,
         width=photoinfo.width,
+        tzname=photoinfo.tzname,
     )

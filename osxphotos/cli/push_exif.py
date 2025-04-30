@@ -635,10 +635,20 @@ def compare_location(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
     """Compare location between Photos and original file for a single photo"""
     photo_latitude = photo.latitude
     photo_longitude = photo.longitude
-    exif_latitude = file_data.get("EXIF:GPSLatitude")
-    exif_longitude = file_data.get("EXIF:GPSLongitude")
-    exif_latitude_ref = file_data.get("EXIF:GPSLatitudeRef")
-    exif_longitude_ref = file_data.get("EXIF:GPSLongitudeRef")
+    if photo.isphoto:
+        exif_latitude = file_data.get("EXIF:GPSLatitude")
+        exif_longitude = file_data.get("EXIF:GPSLongitude")
+        exif_latitude_ref = file_data.get("EXIF:GPSLatitudeRef")
+        exif_longitude_ref = file_data.get("EXIF:GPSLongitudeRef")
+    elif photo.ismovie:
+        exif_coordinates = file_data.get("QuickTime:GPSCoordinates")
+        exif_latitude, exif_longitude = (
+            [float(x) for x in exif_coordinates.split()[:2]]
+            if exif_coordinates
+            else [None, None]
+        )
+        exif_latitude_ref = None
+        exif_longitude_ref = None
 
     if exif_longitude and exif_longitude_ref == "W":
         exif_longitude = -exif_longitude

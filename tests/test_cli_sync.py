@@ -121,6 +121,7 @@ def test_sync_export_import():
             assert report_data[uuid]["albums"]["updated"]
             assert not report_data[uuid]["error"]
 
+
 @pytest.mark.test_sync
 def test_sync_export_import_location():
     """Test --export and --import location"""
