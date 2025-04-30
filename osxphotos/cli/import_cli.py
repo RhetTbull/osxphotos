@@ -30,6 +30,7 @@ from strpdatetime import strpdatetime
 from osxphotos.fileutil import FileUtilMacOS
 from osxphotos.photodates import update_photo_time_for_new_timezone
 from osxphotos.photoinfo_protocol import PhotoInfoProtocol
+from osxphotos.phototz import PhotoTimeZone
 from osxphotos.platform import assert_macos
 
 from .help import rich_text
@@ -61,6 +62,7 @@ from osxphotos.cli.signaturequery import SignatureQuery
 from osxphotos.datetime_utils import (
     datetime_has_tz,
     datetime_remove_tz,
+    datetime_to_new_tz,
     datetime_tz_to_utc,
     datetime_utc_to_local,
 )
@@ -89,6 +91,7 @@ from osxphotos.metadata_reader import (
     metadata_from_photoinfo,
     metadata_from_sidecar,
 )
+from osxphotos.photodates import update_photo_time_for_new_timezone
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photoinfo_file import (
     PhotoInfoFromFile,
@@ -96,7 +99,7 @@ from osxphotos.photoinfo_file import (
 )
 from osxphotos.photosalbum import PhotosAlbumPhotoScript, PhotosAlbumPhotoScriptByPath
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
-from osxphotos.phototz import PhotoTimeZoneUpdater
+from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.sqlite_utils import sqlite_columns
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.strpdatetime_parts import (
@@ -623,8 +626,6 @@ class ImportCommand(click.Command):
     help="Parse date from filename using DATE_PATTERN. "
     "If file does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
     "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
-    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
-    "as the import command does not yet support setting time zone information. "
     "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
     "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
     "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name. "
@@ -634,7 +635,9 @@ class ImportCommand(click.Command):
     "For example, if photos are named 'IMG_1234_2022_11_23.jpg' where the date is '2022-11-23', "
     "you could use the pattern '%Y_%m_%d' to set the date but the time would be set from the EXIF "
     "or the file's modification time. "
-    "See also --parse-folder-date, --check-templates.",
+    "If the DATE_PATTERN matches time zone information, you must also use --set-timezone to allow "
+    "osxphotos to set the timezone in the Photos database. "
+    "See also --parse-folder-date, --check-templates, --set-timezone.",
 )
 @click.option(
     "--parse-folder-date",
@@ -773,7 +776,7 @@ class ImportCommand(click.Command):
     "-Z",
     is_flag=True,
     help="Set the named timezone of the imported photos in the Photos database when used with "
-    "--exportdb, --exiftool, or --sidecar. "
+    "--exportdb, --exiftool, --parse-date, or --sidecar. "
     "Photos does not provide a way to set the timezone of a photo directly. "
     "Upon import, osxphotos can read the timezone from the export database if using --exportdb "
     "or infer the timezone from the photo latitude/longitude if using --exiftool or --sidecar. "
@@ -1813,7 +1816,8 @@ def set_photo_date(
     dry_run: bool,
     library: str,
     set_timezone: bool,
-):
+    match_time: bool = False,
+) -> datetime.datetime | None:
     """Set photo date from metadata.
 
     Args:
@@ -1823,6 +1827,7 @@ def set_photo_date(
         dry_run: if True, do not actually set date
         library: path to Photos library
         set_timezone: if True, update timezone of photo
+        match_time: if True, adjust photo date/time to keep same date/time in new timezone; ignored if
     """
     if photo and not dry_run:
         verbose(
@@ -1831,8 +1836,12 @@ def set_photo_date(
         photo.date = metadata.date
         if set_timezone and (metadata.tz_offset_sec is not None or metadata.tzname):
             tz = Timezone(metadata.tzname or metadata.tz_offset_sec)
+            if match_time:
+                update_photo_time_for_new_timezone(library, photo, tz, verbose)
             tz_updater = PhotoTimeZoneUpdater(tz, verbose=verbose, library_path=library)
             tz_updater.update_photo(photo)
+        return photo.date
+    return metadata.date
 
 
 def set_photo_title(
@@ -2001,7 +2010,8 @@ def combine_date_time(
         date = datetime.datetime.combine(photo.date.date(), date.time())
     return date
 
-
+# ZZZ two of these, one in photo_dates -- timewarp uses the one from photodates.py, use this one instead
+# but needs modification to look at folder name when needed
 def set_photo_date_from_filename(
     photo: Photo,
     photo_name: str,
@@ -2009,30 +2019,45 @@ def set_photo_date_from_filename(
     parse_date: str,
     verbose: Callable[..., None],
     dry_run: bool,
+    set_timezone: bool,
+    library: str,
 ) -> datetime.datetime | None:
     """Set date of photo from filename or path"""
     try:
         date = strpdatetime(str(filepath), parse_date)
-        # Photo.date must be timezone naive (assumed to local timezone)
-        if datetime_has_tz(date):
-            local_date = datetime_remove_tz(
-                datetime_utc_to_local(datetime_tz_to_utc(date))
-            )
-            verbose(
-                f"Moving date with timezone [time]{date}[/] to local timezone: [time]{local_date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
-            )
-            date = local_date
     except ValueError:
         verbose(f"[warning]Could not parse date from [filepath]{filepath}[/][/]")
         return None
 
+    tz_offset_secs = None
+    if tz := date.tzinfo:
+        tz_offset_secs = tz.utcoffset(date).total_seconds()
+        if not set_timezone:
+            verbose(
+                f"[warning]Warning: timezone set to {tz} for [filepath]{filepath}[/] but --set-timezone not specified so timezone will not be applied[/]"
+            )
+        # move date/time to correct date/time in local timezone
+        # as Photos will apply local timezone to date/time (this ensures that if --set-timezone wasn't used, the date/time will be correct for the local timezone)
+        # I'm not sure this is the most intuitive to all users but it seems to me better than leaving the date/time unchanged
+        # This also ensures that if --set-timezone is used, the date/time will be correct for the local timezone
+        # ZZZ Needs to be moved to whatever timezone is currently set in the database (Photos will set it on import)
+        timezone_seconds, timezone_str, timezone_name = PhotoTimeZone(
+            library
+        ).get_timezone(photo)
+        local_date = datetime_remove_tz(datetime_to_new_tz(date, timezone_seconds))
+        # local_date = datetime_remove_tz(date)
+        verbose(
+            f"Moving date with timezone [time]{date}[/] to local timezone: [time]{local_date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+        )
+        date = local_date
     date = combine_date_time(photo, filepath, parse_date, date)
+    md = MetaData(date=date, timezone=tz, tz_offset_sec=tz_offset_secs)
     verbose(
         f"Setting date of photo [filename]{photo_name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
     )
-    if photo and not dry_run:
-        photo.date = date
-    return date
+    # ZZZ if photo has offset metadata, Photos sets this on import, then when applying new timezone, the match time is wrong
+    # need to adjust from photos timezone to new timezone
+    return set_photo_date(photo, md, verbose, dry_run, library, set_timezone, False)
 
 
 def get_relative_filepath(
@@ -2187,6 +2212,8 @@ def apply_photo_metadata(
             parse_date,
             verbose,
             dry_run,
+            set_timezone,
+            library,
         )
 
     if parse_folder_date:
@@ -2197,6 +2224,8 @@ def apply_photo_metadata(
             parse_folder_date,
             verbose,
             dry_run,
+            set_timezone,
+            library,
         )
 
     if timezone:
