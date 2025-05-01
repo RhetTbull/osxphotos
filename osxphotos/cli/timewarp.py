@@ -171,12 +171,6 @@ format with the following additions:
 For more information on strptime format codes, see:
 https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
 
-**Note**: The time zone of the parsed date/time is assumed to be the local time zone.
-If the parse pattern includes a time zone, the photo's time will be converted from
-the specified time zone to the local time zone. The timewarp command does not currently
-setting the timezone when parsing the filename.
-
-
 """  # noqa: E501
                 ),
                 width=formatter.width,
