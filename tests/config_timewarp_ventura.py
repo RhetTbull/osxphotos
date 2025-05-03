@@ -1,4 +1,4 @@
-""" Test data for timewarp command on Ventura/Photos 8 """
+"""Test data for timewarp command on Ventura/Photos 8"""
 
 # NOTE: The data may be wrong if test not run in US Pacific time zone
 # I've not tried to test this for other timezones
@@ -161,6 +161,9 @@ VENTURA_PHOTOS_5 = {
         "parameters": [
             ("-0500", "2021-10-02 12:54:36-0500"),
             ("+01:00", "2021-10-02 12:54:36+0100"),
+            ("America/Los_Angeles", "2021-10-02 12:54:36-0700"),
+            ("America/Chicago", "2021-10-02 12:54:36-0500"),
+            ("+01:00", "2021-10-02 12:54:36+0100"),  # reset so following tests work
         ],
     },
     "exiftool": {
@@ -298,9 +301,11 @@ VENTURA_PHOTOS_5 = {
                 f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
             ),
             "",
-            get_local_utc_offset_str(get_file_timestamp(
-                f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
-            )),
+            get_local_utc_offset_str(
+                get_file_timestamp(
+                    f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
+                )
+            ),
             "",
         ),
     },
