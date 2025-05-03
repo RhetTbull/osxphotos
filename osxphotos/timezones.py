@@ -25,7 +25,6 @@ class Timezone:
 
 
 if is_macos:
-
     import Foundation
     import objc
 
@@ -43,15 +42,11 @@ if is_macos:
                 self._from_offset = False
                 if isinstance(tz, str):
                     # the NSTimeZone methods return nil if the timezone is invalid
-                    self.timezone = Foundation.NSTimeZone.timeZoneWithAbbreviation_(
-                        tz
-                    ) or Foundation.NSTimeZone.timeZoneWithName_(tz)
+                    self.timezone = Foundation.NSTimeZone.timeZoneWithAbbreviation_(tz) or Foundation.NSTimeZone.timeZoneWithName_(tz)
                     if not self.timezone:
                         raise ValueError(f"Invalid timezone: {tz}")
                 elif isinstance(tz, (int, float)):
-                    self.timezone = Foundation.NSTimeZone.timeZoneForSecondsFromGMT_(
-                        int(tz)
-                    )
+                    self.timezone = Foundation.NSTimeZone.timeZoneForSecondsFromGMT_(int(tz))
                     self._from_offset = True
                 else:
                     raise TypeError("Timezone must be a string or an int")
@@ -87,9 +82,7 @@ if is_macos:
                 tz_name = timezone_for_offset(self.offset_str, dt)
                 return zoneinfo.ZoneInfo(tz_name)
             except Exception as e:
-                raise ValueError(
-                    f"Could not get ZoneInfo for {dt} with offset {self.offset}"
-                ) from e
+                raise ValueError(f"Could not get ZoneInfo for {dt} with offset {self.offset}") from e
 
         def __str__(self):
             return self.name

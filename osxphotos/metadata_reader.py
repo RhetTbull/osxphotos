@@ -61,14 +61,11 @@ class MetaData:
     tzname: str | None = None
 
     def __ior__(self, other):
-        if isinstance(other, MetaData):
-            for field in fields(self):
-                other_value = getattr(other, field.name)
-                self_value = getattr(self, field.name)
-                if other_value:
-                    setattr(self, field.name, other_value)
-        else:
+        if not isinstance(other, MetaData):
             raise TypeError("Unsupported operand type")
+        for field in fields(self):
+            if other_value := getattr(other, field.name):
+                setattr(self, field.name, other_value)
         return self
 
 

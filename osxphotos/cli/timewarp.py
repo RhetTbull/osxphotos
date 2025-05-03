@@ -1,4 +1,4 @@
-""" Fix time / date / timezone for photos in Apple Photos """
+"""Fix time / date / timezone for photos in Apple Photos"""
 
 from __future__ import annotations
 
@@ -170,12 +170,6 @@ format with the following additions:
 
 For more information on strptime format codes, see:
 https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
-
-**Note**: The time zone of the parsed date/time is assumed to be the local time zone.
-If the parse pattern includes a time zone, the photo's time will be converted from
-the specified time zone to the local time zone. The timewarp command does not currently
-setting the timezone when parsing the filename.
-
 
 """  # noqa: E501
                 ),
@@ -563,7 +557,9 @@ def timewarp_cli(
     if uuid:
         photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
     if uuid_from_file:
-        photos.extend(list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file))))
+        photos.extend(
+            list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file)))
+        )
 
     # If neither uuid nor uuid_from_file is specified, then operate over selected photos
     if not (uuid or uuid_from_file):
@@ -643,6 +639,7 @@ def timewarp_cli(
         set_photo_date_from_filename,
         library_path=library,
         verbose=verbose,
+        set_timezone=True,
     )
 
     set_photo_date_added_ = partial(

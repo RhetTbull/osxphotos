@@ -1,4 +1,4 @@
-""" Tests which require user interaction to run for osxphotos import command.
+"""Tests which require user interaction to run for osxphotos import command.
 run with pytest tests/test_cli_import.py --test-import
 """
 
@@ -1450,6 +1450,55 @@ def test_import_parse_folder_date(tmp_path: pathlib.Path):
     photosdb = PhotosDB()
     photo = photosdb.query(QueryOptions(name=[img_name]))[0]
     assert datetime_remove_tz(photo.date) == datetime.datetime(2021, 12, 11, 12, 34, 57)
+
+
+@pytest.mark.test_import
+def test_import_parse_date_set_timezone(tmp_path: pathlib.Path):
+    """Test import with --parse-date with --set-timezone"""
+
+    # set up test images
+    cwd = os.getcwd()
+    test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
+
+    img_name = "IMG_2023-06-01T010203-0400.jpg"
+    test_file = tmp_path / img_name
+    shutil.copy(test_image_source, test_file)
+
+    # set file time to default date
+    os.utime(
+        test_file,
+        (PARSE_DATE_DEFAULT_DATE.timestamp(), PARSE_DATE_DEFAULT_DATE.timestamp()),
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--parse-date",
+            "IMG_%Y-%d-%mT%H%M%S%z",
+            "--set-timezone",
+            "--force",
+            str(test_file),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    # verify that the date was parsed correctly
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(name=[img_name]))[0]
+    dt = datetime.datetime(
+        2023,
+        1,
+        6,
+        1,
+        2,
+        3,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
+    assert photo.date == dt
+    assert photo.date.tzinfo.utcoffset(photo.date) == dt.tzinfo.utcoffset(photo.date)
 
 
 @pytest.mark.test_import
