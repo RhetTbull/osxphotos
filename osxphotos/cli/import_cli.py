@@ -767,10 +767,10 @@ class ImportCommand(click.Command):
     "-Z",
     is_flag=True,
     help="Set the named timezone of the imported photos in the Photos database when used with "
-    "--exportdb, --exiftool, --parse-date, or --sidecar. "
+    "--exportdb or --parse-date. "
     "Photos does not provide a way to set the timezone of a photo directly. "
-    "Upon import, osxphotos can read the timezone from the export database if using --exportdb "
-    "or infer the timezone from the photo latitude/longitude if using --exiftool or --sidecar. "
+    "Upon import, osxphotos can read the timezone from the export database if using --exportdb or "
+    "from the filename if using --parse-date. "
     "The --set-timezone option will set the named timezone of the photo by directly writing the timezone name "
     "to the Photos database. This has been well tested but because it uses an undocumented Photos API, "
     "it may be possible to corrupt the Photos database. If you want to set the timezone of the imported photos, "
