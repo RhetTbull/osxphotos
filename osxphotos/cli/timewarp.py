@@ -1,4 +1,4 @@
-""" Fix time / date / timezone for photos in Apple Photos """
+"""Fix time / date / timezone for photos in Apple Photos"""
 
 from __future__ import annotations
 
@@ -557,7 +557,9 @@ def timewarp_cli(
     if uuid:
         photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
     if uuid_from_file:
-        photos.extend(list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file))))
+        photos.extend(
+            list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file)))
+        )
 
     # If neither uuid nor uuid_from_file is specified, then operate over selected photos
     if not (uuid or uuid_from_file):
@@ -637,6 +639,7 @@ def timewarp_cli(
         set_photo_date_from_filename,
         library_path=library,
         verbose=verbose,
+        set_timezone=True,
     )
 
     set_photo_date_added_ = partial(

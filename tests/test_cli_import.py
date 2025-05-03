@@ -1,4 +1,4 @@
-""" Tests which require user interaction to run for osxphotos import command.
+"""Tests which require user interaction to run for osxphotos import command.
 run with pytest tests/test_cli_import.py --test-import
 """
 
@@ -1498,7 +1498,7 @@ def test_import_parse_date_set_timezone(tmp_path: pathlib.Path):
         tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
     )
     assert photo.date == dt
-    assert photo.date.tzinfo == dt.tzinfo
+    assert photo.date.tzinfo.utcoffset(photo.date) == dt.tzinfo.utcoffset(photo.date)
 
 
 @pytest.mark.test_import
