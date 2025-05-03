@@ -28,13 +28,13 @@ Some tests require GPU and will look for `OSXPHOTOS_TEST_CONVERT=1`. These will 
 
 A couple of tests require interaction with Photos and configuring a specific test library. Currently these run only on Catalina.  The tests must be specified by using a pytest flag. Only one of these interactive tests can be run at a time.  The current flags are:
 
---addalbum: test --add-to-album options (pytest -vv tests/test_photosalbum_unicode.py tests/test_cli_add_to_album.py --addalbum)
---timewarp: test `osxphotos timewarp` (pytest -vv --timewarp tests/test_cli_timewarp.py)
---photodates: test `osxphotos photodates` (pytest -vv --photodates tests/test_photodates.py)
---test-import: test `osxphotos import` (pytest -vv --test-import tests/test_cli_import.py)
---test-sync: test `osxphotos sync` (pytest -vv --test-sync tests/test_cli_sync.py)
---test-add-locations: test `osxphotos add-locations` (pytest -vv --test-add-locations tests/test_cli_add_locations.py)
---test-batch-edit: test `osxphotos batch-edit` (pytest -vv --test-batch-edit -k batch)
+- --addalbum: test --add-to-album options (pytest -vv tests/test_photosalbum_unicode.py tests/test_cli_add_to_album.py --addalbum)
+- --timewarp: test `osxphotos timewarp` (pytest -vv --timewarp tests/test_cli_timewarp.py)
+- --photodates: test `osxphotos photodates` (pytest -vv --photodates tests/test_photodates.py)
+- --test-import: test `osxphotos import` (pytest -vv --test-import tests/test_cli_import.py)
+- --test-sync: test `osxphotos sync` (pytest -vv --test-sync tests/test_cli_sync.py)
+- --test-add-locations: test `osxphotos add-locations` (pytest -vv --test-add-locations tests/test_cli_add_locations.py)
+- --test-batch-edit: test `osxphotos batch-edit` (pytest -vv --test-batch-edit -k batch)
 
 ## Test Photo Libraries
 
