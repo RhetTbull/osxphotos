@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BackgroundHighlightCollection</key>
+	<date>2020-06-24T04:02:13Z</date>
+	<key>BackgroundHighlightEnrichment</key>
+	<date>2020-06-24T04:02:12Z</date>
+	<key>BackgroundJobAssetRevGeocode</key>
+	<date>2020-06-24T04:02:13Z</date>
+	<key>BackgroundJobSearch</key>
+	<date>2020-06-24T04:02:13Z</date>
+	<key>BackgroundPeopleSuggestion</key>
+	<date>2020-06-24T04:02:12Z</date>
+	<key>BackgroundUserBehaviorProcessor</key>
+	<date>2020-06-24T04:02:13Z</date>
+	<key>PHAAssetRevGeocodeEnrichmentTask</key>
+	<date>2022-11-12T21:54:14Z</date>
+	<key>PHACachingCPAnalyticsPropertiesTask</key>
+	<date>2022-11-12T21:54:15Z</date>
+	<key>PHAContactClassificationTask</key>
+	<date>2022-11-12T21:54:24Z</date>
+	<key>PHAFeaturesUsageReportingTask</key>
+	<date>2022-11-12T21:54:00Z</date>
+	<key>PHAForcedHighlightEnrichmentTask</key>
+	<date>2022-11-12T21:54:25Z</date>
+	<key>PHAGraphConsistencyTask</key>
+	<date>2022-11-12T21:54:08Z</date>
+	<key>PHAGraphRebuildTask</key>
+	<date>2022-11-12T21:54:05Z</date>
+	<key>PHAHighlightCollectionEnrichmentTask</key>
+	<date>2022-11-12T21:54:06Z</date>
+	<key>PHAHighlightEnrichmentTask</key>
+	<date>2022-11-12T21:54:06Z</date>
+	<key>PHAMediaSampleReportingTask</key>
+	<date>2022-11-12T21:54:15Z</date>
+	<key>PHAMemoriesEnrichmentTask</key>
+	<date>2022-11-12T21:54:15Z</date>
+	<key>PHAMemoryElectionTask</key>
+	<date>2022-11-12T21:54:13Z</date>
+	<key>PHAPeopleSuggestionEnrichmentTask</key>
+	<date>2022-11-12T21:54:05Z</date>
+	<key>PHAPortraitDonationEnrichmentTask</key>
+	<date>2022-11-12T21:54:15Z</date>
+	<key>PHASearchEnrichmentTask</key>
+	<date>2022-11-12T21:54:15Z</date>
+	<key>PHASuggestionGenerationTask</key>
+	<date>2022-11-12T21:54:14Z</date>
+	<key>PHAUserBehaviorEnrichmentTask</key>
+	<date>2022-11-12T21:54:15Z</date>
+	<key>PhotoAnalysisGraphLastBackgroundGraphConsistencyUpdateJobDateKey</key>
+	<date>2020-05-30T02:16:06Z</date>
+	<key>PhotoAnalysisGraphLastBackgroundGraphRebuildJobDate</key>
+	<date>2020-05-29T04:31:37Z</date>
+	<key>PhotoAnalysisGraphLastBackgroundMemoryGenerationJobDate</key>
+	<date>2020-06-24T04:02:13Z</date>
+	<key>SiriPortraitDonation</key>
+	<date>2020-06-24T04:02:13Z</date>
+</dict>
+</plist>
