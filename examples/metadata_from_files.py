@@ -15,6 +15,7 @@ from osxphotos.cli import echo, echo_error
 from osxphotos.cli.batch_edit import photoscript_photo
 from osxphotos.cli.cli_params import DB_OPTION
 from osxphotos.cli.param_types import TemplateString
+from osxphotos.cli.signaturequery import SignatureQuery
 from osxphotos.fingerprint import fingerprint
 from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.image_file_utils import is_image_file, is_video_file
@@ -64,6 +65,16 @@ from osxphotos.utils import get_last_library_path, pluralize
     "For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
     "into folder 'Folder' and album 'Album'. ",
 )
+@click.option(
+    "--signature",
+    "-U",
+    type=TemplateString(),
+    help="Custom template for signature for matching photos in the library to those being scanned. "
+    "The signature is used to match photos in the library to those being scanned. "
+    "If you do not use --signature, the fingerprint will be used for photos "
+    "and lowercase filename + size will be used for videos "
+    "(a fingerprint is not always stored for videos in the Photos library). ",
+)
 @click.option("--walk", is_flag=True, help="Walk directories recursively")
 @click.option("--dry-run", is_flag=True, help="Dry run: Do not modify Photos library")
 @DB_OPTION
@@ -74,6 +85,7 @@ def main(
     keyword: tuple[str, ...],
     album: tuple[str, ...],
     split_folder: str | None,
+    signature: str | None,
     walk: bool,
     dry_run: bool,
     db: str,
@@ -97,10 +109,9 @@ def main(
     library = db or get_last_library_path()
     photosdb = osxphotos.PhotosDB(library)
 
-    fq = FingerprintQuery(library)
+    fq = SignatureQuery(library, signature) if signature else FingerprintQuery(library)
     for file in files:
-        fp = fingerprint(file)
-        matches = fq.photos_by_fingerprint(fp)
+        matches = fq.possible_duplicates(file)
         if matches:
             parent_path = os.path.dirname(file)
             for uuid, date, filename in matches:
