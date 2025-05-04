@@ -52,7 +52,6 @@ class SignatureQuery:
         signature = rendered[0] if rendered else None
         if not signature:
             return []
-        print(f"Signature: {signature}")
         if signature in self._mapping:
             return [
                 (
@@ -77,5 +76,4 @@ class SignatureQuery:
                 signature_map[sig].append(photo)
             else:
                 signature_map[sig] = [photo]
-            print(f"Signature: {sig}")
         return signature_map
