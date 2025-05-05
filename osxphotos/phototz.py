@@ -181,7 +181,7 @@ class PhotoTimeZoneUpdater:
             photo.date = photo.date - datetime.timedelta(seconds=1)
 
             self.verbose(
-                f"Updated timezone for photo "
+                "Updated timezone for photo "
                 f"[filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]) "
                 f"from [tz]{tz_name}[/tz], offset=[tz]{tz_offset}[/tz] "
                 f"to [tz]{self.tz_name}[/tz], offset=[tz]{photo_tz_offset}[/tz]"
