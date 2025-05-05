@@ -383,6 +383,63 @@ def test_match_dst(photoslib, suspend_capture):
 
 
 @pytest.mark.timewarp
+def test_match_no_dst(photoslib, suspend_capture):
+    """Test --timezone --match-time when not in DST and named timezones, #1777"""
+
+    runner = CliRunner()
+    # init the date/time
+    result = runner.invoke(
+        timewarp,
+        [
+            "--time",
+            "21:26:51",
+            "--date",
+            "2017-12-24",
+            "--plain",
+            "--force",
+            "--timezone",
+            "-0500",
+            "--match-time",
+            "--uuid",
+            UUID_DICT["sunflowers"],
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunflowers"]],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output)
+    assert output_values[0].date_tz != "2017-12-24 21:26:51+0100"
+
+    result = runner.invoke(
+        timewarp,
+        [
+            "--timezone",
+            "Europe/Madrid",
+            "--match-time",
+            "--plain",
+            "--force",
+            "--uuid",
+            UUID_DICT["sunflowers"],
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunflowers"]],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output)
+    assert output_values[0].date_tz == "2017-12-24 21:26:51+0100"
+
+
+@pytest.mark.timewarp
 def test_push_exif_missing_file():
     """Test --push-exif when an original file is missing"""
 
