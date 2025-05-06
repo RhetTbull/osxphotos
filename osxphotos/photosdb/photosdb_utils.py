@@ -1,4 +1,4 @@
-""" utility functions used by PhotosDB """
+"""utility functions used by PhotosDB"""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import plistlib
 import sys
 
 from .._constants import (
+    _DB_TABLE_NAMES,
     _PHOTOS_2_VERSION,
     _PHOTOS_3_VERSION,
     _PHOTOS_4_VERSION,
@@ -32,6 +33,8 @@ __all__ = [
     "get_photos_version_from_model",
     "get_photos_library_version",
 ]
+
+LATEST_PHOTOS_VERSION = max(_DB_TABLE_NAMES.keys())
 
 
 def get_db_version(db_file):
@@ -126,7 +129,7 @@ def get_photos_version_from_model(db_file: str) -> int:
         logger.warning(
             f"Could not determine model version for {db_file}; assuming latest version"
         )
-        return 9
+        return LATEST_PHOTOS_VERSION
     model_ver = int(model_ver)
     if _PHOTOS_5_MODEL_VERSION[0] <= model_ver <= _PHOTOS_5_MODEL_VERSION[1]:
         return 5
