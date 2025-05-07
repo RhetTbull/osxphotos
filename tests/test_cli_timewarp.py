@@ -144,6 +144,8 @@ def test_date_delta(photoslib, suspend_capture, input_value, expected):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["pears"]],
@@ -165,6 +167,8 @@ def test_time(photoslib, suspend_capture, input_value, expected):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     # inspect to get the updated times
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
@@ -196,6 +200,8 @@ def test_time_delta(photoslib, suspend_capture, input_value, expected):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["pears"]],
@@ -221,6 +227,8 @@ def test_time_zone(
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["pears"]],
@@ -316,6 +324,8 @@ def test_match(photoslib, suspend_capture, input_value, expected):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunflowers"]],
@@ -349,6 +359,7 @@ def test_match_dst(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -406,6 +417,7 @@ def test_match_no_dst(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -429,6 +441,7 @@ def test_match_no_dst(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -500,6 +513,8 @@ def test_push_exif_1(
     runner = CliRunner()
     result = runner.invoke(timewarp, cli_args, terminal_width=TERMINAL_WIDTH)
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["pumpkins"]],
@@ -538,6 +553,7 @@ def test_push_exif_2(photoslib, suspend_capture):
     )
     output_values = parse_compare_exif(result.output)
     assert output_values[0] == pre_test
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -588,6 +604,7 @@ def test_pull_exif_1(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -655,6 +672,7 @@ def test_pull_exif_no_time(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -700,6 +718,7 @@ def test_pull_exif_no_offset(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -844,6 +863,7 @@ def test_video_date_delta(
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -877,6 +897,8 @@ def test_video_time_delta(
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunset_video"]],
@@ -905,6 +927,8 @@ def test_video_date(photoslib, suspend_capture, input_value, expected):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     # inspect to get the updated times
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
@@ -935,6 +959,8 @@ def test_video_time(photoslib, suspend_capture, input_value, expected):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     # inspect to get the updated times
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
@@ -969,6 +995,8 @@ def test_video_time_zone(
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunset_video"]],
@@ -999,6 +1027,8 @@ def test_video_match(photoslib, suspend_capture, input_value, expected):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunset_video"]],
@@ -1037,6 +1067,7 @@ def test_video_push_exif(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -1097,6 +1128,7 @@ def test_video_pull_exif(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -1132,6 +1164,8 @@ def test_function(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["pears"]],
@@ -1160,6 +1194,8 @@ def test_parse_date(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["palm_tree"]],
@@ -1188,6 +1224,8 @@ def test_parse_date_tz(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
+
     result = runner.invoke(
         timewarp,
         ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["palm_tree"]],
@@ -1214,6 +1252,7 @@ def test_date_added(
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -1235,6 +1274,7 @@ def test_date_added_from_photo(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -1257,6 +1297,7 @@ def test_reset(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,

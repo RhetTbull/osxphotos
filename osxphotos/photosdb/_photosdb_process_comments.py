@@ -1,5 +1,5 @@
-""" PhotosDB method for processing comments and likes on shared photos.
-    Do not import this module directly """
+"""PhotosDB method for processing comments and likes on shared photos.
+Do not import this module directly"""
 
 import dataclasses
 import datetime
@@ -54,7 +54,7 @@ def _process_comments_5(photosdb):
         ZINVITEEFULLNAME AS FULLNAME
         FROM ZCLOUDSHAREDALBUMINVITATIONRECORD
         WHERE HASHEDPERSONID IS NOT NULL
-        AND HASHEDPERSONID != ""
+        AND HASHEDPERSONID != ''
         AND NOT (FIRSTNAME IS NULL AND LASTNAME IS NULL)
         UNION
         SELECT DISTINCT
@@ -64,7 +64,7 @@ def _process_comments_5(photosdb):
         ZCLOUDOWNERFULLNAME AS FULLNAME
         FROM ZGENERICALBUM
         WHERE HASHEDPERSONID IS NOT NULL
-        AND HASHEDPERSONID != ""
+        AND HASHEDPERSONID != ''
         AND NOT (FIRSTNAME IS NULL AND LASTNAME IS NULL)
         """
     )
