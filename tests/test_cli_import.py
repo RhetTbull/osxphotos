@@ -1175,6 +1175,33 @@ def test_import_report():
 
 
 @pytest.mark.test_import
+def test_import_report_append():
+    """test import with --report --append option when report doesn't exist (#1835)"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            import_main,
+            [
+                test_image_1,
+                "--report",
+                "report.json",
+                "--append",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists("report.json")
+        with open("report.json", "r") as f:
+            records = json.load(f)
+        assert records[0]["filename"] == pathlib.Path(TEST_IMAGE_1).name
+
+
+@pytest.mark.test_import
 def test_import_report_json():
     """test import with --report option with json output"""
 
