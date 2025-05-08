@@ -921,6 +921,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "pl804",
+      "name": "pl804",
+      "avatar_url": "https://avatars.githubusercontent.com/u/101955060?v=4",
+      "profile": "https://github.com/pl804",
+      "contributions": [
+        "test",
+        "data"
+      ]
     }
   ],
   "contributorsPerLine": 7,
