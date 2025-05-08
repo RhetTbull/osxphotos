@@ -921,6 +921,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "cstaubli",
+      "name": "Christian Staubli",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6720436?v=4",
+      "profile": "https://github.com/cstaubli",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
