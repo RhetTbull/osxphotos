@@ -22,3 +22,4 @@ pyrightconfig.json
 .workingon
 docs/.buildinfo.bak
 .envrc
+.zed/
