@@ -35,6 +35,7 @@ from osxphotos.photodates import (
 from osxphotos.photoinfo_protocol import PhotoInfoProtocol
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
+from osxphotos.strpdatetime_parts import fmt_has_date_time_codes
 
 from .help import rich_text
 from .param_types import TimezoneOffset
@@ -528,29 +529,21 @@ class ImportCommand(click.Command):
     metavar="ALBUM_TEMPLATE",
     multiple=True,
     type=TemplateString(),
-    help="Import photos into album ALBUM_TEMPLATE. "
-    "ALBUM_TEMPLATE is an osxphotos template string. "
-    "Photos may be imported into more than one album by repeating --album. "
-    "See also --skip-dups, --dup-albums, --split-folder, --relative-to. "
-    "See Template System in help for additional information.",
+    help="Import photos into album ALBUM_TEMPLATE. ALBUM_TEMPLATE is an osxphotos template string. Photos may be imported into more than one album by repeating --album. See also --skip-dups, --dup-albums, --split-folder, --relative-to. See Template System in help for additional information.",
 )
 @click.option(
     "--title",
     "-t",
     metavar="TITLE_TEMPLATE",
     type=TemplateString(),
-    help="Set title of imported photos to TITLE_TEMPLATE. "
-    "TITLE_TEMPLATE is a an osxphotos template string. "
-    "See Template System in help for additional information.",
+    help="Set title of imported photos to TITLE_TEMPLATE. TITLE_TEMPLATE is a an osxphotos template string. See Template System in help for additional information.",
 )
 @click.option(
     "--description",
     "-d",
     metavar="DESCRIPTION_TEMPLATE",
     type=TemplateString(),
-    help="Set description of imported photos to DESCRIPTION_TEMPLATE. "
-    "DESCRIPTION_TEMPLATE is a an osxphotos template string. "
-    "See Template System in help for additional information.",
+    help="Set description of imported photos to DESCRIPTION_TEMPLATE. DESCRIPTION_TEMPLATE is a an osxphotos template string. See Template System in help for additional information.",
 )
 @click.option(
     "--keyword",
@@ -558,18 +551,13 @@ class ImportCommand(click.Command):
     metavar="KEYWORD_TEMPLATE",
     multiple=True,
     type=TemplateString(),
-    help="Set keywords of imported photos to KEYWORD_TEMPLATE. "
-    "KEYWORD_TEMPLATE is a an osxphotos template string. "
-    "More than one keyword may be set by repeating --keyword. "
-    "See Template System in help for additional information.",
+    help="Set keywords of imported photos to KEYWORD_TEMPLATE. KEYWORD_TEMPLATE is a an osxphotos template string. More than one keyword may be set by repeating --keyword. See Template System in help for additional information.",
 )
 @click.option(
     "--merge-keywords",
     "-m",
     is_flag=True,
-    help="Merge keywords created by --exiftool, --sidecar, --sidecar-filename, or --keyword "
-    "with any keywords already associated with the photo. "
-    "Without --merge-keywords, existing keywords will be overwritten.",
+    help="Merge keywords created by --exiftool, --sidecar, --sidecar-filename, or --keyword with any keywords already associated with the photo. Without --merge-keywords, existing keywords will be overwritten.",
 )
 @click.option(
     "--location",
@@ -588,10 +576,7 @@ class ImportCommand(click.Command):
     "-G",
     metavar="RATING",
     type=click.IntRange(1, 5),
-    help="If XMP:Rating is set to RATING or higher, mark imported photo as a favorite. "
-    "RATING must be in range 1 to 5. "
-    "XMP:Rating will be read from asset's metadata or from sidecar if --sidecar, --sidecare-filename is used. "
-    "Requires that exiftool be installed to read the rating from the asset's XMP data.",
+    help="If XMP:Rating is set to RATING or higher, mark imported photo as a favorite. RATING must be in range 1 to 5. XMP:Rating will be read from asset's metadata or from sidecar if --sidecar, --sidecare-filename is used. Requires that exiftool be installed to read the rating from the asset's XMP data.",
 )
 @click.option(
     "--auto-live",
@@ -651,19 +636,13 @@ class ImportCommand(click.Command):
     "--clear-metadata",
     "-X",
     is_flag=True,
-    help="Clear any metadata set automatically "
-    "by Photos upon import. Normally, Photos will set title, description, and keywords "
-    "from XMP metadata in the imported file.  If you specify --clear-metadata, any metadata "
-    "set by Photos will be cleared after import.",
+    help="Clear any metadata set automatically by Photos upon import. Normally, Photos will set title, description, and keywords from XMP metadata in the imported file.  If you specify --clear-metadata, any metadata set by Photos will be cleared after import.",
 )
 @click.option(
     "--clear-location",
     "-L",
     is_flag=True,
-    help="Clear any location data automatically imported by Photos. "
-    "Normally, Photos will set location of the photo to the location data found in the "
-    "metadata in the imported file.  If you specify --clear-location, "
-    "this data will be cleared after import.",
+    help="Clear any location data automatically imported by Photos. Normally, Photos will set location of the photo to the location data found in the metadata in the imported file.  If you specify --clear-location, this data will be cleared after import.",
 )
 @click.option(
     "--timezone",
@@ -688,11 +667,7 @@ class ImportCommand(click.Command):
     "--exiftool",
     "-e",
     is_flag=True,
-    help="Use third party tool exiftool (https://exiftool.org/) to automatically "
-    "update metadata (title, description, keywords, location) in imported photos from "
-    "the imported file's metadata. "
-    "See also --sidecar, --sidecar-filename, --exportdb. "
-    "Note: importing keywords from video files is not currently supported.",
+    help="Use third party tool exiftool (https://exiftool.org/) to automatically update metadata (title, description, keywords, location) in imported photos from the imported file's metadata. See also --sidecar, --sidecar-filename, --exportdb. Note: importing keywords from video files is not currently supported.",
 )
 @click.option(
     "--exiftool-path",
@@ -781,10 +756,7 @@ class ImportCommand(click.Command):
     "-B",
     metavar="EXPORTDB_PATH",
     type=click.Path(exists=True),
-    help="Use an osxphotos export database (created by 'osxphotos export') "
-    "to set metadata (title, description, keywords, location, album, date/time, timezone). "
-    "See also --exportdir, --sidecar, --sidecar-filename, --exiftool. "
-    "If using with --sidecar, it is recommended you also use --sidecar-ignore-date.",
+    help="Use an osxphotos export database (created by 'osxphotos export') to set metadata (title, description, keywords, location, album, date/time, timezone). See also --exportdir, --sidecar, --sidecar-filename, --exiftool. If using with --sidecar, it is recommended you also use --sidecar-ignore-date.",
 )
 @click.option(
     "--exportdir",
@@ -810,28 +782,19 @@ class ImportCommand(click.Command):
     "-r",
     metavar="RELATIVE_TO_PATH",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
-    help="If set, the '{filepath}' template "
-    "will be computed relative to RELATIVE_TO_PATH. "
-    "For example, if path to import is '/Volumes/photos/import/album/img_1234.jpg' "
-    "then '{filepath}' will be this same value. "
-    "If you set '--relative-to /Volumes/photos/import' "
-    "then '{filepath}' will be set to 'album/img_1234.jpg'",
+    help="If set, the '{filepath}' template will be computed relative to RELATIVE_TO_PATH. For example, if path to import is '/Volumes/photos/import/album/img_1234.jpg' then '{filepath}' will be this same value. If you set '--relative-to /Volumes/photos/import' then '{filepath}' will be set to 'album/img_1234.jpg'",
 )
 @click.option(
     "--dup-check",
     "-D",
     is_flag=True,
-    help="Use Photos' built-in duplicate checkign to check for duplicates on import. "
-    "Using --dup-check will cause Photos to display a dialog box for each duplicate photo found, "
-    "requesting confirmation to import the duplicate. See also --skip-dups.",
+    help="Use Photos' built-in duplicate checkign to check for duplicates on import. Using --dup-check will cause Photos to display a dialog box for each duplicate photo found, requesting confirmation to import the duplicate. See also --skip-dups.",
 )
 @click.option(
     "--skip-dups",
     "-S",
     is_flag=True,
-    help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. "
-    "Unlike --dup-check, this does not use Photos' built in duplicate checking feature and "
-    "does not display a dialog box for each duplicate found. See also --dup-check, --dup-albums, and --resume.",
+    help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. Unlike --dup-check, this does not use Photos' built in duplicate checking feature and does not display a dialog box for each duplicate found. See also --dup-check, --dup-albums, and --resume.",
 )
 @click.option(
     "--signature",
@@ -860,10 +823,7 @@ class ImportCommand(click.Command):
 @click.option(
     "--split-folder",
     "-f",
-    help="Automatically create hierarchal folders for albums as needed by splitting album name "
-    "into folders and album. You must specify the character used to split folders and "
-    "albums. For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
-    "into folder 'Folder' and album 'Album'. ",
+    help="Automatically create hierarchal folders for albums as needed by splitting album name into folders and album. You must specify the character used to split folders and albums. For example, '--split-folder \"/\"' will split the album name 'Folder/Album' into folder 'Folder' and album 'Album'. ",
 )
 @click.option(
     "--walk", "-w", is_flag=True, help="Recursively walk through directories."
@@ -873,26 +833,19 @@ class ImportCommand(click.Command):
     "-g",
     metavar="GLOB",
     multiple=True,
-    help="Only import files matching GLOB. "
-    "GLOB is a Unix shell-style glob pattern, for example: '--glob \"*.jpg\"'. "
-    "GLOB may be repeated to import multiple patterns.",
+    help="Only import files matching GLOB. GLOB is a Unix shell-style glob pattern, for example: '--glob \"*.jpg\"'. GLOB may be repeated to import multiple patterns.",
 )
 @click.option(
     "--check",
     "-c",
     is_flag=True,
-    help="Check which FILES have been previously imported but do not actually import anything. "
-    "Prints a report showing which files have been imported (and when they were added) "
-    "and which files have not been imported. "
-    "See also, --check-not.",
+    help="Check which FILES have been previously imported but do not actually import anything. Prints a report showing which files have been imported (and when they were added) and which files have not been imported. See also, --check-not.",
 )
 @click.option(
     "--check-not",
     "-C",
     is_flag=True,
-    help="Check which FILES have not been previously imported but do not actually import anything. "
-    "Prints the path to each file that has not been previously imported. "
-    "See also, --check.",
+    help="Check which FILES have not been previously imported but do not actually import anything. Prints the path to each file that has not been previously imported. See also, --check.",
 )
 @click.option(
     "--dry-run",
@@ -926,8 +879,7 @@ class ImportCommand(click.Command):
     "--append",
     "-O",
     is_flag=True,
-    help="If used with --report, add data to existing report file instead of overwriting it. "
-    "See also --report.",
+    help="If used with --report, add data to existing report file instead of overwriting it. See also --report.",
 )
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
@@ -940,8 +892,7 @@ class ImportCommand(click.Command):
 @click.option(
     "--check-templates",
     is_flag=True,
-    help="Don't actually import anything; "
-    "renders template strings and date patterns so you can verify they are correct.",
+    help="Don't actually import anything; renders template strings and date patterns so you can verify they are correct.",
 )
 @click.option(
     "--post-function",
@@ -960,8 +911,7 @@ class ImportCommand(click.Command):
 @click.option(
     "--stop-on-error",
     metavar="COUNT",
-    help="Stops importing after COUNT errors. "
-    "Useful if you experience a large number of errors during import.",
+    help="Stops importing after COUNT errors. Useful if you experience a large number of errors during import.",
     type=click.IntRange(min=0),
 )
 @click.option(
@@ -973,9 +923,7 @@ class ImportCommand(click.Command):
     "--library",
     metavar="LIBRARY_PATH",
     type=click.Path(exists=True),
-    help="Path to the Photos library you are importing into. This is not usually needed. "
-    "You will only need to specify this if osxphotos cannot determine the path to the library "
-    "in which case osxphotos will tell you to use the --library option when you run the import command.",
+    help="Path to the Photos library you are importing into. This is not usually needed. You will only need to specify this if osxphotos cannot determine the path to the library in which case osxphotos will tell you to use the --library option when you run the import command.",
 )
 @THEME_OPTION
 @click.argument("FILES_OR_DIRS", nargs=-1)
@@ -1221,8 +1169,7 @@ def import_cli(
     last_library = library or get_last_library_path()
     if not last_library:
         rich_echo_error(
-            "[error]Could not determine path to Photos library. "
-            "Please specify path to library with --library option."
+            "[error]Could not determine path to Photos library. Please specify path to library with --library option."
         )
         raise click.Abort()
 
@@ -1315,9 +1262,7 @@ def import_cli(
 
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
     echo(
-        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, "
-        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
-        f"{skipped_str}",
+        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, [num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}{skipped_str}",
         emoji=False,
     )
 
@@ -1743,8 +1688,7 @@ def set_photo_metadata_from_metadata(
         verbose(f"Set metadata for [filename]{filepath.name}[/]:")
         empty_str = ""
         verbose(
-            f"title='{metadata.title or empty_str}', description='{metadata.description or empty_str}', "
-            f"favorite={metadata.favorite}, keywords={metadata.keywords}"
+            f"title='{metadata.title or empty_str}', description='{metadata.description or empty_str}', favorite={metadata.favorite}, keywords={metadata.keywords}"
         )
     else:
         verbose(f"No metadata to set for [filename]{filepath.name}[/]")
@@ -1754,8 +1698,7 @@ def set_photo_metadata_from_metadata(
         if photo and not dry_run:
             photo.location = metadata.location
         verbose(
-            f"Set location for [filename]{filepath.name}[/]: "
-            f"[num]{metadata.location[0]}[/], [num]{metadata.location[1]}[/]"
+            f"Set location for [filename]{filepath.name}[/]: [num]{metadata.location[0]}[/], [num]{metadata.location[1]}[/]"
         )
     else:
         verbose(f"No location to set for [filename]{filepath.name}[/]")
@@ -3177,9 +3120,7 @@ def import_files(
                         if record.imported and not record.error:
                             # file already imported
                             verbose(
-                                f"Skipping [filepath]{filepath}[/], "
-                                f"already imported on [time]{record.import_datetime.isoformat()}[/] "
-                                f"with UUID [uuid]{record.uuid}[/]"
+                                f"Skipping [filepath]{filepath}[/], already imported on [time]{record.import_datetime.isoformat()}[/] with UUID [uuid]{record.uuid}[/]"
                             )
                             skipped_count += 1
                             progress.advance(task)
@@ -3230,8 +3171,7 @@ def import_files(
                 if duplicates := fq.possible_duplicates(filepath):
                     # duplicate of file already in Photos library
                     verbose(
-                        f"File [filename]{filepath.name}[/] appears to be a duplicate of photos in the library: "
-                        f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
+                        f"File [filename]{filepath.name}[/] appears to be a duplicate of photos in the library: {', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
                     )
 
                     if skip_dups:
@@ -3323,8 +3263,7 @@ def import_files(
 
                         if stop_on_error and error_count >= stop_on_error:
                             rich_echo_error(
-                                "[error]Error count exceeded limit, stopping! "
-                                f"Last file: [filename]{filepath.name}[/], error count = [num]{error_count}[/]"
+                                f"[error]Error count exceeded limit, stopping! Last file: [filename]{filepath.name}[/], error count = [num]{error_count}[/]"
                             )
                             raise StopIteration
                         continue
