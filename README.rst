@@ -8,37 +8,99 @@ osxphotos
 What is osxphotos?
 ------------------
 
-OSXPhotos provides both the ability to interact with and query Apple's Photos.app library on macOS directly from your python code 
-as well as a very flexible command line interface (CLI) app for exporting photos. 
-You can query the Photos library database -- for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. 
-You can also easily export both the original and edited photos. 
+OSXPhotos provides both the ability to interact with and query Apple's Photos.app library on macOS directly from your python code
+as well as a very flexible command line interface (CLI) app for exporting photos.
+You can query the Photos library database -- for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc.
+You can also easily export both the original and edited photos.
 
 Supported operating systems
 ---------------------------
 
 Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through macOS Monterey (12.3).
 
-This package will read Photos databases for any supported version on any supported macOS version.  
+This package will read Photos databases for any supported version on any supported macOS version.
 E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
-Requires python >= ``3.9``. 
+Requires python >= ``3.10``.
 
 Installation
 ------------
 
-If you just want to use the command line application, I recommend you to install using pipx. See other advanced options below. 
+The recommended way to install ``osxphotos`` is via the `uv <https://github.com/astral-sh/uv>`_ python package manager tool.
 
-Installation using pipx
-^^^^^^^^^^^^^^^^^^^^^^^
+Installation using ``uv``
+-------------------------
 
-If you aren't familiar with installing python applications, I recommend you install ``osxphotos`` with `pipx <https://github.com/pipxproject/pipx>`_. If you use ``pipx``\ , you will not need to create a virtual environment as ``pipx`` takes care of this. The easiest way to do this on a Mac is to use `homebrew <https://brew.sh/>`_\ :
+* Open ``Terminal`` (search for ``Terminal`` in Spotlight or look in ``Applications/Utilities``)
+* Install ``uv`` by running the following command in Terminal:
 
+.. code-block:: bash
 
-* Open ``Terminal`` (search for ``Terminal`` in Spotlight or look in ``Applications/Utilities``\ )
-* Install ``homebrew`` according to instructions at `https://brew.sh/ <https://brew.sh/>`_
-* Type the following into Terminal: ``brew install pipx``
-* Then type this: ``pipx install osxphotos``
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+If you previously installed ``uv``, upgrade to the latest version:
+
+.. code-block:: bash
+
+    uv self update
+
+* Type the following into Terminal:
+
+.. code-block:: bash
+
+    uv tool install --python 3.12 osxphotos
+
 * Now you should be able to run ``osxphotos`` by typing: ``osxphotos``
+
+Once you've installed osxphotos with ``uv``, to upgrade to the latest version:
+
+.. code-block:: bash
+
+    uv tool upgrade osxphotos
+
+If you want to try ``osxphotos`` without installing it, you can run ``uv tool run --python 3.12 osxphotos`` or ``uvx --python 3.12 osxphotos``.
+
+Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.12 from [python.org](https://www.python.org/downloads/) then running uv to install osxphotos.
+
+Installation using pip
+---------------------
+
+You can install ``osxphotos`` directly from `pypi <https://pypi.org/project/osxphotos/>`_:
+
+.. code-block:: bash
+
+    python3 -m pip install osxphotos
+
+Once you've installed osxphotos with pip, to upgrade to the latest version:
+
+.. code-block:: bash
+
+    python3 -m pip install --upgrade osxphotos
+
+Installation via MacPorts
+------------------------
+
+If you use the `MacPorts <https://www.macports.org>`_ package manager on a Mac:
+
+.. code-block:: bash
+
+    sudo port install osxphotos
+
+Installation on Linux
+--------------------
+
+At least one of the Linux-specific python packages normally installed on Linux may cause an error during installation with ``pip`` or ``pipx``. If you encounter an error similar to: ``pip._vendor.packaging.version.InvalidVersion: Invalid version: '6.5.0-1022-generic``, you should still be able to install osxphotos by creating and activating a virtual environment:
+
+.. code-block:: bash
+
+    python3 -m venv .venv-osxphotos
+    source .venv-osxphotos/bin/activate
+    python3 -m pip install osxphotos
+
+To use osxphotos you will need to ensure the venv is activated using ``source .venv-osxphotos/bin/activate``.
+
+You may name the virtual environment anything you want; ``.venv-osxphotos`` is used in this example to make it clear the virtual environment is used by osxphotos and to avoid conflict with other virtual environments which, by convention, are often named ``.venv`` or ``venv``.
+
 
 Installation using pip
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -52,33 +114,33 @@ You can also install directly from `pypi <https://pypi.org/project/osxphotos/>`_
 Command Line Usage
 ------------------
 
-This package will install a command line utility called ``osxphotos`` that allows you to query the Photos database and export photos.  
+This package will install a command line utility called ``osxphotos`` that allows you to query the Photos database and export photos.
 Alternatively, you can also run the command line utility like this: ``python3 -m osxphotos``
 
 .. code-block::
-   
+
    Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
-   
+
      OSXPhotos: the multi-tool for your Photos library.
-   
+
      To get help on a specific command, use "osxphotos COMMAND --help" or
      "osxphotos help COMMAND"; for example, "osxphotos help export".
-   
+
      To search help for a specific topic within a command, run "osxphotos help
      COMMAND TOPIC"; for example, "osxphotos help export keyword" to get help
      related to keywords when using the export command.
-   
+
      To see the full documentation in your browser, run "osxphotos docs".
-   
+
      Some advanced commands are hidden by default. To see all commands, run
      "OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help". Some commands also have hidden
      options. These can be seen by running "OSXPHOTOS_SHOW_HIDDEN=1 osxphotos
      help COMMAND".
-   
+
    Options:
      -v, --version  Show the version and exit.
      -h, --help     Show this message and exit.
-   
+
    Commands:
      about          Print information about osxphotos including license.
      add-locations  Add missing location data to photos in Photos.app using...
@@ -114,9 +176,9 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      uninstall      Uninstall Python packages from the osxphotos environment
      uuid           Print out unique IDs (UUID) of photos selected in Photos
      version        Check for new version of osxphotos.
-   
+
    To get help on a specific command, use ``osxphotos help <command_name>``
-   
+
 Command line examples
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -144,7 +206,7 @@ export photos to file structure based on 4-digit year and full name of month of 
 export photos to file structure based on 4-digit year of photo's creation date and add keywords for media type and labels (labels are only awailable on Photos 5 and higher):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``osxphotos export ~/Desktop/export --directory "{created.year}" --keyword-template "{label}" --keyword-template "{media_type}"`` 
+``osxphotos export ~/Desktop/export --directory "{created.year}" --keyword-template "{label}" --keyword-template "{media_type}"``
 
 export default library using 'country name/year' as output directory (but use "NoCountry/year" if country not specified), add persons, album names, and year as keywords, write exif metadata to files when exporting, update only changed files, print verbose ouput
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,7 +240,7 @@ Example uses of the package
        photos = photosdb.photos(keywords=["Foo"],persons=["John Smith"])
 
        # find all photos that include Alice Smith but do not contain the keyword Bar
-       photos = [p for p in photosdb.photos(persons=["Alice Smith"]) 
+       photos = [p for p in photosdb.photos(persons=["Alice Smith"])
                    if p not in photosdb.photos(keywords=["Bar"]) ]
        for p in photos:
            print(
@@ -200,8 +262,8 @@ Example uses of the package
 .. code-block:: python
 
    """ Export all photos to specified directory using album names as folders
-       If file has been edited, also export the edited version, 
-       otherwise, export the original version 
+       If file has been edited, also export the edited version,
+       otherwise, export the original version
        This will result in duplicate photos if photo is in more than album """
 
    import os.path
