@@ -4,9 +4,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.68.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.69.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.68.6 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.69.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.6 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.69.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,7 +202,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../reference.html">OSXPhotos Python Reference</a></li>
@@ -246,23 +245,23 @@
 <span class="sd">Processes a Photos.app library database to extract information about photos</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">import</span> <span class="nn">platform</span>
-<span class="kn">import</span> <span class="nn">sqlite3</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">unicodedata</span> <span class="kn">import</span> <span class="n">normalize</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unicodedata</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize</span>
 
-<span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="nb">print</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich</span><span class="w"> </span><span class="kn">import</span> <span class="nb">print</span>
 
-<span class="kn">from</span> <span class="nn">.._constants</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_DB_TABLE_NAMES</span><span class="p">,</span>
     <span class="n">_MOVIE_TYPE</span><span class="p">,</span>
     <span class="n">_PHOTO_TYPE</span><span class="p">,</span>
@@ -286,28 +285,28 @@
     <span class="n">BURST_PICK_TYPE_NONE</span><span class="p">,</span>
     <span class="n">BURST_SELECTED</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.._version</span> <span class="kn">import</span> <span class="n">__version__</span>
-<span class="kn">from</span> <span class="nn">..albuminfo</span> <span class="kn">import</span> <span class="n">AlbumInfo</span><span class="p">,</span> <span class="n">FolderInfo</span><span class="p">,</span> <span class="n">ImportInfo</span><span class="p">,</span> <span class="n">ProjectInfo</span>
-<span class="kn">from</span> <span class="nn">..datetime_utils</span> <span class="kn">import</span> <span class="n">datetime_has_tz</span><span class="p">,</span> <span class="n">datetime_naive_to_local</span>
-<span class="kn">from</span> <span class="nn">..fileutil</span> <span class="kn">import</span> <span class="n">FileUtil</span>
-<span class="kn">from</span> <span class="nn">..iphoto</span> <span class="kn">import</span> <span class="n">is_iphoto_library</span>
-<span class="kn">from</span> <span class="nn">..personinfo</span> <span class="kn">import</span> <span class="n">PersonInfo</span>
-<span class="kn">from</span> <span class="nn">..photoinfo</span> <span class="kn">import</span> <span class="n">PhotoInfo</span>
-<span class="kn">from</span> <span class="nn">..photoquery</span> <span class="kn">import</span> <span class="n">QueryOptions</span><span class="p">,</span> <span class="n">photo_query</span>
-<span class="kn">from</span> <span class="nn">..photos_datetime</span> <span class="kn">import</span> <span class="n">photos_datetime</span><span class="p">,</span> <span class="n">photos_datetime_local</span>
-<span class="kn">from</span> <span class="nn">..platform</span> <span class="kn">import</span> <span class="n">get_macos_version</span><span class="p">,</span> <span class="n">is_macos</span>
-<span class="kn">from</span> <span class="nn">..rich_utils</span> <span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
-<span class="kn">from</span> <span class="nn">..sqlite_utils</span> <span class="kn">import</span> <span class="n">sqlite_db_is_locked</span><span class="p">,</span> <span class="n">sqlite_open_ro</span>
-<span class="kn">from</span> <span class="nn">..unicode</span> <span class="kn">import</span> <span class="n">normalize_unicode</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_check_file_exists</span><span class="p">,</span> <span class="n">get_last_library_path</span><span class="p">,</span> <span class="n">noop</span>
-<span class="kn">from</span> <span class="nn">.photosdb_utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..albuminfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlbumInfo</span><span class="p">,</span> <span class="n">FolderInfo</span><span class="p">,</span> <span class="n">ImportInfo</span><span class="p">,</span> <span class="n">ProjectInfo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..datetime_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime_has_tz</span><span class="p">,</span> <span class="n">datetime_naive_to_local</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..fileutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileUtil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..iphoto</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_iphoto_library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..personinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonInfo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..photoinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotoInfo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..photoquery</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryOptions</span><span class="p">,</span> <span class="n">photo_query</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..photos_datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">photos_datetime</span><span class="p">,</span> <span class="n">photos_datetime_local</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_macos_version</span><span class="p">,</span> <span class="n">is_macos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..rich_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..sqlite_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">sqlite_db_is_locked</span><span class="p">,</span> <span class="n">sqlite_open_ro</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..unicode</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_unicode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_check_file_exists</span><span class="p">,</span> <span class="n">get_last_library_path</span><span class="p">,</span> <span class="n">noop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.photosdb_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_db_version</span><span class="p">,</span>
     <span class="n">get_model_version</span><span class="p">,</span>
     <span class="n">get_photos_version_from_model</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">photoscript</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">photoscript</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
@@ -318,7 +317,7 @@
 <span class="c1"># TODO: Add special albums and magic albums</span>
 
 
-<span class="k">class</span> <span class="nc">PhotosDBReadError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhotosDBReadError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic error when reading the Photos database&quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
@@ -326,25 +325,25 @@
 
 <div class="viewcode-block" id="PhotosDB">
 <a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB">[docs]</a>
-<span class="k">class</span> <span class="nc">PhotosDB</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhotosDB</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Processes a Photos.app library database to extract information about photos&quot;&quot;&quot;</span>
 
     <span class="c1"># import additional methods</span>
-    <span class="kn">from</span> <span class="nn">._photosdb_process_comments</span> <span class="kn">import</span> <span class="n">_process_comments</span>
-    <span class="kn">from</span> <span class="nn">._photosdb_process_exif</span> <span class="kn">import</span> <span class="n">_process_exifinfo</span>
-    <span class="kn">from</span> <span class="nn">._photosdb_process_faceinfo</span> <span class="kn">import</span> <span class="n">_process_faceinfo</span>
-    <span class="kn">from</span> <span class="nn">._photosdb_process_scoreinfo</span> <span class="kn">import</span> <span class="n">_process_scoreinfo</span>
-    <span class="kn">from</span> <span class="nn">._photosdb_process_searchinfo</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._photosdb_process_comments</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_comments</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._photosdb_process_exif</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_exifinfo</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._photosdb_process_faceinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_faceinfo</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._photosdb_process_scoreinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_scoreinfo</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._photosdb_process_searchinfo</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">_process_searchinfo</span><span class="p">,</span>
         <span class="n">labels</span><span class="p">,</span>
         <span class="n">labels_as_dict</span><span class="p">,</span>
         <span class="n">labels_normalized</span><span class="p">,</span>
         <span class="n">labels_normalized_as_dict</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="kn">from</span> <span class="nn">._photosdb_process_shared_library</span> <span class="kn">import</span> <span class="n">_process_shared_library_info</span>
-    <span class="kn">from</span> <span class="nn">._photosdb_process_syndicationinfo</span> <span class="kn">import</span> <span class="n">_process_syndicationinfo</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._photosdb_process_shared_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_shared_library_info</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._photosdb_process_syndicationinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_syndicationinfo</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dbfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -668,7 +667,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="s2">&quot;Photos&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">keywords_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keywords_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Teturn keywords as dict of keyword: count in reverse sorted order (descending)&quot;&quot;&quot;</span>
         <span class="n">keywords</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">k</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -678,7 +677,7 @@
         <span class="k">return</span> <span class="n">keywords</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">keywords_without_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keywords_without_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return keywords that exist in the database but are not assined to any photo (Photos 5+ only)&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="c1"># not implemented for Photos &lt;= 4</span>
@@ -693,7 +692,7 @@
         <span class="k">return</span> <span class="n">no_photo_keywords</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">persons_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">persons_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return persons as dict of person, count in reverse sorted order (descending)&quot;&quot;&quot;</span>
         <span class="n">persons</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">pk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfaces_pk</span><span class="p">:</span>
@@ -706,7 +705,7 @@
         <span class="k">return</span> <span class="n">persons</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">albums_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">albums_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return albums as dict of albums, count in reverse sorted order (descending)&quot;&quot;&quot;</span>
         <span class="n">albums</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">album_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_album_uuids</span><span class="p">(</span><span class="n">shared</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -723,7 +722,7 @@
         <span class="k">return</span> <span class="n">albums</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">albums_shared_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">albums_shared_as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns shared albums as dict of albums, count in reverse sorted order (descending)</span>
 <span class="sd">        valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict&quot;&quot;&quot;</span>
 
@@ -742,19 +741,19 @@
         <span class="k">return</span> <span class="n">albums</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of keywords found in photos database and associated with at least one photo&quot;&quot;&quot;</span>
         <span class="n">keywords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">persons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">persons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of persons found in photos database and associated with at least one photo&quot;&quot;&quot;</span>
         <span class="n">persons</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbpersons_pk</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;fullname&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfaces_pk</span><span class="p">}</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">persons</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">person_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">person_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of PersonInfo objects for each person in the photos database&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_person_info</span>
@@ -765,7 +764,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_person_info</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">folder_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">folder_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list FolderInfo objects representing top-level folders in the photos database&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span>
@@ -786,7 +785,7 @@
         <span class="k">return</span> <span class="n">folders</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">folders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">folders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of top-level folder names in the photos database&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="n">folder_names</span> <span class="o">=</span> <span class="p">[</span>
@@ -807,7 +806,7 @@
         <span class="k">return</span> <span class="n">folder_names</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of AlbumInfo objects for each album in the photos database&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_info</span>
@@ -819,7 +818,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_info</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">album_info_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">album_info_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of AlbumInfo objects for each shared album in the photos database</span>
 <span class="sd">        only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -834,7 +833,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_info_shared</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">albums</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">albums</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of albums found in photos database&quot;&quot;&quot;</span>
 
         <span class="c1"># Could be more than one album with same name</span>
@@ -847,7 +846,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_albums</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">albums_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">albums_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of shared albums found in photos database</span>
 <span class="sd">        only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -864,7 +863,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_albums_shared</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">import_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">import_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of ImportInfo objects for each import session in the database&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_info</span>
@@ -876,7 +875,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_info</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">project_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">project_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of AlbumInfo projects for each project in the database&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_info</span>
@@ -888,28 +887,28 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_project_info</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">db_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">db_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the database version as stored in LiGlobals table&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the Photos library database PhotosDB was initialized with&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">library_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">library_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the Photos library PhotosDB was initialized with&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_library_path</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">photos_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">photos_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns version of Photos app that created the library&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span>
 
 <div class="viewcode-block" id="PhotosDB.get_db_connection">
 <a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.get_db_connection">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get connection to the working copy of the Photos database</span>
 
 <span class="sd">        Returns:</span>
@@ -918,7 +917,7 @@
         <span class="k">return</span> <span class="n">sqlite_open_ro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_copy_db_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_copy_db_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;copies the sqlite database file to a temp file&quot;&quot;&quot;</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; returns the name of the temp file &quot;&quot;&quot;</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; If sqlite shared memory and write-ahead log files exist, those are copied too &quot;&quot;&quot;</span>
@@ -942,7 +941,7 @@
 
         <span class="k">return</span> <span class="n">dest_path</span>
 
-    <span class="k">def</span> <span class="nf">_process_database4</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_database4</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;process the Photos database to extract info</span>
 <span class="sd">        works on Photos version &lt;= 4.0&quot;&quot;&quot;</span>
 
@@ -1892,7 +1891,7 @@
         <span class="c1"># done processing, dump debug data if requested</span>
         <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Done processing details from Photos library.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_build_album_folder_hierarchy_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_album_folder_hierarchy_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively build folder/album hierarchy</span>
 <span class="sd">        uuid: parent uuid of the album being processed</span>
 <span class="sd">             (parent uuid is a folder in RKFolders)</span>
@@ -1923,7 +1922,7 @@
         <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_album_folder_hierarchy_4</span><span class="p">(</span><span class="n">parent_uuid</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="n">folders</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">folders</span>
 
-    <span class="k">def</span> <span class="nf">_process_database5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_database5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;process the Photos database to extract info</span>
 <span class="sd">        works on Photos version 5 and version 6</span>
 
@@ -2838,7 +2837,7 @@
 
         <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Done processing details from Photos library.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_process_moments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_moments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process data from ZMOMENT table&quot;&quot;&quot;</span>
         <span class="c1"># _db_moment_pk is dict in form {pk: {moment info}} by ZMOMENT.Z_PK</span>
 
@@ -2849,7 +2848,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_process_moment_5</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_process_moment_5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_moment_5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process moment info for Photos 5 databases&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_moment_pk</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2939,7 +2938,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_moment_pk</span><span class="p">[</span><span class="n">moment_info</span><span class="p">[</span><span class="s2">&quot;pk&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">moment_info</span>
 
-    <span class="k">def</span> <span class="nf">_build_album_folder_hierarchy_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_album_folder_hierarchy_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively build folder/album hierarchy</span>
 <span class="sd">        uuid: uuid of the album/folder being processed</span>
 <span class="sd">        folders: dict holding the folder hierarchy&quot;&quot;&quot;</span>
@@ -2962,14 +2961,14 @@
         <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_album_folder_hierarchy_5</span><span class="p">(</span><span class="n">parent_uuid</span><span class="p">,</span> <span class="n">folders</span><span class="o">=</span><span class="n">folders</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">folders</span>
 
-    <span class="k">def</span> <span class="nf">_album_folder_hierarchy_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_album_folder_hierarchy_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return appropriate album_folder_hierarchy_list for the _db_version&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_folder_hierarchy_list_4</span><span class="p">(</span><span class="n">album_uuid</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_folder_hierarchy_list_5</span><span class="p">(</span><span class="n">album_uuid</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_album_folder_hierarchy_list_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_album_folder_hierarchy_list_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of folder names album_uuid is contained in</span>
 <span class="sd">        the folder list is in form:</span>
 <span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;]</span>
@@ -2980,7 +2979,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Caught _dbalbum_folders KeyError for album: </span><span class="si">{</span><span class="n">album_uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="k">def</span> <span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
                 <span class="c1"># empty folder dict (album has no folder hierarchy)</span>
@@ -3006,7 +3005,7 @@
         <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">hierarchy</span>
 
-    <span class="k">def</span> <span class="nf">_album_folder_hierarchy_list_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_album_folder_hierarchy_list_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of folder names album_uuid is contained in</span>
 <span class="sd">        the folder list is in form:</span>
 <span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;]</span>
@@ -3017,7 +3016,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Caught _dbalbum_folders KeyError for album: </span><span class="si">{</span><span class="n">album_uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="k">def</span> <span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
@@ -3043,13 +3042,13 @@
         <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">hierarchy</span>
 
-    <span class="k">def</span> <span class="nf">_album_folder_hierarchy_folderinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_album_folder_hierarchy_folderinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_folder_hierarchy_folderinfo_4</span><span class="p">(</span><span class="n">album_uuid</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_album_folder_hierarchy_folderinfo_5</span><span class="p">(</span><span class="n">album_uuid</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_album_folder_hierarchy_folderinfo_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_album_folder_hierarchy_folderinfo_4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of FolderInfo objects album_uuid is contained in</span>
 <span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;]</span>
 <span class="sd">        returns empty list of album is not in any folders&quot;&quot;&quot;</span>
@@ -3057,7 +3056,7 @@
         <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbalbum_folders</span><span class="p">[</span><span class="n">album_uuid</span><span class="p">]</span>
         <span class="c1"># logging.warning(f&quot;uuid = {album_uuid}, folder = {folders}&quot;)</span>
 
-        <span class="k">def</span> <span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
             <span class="c1"># logging.warning(f&quot;folders={folders},hierarchy = {hierarchy}&quot;)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
@@ -3083,14 +3082,14 @@
         <span class="c1"># logging.warning(f&quot;hierarchy = {hierarchy}&quot;)</span>
         <span class="k">return</span> <span class="n">hierarchy</span>
 
-    <span class="k">def</span> <span class="nf">_album_folder_hierarchy_folderinfo_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_album_folder_hierarchy_folderinfo_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of FolderInfo objects album_uuid is contained in</span>
 <span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;]</span>
 <span class="sd">        returns empty list of album is not in any folders&quot;&quot;&quot;</span>
         <span class="c1"># title = photosdb._dbalbum_details[album_uuid][&quot;title&quot;]</span>
         <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbalbum_folders</span><span class="p">[</span><span class="n">album_uuid</span><span class="p">]</span>
 
-        <span class="k">def</span> <span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
@@ -3115,7 +3114,7 @@
         <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">hierarchy</span>
 
-    <span class="k">def</span> <span class="nf">_get_album_uuids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shared</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">import_session</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_album_uuids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shared</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">import_session</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of album UUIDs found in photos database</span>
 
 <span class="sd">            Filters out albums in the trash and any special album types</span>
@@ -3201,7 +3200,7 @@
                 <span class="n">album_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">album</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">album_list</span>
 
-    <span class="k">def</span> <span class="nf">_get_albums</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shared</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_albums</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shared</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of album titles found in photos database</span>
 <span class="sd">            Albums may have duplicate titles -- these will be treated as a single album.</span>
 
@@ -3218,7 +3217,7 @@
 
 <div class="viewcode-block" id="PhotosDB.photos">
 <a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.photos">[docs]</a>
-    <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">photos</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">uuid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3358,7 +3357,7 @@
 
 <div class="viewcode-block" id="PhotosDB.get_photo">
 <a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.get_photo">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a single photo matching uuid</span>
 
 <span class="sd">        Arguments:</span>
@@ -3375,7 +3374,7 @@
 
 <div class="viewcode-block" id="PhotosDB.photos_by_uuid">
 <a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.photos_by_uuid">[docs]</a>
-    <span class="k">def</span> <span class="nf">photos_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuids</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">photos_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuids</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of photos with UUID in uuids.</span>
 <span class="sd">            Does not generate error if invalid or missing UUID passed.</span>
 <span class="sd">            This is faster than using PhotosDB.photos if you have list of UUIDs.</span>
@@ -3396,7 +3395,7 @@
 
 <div class="viewcode-block" id="PhotosDB.query">
 <a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.query">[docs]</a>
-    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">QueryOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">QueryOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a query against PhotosDB to extract the photos based on user supplied options</span>
 
 <span class="sd">        Args:</span>
@@ -3407,14 +3406,14 @@
 
 <div class="viewcode-block" id="PhotosDB.execute">
 <a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.execute">[docs]</a>
-    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute sql statement and return cursor&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_db_connection</span><span class="p">()</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_duplicate_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_duplicate_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute a signature for finding possible duplicates&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;original_filesize&quot;</span><span class="p">],</span>
@@ -3425,23 +3424,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;hasAdjustments&quot;</span><span class="p">],</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;osxphotos.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(dbfile=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
 
     <span class="c1"># compare two PhotosDB objects for equality</span>
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__dict__</span>
 
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns number of photos in the database</span>
 <span class="sd">        Includes recently deleted photos and non-selected burst images</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_db_connection&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -3477,7 +3476,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=a98ddb9b"></script>
+</div><script src="../../../_static/documentation_options.js?v=24298b65"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
