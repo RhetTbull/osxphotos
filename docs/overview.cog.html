@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>OSXPhotos - osxphotos 0.69.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>OSXPhotos - osxphotos 0.70.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -167,7 +167,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.69.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.70.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.69.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.70.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -203,7 +203,6 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos Python Reference</a></li>
@@ -261,18 +260,69 @@ You can also easily export both the original and edited photos.</p>
 <p>Works on macOS and linux. Some features are compatible only with macOS.</p>
 <p>This package will read Photos databases for any supported version on any supported macOS version.
 E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.</p>
-<p>Requires python &gt;= <code class="docutils literal notranslate"><span class="pre">3.9</span></code>.</p>
+<p>Requires python &gt;= <code class="docutils literal notranslate"><span class="pre">3.10</span></code>.</p>
 </section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
-<p>The recommended way of installing <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> is with <a class="reference external" href="https://github.com/pipxproject/pipx">pipx</a>.  The easiest way to do this on a Mac is to use <a class="reference external" href="https://brew.sh/">homebrew</a>:</p>
+<p>The recommended way to install <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> is via the <a class="reference external" href="https://github.com/astral-sh/uv">uv</a> python package manager tool.</p>
+</section>
+<section id="installation-using-uv">
+<h2>Installation using <code class="docutils literal notranslate"><span class="pre">uv</span></code><a class="headerlink" href="#installation-using-uv" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Open <code class="docutils literal notranslate"><span class="pre">Terminal</span></code> (search for <code class="docutils literal notranslate"><span class="pre">Terminal</span></code> in Spotlight or look in <code class="docutils literal notranslate"><span class="pre">Applications/Utilities</span></code>)</p></li>
-<li><p>Install <code class="docutils literal notranslate"><span class="pre">homebrew</span></code> according to instructions at <a class="reference external" href="https://brew.sh/">https://brew.sh/</a></p></li>
-<li><p>Type the following into Terminal: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">pipx</span></code></p></li>
-<li><p>Then type this: <code class="docutils literal notranslate"><span class="pre">pipx</span> <span class="pre">install</span> <span class="pre">osxphotos</span></code></p></li>
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">uv</span></code> by running the following command in Terminal:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</pre></div>
+</div>
+<p>If you previously installed <code class="docutils literal notranslate"><span class="pre">uv</span></code>, upgrade to the latest version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>self<span class="w"> </span>update
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Type the following into Terminal:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>osxphotos
+</pre></div>
+</div>
+<ul class="simple">
 <li><p>Now you should be able to run <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> by typing: <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code></p></li>
 </ul>
+<p>Once you’ve installed osxphotos with <code class="docutils literal notranslate"><span class="pre">uv</span></code>, to upgrade to the latest version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>tool<span class="w"> </span>upgrade<span class="w"> </span>osxphotos
+</pre></div>
+</div>
+<p>If you want to try <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> without installing it, you can run <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">tool</span> <span class="pre">run</span> <span class="pre">--python</span> <span class="pre">3.12</span> <span class="pre">osxphotos</span></code> or <code class="docutils literal notranslate"><span class="pre">uvx</span> <span class="pre">--python</span> <span class="pre">3.12</span> <span class="pre">osxphotos</span></code>.</p>
+<p>Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.12 from [python.org](<a class="reference external" href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>) then running uv to install osxphotos.</p>
+</section>
+<section id="installation-using-pip">
+<h2>Installation using pip<a class="headerlink" href="#installation-using-pip" title="Link to this heading">¶</a></h2>
+<p>You can install <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> directly from <a class="reference external" href="https://pypi.org/project/osxphotos/">pypi</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>osxphotos
+</pre></div>
+</div>
+<p>Once you’ve installed osxphotos with pip, to upgrade to the latest version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>osxphotos
+</pre></div>
+</div>
+</section>
+<section id="installation-via-macports">
+<h2>Installation via MacPorts<a class="headerlink" href="#installation-via-macports" title="Link to this heading">¶</a></h2>
+<p>If you use the <a class="reference external" href="https://www.macports.org">MacPorts</a> package manager on a Mac:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>port<span class="w"> </span>install<span class="w"> </span>osxphotos
+</pre></div>
+</div>
+</section>
+<section id="installation-on-linux">
+<h2>Installation on Linux<a class="headerlink" href="#installation-on-linux" title="Link to this heading">¶</a></h2>
+<p>At least one of the Linux-specific python packages normally installed on Linux may cause an error during installation with <code class="docutils literal notranslate"><span class="pre">pip</span></code> or <code class="docutils literal notranslate"><span class="pre">pipx</span></code>. If you encounter an error similar to: <code class="docutils literal notranslate"><span class="pre">pip._vendor.packaging.version.InvalidVersion:</span> <span class="pre">Invalid</span> <span class="pre">version:</span> <span class="pre">'6.5.0-1022-generic</span></code>, you should still be able to install osxphotos by creating and activating a virtual environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv-osxphotos
+<span class="nb">source</span><span class="w"> </span>.venv-osxphotos/bin/activate
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>osxphotos
+</pre></div>
+</div>
+<p>To use osxphotos you will need to ensure the venv is activated using <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">.venv-osxphotos/bin/activate</span></code>.</p>
+<p>You may name the virtual environment anything you want; <code class="docutils literal notranslate"><span class="pre">.venv-osxphotos</span></code> is used in this example to make it clear the virtual environment is used by osxphotos and to avoid conflict with other virtual environments which, by convention, are often named <code class="docutils literal notranslate"><span class="pre">.venv</span></code> or <code class="docutils literal notranslate"><span class="pre">venv</span></code>.</p>
 </section>
 <section id="command-line-usage">
 <h2>Command Line Usage<a class="headerlink" href="#command-line-usage" title="Link to this heading">¶</a></h2>
@@ -334,6 +384,10 @@ E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine
 <li><a class="reference internal" href="#what-is-osxphotos">What is OSXPhotos?</a></li>
 <li><a class="reference internal" href="#supported-operating-systems">Supported operating systems</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#installation-using-uv">Installation using <code class="docutils literal notranslate"><span class="pre">uv</span></code></a></li>
+<li><a class="reference internal" href="#installation-using-pip">Installation using pip</a></li>
+<li><a class="reference internal" href="#installation-via-macports">Installation via MacPorts</a></li>
+<li><a class="reference internal" href="#installation-on-linux">Installation on Linux</a></li>
 <li><a class="reference internal" href="#command-line-usage">Command Line Usage</a></li>
 </ul>
 </li>
@@ -346,7 +400,7 @@ E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=24298b65"></script>
+</div><script src="_static/documentation_options.js?v=ecf2ad1f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

@@ -5,9 +5,9 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Reference" href="reference.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>OSXPhotos Python API - osxphotos 0.69.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>OSXPhotos Python API - osxphotos 0.70.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -167,7 +167,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.69.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.70.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.69.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.70.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -203,7 +203,6 @@
 <li class="toctree-l1"><a class="reference internal" href="overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos Python Reference</a></li>
@@ -298,7 +297,7 @@
 <h3>Print filename, date created, title, and keywords for all photos in a library<a class="headerlink" href="#print-filename-date-created-title-and-keywords-for-all-photos-in-a-library" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;print filename, date created, title, and keywords for all photos in Photos library&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">osxphotos</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
@@ -350,14 +349,14 @@ cog.out("```\n")
 <span class="sd">For more advanced example, see `cli_example_2.py`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">osxphotos</span>
-<span class="kn">from</span> <span class="nn">osxphotos.cli</span> <span class="kn">import</span> <span class="n">query_command</span><span class="p">,</span> <span class="n">verbose</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">query_command</span><span class="p">,</span> <span class="n">verbose</span>
 
 
 <span class="nd">@query_command</span>
-<span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">example</span><span class="p">(</span><span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample query command for osxphotos. Prints out the filename and date of each photo.</span>
 
 <span class="sd">    Whatever text you put in the function&#39;s docstring here, will be used as the command&#39;s</span>
@@ -462,14 +461,14 @@ cog.out("```\n")
 <span class="sd">For simpler examples, see `cli_example_1.py`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
-<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
 
-<span class="kn">import</span> <span class="nn">osxphotos</span>
-<span class="kn">from</span> <span class="nn">osxphotos.cli</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.cli</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">abort</span><span class="p">,</span>
     <span class="n">echo</span><span class="p">,</span>
     <span class="n">echo_error</span><span class="p">,</span>
@@ -489,7 +488,7 @@ cog.out("```\n")
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
     <span class="s2">&quot;--dry-run&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do a dry run, don&#39;t actually do anything&quot;</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">resume</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">example</span><span class="p">(</span><span class="n">resume</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample query command for osxphotos. Prints out the filename and date of each photo.</span>
 
 <span class="sd">    Whatever text you put in the function&#39;s docstring here, will be used as the command&#39;s</span>
@@ -582,14 +581,14 @@ cog.out("```\n")
 <span class="sd">to your function.  You can then do whatever you want with the photos.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">osxphotos</span>
-<span class="kn">from</span> <span class="nn">osxphotos.cli</span> <span class="kn">import</span> <span class="n">selection_command</span><span class="p">,</span> <span class="n">verbose</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">selection_command</span><span class="p">,</span> <span class="n">verbose</span>
 
 
 <span class="nd">@selection_command</span>
-<span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">example</span><span class="p">(</span><span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample command for osxphotos. Prints out the filename and date of each photo</span>
 <span class="sd">    currently selected in Photos.app.</span>
 
@@ -639,14 +638,14 @@ Python &lt; 3.11.</p>
 <span class="sd">for more information.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">concurrent.futures</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">concurrent.futures</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
 
-<span class="kn">import</span> <span class="nn">osxphotos</span>
-<span class="kn">from</span> <span class="nn">osxphotos.cli</span> <span class="kn">import</span> <span class="n">echo</span><span class="p">,</span> <span class="n">query_command</span><span class="p">,</span> <span class="n">verbose</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">echo</span><span class="p">,</span> <span class="n">query_command</span><span class="p">,</span> <span class="n">verbose</span>
 
 
 <span class="nd">@query_command</span><span class="p">()</span>
@@ -661,7 +660,7 @@ Python &lt; 3.11.</p>
     <span class="s2">&quot;export_dir&quot;</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_okay</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dir_okay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">writable</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="n">workers</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="n">workers</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Export photos&quot;&quot;&quot;</span>
     <span class="n">workers</span> <span class="o">=</span> <span class="n">workers</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span>
     <span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to </span><span class="si">{</span><span class="n">export_dir</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">workers</span><span class="si">}</span><span class="s2"> workers&quot;</span><span class="p">)</span>
@@ -688,7 +687,7 @@ Python &lt; 3.11.</p>
 <section id="id8">
 <h2>Calling CLI commands from Python<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">osxphotos.cli</span></code> module contains the code for the <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> command line tool. If you want to call the <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span></code> command from within your own code, you can do so by calling <code class="docutils literal notranslate"><span class="pre">export_cli()</span></code>:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">osxphotos.cli.export</span> <span class="kn">import</span> <span class="n">export_cli</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.cli.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">export_cli</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">export_cli</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;/private/tmp&quot;</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -713,7 +712,7 @@ Python &lt; 3.11.</p>
 <section id="open-the-default-last-opened-photos-library">
 <h4>Open the default (last opened) Photos library<a class="headerlink" href="#open-the-default-last-opened-photos-library" title="Link to this heading">¶</a></h4>
 <p>The default library is the library that would open if the user opened Photos.app.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_last_library_path</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -721,14 +720,14 @@ Python &lt; 3.11.</p>
 <section id="open-system-photos-library">
 <h4>Open System Photos library<a class="headerlink" href="#open-system-photos-library" title="Link to this heading">¶</a></h4>
 <p>In Photos 5 (Catalina / MacOS 10.15), you can use <code class="docutils literal notranslate"><span class="pre">get_system_library_path()</span></code> to get the path to the System photo library if you want to ensure PhotosDB opens the system library.  This does not work on older versions of MacOS. E.g.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="n">path</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">get_system_library_path</span><span class="p">()</span>
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>also,</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="n">path</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">get_system_library_path</span><span class="p">()</span>
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">dbfile</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
@@ -737,13 +736,13 @@ Python &lt; 3.11.</p>
 </section>
 <section id="open-a-specific-photos-library">
 <h4>Open a specific Photos library<a class="headerlink" href="#open-a-specific-photos-library" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">dbfile</span><span class="o">=</span><span class="s2">&quot;/Users/smith/Pictures/Test.photoslibrary/database/photos.db&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>or</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Test.photoslibrary&quot;</span><span class="p">)</span>
 </pre></div>
@@ -824,7 +823,7 @@ Python &lt; 3.11.</p>
 </div>
 <p><strong>Note</strong> PhotosDB.photos() may return a different number of photos than Photos.app reports in the GUI. This is because photos() returns <a class="reference external" href="#hidden">hidden</a> photos, <a class="reference external" href="#shared">shared</a> photos, and for <a class="reference external" href="#burst">burst</a> photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you “finalize” the burst by selecting key photos and deleting the others using the “Make a selection” option.</p>
 <p>For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, PhotosDB.photos() reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (<em>Note</em> Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Photos Library.photoslibrary&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span>
@@ -1136,7 +1135,7 @@ See also <a class="reference external" href="#keywords_as_dict">keywords_as_dict
 <li><p><code class="docutils literal notranslate"><span class="pre">year</span></code>: search for photos taken in a given year</p></li>
 </ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Find all screenshots taken in 2019&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">osxphotos</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
@@ -1465,7 +1464,7 @@ See <a class="reference external" href="#burst_photos">burst_photos</a></p>
 <h4><code class="docutils literal notranslate"><span class="pre">burst_photos</span></code><a class="headerlink" href="#id69" title="Link to this heading">¶</a></h4>
 <p>If photo is a burst image (see <a class="reference external" href="#burst">burst</a>), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.</p>
 <p>Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  PhotosDB.photos() will only return the photos in the burst set that the user <a class="reference external" href="https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac">selected</a> using “Make a Selection…” in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using <code class="docutils literal notranslate"><span class="pre">burst_photos</span></code> you can access the other images in the burst set to export them, etc.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Photos Library.photoslibrary&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bursts</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">burst</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">burst_photo</span> <span class="o">=</span> <span class="n">bursts</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
@@ -1539,7 +1538,7 @@ See <a class="reference external" href="#burst_photos">burst_photos</a></p>
 <section id="id84">
 <h4><code class="docutils literal notranslate"><span class="pre">labels_normalized</span></code><a class="headerlink" href="#id84" title="Link to this heading">¶</a></h4>
 <p>Returns image categorization labels associated with the photo as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don’t how Apple capitalizes a label. For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">():</span>
@@ -1570,7 +1569,7 @@ See <a class="reference external" href="#burst_photos">burst_photos</a></p>
 <p>Returns an <a class="reference external" href="#exiftoolExifTool">ExifToolCaching</a> object for the photo which provides an interface to <a class="reference external" href="https://exiftool.org/">exiftool</a> allowing you to read the actual EXIF data in the image file inside the Photos library.  If <a class="reference external" href="#exif-info">exif_info</a> doesn’t give you all the data you need, you can use <code class="docutils literal notranslate"><span class="pre">exiftool</span></code> to read the entire EXIF contents of the image.</p>
 <p>If the file is missing from the library (e.g. not downloaded from iCloud), returns None.</p>
 <p>exiftool must be installed in the path for this to work.  If exiftool cannot be found in the path, calling <code class="docutils literal notranslate"><span class="pre">exiftool</span></code> will log a warning and return <code class="docutils literal notranslate"><span class="pre">None</span></code>.  You can check the exiftool path using <code class="docutils literal notranslate"><span class="pre">osxphotos.exiftool.get_exiftool_path</span></code> which will raise FileNotFoundError if exiftool cannot be found.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">osxphotos</span><span class="o">.</span><span class="n">exiftool</span><span class="o">.</span><span class="n">get_exiftool_path</span><span class="p">()</span>
 <span class="go">&#39;/usr/local/bin/exiftool&#39;</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -1661,7 +1660,7 @@ is not intended for general use.</p>
 </ul>
 <p>Returns: list of paths to exported files. More than one file could be exported, for example if live_photo=True, both the original image and the associated .mov file will be exported</p>
 <p>The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Photos Library.photoslibrary&quot;</span><span class="p">)</span>
 <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
@@ -1739,7 +1738,7 @@ is not intended for general use.</p>
 </pre></div>
 </div>
 <p>For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="n">nikon_photos</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">p</span>
@@ -1958,7 +1957,7 @@ is not intended for general use.</p>
 <h4><code class="docutils literal notranslate"><span class="pre">asdict()</span></code><a class="headerlink" href="#id138" title="Link to this heading">¶</a></h4>
 <p>Returns a dictionary representation of the FolderInfo object.</p>
 <p><strong>Note</strong>: FolderInfo and AlbumInfo objects effectively work as a linked list.  The children of a folder are contained in <code class="docutils literal notranslate"><span class="pre">subfolders</span></code> and <code class="docutils literal notranslate"><span class="pre">album_info</span></code> and the parent object of both <code class="docutils literal notranslate"><span class="pre">AlbumInfo</span></code> and <code class="docutils literal notranslate"><span class="pre">FolderInfo</span></code> is represented by <code class="docutils literal notranslate"><span class="pre">parent</span></code>.  For example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span><span class="o">.</span><span class="n">folder_info</span>
 <span class="go">[&lt;osxphotos.albuminfo.FolderInfo object at 0x10fcc0160&gt;]</span>
@@ -2083,7 +2082,7 @@ is not intended for general use.</p>
 </pre></div>
 </div>
 <p>Example: find your “best” photo of food</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photos</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">best_food_photo</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="s2">&quot;food&quot;</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">labels_normalized</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">overall</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
@@ -2451,7 +2450,7 @@ and a <code class="docutils literal notranslate"><span class="pre">rows_dict()</
 <section id="example">
 <h4>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h4>
 <p>To get the path of every raw photo, whether it’s a single raw photo or a raw+JPEG pair, one could do something like this:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">all_raw</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">israw</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">has_raw</span><span class="p">]</span>
@@ -2487,116 +2486,7 @@ cog.out("\n"+get_template_help())
 <p><code class="docutils literal notranslate"><span class="pre">(field_arg)</span></code>: optional arguments to pass to the field; for example, with <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code> this is used to pass the path separator used for joining folders and albums when rendering the field (default is “/” for <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code>).</p>
 <p><cite>|filter</cite>: You may optionally append one or more filter commands to the end of the template field using the vertical pipe (‘|’) symbol.  Filters may be combined, separated by ‘|’ as in: <code class="docutils literal notranslate"><span class="pre">{keyword|capitalize|parens}</span></code>.</p>
 <p>Valid filters are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">lower</span></code>: Convert value to lower case, e.g. ‘Value’ =&gt; ‘value’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">upper</span></code>: Convert value to upper case, e.g. ‘Value’ =&gt; ‘VALUE’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">strip</span></code>: Strip whitespace from beginning/end of value, e.g. ‘ Value ‘ =&gt; ‘Value’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">titlecase</span></code>: Convert value to title case, e.g. ‘my value’ =&gt; ‘My Value’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">capitalize</span></code>: Capitalize first word of value and convert other words to lower case, e.g. ‘MY VALUE’ =&gt; ‘My value’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">braces</span></code>: Enclose value in curly braces, e.g. ‘value =&gt; ‘{value}’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">parens</span></code>: Enclose value in parentheses, e.g. ‘value’ =&gt; ‘(value’)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">brackets</span></code>: Enclose value in brackets, e.g. ‘value’ =&gt; ‘[value]’</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">shell_quote</span></code>: Quotes the value for safe usage in the shell, e.g. My file.jpeg =&gt; ‘My file.jpeg’; only adds quotes if needed.</p></li>
-<li><p><cite>function</cite>: Run custom python function to filter value; use in format ‘function:/path/to/file.py::function_name’. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">split(x)</span></code>: Split value into a list of values using x as delimiter, e.g. ‘value1;value2’ =&gt; [‘value1’, ‘value2’] if used with split(;).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">autosplit</span></code>: Automatically split delimited string into separate values; will split strings delimited by comma, semicolon, or space, e.g. ‘value1,value2’ =&gt; [‘value1’, ‘value2’].</p></li>
-<li><p><cite>chop(x)</cite>: Remove x characters off the end of value, e.g. chop(1): ‘Value’ =&gt; ‘Valu’; when applied to a list, chops characters from each list value, e.g. chop(1): [‘travel’, ‘beach’]=&gt; [‘trave’, ‘beac’].</p></li>
-<li><p><cite>chomp(x)</cite>: Remove x characters from the beginning of value, e.g. chomp(1): [‘Value’] =&gt; [‘alue’]; when applied to a list, removes characters from each list value, e.g. chomp(1): [‘travel’, ‘beach’]=&gt; [‘ravel’, ‘each’].</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sort</span></code>: Sort list of values, e.g. [‘c’, ‘b’, ‘a’] =&gt; [‘a’, ‘b’, ‘c’].</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rsort</span></code>: Sort list of values in reverse order, e.g. [‘a’, ‘b’, ‘c’] =&gt; [‘c’, ‘b’, ‘a’].</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">reverse</span></code>: Reverse order of values, e.g. [‘a’, ‘b’, ‘c’] =&gt; [‘c’, ‘b’, ‘a’].</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">uniq</span></code>: Remove duplicate values, e.g. [‘a’, ‘b’, ‘c’, ‘b’, ‘a’] =&gt; [‘a’, ‘b’, ‘c’].</p></li>
-<li><p><cite>join(x)</cite>: Join list of values with delimiter x, e.g. join(,): [‘a’, ‘b’, ‘c’] =&gt; ‘a,b,c’; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.May optionally be used without an argument, that is ‘join()’ which joins values together with no delimiter. e.g. join(): [‘a’, ‘b’, ‘c’] =&gt; ‘abc’.</p></li>
-<li><p><cite>append(x)</cite>: Append x to list of values, e.g. append(d): [‘a’, ‘b’, ‘c’] =&gt; [‘a’, ‘b’, ‘c’, ‘d’].</p></li>
-<li><p><cite>prepend(x)</cite>: Prepend x to list of values, e.g. prepend(d): [‘a’, ‘b’, ‘c’] =&gt; [‘d’, ‘a’, ‘b’, ‘c’].</p></li>
-<li><p><cite>appends(x)</cite>: Append s[tring] Append x to each value of list of values, e.g. appends(d): [‘a’, ‘b’, ‘c’] =&gt; [‘ad’, ‘bd’, ‘cd’].</p></li>
-<li><p><cite>prepends(x)</cite>: Prepend s[tring] x to each value of list of values, e.g. prepends(d): [‘a’, ‘b’, ‘c’] =&gt; [‘da’, ‘db’, ‘dc’].</p></li>
-<li><p><cite>remove(x)</cite>: Remove x from list of values, e.g. remove(b): [‘a’, ‘b’, ‘c’] =&gt; [‘a’, ‘c’].</p></li>
-<li><p><cite>slice(start:stop:step)</cite>: Slice list using same semantics as Python’s list slicing, e.g. slice(1:3): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘c’]; slice(1:4:2): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘d’]; slice(1:): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘c’, ‘d’]; slice(:-1): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘a’, ‘b’, ‘c’]; slice(::-1): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘d’, ‘c’, ‘b’, ‘a’]. See also sslice().</p></li>
-<li><p><cite>sslice(start:stop:step)</cite>: [s(tring) slice] Slice values in a list using same semantics as Python’s string slicing, e.g. sslice(1:3):’abcd =&gt; ‘bc’; sslice(1:4:2): ‘abcd’ =&gt; ‘bd’, etc. See also slice().</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">filter(x)</span></code>: Filter list of values using predicate x; for example, <code class="docutils literal notranslate"><span class="pre">{folder_album|filter(contains</span> <span class="pre">Events)}</span></code> returns only folders/albums containing the word ‘Events’ in their path.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">int</span></code>: Convert values in list to integer, e.g. 1.0 =&gt; 1. If value cannot be converted to integer, remove value from list. [‘1.1’, ‘x’] =&gt; [‘1’]. See also float.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">float</span></code>: Convert values in list to floating point number, e.g. 1 =&gt; 1.0. If value cannot be converted to float, remove value from list. [‘1’, ‘x’] =&gt; [‘1.0’]. See also int.</p></li>
-</ul>
-<p>e.g. if Photo keywords are <code class="docutils literal notranslate"><span class="pre">[&quot;FOO&quot;,&quot;bar&quot;]</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword|lower}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;foo&quot;,</span> <span class="pre">&quot;bar&quot;</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword|upper}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;FOO&quot;,</span> <span class="pre">&quot;BAR&quot;</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword|capitalize}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;Foo&quot;,</span> <span class="pre">&quot;Bar&quot;</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword|lower|parens}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;(foo)&quot;,</span> <span class="pre">&quot;(bar)&quot;</span></code></p></li>
-</ul>
-<p>e.g. if Photo description is “my description”:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{descr|titlecase}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;My</span> <span class="pre">Description&quot;</span></code></p></li>
-</ul>
-<p>e.g. If Photo is in <code class="docutils literal notranslate"><span class="pre">Album1</span></code> in <code class="docutils literal notranslate"><span class="pre">Folder1</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{folder_album}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">[&quot;Folder1/Album1&quot;]</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{folder_album(&gt;)}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">[&quot;Folder1&gt;Album1&quot;]</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{folder_album()}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">[&quot;Folder1Album1&quot;]</span></code></p></li>
-</ul>
-<p><cite>[find,replace]</cite>: optional text replacement to perform on rendered template value.  For example, to replace “/” in an album name, you could use the template <cite>“{album[/,-]}”</cite>.  Multiple replacements can be made by appending “|” and adding another find|replace pair.  e.g. to replace both “/” and “:” in album name: <code class="docutils literal notranslate"><span class="pre">&quot;{album[/,-|:,-]}&quot;</span></code>.  find/replace pairs are not limited to single characters.  The “|” character cannot be used in a find/replace pair.</p>
-<p><cite>conditional</cite>: optional conditional expression that is evaluated as boolean (True/False) for use with the <cite>?bool_value</cite> modifier.  Conditional expressions take the form ‘<cite>not operator value</cite>’ where <cite>not</cite> is an optional modifier that negates the <cite>operator</cite>.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">contains</span></code>: template field contains value, similar to python’s <code class="docutils literal notranslate"><span class="pre">in</span></code></p></li>
-<li><p><cite>matches</cite>: template field contains exactly value, unlike <cite>contains</cite>: does not match partial matches</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">startswith</span></code>: template field starts with value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">endswith</span></code>: template field ends with value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&lt;=</span></code>: template field is less than or equal to value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>: template field is greater than or equal to value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&lt;</span></code>: template field is less than value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&gt;</span></code>: template field is greater than value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">==</span></code>: template field equals value</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">!=</span></code>: template field does not equal value</p></li>
-</ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">value</span></code> part of the conditional expression is treated as a bare (unquoted) word/phrase.  Multiple values may be separated by ‘|’ (the pipe symbol).  <code class="docutils literal notranslate"><span class="pre">value</span></code> is itself a template statement so you can use one or more template fields in <code class="docutils literal notranslate"><span class="pre">value</span></code> which will be resolved before the comparison occurs.</p>
-<p>For example:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">{keyword</span> <span class="pre">matches</span> <span class="pre">Beach}</span></code> resolves to True if ‘Beach’ is a keyword. It would not match keyword ‘BeachDay’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{keyword</span> <span class="pre">contains</span> <span class="pre">Beach}</span></code> resolves to True if any keyword contains the word ‘Beach’ so it would match both ‘Beach’ and ‘BeachDay’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{photo.score.overall</span> <span class="pre">&gt;</span> <span class="pre">0.7}</span></code> resolves to True if the photo’s overall aesthetic score is greater than 0.7.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{keyword|lower</span> <span class="pre">contains</span> <span class="pre">beach}</span></code> uses the lower case filter to do case-insensitive matching to match any keyword that contains the word ‘beach’.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{keyword|lower</span> <span class="pre">not</span> <span class="pre">contains</span> <span class="pre">beach}</span></code> uses the <code class="docutils literal notranslate"><span class="pre">not</span></code> modifier to negate the comparison so this resolves to True if there is no keyword that matches ‘beach’.</p></li>
-</ul>
-<p>Examples: to export photos that contain certain keywords with the <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span></code> command’s <code class="docutils literal notranslate"><span class="pre">--directory</span></code> option:</p>
-<p><code class="docutils literal notranslate"><span class="pre">--directory</span> <span class="pre">&quot;{keyword|lower</span> <span class="pre">matches</span> <span class="pre">travel|vacation?Travel-Photos,Not-Travel-Photos}&quot;</span></code></p>
-<p>This exports any photo that has keywords ‘travel’ or ‘vacation’ into a directory ‘Travel-Photos’ and all other photos into directory ‘Not-Travel-Photos’.</p>
-<p>This can be used to rename files as well, for example:
-<code class="docutils literal notranslate"><span class="pre">--filename</span> <span class="pre">&quot;{favorite?Favorite-{original_name},{original_name}}&quot;</span></code></p>
-<p>This renames any photo that is a favorite as ‘Favorite-ImageName.jpg’ (where ‘ImageName.jpg’ is the original name of the photo) and all other photos with the unmodified original name.</p>
-<p><cite>&amp;combine_value</cite>: Template fields may be combined with another template statement to return multiple values. The combine_value is another template statement. For example, the template {created.year&amp;{folder_album,}} would resolve to [“1999”, “Vacation”] if the photo was created in 1999 and was in the album Vacation. Because the combine_value is a template statement, multiple templates may be combined together by nesting the combine operator: {template1&amp;{template2&amp;{template3,},},}. In this example, a null default value is used to prevent the default value from being combined if any of the nested templates does not resolve to a value</p>
-<p><code class="docutils literal notranslate"><span class="pre">?bool_value</span></code>: Template fields may be evaluated as boolean (True/False) by appending “?” after the field name (and following “(field_arg)” or “[find/replace]”.  If a field is True (e.g. photo is HDR and field is <code class="docutils literal notranslate"><span class="pre">&quot;{hdr}&quot;</span></code>) or has any value, the value following the “?” will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is <code class="docutils literal notranslate"><span class="pre">&quot;{title}&quot;</span></code>) then the default value following a “,” will be used.</p>
-<p>e.g. if photo is an HDR image,</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{hdr?ISHDR,NOTHDR}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;ISHDR&quot;</span></code></p></li>
-</ul>
-<p>and if it is not an HDR image,</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{hdr?ISHDR,NOTHDR}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;NOTHDR&quot;</span></code></p></li>
-</ul>
-<p><code class="docutils literal notranslate"><span class="pre">,default</span></code>: optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like <code class="docutils literal notranslate"><span class="pre">{created.strftime}</span></code>.  If no default value provided, “_” is used.</p>
-<p>e.g., if photo has no title set,</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{title}&quot;</span></code> renders to “_”</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{title,I</span> <span class="pre">have</span> <span class="pre">no</span> <span class="pre">title}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;I</span> <span class="pre">have</span> <span class="pre">no</span> <span class="pre">title&quot;</span></code></p></li>
-</ul>
-<p>Template fields such as <code class="docutils literal notranslate"><span class="pre">created.strftime</span></code> use the default value to pass the template to use for <code class="docutils literal notranslate"><span class="pre">strftime</span></code>.</p>
-<p>e.g., if photo date is 4 February 2020, 19:07:38,</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{created.strftime,%Y-%m-%d-%H%M%S}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;2020-02-04-190738&quot;</span></code></p></li>
-</ul>
-<p>Some template fields such as <code class="docutils literal notranslate"><span class="pre">&quot;{media_type}&quot;</span></code> use the default value to allow customization of the output. For example, <code class="docutils literal notranslate"><span class="pre">&quot;{media_type}&quot;</span></code> resolves to the special media type of the photo such as <code class="docutils literal notranslate"><span class="pre">panorama</span></code> or <code class="docutils literal notranslate"><span class="pre">selfie</span></code>.  You may use the default value to override these in form: <code class="docutils literal notranslate"><span class="pre">&quot;{media_type,video=vidéo;time_lapse=vidéo_accélérée}&quot;</span></code>. In this example, if photo was a time_lapse photo, <code class="docutils literal notranslate"><span class="pre">media_type</span></code> would resolve to <code class="docutils literal notranslate"><span class="pre">vidéo_accélérée</span></code> instead of <code class="docutils literal notranslate"><span class="pre">time_lapse</span></code>.</p>
-<p>Either or both bool_value or default (False value) may be empty which would result in empty string <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> when rendered.</p>
-<p>If you want to include “{” or “}” in the output, use “{openbrace}” or “{closebrace}” template substitution.</p>
-<p>e.g. <code class="docutils literal notranslate"><span class="pre">&quot;{created.year}/{openbrace}{title}{closebrace}&quot;</span></code> would result in <code class="docutils literal notranslate"><span class="pre">&quot;2020/{Photo</span> <span class="pre">Title}&quot;</span></code>.</p>
-<p><strong>Variables</strong></p>
-<p>You can define variables for later use in the template string using the format <code class="docutils literal notranslate"><span class="pre">{var:NAME,VALUE}</span></code> where <code class="docutils literal notranslate"><span class="pre">VALUE</span></code> is a template statement.  Variables may then be referenced using the format <code class="docutils literal notranslate"><span class="pre">%NAME</span></code>. For example: <code class="docutils literal notranslate"><span class="pre">{var:foo,bar}</span></code> defines the variable <code class="docutils literal notranslate"><span class="pre">%foo</span></code> to have value <code class="docutils literal notranslate"><span class="pre">bar</span></code>. This can be useful if you want to re-use a complex template value in multiple places within your template string or for allowing the use of characters that would otherwise be prohibited in a template string. For example, the “pipe” (<code class="docutils literal notranslate"><span class="pre">|</span></code>) character is not allowed in a find/replace pair but you can get around this limitation like so: <code class="docutils literal notranslate"><span class="pre">{var:pipe,{pipe}}{title[-,%pipe]}</span></code> which replaces the <code class="docutils literal notranslate"><span class="pre">-</span></code> character with <code class="docutils literal notranslate"><span class="pre">|</span></code> (the value of <code class="docutils literal notranslate"><span class="pre">%pipe</span></code>).</p>
-<p>Another use case for variables is filtering combined template values. For example, using the <code class="docutils literal notranslate"><span class="pre">&amp;combine_value</span></code> mechanism to combine two template values that might result in duplicate values, you could do the following: <code class="docutils literal notranslate"><span class="pre">{var:myvar,{template1&amp;{template2,},}}{%myvar|uniq}</span></code> which allows the use of the uniq filter against the combined template values.</p>
-<p>Variables can also be referenced as fields in the template string, for example: <code class="docutils literal notranslate"><span class="pre">{var:year,{created.year}}{original_name}-{%year}</span></code>. In some cases, use of variables can make your template string more readable.  Variables can be used as template fields, as values for filters, as values for conditional operations, or as default values.  When used as a conditional value or default value, variables should be treated like any other field and enclosed in braces as conditional and default values are evaluated as template strings. For example: <code class="docutils literal notranslate"><span class="pre">{var:name,Katie}{person</span> <span class="pre">contains</span> <span class="pre">{%name}?{%name},Not-{%name}}</span></code>.</p>
-<p>If you need to use a <code class="docutils literal notranslate"><span class="pre">%</span></code> (percent sign character), you can escape the percent sign by using <code class="docutils literal notranslate"><span class="pre">%%</span></code>.  You can also use the <code class="docutils literal notranslate"><span class="pre">{percent}</span></code> template field where a template field is required. For example:</p>
-<p><code class="docutils literal notranslate"><span class="pre">{title[:,%%]}</span></code> replaces the <code class="docutils literal notranslate"><span class="pre">:</span></code> with <code class="docutils literal notranslate"><span class="pre">%</span></code> and <code class="docutils literal notranslate"><span class="pre">{title</span> <span class="pre">contains</span> <span class="pre">Foo?{title}{percent},{title}}</span></code> adds <code class="docutils literal notranslate"><span class="pre">%</span></code> to the  title if it contains <code class="docutils literal notranslate"><span class="pre">Foo</span></code>.
-<span class="raw-html-m2r"><!--[[[end]]] --></span></p>
-<p>The following template field substitutions are availabe for use the templating system.</p>
+<!--[[[end]]] --><p>The following template field substitutions are availabe for use the templating system.</p>
 <!--[[[cog
 from osxphotos.phototemplate import get_template_field_table
 cog.out("\n"+get_template_field_table()+"\n")
@@ -2893,7 +2783,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.69.2’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.70.0’</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -2968,7 +2858,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <section id="a-name-exiftoolexiftool-exiftool-a">
 <h3><span class="raw-html-m2r"><a name="exiftoolExifTool">ExifTool</a></span><a class="headerlink" href="#a-name-exiftoolexiftool-exiftool-a" title="Link to this heading">¶</a></h3>
 <p>osxphotos includes its own <code class="docutils literal notranslate"><span class="pre">exiftool</span></code> library that can be accessed via <code class="docutils literal notranslate"><span class="pre">osxphotos.exiftool</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">osxphotos.exiftool</span> <span class="kn">import</span> <span class="n">ExifTool</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.exiftool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExifTool</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span> <span class="o">=</span> <span class="n">ExifTool</span><span class="p">(</span><span class="s2">&quot;/Users/rhet/Downloads/test.jpeg&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">exifdict</span> <span class="o">=</span> <span class="n">exiftool</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">exifdict</span><span class="p">[</span><span class="s2">&quot;EXIF:Make&quot;</span><span class="p">]</span>
@@ -3132,7 +3022,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <h3><span class="raw-html-m2r"><a name="exifwriter">ExifWriter</a></span><a class="headerlink" href="#a-name-exifwriter-exifwriter-a" title="Link to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos.exifwriter.ExifWriter</span></code> provides a way to write EXIF metadata (using <a class="reference external" href="https://exiftool.org/">exiftool</a>) to files. It is used by <code class="docutils literal notranslate"><span class="pre">PhotoExporter</span></code> to write metadata to exported files.  It can also be used independently of <code class="docutils literal notranslate"><span class="pre">PhotoExporter</span></code> to write metadata to files.  <code class="docutils literal notranslate"><span class="pre">ExifWriter</span></code> uses an <code class="docutils literal notranslate"><span class="pre">ExifOptions</span></code> options class to configure the output metadata. For example, <code class="docutils literal notranslate"><span class="pre">ExifOptions.description_template</span></code> allows you to specify a template to use for writing the <code class="docutils literal notranslate"><span class="pre">XMP:Description</span></code> field.</p>
 <p><code class="docutils literal notranslate"><span class="pre">ExifWriter</span></code> usage:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.exifwriter</span> <span class="kn">import</span> <span class="n">ExifOptions</span><span class="p">,</span> <span class="n">ExifWriter</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.exifwriter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExifOptions</span><span class="p">,</span> <span class="n">ExifWriter</span>
 <span class="c1"># photo is a PhotoInfo object</span>
 <span class="n">writer</span> <span class="o">=</span> <span class="n">ExifWriter</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
 <span class="n">options</span> <span class="o">=</span> <span class="n">ExifOptions</span><span class="p">(</span><span class="n">merge_exif_keywords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -3164,7 +3054,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <section id="a-name-sidecarwriter-sidecarwriter-a">
 <h3><span class="raw-html-m2r"><a name="sidecarwriter">SidecarWriter</a></span><a class="headerlink" href="#a-name-sidecarwriter-sidecarwriter-a" title="Link to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos.sidecars.SidecarWriter</span></code> is a utility class used by <a class="reference external" href="#photoexporter">PhotoExporter</a> to write the sidecars (XMP, JSON, exiftool) for exported images. You can use this yourself to write sidecars if needed.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.sidecars</span> <span class="kn">import</span> <span class="n">SidecarWriter</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.sidecars</span><span class="w"> </span><span class="kn">import</span> <span class="n">SidecarWriter</span>
 
 <span class="c1"># photo is a PhotoInfo object</span>
 <span class="n">writer</span> <span class="o">=</span> <span class="n">SidecarWriter</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
@@ -3175,7 +3065,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </pre></div>
 </div>
 <p>You can get the string for the XMP sidecar with <code class="docutils literal notranslate"><span class="pre">xmp_sidecar()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">xmp_sidecar</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">xmp_sidecar</span><span class="p">(</span>
     <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3192,14 +3082,14 @@ cog.out("\n"+get_template_field_table()+"\n")
 <span class="sd">    &quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.sidecars</span> <span class="kn">import</span> <span class="n">xmp_sidecar</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.sidecars</span><span class="w"> </span><span class="kn">import</span> <span class="n">xmp_sidecar</span>
 
 <span class="n">sidecar</span> <span class="o">=</span> <span class="n">xmp_sidecar</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">extension</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>See implementation for more information.</p>
 <p>The JSON string for the exiftool sidecar can be retrieved using the function <code class="docutils literal notranslate"><span class="pre">exiftool_json_sidecar</span></code> which has the following signature:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">exiftool_json_sidecar</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">exiftool_json_sidecar</span><span class="p">(</span>
     <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span> <span class="o">|</span> <span class="n">ExifOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">tag_groups</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -3207,7 +3097,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.sidecars</span> <span class="kn">import</span> <span class="n">exiftool_json_sidecar</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.sidecars</span><span class="w"> </span><span class="kn">import</span> <span class="n">exiftool_json_sidecar</span>
 
 <span class="n">sidecar</span> <span class="o">=</span> <span class="n">exiftool_json_sidecar</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">tag_groups</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 </pre></div>
@@ -3219,8 +3109,8 @@ cog.out("\n"+get_template_field_table()+"\n")
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos.photosalbum.PhotosAlbum</span></code> is a class that represents a Photos album. It is useful for creating albums and adding <code class="docutils literal notranslate"><span class="pre">PhotoInfo</span></code> assets to albums in Photos. It uses <a class="reference external" href="https://github.com/RhetTbull/PhotoScript">PhotoScript</a>, a Python wrapper around AppleScript, to interact with Photos. An album is created or retrieved using <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>: <code class="docutils literal notranslate"><span class="pre">album</span> <span class="pre">=</span> <span class="pre">PhotosAlbum(name)</span></code> will create the album if it doesn’t exist or retrieve it if it does. You can add photos to the album using <code class="docutils literal notranslate"><span class="pre">append()</span></code> and <code class="docutils literal notranslate"><span class="pre">extend()</span></code> as in Python lists or <code class="docutils literal notranslate"><span class="pre">add()</span></code> and <code class="docutils literal notranslate"><span class="pre">update()</span></code> as in Python sets (<code class="docutils literal notranslate"><span class="pre">append()</span></code> and <code class="docutils literal notranslate"><span class="pre">add()</span></code> call the same function as do <code class="docutils literal notranslate"><span class="pre">extend()</span></code> and <code class="docutils literal notranslate"><span class="pre">update()</span></code>). Albums behave as sets as adding a asset that is already in the album has no effect. Assets cannot be removed from an album using this class due to limitations in the Photos AppleScript interface.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example that shows how to add PhotoInfo objects to an album in Photos&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">osxphotos</span> <span class="kn">import</span> <span class="n">PhotosDB</span>
-<span class="kn">from</span> <span class="nn">osxphotos.photosalbum</span> <span class="kn">import</span> <span class="n">PhotosAlbum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotosDB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.photosalbum</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotosAlbum</span>
 
 <span class="c1"># If album exists it will be used, otherwise it will be created</span>
 <span class="n">album</span> <span class="o">=</span> <span class="n">PhotosAlbum</span><span class="p">(</span><span class="s2">&quot;Best Photos&quot;</span><span class="p">)</span>
@@ -3241,12 +3131,12 @@ cog.out("\n"+get_template_field_table()+"\n")
 </section>
 <section id="a-name-comparelibraries-compare-libraries-a">
 <h3><span class="raw-html-m2r"><a name="comparelibraries">Compare Libraries</a></span><a class="headerlink" href="#a-name-comparelibraries-compare-libraries-a" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">osxphotos.compare_libraries</span> <span class="kn">import</span> <span class="n">compare_photos_libraries</span><span class="p">,</span> <span class="n">PhotosDBDiff</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.compare_libraries</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_photos_libraries</span><span class="p">,</span> <span class="n">PhotosDBDiff</span>
 </pre></div>
 </div>
 <section id="compare-photos-libraries">
 <h4><code class="docutils literal notranslate"><span class="pre">compare_photos_libraries()</span></code><a class="headerlink" href="#compare-photos-libraries" title="Link to this heading">¶</a></h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compare_photos_libraries</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compare_photos_libraries</span><span class="p">(</span>
     <span class="n">library_a</span><span class="p">:</span> <span class="n">PhotosDB</span><span class="p">,</span>
     <span class="n">library_b</span><span class="p">:</span> <span class="n">PhotosDB</span><span class="p">,</span>
     <span class="n">verbose</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3278,7 +3168,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <section id="photosdbdiff">
 <h4><code class="docutils literal notranslate"><span class="pre">PhotosDBDiff</span></code><a class="headerlink" href="#photosdbdiff" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
-<span class="k">class</span> <span class="nc">PhotosDBDiff</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhotosDBDiff</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to hold differences between two PhotosDB objects&quot;&quot;&quot;</span>
 
     <span class="n">library_a</span><span class="p">:</span> <span class="n">PhotosDB</span>
@@ -3318,9 +3208,9 @@ cog.out("\n"+get_template_field_table()+"\n")
 </section>
 <section id="id174">
 <h2>Additional Examples<a class="headerlink" href="#id174" title="Link to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osxphotos</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 
     <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Photos Library.photoslibrary&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;db file = </span><span class="si">{</span><span class="n">photosdb</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -3753,7 +3643,7 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=24298b65"></script>
+</div><script src="_static/documentation_options.js?v=ecf2ad1f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

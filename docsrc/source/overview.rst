@@ -22,7 +22,6 @@ Requires python >= ``3.10``.
 Installation
 ------------
 
-
 The recommended way to install ``osxphotos`` is via the `uv <https://github.com/astral-sh/uv>`_ python package manager tool.
 
 Installation using ``uv``
@@ -56,6 +55,8 @@ Once you've installed osxphotos with ``uv``, to upgrade to the latest version:
     uv tool upgrade osxphotos
 
 If you want to try ``osxphotos`` without installing it, you can run ``uv tool run --python 3.12 osxphotos`` or ``uvx --python 3.12 osxphotos``.
+
+Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.12 from [python.org](https://www.python.org/downloads/) then running uv to install osxphotos.
 
 Installation using pip
 ---------------------
