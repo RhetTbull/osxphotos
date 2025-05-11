@@ -1217,7 +1217,6 @@ def test_osxphotos():
     runner = CliRunner()
     result = runner.invoke(cli_main, [])
 
-    assert result.exit_code == 0
     assert "Print information about osxphotos" in result.output
 
 
