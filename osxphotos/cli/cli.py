@@ -1,9 +1,10 @@
-"""Command line interface for osxphotos """
+"""Command line interface for osxphotos"""
 
 import atexit
 import cProfile
 import io
 import pstats
+import sys
 
 import click
 
@@ -129,6 +130,13 @@ def cli_main(ctx, profile, profile_sort, **kwargs):
             click.echo(s.getvalue())
 
         atexit.register(at_exit)
+
+    def flush_stderr():
+        # click CliRunner doesn't respect line buffered stderr so flush it manually
+        # this is only needed for testing
+        sys.stderr.flush()
+
+    atexit.register(flush_stderr)
 
 
 # install CLI commands
