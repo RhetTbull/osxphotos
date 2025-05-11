@@ -60,10 +60,10 @@ Once you've installed osxphotos with ``uv``, to upgrade to the latest version:
 
 If you want to try ``osxphotos`` without installing it, you can run ``uv tool run --python 3.12 osxphotos`` or ``uvx --python 3.12 osxphotos``.
 
-Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.12 from [python.org](https://www.python.org/downloads/) then running uv to install osxphotos.
+Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.12 from `python.org <https://www.python.org/downloads/>`_ then running uv to install osxphotos.
 
 Installation using pip
----------------------
+----------------------
 
 You can install ``osxphotos`` directly from `pypi <https://pypi.org/project/osxphotos/>`_:
 
@@ -78,7 +78,7 @@ Once you've installed osxphotos with pip, to upgrade to the latest version:
     python3 -m pip install --upgrade osxphotos
 
 Installation via MacPorts
-------------------------
+-------------------------
 
 If you use the `MacPorts <https://www.macports.org>`_ package manager on a Mac:
 
@@ -87,7 +87,7 @@ If you use the `MacPorts <https://www.macports.org>`_ package manager on a Mac:
     sudo port install osxphotos
 
 Installation on Linux
---------------------
+---------------------
 
 At least one of the Linux-specific python packages normally installed on Linux may cause an error during installation with ``pip`` or ``pipx``. If you encounter an error similar to: ``pip._vendor.packaging.version.InvalidVersion: Invalid version: '6.5.0-1022-generic``, you should still be able to install osxphotos by creating and activating a virtual environment:
 
@@ -101,15 +101,6 @@ To use osxphotos you will need to ensure the venv is activated using ``source .v
 
 You may name the virtual environment anything you want; ``.venv-osxphotos`` is used in this example to make it clear the virtual environment is used by osxphotos and to avoid conflict with other virtual environments which, by convention, are often named ``.venv`` or ``venv``.
 
-
-Installation using pip
-^^^^^^^^^^^^^^^^^^^^^^
-
-You can also install directly from `pypi <https://pypi.org/project/osxphotos/>`_\ :
-
-.. code-block::
-
-   python3 -m pip install osxphotos
 
 Command Line Usage
 ------------------
