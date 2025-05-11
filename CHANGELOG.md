@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.70.0](https://github.com/RhetTbull/osxphotos/compare/v070.0...v0.69.2)
+
+Fixes for macOS 15, import, timewarp
+
+### v0.70.0 (2025-05-10)
+
+#### Added
+
+    * Added `--ignore-exportdb` option to the export command to skip checking for the `.osxphotos_export.db` file in the export folder. [#1775]
+    * Improved performance of the `exportdb --history` query to speed up history lookups. [#1765]
+    * Introduced `--set-timezone` in the import command for explicit timezone assignment. [#1797]
+    * Refactored the `info` command to use the new `counts` module and restored compatibility with iPhoto libraries. [#1771]
+
+#### Changed
+
+    * Unified date/time parsing logic between the import and timewarp commands; fixed DST‐boundary parsing issues. [#1840]
+    * Enhanced support for the latest Photos library database schema on macOS 15. [#1846]
+
+#### Removed
+
+
+#### Fixed
+
+    * Fixed report generation so that `--report` and `--append` flags work together correctly. [#1850]
+    * Resolved errors in comment processing to ensure shared‐owner and title data export correctly. [#1808]
+    * Improved accuracy of photo timezone logging and corrected timezone detection in the `timewarp` command. [#1845, #1843]
+    * Ensured `timewarp` and `batch-edit` only process the current selection when neither `--uuid` nor `--uuid-from-file` are specified. [#1781]
+    * Fixed rare crashes during face‐region metadata export when a photo’s width or height is zero. [#1810]
+    * Added an additional fix so that `pull-exif timezone` updates correctly when `offset_seconds == 0`. [#1773]
+    * Fixed intermittent `utime` failures when updating file timestamps during export. [#1826]
+
+#### Contributors
+
+    * @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+    * @oPromessa [@oPromessa](https://github.com/oPromessa) for code.
+    * @JxxIT [@JxxIT](https://github.com/JxxIT) for code.
+    * @pl804 [@pl804](https://github.com/pl804) for tests and data.
+    * @cstaubli [@cstaubli](https://github.com/cstaubli) for bug report.
+    * @KeyPlayerMaek [@KeyPlayerMaek](https://github.com/KeyPlayerMaek) for bug report.
+    * @dobernhardt [@dobernhardt](https://github.com/dobernhardt) for bug report.
+
 ## [v0.69.2](https://github.com/RhetTbull/osxphotos/compare/v0.69.2...v0.69.0)
 
 Fix for crash on macOS 15.2
