@@ -118,46 +118,59 @@ def update_photo_date_time(
         photo
     )
 
-    # Compute local_time_delta: if time_delta provided, use it; otherwise,
-    # adjust for timezone offset between local time and photo's timezone,
-    # recomputed for any date change to account for DST boundaries.
+    # Work in the photo's timezone to avoid timezone conversion issues
+    # Convert photo's current date to its timezone for accurate date/time manipulation
+    try:
+        # Get valid timezone name for the photo
+        photo_tz_name = get_valid_timezone(tz_name, photo_date)
+        photo_tz = ZoneInfo(photo_tz_name)
+    except ValueError:
+        # Fall back to creating timezone from offset
+        photo_tz = datetime.timezone(datetime.timedelta(seconds=tz_offset_sec))
+
+    # Convert photo's date to the photo's timezone for manipulation
+    photo_date_with_tz = datetime_naive_to_local(photo_date).astimezone(photo_tz)
+
+    # Apply date/time changes in the photo's timezone
+    new_photo_date_with_tz = photo_date_with_tz
+
+    if date is not None:
+        new_photo_date_with_tz = new_photo_date_with_tz.replace(
+            year=date.year, month=date.month, day=date.day
+        )
+    if time is not None:
+        new_photo_date_with_tz = new_photo_date_with_tz.replace(
+            hour=time.hour,
+            minute=time.minute,
+            second=time.second,
+            microsecond=time.microsecond,
+        )
+    if date_delta is not None:
+        new_photo_date_with_tz = new_photo_date_with_tz + date_delta
     if time_delta is not None:
-        local_time_delta = time_delta
-    else:
-        # Base dt for computing offset: apply any date change to photo_date
-        dt_for_delta = photo_date
-        if date is not None:
-            dt_for_delta = photo_date.replace(
-                year=date.year, month=date.month, day=date.day
-            )
-        elif date_delta is not None:
-            dt_for_delta = photo_date + date_delta
-        local_time_delta = local_tz_delta_from_photo_tz(dt_for_delta, tz_offset_sec)
-    new_photo_date = update_datetime(
-        photo_date,
-        date=date,
-        time=time,
-        date_delta=date_delta,
-        time_delta=time_delta,
-        local_time_delta=local_time_delta,
-    )
+        new_photo_date_with_tz = new_photo_date_with_tz + time_delta
+
+    # Convert back to local time (naive) for Photos storage
+    new_photo_date = new_photo_date_with_tz.astimezone(
+        get_local_tz(datetime_remove_tz(new_photo_date_with_tz))
+    ).replace(tzinfo=None)
+
     filename = photo.filename
     uuid = photo.uuid
     if new_photo_date != photo_date:
         photo.date = new_photo_date
-        # photo.date = new_photo_date
         # convert to photo's timezone for display
         # if this isn't done then the time will be displayed in local time which may be confusing
         try:
             # a timezone like "GMT-0500", which is valid on macOS won't work for apply_tz_to_date
             # so find a valid timezone if we can or use the local timezone
             # this is just for display to user and doesn't affect the actual date/time
-            tz_name = get_valid_timezone(tz_name, photo.date)
+            display_tz_name = get_valid_timezone(tz_name, photo.date)
         except ValueError:
             # use local timezone if we can't get a valid timezone
-            tz_name = get_local_tz(photo.date).tzname(photo.date)
-        photo_date_tz = apply_tz_to_date(photo_date, tz_name)
-        new_photo_date_tz = apply_tz_to_date(new_photo_date, tz_name)
+            display_tz_name = get_local_tz(photo.date).tzname(photo.date)
+        photo_date_tz = apply_tz_to_date(photo_date, display_tz_name)
+        new_photo_date_tz = apply_tz_to_date(new_photo_date, display_tz_name)
         verbose(
             f"Updated date/time for photo [filename]{filename}[/filename] "
             f"([uuid]{uuid}[/uuid]) from: [time]{photo_date_tz}[/time] to [time]{new_photo_date_tz}[/time]"
