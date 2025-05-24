@@ -12,6 +12,7 @@ from zoneinfo import ZoneInfo
 import photoscript
 from strpdatetime import strpdatetime
 from tenacity import retry, stop_after_attempt, wait_exponential
+from whenever import Date, Time, ZonedDateTime
 
 from osxphotos.strpdatetime_parts import (
     date_str_matches_date_time_codes,
@@ -130,30 +131,36 @@ def update_photo_date_time(
 
     # Convert photo's date to the photo's timezone for manipulation
     photo_date_with_tz = datetime_naive_to_local(photo_date).astimezone(photo_tz)
+    photo_date_with_tz = ZonedDateTime.from_py_datetime(photo_date_with_tz)
 
     # Apply date/time changes in the photo's timezone
     new_photo_date_with_tz = photo_date_with_tz
 
     if date is not None:
-        new_photo_date_with_tz = new_photo_date_with_tz.replace(
-            year=date.year, month=date.month, day=date.day
+        new_photo_date_with_tz = new_photo_date_with_tz.replace_date(
+            Date(year=date.year, month=date.month, day=date.day)
         )
     if time is not None:
-        new_photo_date_with_tz = new_photo_date_with_tz.replace(
-            hour=time.hour,
-            minute=time.minute,
-            second=time.second,
-            microsecond=time.microsecond,
+        new_photo_date_with_tz = new_photo_date_with_tz.replace_time(
+            Time(
+                hour=time.hour,
+                minute=time.minute,
+                second=time.second,
+                nanosecond=time.microsecond * 1000,
+            )
         )
     if date_delta is not None:
-        new_photo_date_with_tz = new_photo_date_with_tz + date_delta
+        new_photo_date_with_tz = new_photo_date_with_tz.add(
+            seconds=date_delta.total_seconds()
+        )
     if time_delta is not None:
-        new_photo_date_with_tz = new_photo_date_with_tz + time_delta
+        new_photo_date_with_tz = new_photo_date_with_tz.add(
+            seconds=time_delta.total_seconds()
+        )
 
-    # Convert back to local time (naive) for Photos storage
-    new_photo_date = new_photo_date_with_tz.astimezone(
-        get_local_tz(datetime_remove_tz(new_photo_date_with_tz))
-    ).replace(tzinfo=None)
+    new_photo_date_tz = cast(ZonedDateTime, new_photo_date_with_tz)
+    new_photo_date_system = new_photo_date_tz.to_system_tz()
+    new_photo_date = new_photo_date_system.to_plain().py_datetime()
 
     filename = photo.filename
     uuid = photo.uuid
