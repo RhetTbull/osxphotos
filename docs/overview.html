@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Tutorial" href="tutorial.html" /><link rel="prev" title="Welcome to OSXPhotos’s documentation!" href="index.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>OSXPhotos - osxphotos 0.70.0 documentation</title>
+        <title>OSXPhotos - osxphotos 0.71.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -167,7 +167,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.70.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.71.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.70.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.71.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -203,6 +203,7 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos Python Reference</a></li>
@@ -327,7 +328,64 @@ python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </s
 <section id="command-line-usage">
 <h2>Command Line Usage<a class="headerlink" href="#command-line-usage" title="Link to this heading">¶</a></h2>
 <p>This package will install a command line utility called <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> that allows you to query the Photos database and export photos.</p>
-<div class="highlight-TXT notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-TXT notranslate"><div class="highlight"><pre><span></span>Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
+
+  OSXPhotos: the multi-tool for your Photos library.
+
+  To get help on a specific command, use &quot;osxphotos COMMAND --help&quot; or
+  &quot;osxphotos help COMMAND&quot;; for example, &quot;osxphotos help export&quot;.
+
+  To search help for a specific topic within a command, run &quot;osxphotos help
+  COMMAND TOPIC&quot;; for example, &quot;osxphotos help export keyword&quot; to get help
+  related to keywords when using the export command.
+
+  To see the full documentation in your browser, run &quot;osxphotos docs&quot;.
+
+  Some advanced commands are hidden by default. To see all commands, run
+  &quot;OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help&quot;. Some commands also have hidden
+  options. These can be seen by running &quot;OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help
+  COMMAND&quot;.
+
+Options:
+  -v, --version  Show the version and exit.
+  -h, --help     Show this message and exit.
+
+Commands:
+  about          Print information about osxphotos including license.
+  add-locations  Add missing location data to photos in Photos.app using...
+  albums         Print out albums found in the Photos library.
+  batch-edit     Batch edit photo metadata such as title, description,...
+  compare        Compare two Photos libraries to find differences
+  docs           Open osxphotos documentation in your browser.
+  dump           Print list of all photos &amp; associated info from the Photos...
+  exiftool       Run exiftool on previously exported files to update metadata.
+  export         Export photos from the Photos database.
+  exportdb       Utilities for working with the osxphotos export database
+  help           Print help; for help on commands: help &lt;command&gt;.
+  import         Import photos and videos into Photos.
+  info           Print out descriptive info of the Photos library database.
+  inspect        Interactively inspect photos selected in Photos.
+  install        Install Python packages into the same environment as...
+  keywords       Print out keywords found in the Photos library.
+  labels         Print out image classification labels found in the Photos...
+  list           Print list of Photos libraries found on the system.
+  orphans        Find orphaned photos in a Photos library
+  persons        Print out persons (faces) found in the Photos library.
+  places         Print out places found in the Photos library.
+  push-exif      Write photo metadata to original files in the Photos library
+  query          Query the Photos database using 1 or more search options;...
+  repl           Run interactive osxphotos REPL shell (useful for...
+  run            Run a python file using same environment as osxphotos.
+  show           Show photo, album, or folder in Photos from UUID_OR_NAME
+  sync           Sync metadata and albums between Photos libraries.
+  template       Interactively render templates for selected photo.
+  theme          Manage osxphotos color themes.
+  timewarp       Adjust date/time/timezone of photos in Apple Photos.
+  tutorial       Display osxphotos tutorial.
+  uninstall      Uninstall Python packages from the osxphotos environment
+  update         Update the installation to the latest version.
+  uuid           Print out unique IDs (UUID) of photos selected in Photos
+  version        Check for new version of osxphotos.
 </pre></div>
 </div>
 </section>
@@ -408,7 +466,7 @@ python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </s
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=ecf2ad1f"></script>
+</div><script src="_static/documentation_options.js?v=9d27e746"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
