@@ -172,16 +172,19 @@ def watch(func):
     """Print name of function, name type of each argument"""
     # this is to help figure out type hint issues
 
+    # avoid print() in checked in code
+    echo = print
+
     def wrapper(*args, **kwargs):
-        print(f"Running {func.__name__}")
+        echo(f"Running {func.__name__}")
         for arg in itertools.chain(args, kwargs.values()):
-            print(f"{arg=}, {type(arg)=}")
+            echo(f"{arg=}, {type(arg)=}")
             if arg and isinstance(arg, (list, tuple)):
-                print(f"{arg[0]=} {type(arg[0])=}")
+                echo(f"{arg[0]=} {type(arg[0])=}")
                 if arg[0] and isinstance(arg[0], (list, tuple)):
-                    print(f"{arg[0][0]=} {type(arg[0][0])=}")
+                    echo(f"{arg[0][0]=} {type(arg[0][0])=}")
         results = func(*args, **kwargs)
-        print(f"returned: {results=} {type(results)=}")
+        echo(f"returned: {results=} {type(results)=}")
         return results
 
     return wrapper
@@ -1750,7 +1753,6 @@ def set_photo_date(
     dry_run: bool,
     library: str,
     set_timezone: bool,
-    match_time: bool = False,
 ) -> datetime.datetime | None:
     """Set photo date from metadata.
 
@@ -1761,7 +1763,6 @@ def set_photo_date(
         dry_run: if True, do not actually set date
         library: path to Photos library
         set_timezone: if True, update timezone of photo
-        match_time: if True, adjust photo date/time to keep same date/time in new timezone; ignored if
     """
     if photo and not dry_run:
         verbose(
@@ -1770,8 +1771,6 @@ def set_photo_date(
         photo.date = metadata.date
         if set_timezone and (metadata.tz_offset_sec is not None or metadata.tzname):
             tz = Timezone(metadata.tzname or metadata.tz_offset_sec)
-            if match_time:
-                update_photo_time_for_new_timezone(library, photo, tz, verbose)
             tz_updater = PhotoTimeZoneUpdater(tz, verbose=verbose, library_path=library)
             tz_updater.update_photo(photo)
         return photo.date

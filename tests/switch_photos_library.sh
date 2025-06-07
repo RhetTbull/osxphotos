@@ -92,4 +92,6 @@ EOF
 echo "Opening Photos with the new library..."
 open -a "Photos" "$dest"
 
+osascript -e 'tell application "System Events" to set visible of process "Photos" to false'
+
 echo "Done."

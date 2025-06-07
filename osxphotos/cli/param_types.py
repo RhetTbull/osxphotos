@@ -307,7 +307,8 @@ class TimezoneOffset(click.ParamType):
     def convert(self, value, param, ctx):
         try:
             offset_seconds = utc_offset_string_to_seconds(value)
-            return Timezone(offset_seconds)
+            tz = Timezone(offset_seconds)
+            return tz
         except ValueError as e:
             try:
                 # might be named timezone
