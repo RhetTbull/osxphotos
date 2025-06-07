@@ -7,6 +7,8 @@ from functools import cache
 from typing import Optional
 from zoneinfo import ZoneInfo
 
+from whenever import Date, Time, ZonedDateTime
+
 from osxphotos.datetime_utils import get_local_tz
 
 
@@ -34,6 +36,7 @@ def utc_offset_string_to_seconds(utc_offset: str) -> int:
 
 def update_datetime(
     dt: datetime.datetime,
+    tzinfo: Optional[ZoneInfo] = None,
     date: Optional[datetime.date] = None,
     time: Optional[datetime.time] = None,
     date_delta: Optional[datetime.timedelta] = None,
@@ -41,10 +44,11 @@ def update_datetime(
     local_time_delta: Optional[datetime.timedelta] = None,
 ) -> datetime.datetime:
     """
-    Update the date and time of a datetime object.
+    Update the date and time of a datetime object using DST-aware operations.
 
     Args:
         dt: datetime object
+        tzinfo: ZoneInfo for the datetime object or None
         date: new date
         time: new time
         date_delta: a timedelta to apply
@@ -56,23 +60,45 @@ def update_datetime(
 
     Note:
         local_time_delta is only used when both time and local_time_delta are provided
+        Uses whenever package internally for DST-aware calculations
     """
+    if dt.tzinfo is None:
+        dt_with_tz = dt.astimezone(tzinfo) if tzinfo else dt.astimezone(ZoneInfo("UTC"))
+    else:
+        dt_with_tz = dt
+
+    zoned_dt = ZonedDateTime.from_py_datetime(dt_with_tz)
+
     if date is not None:
-        dt = dt.replace(year=date.year, month=date.month, day=date.day)
+        whenever_date = Date(year=date.year, month=date.month, day=date.day)
+        zoned_dt = zoned_dt.replace_date(whenever_date)
+
     if time is not None:
-        dt = dt.replace(
+        whenever_time = Time(
             hour=time.hour,
             minute=time.minute,
             second=time.second,
-            microsecond=time.microsecond,
+            nanosecond=time.microsecond * 1000,
         )
+        zoned_dt = zoned_dt.replace_time(whenever_time)
+
     if date_delta is not None:
-        dt = dt + date_delta
+        zoned_dt = zoned_dt.add(seconds=date_delta.total_seconds())
+
     if time_delta is not None:
-        dt = dt + time_delta
-    if time and local_time_delta is not None:
-        dt = dt + local_time_delta
-    return dt
+        zoned_dt = zoned_dt.add(seconds=time_delta.total_seconds())
+
+    if time is not None and local_time_delta is not None:
+        zoned_dt = zoned_dt.add(seconds=local_time_delta.total_seconds())
+
+    result_dt = zoned_dt.py_datetime()
+
+    if dt.tzinfo is None:
+        local_tz = get_local_tz(dt)
+        result_local = result_dt.astimezone(local_tz)
+        return result_local.replace(tzinfo=None)
+    else:
+        return result_dt.astimezone(dt.tzinfo)
 
 
 def time_string_to_datetime(time: str) -> datetime.time:

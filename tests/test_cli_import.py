@@ -1649,7 +1649,7 @@ def test_import_timezone(tmp_path):
     )
     assert result.exit_code == 0
 
-    # now import that exported photo with --exportdb
+    # now import that exported photo with --timezone
     result = runner.invoke(
         import_main,
         [

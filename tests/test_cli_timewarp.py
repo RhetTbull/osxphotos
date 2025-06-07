@@ -383,6 +383,7 @@ def test_match_dst(photoslib, suspend_capture):
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
+    time.sleep(1)
 
     result = runner.invoke(
         timewarp,
@@ -450,6 +451,124 @@ def test_match_no_dst(photoslib, suspend_capture):
     )
     output_values = parse_inspect_output(result.output)
     assert output_values[0].date_tz == "2017-12-24 21:26:51+0100"
+
+
+@pytest.mark.timewarp
+def test_time_delta_dst(photoslib, suspend_capture):
+    """Test --timezone --time-delta with DST change #1839"""
+
+    runner = CliRunner()
+    # init the date/time
+    result = runner.invoke(
+        timewarp,
+        [
+            "--plain",
+            "--force",
+            "--verbose",
+            "--date",
+            "2024-03-31",
+            "--time",
+            "01:00:00",
+            "--timezone",
+            "Europe/Madrid",
+            "--match-time",
+            "--uuid",
+            UUID_DICT["sunflowers"],
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    time.sleep(1)
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunflowers"]],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output)
+    assert output_values[0].date_tz == "2024-03-31 01:00:00+0100"
+
+    result = runner.invoke(
+        timewarp,
+        [
+            "--time-delta",
+            "+1 hour",
+            "--plain",
+            "--force",
+            "--uuid",
+            UUID_DICT["sunflowers"],
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    time.sleep(1)
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunflowers"]],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output)
+    assert output_values[0].date_tz == "2024-03-31 03:00:00+0200"
+
+
+@pytest.mark.timewarp
+def test_time_dst_change(photoslib, suspend_capture):
+    """Test --time that forces a DST change"""
+
+    runner = CliRunner()
+    # init the date/time
+    result = runner.invoke(
+        timewarp,
+        [
+            "--plain",
+            "--force",
+            "--verbose",
+            "--date",
+            "2024-03-31",
+            "--time",
+            "01:00:00",
+            "--timezone",
+            "Europe/Madrid",
+            "--match-time",
+            "--uuid",
+            UUID_DICT["sunflowers"],
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    time.sleep(1)
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunflowers"]],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output)
+    assert output_values[0].date_tz == "2024-03-31 01:00:00+0100"
+
+    result = runner.invoke(
+        timewarp,
+        [
+            "--time",
+            "04:00:00",
+            "--plain",
+            "--force",
+            "--uuid",
+            UUID_DICT["sunflowers"],
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    time.sleep(1)
+
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--uuid", UUID_DICT["sunflowers"]],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(result.output)
+    assert output_values[0].date_tz == "2024-03-31 04:00:00+0200"
 
 
 @pytest.mark.timewarp

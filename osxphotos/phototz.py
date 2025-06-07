@@ -164,6 +164,7 @@ class PhotoTimeZoneUpdater:
             tz_name = results[3]
             sql_update = f"""   UPDATE ZADDITIONALASSETATTRIBUTES
                                 SET Z_OPT={z_opt},
+                                ZINFERREDTIMEZONEOFFSET={photo_tz_offset},
                                 ZTIMEZONEOFFSET={photo_tz_offset},
                                 ZTIMEZONENAME='{self.tz_name}'
                                 WHERE Z_PK={z_pk};

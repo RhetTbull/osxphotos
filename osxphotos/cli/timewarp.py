@@ -6,7 +6,7 @@ import datetime
 import sys
 from functools import partial
 from textwrap import dedent
-from typing import Callable
+from typing import Callable, cast
 
 import click
 from rich.console import Console
@@ -20,9 +20,11 @@ from osxphotos.exif_datetime_updater import ExifDateTimeUpdater
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.photodates import (
     get_photo_date_added,
+    get_photo_date_created,
     reset_photo_date_time_tz,
     set_photo_date_added,
     set_photo_date_from_filename,
+    update_datetime_for_new_timezone,
     update_photo_date_time,
     update_photo_from_function,
     update_photo_time_for_new_timezone,
@@ -85,8 +87,6 @@ A named timezone can also be specified:
 `osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone "America/Los_Angeles" --verbose`
 
 This example sets the date for all selected photos to `2021-09-10`, subtracts 1 hour from the time of each photo, and sets the timezone of each photo to `GMT -07:00` (Pacific Daylight Time).
-
-osxphotos timewarp has been well tested on macOS Catalina (10.15).  It should work on macOS Big Sur (11.0) and macOS Monterey (12.0) but I have not been able to test this.  It will not work on macOS Mojave (10.14) or earlier as the Photos database format is different.
 
 **Caution**: This app directly modifies your Photos library database using undocumented features.  It may corrupt, damage, or destroy your Photos library.  Use at your own caution.  I strongly recommend you make a backup of your Photos library before using this script (e.g. use Time Machine).
 
@@ -194,8 +194,7 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     "-D",
     metavar="DELTA",
     type=DateOffset(),
-    help="Adjust date for selected photos by DELTA. "
-    "Format is one of: '±D days', '±W weeks', '±D' where D is days",
+    help="Adjust date for selected photos by DELTA. Format is one of: '±D days', '±W weeks', '±D' where D is days",
 )
 @click.option(
     "--time",
@@ -209,8 +208,7 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     "-T",
     metavar="DELTA",
     type=TimeOffset(),
-    help="Adjust time for selected photos by DELTA time. "
-    "Format is one of '±HH:MM:SS', '±H hours' (or hr), '±M minutes' (or min), '±S seconds' (or sec), '±S' (where S is seconds)",
+    help="Adjust time for selected photos by DELTA time. Format is one of '±HH:MM:SS', '±H hours' (or hr), '±M minutes' (or min), '±S seconds' (or sec), '±S' (where S is seconds)",
 )
 @click.option(
     "--timezone",
@@ -246,18 +244,13 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
 @click.option(
     "--date-added-from-photo",
     is_flag=True,
-    help="Set date/time added for selected photos to the date/time the photo was taken. "
-    "This changes the date added or imported date in Photos but "
-    "does not change the date/time/timezone of the photo itself. "
-    "The date/time added will be converted from the photo's timezone to the local time zone. ",
+    help="Set date/time added for selected photos to the date/time the photo was taken. This changes the date added or imported date in Photos but does not change the date/time/timezone of the photo itself. The date/time added will be converted from the photo's timezone to the local time zone. ",
 )
 @click.option(
     "--reset",
     "-R",
     is_flag=True,
-    help="Reset date/time/timezone for selected photos to the original values. "
-    "This only works on macOS >= 13.0 (Ventura). Photos imported on older versions of macOS may not "
-    "have an original date/time stored in the Photos database so the command will have no effect for these photos.",
+    help="Reset date/time/timezone for selected photos to the original values. This only works on macOS >= 13.0 (Ventura). Photos imported on older versions of macOS may not have an original date/time stored in the Photos database so the command will have no effect for these photos.",
 )
 @click.option(
     "--inspect",
@@ -269,9 +262,7 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     "--compare-exif",
     "-c",
     is_flag=True,
-    help="Compare the EXIF date/time/timezone for each selected photo to the same data in Photos. "
-    "Requires the third-party exiftool utility be installed (see https://exiftool.org/). "
-    "See also --add-to-album.",
+    help="Compare the EXIF date/time/timezone for each selected photo to the same data in Photos. Requires the third-party exiftool utility be installed (see https://exiftool.org/). See also --add-to-album.",
 )
 @click.option(
     "--push-exif",
@@ -350,15 +341,13 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     "--use-file-time",
     "-f",
     is_flag=True,
-    help="When used with --pull-exif, the file modification date/time will be used if date/time "
-    "is missing from the EXIF data. ",
+    help="When used with --pull-exif, the file modification date/time will be used if date/time is missing from the EXIF data. ",
 )
 @click.option(
     "--add-to-album",
     "-a",
     metavar="ALBUM",
-    help="When used with --compare-exif, adds any photos with date/time/timezone differences "
-    "between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.",
+    help="When used with --compare-exif, adds any photos with date/time/timezone differences between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.",
 )
 @click.option(
     "--uuid",
@@ -366,8 +355,7 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     metavar="UUID",
     default=None,
     multiple=True,
-    help="Apple to photo(s) with UUID(s). "
-    "May be repeated to include multiple UUIDs.",
+    help="Apple to photo(s) with UUID(s). May be repeated to include multiple UUIDs.",
 )
 @click.option(
     "--uuid-from-file",
@@ -375,9 +363,7 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     metavar="FILE",
     default=None,
     multiple=False,
-    help="Apply to photos with UUID(s) loaded from FILE. "
-    "Format is a single UUID per line. Lines preceded with # are ignored. "
-    "If FILE is '-', read UUIDs from stdin.",
+    help="Apply to photos with UUID(s) loaded from FILE. Format is a single UUID per line. Lines preceded with # are ignored. If FILE is '-', read UUIDs from stdin.",
     type=PathOrStdin(exists=True),
 )
 @VERBOSE_OPTION
@@ -397,7 +383,6 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     type=click.Path(exists=True),
     help="Optional path to exiftool executable (will look in $PATH if not specified) for those options which require exiftool.",
 )
-@click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
 @THEME_OPTION
 @click.option(
     "--plain",
@@ -521,10 +506,7 @@ def timewarp_cli(
         ]
     ):
         raise click.UsageError(
-            "At least one of --date, --date-delta, --time, --time-delta, "
-            "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif, "
-            "--parse-date, --reset, --function, --date-added, or --date-added-from-photo "
-            "must be specified."
+            "At least one of --date, --date-delta, --time, --time-delta, --timezone, --inspect, --compare-exif, --push-exif, --pull-exif, --parse-date, --reset, --function, --date-added, or --date-added-from-photo must be specified."
         )
 
     if inspect and compare_exif:
@@ -680,11 +662,7 @@ def timewarp_cli(
         tzinfo = PhotoTimeZone(library_path=library)
         if photos:
             echo(
-                "[filename]filename[/filename], [uuid]uuid[/uuid], "
-                "[time]photo time (local)[/time], "
-                "[time]photo time[/time], "
-                "[tz]timezone offset[/tz], [tz]timezone name[/tz], "
-                "[time]date added (local)[/time]"
+                "[filename]filename[/filename], [uuid]uuid[/uuid], [time]photo time (local)[/time], [time]photo time[/time], [tz]timezone offset[/tz], [tz]timezone name[/tz], [time]date added (local)[/time]"
             )
         for photo in photos:
             set_crash_data("photo", f"{photo.uuid} {photo.filename}")
@@ -693,11 +671,7 @@ def timewarp_cli(
             photo_date_tz = datetime_to_new_tz(photo_date_local, tz_seconds)
             date_added = get_photo_date_added_(photo)
             echo(
-                f"[filename]{photo.filename}[/filename], [uuid]{photo.uuid}[/uuid], "
-                f"[time]{photo_date_local.strftime(DATETIME_FORMAT)}[/time], "
-                f"[time]{photo_date_tz.strftime(DATETIME_FORMAT)}[/time], "
-                f"[tz]{tz_str}[/tz], [tz]{tz_name}[/tz], "
-                f"[time]{date_added.strftime(DATETIME_FORMAT)}[/time]"
+                f"[filename]{photo.filename}[/filename], [uuid]{photo.uuid}[/uuid], [time]{photo_date_local.strftime(DATETIME_FORMAT)}[/time], [time]{photo_date_tz.strftime(DATETIME_FORMAT)}[/time], [tz]{tz_str}[/tz], [tz]{tz_name}[/tz], [time]{date_added.strftime(DATETIME_FORMAT)}[/time]"
             )
         return 0
 
@@ -738,15 +712,11 @@ def timewarp_cli(
                     verbose(f"Photo {filename} ({uuid}) has same date/time/timezone")
             else:
                 echo(
-                    f"{filename}, {uuid}, "
-                    f"{diff_results.photos_date} {diff_results.photos_time}, {diff_results.exif_date} {diff_results.exif_time}, "
-                    f"{diff_results.photos_tz}, {diff_results.exif_tz}"
+                    f"{filename}, {uuid}, {diff_results.photos_date} {diff_results.photos_time}, {diff_results.exif_date} {diff_results.exif_time}, {diff_results.photos_tz}, {diff_results.exif_tz}"
                 )
         if album:
             echo(
-                f"Compared {len(photos)} photos, found {different_photos} "
-                f"that {pluralize(different_photos, 'is', 'are')} different and "
-                f"added {pluralize(different_photos, 'it', 'them')} to album '{album.name}'."
+                f"Compared {len(photos)} photos, found {different_photos} that {pluralize(different_photos, 'is', 'are')} different and added {pluralize(different_photos, 'it', 'them')} to album '{album.name}'."
             )
         return 0
 
@@ -783,16 +753,23 @@ def timewarp_cli(
                 )
             if any([date, time, date_delta, time_delta]):
                 update_photo_date_time_(photo=photo)
-            if match_time:
-                # need to adjust time before the timezone is updated
-                # or the old timezone will be overwritten in the database
-                update_photo_time_for_new_timezone_(photo=photo, new_timezone=timezone)
-            if timezone:
-                tz_updater.update_photo(photo)
             if date_added:
                 set_photo_date_added_(photo)
             if date_added_from_photo:
                 set_photo_date_added_from_photo_(photo, date_added=photo.date)
+            if timezone:
+                previous_photo_date = get_photo_date_created(photo)
+                tz_updater.update_photo(photo)
+                if match_time:
+                    update_photo_date_time(
+                        library_path=library,
+                        photo=photo,
+                        date=previous_photo_date.date(),
+                        time=previous_photo_date.time(),
+                        date_delta=None,
+                        time_delta=None,
+                        verbose=verbose,
+                    )
             if function:
                 verbose(f"Calling function [bold]{function[1]}")
                 photo_path = exif_updater.get_photo_path(photo)
