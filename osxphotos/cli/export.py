@@ -1917,6 +1917,10 @@ def export_cli(
         previous_uuids = {uuid: 1 for uuid in export_db.get_previous_uuids()}
         photos = [p for p in photos if p.uuid not in previous_uuids]
 
+    # skip syndicated photos which are not saved to library and don't have a path
+    # (these will be missing and --download-missing cannot download them) (see #1865)
+    photos = [p for p in photos if not p.syndicated or p.saved_to_library or p.path]
+
     # store results of export
     results = ExportResults()
 
