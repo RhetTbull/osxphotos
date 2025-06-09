@@ -2,7 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v0.70.0](https://github.com/RhetTbull/osxphotos/compare/v070.0...v0.69.2)
+## [v0.71.0](https://github.com/RhetTbull/osxphotos/compare/v0.71.0...v0.70.0)
+
+Fixed daylight savings time issues with `timewarp` command.
+
+### v0.71.0 (2025-06-07)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+  * Fixed timewarp to work correctly with daylight savings time. (#1777)
+
+#### Contributors
+
+  * @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
+### v0.70.0 (2025-05-10)
+
+## [v0.70.0](https://github.com/RhetTbull/osxphotos/compare/v0.70.0...v0.69.2)
 
 Fixes for macOS 15, import, timewarp
 
