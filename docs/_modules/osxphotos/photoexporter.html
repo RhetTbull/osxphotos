@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.photoexporter - osxphotos 0.69.2 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.72.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.69.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.72.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.69.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,6 +202,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
@@ -240,8 +241,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.photoexporter</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; PhotoExport class to export photos</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;PhotoExport class to export photos&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -251,6 +251,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">t</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
@@ -301,6 +302,12 @@
 
 <span class="c1"># retry if download_missing/use_photos_export fails the first time (which sometimes it does)</span>
 <span class="n">MAX_PHOTOSCRIPT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1"># threshold for consecutive AppleScript export errors before restarting Photos</span>
+<span class="n">APPLESCRIPT_ERROR_THRESHOLD</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># counter for tracking consecutive AppleScript export errors</span>
+<span class="n">_consecutive_export_errors</span> <span class="o">=</span> <span class="mi">0</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
@@ -381,6 +388,24 @@
 <a class="viewcode-back" href="../../reference.html#osxphotos.PhotoExporter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PhotoExporter</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a photo&quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_kill_photos_process</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Kill the Photos app process to restart it&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Use pkill to kill the main Photos application process</span>
+            <span class="c1"># Use -f to match the full path containing Photos.app</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;pkill&quot;</span><span class="p">,</span> <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;Photos.app&quot;</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Photos process killed due to consecutive AppleScript failures&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No Photos process found to kill&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to kill Photos process: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">photo</span> <span class="o">=</span> <span class="n">photo</span>
@@ -1388,6 +1413,17 @@
 <span class="sd">            has not been edited. This is due to how Photos Applescript interface works.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="k">global</span> <span class="n">_consecutive_export_errors</span>
+
+        <span class="c1"># Check if we&#39;ve hit the error threshold and need to restart Photos</span>
+        <span class="k">if</span> <span class="n">_consecutive_export_errors</span> <span class="o">&gt;=</span> <span class="n">APPLESCRIPT_ERROR_THRESHOLD</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AppleScript export has failed </span><span class="si">{</span><span class="n">_consecutive_export_errors</span><span class="si">}</span><span class="s2"> consecutive times, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;restarting Photos app&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_kill_photos_process</span><span class="p">()</span>
+            <span class="n">_consecutive_export_errors</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dest </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2"> must be a directory&quot;</span><span class="p">)</span>
@@ -1414,10 +1450,18 @@
                 <span class="p">)</span>
                 <span class="n">retries</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">_consecutive_export_errors</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AppleScript export error count: </span><span class="si">{</span><span class="n">_consecutive_export_errors</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
             <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">exported_files</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="c1"># nothing got exported</span>
+            <span class="n">_consecutive_export_errors</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AppleScript export error count: </span><span class="si">{</span><span class="n">_consecutive_export_errors</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
             <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not export photo </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
         <span class="c1"># need to find actual filename as sometimes Photos renames JPG to jpeg on export</span>
         <span class="c1"># may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)</span>
@@ -1447,6 +1491,11 @@
                     <span class="n">FileUtil</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">dest_new</span><span class="p">)</span>
                 <span class="n">FileUtil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest_new</span><span class="p">))</span>
             <span class="n">exported_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest_new</span><span class="p">))</span>
+
+        <span class="c1"># Reset error counter on successful export</span>
+        <span class="k">if</span> <span class="n">exported_paths</span><span class="p">:</span>
+            <span class="n">_consecutive_export_errors</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="k">return</span> <span class="n">exported_paths</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_export_aae</span><span class="p">(</span>
@@ -1724,7 +1773,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=24298b65"></script>
+</div><script src="../../_static/documentation_options.js?v=0f5839ad"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

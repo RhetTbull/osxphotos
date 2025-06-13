@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.exiftool - osxphotos 0.71.0 documentation</title>
+        <title>osxphotos.exiftool - osxphotos 0.72.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.71.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.72.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.71.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,6 +202,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
@@ -240,13 +241,13 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.exiftool</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; Yet another simple exiftool wrapper</span>
-<span class="sd">    I rolled my own for following reasons:</span>
-<span class="sd">    1. I wanted something under MIT license (best alternative was licensed under GPL/BSD)</span>
-<span class="sd">    2. I wanted singleton behavior so only a single exiftool process was ever running</span>
-<span class="sd">    3. When used as a context manager, I wanted the operations to batch until exiting the context (improved performance)</span>
-<span class="sd">    If these aren&#39;t important to you, I recommend you consider Sven Marnach&#39;s excellent</span>
-<span class="sd">    pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality &quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Yet another simple exiftool wrapper</span>
+<span class="sd">I rolled my own for following reasons:</span>
+<span class="sd">1. I wanted something under MIT license (best alternative was licensed under GPL/BSD)</span>
+<span class="sd">2. I wanted singleton behavior so only a single exiftool process was ever running</span>
+<span class="sd">3. When used as a context manager, I wanted the operations to batch until exiting the context (improved performance)</span>
+<span class="sd">If these aren&#39;t important to you, I recommend you consider Sven Marnach&#39;s excellent</span>
+<span class="sd">pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -260,6 +261,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>  <span class="c1"># pylint: disable=syntax-error</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
@@ -276,6 +279,9 @@
 <span class="c1"># exiftool -stay_open commands outputs this EOF marker after command is run</span>
 <span class="n">EXIFTOOL_STAYOPEN_EOF</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{ready}</span><span class="s2">&quot;</span>
 <span class="n">EXIFTOOL_STAYOPEN_EOF_LEN</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">EXIFTOOL_STAYOPEN_EOF</span><span class="p">)</span>
+
+<span class="c1"># timeout in seconds for starting exiftool process</span>
+<span class="n">EXIFTOOL_STARTUP_TIMEOUT</span> <span class="o">=</span> <span class="mi">30</span>
 
 <span class="c1"># list of exiftool processes to cleanup when exiting or when terminate is called</span>
 <span class="n">EXIFTOOL_PROCESSES</span> <span class="o">=</span> <span class="p">[]</span>
@@ -336,6 +342,51 @@
             <span class="s2">&quot;Could not find exiftool. Please download and install from &quot;</span>
             <span class="s2">&quot;https://exiftool.org/&quot;</span>
         <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_start_process_with_timeout</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Start a subprocess with a timeout on the Popen call itself.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args: Arguments to pass to subprocess.Popen</span>
+<span class="sd">        timeout: Timeout in seconds</span>
+<span class="sd">        **kwargs: Additional keyword arguments for subprocess.Popen</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        subprocess.Popen object</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TimeoutError: If process startup times out</span>
+<span class="sd">        Other exceptions from subprocess.Popen as normal</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">process</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">exception</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">target</span><span class="p">():</span>
+        <span class="k">nonlocal</span> <span class="n">process</span><span class="p">,</span> <span class="n">exception</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">exception</span> <span class="o">=</span> <span class="n">e</span>
+
+    <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+    <span class="n">thread</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+        <span class="c1"># Thread is still running, startup timed out</span>
+        <span class="c1"># Note: We can&#39;t easily kill the thread, but the daemon flag</span>
+        <span class="c1"># means it will be cleaned up when the main process exits</span>
+        <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;process startup timed out after </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">exception</span>
+
+    <span class="k">if</span> <span class="n">process</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to start process for unknown reason&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">process</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_ExifToolProc</span><span class="p">:</span>
@@ -399,27 +450,32 @@
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/usr/bin/:</span><span class="si">{</span><span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">large_file_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-api&quot;</span><span class="p">,</span> <span class="s2">&quot;largefilesupport=1&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">large_file_support</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool</span><span class="p">,</span>
-                <span class="s2">&quot;-stay_open&quot;</span><span class="p">,</span>  <span class="c1"># keep process open in batch mode</span>
-                <span class="s2">&quot;True&quot;</span><span class="p">,</span>  <span class="c1"># -stay_open=True, keep process open in batch mode</span>
-                <span class="o">*</span><span class="n">large_file_args</span><span class="p">,</span>
-                <span class="s2">&quot;-@&quot;</span><span class="p">,</span>  <span class="c1"># read command-line arguments from file</span>
-                <span class="s2">&quot;-&quot;</span><span class="p">,</span>  <span class="c1"># read from stdin</span>
-                <span class="s2">&quot;-common_args&quot;</span><span class="p">,</span>  <span class="c1"># specifies args common to all commands subsequently run</span>
-                <span class="s2">&quot;-n&quot;</span><span class="p">,</span>  <span class="c1"># no print conversion (e.g. print tag values in machine readable format)</span>
-                <span class="s2">&quot;-P&quot;</span><span class="p">,</span>  <span class="c1"># Preserve file modification date/time</span>
-                <span class="s2">&quot;-G&quot;</span><span class="p">,</span>  <span class="c1"># print group name for each tag</span>
-                <span class="s2">&quot;-E&quot;</span><span class="p">,</span>  <span class="c1"># escape tag values for HTML (allows use of HTML &amp;#xa; for newlines)</span>
-            <span class="p">],</span>
-            <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
-            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
-            <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
-            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_process_running</span> <span class="o">=</span> <span class="kc">True</span>
 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="n">_start_process_with_timeout</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool</span><span class="p">,</span>
+                    <span class="s2">&quot;-stay_open&quot;</span><span class="p">,</span>  <span class="c1"># keep process open in batch mode</span>
+                    <span class="s2">&quot;True&quot;</span><span class="p">,</span>  <span class="c1"># -stay_open=True, keep process open in batch mode</span>
+                    <span class="o">*</span><span class="n">large_file_args</span><span class="p">,</span>
+                    <span class="s2">&quot;-@&quot;</span><span class="p">,</span>  <span class="c1"># read command-line arguments from file</span>
+                    <span class="s2">&quot;-&quot;</span><span class="p">,</span>  <span class="c1"># read from stdin</span>
+                    <span class="s2">&quot;-common_args&quot;</span><span class="p">,</span>  <span class="c1"># specifies args common to all commands subsequently run</span>
+                    <span class="s2">&quot;-n&quot;</span><span class="p">,</span>  <span class="c1"># no print conversion (e.g. print tag values in machine readable format)</span>
+                    <span class="s2">&quot;-P&quot;</span><span class="p">,</span>  <span class="c1"># Preserve file modification date/time</span>
+                    <span class="s2">&quot;-G&quot;</span><span class="p">,</span>  <span class="c1"># print group name for each tag</span>
+                    <span class="s2">&quot;-E&quot;</span><span class="p">,</span>  <span class="c1"># escape tag values for HTML (allows use of HTML &amp;#xa; for newlines)</span>
+                <span class="p">],</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="n">EXIFTOOL_STARTUP_TIMEOUT</span><span class="p">,</span>
+                <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+                <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TimeoutError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to start exiftool process: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_running</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">EXIFTOOL_PROCESSES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_stop_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -845,7 +901,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=9d27e746"></script>
+</div><script src="../../_static/documentation_options.js?v=0f5839ad"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
