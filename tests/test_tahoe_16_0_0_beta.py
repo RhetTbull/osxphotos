@@ -46,9 +46,11 @@ def _normalize_paths(obj):
         return {k: _normalize_paths(v) for k, v in obj.items()}
     if isinstance(obj, list):
         return [_normalize_paths(v) for v in obj]
-    if isinstance(obj, str) and tests_root in obj:
-        new = obj.replace(tests_root, "")
-        return new.lstrip(os.sep)
+    if isinstance(obj, str) and "Test-16.0.0-beta.photoslibrary" in obj:
+        # Extract just the relative path from Test-16.0.0-beta.photoslibrary onwards
+        parts = obj.split("Test-16.0.0-beta.photoslibrary")
+        if len(parts) >= 2:
+            return "Test-16.0.0-beta.photoslibrary" + parts[1]
     return obj
 
 
