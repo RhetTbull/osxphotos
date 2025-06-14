@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.72.0](https://github.com/RhetTbull/osxphotos/compare/v0.72.0...v0.71.0)
+
+Initial support for macOS Tahoe (16 / 26)
+
+### v0.72.0 (2025-06-12)
+
+#### Added
+
+- Initial support for macOS Tahoe (macOS 16 / 26). This is very much initial beta support for a beta release of macOS that is is likely to change. I have tested export and import but not other features. If you encounter any issues, please report them on GitHub.
+
+#### Changed
+
+- `osxphotos export` will no longer try to export syndicated photos that have not been saved to the library (these will always be missing and cannot be exported with --download-missing). Syndicated photos are photos shared in Messages app. They show up in the library but are not saved to the library until the user imports them. Previously, osxphotos was trying to export these photos which resulted in "missing" messages during export and this caused confusion for users.
+
+#### Removed
+
+#### Fixed
+
+- Kill Photos app if it hangs during --download-missing multiple times (#1862)
+- Fix --exiftool so it timesout if the exiftool process hangs (#1855)
+- Skip missing syndicated photos on export (#1865)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
 ## [v0.71.0](https://github.com/RhetTbull/osxphotos/compare/v0.71.0...v0.70.0)
 
 Fixed daylight savings time issues with `timewarp` command.
