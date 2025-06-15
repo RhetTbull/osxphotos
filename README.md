@@ -102,6 +102,18 @@ If you want to try `osxphotos` without installing it, you can run `uv tool run -
 
 Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.12 from [python.org](https://www.python.org/downloads/) then running uv to install osxphotos.
 
+### Installation using Brew
+
+You can install `osxphotos` via Homebrew
+
+```
+# Add the tap
+brew tap RhetTbull/osxphotos
+
+# Install osxphotos
+brew install osxphotos
+```
+
 ### Installation using pip
 
 You can install `osxphotos` directly from [pypi](https://pypi.org/project/osxphotos/):
