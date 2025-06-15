@@ -923,7 +923,6 @@
       ]
     },
     {
-    
       "login": "pl804",
       "name": "pl804",
       "avatar_url": "https://avatars.githubusercontent.com/u/101955060?v=4",
@@ -931,7 +930,7 @@
       "contributions": [
         "test",
         "data"
-       
+        ]
         },
         {
       "login": "cstaubli",
