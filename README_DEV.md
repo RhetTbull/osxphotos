@@ -40,6 +40,23 @@ If you want to contribute to osxphotos, please open a pull request. Here's how t
 
 - Run `./build.sh` to run the build script.
 
+## Release
+
+For release, follow the following steps:
+
+0. Create a new branch for the release: `git checkout -b release_v0.72.1`
+1. Run `bump2version [major|minor|patch] --verbose` to bump version
+2. Run the `build.sh`
+3. Commit the changes and push to GitHub
+4. Merge the changes in the main branch
+5. Checkout the main branch: `git checkout main`
+6. Pull the changes to your local repository: `git pull`
+7. `twine upload dist/osxphotos*.whl dist/*.tar.gz`
+8. Create a new release on GitHub: `gh release create "v0.72.1" dist/*`
+9. Pull the changes to your local repository: `git pull`
+
+The GitHub release must occur after the `twine upload` command so the GitHub action that updates the homebrew formula can be triggered.
+
 ## Other Notes
 
 [cogapp](https://nedbatchelder.com/code/cog/index.html) is used to update the README.md and other files. cog will be called from the build script as needed.

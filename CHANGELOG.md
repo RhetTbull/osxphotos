@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.72.1](https://github.com/RhetTbull/osxphotos/compare/v0.72.1...v0.72.0)
+
+Added homebrew install support.
+
+### v0.72.1 (2025-06-16)
+
+#### Added
+
+- Support for installing osxphotos using homebrew.
+
+```bash
+# Add the tap
+brew tap RhetTbull/osxphotos
+
+# Install osxphotos
+brew install osxphotos
+```
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+#### Contributors
+
+- @scottrobertson [@scottrobertson](https://github.com/scottrobertson) for homebrew formula.
+
 ## [v0.72.0](https://github.com/RhetTbull/osxphotos/compare/v0.72.0...v0.71.0)
 
 Initial support for macOS Tahoe (16 / 26)
