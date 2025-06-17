@@ -1,7 +1,7 @@
-[project]
-name="osxphotos"
-version="0.72.1"
-requires-python = ">= 3.10"
+# [project]
+# name="osxphotos"
+# version="0.72.1"
+# requires-python = ">= 3.10"
 
 [tool.ruff]
 # Docs: https://beta.ruff.rs/docs/
