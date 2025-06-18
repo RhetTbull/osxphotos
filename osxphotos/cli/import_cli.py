@@ -518,9 +518,14 @@ class ImportCommand(click.Command):
         """
         )
         console = Console()
-        with console.capture() as capture:
-            console.print(Markdown(extra_help), width=min(HELP_WIDTH, console.width))
-        formatter.write(capture.get())
+        if console.is_interactive:
+            with console.capture() as capture:
+                console.print(
+                    Markdown(extra_help), width=min(HELP_WIDTH, console.width)
+                )
+            formatter.write(capture.get())
+        else:
+            formatter.write(extra_help)
         help_text += "\n\n" + formatter.getvalue()
         return help_text
 
@@ -1006,6 +1011,7 @@ def import_main(
     The edited version of the file must also be named following one of these two conventions:
 
         \b
+
         Original: IMG_1234.jpg, edited: IMG_E1234.jpg
 
         Original: IMG_1234.jpg, original: IMG_1234_edited.jpg

@@ -1855,7 +1855,7 @@ Returns the date of latest photo in the album as a timezone aware datetime.datet
 
 Returns a hierarchical list of `FolderInfo <#folderinfo>`_ objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of ``FolderInfo`` objects representing ["Folder1", "SubFolder2"]
 
-.. code-block:: txt
+.. code-block:: text
 
    Photos Library
    ├── Folder1
@@ -1868,7 +1868,7 @@ Returns a hierarchical list of `FolderInfo <#folderinfo>`_ objects representing 
 
 Returns a hierarchical list of names of the folders the album is contained in.  For example, if album is in SubFolder2 of Folder1 as illustrated below, would return ["Folder1", "SubFolder2"].
 
-.. code-block:: txt
+.. code-block:: text
 
    Photos Library
    ├── Folder1
@@ -3157,10 +3157,10 @@ ExifTool methods
    }
 
 
-* 
+*
   ``json()``\ : returns same information as ``asdict()`` but as a serialized JSON string.
 
-* 
+*
   `setvalue(tag, value)`: write to the EXIF data in the photo file. To delete a tag, use setvalue with value = `None`. For example:
 
 .. code-block:: python

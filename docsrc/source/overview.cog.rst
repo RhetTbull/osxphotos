@@ -102,7 +102,7 @@ Command Line Usage
 
 This package will install a command line utility called ``osxphotos`` that allows you to query the Photos database and export photos.
 
-.. code-block:: TXT
+.. code-block:: text
 
   [[[cog
     from osxphotos.cli import cli_main
