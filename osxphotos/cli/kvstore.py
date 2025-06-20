@@ -29,7 +29,7 @@ def kvstore(name: str) -> SQLiteKVStore:
     """Return a key/value store for storing state between commands.
 
     The key/value store is a SQLite database stored in the user's XDG data directory,
-    usually `~/.local/share/`.  The key/value store can be used like a dict to store
+    usually '~/.local/share/'.  The key/value store can be used like a dict to store
     arbitrary key/value pairs which persist between runs of the CLI tool.
 
     Args:

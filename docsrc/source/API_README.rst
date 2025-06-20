@@ -1335,28 +1335,28 @@ Returns a `PlaceInfo <#placeinfo>`_ object with reverse geolocation data or None
 
 Returns True if photo is in a shared album, otherwise False.
 
-**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
+**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*
 
 ``owner``
 ~~~~~~~~~~~~~
 
 Returns full name of the photo owner (person who shared the photo) for shared photos or None if photo is not shared. Also returns None if you are the person who shared the photo.
 
-**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
+**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*
 
 ``comments``
 ~~~~~~~~~~~~~~~~
 
 Returns list of `CommentInfo <#commentinfo>`_ objects for comments on shared photos or empty list if no comments.
 
-**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.
+**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.*
 
 ``likes``
 ~~~~~~~~~~~~~
 
 Returns list of `LikeInfo <#likeinfo>`_ objects for likes on shared photos or empty list if no likes.
 
-**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.
+**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.*
 
 ``isreference``
 ~~~~~~~~~~~~~~~~~~~
@@ -1886,7 +1886,7 @@ Returns a `FolderInfo <#folderinfo>`_ object representing the albums parent fold
 
 Returns full name of the album owner (person who shared the album) for shared albums or None if album is not shared.
 
-**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
+**Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*
 
 ``asdict()``
 ~~~~~~~~~~~~~~~~
@@ -2764,7 +2764,7 @@ e.g. If Photo is in ``Album1`` in ``Folder1``\ :
 * ``"{folder_album(>)}"`` renders to ``["Folder1>Album1"]``
 * ``"{folder_album()}"`` renders to ``["Folder1Album1"]``
 
-`[find,replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: ``"{album[/,-|:,-]}"``.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
+``[find,replace]``: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template ``"{album[/,-]}"``.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: ``"{album[/,-|:,-]}"``.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
 `conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '`not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
 

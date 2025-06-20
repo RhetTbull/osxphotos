@@ -1,4 +1,4 @@
-"""Options class and results class for PhotoExporter """
+"""Options class and results class for PhotoExporter"""
 
 from __future__ import annotations
 
@@ -53,11 +53,11 @@ class ExportOptions:
         rich (bool): if True, will use rich markup with verbose output
         export_aae (bool): if True, also exports adjustments as .AAE file
         sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
-        sidecar: bit field (int): set to one or more of `SIDECAR_XMP`, `SIDECAR_JSON`, `SIDECAR_EXIFTOOL`
+        sidecar: bit field (int): set to one or more of 'SIDECAR_XMP', 'SIDECAR_JSON', 'SIDECAR_EXIFTOOL'
           - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-          includes exiftool tag group names (e.g. `exiftool -G -j`)
+          includes exiftool tag group names (e.g. 'exiftool -G -j')
           - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-          does not include exiftool tag group names (e.g. `exiftool -j`)
+          does not include exiftool tag group names (e.g. 'exiftool -j')
           - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
         strip (bool): if True, strip whitespace from rendered templates
         timeout (int, default=120): timeout in seconds used with use_photos_export

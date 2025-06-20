@@ -104,7 +104,7 @@ def template_repl(
 
     Launches a REPL (Read-Eval-Print-Loop) to interactively render a template for the selected photo.
 
-    Select a photo in Photos then run `osxphotos template` to start the REPL.
+    Select a photo in Photos then run 'osxphotos template' to start the REPL.
     """
     configure_readline(mode)
     if not template:

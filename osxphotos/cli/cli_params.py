@@ -52,7 +52,7 @@ def validate_selected(ctx, param, value):
                 --selected option used but no photos selected in Photos.
 
                 To select photos in Photos use one of the following methods:
-    
+
                 - Select a single photo: Click the photo, or press the arrow keys to quickly navigate to and select the photo.
 
                 - Select a group of adjacent photos in a day: Click the first photo, then hold down the Shift key while you click the last photo.
@@ -156,7 +156,7 @@ _FIELD_PARAMETER = click.Option(
     "FIELD is the name of the field and TEMPLATE is the template to use as the field value. "
     "May be repeated to output multiple fields. "
     "For example, to output photo uuid, name, and title: "
-    '`--field uuid "{uuid}" --field name "{original_name}" --field title "{title}"`.',
+    '\'--field uuid "{uuid}" --field name "{original_name}" --field title "{title}"\'.',
 )
 
 FIELD_OPTION = make_click_option_decorator(_FIELD_PARAMETER)
@@ -505,7 +505,7 @@ _QUERY_PARAMETERS_DICT = {
         help="Search for items added to the library in the last TIME_DELTA, "
         "where TIME_DELTA is a string like "
         "'12 hrs', '1 day', '1d', '1 week', '2weeks', '1 month', '1 year'. "
-        "for example, `--added-in-last 7d` and `--added-in-last '1 week'` are equivalent. "
+        "for example, '--added-in-last 7d' and '--added-in-last '1 week'' are equivalent. "
         "months are assumed to be 30 days and years are assumed to be 365 days. "
         "Common English abbreviations are accepted, e.g. d, day, days or m, min, minutes.",
         type=TimeOffset(),
@@ -662,9 +662,9 @@ _QUERY_PARAMETERS_DICT = {
         nargs=2,
         multiple=True,
         help="Search for photos where EXIF_TAG exists in photo's EXIF data and contains VALUE. "
-        "For example, to find photos created by Adobe Photoshop: `--exif Software 'Adobe Photoshop' `"
-        "or to find all photos shot on a Canon camera: `--exif Make Canon`. "
-        "EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. `EXIF:Make` or `Make`. "
+        "For example, to find photos created by Adobe Photoshop: '--exif Software 'Adobe Photoshop' '"
+        "or to find all photos shot on a Canon camera: '--exif Make Canon'. "
+        "EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. 'EXIF:Make' or 'Make'. "
         "To use --exif, exiftool must be installed and in the path.",
     ),
     "--query-eval": click.Option(
@@ -673,9 +673,9 @@ _QUERY_PARAMETERS_DICT = {
         multiple=True,
         help="Evaluate CRITERIA to filter photos. "
         "CRITERIA will be evaluated in context of the following python list comprehension: "
-        "`photos = [photo for photo in photos if CRITERIA]` "
+        "'photos = [photo for photo in photos if CRITERIA]' "
         "where photo represents a PhotoInfo object. "
-        "For example: `--query-eval photo.favorite` returns all photos that have been "
+        "For example: '--query-eval photo.favorite' returns all photos that have been "
         "favorited and is equivalent to --favorite. "
         "You may specify more than one CRITERIA by using --query-eval multiple times. "
         "CRITERIA must be a valid python expression. "
@@ -683,10 +683,10 @@ _QUERY_PARAMETERS_DICT = {
     ),
     "--query-function": click.Option(
         ["--query-function"],
-        metavar="filename.py::function",
+        metavar="filename.py:function",
         multiple=True,
         type=FunctionCall(),
-        help="Run function to filter photos. Use this in format: --query-function filename.py::function where filename.py is a python "
+        help="Run function to filter photos. Use this in format: --query-function filename.py:function where filename.py is a python "
         "file you've created and function is the name of the function in the python file you want to call. "
         "Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. "
         "You may use more than one function by repeating the --query-function option with a different value. "
@@ -708,7 +708,7 @@ def QUERY_OPTIONS(
 
     Args:
         wrapped: function to decorate (this is normally passed automatically
-        exclude: list of query options to exclude from the command, for example `exclude=["--shared"]
+        exclude: list of query options to exclude from the command, for example 'exclude=["--shared"]
     """
     if wrapped is None:
         return functools.partial(QUERY_OPTIONS, exclude=exclude)

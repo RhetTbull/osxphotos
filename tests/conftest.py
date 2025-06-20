@@ -1,4 +1,4 @@
-""" pytest test configuration """
+"""pytest test configuration"""
 
 import os
 import pathlib
@@ -99,7 +99,7 @@ elif int(OS_VER[0]) >= 13:
     # Ventura
     TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
-    TEST_LIBRARY_SYNC = TEST_LIBRARY
+    TEST_LIBRARY_SYNC = "tests/Test-10.15.7.photoslibrary"
     TEST_LIBRARY_TAKEOUT = "tests/Test-Empty-Library-Ventura-13-5.photoslibrary"
     from tests.config_timewarp_ventura import TEST_LIBRARY_TIMEWARP
 

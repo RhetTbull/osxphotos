@@ -1,8 +1,8 @@
 """Helper functions to make writing an osxphotos CLI tool easy.
 
-Includes decorator to create an osxphotos query command to be run via `osxphotos run example.py`.
+Includes decorator to create an osxphotos query command to be run via 'osxphotos run example.py'.
 
-May also be run via `python example.py` if you have pip installed osxphotos
+May also be run via 'python example.py' if you have pip installed osxphotos
 """
 
 from __future__ import annotations
@@ -286,7 +286,7 @@ class SelectionCommand(click.Command):
 
 
 def query_command(name=None, cls=QueryCommand, **attrs):
-    """Decorator to create an osxphotos command to be run via `osxphotos run example.py`
+    """Decorator to create an osxphotos command to be run via 'osxphotos run example.py'
 
     The command will be passed a list of PhotoInfo objects for all photos in Photos
     matching the query options or all photos if no query options are specified.
@@ -307,7 +307,7 @@ def query_command(name=None, cls=QueryCommand, **attrs):
 
 
 def selection_command(name=None, cls=SelectionCommand, **attrs):
-    """Decorator to create an osxphotos command to be run via `osxphotos run example.py`
+    """Decorator to create an osxphotos command to be run via 'osxphotos run example.py'
 
     The command will be passed a list of PhotoInfo objects for all photos selected in Photos.
     The CLI will also be passed the following options:

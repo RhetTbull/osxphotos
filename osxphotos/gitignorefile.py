@@ -1,4 +1,4 @@
-"""A spec-compliant `.gitignore` parser for Python.
+"""A spec-compliant '.gitignore' parser for Python.
 
 Versioned from: https://github.com/excitoon/gitignorefile to add parse_pattern_list() function
 to apply .gitignore rules to a list of patterns that aren't actually a .gitignore file.
@@ -25,8 +25,8 @@ def parse_pattern_list(
         base_path (str): Base path for applying ignore rules.
 
     Returns:
-        Callable[[str], bool]: Callable which returns `True` if specified path is ignored.
-            You can also pass `is_dir: bool` optional parameter if you know whether the specified path is a directory.
+        Callable[[str], bool]: Callable which returns 'True' if specified path is ignored.
+            You can also pass 'is_dir: bool' optional parameter if you know whether the specified path is a directory.
     """
     rules = []
     for pattern in patterns:
@@ -38,15 +38,15 @@ def parse_pattern_list(
 
 
 def parse(path, base_path=None):
-    """Parses single `.gitignore` file.
+    """Parses single '.gitignore' file.
 
     Args:
-        path (str): Path to `.gitignore` file.
+        path (str): Path to '.gitignore' file.
         base_path (str): Base path for applying ignore rules.
 
     Returns:
-        Callable[[str], bool]: Callable which returns `True` if specified path is ignored.
-            You can also pass `is_dir: bool` optional parameter if you know whether the specified path is a directory.
+        Callable[[str], bool]: Callable which returns 'True' if specified path is ignored.
+            You can also pass 'is_dir: bool' optional parameter if you know whether the specified path is a directory.
     """
 
     if base_path is None:
@@ -63,15 +63,15 @@ def parse(path, base_path=None):
 
 
 def ignore(ignore_names=DEFAULT_IGNORE_NAMES):
-    """Returns `shutil.copytree()`-compatible ignore function for skipping ignored files.
+    """Returns 'shutil.copytree()'-compatible ignore function for skipping ignored files.
 
-    It will check if file is ignored by any `.gitignore` in the directory tree.
+    It will check if file is ignored by any '.gitignore' in the directory tree.
 
     Args:
         ignore_names (list[str], optional): List of names of ignore files.
 
     Returns:
-        Callable[[str, list[str]], list[str]]: Callable compatible with `shutil.copytree()`.
+        Callable[[str, list[str]], list[str]]: Callable compatible with 'shutil.copytree()'.
     """
 
     matches = Cache(ignore_names=ignore_names)
@@ -81,7 +81,7 @@ def ignore(ignore_names=DEFAULT_IGNORE_NAMES):
 
 
 def ignored(path, is_dir=None, ignore_names=DEFAULT_IGNORE_NAMES):
-    """Checks if file is ignored by any `.gitignore` in the directory tree.
+    """Checks if file is ignored by any '.gitignore' in the directory tree.
 
     Args:
         path (str): Path to check against ignore rules.
@@ -89,20 +89,20 @@ def ignored(path, is_dir=None, ignore_names=DEFAULT_IGNORE_NAMES):
         ignore_names (list[str], optional): List of names of ignore files.
 
     Returns:
-        bool: `True` if the path is ignored.
+        bool: 'True' if the path is ignored.
     """
 
     return Cache(ignore_names=ignore_names)(path, is_dir=is_dir)
 
 
 class Cache:
-    """Caches information about different `.gitignore` files in the directory tree.
+    """Caches information about different '.gitignore' files in the directory tree.
 
     Allows to reduce number of queries to filesystem to mininum.
     """
 
     def __init__(self, ignore_names=DEFAULT_IGNORE_NAMES):
-        """Constructs `Cache` objects.
+        """Constructs 'Cache' objects.
 
         Args:
             ignore_names (list[str], optional): List of names of ignore files.
@@ -221,10 +221,10 @@ class _Path:
 
 
 def _rule_from_pattern(pattern):
-    # Takes a `.gitignore` match pattern, such as "*.py[cod]" or "**/*.bak",
-    # and returns an `_IgnoreRule` suitable for matching against files and
+    # Takes a '.gitignore' match pattern, such as "*.py[cod]" or "**/*.bak",
+    # and returns an '_IgnoreRule' suitable for matching against files and
     # directories. Patterns which do not match files, such as comments
-    # and blank lines, will return `None`.
+    # and blank lines, will return 'None'.
 
     # Early returns follow
     # Discard comments and separators
@@ -259,7 +259,7 @@ def _rule_from_pattern(pattern):
 
     directory_only = pattern.endswith("/")
 
-    # A slash is a sign that we're tied to the `base_path` of our rule
+    # A slash is a sign that we're tied to the 'base_path' of our rule
     # set.
     anchored = "/" in pattern[:-1]
 
@@ -348,7 +348,7 @@ class _IgnoreRule:
 
         # If we need a directory, check there is something after slash and if there is not, target must be a directory.
         # If there is something after slash then it's a directory irrelevant to type of target.
-        # `self.directory_only` implies we have group number 1.
+        # 'self.directory_only' implies we have group number 1.
         # N.B. Question mark inside a group without a name can shift indices. :(
         return m and (not self.__directory_only or m.group(1) is not None or is_dir)
 
@@ -362,11 +362,11 @@ else:
 
 
 def _fnmatch_pathname_to_regexp(pattern, anchored, directory_only):
-    # Implements `fnmatch` style-behavior, as though with `FNM_PATHNAME` flagged;
-    # the path separator will not match shell-style `*` and `.` wildcards.
+    # Implements 'fnmatch' style-behavior, as though with 'FNM_PATHNAME' flagged;
+    # the path separator will not match shell-style '*' and '.' wildcards.
 
     # Frustratingly, python's fnmatch doesn't provide the FNM_PATHNAME
-    # option that `.gitignore`'s behavior depends on.
+    # option that '.gitignore''s behavior depends on.
 
     if not pattern:
         if directory_only:
@@ -386,7 +386,7 @@ def _fnmatch_pathname_to_regexp(pattern, anchored, directory_only):
                 i += 1
                 if i < n and pattern[i] == "/":
                     i += 1
-                    res.append("(.+/)?")  # `/**/` matches `/`.
+                    res.append("(.+/)?")  # '/**/' matches '/'.
 
                 else:
                     res.append(".*")

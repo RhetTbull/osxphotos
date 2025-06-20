@@ -80,13 +80,13 @@ class TimeWarpCommand(click.Command):
 
 Timewarp operates on photos selected in Apple Photos.  To use it, open Photos, select the photos for which you'd like to adjust the date/time/timezone, then run osxphotos timewarp from the command line:
 
-`osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone -0700 --verbose`
+'osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone -0700 --verbose'
 
 A named timezone can also be specified:
 
-`osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone "America/Los_Angeles" --verbose`
+'osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone "America/Los_Angeles" --verbose'
 
-This example sets the date for all selected photos to `2021-09-10`, subtracts 1 hour from the time of each photo, and sets the timezone of each photo to `GMT -07:00` (Pacific Daylight Time).
+This example sets the date for all selected photos to '2021-09-10', subtracts 1 hour from the time of each photo, and sets the timezone of each photo to 'GMT -07:00' (Pacific Daylight Time).
 
 **Caution**: This app directly modifies your Photos library database using undocumented features.  It may corrupt, damage, or destroy your Photos library.  Use at your own caution.  I strongly recommend you make a backup of your Photos library before using this script (e.g. use Time Machine).
 
@@ -94,56 +94,56 @@ This example sets the date for all selected photos to `2021-09-10`, subtracts 1 
 
 **Add 1 day to the date of each photo**
 
-`osxphotos timewarp --date-delta 1`
+'osxphotos timewarp --date-delta 1'
 
 or
 
-`osxphotos timewarp --date-delta "+1 day"`
+'osxphotos timewarp --date-delta "+1 day"'
 
 **Set the date of each photo to 23 April 2020 and add 3 hours to the time**
 
-`osxphotos timewarp --date 2020-04-23 --time-delta "+3 hours"`
+'osxphotos timewarp --date 2020-04-23 --time-delta "+3 hours"'
 
 or
 
-`osxphotos timewarp --date 2020-04-23 --time-delta "+03:00:00"`
+'osxphotos timewarp --date 2020-04-23 --time-delta "+03:00:00"'
 
 **Set the time of each photo to 14:30 and set the timezone to UTC +1:00 (Central European Time)**
 
-`osxphotos timewarp --time 14:30 --timezone +01:00`
+'osxphotos timewarp --time 14:30 --timezone +01:00'
 
 or
 
-`osxphotos timewarp --time 14:30 --timezone +0100`
+'osxphotos timewarp --time 14:30 --timezone +0100'
 
 **Subtract 1 week from the date for each photo, add 3 hours to the time, set the timezone to UTC -07:00 (Pacific Daylight Time) and also use exiftool to update the EXIF metadata accordingly in the original file; use --verbose to print additional details**
 
-`osxphotos timewarp --date-delta "-1 week" --time-delta "+3 hours" --timezone -0700 --push-exif --verbose`
+'osxphotos timewarp --date-delta "-1 week" --time-delta "+3 hours" --timezone -0700 --push-exif --verbose'
 
-For this to work, you'll need to install the third-party exiftool (https://exiftool.org/) utility.  If you use  homebrew (https://brew.sh/) you can do this with `brew install exiftool`.
+For this to work, you'll need to install the third-party exiftool (https://exiftool.org/) utility.  If you use  homebrew (https://brew.sh/) you can do this with 'brew install exiftool'.
 
 **Set the timezone to UTC +03:00 for each photo but keep the time the same (that is, don't adjust time for the new timezone)**
 
-`osxphotos timewarp --timezone 0300 --match-time`
+'osxphotos timewarp --timezone 0300 --match-time'
 
-*Note on timezones and times*: In Photos, when you change the timezone, Photos assumes the time itself was correct for the previous timezone and adjusts the time accordingly to the new timezone.  E.g. if the photo's time is `13:00` and the timezone is `GMT -07:00` and you adjust the timezone one hour east to `GMT -06:00`, Photos will change the time of the photo to `14:00`.  osxphotos timewarp follows this behavior.  Using `--match-time` allows you to adjust the timezone but keep the same time without adjustment. For example, if your camera clock was correct but lacked timezone information and you took photos in one timezone but imported them to photos in another, Photos will add the timezone of the computer at time of import.  You can use osxphotos timewarp to adjust the timezone but keep the time using `--match-time`.
+*Note on timezones and times*: In Photos, when you change the timezone, Photos assumes the time itself was correct for the previous timezone and adjusts the time accordingly to the new timezone.  E.g. if the photo's time is '13:00' and the timezone is 'GMT -07:00' and you adjust the timezone one hour east to 'GMT -06:00', Photos will change the time of the photo to '14:00'.  osxphotos timewarp follows this behavior.  Using '--match-time' allows you to adjust the timezone but keep the same time without adjustment. For example, if your camera clock was correct but lacked timezone information and you took photos in one timezone but imported them to photos in another, Photos will add the timezone of the computer at time of import.  You can use osxphotos timewarp to adjust the timezone but keep the time using '--match-time'.
 
 **Update the date the photos were added to Photos**
 
-`osxphotos timewarp --date-added 2021-09-10`
+'osxphotos timewarp --date-added 2021-09-10'
 
 **Update the date the photos were added to Photos to match the date of the photo**
 
-`osxphotos timewarp --date-added-from-photo`
+'osxphotos timewarp --date-added-from-photo'
 
 **Compare the date/time/timezone of selected photos with the date/time/timezone in the photos' original EXIF metadata**
 
-`osxphotos timewarp --compare-exif`
+'osxphotos timewarp --compare-exif'
 
 **Read the date/time/timezone from the photos' original EXIF metadata to update the photos' date/time/timezone;
 if the EXIF data is missing, use the file modification date/time; show verbose output**
 
-`osxphotos timewarp --pull-exif --use-file-time --verbose`
+'osxphotos timewarp --pull-exif --use-file-time --verbose'
 
 ## Parsing Dates/Times from Filenames
 
@@ -151,8 +151,8 @@ The --parse-date option allows you to parse dates/times from the original filena
 This is useful if you files with dates/times embedded in the filename but not in the metadata.
 
 
-The argument to `--parse-date` is a pattern string that is used to parse the date/time
-from the filename. The pattern string is a superset of the python `strftime/strptime`
+The argument to '--parse-date' is a pattern string that is used to parse the date/time
+from the filename. The pattern string is a superset of the python 'strftime/strptime'
 format with the following additions:
 
 - *: Match any number of characters
@@ -161,8 +161,8 @@ format with the following additions:
 - {n}: Match exactly n characters
 - {n,}: Match at least n characters
 - {n,m}: Match at least n characters and at most m characters
-- In addition to `%%` for a literal `%`, the following format codes are supported:
-    `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
+- In addition to '%%' for a literal '%', the following format codes are supported:
+    '%^', '%$', '%*', '%|', '%{', '%}' for '^', '$', '*', '|', '{', '}' respectively
 - |: join multiple format codes; each code is tried in order until one matches
 - Unlike the standard library, the leading zero is not optional for
     %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
@@ -477,8 +477,8 @@ def timewarp_cli(
     If you want to call the timewarp function directly in your own code, you may call
     timewarp_cli() directly. In this case you will be responsible for ensuring that all
     arguments are passed and all arguments are of the correct type. For example, the
-    CLI argument `--date` converts user input in form `2023-01-01` to a
-    datetime.datetime object. If passing `date`, you will be responsible for
+    CLI argument '--date' converts user input in form '2023-01-01' to a
+    datetime.datetime object. If passing 'date', you will be responsible for
     passing a datetime.datetime not the ISO string as is done on the command line.
 
     Returns: 1 if error or 0 if no error

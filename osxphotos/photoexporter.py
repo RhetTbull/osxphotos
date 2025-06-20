@@ -196,14 +196,14 @@ class PhotoExporter:
               in which case export will use the extension provided by Photos upon export.
               e.g. to get the extension of the edited photo,
               reference PhotoInfo.path_edited
-            options (`ExportOptions`): t.Optional ExportOptions instance
+            options ('ExportOptions'): t.Optional ExportOptions instance
 
         Returns:
             ExportResults instance
 
         Note:
             To use dry run mode, you must set options.dry_run=True and also pass in memory version of export_db,
-              and no-op fileutil (e.g. `ExportDBInMemory` and `FileUtilNoOp`) in options.export_db and options.fileutil respectively
+              and no-op fileutil (e.g. 'ExportDBInMemory' and 'FileUtilNoOp') in options.export_db and options.fileutil respectively
         """
 
         options = options or ExportOptions()
@@ -262,11 +262,11 @@ class PhotoExporter:
         dest, options = self._should_convert_to_jpeg(dest, options)
 
         # stage files for export by finding path in local library or downloading from iCloud as appropriate
-        # for `--download-missing` and `--update` case, this may cause unnecessary downloads
+        # for '--download-missing' and '--update' case, this may cause unnecessary downloads
         # as it will download the file even if it's not needed (won't be checked until the _should_update_photo() call from _export_photo()
         # fixing this will require major refactoring of the export code, see #1086
         # leaving it for now as this should not be a common use case
-        # (if using `--update` it is much better to be using "Download originals to this Mac" in Photos)
+        # (if using '--update' it is much better to be using "Download originals to this Mac" in Photos)
         staged_files = self._stage_photos_for_export(options)
         src = staged_files.edited if options.edited else staged_files.original
 

@@ -1455,9 +1455,9 @@ class iPhotoPhotoInfo:
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
               if overwrite=False and increment=False, export will fail if destination file already exists
             sidecar_json: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. 'exiftool -G -j')
             sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. 'exiftool -j')
             sidecar_xmp: if set will write an XMP sidecar with IPTC data
               sidecar filename will be dest/filename.xmp
             exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
@@ -1579,7 +1579,7 @@ class iPhotoPhotoInfo:
         # do not add any new properties to data_dict as this is used by export to determine
         # if a photo needs to be re-exported and adding new properties may cause all photos
         # to be re-exported
-        # see below `if not shallow:`
+        # see below 'if not shallow:'
         dict_data = {
             "albums": self.albums,
             "burst": self.burst,

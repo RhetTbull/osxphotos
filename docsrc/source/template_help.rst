@@ -87,7 +87,7 @@ e.g. If Photo is in ``Album1`` in ``Folder1``\ :
 * ``"{folder_album(>)}"`` renders to ``["Folder1>Album1"]``
 * ``"{folder_album()}"`` renders to ``["Folder1Album1"]``
 
-`[find,replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: ``"{album[/,-|:,-]}"``.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
+``[find,replace]``: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template ``"{album[/,-]}"``.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: ``"{album[/,-|:,-]}"``.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
 `conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '`not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
 

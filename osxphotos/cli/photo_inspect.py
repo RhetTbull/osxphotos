@@ -1,4 +1,4 @@
-"""Inspect photos selected in Photos """
+"""Inspect photos selected in Photos"""
 
 from __future__ import annotations
 
@@ -492,7 +492,7 @@ def make_layout() -> Layout:
 def photo_inspect(db, theme, detect_text, template, beta):
     """Interactively inspect photos selected in Photos.
 
-    Open Photos then run `osxphotos inspect` in the terminal.
+    Open Photos then run 'osxphotos inspect' in the terminal.
     As you select a photo in Photos, inspect will display metadata about the photo.
     Press Ctrl+C to exit when done.
     Works best with a modern terminal like iTerm2 or Kitty.
