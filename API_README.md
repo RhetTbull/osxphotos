@@ -29,7 +29,7 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
   * [PhotoTables](#phototables)
   * [Raw Photos](#raw-photos)
   * [Template System](#template-system)
-  * [ExifTool](#exiftoolExifTool)
+  * [ExifTool](#exiftool)
   * [PhotoExporter](#photoexporter)
   * [ExifWriter](#exifwriter)
   * [SidecarWriter](#sidecarwriter)
@@ -39,7 +39,7 @@ In addition to a command line interface, OSXPhotos provides a access to a Python
   * [Utility Functions](#utility-functions)
 * [Additional Examples](#additional-examples)
 
-## Example uses of the Python package
+## <a name="example-uses-of-the-python-package">Example uses of the Python package</a>
 
 ### Print filename, date created, title, and keywords for all photos in a library
 
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
 The primary interface to the Photos library is the [PhotosDB](#photosdb) object.  The [PhotosDB](#photosdb) object provides access to the photos in the library via the [photos](#photosdbphotos) method and the [query](#photosdbquery).  These methods returns a list of [PhotoInfo](#photoinfo) objects, one for each photo in the library.  The [PhotoInfo](#photoinfo) object provides access to the metadata for each photo.
 
-### Building simple command line tools
+### <a name="building-simple-command-line-tools">Building simple command line tools</a>
 
 osxphotos provides several useful helper functions to make it easy to build simple command line tools.  For example, the following code will print information about all photos in a library or a subset of photos filtered by one or more query options.  This mirrors the `osxphotos query` command line tool. Tools built using these helper functions can be easily distributed as a single file and run via `osxphotos run script.py` so the user doesn't need to install python, any dependencies, or create a virtual environment.
 
@@ -384,7 +384,7 @@ if __name__ == "__main__":
 ```
 <!--[[[end]]]-->
 
-## Concurrency
+## <a name="concurrency">Concurrency</a>
 
 OSXPhotos is not currently compatible with multiprocessing as the `PhotosDB` class cannot be pickled which required
 when sharing data between processes. Photos can be exported concurrently using separate threads, however, this is
@@ -450,7 +450,7 @@ if __name__ == "__main__":
     export()
 ```
 
-## Calling CLI commands from Python
+## <a name="calling-cli-commands-from-python">Calling CLI commands from Python</a>
 
 The `osxphotos.cli` module contains the code for the `osxphotos` command line tool. If you want to call the `osxphotos export` command from within your own code, you can do so by calling `export_cli()`:
 
@@ -461,7 +461,7 @@ The `osxphotos.cli` module contains the code for the `osxphotos` command line to
 
 The `export_cli()` function takes the same arguments as the `osxphotos export` command. See `osxphotos help export` for more information. You can also reference the implementation [here](https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292).
 
-## Package Interface
+## <a name="package-interface">Package Interface</a>
 
 ### <a name="photosdb">PhotosDB</a>
 
@@ -479,7 +479,7 @@ Pass the path to a Photos library or to a specific database file (e.g. "/Users/s
 
 If an invalid path is passed, PhotosDB will raise `FileNotFoundError` exception.
 
-**Note**: If neither path or dbfile is passed, PhotosDB will use get_last_library_path to open the last opened Photos library.  This usually works but is not 100% reliable.  It can also lead to loading a different library than expected if the user has held down *option* key when opening Photos to switch libraries.  You may therefore want to explicitely pass the path to `PhotosDB()`.
+**Note**: If neither path or dbfile is passed, PhotosDB will use [get_last_library_path](#get_last_library_path) to open the last opened Photos library.  This usually works but is not 100% reliable.  It can also lead to loading a different library than expected if the user has held down *option* key when opening Photos to switch libraries.  You may therefore want to explicitely pass the path to `PhotosDB()`.
 
 #### Open the default (last opened) Photos library
 
@@ -492,7 +492,7 @@ photosdb = osxphotos.PhotosDB(osxphotos.utils.get_last_library_path())
 
 #### Open System Photos library
 
-In Photos 5 (Catalina / MacOS 10.15), you can use `get_system_library_path()` to get the path to the System photo library if you want to ensure PhotosDB opens the system library.  This does not work on older versions of MacOS. E.g.
+In Photos 5 (Catalina / MacOS 10.15), you can use [`get_system_library_path()`](#get_system_library_path) to get the path to the System photo library if you want to ensure PhotosDB opens the system library.  This does not work on older versions of MacOS. E.g.
 
 ```python
 import osxphotos
@@ -532,7 +532,7 @@ Returns a PhotosDB object.
 
 **Note**: If you have a large library (e.g. many thousdands of photos), creating the PhotosDB object can take a long time (10s of seconds).  See [Implementation Notes](#implementation-notes) for additional details.
 
-#### <A name="photosdbphotos">`photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)`</a>
+#### <a name="photosdbphotos">`photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -622,9 +622,9 @@ To get only movies:
 movies = photosdb.photos(images=False, movies=True)
 ```
 
-**Note** PhotosDB.photos() may return a different number of photos than Photos.app reports in the GUI. This is because photos() returns [hidden](#hidden) photos, [shared](#shared) photos, and for [burst](#burst) photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you "finalize" the burst by selecting key photos and deleting the others using the "Make a selection" option.
+**Note** [PhotosDB.photos()](#photosdbphotos) may return a different number of photos than Photos.app reports in the GUI. This is because [photos()](#photosdbphotos) returns [hidden](#hidden) photos, [shared](#shared) photos, and for [burst](#burst) photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you "finalize" the burst by selecting key photos and deleting the others using the "Make a selection" option.
 
-For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, PhotosDB.photos() reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (*Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.
+For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, [PhotosDB.photos()](#photosdbphotos) reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (*Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.
 
 ```pycon
 >>> import osxphotos
@@ -650,11 +650,11 @@ For example, in my library, Photos says I have 19,386 photos and 474 movies.  Ho
 >>>
 ```
 
-#### <a name="getphoto">`get_photo(uuid)`</A>
+#### <a name="getphoto">`get_photo(uuid)`</a>
 
-Returns a single PhotoInfo instance for photo with UUID matching `uuid` or None if no photo is found matching `uuid`.  If you know the UUID of a photo, `get_photo()` is much faster than `photos`.  See also [photos()](#photos).
+Returns a single PhotoInfo instance for photo with UUID matching `uuid` or None if no photo is found matching `uuid`.  If you know the UUID of a photo, [`get_photo()`](#getphoto) is much faster than [`photos`](#photosdbphotos).  See also [photos()](#photosdbphotos).
 
-#### <A name="photosdb_query">`query(options: QueryOptions) -> List[PhotoInfo]:`</a>
+#### <a name="photosdb_query">`query(options: QueryOptions) -> List[PhotoInfo]:`</a>
 
 Returns a list of [PhotoInfo](#photoinfo) objects matching the query options. This is preferred method of querying the photos database. See [QueryOptions](#queryoptions) for details on the options available.
 
@@ -675,7 +675,7 @@ See also [keywords_as_dict](#keywords_as_dict).
 albums = photosdb.album_info
 ```
 
-Returns a list of [AlbumInfo](#albuminfo) objects representing albums in the database or empty list if there are no albums.  See also [albums](#photosdb_albums) and [burst_album_info](#burst_album_info).
+Returns a list of [AlbumInfo](#albuminfo) objects representing albums in the database or empty list if there are no albums.  See also [albums](#photosdb_albums) and [burst_album_info](#photoinfo_burst_album_info).
 
 #### <a name="photosdb_albums">`albums`</a>
 
@@ -684,11 +684,11 @@ Returns a list of [AlbumInfo](#albuminfo) objects representing albums in the dat
 album_names = photosdb.albums
 ```
 
-Returns a list of the album names found in the Photos library. See also [burst_albums](#burst_albums).
+Returns a list of the album names found in the Photos library. See also [burst_albums](#photoinfo_burst_albums).
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-See also [album_info](#photosdb_album_info.)
+See also [album_info](#photosdb_albuminfo).
 
 #### `albums_shared`
 
@@ -696,7 +696,7 @@ Returns list of shared album names found in photos database (e.g. albums shared 
 
 **Note**: *Only valid for Photos 5 / MacOS 10.15*; on Photos <= 4, prints warning and returns empty list.
 
-#### <a name = "photosdb_import_info">`import_info`</a>
+#### <a name="photosdb_import_info">`import_info`</a>
 
 Returns a list of [ImportInfo](#importinfo) objects representing the import sessions for the database.
 
@@ -737,7 +737,7 @@ Returns a list names of top level folder names in the database.
 persons = photosdb.persons
 ```
 
-Returns a list of the person names (faces) found in the Photos library.  **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#photosdb_personinfo).
+Returns a list of the person names (faces) found in the Photos library.  **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#photosdb_person_info).
 
 #### <a name="photosdb_person_info">`person_info`</a>
 
@@ -768,7 +768,7 @@ Returns a list of keywords that are not associated with any photos in the librar
 persons_dict = photosdb.persons_as_dict
 ```
 
-Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first). **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons_as_dict` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#dbpersoninfo).
+Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first). **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons_as_dict` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#photosdb_person_info).
 
 #### `albums_as_dict`
 
@@ -875,7 +875,7 @@ conn.close()
 
 Execute sql statement against the Photos database and return a sqlite cursor with the results.
 
-### QueryOptions
+### <a name="queryoptions">QueryOptions</a>
 
 QueryOptions class for [PhotosDB.query()](#photosdbquery)
 
@@ -977,7 +977,7 @@ if __name__ == "__main__":
 
 ### <a name="photoinfo">PhotoInfo</a>
 
-PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.
+[PhotosDB.photos()](#photosdbphotos) returns a list of [PhotoInfo](#photoinfo) objects.  Each PhotoInfo object represents a single photo in the Photos library.
 
 #### `uuid`
 
@@ -1034,13 +1034,13 @@ Returns the title of the photo
 
 Returns a list of keywords (e.g. tags) applied to the photo
 
-#### `albums`
+#### <a name="photoinfo_albums">`albums`</a>
 
-Returns a list of albums the photo is contained in. See also [album_info](#album_info).
+Returns a list of albums the photo is contained in. See also [album_info](#photoinfo_album_info).
 
-#### `album_info`
+#### <a name="photoinfo_album_info">`album_info`</a>
 
-Returns a list of [AlbumInfo](#albuminfo) objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also [albums](#albums).
+Returns a list of [AlbumInfo](#albuminfo) objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also [albums](#photoinfo_albums).
 
 #### `import_info`
 
@@ -1058,7 +1058,7 @@ Returns a list of the names of the persons in the photo
 
 Returns a list of [PersonInfo](#personinfo) objects representing persons in the photo.  Each PersonInfo object is associated with one or more FaceInfo objects.
 
-#### <a name="photooinfo_faceinfo">`face_info`</a>
+#### <a name="photoinfo_faceinfo">`face_info`</a>
 
 Returns a list of [FaceInfo](#faceinfo) objects representing faces in the photo.  Each face is associated with the a PersonInfo object.
 
@@ -1198,25 +1198,25 @@ Returns a [PlaceInfo](#placeinfo) object with reverse geolocation data or None i
 
 Returns True if photo is in a shared album, otherwise False.
 
-**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*
 
 #### `owner`
 
 Returns full name of the photo owner (person who shared the photo) for shared photos or None if photo is not shared. Also returns None if you are the person who shared the photo.
 
-**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*
 
 #### `comments`
 
 Returns list of [CommentInfo](#commentinfo) objects for comments on shared photos or empty list if no comments.
 
-**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.*
 
 #### `likes`
 
 Returns list of [LikeInfo](#likeinfo) objects for likes on shared photos or empty list if no likes.
 
-**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.*
 
 #### `isreference`
 
@@ -1302,7 +1302,7 @@ Returns True if photo is a burst image and is the photo that Photos selected as 
 
 If photo is a burst image (see [burst](#burst)), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.
 
-Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  PhotosDB.photos() will only return the photos in the burst set that the user [selected](https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac) using "Make a Selection..." in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using `burst_photos` you can access the other images in the burst set to export them, etc.
+Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  [PhotosDB.photos()](#photosdbphotos) will only return the photos in the burst set that the user [selected](https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac) using "Make a Selection..." in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using `burst_photos` you can access the other images in the burst set to export them, etc.
 
 ```pycon
 >>> import osxphotos
@@ -1322,15 +1322,15 @@ IMG_9854.JPG
 IMG_9855.JPG
 ```
 
-#### `burst_albums`
+#### <a name="photoinfo_burst_albums">`burst_albums`</a>
 
 If photo is burst photo, returns list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns `PhotoInfo.albums`.
 
-If a burst photo which has unselected burst images (e.g. the burst images are in the library but haven't been selected by the user using the "Make a selection" feature) is placed in a an album, Photos treats only the selected "key" photo as in the album.  The unselected burst images, while associated with the photo in the album, are not technically in the album.  If you are handling one of these unselected burst photos and want to know which album it would be in based on which albums it's selected key images are in, use `burst_albums`. See also [burst_album_info](#burst_album_info) and [albums](#albums).
+If a burst photo which has unselected burst images (e.g. the burst images are in the library but haven't been selected by the user using the "Make a selection" feature) is placed in a an album, Photos treats only the selected "key" photo as in the album.  The unselected burst images, while associated with the photo in the album, are not technically in the album.  If you are handling one of these unselected burst photos and want to know which album it would be in based on which albums it's selected key images are in, use `burst_albums`. See also [burst_album_info](#photoinfo_burst_album_info) and [albums](#photoinfo_albums).
 
-#### `burst_album_info`
+#### <a name="photoinfo_burst_album_info">`burst_album_info`</a>
 
-If photo is non-selected burst photo, teturns a list of [AlbumInfo](#albuminfo) objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns `PhotoInfo.album_info`. See also [burst_albums](#burst_albums) and [album_info](#album_info).
+If photo is non-selected burst photo, teturns a list of [AlbumInfo](#albuminfo) objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns `PhotoInfo.album_info`. See also [burst_albums](#photoinfo_burst_albums) and [album_info](#photoinfo_album_info).
 
 #### `live_photo`
 
@@ -1374,13 +1374,13 @@ Returns True if photo is a panorama, otherwise False.
 
 Returns True if photo is a slow motion video, otherwise False
 
-#### `labels`
+#### <a name="photoinfo_labels">`labels`</a>
 
 Returns image categorization labels associated with the photo as list of str.
 
-**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized](#labels_normalized).
+**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized](#photoinfo_labels_normalized).
 
-#### `labels_normalized`
+#### <a name="photoinfo_labels_normalized">`labels_normalized`</a>
 
 Returns image categorization labels associated with the photo as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label. For example:
 
@@ -1417,7 +1417,7 @@ See also `exiftool`.
 
 #### <a name="photoinfo_exiftool">`exiftool`</a>
 
-Returns an [ExifToolCaching](#exiftoolExifTool) object for the photo which provides an interface to [exiftool](https://exiftool.org/) allowing you to read the actual EXIF data in the image file inside the Photos library.  If [exif_info](#exif-info) doesn't give you all the data you need, you can use `exiftool` to read the entire EXIF contents of the image.
+Returns an [ExifToolCaching](#exiftool) object for the photo which provides an interface to [exiftool](https://exiftool.org/) allowing you to read the actual EXIF data in the image file inside the Photos library.  If [exif_info](#exifinfo) doesn't give you all the data you need, you can use `exiftool` to read the entire EXIF contents of the image.
 
 If the file is missing from the library (e.g. not downloaded from iCloud), returns None.
 
@@ -1450,7 +1450,7 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 
 The `ExifToolCaching` class caches values read from the photo via `exiftool` and is read-only.  This speeds access to the underlying EXIF data but any changes made to the EXIF data in the image will not be reflected in subsequent calls to `exiftool`.  In practice, the images in the Photos Library should not be modified after import so this is unlikely to cause any issues.
 
-**Caution**: I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.asdict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#export) does this if called with `exiftool=True`.
+**Caution**: I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.asdict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#photoinfo_export) does this if called with `exiftool=True`.
 
 #### `score`
 
@@ -1492,7 +1492,7 @@ Returns a JSON representation of all photo info.
 
 Returns a dictionary representation of all photo info.
 
-#### `export()`
+#### <a name="photoinfo_export">`export()`</a>
 
 `export(dest, filename=None, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_exiftool=False, sidecar_xmp=False, use_photos_export=False, use_photokit=True, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
 
@@ -1578,7 +1578,7 @@ Note: This is *not* the same as Live Text in macOS Monterey.  When using `detect
 
 See also [Text Detection](#textdetection).
 
-### ExifInfo
+### <a name="exifinfo">ExifInfo</a>
 
 [PhotosInfo.exif_info](#photoinfo_exif_info) returns an `ExifInfo` object with some EXIF data about the photo (Photos 5 only).  `ExifInfo` contains the following properties:
 
@@ -1619,9 +1619,9 @@ nikon_photos = [
 ]
 ```
 
-### AlbumInfo
+### <a name="albuminfo">AlbumInfo</a>
 
-[PhotosDB.album_info](#photosdb_album_info) and [PhotoInfo.album_info](photoinfo_album_info) return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
+[PhotosDB.album_info](#photosdb_albuminfo) and [PhotoInfo.album_info](#photoinfo_album_info) return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
 
 #### `uuid`
 
@@ -1651,7 +1651,7 @@ Returns the date of latest photo in the album as a timezone aware datetime.datet
 
 Returns a hierarchical list of [FolderInfo](#folderinfo) objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of `FolderInfo` objects representing ["Folder1", "SubFolder2"]
 
-```txt
+```text
 Photos Library
 ├── Folder1
     ├── SubFolder1
@@ -1663,7 +1663,7 @@ Photos Library
 
 Returns a hierarchical list of names of the folders the album is contained in.  For example, if album is in SubFolder2 of Folder1 as illustrated below, would return ["Folder1", "SubFolder2"].
 
-```txt
+```text
 Photos Library
 ├── Folder1
     ├── SubFolder1
@@ -1679,13 +1679,13 @@ Returns a [FolderInfo](#folderinfo) object representing the albums parent folder
 
 Returns full name of the album owner (person who shared the album) for shared albums or None if album is not shared.
 
-**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*Only valid on Photos 5 / MacOS 10.15*
 
 #### `asdict()`
 
 Returns a dictionary representation of the AlbumInfo object.
 
-### ImportInfo
+### <a name="importinfo">ImportInfo</a>
 
 PhotosDB.import_info returns a list of ImportInfo objects.  Each ImportInfo object represents an import session in the library.  PhotoInfo.import_info returns a single ImportInfo object representing the import session for the photo (or `None` if no associated import session).
 
@@ -1715,7 +1715,7 @@ Returns the end date as a timezone aware datetime.datetime object for when the i
 
 Returns a dictionary representation of the import session.
 
-### ProjectInfo
+### <a name="projectinfo">ProjectInfo</a>
 
 PhotosDB.projcet_info returns a list of ProjectInfo objects.  Each ProjectInfo object represents a project in the library.  PhotoInfo.project_info returns a list of ProjectInfo objects for each project the photo is contained in.
 
@@ -1741,7 +1741,7 @@ Returns the creation date as a timezone aware datetime.datetime object of the pr
 
 Returns a dictionary representation of the ProjectInfo object.
 
-### MomentInfo
+### <a name="momentinfo">MomentInfo</a>
 
 PhotoInfo.moment_info return the MomentInfo object for the photo.  The MomentInfo object contains information about the photo's moment as assigned by Photos.  The MomentInfo object contains the following properties:
 
@@ -1785,7 +1785,7 @@ Returns a list of [PhotoInfo] objects representing the photos in the moment.
 
 Returns a dictionary representation of the moment.
 
-### FolderInfo
+### <a name="folderinfo">FolderInfo</a>
 
 PhotosDB.folder_info returns a list of FolderInfo objects representing the top level folders in the library.  Each FolderInfo object represents a single folder in the Photos library.
 
@@ -1854,7 +1854,7 @@ Returns a dictionary representation of the FolderInfo object.
 'AlbumInFolder'
 ```
 
-### PlaceInfo
+### <a name="placeinfo">PlaceInfo</a>
 
 [PhotoInfo.place](#place) returns a PlaceInfo object if the photo contains valid reverse geolocation information.  PlaceInfo has the following properties.
 
@@ -1932,7 +1932,7 @@ PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', s
 '96753'
 ```
 
-### ScoreInfo
+### <a name="scoreinfo">ScoreInfo</a>
 
 [PhotoInfo.score](#score) returns a ScoreInfo object that exposes the computed aesthetic scores for each photo (**Photos 5+ only**).  I have not yet reverse engineered the meaning of each score.  The `overall` score seems to the most useful and appears to be a composite of the other scores.  The following score properties are currently available:
 
@@ -1974,13 +1974,13 @@ Example: find your "best" photo of food
 >>> best_food_photo = sorted([p for p in photos if "food" in p.labels_normalized], key=lambda p: p.score.overall, reverse=True)[0]
 ```
 
-### SearchInfo
+### <a name="searchinfo">SearchInfo</a>
 
 [PhotoInfo.search_info](#photosearchinfo) and [PhotoInfo.search_info_normalized](#photosearchinfo-normalized) return a SearchInfo object that exposes various metadata that Photos uses when searching for photos such as labels, associated holiday, etc. (**Photos 5+ only**).
 
 The following properties are available:
 
-#### `labels`
+#### <a name="searchinfo_labels">`labels`</a>
 
 Returns list of labels applied to photo by Photos image categorization algorithms.
 
@@ -2060,9 +2060,9 @@ Returns all search_info properties as a single list of strings.
 
 Returns all associated search_info metadata as a dict.
 
-### PersonInfo
+### <a name="personinfo">PersonInfo</a>
 
-[PhotosDB.person_info](#dbpersoninfo) and [PhotoInfo.person_info](#photopersoninfo) return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.
+[PhotosDB.person_info](#photosdb_person_info) and [PhotoInfo.person_info](#photoinfo_personinfo) return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.
 
 #### `name`
 
@@ -2108,7 +2108,7 @@ Returns a json string representation of the PersonInfo instance.
 
 Returns a dictionary representation of the PersonInfo instance.
 
-### FaceInfo
+### <a name="faceinfo">FaceInfo</a>
 
 [PhotoInfo.face_info](#photofaceinfo) return a list of FaceInfo objects representing detected faces in a photo.  The FaceInfo class has the following properties and methods.
 
@@ -2213,7 +2213,7 @@ Returns a dictionary representation of the FaceInfo instance.
 
 Returns a JSON representation of the FaceInfo instance.
 
-### CommentInfo
+### <a name="commentinfo">CommentInfo</a>
 
 [PhotoInfo.comments](#comments) returns a list of CommentInfo objects for comments on shared photos. (Photos 5/MacOS 10.15+ only).  The list of CommentInfo objects will be sorted in ascending order by date comment was made.  CommentInfo contains the following fields:
 
@@ -2222,7 +2222,7 @@ Returns a JSON representation of the FaceInfo instance.
 * `ismine`: `bool`, True if comment was made by person who owns the Photos library being operated on
 * `text`: `str`, text of the actual comment
 
-### LikeInfo
+### <a name="likeinfo">LikeInfo</a>
 
 [PhotoInfo.likes](#likes) returns a list of LikeInfo objects for "likes" on shared photos. (Photos 5/MacOS 10.15+ only).  The list of LikeInfo objects will be sorted in ascending order by date like was made.  LikeInfo contains the following fields:
 
@@ -2230,7 +2230,7 @@ Returns a JSON representation of the FaceInfo instance.
 * `user`: `str`, name of user who made the like
 * `ismine`: `bool`, True if like was made by person who owns the Photos library being operated on
 
-### AdjustmentsInfo
+### <a name="adjustmentsinfo">AdjustmentsInfo</a>
 
 [PhotoInfo.adjustments](#adjustments) returns an AdjustmentsInfo object, if the photo has adjustments, or `None` if the photo does not have adjusments.   AdjustmentsInfo has the following properties and methods:
 
@@ -2248,7 +2248,7 @@ Returns a JSON representation of the FaceInfo instance.
 * `adj_version_info`: version info for the application which made the adjustments to the photo decoded from the adjustments data.
 * `asdict()`: dict representation of the AdjustmentsInfo object; contains all properties with exception of `plist`.
 
-### PhotoTables
+### <a name="phototables">PhotoTables</a>
 
 [PhotoInfo.tables](#tables) returns a PhotoTables object that contains information about the tables in the Photos database that contain information about the photo.
 The following properties are available:
@@ -2279,7 +2279,7 @@ and a `rows_dict()` method which returns a list of dicts for the matching rows i
 [{'Z_PK': 6, 'Z_ENT': 3, 'Z_OPT': 35, 'ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE': 0, 'ZAVALANCHEPICKTYPE': 0, 'ZBUNDLESCOPE': 0, 'ZCAMERAPROCESSINGADJUSTMENTSTATE': 0, 'ZCLOUDDELETESTATE': 0, 'ZCLOUDDOWNLOADREQUESTS': 0, 'ZCLOUDHASCOMMENTSBYME': None, 'ZCLOUDHASCOMMENTSCONVERSATION': None, 'ZCLOUDHASUNSEENCOMMENTS': None, 'ZCLOUDISDELETABLE': None, 'ZCLOUDISMYASSET': None, 'ZCLOUDLOCALSTATE': 0, 'ZCLOUDPLACEHOLDERKIND': 0, 'ZCOMPLETE': 1, 'ZDEFERREDPROCESSINGNEEDED': 0, 'ZDEPTHTYPE': 0, 'ZDERIVEDCAMERACAPTUREDEVICE': 0, 'ZDUPLICATEASSETVISIBILITYSTATE': 0, 'ZFACEAREAPOINTS': -100, 'ZFAVORITE': 0, 'ZHASADJUSTMENTS': 1, 'ZHDRTYPE': 0, 'ZHEIGHT': 1356, 'ZHIDDEN': 0, 'ZHIGHFRAMERATESTATE': 0, 'ZISMAGICCARPET': 0, 'ZKIND': 0, 'ZKINDSUBTYPE': 0, 'ZLIBRARYSCOPESHARESTATE': 0, 'ZMONOSKITYPE': 0, 'ZORIENTATION': 1, 'ZPACKEDACCEPTABLECROPRECT': 6192599813128215, 'ZPACKEDBADGEATTRIBUTES': 1, 'ZPACKEDPREFERREDCROPRECT': 2814835671629878, 'ZPLAYBACKSTYLE': 1, 'ZPLAYBACKVARIATION': 0, 'ZSAVEDASSETTYPE': 3, 'ZSEARCHINDEXREBUILDSTATE': 0, 'ZSYNDICATIONSTATE': 0, 'ZTHUMBNAILINDEX': 5, 'ZTRASHEDSTATE': 0, 'ZVIDEOCPDURATIONVALUE': 0, 'ZVIDEOCPVISIBILITYSTATE': 0, 'ZVIDEODEFERREDPROCESSINGNEEDED': 0, 'ZVIDEOKEYFRAMETIMESCALE': 0, 'ZVIDEOKEYFRAMEVALUE': 0, 'ZVISIBILITYSTATE': 0, 'ZWIDTH': 2047, 'ZADDITIONALATTRIBUTES': 7, 'ZCLOUDFEEDASSETSENTRY': None, 'ZCOMPUTEDATTRIBUTES': 8, 'ZCONVERSATION': None, 'ZDAYGROUPHIGHLIGHTBEINGASSETS': None, 'ZDAYGROUPHIGHLIGHTBEINGEXTENDEDASSETS': None, 'ZDAYGROUPHIGHLIGHTBEINGKEYASSETPRIVATE': None, 'ZDAYGROUPHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZDAYGROUPHIGHLIGHTBEINGSUMMARYASSETS': None, 'ZDUPLICATEMETADATAMATCHINGALBUM': None, 'ZDUPLICATEPERCEPTUALMATCHINGALBUM': None, 'ZEXTENDEDATTRIBUTES': 3, 'ZHIGHLIGHTBEINGASSETS': 6, 'ZHIGHLIGHTBEINGEXTENDEDASSETS': 6, 'ZHIGHLIGHTBEINGKEYASSETPRIVATE': 6, 'ZHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZHIGHLIGHTBEINGSUMMARYASSETS': 6, 'ZIMPORTSESSION': 4, 'ZLIBRARYSCOPE': None, 'ZMASTER': None, 'ZMEDIAANALYSISATTRIBUTES': 8, 'ZMOMENT': 4, 'ZMOMENTSHARE': None, 'ZMONTHHIGHLIGHTBEINGKEYASSETPRIVATE': 2, 'ZMONTHHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZPHOTOANALYSISATTRIBUTES': 3, 'ZTRASHEDBYPARTICIPANT': None, 'ZYEARHIGHLIGHTBEINGKEYASSETPRIVATE': 3, 'ZYEARHIGHLIGHTBEINGKEYASSETSHARED': None, 'Z_FOK_CLOUDFEEDASSETSENTRY': None, 'ZADDEDDATE': 585926209.859624, 'ZADJUSTMENTTIMESTAMP': 596906868.198932, 'ZANALYSISSTATEMODIFICATIONDATE': 689981763.374756, 'ZCLOUDBATCHPUBLISHDATE': None, 'ZCLOUDLASTVIEWEDCOMMENTDATE': None, 'ZCLOUDSERVERPUBLISHDATE': None, 'ZCURATIONSCORE': 0.5, 'ZDATECREATED': 561129492.501, 'ZDURATION': 0.0, 'ZFACEADJUSTMENTVERSION': 596906868.198932, 'ZHDRGAIN': None, 'ZHIGHLIGHTVISIBILITYSCORE': 0.03816793893129771, 'ZLASTSHAREDDATE': None, 'ZLATITUDE': 51.50357167, 'ZLONGITUDE': -0.1318055, 'ZMODIFICATIONDATE': 689982854.802854, 'ZOVERALLAESTHETICSCORE': 0.6494140625, 'ZPROMOTIONSCORE': 0.0, 'ZSORTTOKEN': 561129492.501, 'ZTRASHEDDATE': None, 'ZAVALANCHEUUID': None, 'ZCLOUDASSETGUID': None, 'ZCLOUDBATCHID': None, 'ZCLOUDCOLLECTIONGUID': None, 'ZCLOUDOWNERHASHEDPERSONID': None, 'ZDELETEREASON': None, 'ZDIRECTORY': 'D', 'ZFILENAME': 'DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg', 'ZMEDIAGROUPUUID': None, 'ZORIGINALCOLORSPACE': 'sRGB IEC61966-2.1', 'ZUNIFORMTYPEIDENTIFIER': 'public.jpeg', 'ZUUID': 'DC99FBDD-7A52-4100-A5BB-344131646C30', 'ZIMAGEREQUESTHINTS': b'Ki\t@\x01\x00\x00\x00\td\tH\x01\x00\x00\x00\x93\\\tL\x01\x00\x00\x00\x1aK\x0c\x03\x0c\xa8q\x92\x00\x12C\x0c\x03\x0c"\r\x90\x00\x00<\x0c\x03\x08"\x19\x80\x00', 'ZLOCATIONDATA': b'\xca\xebV\tu\xc0I@/j\xf7\xab\x00\xdf\xc0\xbf\xcd\xcc\xcc\xcc\xcc\xcc\x04@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'}]
 ```
 
-### Raw Photos
+### <a name="raw-photos">Raw Photos</a>
 
 Handling raw photos in `osxphotos` requires a bit of extra work.  Raw photos in Photos can be imported in two different ways: 1) a single raw photo with no associated JPEG image is imported 2) a raw+JPEG pair is imported -- two separate images with same file stem (e.g. `IMG_0001.CR2` and `IMG_001.JPG`) are imported.
 
@@ -2313,7 +2313,7 @@ To get the path of every raw photo, whether it's a single raw photo or a raw+JPE
 ...     print(path)
 ```
 
-### Template System
+### <a name="template-system">Template System</a>
 
 <!--[[[cog
 from osxphotos.phototemplate import get_template_help
@@ -2381,7 +2381,7 @@ Valid filters are:
 - `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
 - `slice(start:stop:step)`: Slice list using same semantics as Python's list slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().
 - `sslice(start:stop:step)`: [s(tring) slice] Slice values in a list using same semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().
-- `filter(x)`: Filter list of values using predicate x; for example, `{folder_album|filter(contains Events)}` returns only folders/albums containing the word 'Events' in their path.
+- `filter(x)`: Filter list of values using predicate x; for example, '{folder_album|filter(contains Events)}' returns only folders/albums containing the word 'Events' in their path.
 - `int`: Convert values in list to integer, e.g. 1.0 => 1. If value cannot be converted to integer, remove value from list. ['1.1', 'x'] => ['1']. See also float.
 - `float`: Convert values in list to floating point number, e.g. 1 => 1.0. If value cannot be converted to float, remove value from list. ['1', 'x'] => ['1.0']. See also int.
 
@@ -2598,7 +2598,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 |{label}|Image categorization label associated with a photo (Photos 5+ only). Labels are added automatically by Photos using machine learning algorithms to categorize images. These are not the same as {keyword} which refers to the user-defined keywords/tags applied in Photos.|
 |{label_normalized}|All lower case version of 'label' (Photos 5+ only)|
 |{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5+ only)|
-|{exiftool}|Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
+|{exiftool}|Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in 'exiftool -G'. exiftool must be installed in the path to use this template.|
 |{searchinfo.holiday}|Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.activity}|Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
@@ -2611,7 +2611,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 |{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the path/name of the python file and 'function_name' is the name of the function to call. The file name may also be url to a python file, e.g. '{function:https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::example}'. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
 <!--[[[end]]] -->
 
-### <a name="exiftoolExifTool">ExifTool</a>
+### <a name="exiftool">ExifTool</a>
 
 osxphotos includes its own `exiftool` library that can be accessed via `osxphotos.exiftool`:
 
@@ -2669,7 +2669,7 @@ photo.exiftool.addvalues("IPTC:Keywords", "vacation", "beach")
 
 osxphotos.exiftool also provides an `ExifToolCaching` class which caches all metadata after the first call to `exiftool`. This can significantly speed up repeated access to the metadata but should only be used if you do not intend to modify the file's metadata.
 
-[`PhotoInfo.exiftool`](#exiftool) returns an `ExifToolCaching` instance for the original image in the Photos library.
+[`PhotoInfo.exiftool`](#photoinfo_exiftool) returns an `ExifToolCaching` instance for the original image in the Photos library.
 
 #### Implementation Note
 
@@ -2677,9 +2677,9 @@ osxphotos.exiftool also provides an `ExifToolCaching` class which caches all met
 
 ### <a name="photoexporter">PhotoExporter</a>
 
-[PhotoInfo.export()](#photoinfo) provides a simple method to export a photo.  This method actually calls `PhotoExporter.export()` to do the export.  `PhotoExporter` provides many more options to configure the export and report results and this is what the osxphotos command line export tools uses.
+[PhotoInfo.export()](#photoinfo_export) provides a simple method to export a photo.  This method actually calls `PhotoExporter.export()` to do the export.  `PhotoExporter` provides many more options to configure the export and report results and this is what the osxphotos command line export tools uses.
 
-#### `export(dest, filename=None, options: Optional[ExportOptions]=None) -> ExportResults`
+#### <a name="photoexporter_export">`export(dest, filename=None, options: Optional[ExportOptions]=None) -> ExportResults`</a>
 
 Export a photo.
 
@@ -2962,15 +2962,15 @@ This class also the following methods:
 
 `bool(PhotosDBDiff())` returns True if there are any differences between the libraries.
 
-### Utility Functions
+### <a name="utility-functions">Utility Functions</a>
 
 The following functions are located in osxphotos.utils
 
-#### `get_system_library_path()`
+#### <a name="get_system_library_path">`get_system_library_path()`</a>
 
 **MacOS 10.15 Only** Returns path to System Photo Library as string.  On MacOS version < 10.15, returns None.
 
-#### `get_last_library_path()`
+#### <a name="get_last_library_path">`get_last_library_path()`</a>
 
 Returns path to last opened Photo Library as string.
 
@@ -2978,7 +2978,7 @@ Returns path to last opened Photo Library as string.
 
 Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15, this appears to list all libraries. On older systems, it may not find some libraries if they are not located in ~/Pictures.  Provided for convenience but do not rely on this to find all libraries on the system.
 
-## Additional Examples
+## <a name="additional-examples">Additional Examples</a>
 
 ```python
 import osxphotos
