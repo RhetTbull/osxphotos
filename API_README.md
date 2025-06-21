@@ -690,7 +690,7 @@ Returns a list of the album names found in the Photos library. See also [burst_a
 
 See also [album_info](#photosdb-albuminfo).
 
-#### albums_shared
+#### <a name="albums-shared">albums_shared</a>
 
 Returns list of shared album names found in photos database (e.g. albums shared via iCloud photo sharing)
 
@@ -748,7 +748,7 @@ person_info = photosdb.person_info
 
 Returns a list of [PersonInfo](#personinfo) objects representing persons who appear in photos in the database.
 
-#### keywords_as_dict
+#### <a name="keywords-as-dict">keywords_as_dict</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -757,11 +757,11 @@ keyword_dict = photosdb.keywords_as_dict
 
 Returns a dictionary of keywords found in the Photos library where key is the keyword and value is the count of how many times that keyword appears in the library (ie. how many photos are tagged with the keyword).  Resulting dictionary is in reverse sorted order (e.g. keyword with the highest count is first).
 
-#### keywords_without_photo
+#### <a name="keywords-without-photo">keywords_without_photo</a>
 
 Returns a list of keywords that are not associated with any photos in the library.
 
-#### persons_as_dict
+#### <a name="persons-as-dict">persons_as_dict</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -770,7 +770,7 @@ persons_dict = photosdb.persons_as_dict
 
 Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first). **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons_as_dict` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#photosdb-person-info).
 
-#### albums_as_dict
+#### <a name="albums-as-dict">albums_as_dict</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -781,7 +781,7 @@ Returns a dictionary of albums found in the Photos library where key is the albu
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### albums_shared_as_dict
+#### <a name="albums-shared-as-dict">albums_shared_as_dict</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -804,19 +804,19 @@ Returns image categorization labels associated with photos in the library as lis
 
 **Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#photosdb-labels).
 
-#### labels_as_dict
+#### <a name="labels-as-dict">labels_as_dict</a>
 
 Returns dictionary image categorization labels associated with photos in the library where key is label and value is number of photos in the library with the label.
 
 **Note**: Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_normalized_as_dict](#labels-normalized-as-dict).
 
-#### labels_normalized_as_dict
+#### <a name="labels-normalized-as-dict">labels_normalized_as_dict</a>
 
 Returns dictionary of image categorization labels associated with photos in the library where key is normalized label and value is number of photos in the library with that label. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label.
 
 **Note**: Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels_as_dict](#labels-as-dict).
 
-#### library_path
+#### <a name="library-path">library_path</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -825,7 +825,7 @@ photosdb.library_path
 
 Returns the path to the Photos library as a string
 
-#### db_path
+#### <a name="db-path">db_path</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -834,7 +834,7 @@ photosdb.db_path
 
 Returns the path to the Photos database PhotosDB was initialized with
 
-#### db_version
+#### <a name="db-version">db_version</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -843,7 +843,7 @@ photosdb.db_version
 
 Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested.
 
-#### photos_version
+#### <a name="photos-version">photos_version</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -852,7 +852,7 @@ photosdb.photos_version
 
 Returns the version number as int for version of Photos that created the library, e.g. 2, 3, 4, 5...
 
-#### get_db_connection()
+#### <a name="get-db-connection">get_db_connection()</a>
 
 Returns tuple of (connection, cursor) for the working copy of the Photos database.  This is useful for debugging or prototyping new features.
 
@@ -871,7 +871,7 @@ for row in results:
 conn.close()
 ```
 
-#### execute(sql)
+#### <a name="executesql">execute(sql)</a>
 
 Execute sql statement against the Photos database and return a sqlite cursor with the results.
 
@@ -879,7 +879,7 @@ Execute sql statement against the Photos database and return a sqlite cursor wit
 
 QueryOptions class for [PhotosDB.query()](#photosdbquery)
 
-#### Attributes
+#### <a name="Attributes">Attributes</a>
 
 See [queryoptions.py](https://github.com/RhetTbull/osxphotos/blob/master/osxphotos/queryoptions.py) for typing information.
 
@@ -979,31 +979,31 @@ if __name__ == "__main__":
 
 [PhotosDB.photos()](#photosdbphotos) returns a list of [PhotoInfo](#photoinfo) objects.  Each PhotoInfo object represents a single photo in the Photos library.
 
-#### uuid
+#### <a name="uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the photo.  This is how Photos keeps track of individual photos within the database.
 
-#### filename
+#### <a name="filename">filename</a>
 
 Returns the current filename of the photo on disk.  See also [original_filename](#original-filename)
 
-#### original_filename
+#### <a name="original-filename">original_filename</a>
 
 Returns the original filename of the photo when it was imported to Photos.  **Note**: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also [filename](#filename)
 
-#### date
+#### <a name="date">date</a>
 
 Returns the create date of the photo as a timezone aware datetime.datetime object
 
-#### tzoffset
+#### <a name="tzoffset">tzoffset</a>
 
 Returns the timezone offset from UTC in seconds for the Photo creation date
 
-#### tzname
+#### <a name="tzname">tzname</a>
 
 Returns the timezone name for the Photos creation date; on Photos version < 5, returns None
 
-#### date_original
+#### <a name="date-original">date_original</a>
 
 Returns the original creation date of the photo as a timezone aware datetime.datetime object.
 If user changed the photo's date in Photos, this will return the original date Photos assigned
@@ -1014,23 +1014,23 @@ returns the same value as `date`.
 
 Photos 5+ only; on Photos < 5.0, this will return the same value as `date`.
 
-#### date_added
+#### <a name="date-added">date_added</a>
 
 Returns the date the photo was added to the Photos library as a timezone aware datetime.datetime object in the local timezone, or None if the data added cannot be determined
 
-#### date_modified
+#### <a name="date-modified">date_modified</a>
 
 Returns the modification date of the photo as a timezone aware atetime.datetime object in the local timezone or None if photo has no modification date
 
-#### description
+#### <a name="description">description</a>
 
 Returns the description of the photo
 
-#### title
+#### <a name="title">title</a>
 
 Returns the title of the photo
 
-#### keywords
+#### <a name="keywords">keywords</a>
 
 Returns a list of keywords (e.g. tags) applied to the photo
 
@@ -1042,15 +1042,15 @@ Returns a list of albums the photo is contained in. See also [album_info](#photo
 
 Returns a list of [AlbumInfo](#albuminfo) objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also [albums](#photoinfo-albums).
 
-#### import_info
+#### <a name="import-info">import_info</a>
 
 Returns an [ImportInfo](#importinfo) object representing the import session associated with the photo or `None` if there is no associated import session.
 
-#### project_info
+#### <a name="project-info">project_info</a>
 
 Returns a list of [ProjectInfo](#projectinfo) objects representing projects/creations (cards, calendars, etc.) the photo is contained in or empty list if there are no projects associated with the photo.
 
-#### persons
+#### <a name="persons">persons</a>
 
 Returns a list of the names of the persons in the photo
 
@@ -1062,17 +1062,17 @@ Returns a list of [PersonInfo](#personinfo) objects representing persons in the 
 
 Returns a list of [FaceInfo](#faceinfo) objects representing faces in the photo.  Each face is associated with the a PersonInfo object.
 
-#### path
+#### <a name="path">path</a>
 
 Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see [hasadjustments](#hasadjustments)).  If the file is missing on disk, path=`None` (see [ismissing](#ismissing)).
 
-#### path_edited
+#### <a name="path-edited">path_edited</a>
 
 Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also [path](#path) and [hasadjustments](#hasadjustments).
 
 **Note**: will also return None if the edited photo is missing on disk.
 
-#### path_derivatives
+#### <a name="path-derivatives">path_derivatives</a>
 
 Returns list of paths to any derivative preview images associated with the photo. The list of returned paths is sorted in descending order by size (the largest, presumably highest quality) preview image will be the first element in the returned list. These will be named something like this on Photos 5+:
 
@@ -1090,51 +1090,51 @@ I've not yet decoded the suffixes to know which preview is used for which purpos
 
 Returns empty list if no deri images are found.
 
-#### path_raw
+#### <a name="path-raw">path_raw</a>
 
 Returns the absolute path to the associated raw photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.  See [notes on Raw Photos](#raw-photos).
 
-#### has_raw
+#### <a name="has-raw">has_raw</a>
 
 Returns True if photo has an associated raw image, otherwise False. (e.g. Photo is a RAW+JPEG pair). See also [is_raw](#israw) and [notes on Raw Photos](#raw-photos).
 
-#### israw
+#### <a name="israw">israw</a>
 
 Returns True if photo is a raw image. E.g. it was imported as a single raw image, not part of a RAW+JPEG pair.  See also [has_raw](#has-raw) and .
 
-#### raw_original
+#### <a name="raw-original">raw_original</a>
 
 Returns True if associated raw image and the raw image is selected in Photos via "Use RAW as Original", otherwise returns False.  See [notes on Raw Photos](#raw-photos).
 
-#### height
+#### <a name="height">height</a>
 
 Returns height of the photo in pixels.  If image has been edited, returns height of the edited image, otherwise returns height of the original image.  See also [original_height](#original-height).
 
-#### width
+#### <a name="width">width</a>
 
 Returns width of the photo in pixels.  If image has been edited, returns width of the edited image, otherwise returns width of the original image.  See also [original_width](#original-width).
 
-#### orientation
+#### <a name="orientation">orientation</a>
 
 Returns EXIF orientation value of the photo as integer.  If image has been edited, returns orientation of the edited image, otherwise returns orientation of the original image. See also [original_orientation](#original-orientation).  If orientation cannot be determined, returns 0 (this happens if osxphotos cannot decode the adjustment info for an edited image).
 
-#### original_height
+#### <a name="original-height">original_height</a>
 
 Returns height of the original photo in pixels. See also [height](#height).
 
-#### original_width
+#### <a name="original-width">original_width</a>
 
 Returns width of the original photo in pixels. See also [width](#width).
 
-#### original_orientation
+#### <a name="original-orientation">original_orientation</a>
 
 Returns EXIF orientation value of the original photo as integer. See also [orientation](#orientation).
 
-#### original_filesize
+#### <a name="original-filesize">original_filesize</a>
 
 Returns size of the original photo in bytes as integer.
 
-#### ismissing
+#### <a name="ismissing">ismissing</a>
 
 Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted and user hasn't enabled "Copy items to the Photos library" in Photos preferences. **Note**: this status is computed based on data in the Photos library and `ismissing` does not verify if the photo is actually missing. See also [path](#path).
 
@@ -1142,163 +1142,163 @@ Returns `True` if the original image file is missing on disk, otherwise `False`.
 
 Returns `True` if the picture has been edited, otherwise `False`
 
-#### adjustments
+#### <a name="adjustments">adjustments</a>
 
 On Photos 5+, returns an [AdjustmentsInfo](#adjustmentsinfo) object representing the adjustments (edits) to the photo or None if there are no adjustments.  On earlier versions of Photos, always returns None.
 
-#### external_edit
+#### <a name="external-edit">external_edit</a>
 
 Returns `True` if the picture was edited in an external editor (outside Photos.app), otherwise `False`
 
-#### favorite
+#### <a name="favorite">favorite</a>
 
 Returns `True` if the picture has been marked as a favorite, otherwise `False`; for iPhoto always returns False
 
-#### flagged
+#### <a name="flagged">flagged</a>
 
 Returns `True` if the picture has been marked as flagged otherwise `False` (iPhoto only, returns False for Photos)
 
-#### rating
+#### <a name="rating">rating</a>
 
 Returns star rating of photo as int from 0 to 5 (iPhoto only); for Photos, always returns 0.
 
-#### hidden
+#### <a name="hidden">hidden</a>
 
 Returns `True` if the picture has been marked as hidden, otherwise `False`
 
-#### visible
+#### <a name="visible">visible</a>
 
 Returns `True` if the picture is visible in library, otherwise `False`.  e.g. non-selected burst photos are not hidden but also not visible
 
-#### intrash
+#### <a name="intrash">intrash</a>
 
 Returns `True` if the picture is in the trash ('Recently Deleted' folder), otherwise `False`
 
-#### date_trashed
+#### <a name="date-trashed">date_trashed</a>
 
 Returns the date the photo was placed in the trash as a timezone aware datetime.datetime object in the local timezone or None if photo is not in the trash
 
-#### location
+#### <a name="location">location</a>
 
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`
 
-#### latitude
+#### <a name="latitude">latitude</a>
 
 Returns latitude as a float or `None`.
 
-#### longitude
+#### <a name="longitude">longitude</a>
 
 Returns longitude as a float or `None`.
 
-#### place
+#### <a name="place">place</a>
 
 Returns a [PlaceInfo](#placeinfo) object with reverse geolocation data or None if there is the photo has no reverse geolocation information.
 
-#### shared
+#### <a name="shared">shared</a>
 
 Returns True if photo is in a shared album, otherwise False.
 
 **Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*
 
-#### owner
+#### <a name="owner">owner</a>
 
 Returns full name of the photo owner (person who shared the photo) for shared photos or None if photo is not shared. Also returns None if you are the person who shared the photo.
 
 **Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*
 
-#### comments
+#### <a name="comments">comments</a>
 
 Returns list of [CommentInfo](#commentinfo) objects for comments on shared photos or empty list if no comments.
 
 **Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.*
 
-#### likes
+#### <a name="likes">likes</a>
 
 Returns list of [LikeInfo](#likeinfo) objects for likes on shared photos or empty list if no likes.
 
 **Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.*
 
-#### isreference
+#### <a name="isreference">isreference</a>
 
 Returns `True` if the original image file is a referenced file (imported without copying to the Photos library) otherwise returns `False`.
 
-#### isphoto
+#### <a name="isphoto">isphoto</a>
 
 Returns True if type is photo/still image, otherwise False
 
-#### ismovie
+#### <a name="ismovie">ismovie</a>
 
 Returns True if type is movie/video, otherwise False
 
-#### iscloudasset
+#### <a name="iscloudasset">iscloudasset</a>
 
 Returns True if photo is a cloud asset, that is, it is in a library synched to iCloud.  See also [incloud](#incloud)
 
-#### incloud
+#### <a name="incloud">incloud</a>
 
 Returns True if photo is a [cloud asset](#iscloudasset) and is synched to iCloud otherwise False if photo is a cloud asset and not yet synched to iCloud. Returns None if photo is not a cloud asset.
 
 **Note**: Applies to master (original) photo only.  It's possible for the master to be in iCloud but a local edited version is not yet synched to iCloud. `incloud` provides status of only the master photo.  osxphotos does not yet provide a means to determine if the edited version is in iCloud.  If you need this feature, please open an [issue](https://github.com/RhetTbull/osxphotos/issues).
 
-#### syndicated
+#### <a name="syndicated">syndicated</a>
 
 Return true if photo was shared via syndication (e.g. via Messages, etc.); these are photos that appear in "Shared with you" album. Photos 7+ only; returns None if not Photos 7+.
 
-#### saved_to_library
+#### <a name="saved-to-library">saved_to_library</a>
 
 Return True if syndicated photo has been saved to library; returns False if photo is not syndicated or has not been saved to the library.
 Syndicated photos are photos that appear in "Shared with you" album. Photos 7+ only; returns None if not Photos 7+.
 
-#### shared_moment
+#### <a name="shared-moment">shared_moment</a>
 
 Return True if photo is part of a shared moment, otherwise False.  Shared moments are created when multiple photos are shared via iCloud. (e.g. in Messages)
 
-#### shared_library
+#### <a name="shared-library">shared_library</a>
 
 Return True if photo is included in shared iCloud library, otherwise False. Photos 8+ only; returns False if not Photos 8+.
 
-#### share_participant_info
+#### <a name="share-participant-info">share_participant_info</a>
 
 Returns list of ShareParticipant objects with information on who the photo in shared iCloud library is shared with (Photos 8+ only)
 
-#### share_participants
+#### <a name="share-participants">share_participants</a>
 
 Returns list of names of people the photo in shared iCloud library is shared with (Photos 8+ only)
 
-#### uti
+#### <a name="uti">uti</a>
 
 Returns Uniform Type Identifier (UTI) for the current version of the image, for example: 'public.jpeg' or 'com.apple. quicktime-movie'.  If the image has been edited, `uti` will return the UTI for the edited image, otherwise it will return the UTI for the original image.
 
-#### uti_original
+#### <a name="uti-original">uti_original</a>
 
 Returns Uniform Type Identifier (UTI) for the original unedited image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'.
 
-#### uti_edited
+#### <a name="uti-edited">uti_edited</a>
 
 Returns Uniform Type Identifier (UTI) for the edited image, for example: 'public.jpeg'.  Returns None if the photo does not have adjustments.
 
-#### uti_raw
+#### <a name="uti-raw">uti_raw</a>
 
 Returns Uniform Type Identifier (UTI) for the associated raw image, if there is one; for example, 'com.canon.cr2-raw-image'.  If the image is raw but not part of a RAW+JPEG pair, `uti_raw` returns None.  In this case, use `uti`, or `uti_original`.  See also [has_raw](#has-raw) and [notes on Raw Photos](#raw-photos).
 
-#### burst
+#### <a name="burst">burst</a>
 
 Returns True if photos is a burst image (e.g. part of a set of burst images), otherwise False.
 See [burst_photos](#burst-photos)
 
-#### burst_selected
+#### <a name="burst-selected">burst_selected</a>
 
 Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False.
 
-#### burst_key
+#### <a name="burst-key">burst_key</a>
 
 Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False.
 
-#### burst_default_pick
+#### <a name="burst-default-pick">burst_default_pick</a>
 
 Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False.
 
-#### burst_photos
+#### <a name="burst-photos">burst_photos</a>
 
 If photo is a burst image (see [burst](#burst)), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.
 
@@ -1332,45 +1332,45 @@ If a burst photo which has unselected burst images (e.g. the burst images are in
 
 If photo is non-selected burst photo, teturns a list of [AlbumInfo](#albuminfo) objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns `PhotoInfo.album_info`. See also [burst_albums](#photoinfo-burst-albums) and [album_info](#photoinfo-album-info).
 
-#### live_photo
+#### <a name="live-photo">live_photo</a>
 
 Returns True if photo is an Apple live photo (ie. it has an associated "live" video component), otherwise returns False.  See [path_live_photo](#path-live-photo).
 
-#### path_live_photo
+#### <a name="path-live-photo">path_live_photo</a>
 
 Returns the path to the live video component of a [live photo](#live-photo). If photo is not a live photo, returns None.
 
 **Note**: will also return None if the live video component is missing on disk. It's possible that the original photo may be on disk ([ismissing](#ismissing)==False) but the video component is missing, likely because it has not been downloaded from iCloud.
 
-#### path_edited_live_photo
+#### <a name="path-edited-live-photo">path_edited_live_photo</a>
 
 Returns the path to the edited live video component of an edited [live photo](#live-photo). If photo is not a live photo or not edited, returns None.
 
-#### portrait
+#### <a name="portrait">portrait</a>
 
 Returns True if photo was taken in iPhone portrait mode, otherwise False.
 
-#### hdr
+#### <a name="hdr">hdr</a>
 
 Returns True if photo was taken in High Dynamic Range (HDR) mode, otherwise False.
 
-#### selfie
+#### <a name="selfie">selfie</a>
 
 Returns True if photo is a selfie (taken with front-facing camera), otherwise False.
 
 **Note**: Only implemented for Photos version 3.0+.  On Photos version < 3.0, returns None.
 
-#### time_lapse
+#### <a name="time-lapse">time_lapse</a>
 
 Returns True if photo is a time lapse video, otherwise False.
 
-#### panorama
+#### <a name="panorama">panorama</a>
 
 Returns True if photo is a panorama, otherwise False.
 
 **Note**: The result of `PhotoInfo.panorama` will differ from the "Panoramas" Media Types smart album in that it will also identify panorama photos from older phones that Photos does not recognize as panoramas.
 
-#### slow_mo
+#### <a name="slow-mo">slow_mo</a>
 
 Returns True if photo is a slow motion video, otherwise False
 
@@ -1452,43 +1452,43 @@ The `ExifToolCaching` class caches values read from the photo via `exiftool` and
 
 **Caution**: I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.asdict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#photoinfo-export) does this if called with `exiftool=True`.
 
-#### score
+#### <a name="score">score</a>
 
 Returns a [ScoreInfo](#scoreinfo) data class object which provides access to the computed aesthetic scores for each photo.
 
 **Note**: Valid only for Photos 5; returns None for earlier Photos versions.
 
-#### duplicates
+#### <a name="duplicates">duplicates</a>
 
 Returns list of PhotoInfo objects for *possible* duplicates or empty list if no matching duplicates.  Photos are considered possible duplicates if the photo's original file size, date created, height, and width match another those of another photo.  This does not do a byte-for-byte comparison or compute a hash which makes it fast and allows for identification of possible duplicates even if originals are not downloaded from iCloud.  The signature-based approach should be robust enough to match duplicates created either through the "duplicate photo" menu item or imported twice into the library but you should not rely on this 100% for identification of all duplicates.
 
-#### cloud_guid
+#### <a name="cloud-guid">cloud_guid</a>
 
 For photos in iCloud, returns the cloud GUID for the photo.  This is the unique identifier for the photo in iCloud.  For photos not in iCloud, returns None.
 
-#### cloud_owner_hashed_id
+#### <a name="cloud-owner-hashed-id">cloud_owner_hashed_id</a>
 
 For shared photos, returns the hashed ID of the owner of the shared photo.  For photos not shared, returns None.
 
-#### fingerprint
+#### <a name="fingerprint">fingerprint</a>
 
 Returns a unique fingerprint for the original photo file.  This is a hash of the original photo file and is useful for finding duplicates or correlating photos across multiple libraries.
 
-#### hexdigest
+#### <a name="hexdigest">hexdigest</a>
 
 Returns a unique digest of the photo's properties and metadata; useful for detecting changes in any property/metadata of the photo.
 
-#### tables()
+#### <a name="tables">tables()</a>
 
 Returns a PhotoTables object which provides access to the underlying SQLite database tables for the photo.
 See [PhotoTables](#phototables) for more details. This is useful for debugging or developing new features but
 is not intended for general use.
 
-#### json()
+#### <a name="json">json()</a>
 
 Returns a JSON representation of all photo info.
 
-#### asdict()
+#### <a name="asdict">asdict()</a>
 
 Returns a dictionary representation of all photo info.
 
@@ -1623,11 +1623,11 @@ nikon_photos = [
 
 [PhotosDB.album_info](#photosdb-albuminfo) and [PhotoInfo.album_info](#photoinfo-album-info) return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
 
-#### uuid
+#### <a name="uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the album.  This is how Photos keeps track of individual objects within the database.
 
-#### title
+#### <a name="title">title</a>
 
 Returns the title or name of the album.
 
@@ -1635,19 +1635,19 @@ Returns the title or name of the album.
 
 Returns a list of [PhotoInfo](#photoinfo) objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by `photos` will be in same order as they appear in the Photos album)
 
-#### creation_date
+#### <a name="creation-date">creation_date</a>
 
 Returns the creation date as a timezone aware datetime.datetime object of the album.
 
-#### start_date
+#### <a name="start-date">start_date</a>
 
 Returns the date of earliest photo in the album as a timezone aware datetime.datetime object.
 
-#### end_date
+#### <a name="end-date">end_date</a>
 
 Returns the date of latest photo in the album as a timezone aware datetime.datetime object.
 
-#### folder_list
+#### <a name="folder-list">folder_list</a>
 
 Returns a hierarchical list of [FolderInfo](#folderinfo) objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of `FolderInfo` objects representing ["Folder1", "SubFolder2"]
 
@@ -1659,7 +1659,7 @@ Photos Library
         └── AlbumInFolder
 ```
 
-#### folder_names
+#### <a name="folder-names">folder_names</a>
 
 Returns a hierarchical list of names of the folders the album is contained in.  For example, if album is in SubFolder2 of Folder1 as illustrated below, would return ["Folder1", "SubFolder2"].
 
@@ -1671,17 +1671,17 @@ Photos Library
         └── AlbumInFolder
 ```
 
-#### parent
+#### <a name="parent">parent</a>
 
 Returns a [FolderInfo](#folderinfo) object representing the albums parent folder or `None` if album is not a in a folder.
 
-#### owner
+#### <a name="owner">owner</a>
 
 Returns full name of the album owner (person who shared the album) for shared albums or None if album is not shared.
 
 **Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*Only valid on Photos 5 / MacOS 10.15*
 
-#### asdict()
+#### <a name="asdict">asdict()</a>
 
 Returns a dictionary representation of the AlbumInfo object.
 
@@ -1689,7 +1689,7 @@ Returns a dictionary representation of the AlbumInfo object.
 
 PhotosDB.import_info returns a list of ImportInfo objects.  Each ImportInfo object represents an import session in the library.  PhotoInfo.import_info returns a single ImportInfo object representing the import session for the photo (or `None` if no associated import session).
 
-#### uuid
+#### <a name="uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the import session.  This is how Photos keeps track of individual objects within the database.
 
@@ -1697,21 +1697,21 @@ Returns the universally unique identifier (uuid) of the import session.  This is
 
 Returns a list of [PhotoInfo](#photoinfo) objects representing each photo contained in the import session.
 
-#### creation_date
+#### <a name="creation-date">creation_date</a>
 
 Returns the creation date as a timezone aware datetime.datetime object of the import session.
 
-#### start_date
+#### <a name="start-date">start_date</a>
 
 Returns the start date as a timezone aware datetime.datetime object for when the import session began.
 
-#### end_date
+#### <a name="end-date">end_date</a>
 
 Returns the end date as a timezone aware datetime.datetime object for when the import session completed.
 
 **Note**: On Photos <=4, `start_date` and `end_date` will be the same as `creation_date`.
 
-#### asdict()
+#### <a name="asdict">asdict()</a>
 
 Returns a dictionary representation of the import session.
 
@@ -1721,11 +1721,11 @@ PhotosDB.projcet_info returns a list of ProjectInfo objects.  Each ProjectInfo o
 
 Projects (found under "My Projects" in Photos) are projects or creations such as cards, calendars, and slideshows created in Photos.  osxphotos provides only very basic information about projects and projects created with third party plugins may not accessible to osxphotos.
 
-#### uuid
+#### <a name="uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the project.  This is how Photos keeps track of individual objects within the database.
 
-#### title
+#### <a name="title">title</a>
 
 Returns the title or name of the project.
 
@@ -1733,11 +1733,11 @@ Returns the title or name of the project.
 
 Returns a list of [PhotoInfo](#photoinfo) objects representing each photo contained in the project.
 
-#### creation_date
+#### <a name="creation-date">creation_date</a>
 
 Returns the creation date as a timezone aware datetime.datetime object of the project.
 
-#### asdict()
+#### <a name="asdict">asdict()</a>
 
 Returns a dictionary representation of the ProjectInfo object.
 
@@ -1745,43 +1745,43 @@ Returns a dictionary representation of the ProjectInfo object.
 
 PhotoInfo.moment_info return the MomentInfo object for the photo.  The MomentInfo object contains information about the photo's moment as assigned by Photos.  The MomentInfo object contains the following properties:
 
-#### pk
+#### <a name="pk">pk</a>
 
 Returns the primary key of the moment in the Photos database.
 
-#### location
+#### <a name="location">location</a>
 
 Returns the location of the moment as a tuple of (latitude, longitude).
 
-#### title
+#### <a name="title">title</a>
 
 Returns the title of the moment.
 
-#### subtitle
+#### <a name="subtitle">subtitle</a>
 
 Returns the subtitle of the moment.
 
-#### start_date
+#### <a name="start-date">start_date</a>
 
 Returns the start date of the moment as a timezone aware datetime.datetime object.
 
-#### end_date
+#### <a name="end-date">end_date</a>
 
 Returns the end date of the moment as a timezone aware datetime.datetime object.
 
-#### date
+#### <a name="date">date</a>
 
 Returns the date of the moment as a timezone aware datetime.datetime object.
 
-#### modification_date
+#### <a name="modification-date">modification_date</a>
 
 Returns the modification date of the moment as a timezone aware datetime.datetime object.
 
-#### photos
+#### <a name="photos">photos</a>
 
 Returns a list of [PhotoInfo] objects representing the photos in the moment.
 
-#### asdict()
+#### <a name="asdict">asdict()</a>
 
 Returns a dictionary representation of the moment.
 
@@ -1789,11 +1789,11 @@ Returns a dictionary representation of the moment.
 
 PhotosDB.folder_info returns a list of FolderInfo objects representing the top level folders in the library.  Each FolderInfo object represents a single folder in the Photos library.
 
-#### uuid
+#### <a name="uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the folder.  This is how Photos keeps track of individual objects within the database.
 
-#### title
+#### <a name="title">title</a>
 
 Returns the title or name of the folder.
 
@@ -1807,15 +1807,15 @@ Returns a list of [AlbumInfo](#albuminfo) objects for each shared album in the p
 
 **Note**: Only valid for Photos 5+; on Photos <= 4, prints warning and returns empty list.
 
-#### subfolders
+#### <a name="subfolders">subfolders</a>
 
 Returns a list of [FolderInfo](#folderinfo) objects representing the sub-folders of the folder.
 
-#### parent
+#### <a name="parent">parent</a>
 
 Returns a [FolderInfo](#folderinfo) object representing the folder's parent folder or `None` if album is not a in a folder.
 
-#### sort_order
+#### <a name="sort-order">sort_order</a>
 
 Returns album sort order (as `AlbumSortOrder` enum).  On Photos <=4, always returns `AlbumSortOrder.MANUAL`.
 
@@ -1827,11 +1827,11 @@ Returns album sort order (as `AlbumSortOrder` enum).  On Photos <=4, always retu
 * `OLDEST_FIRST`
 * `TITLE`
 
-#### photo_index(photo)
+#### <a name="photo-indexphoto">photo_index(photo)</a>
 
 Returns index of photo in album (based on album sort order).
 
-#### asdict()
+#### <a name="asdict">asdict()</a>
 
 Returns a dictionary representation of the FolderInfo object.
 
@@ -1860,11 +1860,11 @@ Returns a dictionary representation of the FolderInfo object.
 
 **Note** For Photos versions <= 4, only `name`, `names`, and `country_code` properties are defined.  All others return `None`.  This is because older versions of Photos do not store the more detailed reverse geolocation information.
 
-#### ishome
+#### <a name="ishome">ishome</a>
 
 Returns `True` if photo place is user's home address, otherwise `False`.
 
-#### name
+#### <a name="name">name</a>
 
 Returns the name of the local place as str.  This is what Photos displays in the Info window.  **Note** Photos 5 uses a different algorithm to determine the name than earlier versions which means the same Photo may have a different place name in Photos 4 and Photos 5. `PhotoInfo.name` will return the name Photos would have shown depending on the version of the library being processed.  In Photos 5, the place name is generally more detailed than in earlier versions of Photos.
 
@@ -1872,7 +1872,7 @@ For example, I have photo in my library that under Photos 4, has place name of "
 
 Returns `None` if photo does not contain a name.
 
-#### names
+#### <a name="names">names</a>
 
 Returns a `PlaceNames` namedtuple with the following fields.  Each field is a list with zero or more values, sorted by area in ascending order.  E.g. `names.area_of_interest` could be ['Gulf Islands National Seashore', 'Santa Rosa Island'], ["Knott's Berry Farm"], or [] if `area_of_interest` not defined.  The value shown in Photos is the first value in the list. With the exception of `body_of_water` each of these field corresponds to an attribute of a [CLPlacemark](https://developer.apple.com/documentation/corelocation/clplacemark) object.  **Note** The `PlaceNames` namedtuple contains reserved fields not listed below (see implementation for details), thus it should be referenced only by name (e.g. `names.city`) and not by index.
 
@@ -1900,17 +1900,17 @@ Returns a `PlaceNames` namedtuple with the following fields.  Each field is a li
 * `area_of_interest`
 * `body_of_water`
 
-#### country_code
+#### <a name="country-code">country_code</a>
 
 Returns the country_code of place, for example "GB".  Returns `None` if PhotoInfo contains no country code.
 
-#### address_str
+#### <a name="address-str">address_str</a>
 
 Returns the full postal address as a string if defined, otherwise `None`.
 
 For example: "2038 18th St NW, Washington, DC  20009, United States"
 
-#### address
+#### <a name="address">address</a>
 
 Returns a `PostalAddress` namedtuple with details of the postal address containing the following fields:
 
@@ -1984,79 +1984,79 @@ The following properties are available:
 
 Returns list of labels applied to photo by Photos image categorization algorithms.
 
-#### place_names
+#### <a name="place-names">place_names</a>
 
 Returns list of place names associated with the photo.
 
-#### streets
+#### <a name="streets">streets</a>
 
 Returns list of street names associated with the photo. (e.g. reverse geolocation of where the photo was taken)
 
-#### neighborhoods
+#### <a name="neighborhoods">neighborhoods</a>
 
 Returns list of neighborhood names associated with the photo.
 
-#### locality_names
+#### <a name="locality-names">locality_names</a>
 
 Returns list of locality names associated with the photo.
 
-#### city
+#### <a name="city">city</a>
 
 Returns str of city/town/municipality associated with the photo.
 
-#### state
+#### <a name="state">state</a>
 
 Returns str of state name associated with the photo.
 
-#### state_abbreviation
+#### <a name="state-abbreviation">state_abbreviation</a>
 
 Returns str of state abbreviation associated with the photo.
 
-#### country
+#### <a name="country">country</a>
 
 Returns str of country name associated with the photo.
 
-#### month
+#### <a name="month">month</a>
 
 Returns str of month name associated witht the photo (e.g. month in which the photo was taken)
 
-#### year
+#### <a name="year">year</a>
 
 Returns year associated with the photo.
 
-#### bodies_of_water
+#### <a name="bodies-of-water">bodies_of_water</a>
 
 Returns list of bodies of water associated with the photo.
 
-#### holidays
+#### <a name="holidays">holidays</a>
 
 Returns list of holiday names associated with the photo.
 
-#### activities
+#### <a name="activities">activities</a>
 
 Returns list of activities associated with the photo.
 
-#### season
+#### <a name="season">season</a>
 
 Returns str of season name associated with the photo.
 
-#### venues
+#### <a name="venues">venues</a>
 
 Returns list of venue names associated with the photo.
 
-#### venue_types
+#### <a name="venue-types">venue_types</a>
 
 Returns list of venue types associated with the photoo.
 
-#### media_types
+#### <a name="media-types">media_types</a>
 
 Returns list of media types associated with the photo.
 
-#### all
+#### <a name="all">all</a>
 
 Returns all search_info properties as a single list of strings.
 
-#### asdict()
+#### <a name="asdict">asdict()</a>
 
 Returns all associated search_info metadata as a dict.
 
@@ -2064,23 +2064,23 @@ Returns all associated search_info metadata as a dict.
 
 [PhotosDB.person_info](#photosdb-person-info) and [PhotoInfo.person_info](#photoinfo-person-info) return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.
 
-#### name
+#### <a name="name">name</a>
 
 Returns the full name of the person represented in the photo. For example, "Maria Smith".
 
-#### display_name
+#### <a name="display-name">display_name</a>
 
 Returns the display name of the person represented in the photo. For example, "Maria".
 
-#### uuid
+#### <a name="uuid">uuid</a>
 
 Returns the UUID of the person as stored in the Photos library database.
 
-#### keyphoto
+#### <a name="keyphoto">keyphoto</a>
 
 Returns a PhotoInfo instance for the photo designated as the key photo for the person. This is the Photos uses to display the person's face thumbnail in Photos' "People" view.
 
-#### facecount
+#### <a name="facecount">facecount</a>
 
 Returns a count of how many times this person appears in images in the database.
 
@@ -2100,11 +2100,11 @@ Returns True if Person has been marked as a favorite in Photos, otherwise False.
 
 Returns the sort order for the person in the Photos People view.  Available on Photos 5+ only; on Photos <= 4, returns None.
 
-#### json()
+#### <a name="json">json()</a>
 
 Returns a json string representation of the PersonInfo instance.
 
-#### asdict()
+#### <a name="asdict">asdict()</a>
 
 Returns a dictionary representation of the PersonInfo instance.
 
@@ -2120,7 +2120,7 @@ UUID of the face.
 
 Full name of the person represented by the face or None if person hasn't been given a name in Photos.  This is a shortcut for `FaceInfo.person_info.name`.
 
-#### asset_uuid
+#### <a name="asset-uuid">asset_uuid</a>
 
 UUID of the photo this face is associated with.
 
@@ -2132,7 +2132,7 @@ UUID of the photo this face is associated with.
 
 [PhotoInfo](#photoinfo) object representing the photo that contains this face.
 
-#### mwg_rs_area
+#### <a name="mwg-rs-area">mwg_rs_area</a>
 
 Returns named tuple with following coordinates as used in Metdata Working Group (mwg) face regions in XMP files.
 
@@ -2141,7 +2141,7 @@ Returns named tuple with following coordinates as used in Metdata Working Group 
 * `h` = `stArea:h`
 * `w` = `stArea:w`
 
-#### mpri_reg_rect
+#### <a name="mpri-reg-rect">mpri_reg_rect</a>
 
 Returnes named tuple with following coordinates as used in Microsoft Photo Region Rectangle (mpri) in XMP files.
 
@@ -2150,33 +2150,33 @@ Returnes named tuple with following coordinates as used in Microsoft Photo Regio
 * `h` = height of rectangle
 * `w` = width of rectangle
 
-#### face_rect()
+#### <a name="face-rect">face_rect()</a>
 
 Returns list of x, y coordinates as tuples `[(x0, y0), (x1, y1)]` representing the corners of rectangular region that contains the face.  Coordinates are in same format and [reference frame](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system) as used by [Pillow](https://pypi.org/project/Pillow/) imaging library.  **Note**: face_rect() and all other properties/methods that return coordinates refer to the *current version* of the image. E.g. if the image has been edited ([PhotoInfo.hasadjustments](#hasadjustments)), these refer to [PhotoInfo.path_edited](#path-edited).  If the image has no adjustments, these coordinates refer to the original photo ([PhotoInfo.path](#path)).
 
-#### center
+#### <a name="center">center</a>
 
 Coordinates as (x, y) tuple for the center of the detected face.
 
-#### size_pixels
+#### <a name="size-pixels">size_pixels</a>
 
 Diameter of detected face region in pixels.
 
-#### roll_pitch_yaw()
+#### <a name="roll-pitch-yaw">roll_pitch_yaw()</a>
 
 Roll, pitch, and yaw of face region in radians.  Returns a tuple of (roll, pitch, yaw)
 
-#### roll
+#### <a name="roll">roll</a>
 
 Roll of face region in radians.
 
-#### pitch
+#### <a name="pitch">pitch</a>
 
 Pitch of face region in radians.
 
 **Note**: Only valid on Photos version <= 4, otherwise returns 0
 
-#### yaw
+#### <a name="yaw">yaw</a>
 
 Yaw of face region in radians.
 
@@ -2299,7 +2299,7 @@ The latter are treated by Photos as a single image.  By default, Photos will tre
 |[path](#path) | `/path/to/IMG_0001.CR2` | `/path/to/IMG_0001.JPG` | `/path/to/IMG_0001.JPG` |
 |[path_raw](#path-raw) | None | `/path/to/IMG_0001.CR2` | `/path/to/IMG_0001.CR2` |
 
-#### Example
+#### <a name="Example">Example</a>
 
 To get the path of every raw photo, whether it's a single raw photo or a raw+JPEG pair, one could do something like this:
 
@@ -2693,7 +2693,7 @@ Returns: ExportResults instance
 
 *Note*: to use dry run mode, you must set options.dry_run=True and also pass in memory version of export_db, and no-op fileutil (e.g. `ExportDBInMemory` and `FileUtilNoOp`) in options.export_db and options.fileutil respectively.
 
-#### ExportOptions
+#### <a name="ExportOptions">ExportOptions</a>
 
 Options class for exporting photos with `export`
 
@@ -2742,7 +2742,7 @@ Attributes:
 * verbose (Callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
 * tmpfile (str): optional path to use for temporary files
 
-#### ExportResults
+#### <a name="ExportResults">ExportResults</a>
 
 `PhotoExporter().export()` returns an instance of this class.
 
@@ -2907,7 +2907,7 @@ The [PhotoInfo.detected_text()](#photoinfo-detected_text) and the `{detected_tex
 from osxphotos.compare_libraries import compare_photos_libraries, PhotosDBDiff
 ```
 
-#### compare_photos_libraries()
+#### <a name="compare-photos-libraries">compare_photos_libraries()</a>
 
 ```python
 def compare_photos_libraries(
@@ -2938,7 +2938,7 @@ def compare_photos_libraries(
     """
 ```
 
-#### PhotosDBDiff
+#### <a name="PhotosDBDiff">PhotosDBDiff</a>
 
 ```python
 @dataclasses.dataclass
@@ -2974,7 +2974,7 @@ The following functions are located in osxphotos.utils
 
 Returns path to last opened Photo Library as string.
 
-#### list_photo_libraries()
+#### <a name="list-photo-libraries">list_photo_libraries()</a>
 
 Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15, this appears to list all libraries. On older systems, it may not find some libraries if they are not located in ~/Pictures.  Provided for convenience but do not rely on this to find all libraries on the system.
 
