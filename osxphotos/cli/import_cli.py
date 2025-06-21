@@ -23,11 +23,10 @@ from typing import TYPE_CHECKING, Callable, Tuple
 
 import click
 from rich.console import Console
-from rich.markdown import Markdown
-from rich.progress import Progress, SpinnerColumn
 from strpdatetime import strpdatetime
 
 from osxphotos.fileutil import FileUtilMacOS
+from osxphotos.markdown_utils import format_markdown_for_console, markdown_to_plaintext
 from osxphotos.photodates import (
     set_photo_date_from_filename,
     update_photo_time_for_new_timezone,
@@ -190,6 +189,7 @@ class ImportCommand(click.Command):
             ## Examples
 
             Import a file into Photos:
+
             osxphotos import /Volumes/photos/img_1234.jpg
 
             Import multiple jpg files into Photos:
@@ -285,7 +285,7 @@ class ImportCommand(click.Command):
 
             ## Metadata
 
-            osxphotos import' can set metadata (title, description, keywords, and location) for
+            'osxphotos import' can set metadata (title, description, keywords, and location) for
             imported photos/videos using several options.
 
             If you have exiftool (https://exiftool.org/) installed, osxphotos can use
@@ -295,7 +295,7 @@ class ImportCommand(click.Command):
             The '--exiftool' option will automatically attempt to update title,
             description, keywords, and location from the file's metadata:
 
-            osxphotos import *.jpg --exiftool'
+            osxphotos import *.jpg --exiftool
 
             The following metadata fields are read (in priority order) and used to set
             the metadata of the imported photo:
@@ -353,8 +353,10 @@ class ImportCommand(click.Command):
             imported yet. The following fields are available:
 
             #### {exiftool}
+
             - '{exiftool}': Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org)
             to extract metadata, in form GROUP:TAGNAME, from image.
+
             E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract
             keywords. See https://exiftooip=l.org/TagNames/ for list of valid tag names.
             You must specify group (e.g. EXIF, IPTC, etc) as used in 'exiftool -G'.
@@ -493,10 +495,10 @@ class ImportCommand(click.Command):
             - Unzip the archive
             - Run the following command to import the photos into Photos:
 
-            osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv'
+            osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv
 
             If you have persons tagged in Google Photos you can add this option to create keywords
-            for each person in the photo: '--keyword "{person}"
+            for each person in the photo: '--keyword "{person}"'
 
             Google Takeout does not preserve the timezone of the photo. The metadata JSON sidecar
             produced by Google converts photo times to UTC. The import command will convert these
@@ -508,13 +510,9 @@ class ImportCommand(click.Command):
         )
         console = Console()
         if console.is_interactive:
-            with console.capture() as capture:
-                console.print(
-                    Markdown(extra_help), width=min(HELP_WIDTH, console.width)
-                )
-            formatter.write(capture.get())
+            formatter.write(format_markdown_for_console(extra_help, HELP_WIDTH))
         else:
-            formatter.write(extra_help)
+            formatter.write(markdown_to_plaintext(extra_help))
         help_text += "\n\n" + formatter.getvalue()
         return help_text
 

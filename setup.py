@@ -77,6 +77,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=[
+        "beautifulsoup4",
         "bitmath>=1.3.3.1,<1.4.0.0",
         "bpylist2>=4.1.1,<5.0.0",
         "cgmetadata>=0.2.0; sys_platform == 'darwin'",
@@ -84,6 +85,7 @@ setup(
         "mac-alias>=2.2.2,<3.0.0; sys_platform == 'darwin'",
         "makelive>=0.6.2; sys_platform == 'darwin'",
         "Mako>=1.2.2,<1.3.0",
+        "markdown2",
         "more-itertools>=8.8.0,<9.0.0",
         "objexplore>=1.6.3,<2.0.0",
         "osxmetadata>=1.4.0,<2.0.0; sys_platform == 'darwin'",
