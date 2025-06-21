@@ -1062,11 +1062,11 @@ Returns a list of [PersonInfo](#personinfo) objects representing persons in the 
 
 Returns a list of [FaceInfo](#faceinfo) objects representing faces in the photo.  Each face is associated with the a PersonInfo object.
 
-#### `path`
+#### path
 
 Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see [hasadjustments](#hasadjustments)).  If the file is missing on disk, path=`None` (see [ismissing](#ismissing)).
 
-#### `path_edited`
+#### path_edited
 
 Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also [path](#path) and [hasadjustments](#hasadjustments).
 
@@ -2128,11 +2128,11 @@ UUID of the photo this face is associated with.
 
 [PersonInfo](#personinfo) object associated with this face.
 
-#### <a name="faceinfo_photo">`photo`</a>
+#### <a name="faceinfo_photo">photo</a>
 
 [PhotoInfo](#photoinfo) object representing the photo that contains this face.
 
-#### `mwg_rs_area`
+#### mwg_rs_area
 
 Returns named tuple with following coordinates as used in Metdata Working Group (mwg) face regions in XMP files.
 
@@ -2141,7 +2141,7 @@ Returns named tuple with following coordinates as used in Metdata Working Group 
 * `h` = `stArea:h`
 * `w` = `stArea:w`
 
-#### `mpri_reg_rect`
+#### mpri_reg_rect
 
 Returnes named tuple with following coordinates as used in Microsoft Photo Region Rectangle (mpri) in XMP files.
 
@@ -2150,19 +2150,19 @@ Returnes named tuple with following coordinates as used in Microsoft Photo Regio
 * `h` = height of rectangle
 * `w` = width of rectangle
 
-#### `face_rect()`
+#### face_rect()
 
-Returns list of x, y coordinates as tuples `[(x0, y0), (x1, y1)]` representing the corners of rectangular region that contains the face.  Coordinates are in same format and [reference frame](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system) as used by [Pillow](https://pypi.org/project/Pillow/) imaging library.  **Note**: face_rect() and all other properties/methods that return coordinates refer to the *current version* of the image. E.g. if the image has been edited ([`PhotoInfo.hasadjustments`](#hasadjustments)), these refer to [`PhotoInfo.path_edited`](#pathedited).  If the image has no adjustments, these coordinates refer to the original photo ([`PhotoInfo.path`](#path)).
+Returns list of x, y coordinates as tuples `[(x0, y0), (x1, y1)]` representing the corners of rectangular region that contains the face.  Coordinates are in same format and [reference frame](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system) as used by [Pillow](https://pypi.org/project/Pillow/) imaging library.  **Note**: face_rect() and all other properties/methods that return coordinates refer to the *current version* of the image. E.g. if the image has been edited ([PhotoInfo.hasadjustments](#hasadjustments)), these refer to [PhotoInfo.path_edited](#path-edited).  If the image has no adjustments, these coordinates refer to the original photo ([PhotoInfo.path](#path)).
 
-#### `center`
+#### center
 
 Coordinates as (x, y) tuple for the center of the detected face.
 
-#### `size_pixels`
+#### size_pixels
 
 Diameter of detected face region in pixels.
 
-#### `roll_pitch_yaw()`
+#### roll_pitch_yaw()
 
 Roll, pitch, and yaw of face region in radians.  Returns a tuple of (roll, pitch, yaw)
 
@@ -2182,7 +2182,7 @@ Yaw of face region in radians.
 
 **Note**: Only valid on Photos version <= 4, otherwise returns 0
 
-#### `Additional properties`
+#### Additional properties
 
 The following additional properties are also available but are not yet fully documented.
 
