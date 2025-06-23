@@ -15,21 +15,39 @@ def markdown_to_plaintext(markdown_text: str) -> str:
     Returns:
         str: The plain text representation of the Markdown.
     """
-    html = markdown2.markdown(markdown_text)
+    # Convert Markdown to HTML
+    html = markdown2.markdown(markdown_text, extras=["fenced-code-blocks"])
     soup = BeautifulSoup(html, "html.parser")
 
     lines = []
+
+    def add_line(text="", indent=0):
+        if text is not None:
+            indented = (" " * indent) + text.strip()
+            lines.append(indented)
+
     for elem in soup.recursiveChildGenerator():
         if elem.name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
-            lines.append(elem.get_text(strip=True))
+            add_line(elem.get_text())
             lines.append("")  # blank line after headers
-        elif elem.name == "li":
-            lines.append(f"- {elem.get_text(strip=True)}")
+
         elif elem.name == "p":
-            text = elem.get_text(strip=True)
-            if text:
-                lines.append(text)
-                lines.append("")  # preserve spacing after paragraphs
+            add_line(elem.get_text())
+            lines.append("")  # blank line after paragraphs
+
+        elif elem.name == "li":
+            add_line(f"- {elem.get_text()}")
+
+        elif elem.name == "blockquote":
+            for sub in elem.stripped_strings:
+                add_line(sub, indent=4)
+            lines.append("")  # blank line after blockquote
+
+        elif elem.name == "pre":
+            code = elem.get_text().rstrip().splitlines()
+            for line in code:
+                add_line(line, indent=4)
+            lines.append("")  # blank line after code block
 
     return "\n".join(lines).strip()
 

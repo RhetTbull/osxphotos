@@ -230,7 +230,7 @@ class ImportCommand(click.Command):
             use the '--split-folder' option.  For example, if your photos are organized into
             folders as follows:
 
-                .
+                /
                 ├── 2021
                 │   ├── Family
                 │   └── Travel
@@ -506,10 +506,13 @@ class ImportCommand(click.Command):
             date/time and timezone information in the metadata you can use the '--sidecar-ignore-date'
             option to ignore the date/time in the sidecar and use the date/time from the photo metadata.
 
-        """
+            """
         )
         console = Console()
-        if console.is_interactive:
+
+        # Check if running under Sphinx documentation generation
+        is_sphinx = "sphinx_click_custom" in sys.modules
+        if console.is_interactive and not is_sphinx:
             formatter.write(format_markdown_for_console(extra_help, HELP_WIDTH))
         else:
             formatter.write(markdown_to_plaintext(extra_help))

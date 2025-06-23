@@ -162,3 +162,4 @@ This package will install a command line utility called ``osxphotos`` that allow
     update         Update the installation to the latest version.
     uuid           Print out unique IDs (UUID) of photos selected in Photos
     version        Check for new version of osxphotos.
+
