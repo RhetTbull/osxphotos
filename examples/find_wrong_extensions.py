@@ -1,4 +1,7 @@
-"""Find photos and videos with mismatched UTI and/or extension in the Photos library"""
+"""Find photos and videos with mismatched UTI and/or extension in the Photos library
+
+Run with: osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/refs/heads/main/examples/find_wrong_extensions.py
+"""
 
 import pathlib
 from dataclasses import dataclass
