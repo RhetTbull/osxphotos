@@ -5,6 +5,11 @@ import photoscript
 
 import osxphotos
 from osxphotos.cli import echo, echo_error, query_command, verbose
+from osxphotos.datetime_utils import (
+    datetime_remove_tz,
+    datetime_tz_to_utc,
+    datetime_utc_to_local,
+)
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 
@@ -93,6 +98,16 @@ def copy_metadata(
             dest_photo.location = src.location
     else:
         verbose(f"No location to set")
+
+    if src.date:
+        verbose(f"Setting date: {src.date}")
+        if not dry_run:
+            # need to convert to local time before setting
+            dest_photo.date = datetime_remove_tz(
+                datetime_utc_to_local(datetime_tz_to_utc(src.date))
+            )
+    else:
+        verbose(f"No date to set")
 
     # Add destination photo to source photo's albums, preserving folder structure
     if src.album_info:
