@@ -115,6 +115,7 @@ from .common import (
     OSXPHOTOS_HIDDEN,
     get_photos_db,
     noop,
+    require_macos
 )
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
@@ -711,6 +712,8 @@ if TYPE_CHECKING:
 @click.option(
     "--add-skipped-to-album",
     metavar="ALBUM",
+    hidden=not is_macos,
+    callback=require_macos,
     help="Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created "
     "if it doesn't exist.  All skipped photos will be added to this album. "
     "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",

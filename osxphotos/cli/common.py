@@ -20,7 +20,7 @@ else:
 import osxphotos
 from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
-from osxphotos.platform import get_macos_version
+from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.utils import get_latest_version
 
 # used to show/hide hidden commands
@@ -129,3 +129,10 @@ def print_version(ctx, param, value):
     else:
         click.echo(f"{sys.platform} {platform.machine()}")
     ctx.exit()
+
+
+def require_macos(ctx, param, value):
+    """Callback for options that are only valid on macOS."""
+    if value and not is_macos:
+        raise click.UsageError(f"{param.opts[0]} only works on macOS")
+    return value
