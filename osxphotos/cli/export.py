@@ -705,6 +705,8 @@ if TYPE_CHECKING:
 @click.option(
     "--add-exported-to-album",
     metavar="ALBUM",
+    hidden=not is_macos,
+    callback=require_macos,
     help="Add all exported photos to album ALBUM in Photos. Album ALBUM will be created "
     "if it doesn't exist.  All exported photos will be added to this album. "
     "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
@@ -721,6 +723,8 @@ if TYPE_CHECKING:
 @click.option(
     "--add-missing-to-album",
     metavar="ALBUM",
+    hidden=not is_macos,
+    callback=require_macos,
     help="Add all missing photos to album ALBUM in Photos. Album ALBUM will be created "
     "if it doesn't exist.  All missing photos will be added to this album. "
     "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",

@@ -134,5 +134,8 @@ def print_version(ctx, param, value):
 def require_macos(ctx, param, value):
     """Callback for options that are only valid on macOS."""
     if value and not is_macos:
-        raise click.UsageError(f"{param.opts[0]} only works on macOS")
+        raise click.UsageError(
+            message=f"{param.opts[0]} only works on macOS",
+            ctx=ctx
+        )
     return value
