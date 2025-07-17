@@ -930,15 +930,24 @@
       "contributions": [
         "test",
         "data"
-        ]
-        },
-        {
+      ]
+    },
+    {
       "login": "cstaubli",
       "name": "Christian Staubli",
       "avatar_url": "https://avatars.githubusercontent.com/u/6720436?v=4",
       "profile": "https://github.com/cstaubli",
       "contributions": [
         "bug"
+      ]
+    },
+    {
+      "login": "YazdanRa",
+      "name": "Yazdan Ranjbar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32798567?v=4",
+      "profile": "http://yazdanra.com",
+      "contributions": [
+        "code"
       ]
     }
   ],
