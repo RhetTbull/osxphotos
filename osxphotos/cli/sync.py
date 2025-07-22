@@ -628,8 +628,11 @@ def set_photo_property(photo: photoscript.Photo, property: str, value: Any):
     # do some basic validation
     if property == "keywords" and not isinstance(value, list):
         raise ValueError(f"keywords must be a list, not {type(value)}")
-    elif property in {"title", "description"} and not isinstance(value, str):
-        raise ValueError(f"{property} must be a str, not {type(value)}")
+    elif property in {"title", "description"}:
+        if value is None:
+            value = ""
+        elif not isinstance(value, str):
+            raise ValueError(f"{property} must be a str, not {type(value)}")
     elif property == "favorite":
         value = bool(value)
     elif property == "location":
