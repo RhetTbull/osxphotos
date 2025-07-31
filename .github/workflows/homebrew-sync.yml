@@ -1,0 +1,57 @@
+name: Homebrew Formula Sync
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          # Strip leading 'v' from tag name
+          RAW_TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${RAW_TAG#v}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Download release tarball from PyPI
+        run: |
+          wget "https://files.pythonhosted.org/packages/source/o/osxphotos/osxphotos-${VERSION}.tar.gz" -O source.tar.gz
+
+      - name: Calculate SHA256
+        id: calculate_sha
+        run: |
+          SHA256=$(shasum -a 256 source.tar.gz | awk '{ print $1 }')
+          echo "SHA256=${SHA256}" >> $GITHUB_ENV
+
+      - name: Update formula file
+        run: |
+          sed -i.bak "s|__VERSION__|${VERSION}|g" Formula/osxphotos.rb
+          sed -i.bak "s|__SHA256__|${SHA256}|g" Formula/osxphotos.rb
+          rm Formula/osxphotos.rb.bak
+
+      - name: Checkout Homebrew tap repo
+        uses: actions/checkout@v3
+        with:
+          repository: RhetTbull/homebrew-osxphotos
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Copy updated formula to tap
+        run: |
+          cp Formula/osxphotos.rb homebrew-tap/Formula/osxphotos.rb
+
+      - name: Commit and push formula update
+        run: |
+          cd homebrew-tap
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add Formula/osxphotos.rb
+          git commit -m "Update osxphotos formula to ${VERSION}"
+          git push

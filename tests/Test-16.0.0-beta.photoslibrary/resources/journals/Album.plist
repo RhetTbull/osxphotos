@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>coalesceDate</key>
+	<date>2025-06-12T03:46:17Z</date>
+	<key>coalescePayloadVersion</key>
+	<integer>1</integer>
+	<key>currentPayloadVersion</key>
+	<integer>1</integer>
+	<key>snapshotChecksum</key>
+	<string></string>
+	<key>snapshotDate</key>
+	<date>2025-06-12T03:46:04Z</date>
+	<key>snapshotPayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

@@ -1,9 +1,16 @@
 import json
 import os
+import subprocess
+import time
+import unittest.mock
 
 import pytest
 
-from osxphotos.exiftool import get_exiftool_path, unescape_str
+from osxphotos.exiftool import (
+    _start_process_with_timeout,
+    get_exiftool_path,
+    unescape_str,
+)
 
 TEST_FILE_ONE_KEYWORD = "tests/test-images/wedding.jpg"
 TEST_FILE_BAD_IMAGE = "tests/test-images/badimage.jpeg"
@@ -538,15 +545,59 @@ def test_exiftool_terminate():
 
     exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
 
-    ps = subprocess.run(["ps"], capture_output=True)
-    stdout = ps.stdout.decode("utf-8")
-    assert "exiftool" in stdout
+    # Use pgrep to find actual exiftool processes (more reliable than ps)
+    try:
+        ps = subprocess.run(
+            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True
+        )
+        exiftool_processes_before = (
+            ps.stdout.decode("utf-8").strip().split("\n") if ps.stdout.strip() else []
+        )
+        # Filter out empty strings
+        exiftool_processes_before = [p for p in exiftool_processes_before if p]
+        assert (
+            len(exiftool_processes_before) > 0
+        ), "No exiftool processes found before termination"
+    except FileNotFoundError:
+        # Fallback to ps if pgrep is not available
+        ps = subprocess.run(["ps", "ax"], capture_output=True)
+        stdout = ps.stdout.decode("utf-8")
+        # Look for actual exiftool binary processes, not just command lines containing "exiftool"
+        exiftool_lines = [
+            line
+            for line in stdout.split("\n")
+            if "exiftool" in line and "-stay_open" in line
+        ]
+        assert len(exiftool_lines) > 0, "No exiftool processes found before termination"
 
     osxphotos.exiftool.terminate_exiftool()
 
-    ps = subprocess.run(["ps"], capture_output=True)
-    stdout = ps.stdout.decode("utf-8")
-    assert "exiftool" not in stdout
+    # Check that exiftool processes are terminated
+    try:
+        ps = subprocess.run(
+            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True
+        )
+        exiftool_processes_after = (
+            ps.stdout.decode("utf-8").strip().split("\n") if ps.stdout.strip() else []
+        )
+        # Filter out empty strings
+        exiftool_processes_after = [p for p in exiftool_processes_after if p]
+        assert (
+            len(exiftool_processes_after) == 0
+        ), f"Found {len(exiftool_processes_after)} exiftool processes still running after termination"
+    except FileNotFoundError:
+        # Fallback to ps if pgrep is not available
+        ps = subprocess.run(["ps", "ax"], capture_output=True)
+        stdout = ps.stdout.decode("utf-8")
+        # Look for actual exiftool binary processes, not just command lines containing "exiftool"
+        exiftool_lines = [
+            line
+            for line in stdout.split("\n")
+            if "exiftool" in line and "-stay_open" in line
+        ]
+        assert (
+            len(exiftool_lines) == 0
+        ), f"Found {len(exiftool_lines)} exiftool processes still running after termination"
 
     # verify we can create a new instance after termination
     exif2 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
@@ -605,3 +656,30 @@ def test_large_file_support_disabled():
 
     exif._read_exif()
     assert exif.data["IPTC:Keywords"] == "test"
+
+
+def test_start_process_with_timeout():
+    """test _start_process_with_timeout helper function"""
+
+    # Test normal process startup (should succeed quickly)
+    process = _start_process_with_timeout(
+        ["echo", "test"], timeout=5, stdout=subprocess.PIPE
+    )
+    assert process is not None
+    process.wait()
+
+    # Test timeout with a process that would take too long to start
+    # We'll simulate this by mocking subprocess.Popen to hang
+
+    def hanging_popen(*args, **kwargs):
+
+        time.sleep(1)  # Simulate hanging process creation
+        return subprocess.Popen(*args, **kwargs)
+
+    with unittest.mock.patch(
+        "osxphotos.exiftool.subprocess.Popen", side_effect=hanging_popen
+    ):
+        with pytest.raises(TimeoutError):
+            _start_process_with_timeout(
+                ["echo", "test"], timeout=0.1, stdout=subprocess.PIPE
+            )

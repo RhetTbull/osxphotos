@@ -2,6 +2,171 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.72.1](https://github.com/RhetTbull/osxphotos/compare/v0.72.1...v0.72.0)
+
+Added homebrew install support.
+
+### v0.72.1 (2025-06-16)
+
+#### Added
+
+- Support for installing osxphotos using homebrew.
+
+```bash
+# Add the tap
+brew tap RhetTbull/osxphotos
+
+# Install osxphotos
+brew install osxphotos
+```
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+#### Contributors
+
+- @scottrobertson [@scottrobertson](https://github.com/scottrobertson) for homebrew formula.
+
+## [v0.72.0](https://github.com/RhetTbull/osxphotos/compare/v0.72.0...v0.71.0)
+
+Initial support for macOS Tahoe (16 / 26)
+
+### v0.72.0 (2025-06-12)
+
+#### Added
+
+- Initial support for macOS Tahoe (macOS 16 / 26). This is very much initial beta support for a beta release of macOS that is is likely to change. I have tested export and import but not other features. If you encounter any issues, please report them on GitHub.
+
+#### Changed
+
+- `osxphotos export` will no longer try to export syndicated photos that have not been saved to the library (these will always be missing and cannot be exported with --download-missing). Syndicated photos are photos shared in Messages app. They show up in the library but are not saved to the library until the user imports them. Previously, osxphotos was trying to export these photos which resulted in "missing" messages during export and this caused confusion for users.
+
+#### Removed
+
+#### Fixed
+
+- Kill Photos app if it hangs during --download-missing multiple times (#1862)
+- Fix --exiftool so it timesout if the exiftool process hangs (#1855)
+- Skip missing syndicated photos on export (#1865)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
+## [v0.71.0](https://github.com/RhetTbull/osxphotos/compare/v0.71.0...v0.70.0)
+
+Fixed daylight savings time issues with `timewarp` command.
+
+### v0.71.0 (2025-06-07)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+  * Fixed timewarp to work correctly with daylight savings time. (#1777)
+
+#### Contributors
+
+  * @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
+### v0.70.0 (2025-05-10)
+
+## [v0.70.0](https://github.com/RhetTbull/osxphotos/compare/v0.70.0...v0.69.2)
+
+Fixes for macOS 15, import, timewarp
+
+### v0.70.0 (2025-05-10)
+
+#### Added
+
+    * Added `--ignore-exportdb` option to the export command to skip checking for the `.osxphotos_export.db` file in the export folder. [#1775]
+    * Improved performance of the `exportdb --history` query to speed up history lookups. [#1765]
+    * Introduced `--set-timezone` in the import command for explicit timezone assignment. [#1797]
+    * Refactored the `info` command to use the new `counts` module and restored compatibility with iPhoto libraries. [#1771]
+
+#### Changed
+
+    * Unified date/time parsing logic between the import and timewarp commands; fixed DST‐boundary parsing issues. [#1840]
+    * Enhanced support for the latest Photos library database schema on macOS 15. [#1846]
+
+#### Removed
+
+
+#### Fixed
+
+    * Fixed report generation so that `--report` and `--append` flags work together correctly. [#1850]
+    * Resolved errors in comment processing to ensure shared‐owner and title data export correctly. [#1808]
+    * Improved accuracy of photo timezone logging and corrected timezone detection in the `timewarp` command. [#1845, #1843]
+    * Ensured `timewarp` and `batch-edit` only process the current selection when neither `--uuid` nor `--uuid-from-file` are specified. [#1781]
+    * Fixed rare crashes during face‐region metadata export when a photo’s width or height is zero. [#1810]
+    * Added an additional fix so that `pull-exif timezone` updates correctly when `offset_seconds == 0`. [#1773]
+    * Fixed intermittent `utime` failures when updating file timestamps during export. [#1826]
+
+#### Contributors
+
+    * @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+    * @oPromessa [@oPromessa](https://github.com/oPromessa) for code.
+    * @JxxIT [@JxxIT](https://github.com/JxxIT) for code.
+    * @pl804 [@pl804](https://github.com/pl804) for tests and data.
+    * @cstaubli [@cstaubli](https://github.com/cstaubli) for bug report.
+    * @KeyPlayerMaek [@KeyPlayerMaek](https://github.com/KeyPlayerMaek) for bug report.
+    * @dobernhardt [@dobernhardt](https://github.com/dobernhardt) for bug report.
+
+## [v0.69.2](https://github.com/RhetTbull/osxphotos/compare/v0.69.2...v0.69.0)
+
+Fix for crash on macOS 15.2
+
+### v0.69.2 (2024-12-14)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fixed crash on macOS 15.2 (#1757)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+
+## [v0.69.0](https://github.com/RhetTbull/osxphotos/compare/v0.68.6...v0.69.0)
+
+Added support for Python 3.13. Removed support for Python 3.9.
+
+### v0.69.0 (2024-11-29)
+
+#### Added
+
+#### Changed
+
+- Added support for Python 3.13.
+
+#### Removed
+
+- Removed Support for Python 3.9. OSPhotos may continue to work with Python 3.9 but it is no longer tested or supported.
+
+#### Fixed
+
+- Fix for timewarp pull-exif timezone fails to update Photos Timezone info when offset_seconds == 0 (#1703) (thanks to @oPromessa for the fix).
+- Fix for "push-exif datetime" fails updating edited video (#1706) (thanks to @oPromessa for the fix).
+- Added check for `osxphotos timewarp` to ensure `--inspect` and `--compare-exif` are mutually exclusive.
+- Fix for exiftool code when `OffsetTimeOriginal` is invalid (thanks to @oPromessa for the fix).
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code.
+- @oPromessa [@oPromessa](https://github.com/oPromessa) for code.
+
 ## [v0.68.6](https://github.com/RhetTbull/osxphotos/compare/v0.68.5...v0.68.6)
 
 Various bug fixes for macOS 15 Sequoia.

@@ -3,8 +3,8 @@
 # run `pyinstaller osxphotos.spec`
 
 
-import os
 import importlib
+import os
 
 pathex = os.getcwd()
 
@@ -26,6 +26,7 @@ datas.extend(
 
 package_imports = [
     ["photoscript", ["photoscript.applescript"]],
+    ["utitools", ["uti.csv", "uti_tree.json"]],
 ]
 for package, files in package_imports:
     proot = os.path.dirname(importlib.import_module(package).__file__)
@@ -55,7 +56,10 @@ block_cipher = None
 a = Analysis(
     ["cli.py"],
     pathex=[pathex],
-    binaries=[("build/libdisclaim.dylib", "osxphotos")],
+    binaries=[
+        ("osxphotos/lib/libdisclaim_x86_64.dylib", "osxphotos/lib"),
+        ("osxphotos/lib/libdisclaim_arm64.dylib", "osxphotos/lib"),
+    ],
     datas=datas,
     hiddenimports=["pkg_resources.py2_warn"],
     hookspath=[],

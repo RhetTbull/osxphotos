@@ -155,10 +155,11 @@ def dd_to_dms_str(lat, lon):
     return lat_str, lon_str
 
 
-def get_system_library_path():
-    """return the path to the system Photos library as string"""
-    """ only works on MacOS 10.15+ """
-    """ on earlier versions, returns None """
+def get_system_library_path() -> str | None:
+    """return the path to the system Photos library as string or None if cannot be determined
+
+    Note: only works on MacOS 10.15+, on earlier versions, returns None
+    """
     if not is_macos:
         return None
     ver, major, minor = get_macos_version()
@@ -182,7 +183,7 @@ def get_system_library_path():
     return pl.get("SystemLibraryPath")
 
 
-def get_last_library_path():
+def get_last_library_path() -> str | None:
     """returns the path to the last opened Photos library
     If a library has never been opened, returns None"""
     plist_file = pathlib.Path(

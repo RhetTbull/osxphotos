@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Library</key>
+	<dict>
+		<key>Identifier</key>
+		<dict>
+			<key>ContainerIdentifier</key>
+			<string>com.apple.photos</string>
+			<key>Name</key>
+			<string>Photos Library</string>
+			<key>Path</key>
+			<string>/Users/osxphotos/Pictures/Photos Library.photoslibrary</string>
+			<key>UUID</key>
+			<string>A4FF09C8-A1F8-4C59-A510-AB7B90B166F6</string>
+			<key>UserDescription</key>
+			<string></string>
+		</dict>
+	</dict>
+	<key>PLModelMigrator.CreateOptions</key>
+	<dict>
+		<key>PLPhotoLibraryCreateOptions</key>
+		<integer>32</integer>
+	</dict>
+</dict>
+</plist>

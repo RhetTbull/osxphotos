@@ -5,12 +5,12 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.68.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.72.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
     
     
 
@@ -69,7 +69,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -84,22 +84,63 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
@@ -113,6 +154,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -124,13 +167,14 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.68.6 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.72.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
         <button class="theme-toggle">
           <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
@@ -147,7 +191,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.6 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -182,11 +226,17 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/cli.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
 <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
@@ -196,7 +246,7 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <section id="osxphotos-command-line-interface-cli">
 <h1>OSXPhotos Command Line Interface (CLI)<a class="headerlink" href="#osxphotos-command-line-interface-cli" title="Link to this heading">¶</a></h1>
 <section id="osxphotos">
@@ -2239,7 +2289,9 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-F">
 <span id="cmdoption-osxphotos-export-ignore-exportdb"></span><span class="sig-name descname"><span class="pre">-F</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--ignore-exportdb</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-F" title="Link to this definition">¶</a></dt>
-<dd><p>If exporting to a directory that already contains an export database and –update is not specified, do not prompt to continue but instead continue the export. Normally, if you export to a directory that already contains an export database and do not specify –update, osxphotos will prompt you to continue. This is because you may be inadvertently merging two export sets. Use –ignore-exportdb to skip this prompt and continue the export. The resulting export database will contain the combined state of both export sets. Short option is ‘-F’ (mnemonic: force export). See also –update.</p>
+<dd><ol class="arabic simple">
+<li><p>If exporting to a directory that already contains an export database and –update is not specified, do not prompt to continue but instead continue the export. Normally, if you export to a directory that already contains an export database and do not specify –update, osxphotos will prompt you to continue. This is because you may be inadvertently merging two export sets. Use –ignore-exportdb to skip this prompt and continue the export. The resulting export database will contain the combined state of both export sets. Short option is ‘-F’ (mnemonic: force export). 2) For advanced use: when used with –update, –ignore-exportdb will skip searching for export database files in the parent or child of the export directory; thus avoiding what could be a time comsuming search. 3) See also –update.</p></li>
+</ol>
 </dd></dl>
 
 <dl class="std option">
@@ -2615,7 +2667,7 @@ they will be imported as separate assets.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-P">
 <span id="cmdoption-osxphotos-import-parse-date"></span><span class="sig-name descname"><span class="pre">-P</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--parse-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE_PATTERN&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-P" title="Link to this definition">¶</a></dt>
-<dd><p>Parse date from filename using DATE_PATTERN. If file does not match DATE_PATTERN, the date will be set by Photos using Photo’s default behavior. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone as the import command does not yet support setting time zone information. For example, if your photos are named ‘IMG_1234_2022_11_23_12_34_56.jpg’ where the date/time is ‘2022-11-23 12:34:56’, you could use the pattern ‘%Y_%m_%d_%H_%M_%S’ or ‘IMG_*_%Y_%m_%d_%H_%M_%S’ to further narrow the pattern to only match files with ‘<a href="#id3"><span class="problematic" id="id4">IMG_xxxx_</span></a>’ in the name. If the pattern matches only date or only time, the missing information will be set to the default date/time used by Photos when importing the photo. This is either the EXIF date/time if it exists or the file modification date/time. For example, if photos are named ‘IMG_1234_2022_11_23.jpg’ where the date is ‘2022-11-23’, you could use the pattern ‘%Y_%m_%d’ to set the date but the time would be set from the EXIF or the file’s modification time. See also –parse-folder-date, –check-templates.</p>
+<dd><p>Parse date from filename using DATE_PATTERN. If file does not match DATE_PATTERN, the date will be set by Photos using Photo’s default behavior. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. For example, if your photos are named ‘IMG_1234_2022_11_23_12_34_56.jpg’ where the date/time is ‘2022-11-23 12:34:56’, you could use the pattern ‘%Y_%m_%d_%H_%M_%S’ or ‘IMG_*_%Y_%m_%d_%H_%M_%S’ to further narrow the pattern to only match files with ‘<a href="#id3"><span class="problematic" id="id4">IMG_xxxx_</span></a>’ in the name. If the pattern matches only date or only time, the missing information will be set to the default date/time used by Photos when importing the photo. This is either the EXIF date/time if it exists or the file modification date/time. For example, if photos are named ‘IMG_1234_2022_11_23.jpg’ where the date is ‘2022-11-23’, you could use the pattern ‘%Y_%m_%d’ to set the date but the time would be set from the EXIF or the file’s modification time. If the DATE_PATTERN matches time zone information, you must also use –set-timezone to allow osxphotos to set the timezone in the Photos database. See also –parse-folder-date, –check-templates, –set-timezone.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2634,6 +2686,12 @@ they will be imported as separate assets.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-L">
 <span id="cmdoption-osxphotos-import-clear-location"></span><span class="sig-name descname"><span class="pre">-L</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--clear-location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-L" title="Link to this definition">¶</a></dt>
 <dd><p>Clear any location data automatically imported by Photos. Normally, Photos will set location of the photo to the location data found in the metadata in the imported file.  If you specify –clear-location, this data will be cleared after import.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-z">
+<span id="cmdoption-osxphotos-import-timezone"></span><span class="sig-name descname"><span class="pre">-z</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--timezone</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TIMEZONE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-z" title="Link to this definition">¶</a></dt>
+<dd><p>Set timezone for imported photos as offset from UTC or to named IANA timezone. Format is one of ‘±HH:MM’, ‘±H:MM’, ‘±HHMM’, or named timezone such as ‘America/Los_Angeles’ or ‘PST’. For list of valid IANA timezone names, see <a class="reference external" href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">https://en.wikipedia.org/wiki/List_of_tz_database_time_zones</a>. This option useful if your imported photos contain the correct date/time but not the timezone or an incorrect timezone. If there is no timezone data, Photos will apply the current local timezone to the photo. If you took the photos in a different timezone with a camera that did not apply timezone, the –timezone option is useful to set the correct timezone. When using –timezone, osxphotos will assume the date/time is correct for the target timezone and will adjust the date/time as needed. For example, if you took a photo at 9:00 AM in New York and you are currently in Los Angeles, you would use –timezone ‘America/New_York’ to set the timezone to New_York. The time of the photos will be adjusted to 6:00 AM in Los Angeles so that the photo is displayed at the correct time (9:00 AM in New York) in the Photos app.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2669,13 +2727,19 @@ they will be imported as separate assets.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-i">
 <span id="cmdoption-osxphotos-import-sidecar-ignore-date"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar-ignore-date</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-i" title="Link to this definition">¶</a></dt>
-<dd><p>Do not use date in sidecar to set photo date/time. Setting the timezone from sidecar files is not currently supported so when using –sidecar or –sidecar-filename, the date/time found in the sidecar will be converted to the local timezone and that value will be used to set the photo date/time. If your photos have correct timezone information in the embedded metadata you can use –sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the file (which will be read by Photos on import).</p>
+<dd><p>Do not use date/time in sidecar to set photo date/time. There may be situations where you want to apply the metadata from the sidecar but ignore the date/time in the sidecar. One of these is when using –exportdb to restore from the export database. The export database stores the named timezone of the photo and will set it but the sidecar metadata standards do not support storing the named timezone. Thus if using both –exportdb and –sidecar, you may want to use –sidecar-ignore-date otherwise the date/time in the sidecar will overwrite the date/time (and timezone name) from the export database. Additionally, Google Takeout does not preserve timezone information in the sidecar and converts all times to UTC. If you are importing photos from Google Takeout and the photos contain the correct date/time and timezone offset, you may want to use –sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the photo metadata.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-Z">
+<span id="cmdoption-osxphotos-import-set-timezone"></span><span class="sig-name descname"><span class="pre">-Z</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--set-timezone</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-Z" title="Link to this definition">¶</a></dt>
+<dd><p>Set the named timezone of the imported photos in the Photos database when used with –exportdb or –parse-date. Photos does not provide a way to set the timezone of a photo directly. Upon import, osxphotos can read the timezone from the export database if using –exportdb or from the filename if using –parse-date. The –set-timezone option will set the named timezone of the photo by directly writing the timezone name to the Photos database. This has been well tested but because it uses an undocumented Photos API, it may be possible to corrupt the Photos database. If you want to set the timezone of the imported photos, use –set-timezone.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-B">
 <span id="cmdoption-osxphotos-import-exportdb"></span><span class="sig-name descname"><span class="pre">-B</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exportdb</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXPORTDB_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-B" title="Link to this definition">¶</a></dt>
-<dd><p>Use an osxphotos export database (created by ‘osxphotos export’) to set metadata (title, description, keywords, location, album). See also –exportdir, –sidecar, –sidecar-filename, –exiftool.</p>
+<dd><p>Use an osxphotos export database (created by ‘osxphotos export’) to set metadata (title, description, keywords, location, album, date/time, timezone). See also –exportdir, –sidecar, –sidecar-filename, –exiftool. If using with –sidecar, it is recommended you also use –sidecar-ignore-date.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2805,6 +2869,12 @@ they will be imported as separate assets.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-force">
+<span class="sig-name descname"><span class="pre">--force</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-force" title="Link to this definition">¶</a></dt>
+<dd><p>Bypass confirmation prompt when using –timezone or –set-timezone .  Use with caution.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-library">
 <span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-library" title="Link to this definition">¶</a></dt>
 <dd><p>Path to the Photos library you are importing into. This is not usually needed. You will only need to specify this if osxphotos cannot determine the path to the library in which case osxphotos will tell you to use the –library option when you run the import command.</p>
@@ -2832,10 +2902,17 @@ they will be imported as separate assets.</p>
 <section id="osxphotos-info">
 <h3>info<a class="headerlink" href="#osxphotos-info" title="Link to this heading">¶</a></h3>
 <p>Print out descriptive info of the Photos library database.</p>
+<p>Use –verbose to see additional details such as detailed counts of keywords, etc.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>info<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
 <p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-info-V">
+<span id="cmdoption-osxphotos-info-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-info-V" title="Link to this definition">¶</a></dt>
+<dd><p>Print verbose output.</p>
+</dd></dl>
+
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-info-library">
 <span id="cmdoption-osxphotos-info-db"></span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-info-library" title="Link to this definition">¶</a></dt>
@@ -5754,7 +5831,9 @@ two different computers, you can export the metadata to a shared folder.</p>
 <section id="osxphotos-timewarp">
 <h3>timewarp<a class="headerlink" href="#osxphotos-timewarp" title="Link to this heading">¶</a></h3>
 <p>Adjust date/time/timezone of photos in Apple Photos.</p>
-<p>Changes will be applied to all photos currently selected in Photos.
+<p>Changes will be applied to: 1) photos specified via –uuid and
+–uuid-from-file 2) photos currently selected in Photos in ‘All Photos’
+or Album views 3) all photos in Album view, if no selection is made.
 timewarp cannot operate on photos selected in a Smart Album;
 select photos in a regular album or in the ‘All Photos’ view.
 See Timewarp Overview below for additional information.</p>
@@ -5789,19 +5868,25 @@ See Timewarp Overview below for additional information.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-z">
 <span id="cmdoption-osxphotos-timewarp-timezone"></span><span class="sig-name descname"><span class="pre">-z</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--timezone</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TIMEZONE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-z" title="Link to this definition">¶</a></dt>
-<dd><p>Set timezone for selected photos as offset from UTC. Format is one of ‘±HH:MM’, ‘±H:MM’, or ‘±HHMM’. The actual time of the photo is not adjusted which means, somewhat counterintuitively, that the time in the new timezone will be different. For example, if photo has time of 12:00 and timezone of GMT+01:00 and new timezone is specified as ‘–timezone +02:00’ (one hour ahead of current GMT+01:00 timezone), the photo’s new time will be 13:00 GMT+02:00, which is equivalent to the old time of 12:00+01:00. This is the same behavior exhibited by Photos when manually adjusting timezone in the Get Info window. See also –match-time.</p>
+<dd><p>Set timezone for selected photos as offset from UTC or to named IANA timezone. Format is one of ‘±HH:MM’, ‘±H:MM’, ‘±HHMM’, or named timezone such as ‘America/Los_Angeles’ or ‘PST’. The actual time of the photo is not adjusted which means, somewhat counterintuitively, that the time in the new timezone will be different. For example, if photo has time of 12:00 and timezone of GMT+01:00 and new timezone is specified as ‘–timezone +02:00’ (one hour ahead of current GMT+01:00 timezone), the photo’s new time will be 13:00 GMT+02:00, which is equivalent to the old time of 12:00+01:00. This is the same behavior exhibited by Photos when manually adjusting timezone in the Get Info window. See also –match-time which adjusts the time when adjusting the timezone. Note: when a named timezone is provided, daylight savings time will be considered when adjusting the time; it will not be considered when a UTC offset is provided. For list of valid IANA timezone names, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-date-added">
 <span class="sig-name descname"><span class="pre">--date-added</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-date-added" title="Link to this definition">¶</a></dt>
-<dd><p>Set date/time added for selected photos. This changes the date added or imported date in Photos but does not change the date/time/timezone of the photo itself. This is useful for removing photos from the Recents album, for example if you have imported old scanned photos. Format is ‘YYYY-MM-DD’ or ‘YYYY-MM-DD HH:MM:SS’. If time is not included, midnight is assumed.</p>
+<dd><p>Set date/time added for selected photos. This changes the date added or imported date in Photos but does not change the date/time/timezone of the photo itself. This is useful for removing photos from the Recents album, for example if you have imported old scanned photos. Format is ‘YYYY-MM-DD’ or ‘YYYY-MM-DD HH:MM:SS’. If time is not included, midnight is assumed. The date/time is assumed to be in the local time zone.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-date-added-from-photo">
 <span class="sig-name descname"><span class="pre">--date-added-from-photo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-date-added-from-photo" title="Link to this definition">¶</a></dt>
-<dd><p>Set date/time added for selected photos to the date/time the photo was taken. This changes the date added or imported date in Photos but does not change the date/time/timezone of the photo itself.</p>
+<dd><p>Set date/time added for selected photos to the date/time the photo was taken. This changes the date added or imported date in Photos but does not change the date/time/timezone of the photo itself. The date/time added will be converted from the photo’s timezone to the local time zone.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-R">
+<span id="cmdoption-osxphotos-timewarp-reset"></span><span class="sig-name descname"><span class="pre">-R</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--reset</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-R" title="Link to this definition">¶</a></dt>
+<dd><p>Reset date/time/timezone for selected photos to the original values. This only works on macOS &gt;= 13.0 (Ventura). Photos imported on older versions of macOS may not have an original date/time stored in the Photos database so the command will have no effect for these photos.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -5859,6 +5944,18 @@ See Timewarp Overview below for additional information.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-u">
+<span id="cmdoption-osxphotos-timewarp-uuid"></span><span class="sig-name descname"><span class="pre">-u</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--uuid</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UUID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-u" title="Link to this definition">¶</a></dt>
+<dd><p>Apple to photo(s) with UUID(s). May be repeated to include multiple UUIDs.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-U">
+<span id="cmdoption-osxphotos-timewarp-uuid-from-file"></span><span class="sig-name descname"><span class="pre">-U</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--uuid-from-file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-U" title="Link to this definition">¶</a></dt>
+<dd><p>Apply to photos with UUID(s) loaded from FILE. Format is a single UUID per line. Lines preceded with # are ignored. If FILE is ‘-’, read UUIDs from stdin.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-V">
 <span id="cmdoption-osxphotos-timewarp-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-V" title="Link to this definition">¶</a></dt>
 <dd><p>Print verbose output; may be specified multiple times for more verbose output.</p>
@@ -5880,12 +5977,6 @@ See Timewarp Overview below for additional information.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-e">
 <span id="cmdoption-osxphotos-timewarp-exiftool-path"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool-path</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;exiftool_path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-e" title="Link to this definition">¶</a></dt>
 <dd><p>Optional path to exiftool executable (will look in $PATH if not specified) for those options which require exiftool.</p>
-</dd></dl>
-
-<dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-0">
-<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-0" title="Link to this definition">¶</a></dt>
-<dd><p>Add time stamp to verbose output</p>
 </dd></dl>
 
 <dl class="std option">
@@ -5947,6 +6038,13 @@ See Timewarp Overview below for additional information.</p>
 </dd></dl>
 
 </section>
+<section id="osxphotos-update">
+<h3>update<a class="headerlink" href="#osxphotos-update" title="Link to this heading">¶</a></h3>
+<p>Update the installation to the latest version.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>update<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+</section>
 <section id="osxphotos-uuid">
 <h3>uuid<a class="headerlink" href="#osxphotos-uuid" title="Link to this heading">¶</a></h3>
 <p>Print out unique IDs (UUID) of photos selected in Photos</p>
@@ -5977,63 +6075,7 @@ See Timewarp Overview below for additional information.</p>
 
 </section>
 </section>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: python -m osxphotos [OPTIONS] COMMAND [ARGS]...
-
-  OSXPhotos: the multi-tool for your Photos library.
-
-  To get help on a specific command, use &quot;osxphotos COMMAND --help&quot; or
-  &quot;osxphotos help COMMAND&quot;; for example, &quot;osxphotos help export&quot;.
-
-  To search help for a specific topic within a command, run &quot;osxphotos help
-  COMMAND TOPIC&quot;; for example, &quot;osxphotos help export keyword&quot; to get help
-  related to keywords when using the export command.
-
-  To see the full documentation in your browser, run &quot;osxphotos docs&quot;.
-
-  Some advanced commands are hidden by default. To see all commands, run
-  &quot;OSXPHOTOS_SHOW_HIDDEN=1 osxphotos help&quot;. Some commands also have hidden
-  options. These can be seen by running &quot;OSXPHOTOS_SHOW_HIDDEN=1 osxphotos
-  help COMMAND&quot;.
-
-Options:
-  -v, --version  Show the version and exit.
-  -h, --help     Show this message and exit.
-
-Commands:
-  about          Print information about osxphotos including license.
-  add-locations  Add missing location data to photos in Photos.app using...
-  albums         Print out albums found in the Photos library.
-  batch-edit     Batch edit photo metadata such as title, description,...
-  compare        Compare two Photos libraries to find differences
-  docs           Open osxphotos documentation in your browser.
-  dump           Print list of all photos &amp; associated info from the...
-  exiftool       Run exiftool on previously exported files to update...
-  export         Export photos from the Photos database.
-  exportdb       Utilities for working with the osxphotos export database
-  help           Print help; for help on commands: help &lt;command&gt;.
-  import         Import photos and videos into Photos.
-  info           Print out descriptive info of the Photos library database.
-  inspect        Interactively inspect photos selected in Photos.
-  install        Install Python packages into the same environment as...
-  keywords       Print out keywords found in the Photos library.
-  labels         Print out image classification labels found in the...
-  list           Print list of Photos libraries found on the system.
-  orphans        Find orphaned photos in a Photos library
-  persons        Print out persons (faces) found in the Photos library.
-  places         Print out places found in the Photos library.
-  push-exif      Write photo metadata to original files in the Photos...
-  query          Query the Photos database using 1 or more search...
-  repl           Run interactive osxphotos REPL shell (useful for...
-  run            Run a python file using same environment as osxphotos.
-  show           Show photo, album, or folder in Photos from UUID_OR_NAME
-  sync           Sync metadata and albums between Photos libraries.
-  template       Interactively render templates for selected photo.
-  theme          Manage osxphotos color themes.
-  timewarp       Adjust date/time/timezone of photos in Apple Photos.
-  tutorial       Display osxphotos tutorial.
-  uninstall      Uninstall Python packages from the osxphotos environment
-  uuid           Print out unique IDs (UUID) of photos selected in Photos
-  version        Check for new version of osxphotos.
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/Users/rhet/code/osxphotos/.venv/bin/python3: No module named osxphotos
 </pre></div>
 </div>
 </section>
@@ -6127,6 +6169,7 @@ Commands:
 <li><a class="reference internal" href="#osxphotos-timewarp">timewarp</a></li>
 <li><a class="reference internal" href="#osxphotos-tutorial">tutorial</a></li>
 <li><a class="reference internal" href="#osxphotos-uninstall">uninstall</a></li>
+<li><a class="reference internal" href="#osxphotos-update">update</a></li>
 <li><a class="reference internal" href="#osxphotos-uuid">uuid</a></li>
 <li><a class="reference internal" href="#osxphotos-version">version</a></li>
 </ul>
@@ -6142,10 +6185,10 @@ Commands:
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=a98ddb9b"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+</div><script src="_static/documentation_options.js?v=ab20bdb4"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
     </body>

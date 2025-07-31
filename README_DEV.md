@@ -27,6 +27,7 @@ If you want to contribute to osxphotos, please open a pull request. Here's how t
 - Make your changes
 - Add tests for your changes
 - Run the tests: `pytest`
+- Format the code: `isort .` then `black .`
 - Update the README.md and other files as needed
 - Add your changes using `git add`
 - Commit your changes: `git commit -m "My changes description"`
@@ -39,6 +40,25 @@ If you want to contribute to osxphotos, please open a pull request. Here's how t
 
 - Run `./build.sh` to run the build script.
 
+## Release
+
+For release, follow the following steps:
+
+0. Create a new branch for the release: `git checkout -b release_v0.72.1`
+1. Run `bump2version [major|minor|patch] --verbose` to bump version
+2. Run the `build.sh`
+3. Commit the changes and push to GitHub
+4. Merge the changes in the main branch
+5. Checkout the main branch: `git checkout main`
+6. Pull the changes to your local repository: `git pull`
+7. `twine upload dist/osxphotos*.whl dist/*.tar.gz`
+8. Create a new release on GitHub: `gh release create "v0.72.1" dist/*`
+9. Pull the changes to your local repository: `git pull`
+
+The GitHub release must occur after the `twine upload` command so the GitHub action that updates the homebrew formula can be triggered.
+
 ## Other Notes
 
 [cogapp](https://nedbatchelder.com/code/cog/index.html) is used to update the README.md and other files. cog will be called from the build script as needed.
+
+There are some pre-built libraries in the `osxphotos/lib` directory. These are used by osxphotos to handle permissions. If you need to rebuild these libraries, see the [README_DEV.md](osxphotos/lib/README_DEV.md) file in the `osxphotos/lib` directory.

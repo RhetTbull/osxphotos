@@ -1,5 +1,6 @@
 """ Basic tests for Photos 5 on MacOS 10.15.7 """
 
+import collections
 import datetime
 import json
 import os
@@ -9,12 +10,15 @@ import sqlite3
 import tempfile
 import time
 from collections import Counter, namedtuple
+from unittest import mock
+from zoneinfo import ZoneInfo
 
 import pytest
 
 import osxphotos
 from osxphotos import PhotosDB
 from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.adjustmentsinfo import AdjustmentsInfo
 from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
@@ -497,6 +501,8 @@ def test_attributes_2(photosdb):
     assert p.orientation == 1
     assert p.original_orientation == 1
     assert p.original_filesize == 460483
+    assert p.tzname == "GMT-0400"
+    assert p.tzoffset == -14400
 
 
 def test_missing(photosdb):
@@ -699,7 +705,15 @@ def test_photoinfo_intrash_1(photosdb):
 
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]], intrash=True)[0]
     assert p.intrash
-    assert p.date_trashed.isoformat() == "2120-06-10T11:24:47.685857-05:00"
+    mock_local_timezone = ZoneInfo("America/Chicago")
+    with mock.patch("datetime.datetime", wraps=datetime.datetime) as mock_datetime:
+        mock_datetime.now.return_value = datetime.datetime(
+            2120, 6, 10, 11, 24, 47, 685857, tzinfo=mock_local_timezone
+        )
+        expected = datetime.datetime(
+            2120, 6, 10, 11, 24, 47, 685857, tzinfo=mock_local_timezone
+        )
+        assert p.date_trashed == expected
 
 
 def test_photoinfo_intrash_2(photosdb):
@@ -1164,17 +1178,11 @@ def test_from_to_date_tz(photosdb):
 def test_date_invalid():
     """Test date is invalid"""
     # doesn't run correctly with the module-level fixture
-    from datetime import datetime, timedelta, timezone
-
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
-    delta = timedelta(seconds=p.tzoffset)
-    tz = timezone(delta)
-    assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
+    assert p.date == datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
 
 def test_date_modified_invalid(photosdb):

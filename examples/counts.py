@@ -16,10 +16,15 @@ from osxphotos._constants import (
     BURST_KEY,
     BURST_PICK_TYPE_NONE,
     BURST_SELECTED,
-    TIME_DELTA,
 )
 from osxphotos.cli.click_rich_echo import rich_echo as echo
 from osxphotos.photoquery import QueryOptions
+
+try:
+    from osxphotos._constants import TIME_DELTA
+except ImportError:
+    # TIME_DELTA moved in v0.69.0
+    from osxphotos.photos_datetime import TIME_DELTA
 
 
 def verbose(*args):

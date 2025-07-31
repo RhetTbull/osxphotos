@@ -4,12 +4,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
-        <title>osxphotos._constants - osxphotos 0.68.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>osxphotos._constants - osxphotos 0.72.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
     
     
 
@@ -68,7 +68,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -83,22 +83,63 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
@@ -112,6 +153,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -123,13 +166,14 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.68.6 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.72.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
         <button class="theme-toggle">
           <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
@@ -146,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.6 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -184,7 +228,8 @@
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
@@ -194,27 +239,21 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos._constants</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; Constants used by osxphotos &quot;&quot;&quot;</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">import</span> <span class="nn">sqlite3</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
 <span class="n">APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;osxphotos&quot;</span>
 
 <span class="n">OSXPHOTOS_URL</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/RhetTbull/osxphotos&quot;</span>
-
-<span class="c1"># Time delta: add this to Photos times to get unix time</span>
-<span class="c1"># Apple Epoch is Jan 1, 2001</span>
-<span class="n">TIME_DELTA</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
 <span class="c1"># which Photos library database versions have been tested</span>
 <span class="c1"># Photos 2.0 (10.12.6) == 2622</span>
@@ -232,7 +271,16 @@
 <span class="c1"># Photos 7 (12.0.1) == 15323</span>
 <span class="c1"># Photos 8 (13.0.0) == 16320</span>
 <span class="c1"># Photos 9 (14.0.0 dev preview) = 17120</span>
-<span class="n">_TEST_MODEL_VERSIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;13537&quot;</span><span class="p">,</span> <span class="s2">&quot;13703&quot;</span><span class="p">,</span> <span class="s2">&quot;14104&quot;</span><span class="p">,</span> <span class="s2">&quot;15323&quot;</span><span class="p">,</span> <span class="s2">&quot;16320&quot;</span><span class="p">,</span> <span class="s2">&quot;17120&quot;</span><span class="p">]</span>
+<span class="n">_TEST_MODEL_VERSIONS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;13537&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;13703&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;14104&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;15323&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;16320&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;17120&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;18402&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;18508&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="n">_IPHOTO_VERSION</span> <span class="o">=</span> <span class="s2">&quot;0000&quot;</span>
 
@@ -254,6 +302,7 @@
 <span class="n">_PHOTOS_9_14_6_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">17600</span><span class="p">,</span> <span class="mi">17999</span><span class="p">]</span>  <span class="c1"># macOS 14.6 changed the schema</span>
 <span class="n">_PHOTOS_10B1_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">18000</span><span class="p">,</span> <span class="mi">18200</span><span class="p">]</span>  <span class="c1"># Sequoia dev preview 1: 18164</span>
 <span class="n">_PHOTOS_10_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">18201</span><span class="p">,</span> <span class="mi">18999</span><span class="p">]</span>
+<span class="n">_PHOTOS_11_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">19063</span><span class="p">,</span> <span class="mi">19999</span><span class="p">]</span>
 
 <span class="c1"># the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing</span>
 <span class="n">_PHOTOS_SYNDICATION_MODEL_VERSION</span> <span class="o">=</span> <span class="mi">15323</span>  <span class="c1"># 12.0.1</span>
@@ -391,6 +440,22 @@
         <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH&quot;</span><span class="p">,</span>
         <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZADJUSTMENTSSTATE&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="mi">11</span><span class="p">:</span> <span class="p">{</span>  <span class="c1"># macOS 16 / 26 Tahoe</span>
+        <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_51KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_32ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_SORT_ORDER&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_32ASSETS.Z_FOK_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IMPORT_FOK&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZDEPTHTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZCOMPACTUTI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_32ASSETS.Z_32ALBUMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_32ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DETECTED_FACE_PERSON_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZPERSONFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DETECTED_FACE_ASSET_FK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZDETECTEDFACE.ZASSETFORFACE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MASTER_FINGERPRINT&quot;</span><span class="p">:</span> <span class="s2">&quot;ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HAS_ADJUSTMENTS&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZADJUSTMENTSSTATE&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
 <span class="p">}</span>
 
 <span class="c1"># Which version operating systems have been tested</span>
@@ -439,6 +504,12 @@
     <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="c1"># Photos 5 has persons who are empty string if unidentified face</span>
@@ -500,7 +571,7 @@
 <span class="n">_OSXPHOTOS_LOCK_EXTENSION</span> <span class="o">=</span> <span class="s2">&quot;.osxphotos.lock&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">SearchCategory</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SearchCategory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;SearchInfo categories for Photos 5+; corresponds to categories in database/search/psi.sqlite:groups.category</span>
 
 <span class="sd">    Note: This is a simple enum class; the values are not meant to be changed.</span>
@@ -571,7 +642,7 @@
     <span class="n">SOURCE</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 8+ only</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return categories as dict of value: name&quot;&quot;&quot;</span>
         <span class="c1"># a bit of a hack to basically reverse the enum</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -585,7 +656,7 @@
         <span class="p">}</span>
 
 
-<span class="k">class</span> <span class="nc">SearchCategory_Photos8</span><span class="p">(</span><span class="n">SearchCategory</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SearchCategory_Photos8</span><span class="p">(</span><span class="n">SearchCategory</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Search categories for Photos 8&quot;&quot;&quot;</span>
 
     <span class="c1"># Many of the category values changed in Ventura / Photos 8</span>
@@ -650,7 +721,7 @@
     <span class="n">SOURCE</span> <span class="o">=</span> <span class="mi">2200</span>  <span class="c1"># new in Photos 8, shows the app/software source for the photo, e.g. Messages, Safari, etc.</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return categories as dict of value: name&quot;&quot;&quot;</span>
         <span class="c1"># need to get the categories from the base class and update with the new values</span>
         <span class="n">classdict</span> <span class="o">=</span> <span class="n">SearchCategory</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -666,7 +737,7 @@
         <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">search_category_factory</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchCategory</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">search_category_factory</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchCategory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return SearchCategory class for Photos version&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">SearchCategory_Photos8</span> <span class="k">if</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="mi">8</span> <span class="k">else</span> <span class="n">SearchCategory</span>
 
@@ -750,7 +821,7 @@
 
 <div class="viewcode-block" id="AlbumSortOrder">
 <a class="viewcode-back" href="../../reference.html#osxphotos.AlbumSortOrder">[docs]</a>
-<span class="k">class</span> <span class="nc">AlbumSortOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlbumSortOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Album Sort Order&quot;&quot;&quot;</span>
 
     <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="mi">0</span>
@@ -825,10 +896,10 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a98ddb9b"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+</div><script src="../../_static/documentation_options.js?v=0f5839ad"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>

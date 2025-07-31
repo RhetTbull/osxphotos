@@ -1,4 +1,4 @@
-""" Tests which require user interaction to run for osxphotos import command.
+"""Tests which require user interaction to run for osxphotos import command.
 run with pytest tests/test_cli_import.py --test-import
 """
 
@@ -14,9 +14,7 @@ import re
 import shutil
 import sqlite3
 import sys
-import time
 import unicodedata
-from string import Template
 from tempfile import TemporaryDirectory
 from typing import Dict
 from zoneinfo import ZoneInfo
@@ -30,7 +28,6 @@ from osxphotos._constants import OSXPHOTOS_EXPORT_DB, UUID_PATTERN
 from osxphotos.datetime_utils import datetime_remove_tz, get_local_tz
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
-from tests.conftest import get_os_version
 
 if is_macos:
     from photoscript import Photo
@@ -1178,6 +1175,33 @@ def test_import_report():
 
 
 @pytest.mark.test_import
+def test_import_report_append():
+    """test import with --report --append option when report doesn't exist (#1835)"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            import_main,
+            [
+                test_image_1,
+                "--report",
+                "report.json",
+                "--append",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists("report.json")
+        with open("report.json", "r") as f:
+            records = json.load(f)
+        assert records[0]["filename"] == pathlib.Path(TEST_IMAGE_1).name
+
+
+@pytest.mark.test_import
 def test_import_report_json():
     """test import with --report option with json output"""
 
@@ -1456,6 +1480,55 @@ def test_import_parse_folder_date(tmp_path: pathlib.Path):
 
 
 @pytest.mark.test_import
+def test_import_parse_date_set_timezone(tmp_path: pathlib.Path):
+    """Test import with --parse-date with --set-timezone"""
+
+    # set up test images
+    cwd = os.getcwd()
+    test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
+
+    img_name = "IMG_2023-06-01T010203-0400.jpg"
+    test_file = tmp_path / img_name
+    shutil.copy(test_image_source, test_file)
+
+    # set file time to default date
+    os.utime(
+        test_file,
+        (PARSE_DATE_DEFAULT_DATE.timestamp(), PARSE_DATE_DEFAULT_DATE.timestamp()),
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_main,
+        [
+            "--verbose",
+            "--parse-date",
+            "IMG_%Y-%d-%mT%H%M%S%z",
+            "--set-timezone",
+            "--force",
+            str(test_file),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    # verify that the date was parsed correctly
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(name=[img_name]))[0]
+    dt = datetime.datetime(
+        2023,
+        1,
+        6,
+        1,
+        2,
+        3,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
+    assert photo.date == dt
+    assert photo.date.tzinfo.utcoffset(photo.date) == dt.tzinfo.utcoffset(photo.date)
+
+
+@pytest.mark.test_import
 def test_import_post_function():
     """Test import with --post-function"""
 
@@ -1558,6 +1631,51 @@ def test_import_auto_live(tmp_path):
 
 
 @pytest.mark.test_import
+def test_import_timezone(tmp_path):
+    """Test osxphotos import with --timezone option"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",  # has an invalid date in the library so photo.date == 1970-01-01 00:00:00+00:00
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --timezone
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--force",
+            "--timezone",
+            "America/New_York",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    actual_date = datetime.datetime(
+        2019, 4, 15, 14, 40, 24, tzinfo=ZoneInfo(key="America/New_York")
+    )
+    assert photo.date == actual_date
+    # verify timezone info set correctly
+    assert photo.date.tzinfo == actual_date.tzinfo
+
+
+@pytest.mark.test_import
 def test_import_exportdb(tmp_path):
     """Test osxphotos import with --exportdb option"""
 
@@ -1599,6 +1717,202 @@ def test_import_exportdb(tmp_path):
     assert photo.keywords == ["wedding"]
     assert "I have a deleted twin" in photo.albums
     assert "AlbumInFolder" in photo.albums
+
+
+@pytest.mark.test_import
+def test_import_exportdb_datetime(tmp_path):
+    """Test osxphotos import with --exportdb option to verify date/time is set correctly"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "IMG_1693.tif",  # has an invalid date in the library so photo.date == 1970-01-01 00:00:00+00:00
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "IMG_1693.tif",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["IMG_1693.tif"]]))[0]
+    assert photo.date == datetime.datetime(1970, 1, 1, 0, 0, tzinfo=ZoneInfo(key="UTC"))
+
+
+@pytest.mark.test_import
+def test_import_exportdb_datetime_2(tmp_path):
+    """Test osxphotos import with --exportdb option to verify date/time is set correctly"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    actual_date = datetime.datetime(
+        2019,
+        4,
+        15,
+        14,
+        40,
+        24,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
+    assert photo.date == actual_date
+    # verify the timeozone is the local timezone (didn't use --timezone option)
+    local_date = actual_date.astimezone()
+    assert photo.date.tzinfo.utcoffset(photo.date) == local_date.tzinfo.utcoffset(
+        local_date
+    )
+
+
+@pytest.mark.test_import
+def test_import_exportdb_datetime_set_timezone(tmp_path):
+    """Test osxphotos import with --exportdb option to verify date/time/timezone is set correctly"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",  # has an invalid date in the library so photo.date == 1970-01-01 00:00:00+00:00
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+            "--set-timezone",
+            "--force",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    actual_date = datetime.datetime(
+        2019,
+        4,
+        15,
+        14,
+        40,
+        24,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
+    assert photo.date == actual_date
+    # verify timezone info set correctly
+    assert photo.date.tzinfo == actual_date.tzinfo
+
+
+@pytest.mark.test_import
+def test_import_exportdb_datetime_set_timezone_timezone(tmp_path):
+    """Test osxphotos import with --exportdb option to verify date/time/timezone is set correctly with --timezone"""
+
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",  # has an invalid date in the library so photo.date == 1970-01-01 00:00:00+00:00
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+            "--set-timezone",
+            "--force",
+            "--timezone",
+            "America/New_York",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    actual_date = datetime.datetime(
+        2019, 4, 15, 14, 40, 24, tzinfo=ZoneInfo(key="America/New_York")
+    )
+    assert photo.date == actual_date
+    # verify timezone info set correctly
+    assert photo.date.tzinfo == actual_date.tzinfo
 
 
 @pytest.mark.test_import
@@ -1651,6 +1965,229 @@ def test_import_exportdb_exportdir(tmp_path):
         assert photo.keywords == ["wedding"]
         assert "I have a deleted twin" in photo.albums
         assert "AlbumInFolder" in photo.albums
+
+
+@pytest.mark.test_import
+def test_import_exportdb_sidecar(tmp_path):
+    """Test osxphotos import with --exportdb option and --sidecar"""
+
+    sidecar = """
+    <?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+    <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="osxphotos">
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about=""
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
+            <photoshop:SidecarForExtension>jpeg</photoshop:SidecarForExtension>
+            <dc:description>
+            <rdf:Alt>
+             <rdf:li xml:lang='x-default'>Test Photo</rdf:li>
+            </rdf:Alt>
+            </dc:description>
+            <dc:title>
+             <rdf:Alt>
+              <rdf:li xml:lang='x-default'/>
+             </rdf:Alt>
+            </dc:title>
+            <dc:subject>
+             <rdf:Bag>
+              <rdf:li>test</rdf:li>
+             </rdf:Bag>
+            </dc:subject>
+            <photoshop:DateCreated>2021-01-15T10:40:24.086000-06:00</photoshop:DateCreated>
+    </rdf:Description>
+    <rdf:Description rdf:about=""
+     xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
+            <digiKam:TagsList>
+            <rdf:Seq>
+              <rdf:li>test</rdf:li>
+            </rdf:Seq>
+            </digiKam:TagsList>
+    </rdf:Description>
+    <rdf:Description rdf:about=""
+     xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
+            <xmp:CreateDate>2024-01-15T10:40:24</xmp:CreateDate>
+            <xmp:ModifyDate>2024-01-15T10:40:24</xmp:ModifyDate>
+    </rdf:Description>
+    <rdf:Description rdf:about=""
+     xmlns:exif='http://ns.adobe.com/exif/1.0/'>
+    </rdf:Description>
+    </rdf:RDF>
+    </x:xmpmeta>
+    <?xpacket end="w"?>
+    """
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # write sidecar file
+    with open(str(tmp_path / "wedding.jpg.xmp"), "w") as f:
+        f.write(sidecar)
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+            "--set-timezone",
+            "--force",
+            "--sidecar",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    assert not photo.title
+    assert (
+        photo.description == "Test Photo"
+    )  # sidecar description should override exportdb description
+    assert photo.keywords == [
+        "test"
+    ]  # sidecar keywords should override exportdb keywords
+    assert "I have a deleted twin" in photo.albums  # exportdb album should be set
+    assert "AlbumInFolder" in photo.albums
+    sidecar_date = datetime.datetime(
+        2021,
+        1,
+        15,
+        10,
+        40,
+        24,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=64800)),
+    )
+    assert photo.date == sidecar_date  # date from sidecar should override exportdb date
+
+
+@pytest.mark.test_import
+def test_import_exportdb_sidecar_sidecar_ignore_date(tmp_path):
+    """Test osxphotos import with --exportdb option and --sidecar --sidecar-ignore-date"""
+
+    sidecar = """
+    <?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+    <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="osxphotos">
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about=""
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
+            <photoshop:SidecarForExtension>jpeg</photoshop:SidecarForExtension>
+            <dc:description>
+            <rdf:Alt>
+             <rdf:li xml:lang='x-default'>Test Photo</rdf:li>
+            </rdf:Alt>
+            </dc:description>
+            <dc:title>
+             <rdf:Alt>
+              <rdf:li xml:lang='x-default'/>
+             </rdf:Alt>
+            </dc:title>
+            <dc:subject>
+             <rdf:Bag>
+              <rdf:li>test</rdf:li>
+             </rdf:Bag>
+            </dc:subject>
+            <photoshop:DateCreated>2021-01-15T10:40:24.086000-06:00</photoshop:DateCreated>
+    </rdf:Description>
+    <rdf:Description rdf:about=""
+     xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
+            <digiKam:TagsList>
+            <rdf:Seq>
+              <rdf:li>test</rdf:li>
+            </rdf:Seq>
+            </digiKam:TagsList>
+    </rdf:Description>
+    <rdf:Description rdf:about=""
+     xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
+            <xmp:CreateDate>2024-01-15T10:40:24</xmp:CreateDate>
+            <xmp:ModifyDate>2024-01-15T10:40:24</xmp:ModifyDate>
+    </rdf:Description>
+    <rdf:Description rdf:about=""
+     xmlns:exif='http://ns.adobe.com/exif/1.0/'>
+    </rdf:Description>
+    </rdf:RDF>
+    </x:xmpmeta>
+    <?xpacket end="w"?>
+    """
+    # first, export an image
+    runner = CliRunner()
+    result = runner.invoke(
+        export,
+        [
+            "--verbose",
+            str(tmp_path),
+            "--name",
+            "wedding.jpg",
+            "--library",
+            TEST_EXPORT_LIBRARY,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # write sidecar file
+    with open(str(tmp_path / "wedding.jpg.xmp"), "w") as f:
+        f.write(sidecar)
+
+    # now import that exported photo with --exportdb
+    result = runner.invoke(
+        import_main,
+        [
+            str(tmp_path),
+            "--glob",
+            "wedding.jpg",
+            "--verbose",
+            "--exportdb",
+            str(tmp_path),
+            "--set-timezone",
+            "--force",
+            "--sidecar",
+            "--sidecar-ignore-date",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Setting metadata and location from export database" in result.output
+    results = parse_import_output(result.output)
+    photosdb = PhotosDB()
+    photo = photosdb.query(QueryOptions(uuid=[results["wedding.jpg"]]))[0]
+    assert not photo.title
+    assert (
+        photo.description == "Test Photo"
+    )  # sidecar description should override exportdb description
+    assert photo.keywords == [
+        "test"
+    ]  # sidecar keywords should override exportdb keywords
+    assert "I have a deleted twin" in photo.albums  # exportdb album should be set
+    assert "AlbumInFolder" in photo.albums
+    actual_date = datetime.datetime(
+        2019,
+        4,
+        15,
+        14,
+        40,
+        24,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
+    assert photo.date == actual_date  # date from exportdb
+    # verify timezone info set correctly
+    assert photo.date.tzinfo == actual_date.tzinfo
 
 
 @pytest.mark.test_import

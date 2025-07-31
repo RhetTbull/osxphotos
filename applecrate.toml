@@ -1,0 +1,16 @@
+# TOML file for generating the applecrate package with applecrate
+# The version in this file will be updated by bump2version
+
+app = "osxphotos"
+version = "0.72.1"
+identifier = "org.rhettbull.osxphotos"
+license = "LICENSE"
+install = [
+    [
+        "build/osxphotos-0.72.1-{{ machine }}",
+        "/usr/local/bin/osxphotos",
+    ],
+]
+pre_install = "scripts/preinstall.sh"
+output = "dist/{{ app }}-{{ version }}-{{ machine }}-installer.pkg"
+sign = "$DEVELOPER_ID_INSTALLER"

@@ -1,10 +1,10 @@
-""" Yet another simple exiftool wrapper
-    I rolled my own for following reasons:
-    1. I wanted something under MIT license (best alternative was licensed under GPL/BSD)
-    2. I wanted singleton behavior so only a single exiftool process was ever running
-    3. When used as a context manager, I wanted the operations to batch until exiting the context (improved performance)
-    If these aren't important to you, I recommend you consider Sven Marnach's excellent
-    pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality """
+"""Yet another simple exiftool wrapper
+I rolled my own for following reasons:
+1. I wanted something under MIT license (best alternative was licensed under GPL/BSD)
+2. I wanted singleton behavior so only a single exiftool process was ever running
+3. When used as a context manager, I wanted the operations to batch until exiting the context (improved performance)
+If these aren't important to you, I recommend you consider Sven Marnach's excellent
+pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality"""
 
 from __future__ import annotations
 
@@ -18,6 +18,8 @@ import pathlib
 import re
 import shutil
 import subprocess
+import threading
+import time
 from functools import lru_cache  # pylint: disable=syntax-error
 from typing import Any
 
@@ -34,6 +36,9 @@ __all__ = [
 # exiftool -stay_open commands outputs this EOF marker after command is run
 EXIFTOOL_STAYOPEN_EOF = "{ready}"
 EXIFTOOL_STAYOPEN_EOF_LEN = len(EXIFTOOL_STAYOPEN_EOF)
+
+# timeout in seconds for starting exiftool process
+EXIFTOOL_STARTUP_TIMEOUT = 30
 
 # list of exiftool processes to cleanup when exiting or when terminate is called
 EXIFTOOL_PROCESSES = []
@@ -94,6 +99,51 @@ def get_exiftool_path():
             "Could not find exiftool. Please download and install from "
             "https://exiftool.org/"
         )
+
+
+def _start_process_with_timeout(args, timeout, **kwargs):
+    """Start a subprocess with a timeout on the Popen call itself.
+
+    Args:
+        args: Arguments to pass to subprocess.Popen
+        timeout: Timeout in seconds
+        **kwargs: Additional keyword arguments for subprocess.Popen
+
+    Returns:
+        subprocess.Popen object
+
+    Raises:
+        TimeoutError: If process startup times out
+        Other exceptions from subprocess.Popen as normal
+    """
+    process = None
+    exception = None
+
+    def target():
+        nonlocal process, exception
+        try:
+            process = subprocess.Popen(args, **kwargs)
+        except Exception as e:
+            exception = e
+
+    thread = threading.Thread(target=target)
+    thread.daemon = True
+    thread.start()
+    thread.join(timeout)
+
+    if thread.is_alive():
+        # Thread is still running, startup timed out
+        # Note: We can't easily kill the thread, but the daemon flag
+        # means it will be cleaned up when the main process exits
+        raise TimeoutError(f"process startup timed out after {timeout} seconds")
+
+    if exception:
+        raise exception
+
+    if process is None:
+        raise RuntimeError("Failed to start process for unknown reason")
+
+    return process
 
 
 class _ExifToolProc:
@@ -157,27 +207,32 @@ class _ExifToolProc:
         env = os.environ.copy()
         env["PATH"] = f'/usr/bin/:{env["PATH"]}'
         large_file_args = ["-api", "largefilesupport=1"] if large_file_support else []
-        self._process = subprocess.Popen(
-            [
-                self._exiftool,
-                "-stay_open",  # keep process open in batch mode
-                "True",  # -stay_open=True, keep process open in batch mode
-                *large_file_args,
-                "-@",  # read command-line arguments from file
-                "-",  # read from stdin
-                "-common_args",  # specifies args common to all commands subsequently run
-                "-n",  # no print conversion (e.g. print tag values in machine readable format)
-                "-P",  # Preserve file modification date/time
-                "-G",  # print group name for each tag
-                "-E",  # escape tag values for HTML (allows use of HTML &#xa; for newlines)
-            ],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            env=env,
-        )
-        self._process_running = True
 
+        try:
+            self._process = _start_process_with_timeout(
+                [
+                    self._exiftool,
+                    "-stay_open",  # keep process open in batch mode
+                    "True",  # -stay_open=True, keep process open in batch mode
+                    *large_file_args,
+                    "-@",  # read command-line arguments from file
+                    "-",  # read from stdin
+                    "-common_args",  # specifies args common to all commands subsequently run
+                    "-n",  # no print conversion (e.g. print tag values in machine readable format)
+                    "-P",  # Preserve file modification date/time
+                    "-G",  # print group name for each tag
+                    "-E",  # escape tag values for HTML (allows use of HTML &#xa; for newlines)
+                ],
+                timeout=EXIFTOOL_STARTUP_TIMEOUT,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                env=env,
+            )
+        except (TimeoutError, RuntimeError) as e:
+            raise RuntimeError(f"Failed to start exiftool process: {e}") from e
+
+        self._process_running = True
         EXIFTOOL_PROCESSES.append(self)
 
     def _stop_proc(self):

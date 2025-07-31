@@ -118,6 +118,8 @@ class PhotosAlbum:
         self.library = photoscript.PhotosLibrary()
 
         folders_album = name.split(split_folder) if split_folder else [name]
+        if folders_album and folders_album[0] == "":
+            folders_album = folders_album[1:]
         self.album = album_by_path(folders_album, verbose=verbose)
         self.name = name
         self.rich = rich
@@ -197,6 +199,7 @@ class PhotosAlbumPhotoScript(PhotosAlbum):
     def extend(self, photos: Iterable[Photo]):
         """Add list of photos to album"""
         self.update(photos)
+
 
 class PhotosAlbumPhotoScriptByPath(PhotosAlbumPhotoScript):
     """Add photoscript.Photo objects to album"""

@@ -358,6 +358,7 @@ def handle_unmatched(unmatched: list[str]):
     if suggestions := suggest_template_fields(unmatched):
         print("Did you mean one of these?", file=sys.stderr)
         print(" ".join(suggestions), file=sys.stderr)
+    sys.stderr.flush()
 
 
 def print_intro():

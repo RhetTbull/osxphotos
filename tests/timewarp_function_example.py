@@ -29,7 +29,7 @@ def get_date_time_timezone(
 
     # the photo's date/time can be accessed as photo.date
     # photo.date is a datetime.datetime object
-    # the date/time is naive (timezone unaware) as will be in local timezone
+    # the date/time is naive (timezone unaware) and will be in local timezone
     date = photo.date
 
     # add 3 hours

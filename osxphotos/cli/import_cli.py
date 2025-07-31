@@ -28,8 +28,17 @@ from rich.progress import Progress, SpinnerColumn
 from strpdatetime import strpdatetime
 
 from osxphotos.fileutil import FileUtilMacOS
+from osxphotos.photodates import (
+    set_photo_date_from_filename,
+    update_photo_time_for_new_timezone,
+)
 from osxphotos.photoinfo_protocol import PhotoInfoProtocol
+from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
+from osxphotos.strpdatetime_parts import fmt_has_date_time_codes
+
+from .help import rich_text
+from .param_types import TimezoneOffset
 
 assert_macos()
 
@@ -57,6 +66,7 @@ from osxphotos.cli.signaturequery import SignatureQuery
 from osxphotos.datetime_utils import (
     datetime_has_tz,
     datetime_remove_tz,
+    datetime_to_new_tz,
     datetime_tz_to_utc,
     datetime_utc_to_local,
 )
@@ -85,6 +95,7 @@ from osxphotos.metadata_reader import (
     metadata_from_photoinfo,
     metadata_from_sidecar,
 )
+from osxphotos.photodates import update_photo_time_for_new_timezone
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photoinfo_file import (
     PhotoInfoFromFile,
@@ -94,10 +105,7 @@ from osxphotos.photosalbum import PhotosAlbumPhotoScript, PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlite_utils import sqlite_columns
 from osxphotos.sqlitekvstore import SQLiteKVStore
-from osxphotos.strpdatetime_parts import (
-    date_str_matches_date_time_codes,
-    fmt_has_date_time_codes,
-)
+from osxphotos.timezones import Timezone
 from osxphotos.unicode import normalize_unicode
 from osxphotos.utils import get_last_library_path, pluralize
 
@@ -164,16 +172,19 @@ def watch(func):
     """Print name of function, name type of each argument"""
     # this is to help figure out type hint issues
 
+    # avoid print() in checked in code
+    echo = print
+
     def wrapper(*args, **kwargs):
-        print(f"Running {func.__name__}")
+        echo(f"Running {func.__name__}")
         for arg in itertools.chain(args, kwargs.values()):
-            print(f"{arg=}, {type(arg)=}")
+            echo(f"{arg=}, {type(arg)=}")
             if arg and isinstance(arg, (list, tuple)):
-                print(f"{arg[0]=} {type(arg[0])=}")
+                echo(f"{arg[0]=} {type(arg[0])=}")
                 if arg[0] and isinstance(arg[0], (list, tuple)):
-                    print(f"{arg[0][0]=} {type(arg[0][0])=}")
+                    echo(f"{arg[0][0]=} {type(arg[0][0])=}")
         results = func(*args, **kwargs)
-        print(f"returned: {results=} {type(results)=}")
+        echo(f"returned: {results=} {type(results)=}")
         return results
 
     return wrapper
@@ -447,13 +458,6 @@ class ImportCommand(click.Command):
             For more information on strptime format codes, see:
             https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
 
-            **Note**: The time zone of the parsed date/time is assumed to be the local time zone.
-            If the parse pattern includes a time zone, the photo's time will be converted from
-            the specified time zone to the local time zone. osxphotos import does not
-            currently support setting the time zone of imported photos.
-            See also `osxphotos help timewarp` for more information on the timewarp
-            command which can be used to change the time zone of photos after import.
-
             ### Examples
 
             If you have photos with embedded names in filenames like `IMG_1234_20200322_123456.jpg`
@@ -528,29 +532,21 @@ class ImportCommand(click.Command):
     metavar="ALBUM_TEMPLATE",
     multiple=True,
     type=TemplateString(),
-    help="Import photos into album ALBUM_TEMPLATE. "
-    "ALBUM_TEMPLATE is an osxphotos template string. "
-    "Photos may be imported into more than one album by repeating --album. "
-    "See also --skip-dups, --dup-albums, --split-folder, --relative-to. "
-    "See Template System in help for additional information.",
+    help="Import photos into album ALBUM_TEMPLATE. ALBUM_TEMPLATE is an osxphotos template string. Photos may be imported into more than one album by repeating --album. See also --skip-dups, --dup-albums, --split-folder, --relative-to. See Template System in help for additional information.",
 )
 @click.option(
     "--title",
     "-t",
     metavar="TITLE_TEMPLATE",
     type=TemplateString(),
-    help="Set title of imported photos to TITLE_TEMPLATE. "
-    "TITLE_TEMPLATE is a an osxphotos template string. "
-    "See Template System in help for additional information.",
+    help="Set title of imported photos to TITLE_TEMPLATE. TITLE_TEMPLATE is a an osxphotos template string. See Template System in help for additional information.",
 )
 @click.option(
     "--description",
     "-d",
     metavar="DESCRIPTION_TEMPLATE",
     type=TemplateString(),
-    help="Set description of imported photos to DESCRIPTION_TEMPLATE. "
-    "DESCRIPTION_TEMPLATE is a an osxphotos template string. "
-    "See Template System in help for additional information.",
+    help="Set description of imported photos to DESCRIPTION_TEMPLATE. DESCRIPTION_TEMPLATE is a an osxphotos template string. See Template System in help for additional information.",
 )
 @click.option(
     "--keyword",
@@ -558,18 +554,13 @@ class ImportCommand(click.Command):
     metavar="KEYWORD_TEMPLATE",
     multiple=True,
     type=TemplateString(),
-    help="Set keywords of imported photos to KEYWORD_TEMPLATE. "
-    "KEYWORD_TEMPLATE is a an osxphotos template string. "
-    "More than one keyword may be set by repeating --keyword. "
-    "See Template System in help for additional information.",
+    help="Set keywords of imported photos to KEYWORD_TEMPLATE. KEYWORD_TEMPLATE is a an osxphotos template string. More than one keyword may be set by repeating --keyword. See Template System in help for additional information.",
 )
 @click.option(
     "--merge-keywords",
     "-m",
     is_flag=True,
-    help="Merge keywords created by --exiftool, --sidecar, --sidecar-filename, or --keyword "
-    "with any keywords already associated with the photo. "
-    "Without --merge-keywords, existing keywords will be overwritten.",
+    help="Merge keywords created by --exiftool, --sidecar, --sidecar-filename, or --keyword with any keywords already associated with the photo. Without --merge-keywords, existing keywords will be overwritten.",
 )
 @click.option(
     "--location",
@@ -588,10 +579,7 @@ class ImportCommand(click.Command):
     "-G",
     metavar="RATING",
     type=click.IntRange(1, 5),
-    help="If XMP:Rating is set to RATING or higher, mark imported photo as a favorite. "
-    "RATING must be in range 1 to 5. "
-    "XMP:Rating will be read from asset's metadata or from sidecar if --sidecar, --sidecare-filename is used. "
-    "Requires that exiftool be installed to read the rating from the asset's XMP data.",
+    help="If XMP:Rating is set to RATING or higher, mark imported photo as a favorite. RATING must be in range 1 to 5. XMP:Rating will be read from asset's metadata or from sidecar if --sidecar, --sidecare-filename is used. Requires that exiftool be installed to read the rating from the asset's XMP data.",
 )
 @click.option(
     "--auto-live",
@@ -617,8 +605,6 @@ class ImportCommand(click.Command):
     help="Parse date from filename using DATE_PATTERN. "
     "If file does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
     "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
-    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
-    "as the import command does not yet support setting time zone information. "
     "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
     "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
     "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name. "
@@ -628,7 +614,9 @@ class ImportCommand(click.Command):
     "For example, if photos are named 'IMG_1234_2022_11_23.jpg' where the date is '2022-11-23', "
     "you could use the pattern '%Y_%m_%d' to set the date but the time would be set from the EXIF "
     "or the file's modification time. "
-    "See also --parse-folder-date, --check-templates.",
+    "If the DATE_PATTERN matches time zone information, you must also use --set-timezone to allow "
+    "osxphotos to set the timezone in the Photos database. "
+    "See also --parse-folder-date, --check-templates, --set-timezone.",
 )
 @click.option(
     "--parse-folder-date",
@@ -651,29 +639,38 @@ class ImportCommand(click.Command):
     "--clear-metadata",
     "-X",
     is_flag=True,
-    help="Clear any metadata set automatically "
-    "by Photos upon import. Normally, Photos will set title, description, and keywords "
-    "from XMP metadata in the imported file.  If you specify --clear-metadata, any metadata "
-    "set by Photos will be cleared after import.",
+    help="Clear any metadata set automatically by Photos upon import. Normally, Photos will set title, description, and keywords from XMP metadata in the imported file.  If you specify --clear-metadata, any metadata set by Photos will be cleared after import.",
 )
 @click.option(
     "--clear-location",
     "-L",
     is_flag=True,
-    help="Clear any location data automatically imported by Photos. "
-    "Normally, Photos will set location of the photo to the location data found in the "
-    "metadata in the imported file.  If you specify --clear-location, "
-    "this data will be cleared after import.",
+    help="Clear any location data automatically imported by Photos. Normally, Photos will set location of the photo to the location data found in the metadata in the imported file.  If you specify --clear-location, this data will be cleared after import.",
+)
+@click.option(
+    "--timezone",
+    "-z",
+    metavar="TIMEZONE",
+    type=TimezoneOffset(),
+    help="Set timezone for imported photos as offset from UTC or to named IANA timezone. "
+    "Format is one of '±HH:MM', '±H:MM', '±HHMM', or named timezone such as 'America/Los_Angeles' or 'PST'. "
+    "For list of valid IANA timezone names, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. "
+    "This option useful if your imported photos contain the correct date/time but not the timezone or an incorrect timezone. "
+    "If there is no timezone data, Photos will apply the current local timezone to the photo. "
+    "If you took the photos in a different timezone with a camera that did not apply timezone, "
+    "the --timezone option is useful to set the correct timezone. "
+    "When using --timezone, osxphotos will assume the date/time is correct for the target timezone "
+    "and will adjust the date/time as needed. "
+    "For example, if you took a photo at 9:00 AM in New York and you are currently in Los Angeles, "
+    "you would use --timezone 'America/New_York' to set the timezone to New_York. "
+    "The time of the photos will be adjusted to 6:00 AM in Los Angeles so that the photo is displayed "
+    "at the correct time (9:00 AM in New York) in the Photos app.",
 )
 @click.option(
     "--exiftool",
     "-e",
     is_flag=True,
-    help="Use third party tool exiftool (https://exiftool.org/) to automatically "
-    "update metadata (title, description, keywords, location) in imported photos from "
-    "the imported file's metadata. "
-    "See also --sidecar, --sidecar-filename, --exportdb. "
-    "Note: importing keywords from video files is not currently supported.",
+    help="Use third party tool exiftool (https://exiftool.org/) to automatically update metadata (title, description, keywords, location) in imported photos from the imported file's metadata. See also --sidecar, --sidecar-filename, --exportdb. Note: importing keywords from video files is not currently supported.",
 )
 @click.option(
     "--exiftool-path",
@@ -732,22 +729,37 @@ class ImportCommand(click.Command):
     "--sidecar-ignore-date",
     "-i",
     is_flag=True,
-    help="Do not use date in sidecar to set photo date/time. "
-    "Setting the timezone from sidecar files is not currently supported so when using --sidecar "
-    "or --sidecar-filename, the date/time found in the sidecar will be converted to the local timezone "
-    "and that value will be used to set the photo date/time. "
-    "If your photos have correct timezone information in the embedded metadata you can use "
-    "--sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the "
-    "file (which will be read by Photos on import).",
+    help="Do not use date/time in sidecar to set photo date/time. "
+    "There may be situations where you want to apply the metadata from the sidecar but ignore the date/time in the sidecar. "
+    "One of these is when using --exportdb to restore from the export database. "
+    "The export database stores the named timezone of the photo and will set it "
+    "but the sidecar metadata standards do not support storing the named timezone. "
+    "Thus if using both --exportdb and --sidecar, you may want to use --sidecar-ignore-date "
+    "otherwise the date/time in the sidecar will overwrite the date/time (and timezone name) from the export database. "
+    "Additionally, Google Takeout does not preserve timezone information in the sidecar and converts all times "
+    "to UTC. If you are importing photos from Google Takeout and the photos contain the correct date/time and timezone offset, "
+    "you may want to use --sidecar-ignore-date to ignore the date/time in the sidecar and use the date/time from the photo metadata.",
+)
+@click.option(
+    "--set-timezone",
+    "-Z",
+    is_flag=True,
+    help="Set the named timezone of the imported photos in the Photos database when used with "
+    "--exportdb or --parse-date. "
+    "Photos does not provide a way to set the timezone of a photo directly. "
+    "Upon import, osxphotos can read the timezone from the export database if using --exportdb or "
+    "from the filename if using --parse-date. "
+    "The --set-timezone option will set the named timezone of the photo by directly writing the timezone name "
+    "to the Photos database. This has been well tested but because it uses an undocumented Photos API, "
+    "it may be possible to corrupt the Photos database. If you want to set the timezone of the imported photos, "
+    "use --set-timezone. ",
 )
 @click.option(
     "--exportdb",
     "-B",
     metavar="EXPORTDB_PATH",
     type=click.Path(exists=True),
-    help="Use an osxphotos export database (created by 'osxphotos export') "
-    "to set metadata (title, description, keywords, location, album). "
-    "See also --exportdir, --sidecar, --sidecar-filename, --exiftool.",
+    help="Use an osxphotos export database (created by 'osxphotos export') to set metadata (title, description, keywords, location, album, date/time, timezone). See also --exportdir, --sidecar, --sidecar-filename, --exiftool. If using with --sidecar, it is recommended you also use --sidecar-ignore-date.",
 )
 @click.option(
     "--exportdir",
@@ -773,28 +785,19 @@ class ImportCommand(click.Command):
     "-r",
     metavar="RELATIVE_TO_PATH",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
-    help="If set, the '{filepath}' template "
-    "will be computed relative to RELATIVE_TO_PATH. "
-    "For example, if path to import is '/Volumes/photos/import/album/img_1234.jpg' "
-    "then '{filepath}' will be this same value. "
-    "If you set '--relative-to /Volumes/photos/import' "
-    "then '{filepath}' will be set to 'album/img_1234.jpg'",
+    help="If set, the '{filepath}' template will be computed relative to RELATIVE_TO_PATH. For example, if path to import is '/Volumes/photos/import/album/img_1234.jpg' then '{filepath}' will be this same value. If you set '--relative-to /Volumes/photos/import' then '{filepath}' will be set to 'album/img_1234.jpg'",
 )
 @click.option(
     "--dup-check",
     "-D",
     is_flag=True,
-    help="Use Photos' built-in duplicate checkign to check for duplicates on import. "
-    "Using --dup-check will cause Photos to display a dialog box for each duplicate photo found, "
-    "requesting confirmation to import the duplicate. See also --skip-dups.",
+    help="Use Photos' built-in duplicate checkign to check for duplicates on import. Using --dup-check will cause Photos to display a dialog box for each duplicate photo found, requesting confirmation to import the duplicate. See also --skip-dups.",
 )
 @click.option(
     "--skip-dups",
     "-S",
     is_flag=True,
-    help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. "
-    "Unlike --dup-check, this does not use Photos' built in duplicate checking feature and "
-    "does not display a dialog box for each duplicate found. See also --dup-check, --dup-albums, and --resume.",
+    help="Skip duplicate photos on import; osxphotos will not import any photos that appear to be duplicates. Unlike --dup-check, this does not use Photos' built in duplicate checking feature and does not display a dialog box for each duplicate found. See also --dup-check, --dup-albums, and --resume.",
 )
 @click.option(
     "--signature",
@@ -823,10 +826,7 @@ class ImportCommand(click.Command):
 @click.option(
     "--split-folder",
     "-f",
-    help="Automatically create hierarchal folders for albums as needed by splitting album name "
-    "into folders and album. You must specify the character used to split folders and "
-    "albums. For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
-    "into folder 'Folder' and album 'Album'. ",
+    help="Automatically create hierarchal folders for albums as needed by splitting album name into folders and album. You must specify the character used to split folders and albums. For example, '--split-folder \"/\"' will split the album name 'Folder/Album' into folder 'Folder' and album 'Album'. ",
 )
 @click.option(
     "--walk", "-w", is_flag=True, help="Recursively walk through directories."
@@ -836,26 +836,19 @@ class ImportCommand(click.Command):
     "-g",
     metavar="GLOB",
     multiple=True,
-    help="Only import files matching GLOB. "
-    "GLOB is a Unix shell-style glob pattern, for example: '--glob \"*.jpg\"'. "
-    "GLOB may be repeated to import multiple patterns.",
+    help="Only import files matching GLOB. GLOB is a Unix shell-style glob pattern, for example: '--glob \"*.jpg\"'. GLOB may be repeated to import multiple patterns.",
 )
 @click.option(
     "--check",
     "-c",
     is_flag=True,
-    help="Check which FILES have been previously imported but do not actually import anything. "
-    "Prints a report showing which files have been imported (and when they were added) "
-    "and which files have not been imported. "
-    "See also, --check-not.",
+    help="Check which FILES have been previously imported but do not actually import anything. Prints a report showing which files have been imported (and when they were added) and which files have not been imported. See also, --check-not.",
 )
 @click.option(
     "--check-not",
     "-C",
     is_flag=True,
-    help="Check which FILES have not been previously imported but do not actually import anything. "
-    "Prints the path to each file that has not been previously imported. "
-    "See also, --check.",
+    help="Check which FILES have not been previously imported but do not actually import anything. Prints the path to each file that has not been previously imported. See also, --check.",
 )
 @click.option(
     "--dry-run",
@@ -889,8 +882,7 @@ class ImportCommand(click.Command):
     "--append",
     "-O",
     is_flag=True,
-    help="If used with --report, add data to existing report file instead of overwriting it. "
-    "See also --report.",
+    help="If used with --report, add data to existing report file instead of overwriting it. See also --report.",
 )
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
@@ -903,8 +895,7 @@ class ImportCommand(click.Command):
 @click.option(
     "--check-templates",
     is_flag=True,
-    help="Don't actually import anything; "
-    "renders template strings and date patterns so you can verify they are correct.",
+    help="Don't actually import anything; renders template strings and date patterns so you can verify they are correct.",
 )
 @click.option(
     "--post-function",
@@ -923,17 +914,19 @@ class ImportCommand(click.Command):
 @click.option(
     "--stop-on-error",
     metavar="COUNT",
-    help="Stops importing after COUNT errors. "
-    "Useful if you experience a large number of errors during import.",
+    help="Stops importing after COUNT errors. Useful if you experience a large number of errors during import.",
     type=click.IntRange(min=0),
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    help="Bypass confirmation prompt when using --timezone or --set-timezone .  Use with caution.",
 )
 @click.option(
     "--library",
     metavar="LIBRARY_PATH",
     type=click.Path(exists=True),
-    help="Path to the Photos library you are importing into. This is not usually needed. "
-    "You will only need to specify this if osxphotos cannot determine the path to the library "
-    "in which case osxphotos will tell you to use the --library option when you run the import command.",
+    help="Path to the Photos library you are importing into. This is not usually needed. You will only need to specify this if osxphotos cannot determine the path to the library in which case osxphotos will tell you to use the --library option when you run the import command.",
 )
 @THEME_OPTION
 @click.argument("FILES_OR_DIRS", nargs=-1)
@@ -961,6 +954,7 @@ def import_main(
     exportdir: str | None,
     favorite_rating: int | None,
     files_or_dirs: tuple[str, ...],
+    force: bool,
     glob: tuple[str, ...],
     keyword: tuple[str, ...],
     library: str | None,
@@ -973,6 +967,7 @@ def import_main(
     relative_to: str | None,
     report: str | None,
     resume: bool,
+    set_timezone: bool,
     sidecar: bool,
     sidecar_ignore_date: bool,
     sidecar_filename_template: str | None,
@@ -982,6 +977,7 @@ def import_main(
     stop_on_error: int | None,
     theme: str | None,
     timestamp: bool,
+    timezone: Timezone | None,
     title: str | None,
     verbose_flag: bool,
     walk: bool,
@@ -1050,6 +1046,7 @@ def import_cli(
     exportdir: str | None = None,
     favorite_rating: int | None = None,
     files_or_dirs: tuple[str, ...] = (),
+    force: bool = False,
     glob: tuple[str, ...] = (),
     keyword: tuple[str, ...] = (),
     library: str | None = None,
@@ -1062,6 +1059,7 @@ def import_cli(
     relative_to: str | None = None,
     report: str | None = None,
     resume: bool = False,
+    set_timezone: bool = False,
     sidecar: bool = False,
     sidecar_ignore_date: bool = False,
     sidecar_filename_template: str | None = None,
@@ -1071,6 +1069,7 @@ def import_cli(
     stop_on_error: int | None = None,
     theme: str | None = None,
     timestamp: bool = False,
+    timezone: Timezone | None = None,
     title: str | None = None,
     verbose_flag: bool = False,
     walk: bool = False,
@@ -1086,9 +1085,52 @@ def import_cli(
     """
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
+    # input validation
     if not files_or_dirs:
         echo("Nothing to import", err=True)
         return
+
+    if (timezone or set_timezone) and not force:
+        click.confirm(
+            rich_text(
+                f":warning-emoji: Using --timezone or --set-timezone will directly modify "
+                "the Photos library database using undocumented features. "
+                "While this functionality has been well tested, it is possible this may "
+                "corrupt, damage, or destroy your Photos library. "
+                "[bold]Use at your own caution. No warranty is implied or provided.[/] "
+                "It is strongly recommended you make a backup of your Photos library "
+                "before using the import command with --timezone and/or --set-timezone "
+                "(for example, using Time Machine).\n\n"
+                "Proceed with import?"
+            ),
+            abort=True,
+        )
+
+    if exiftool and not exiftool_path:
+        # ensure exiftool is installed in path
+        try:
+            get_exiftool_path()
+        except FileNotFoundError as e:
+            rich_echo_error(f"[error] {e}")
+            raise click.Abort()
+
+    if sidecar and sidecar_filename_template:
+        rich_echo_error(
+            "[error] Only one of --sidecar or --sidecar-filename may be used"
+        )
+        raise click.Abort()
+
+    if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
+        rich_echo_error(
+            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
+        )
+        raise click.Abort()
+
+    if dup_albums and not (skip_dups and (album or exportdb)):
+        rich_echo_error(
+            "[error] --dup-albums must be used with --skip-dups and --album"
+        )
+        raise click.Abort()
 
     report_file = render_and_validate_report(report) if report else None
     relative_to = pathlib.Path(relative_to) if relative_to else None
@@ -1130,8 +1172,7 @@ def import_cli(
     last_library = library or get_last_library_path()
     if not last_library:
         rich_echo_error(
-            "[error]Could not determine path to Photos library. "
-            "Please specify path to library with --library option."
+            "[error]Could not determine path to Photos library. Please specify path to library with --library option."
         )
         raise click.Abort()
 
@@ -1162,32 +1203,6 @@ def import_cli(
             verbose,
         )
         sys.exit(0)
-
-    if exiftool and not exiftool_path:
-        # ensure exiftool is installed in path
-        try:
-            get_exiftool_path()
-        except FileNotFoundError as e:
-            rich_echo_error(f"[error] {e}")
-            raise click.Abort()
-
-    if sidecar and sidecar_filename_template:
-        rich_echo_error(
-            "[error] Only one of --sidecar or --sidecar-filename may be used"
-        )
-        raise click.Abort()
-
-    if sidecar_ignore_date and not (sidecar or sidecar_filename_template):
-        rich_echo_error(
-            "[error] --sidecar-ignore-date must be used with --sidecar or --sidecar-filename"
-        )
-        raise click.Abort()
-
-    if dup_albums and not (skip_dups and (album or exportdb)):
-        rich_echo_error(
-            "[error] --dup-albums must be used with --skip-dups and --album"
-        )
-        raise click.Abort()
 
     # initialize report data
     # report data is set even if no report is generated
@@ -1238,6 +1253,8 @@ def import_cli(
         signature=signature,
         stop_on_error=stop_on_error,
         verbose=verbose,
+        set_timezone=set_timezone,
+        timezone=timezone,
     )
 
     import_db.close()
@@ -1248,9 +1265,7 @@ def import_cli(
 
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
     echo(
-        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, "
-        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
-        f"{skipped_str}",
+        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, [num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}{skipped_str}",
         emoji=False,
     )
 
@@ -1600,6 +1615,8 @@ def set_photo_metadata_from_exportdb(
     merge_keywords: bool,
     verbose: Callable[..., None],
     dry_run: bool,
+    library: str,
+    timezone: bool,
 ):
     """Set photo's metadata by reading metadata from exportdb"""
     photoinfo = None
@@ -1616,7 +1633,15 @@ def set_photo_metadata_from_exportdb(
             f"Setting metadata and location from export database for [filename]{filepath.name}[/]"
         )
         set_photo_metadata_from_metadata(
-            photo, filepath, metadata, merge_keywords, True, verbose, dry_run
+            photo,
+            filepath,
+            metadata,
+            merge_keywords,
+            False,
+            verbose,
+            dry_run,
+            library,
+            timezone,
         )
     else:
         verbose(
@@ -1631,12 +1656,21 @@ def set_photo_metadata_from_exiftool(
     merge_keywords: bool,
     verbose: Callable[..., None],
     dry_run: bool,
+    library: str,
 ):
     """Set photo's metadata by reading metadata from file with exiftool"""
     verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
     metadata = metadata_from_exiftool(filepath, exiftool_path)
     set_photo_metadata_from_metadata(
-        photo, filepath, metadata, merge_keywords, True, verbose, dry_run
+        photo,
+        filepath,
+        metadata,
+        merge_keywords,
+        True,
+        verbose,
+        dry_run,
+        library,
+        False,
     )
 
 
@@ -1648,6 +1682,8 @@ def set_photo_metadata_from_metadata(
     ignore_date: bool,
     verbose: Callable[..., None],
     dry_run: bool,
+    library: str,
+    set_timezone: bool,
 ) -> MetaData:
     """Set metadata from a MetaData object"""
     if any([metadata.title, metadata.description, metadata.keywords]):
@@ -1655,8 +1691,7 @@ def set_photo_metadata_from_metadata(
         verbose(f"Set metadata for [filename]{filepath.name}[/]:")
         empty_str = ""
         verbose(
-            f"title='{metadata.title or empty_str}', description='{metadata.description or empty_str}', "
-            f"favorite={metadata.favorite}, keywords={metadata.keywords}"
+            f"title='{metadata.title or empty_str}', description='{metadata.description or empty_str}', favorite={metadata.favorite}, keywords={metadata.keywords}"
         )
     else:
         verbose(f"No metadata to set for [filename]{filepath.name}[/]")
@@ -1666,18 +1701,13 @@ def set_photo_metadata_from_metadata(
         if photo and not dry_run:
             photo.location = metadata.location
         verbose(
-            f"Set location for [filename]{filepath.name}[/]: "
-            f"[num]{metadata.location[0]}[/], [num]{metadata.location[1]}[/]"
+            f"Set location for [filename]{filepath.name}[/]: [num]{metadata.location[0]}[/], [num]{metadata.location[1]}[/]"
         )
     else:
         verbose(f"No location to set for [filename]{filepath.name}[/]")
 
     if metadata.date is not None and not ignore_date:
-        verbose(
-            f"Set date for [filename]{filepath.name}[/]: [time]{metadata.date.isoformat()}[/]"
-        )
-        if photo and not dry_run:
-            photo.date = metadata.date
+        set_photo_date(photo, metadata, verbose, dry_run, library, set_timezone)
 
     return metadata
 
@@ -1691,6 +1721,8 @@ def set_photo_metadata_from_sidecar(
     merge_keywords: bool,
     verbose: Callable[..., None],
     dry_run: bool,
+    library: str,
+    set_timezone: bool,
 ):
     """Set photo's metadata by reading metadata from sidecar. If sidecar format is XMP, exiftool must be installed."""
     verbose(
@@ -1702,8 +1734,47 @@ def set_photo_metadata_from_sidecar(
         rich_echo_error(f"Error reading sidecar [filename]{sidecar.name}[/]: {e}")
         return
     set_photo_metadata_from_metadata(
-        photo, filepath, metadata, merge_keywords, sidecar_ignore_date, verbose, dry_run
+        photo,
+        filepath,
+        metadata,
+        merge_keywords,
+        sidecar_ignore_date,
+        verbose,
+        dry_run,
+        library,
+        set_timezone,
     )
+
+
+def set_photo_date(
+    photo: Photo | None,
+    metadata: MetaData,
+    verbose: Callable[..., None],
+    dry_run: bool,
+    library: str,
+    set_timezone: bool,
+) -> datetime.datetime | None:
+    """Set photo date from metadata.
+
+    Args:
+        photo: Photo object
+        metadata: MetaData object
+        verbose: Callable to print verbose output
+        dry_run: if True, do not actually set date
+        library: path to Photos library
+        set_timezone: if True, update timezone of photo
+    """
+    if photo and not dry_run:
+        verbose(
+            f"Set date for [filename]{photo.filename}[/] ([uuid]{photo.uuid}[/]): [time]{metadata.date.isoformat()}[/]"
+        )
+        photo.date = metadata.date
+        if set_timezone and (metadata.tz_offset_sec is not None or metadata.tzname):
+            tz = Timezone(metadata.tzname or metadata.tz_offset_sec)
+            tz_updater = PhotoTimeZoneUpdater(tz, verbose=verbose, library_path=library)
+            tz_updater.update_photo(photo)
+        return photo.date
+    return metadata.date
 
 
 def set_photo_title(
@@ -1847,65 +1918,6 @@ def get_photo_rating(
     return photoinfo.rating
 
 
-def combine_date_time(
-    photo: Photo | None,
-    filepath: str | pathlib.Path,
-    parse_date: str,
-    date: datetime.datetime,
-) -> datetime.datetime:
-    """Combine date and time from parse_date and photo.date
-
-    If parse_date has both date and time, use the parsed date and time
-    If parse_date has only date, use the parsed date and time from photo
-    If parse_date has only time, use the parsed time and date from photo
-
-    Photo may be None during --dry-run
-    """
-    if photo is None:
-        return date
-    has_date, has_time = date_str_matches_date_time_codes(str(filepath), parse_date)
-    if has_date and not has_time:
-        # date only, no time, set date to date but keep time from photo
-        date = datetime.datetime.combine(date.date(), photo.date.time())
-    elif has_time and not has_date:
-        # time only, no date, set time to time but keep date from photo
-        date = datetime.datetime.combine(photo.date.date(), date.time())
-    return date
-
-
-def set_photo_date_from_filename(
-    photo: Photo,
-    photo_name: str,
-    filepath: pathlib.Path | str,
-    parse_date: str,
-    verbose: Callable[..., None],
-    dry_run: bool,
-) -> datetime.datetime | None:
-    """Set date of photo from filename or path"""
-    try:
-        date = strpdatetime(str(filepath), parse_date)
-        # Photo.date must be timezone naive (assumed to local timezone)
-        if datetime_has_tz(date):
-            local_date = datetime_remove_tz(
-                datetime_utc_to_local(datetime_tz_to_utc(date))
-            )
-            verbose(
-                f"Moving date with timezone [time]{date}[/] to local timezone: [time]{local_date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
-            )
-            date = local_date
-    except ValueError:
-        verbose(f"[warning]Could not parse date from [filepath]{filepath}[/][/]")
-        return None
-
-    date = combine_date_time(photo, filepath, parse_date, date)
-    verbose(
-        f"Setting date of photo [filename]{photo_name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
-    )
-    if photo and not dry_run:
-        photo.date = date
-    return date
-
-
 def get_relative_filepath(
     filepath: pathlib.Path, relative_to: pathlib.Path | None
 ) -> pathlib.Path:
@@ -1955,8 +1967,11 @@ def apply_photo_metadata(
     sidecar_ignore_date: bool,
     title: str | None,
     verbose: Callable[..., None],
+    library: str,
+    set_timezone: bool,
+    timezone: Timezone | None,
 ):
-    """Set metdata for photo"""
+    """Set metadata for photo"""
 
     if clear_metadata:
         clear_photo_metadata(photo, filepath, verbose, dry_run)
@@ -1974,10 +1989,12 @@ def apply_photo_metadata(
             merge_keywords,
             verbose,
             dry_run,
+            library,
+            set_timezone,
         )
     if exiftool:
         set_photo_metadata_from_exiftool(
-            photo, filepath, exiftool_path, merge_keywords, verbose, dry_run
+            photo, filepath, exiftool_path, merge_keywords, verbose, dry_run, library
         )
 
     if sidecar_file:
@@ -1990,6 +2007,8 @@ def apply_photo_metadata(
             merge_keywords,
             verbose,
             dry_run,
+            library,
+            set_timezone,
         )
 
     if title:
@@ -2045,23 +2064,36 @@ def apply_photo_metadata(
 
     if parse_date:
         set_photo_date_from_filename(
-            photo,
-            filepath.name,
-            filepath.name,
-            parse_date,
-            verbose,
-            dry_run,
+            photo=photo,
+            filepath=filepath,
+            parse_date=parse_date,
+            verbose=verbose,
+            library_path=library,
+            parse_filepath=False,
+            dry_run=dry_run,
+            set_timezone=set_timezone,
         )
 
     if parse_folder_date:
         set_photo_date_from_filename(
-            photo,
-            filepath.name,
-            filepath.parent,
-            parse_folder_date,
-            verbose,
-            dry_run,
+            photo=photo,
+            filepath=filepath,
+            parse_date=parse_folder_date,
+            verbose=verbose,
+            library_path=library,
+            parse_filepath=True,
+            dry_run=dry_run,
+            set_timezone=set_timezone,
         )
+
+    if timezone:
+        update_photo_time_for_new_timezone(
+            library_path=library, photo=photo, new_timezone=timezone, verbose=verbose
+        )
+        tz_updater = PhotoTimeZoneUpdater(
+            timezone, verbose=verbose, library_path=library
+        )
+        tz_updater.update_photo(photo)
 
 
 def apply_photo_albums(
@@ -2365,7 +2397,7 @@ def write_json_report(
 ):
     """Write report to JSON file"""
     records = [v.asjsondict() for v in report_data.values()]
-    if append:
+    if append and pathlib.Path(report_file).exists():
         with open(report_file, "r") as f:
             existing_records = json.load(f)
         records.extend(existing_records)
@@ -3031,6 +3063,8 @@ def import_files(
     auto_live: bool,
     stop_on_error: int | None,
     signature: str | None,
+    set_timezone: bool,
+    timezone: Timezone | None,
 ) -> tuple[int, int, int]:
     """Import files into Photos library
 
@@ -3085,9 +3119,7 @@ def import_files(
                         if record.imported and not record.error:
                             # file already imported
                             verbose(
-                                f"Skipping [filepath]{filepath}[/], "
-                                f"already imported on [time]{record.import_datetime.isoformat()}[/] "
-                                f"with UUID [uuid]{record.uuid}[/]"
+                                f"Skipping [filepath]{filepath}[/], already imported on [time]{record.import_datetime.isoformat()}[/] with UUID [uuid]{record.uuid}[/]"
                             )
                             skipped_count += 1
                             progress.advance(task)
@@ -3138,8 +3170,7 @@ def import_files(
                 if duplicates := fq.possible_duplicates(filepath):
                     # duplicate of file already in Photos library
                     verbose(
-                        f"File [filename]{filepath.name}[/] appears to be a duplicate of photos in the library: "
-                        f"{', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
+                        f"File [filename]{filepath.name}[/] appears to be a duplicate of photos in the library: {', '.join([f'[filename]{f}[/] ([uuid]{u}[/]) added [datetime]{d}[/] ' for u, d, f in duplicates])}"
                     )
 
                     if skip_dups:
@@ -3231,8 +3262,7 @@ def import_files(
 
                         if stop_on_error and error_count >= stop_on_error:
                             rich_echo_error(
-                                "[error]Error count exceeded limit, stopping! "
-                                f"Last file: [filename]{filepath.name}[/], error count = [num]{error_count}[/]"
+                                f"[error]Error count exceeded limit, stopping! Last file: [filename]{filepath.name}[/], error count = [num]{error_count}[/]"
                             )
                             raise StopIteration
                         continue
@@ -3263,6 +3293,9 @@ def import_files(
                     sidecar_ignore_date=sidecar_ignore_date,
                     title=title,
                     verbose=verbose,
+                    library=last_library,
+                    set_timezone=set_timezone,
+                    timezone=timezone,
                 )
 
                 apply_photo_albums(

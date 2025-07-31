@@ -4,12 +4,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2023.09.10 -->
-        <title>osxphotos.photoexporter - osxphotos 0.68.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>osxphotos.photoexporter - osxphotos 0.72.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
     
     
 
@@ -68,7 +68,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -83,22 +83,63 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
@@ -112,6 +153,8 @@
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
 
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
 
 
 <div class="page">
@@ -123,13 +166,14 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.68.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.72.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
         <button class="theme-toggle">
           <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
@@ -146,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -184,7 +228,8 @@
           <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
@@ -194,38 +239,39 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.photoexporter</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; PhotoExport class to export photos</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;PhotoExport class to export photos&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">dataclasses</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">import</span> <span class="nn">typing</span> <span class="k">as</span> <span class="nn">t</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">t</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
-<span class="kn">from</span> <span class="nn">._version</span> <span class="kn">import</span> <span class="n">__version__</span>
-<span class="kn">from</span> <span class="nn">.dictdiff</span> <span class="kn">import</span> <span class="n">dictdiff</span>
-<span class="kn">from</span> <span class="nn">.exif_orientation</span> <span class="kn">import</span> <span class="n">fix_exif_orientation</span>
-<span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">exiftool_can_write</span>
-<span class="kn">from</span> <span class="nn">.exifwriter</span> <span class="kn">import</span> <span class="n">ExifWriter</span><span class="p">,</span> <span class="n">exif_options_from_options</span>
-<span class="kn">from</span> <span class="nn">.export_db</span> <span class="kn">import</span> <span class="n">ExportDBTemp</span>
-<span class="kn">from</span> <span class="nn">.exportoptions</span> <span class="kn">import</span> <span class="n">ExportOptions</span><span class="p">,</span> <span class="n">ExportResults</span>
-<span class="kn">from</span> <span class="nn">.fileutil</span> <span class="kn">import</span> <span class="n">FileUtil</span>
-<span class="kn">from</span> <span class="nn">.phototemplate</span> <span class="kn">import</span> <span class="n">RenderOptions</span>
-<span class="kn">from</span> <span class="nn">.platform</span> <span class="kn">import</span> <span class="n">is_macos</span>
-<span class="kn">from</span> <span class="nn">.rich_utils</span> <span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
-<span class="kn">from</span> <span class="nn">.sidecars</span> <span class="kn">import</span> <span class="n">SidecarWriter</span><span class="p">,</span> <span class="n">exiftool_json_sidecar</span>
-<span class="kn">from</span> <span class="nn">.touch_files</span> <span class="kn">import</span> <span class="n">touch_files</span>
-<span class="kn">from</span> <span class="nn">.unicode</span> <span class="kn">import</span> <span class="n">normalize_fs_path</span>
-<span class="kn">from</span> <span class="nn">.uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dictdiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">dictdiff</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exif_orientation</span><span class="w"> </span><span class="kn">import</span> <span class="n">fix_exif_orientation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exiftool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">exiftool_can_write</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exifwriter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExifWriter</span><span class="p">,</span> <span class="n">exif_options_from_options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.export_db</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportDBTemp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exportoptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportOptions</span><span class="p">,</span> <span class="n">ExportResults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.fileutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileUtil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.photoinfo_common</span><span class="w"> </span><span class="kn">import</span> <span class="n">photoinfo_minify_dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.phototemplate</span><span class="w"> </span><span class="kn">import</span> <span class="n">RenderOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_macos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.rich_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sidecars</span><span class="w"> </span><span class="kn">import</span> <span class="n">SidecarWriter</span><span class="p">,</span> <span class="n">exiftool_json_sidecar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.touch_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">touch_files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.unicode</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_fs_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.uti</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_preferred_uti_extension</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">increment_filename</span><span class="p">,</span>
     <span class="n">increment_filename_with_count</span><span class="p">,</span>
     <span class="n">lineno</span><span class="p">,</span>
@@ -234,9 +280,9 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">photoscript</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">photoscript</span>
 
-    <span class="kn">from</span> <span class="nn">.photokit</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.photokit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">PHOTOS_VERSION_CURRENT</span><span class="p">,</span>
         <span class="n">PHOTOS_VERSION_ORIGINAL</span><span class="p">,</span>
         <span class="n">PHOTOS_VERSION_UNADJUSTED</span><span class="p">,</span>
@@ -252,16 +298,22 @@
 <span class="p">]</span>
 
 <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.photoinfo</span> <span class="kn">import</span> <span class="n">PhotoInfo</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.photoinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotoInfo</span>
 
 <span class="c1"># retry if download_missing/use_photos_export fails the first time (which sometimes it does)</span>
 <span class="n">MAX_PHOTOSCRIPT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1"># threshold for consecutive AppleScript export errors before restarting Photos</span>
+<span class="n">APPLESCRIPT_ERROR_THRESHOLD</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># counter for tracking consecutive AppleScript export errors</span>
+<span class="n">_consecutive_export_errors</span> <span class="o">=</span> <span class="mi">0</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># return values for _should_update_photo</span>
-<span class="k">class</span> <span class="nc">ShouldUpdate</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ShouldUpdate</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">NOT_IN_DATABASE</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">HARDLINK_DIFFERENT_FILES</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">NOT_HARDLINK_SAME_FILES</span> <span class="o">=</span> <span class="mi">3</span>
@@ -273,16 +325,16 @@
     <span class="n">UPDATE_ERRORS</span> <span class="o">=</span> <span class="mi">9</span>
 
 
-<span class="k">class</span> <span class="nc">ExportError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExportError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;error during export&quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
 
 
-<span class="k">class</span> <span class="nc">StagedFiles</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StagedFiles</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents files staged for export&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">original</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">original_live</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -304,7 +356,7 @@
 
         <span class="c1"># TODO: bursts?</span>
 
-    <span class="k">def</span> <span class="fm">__ior__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ior__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">original</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_live</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_live</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">original_live</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edited</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edited</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">edited</span>
@@ -314,13 +366,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">error</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;StagedFiles(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
 
-    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;original&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">,</span>
             <span class="s2">&quot;original_live&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_live</span><span class="p">,</span>
@@ -334,10 +386,28 @@
 
 <div class="viewcode-block" id="PhotoExporter">
 <a class="viewcode-back" href="../../reference.html#osxphotos.PhotoExporter">[docs]</a>
-<span class="k">class</span> <span class="nc">PhotoExporter</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhotoExporter</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a photo&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_kill_photos_process</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Kill the Photos app process to restart it&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Use pkill to kill the main Photos application process</span>
+            <span class="c1"># Use -f to match the full path containing Photos.app</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;pkill&quot;</span><span class="p">,</span> <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;Photos.app&quot;</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Photos process killed due to consecutive AppleScript failures&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No Photos process found to kill&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to kill Photos process: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="s2">&quot;PhotoInfo&quot;</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">photo</span> <span class="o">=</span> <span class="n">photo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span> <span class="o">=</span> <span class="n">RenderOptions</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">_verbose</span>
@@ -355,7 +425,7 @@
 
 <div class="viewcode-block" id="PhotoExporter.export">
 <a class="viewcode-back" href="../../reference.html#osxphotos.PhotoExporter.export">[docs]</a>
-    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dest</span><span class="p">,</span>
         <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -589,7 +659,7 @@
         <span class="k">return</span> <span class="n">all_results</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_init_temp_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_temp_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize (if necessary) the object&#39;s temporary directory.</span>
 
 <span class="sd">        Args:</span>
@@ -603,7 +673,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">_get_edited_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_filename</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_edited_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the filename for the exported edited photo</span>
 <span class="sd">        (used when filename isn&#39;t provided in call to export)&quot;&quot;&quot;</span>
         <span class="c1"># need to get the right extension for edited file</span>
@@ -616,7 +686,7 @@
             <span class="n">ext</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">original_filename</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_edited</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_get_dest_path</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_dest_path</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;If destination exists find match in ExportDB, on disk, or add (1), (2), and so on to filename to get a valid destination</span>
@@ -633,7 +703,7 @@
         <span class="c1"># don&#39;t create lock files if in dry_run mode</span>
         <span class="n">lock</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span>
 
-        <span class="k">def</span> <span class="nf">_lock_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_lock_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Lock filename if not in dry_run mode&quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="n">lock_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">if</span> <span class="n">lock</span> <span class="k">else</span> <span class="n">filename</span>
 
@@ -705,7 +775,7 @@
         <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dest</span>
 
-    <span class="k">def</span> <span class="nf">_should_update_photo</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_should_update_photo</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">ShouldUpdate</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if photo should be updated, else False</span>
@@ -782,7 +852,7 @@
         <span class="c1"># photo should not be updated</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_stage_photos_for_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stage_photos_for_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Stages photos for export</span>
 
 <span class="sd">        If photo is present on disk in the library, uses path to the photo on disk.</span>
@@ -792,8 +862,7 @@
         <span class="n">staged</span> <span class="o">=</span> <span class="n">StagedFiles</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">use_photos_export</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_missing_photos_for_export_helper</span><span class="p">(</span>
-                <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_missing_photos_for_export_helper</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">raw_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">has_raw</span><span class="p">:</span>
             <span class="n">staged</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path_raw</span>
@@ -824,7 +893,7 @@
 
         <span class="k">return</span> <span class="n">staged</span>
 
-    <span class="k">def</span> <span class="nf">_stage_missing_photos_for_export</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stage_missing_photos_for_export</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">staged</span><span class="p">:</span> <span class="n">StagedFiles</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and stage any missing files for export&quot;&quot;&quot;</span>
@@ -851,11 +920,12 @@
             <span class="n">use_photokit</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">use_photokit</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">missing_staged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_missing_photos_for_export_helper</span><span class="p">(</span>
-            <span class="n">options</span><span class="o">=</span><span class="n">missing_options</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">missing_options</span>
+        <span class="p">)</span>
         <span class="n">staged</span> <span class="o">|=</span> <span class="n">missing_staged</span>
         <span class="k">return</span> <span class="n">staged</span>
 
-    <span class="k">def</span> <span class="nf">_stage_missing_photos_for_export_helper</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stage_missing_photos_for_export_helper</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Stage a photo for export with AppleScript or PhotoKit&quot;&quot;&quot;</span>
@@ -864,7 +934,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_photo_for_export_with_applescript</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_stage_photo_for_export_with_photokit</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stage_photo_for_export_with_photokit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
@@ -969,7 +1039,7 @@
 
         <span class="k">return</span> <span class="n">results</span>
 
-    <span class="k">def</span> <span class="nf">_stage_photo_for_export_with_applescript</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stage_photo_for_export_with_applescript</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
@@ -1050,7 +1120,7 @@
 
         <span class="k">return</span> <span class="n">results</span>
 
-    <span class="k">def</span> <span class="nf">_should_convert_to_jpeg</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_should_convert_to_jpeg</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">ExportOptions</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine if a file really should be converted to jpeg or not</span>
@@ -1072,12 +1142,12 @@
             <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">dest</span><span class="p">,</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">convert_to_jpeg</span><span class="o">=</span><span class="n">convert_to_jpeg</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_is_temp_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_temp_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if file is in the PhotosExporter temp directory otherwise False&quot;&quot;&quot;</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">filepath</span><span class="o">.</span><span class="n">parent</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_path</span>
 
-    <span class="k">def</span> <span class="nf">_copy_to_temp_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_copy_to_temp_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Copies filepath to a temp file preserving access and modification times&quot;&quot;&quot;</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_path</span> <span class="o">/</span> <span class="n">filepath</span><span class="o">.</span><span class="n">name</span>
@@ -1087,7 +1157,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fileutil</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">st_atime</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">))</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_export_photo</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_export_photo</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
@@ -1169,14 +1239,14 @@
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Error removing file </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> ((</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
-                    <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
             <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">export_as_hardlink</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">fileutil</span><span class="o">.</span><span class="n">hardlink</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Error hardlinking </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
-                    <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">convert_to_jpeg</span><span class="p">:</span>
                     <span class="c1"># use convert_to_jpeg to export the file</span>
@@ -1220,7 +1290,7 @@
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Error copying file </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest_str</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
-                    <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="n">results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">(</span>
             <span class="n">converted_to_jpeg</span><span class="o">=</span><span class="n">converted_to_jpeg_files</span><span class="p">,</span>
@@ -1248,7 +1318,7 @@
         <span class="c1"># set data in the database</span>
         <span class="k">with</span> <span class="n">export_db</span><span class="o">.</span><span class="n">create_or_get_file_record</span><span class="p">(</span><span class="n">dest_str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span> <span class="k">as</span> <span class="n">rec</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span><span class="p">:</span>
-                <span class="n">last_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span><span class="p">)</span>
+                <span class="n">last_data</span> <span class="o">=</span> <span class="n">photoinfo_minify_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span><span class="p">))</span>
                 <span class="c1"># to avoid issues with datetime comparisons, list order</span>
                 <span class="c1"># need to deserialize from photo.json() instead of using photo.asdict()</span>
                 <span class="n">current_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -1261,7 +1331,7 @@
                     <span class="p">)</span>
                     <span class="n">diff</span> <span class="o">=</span> <span class="p">[]</span>
 
-                <span class="k">def</span> <span class="nf">_json_default</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">_json_default</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)):</span>
                         <span class="k">return</span> <span class="n">o</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
@@ -1270,7 +1340,7 @@
                 <span class="n">diff</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">_json_default</span><span class="p">)</span> <span class="k">if</span> <span class="n">diff</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">diff</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">rec</span><span class="o">.</span><span class="n">export_options</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">bit_flags</span>
             <span class="c1"># don&#39;t set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_signature</span><span class="p">:</span>
@@ -1301,7 +1371,7 @@
 
         <span class="k">return</span> <span class="n">results</span>
 
-    <span class="k">def</span> <span class="nf">_export_photo_uuid_applescript</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_export_photo_uuid_applescript</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">dest</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1343,6 +1413,17 @@
 <span class="sd">            has not been edited. This is due to how Photos Applescript interface works.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="k">global</span> <span class="n">_consecutive_export_errors</span>
+
+        <span class="c1"># Check if we&#39;ve hit the error threshold and need to restart Photos</span>
+        <span class="k">if</span> <span class="n">_consecutive_export_errors</span> <span class="o">&gt;=</span> <span class="n">APPLESCRIPT_ERROR_THRESHOLD</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AppleScript export has failed </span><span class="si">{</span><span class="n">_consecutive_export_errors</span><span class="si">}</span><span class="s2"> consecutive times, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;restarting Photos app&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_kill_photos_process</span><span class="p">()</span>
+            <span class="n">_consecutive_export_errors</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dest </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2"> must be a directory&quot;</span><span class="p">)</span>
@@ -1369,10 +1450,18 @@
                 <span class="p">)</span>
                 <span class="n">retries</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">_consecutive_export_errors</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AppleScript export error count: </span><span class="si">{</span><span class="n">_consecutive_export_errors</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
             <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">exported_files</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
             <span class="c1"># nothing got exported</span>
+            <span class="n">_consecutive_export_errors</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AppleScript export error count: </span><span class="si">{</span><span class="n">_consecutive_export_errors</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
             <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not export photo </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
         <span class="c1"># need to find actual filename as sometimes Photos renames JPG to jpeg on export</span>
         <span class="c1"># may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)</span>
@@ -1402,9 +1491,14 @@
                     <span class="n">FileUtil</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">dest_new</span><span class="p">)</span>
                 <span class="n">FileUtil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest_new</span><span class="p">))</span>
             <span class="n">exported_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest_new</span><span class="p">))</span>
+
+        <span class="c1"># Reset error counter on successful export</span>
+        <span class="k">if</span> <span class="n">exported_paths</span><span class="p">:</span>
+            <span class="n">_consecutive_export_errors</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="k">return</span> <span class="n">exported_paths</span>
 
-    <span class="k">def</span> <span class="nf">_export_aae</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_export_aae</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">src</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
@@ -1436,7 +1530,10 @@
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;skip&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="n">options</span><span class="o">.</span><span class="n">export_db</span><span class="o">.</span><span class="n">set_history</span><span class="p">(</span>
-                    <span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;AAE: </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">diff</span><span class="o">=</span><span class="kc">None</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
+                    <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                    <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;AAE: </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">diff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="n">ExportResults</span><span class="p">(</span><span class="n">aae_skipped</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)],</span> <span class="n">skipped</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)])</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1505,7 +1602,7 @@
 
 <div class="viewcode-block" id="PhotoExporter.write_exiftool_metadata_to_file">
 <a class="viewcode-back" href="../../reference.html#osxphotos.PhotoExporter.write_exiftool_metadata_to_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_exiftool_metadata_to_file</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_exiftool_metadata_to_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">src</span><span class="p">,</span>
         <span class="n">dest</span><span class="p">,</span>
@@ -1556,7 +1653,7 @@
         <span class="k">return</span> <span class="n">exiftool_results</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_should_run_exiftool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_should_run_exiftool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if exiftool should be run to update metadata&quot;&quot;&quot;</span>
         <span class="n">run_exiftool</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>
@@ -1580,7 +1677,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_check_export_suffix</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">edited</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_export_suffix</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">edited</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function for exporting photos to check file extensions of destination path.</span>
 
 <span class="sd">    Checks that dst file extension is appropriate for the src.</span>
@@ -1619,7 +1716,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">rename_jpeg_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">jpeg_ext</span><span class="p">,</span> <span class="n">fileutil</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rename_jpeg_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">jpeg_ext</span><span class="p">,</span> <span class="n">fileutil</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;rename any jpeg files in files so that extension matches jpeg_ext</span>
 
 <span class="sd">    Args:</span>
@@ -1676,10 +1773,10 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f1844525"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+</div><script src="../../_static/documentation_options.js?v=0f5839ad"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>

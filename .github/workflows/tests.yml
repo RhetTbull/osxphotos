@@ -14,7 +14,7 @@ jobs:
         # and I don't have time to try to fix this
         # os: [macos-14, ubuntu-latest]
         os: [macos-14]
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
