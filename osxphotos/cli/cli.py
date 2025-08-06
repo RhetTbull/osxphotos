@@ -41,6 +41,7 @@ from .theme import theme
 from .tutorial import tutorial
 from .update_command import update_command
 from .version import version
+from .mcp import cli as mcp_cli
 
 if is_macos:
     from .add_locations import add_locations
@@ -171,6 +172,7 @@ commands = [
     uninstall,
     version,
     update_command,
+    mcp_cli,
 ]
 
 if is_macos:

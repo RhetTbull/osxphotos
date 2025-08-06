@@ -23,3 +23,4 @@ pyrightconfig.json
 docs/.buildinfo.bak
 .envrc
 .zed/
+MCP_GOLDEN_RULESET.md
