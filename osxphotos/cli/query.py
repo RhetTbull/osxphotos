@@ -29,26 +29,10 @@ from .cli_params import (
     make_click_option_decorator,
 )
 from .color_themes import get_default_theme
-from .common import CLI_COLOR_ERROR, CLI_COLOR_WARNING, OSXPHOTOS_HIDDEN, get_photos_db
+from .common import CLI_COLOR_ERROR, CLI_COLOR_WARNING, OSXPHOTOS_HIDDEN, get_photos_db, require_macos
 from .list import _list_libraries
 from .print_photo_info import print_photo_fields, print_photo_info
 from .verbose import get_verbose_console
-
-MACOS_OPTIONS = make_click_option_decorator(
-    *(
-        [
-            click.Option(
-                ["--add-to-album"],
-                metavar="ALBUM",
-                help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
-                "if it doesn't exist.  All photos in the query results will be added to this album. "
-                "This only works if the Photos library being queried is the last-opened (default) library in Photos. ",
-            ),
-        ]
-        if is_macos
-        else []
-    )
-)
 
 
 @click.command()
@@ -59,7 +43,15 @@ MACOS_OPTIONS = make_click_option_decorator(
 )
 @QUERY_OPTIONS
 @DELETED_OPTIONS
-@MACOS_OPTIONS
+@click.option(
+    "--add-to-album",
+    metavar="ALBUM",
+    hidden=not is_macos,
+    callback=require_macos,
+    help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
+         "if it doesn't exist.  All photos in the query results will be added to this album. "
+         "This only works if the Photos library being queried is the last-opened (default) library in Photos. ",
+)
 @click.option(
     "--quiet",
     is_flag=True,
