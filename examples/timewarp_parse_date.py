@@ -1,6 +1,7 @@
 """Example function for use with `osxphotos timewarp --function`
 
 Call this as: `osxphotos timewarp --function timewarp_parse_date.py::parse_date`
+Or: `osxphotos timewarp --function https://raw.githubusercontent.com/RhetTbull/osxphotos/refs/heads/main/examples/timewarp_parse_date.py::parse_date`
 """
 
 from datetime import datetime, timedelta
