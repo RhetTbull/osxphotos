@@ -14,7 +14,7 @@ rstcheck>=6.2.4
 ruff==0.11.8
 Sphinx
 sphinx_click
-sphinx_click_custom
+sphinx_click_custom>=0.3.0
 sphinx_rtd_theme
 sphinx-copybutton
 sphinxcontrib-programoutput
