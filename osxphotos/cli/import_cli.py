@@ -36,7 +36,7 @@ from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
 from osxphotos.strpdatetime_parts import fmt_has_date_time_codes
 
-from .help import rich_text
+from .help import filter_help_text_for_sphinx, is_sphinx_running, rich_text
 from .param_types import TimezoneOffset
 
 assert_macos()
@@ -517,6 +517,11 @@ class ImportCommand(click.Command):
         else:
             formatter.write(markdown_to_plaintext(extra_help))
         help_text += "\n\n" + formatter.getvalue()
+
+        # If Sphinx is running, filter all help text for RST compatibility
+        if is_sphinx_running():
+            help_text = filter_help_text_for_sphinx(help_text)
+
         return help_text
 
 

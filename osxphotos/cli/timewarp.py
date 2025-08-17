@@ -47,7 +47,7 @@ from .click_rich_echo import rich_echo_error as echo_error
 from .color_themes import get_theme
 from .common import OSXPHOTOS_CRASH_LOG
 from .darkmode import is_dark_mode
-from .help import HELP_WIDTH, rich_text
+from .help import HELP_WIDTH, filter_help_text_for_sphinx, is_sphinx_running, rich_text
 from .param_types import (
     DateOffset,
     DateTimeISO8601,
@@ -178,6 +178,11 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
             )
         )
         help_text += formatter.getvalue()
+
+        # If Sphinx is running, filter all help text for RST compatibility
+        if is_sphinx_running():
+            help_text = filter_help_text_for_sphinx(help_text)
+
         return help_text
 
 
