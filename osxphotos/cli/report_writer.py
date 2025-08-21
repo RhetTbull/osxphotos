@@ -1,4 +1,4 @@
-"""Report writer for the --report option of `osxphotos export`"""
+"""Report writer for the --report option of 'osxphotos export'"""
 
 from __future__ import annotations
 

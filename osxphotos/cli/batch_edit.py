@@ -77,7 +77,7 @@ from .param_types import Latitude, Longitude, TemplateString
     "ALBUM_TEMPLATE is an osxphotos template string. "
     "Photos may be added to more than one album by repeating --album. "
     "See also, --split-folder. "
-    "See Template System in help (`osxphotos docs`) for additional information.",
+    "See Template System in help ('osxphotos docs') for additional information.",
 )
 @click.option(
     "--split-folder",
@@ -132,7 +132,7 @@ def batch_edit(
 
     --title, --description, and --keyword may be any valid template string.
     See https://rhettbull.github.io/osxphotos/template_help.html 
-    or `osxphotos docs` for more information on the osxphotos template system.
+    or 'osxphotos docs' for more information on the osxphotos template system.
     """
 
     try:

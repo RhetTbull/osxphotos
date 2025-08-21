@@ -204,15 +204,15 @@ def exiftool(
 ):
     """Run exiftool on previously exported files to update metadata.
 
-    If you previously exported photos with `osxphotos export` but did not include the
-    `--exiftool` option and you now want to update the metadata of the exported files with
+    If you previously exported photos with 'osxphotos export' but did not include the
+    '--exiftool' option and you now want to update the metadata of the exported files with
     exiftool, you can use this command to do so.
 
-    If you simply re-run the `osxphotos export` with `--update` and `--exiftool`, osxphotos will
+    If you simply re-run the 'osxphotos export' with '--update' and '--exiftool', osxphotos will
     re-export all photos because it will detect that the previously exported photos do not have the
     exiftool metadata updates.  This command will run exiftool on the previously exported photos
-    to update all metadata then will update the export database so that using `--exiftool --update`
-    with `osxphotos export` in the future will work correctly and not unnecessarily re-export photos.
+    to update all metadata then will update the export database so that using '--exiftool --update'
+    with 'osxphotos export' in the future will work correctly and not unnecessarily re-export photos.
     """
     # save locals for initializing config options
     locals_ = locals()

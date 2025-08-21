@@ -162,7 +162,7 @@ class _ExifToolProc:
 
         Args:
             exiftool: optional path to exiftool binary (if not provided, will search path to find it)
-            large_file_support: if True, enables large file support (>4GB) via `-api largefilesupport=1`
+            large_file_support: if True, enables large file support (>4GB) via '-api largefilesupport=1'
         """
 
         if hasattr(self, "_process_running") and self._process_running:
@@ -273,7 +273,7 @@ class ExifTool:
             exiftool: path to exiftool, if not specified will look in path
             overwrite: if True, will overwrite image file without creating backup, default=False
             flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)
-            large_file_support: if True, enables large file support in exiftool (`-api largefilesupport=1`)
+            large_file_support: if True, enables large file support in exiftool ('-api largefilesupport=1')
 
         Returns:
             ExifTool instance

@@ -1,4 +1,4 @@
-"""Generate custom sidecar files for use with `osxphotos export` command and --sidecar-template option"""
+"""Generate custom sidecar files for use with 'osxphotos export' command and --sidecar-template option"""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ def generate_user_sidecar(
     dry_run: bool,
     verbose: Callable[..., None],
 ) -> ExportResults:
-    """Generate custom sidecar files for use with `osxphotos export` command and --sidecar-template option
+    """Generate custom sidecar files for use with 'osxphotos export' command and --sidecar-template option
 
     Args:
         photo: PhotoInfo object for photo

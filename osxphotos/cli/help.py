@@ -1,7 +1,8 @@
-"""Help text helper class for osxphotos CLI """
+"""Help text helper class for osxphotos CLI"""
 
 import inspect
 import re
+import sys
 import typing as t
 
 import click
@@ -41,6 +42,8 @@ __all__ = [
     "strip_html_comments",
     "help",
     "get_help_msg",
+    "is_sphinx_running",
+    "filter_help_text_for_sphinx",
 ]
 
 
@@ -469,6 +472,11 @@ class ExportCommand(click.Command):
         formatter.write("\n")
 
         help_text += formatter.getvalue()
+
+        # If Sphinx is running, filter all help text for RST compatibility
+        if is_sphinx_running():
+            help_text = filter_help_text_for_sphinx(help_text)
+
         return help_text
 
 
@@ -532,3 +540,70 @@ def strip_md_links(md):
 def strip_html_comments(text):
     """Strip html comments from text (which doesn't need to be valid HTML)"""
     return re.sub(r"<!--(.|\s|\n)*?-->", "", text)
+
+
+def is_sphinx_running():
+    """Check if Sphinx is currently running by detecting if sphinx modules are loaded"""
+    # Look for main sphinx modules, not just any module starting with 'sphinx'
+    sphinx_modules = [
+        "sphinx",
+        "sphinx.application",
+        "sphinx.builders",
+        "sphinx.parsers",
+    ]
+    return any(module in sys.modules for module in sphinx_modules)
+
+
+def filter_help_text_for_sphinx(text):
+    """Filter help text to be compatible with Sphinx RST parser
+
+    This function removes or escapes problematic markup that confuses Sphinx:
+    - Converts markdown headers (##) to plain text
+    - Removes rich markup tags like [bold], [highlight], etc.
+    - Escapes RST special characters
+    - Removes ANSI escape sequences
+
+    Args:
+        text: str, the help text to filter
+
+    Returns:
+        str, filtered text safe for Sphinx RST parsing
+    """
+    if not text:
+        return text
+
+    # Remove ANSI escape sequences (from rich formatting)
+    text = re.sub(r"\x1b\[[0-9;]*m", "", text)
+
+    # Convert markdown headers to plain text (remove ## prefix)
+    text = re.sub(r"^#{1,6}\s*(.+)$", r"\1", text, flags=re.MULTILINE)
+
+    # Remove rich markup tags like [bold], [/bold], [highlight], etc.
+    text = re.sub(
+        r"\[/?(?:bold|italic|underline|highlight|dim|strikethrough|color[^]]*)\]",
+        "",
+        text,
+    )
+
+    # Remove rich color tags like [red], [blue], etc.
+    text = re.sub(
+        r"\[/?(?:red|green|blue|yellow|magenta|cyan|white|black|bright_[a-z]+)\]",
+        "",
+        text,
+    )
+
+    # Escape backticks (which have special meaning in RST)
+    text = text.replace("`", r"\`")
+
+    # Escape asterisks at word boundaries (RST emphasis markers)
+    text = re.sub(r"\*(\w)", r"\\\*\1", text)
+    text = re.sub(r"(\w)\*", r"\1\\\*", text)
+
+    # Escape underscores that could be interpreted as RST markup
+    text = re.sub(r"(?<!\w)_(\w)", r"\\_\1", text)
+    text = re.sub(r"(\w)_(?!\w)", r"\1\\_", text)
+
+    # Clean up any double escapes
+    text = re.sub(r"\\\\([`*_])", r"\\\1", text)
+
+    return text

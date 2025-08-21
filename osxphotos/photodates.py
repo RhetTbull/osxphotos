@@ -294,7 +294,7 @@ def update_datetime_for_new_timezone(
     Shift *original_naive* (interpreted in *original_zone*) so that after
     attaching *new_zone* the wall-clock date/time is **unchanged**.
 
-    The function returns a **naive** `datetime` whose value you should later
+    The function returns a **naive** 'datetime' whose value you should later
     tag with *original_zone*.  Converting that aware value to *new_zone*
     reproduces the original wall-time, even across DST changes and in
     fixed-offset regions.
@@ -316,7 +316,7 @@ def update_datetime_for_new_timezone(
 #     Shift *original_naive* (interpreted in *original_zone*) so that after
 #     attaching *new_zone* the wall-clock date/time is **unchanged**.
 
-#     The function returns a **naive** `datetime` whose value you should later
+#     The function returns a **naive** 'datetime' whose value you should later
 #     tag with *original_zone*.  Converting that aware value to *new_zone*
 #     reproduces the original wall-time, even across DST changes and in
 #     fixed-offset regions.

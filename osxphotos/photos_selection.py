@@ -22,7 +22,7 @@ class PhotosSelection:
         photosdb: PhotosDB object
 
     Examples:
-        ```python
+        '''python
             selection = PhotosSelection(photosdb)
 
             # get first selected photo:
@@ -32,7 +32,7 @@ class PhotosSelection:
             count = len(selection)
 
             # the returned object is a PhotoInfo object
-        ```
+        '''
     """
 
     def __init__(self, photosdb: PhotosDB):

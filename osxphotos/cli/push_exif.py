@@ -101,7 +101,7 @@ assert_macos()
     'you could specify --keyword-template "{folder_album}" '
     'You may specify more than one template, for example --keyword-template "{folder_album}" '
     '--keyword-template "{created.year}". '
-    "See '--replace-keywords' and OSXPhotos Template System in `osxphotos docs`.",
+    "See '--replace-keywords' and OSXPhotos Template System in 'osxphotos docs'.",
     type=TemplateString(),
 )
 @click.option(
@@ -121,7 +121,7 @@ assert_macos()
     "For example, if you wanted to append "
     "'updated with osxphotos on [today's date]' to the description, you could specify "
     '--description-template "{descr} updated with osxphotos on {today.date}" '
-    "See OSXPhotos Template System in `osxphotos docs` for more details.",
+    "See OSXPhotos Template System in 'osxphotos docs' for more details.",
     type=TemplateString(),
 )
 @click.option(
@@ -218,10 +218,10 @@ def push_exif(
     - description: description information (e.g. XMP:Description, etc.)
 
     For example to push (write) keywords and faces information to the original files:
-    `osxphotos push-exif keywords,faces`
+    'osxphotos push-exif keywords,faces'
 
     To write all metadata to the original files:
-    `osxphotos push-exif all`
+    'osxphotos push-exif all'
 
     This command will use exiftool (which must be installed separately)
     to write metadata to the original files in the Photos library.
@@ -231,7 +231,7 @@ def push_exif(
     the original file retains the metadata in the Photos database.
 
     You may use options to control which metadata is written to the original files.
-    Metadata may also optionally be written to edited photos/videos using `--push-edited`.
+    Metadata may also optionally be written to edited photos/videos using '--push-edited'.
 
     WARNING: This command will modify the original files in the Photos library.
     It is recommended that you make a backup of your Photos library before running
@@ -243,14 +243,14 @@ def push_exif(
     The metadata is stored in a SQLite database in your home directory and will be used
     to automatically update or skip files as needed on subsequent runs of this command.
 
-    Several options such as `--keyword-template` allow you to specify a template string
-    to use to generate keywords.  See OSXPhotos Template System in `osxphotos docs` for more details
-    as well as `osxphotos template` for an interactive template editor.
+    Several options such as '--keyword-template' allow you to specify a template string
+    to use to generate keywords.  See OSXPhotos Template System in 'osxphotos docs' for more details
+    as well as 'osxphotos template' for an interactive template editor.
 
     If you want to compare metadata between Photos and the original files without
-    writing metadata, use the `--compare` option.  This will print a report of any
+    writing metadata, use the '--compare' option.  This will print a report of any
     differences between the metadata in Photos and the original files but will not
-    modify any files. You may also use the `--dry-run` option to see what would be
+    modify any files. You may also use the '--dry-run' option to see what would be
     done without actually writing any files. This is useful for testing the command
     before actually writing metadata to files.
 

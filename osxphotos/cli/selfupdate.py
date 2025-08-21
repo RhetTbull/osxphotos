@@ -1,4 +1,4 @@
-""" Auto-update the installed version """
+"""Auto-update the installed version"""
 
 from __future__ import annotations
 
@@ -88,7 +88,7 @@ def update(package: str, version: str, pyapp_binary: str) -> None:
 def get_latest_version(package_name: str) -> str:
     """Get latest version of package_name from PyPI
 
-    Note: This uses the standard library instead of `requests`
+    Note: This uses the standard library instead of 'requests'
     to avoid adding a dependency to the project.
     """
     try:

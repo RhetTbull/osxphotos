@@ -70,15 +70,7 @@ class SidecarWriter(_ExifMixin):
             dest: destination path for photo that sidecars are being written for
             options: ExportOptions object that configures the sidecars
 
-        Returns:
-            An ExportResults object containing information about the exported sidecar files in the
-            following attributes:
-                - sidecar_json_written: list of JSON sidecar files written
-                - sidecar_json_skipped: list of JSON sidecar files skipped
-                - sidecar_exiftool_written: list of exiftool JSON sidecar files written
-                - sidecar_exiftool_skipped: list of exiftool JSON sidecar files skipped
-                - sidecar_xmp_written: list of XMP sidecar files written
-                - sidecar_xmp_skipped: list of XMP sidecar files skipped
+        Returns: An ExportResults object containing information about the exported sidecar files
 
         Note:
             dest is the path to the the sidecar belongs to. THe sidecar filename will be

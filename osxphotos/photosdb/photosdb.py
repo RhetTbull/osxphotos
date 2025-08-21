@@ -132,9 +132,9 @@ class PhotosDB:
             In that case, set dbfile to the path to the database and set library_path to the path to the library root.
             For example:
 
-            ```python
+            '''python
             photosdb = PhotosDB(dbfile="/path/to/database/Photos.sqlite", library_path="/path/to/Photos Library.photoslibrary")
-            ```
+            '''
 
             If library_path is not provided, PhotosDB determine the library path from the database path. In most cases you should
             not provide the library_path argument.

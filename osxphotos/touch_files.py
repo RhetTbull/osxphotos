@@ -24,7 +24,7 @@ def touch_files(
         options: ExportOptions object
 
     Returns:
-        ExportResults object with `touched` set to list of files that were touched
+        ExportResults object with 'touched' set to list of files that were touched
 
     Note:
         Does not touch files if options.dry_run is True

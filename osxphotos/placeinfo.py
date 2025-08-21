@@ -1,9 +1,9 @@
-""" 
-    PlaceInfo class
-    Provides reverse geolocation info for photos 
-    
-    See https://developer.apple.com/documentation/corelocation/clplacemark
-    for additional documentation on reverse geolocation data
+"""
+PlaceInfo class
+Provides reverse geolocation info for photos
+
+See https://developer.apple.com/documentation/corelocation/clplacemark
+for additional documentation on reverse geolocation data
 """
 
 from __future__ import annotations
@@ -347,19 +347,19 @@ class PlaceInfo:
 
     @property
     def address_str(self) -> str | None:
-        """Returns the full postal address as a string if defined, otherwise `None`."""
+        """Returns the full postal address as a string if defined, otherwise 'None'."""
         pass
 
     @property
     def country_code(self) -> str | None:
         """Returns the country_code of place, for example "GB".
-        Returns `None` if PhotoInfo contains no country code.
+        Returns 'None' if PhotoInfo contains no country code.
         """
         pass
 
     @property
     def ishome(self) -> bool:
-        """Returns `True` if photo place is user's home address, otherwise `False`."""
+        """Returns 'True' if photo place is user's home address, otherwise 'False'."""
         pass
 
     @property
@@ -367,62 +367,62 @@ class PlaceInfo:
         """Returns the name of the local place as str.
         This is what Photos displays in the Info window.
         **Note** Photos 5 uses a different algorithm to determine the name than earlier versions which means the same Photo may have a different place name in Photos 4 and Photos 5.
-        `PhotoInfo.name` will return the name Photos would have shown depending on the version of the library being processed.
-        Returns `None` if photo does not contain a name.
+        'PhotoInfo.name' will return the name Photos would have shown depending on the version of the library being processed.
+        Returns 'None' if photo does not contain a name.
         """
         pass
 
     @property
     def names(self) -> PlaceNames | None:
-        """Returns a `PlaceNames` namedtuple with the following fields.
+        """Returns a 'PlaceNames' namedtuple with the following fields.
         Each field is a list with zero or more values, sorted by area in ascending order.
-        E.g. `names.area_of_interest` could be ['Gulf Islands National Seashore', 'Santa Rosa Island'], ["Knott's Berry Farm"], or [] if `area_of_interest` not defined.
-        The value shown in Photos is the first value in the list. With the exception of `body_of_water` each of these field corresponds to an attribute of
+        E.g. 'names.area_of_interest' could be ['Gulf Islands National Seashore', 'Santa Rosa Island'], ["Knott's Berry Farm"], or [] if 'area_of_interest' not defined.
+        The value shown in Photos is the first value in the list. With the exception of 'body_of_water' each of these field corresponds to an attribute of
         a [CLPlacemark](https://developer.apple.com/documentation/corelocation/clplacemark) object.
 
 
-        * `country`; the name of the country associated with the placemark.
-        * `state_province`; administrativeArea, The state or province associated with the placemark.
-        * `sub_administrative_area`; additional administrative area information for the placemark.
-        * `city`; locality; the city associated with the placemark.
-        * `additional_city_info`; subLocality, Additional city-level information for the placemark.
-        * `ocean`; the name of the ocean associated with the placemark.
-        * `area_of_interest`; areasOfInterest, The relevant areas of interest associated with the placemark.
-        * `inland_water`; the name of the inland water body associated with the placemark.
-        * `region`; the geographic region associated with the placemark.
-        * `sub_throughfare`; additional street-level information for the placemark.
-        * `postal_code`; the postal code associated with the placemark.
-        * `street_address`; throughfare, The street address associated with the placemark.
-        * `body_of_water`; in Photos 4, any body of water; in Photos 5 contains the union of ocean and inland_water
+        * 'country'; the name of the country associated with the placemark.
+        * 'state_province'; administrativeArea, The state or province associated with the placemark.
+        * 'sub_administrative_area'; additional administrative area information for the placemark.
+        * 'city'; locality; the city associated with the placemark.
+        * 'additional_city_info'; subLocality, Additional city-level information for the placemark.
+        * 'ocean'; the name of the ocean associated with the placemark.
+        * 'area_of_interest'; areasOfInterest, The relevant areas of interest associated with the placemark.
+        * 'inland_water'; the name of the inland water body associated with the placemark.
+        * 'region'; the geographic region associated with the placemark.
+        * 'sub_throughfare'; additional street-level information for the placemark.
+        * 'postal_code'; the postal code associated with the placemark.
+        * 'street_address'; throughfare, The street address associated with the placemark.
+        * 'body_of_water'; in Photos 4, any body of water; in Photos 5 contains the union of ocean and inland_water
 
         **Note**: In Photos <= 4.0, only the following fields are defined; all others are set to empty list:
 
-        * `country`
-        * `state_province`
-        * `sub_administrative_area`
-        * `city`
-        * `additional_city_info`
-        * `area_of_interest`
-        * `body_of_water`
+        * 'country'
+        * 'state_province'
+        * 'sub_administrative_area'
+        * 'city'
+        * 'additional_city_info'
+        * 'area_of_interest'
+        * 'body_of_water'
 
         Note:
-            The `PlaceNames` namedtuple contains reserved fields not listed below (see implementation for details),
-            thus it should be referenced only by name (e.g. `names.city`) and not by index.
+            The 'PlaceNames' namedtuple contains reserved fields not listed below (see implementation for details),
+            thus it should be referenced only by name (e.g. 'names.city') and not by index.
         """
         pass
 
     @property
     def address(self):
-        """Returns a `PostalAddress` namedtuple with details of the postal address containing the following fields:
+        """Returns a 'PostalAddress' namedtuple with details of the postal address containing the following fields:
 
-        * `city`
-        * `country`
-        * `postal_code`
-        * `state`
-        * `street`
-        * `sub_administrative_area`
-        * `sub_locality`
-        * `iso_country_code`
+        * 'city'
+        * 'country'
+        * 'postal_code'
+        * 'state'
+        * 'street'
+        * 'sub_administrative_area'
+        * 'sub_locality'
+        * 'iso_country_code'
         """
         pass
 

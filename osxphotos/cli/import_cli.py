@@ -23,11 +23,10 @@ from typing import TYPE_CHECKING, Callable, Tuple
 
 import click
 from rich.console import Console
-from rich.markdown import Markdown
-from rich.progress import Progress, SpinnerColumn
 from strpdatetime import strpdatetime
 
 from osxphotos.fileutil import FileUtilMacOS
+from osxphotos.markdown_utils import format_markdown_for_console, markdown_to_plaintext
 from osxphotos.photodates import (
     set_photo_date_from_filename,
     update_photo_time_for_new_timezone,
@@ -37,7 +36,7 @@ from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
 from osxphotos.strpdatetime_parts import fmt_has_date_time_codes
 
-from .help import rich_text
+from .help import filter_help_text_for_sphinx, is_sphinx_running, rich_text
 from .param_types import TimezoneOffset
 
 assert_macos()
@@ -63,18 +62,8 @@ from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.cli.param_types import FunctionCall, StrpDateTimePattern, TemplateString
 from osxphotos.cli.sidecar import get_sidecar_file_with_template
 from osxphotos.cli.signaturequery import SignatureQuery
-from osxphotos.datetime_utils import (
-    datetime_has_tz,
-    datetime_remove_tz,
-    datetime_to_new_tz,
-    datetime_tz_to_utc,
-    datetime_utc_to_local,
-)
 from osxphotos.exiftool import get_exiftool_path
-from osxphotos.export_db_utils import (
-    export_db_get_photoinfo_for_filepath,
-    export_db_migrate_photos_library,
-)
+from osxphotos.export_db_utils import export_db_get_photoinfo_for_filepath
 from osxphotos.fingerprintquery import FingerprintQuery
 from osxphotos.image_file_utils import (
     EDITED_RE,
@@ -95,7 +84,6 @@ from osxphotos.metadata_reader import (
     metadata_from_photoinfo,
     metadata_from_sidecar,
 )
-from osxphotos.photodates import update_photo_time_for_new_timezone
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photoinfo_file import (
     PhotoInfoFromFile,
@@ -201,47 +189,48 @@ class ImportCommand(click.Command):
             ## Examples
 
             Import a file into Photos:
-            `osxphotos import /Volumes/photos/img_1234.jpg`
+
+            osxphotos import /Volumes/photos/img_1234.jpg
 
             Import multiple jpg files into Photos:
 
-            `osxphotos import /Volumes/photos/*.jpg`
+            osxphotos import /Volumes/photos/*.jpg
 
             Import files into Photos and add to album:
 
-            `osxphotos import /Volumes/photos/*.jpg --album "My Album"`
+            osxphotos import /Volumes/photos/*.jpg --album "My Album"
 
             Import files into Photos and add to album named for 4-digit year of file creation date:
 
-            `osxphotos import /Volumes/photos/*.jpg --album "{created.year}"`
+            osxphotos import /Volumes/photos/*.jpg --album "{created.year}"
 
             Import files into Photos and add to album named for month of the year in folder named
             for the 4-digit year of the file creation date:
 
-            `osxphotos import /Volumes/photos/*.jpg --album "{created.year}/{created.month}" --split-folder "/"`
+            osxphotos import /Volumes/photos/*.jpg --album "{created.year}/{created.month}" --split-folder "/"
 
             ## Albums
 
-            The imported files may be added to one or more albums using the `--album` option.
-            The value passed to `--album` may be a literal string or an osxphotos template
+            The imported files may be added to one or more albums using the '--album' option.
+            The value passed to '--album' may be a literal string or an osxphotos template
             (see Template System below).  For example:
 
-            `osxphotos import /Volumes/photos/*.jpg --album "Vacation"`
+            osxphotos import /Volumes/photos/*.jpg --album "Vacation"
 
             adds all photos to the album "Vacation".  The album will be created if it does not
             already exist.
 
-            `osxphotos import /Volumes/photos/Madrid/*.jpg --album "{filepath.parent.name}"`
+            osxphotos import /Volumes/photos/Madrid/*.jpg --album "{filepath.parent.name}"
 
             adds all photos to the album "Madrid" (the name of the file's parent folder).
 
             ## Folders
 
             If you want to organize the imported photos into both folders and albums, you can
-            use the `--split-folder` option.  For example, if your photos are organized into
+            use the '--split-folder' option.  For example, if your photos are organized into
             folders as follows:
 
-                .
+                /
                 ├── 2021
                 │   ├── Family
                 │   └── Travel
@@ -251,14 +240,14 @@ class ImportCommand(click.Command):
 
             You can recreate this hierarchal structure on import using
 
-            `--album "{filepath.parent}" --split-folder "/"`
+            '--album "{filepath.parent}" --split-folder "/"
 
-            In this example, `{filepath.parent}` renders to '2021/Family', '2021/Travel', etc.
-            and `--split-folder "/"` instructs osxphotos to split the album name into separate
+            In this example, '{filepath.parent}' renders to '2021/Family', '2021/Travel', etc.
+            and '--split-folder "/" instructs osxphotos to split the album name into separate
             parts '2021' and 'Family'.
 
             If your photos are organized in a set of folders but you want to exclude one or more parent
-            folders from the list of folders and album, you can use the `--relative-to` option to specify
+            folders from the list of folders and album, you can use the '--relative-to' option to specify
             the parent path that all subsequent paths should be relative to.  For example, if your photos
             are organized into photos as follows:
 
@@ -274,39 +263,39 @@ class ImportCommand(click.Command):
 
             and you want to exclude /Volumes/Photos from the folder/album path, you can do this:
 
-            `osxphotos import /Volumes/Photos/* --walk --album "{filepath.parent}" --relative-to "/Volumes/Photos" --split-folder "/"`
+            osxphotos import /Volumes/Photos/* --walk --album "{filepath.parent}" --relative-to "/Volumes/Photos" --split-folder "/"
 
-            This will produce folders/albums `2021/Family`, `2021/Travel`, and so on.
+            This will produce folders/albums '2021/Family', '2021/Travel', and so on.
 
             Note: in Photos, only albums can contain photos and folders
             may contain albums or other folders.
 
             ## Duplicate Checking
 
-            By default, `osxphotos import` will import all files passed to it even if duplicates
+            By default, osxphotos import' will import all files passed to it even if duplicates
             exist in the Photos library. If you want to skip duplicate files, you can use the
-            `--skip-dups` option which will cause osxphotos to check for exact duplicates (based on file fingerprint)
-            and skip those files. Alternatively, you can use `--dup-check` to enable Photos' own duplicate
-            checking. If a duplicate is encountered with `--dup-check`, Photos will prompt you
+            '--skip-dups' option which will cause osxphotos to check for exact duplicates (based on file fingerprint)
+            and skip those files. Alternatively, you can use '--dup-check' to enable Photos' own duplicate
+            checking. If a duplicate is encountered with '--dup-check', Photos will prompt you
             to skip or import the duplicate file.
 
-            If you use the `--verbose` option, osxphotos will report on any duplicates it finds
-            even if you don't use `--skip-dups` or `--dup-check`.  This is useful with --dry-run
+            If you use the '--verbose' option, osxphotos will report on any duplicates it finds
+            even if you don't use '--skip-dups' or '--dup-check'.  This is useful with --dry-run
             to see if any duplicates exist in the Photos library before importing.
 
             ## Metadata
 
-            `osxphotos import` can set metadata (title, description, keywords, and location) for
+            'osxphotos import' can set metadata (title, description, keywords, and location) for
             imported photos/videos using several options.
 
             If you have exiftool (https://exiftool.org/) installed, osxphotos can use
             exiftool to extract metadata from the imported file and use this to update
             the metadata in Photos.
 
-            The `--exiftool` option will automatically attempt to update title,
+            The '--exiftool' option will automatically attempt to update title,
             description, keywords, and location from the file's metadata:
 
-            `osxphotos import *.jpg --exiftool`
+            osxphotos import *.jpg --exiftool
 
             The following metadata fields are read (in priority order) and used to set
             the metadata of the imported photo:
@@ -317,129 +306,131 @@ class ImportCommand(click.Command):
             - Location: EXIF:GPSLatitude/EXIF:GPSLatitudeRef, EXIF:GPSLongitude/EXIF:GPSLongitudeRef, QuickTime:GPSCoordinates, UserData:GPSCoordinates
 
             When importing photos, Photos itself will usually read most of these same fields
-            and set the metadata but when importing via AppleScript (which is how `osxphotos
-            import` interacts with Photos), Photos does not always reliably do this. It is
-            recommended you use `--exiftool` to ensure metadata gets correctly imported.
+            and set the metadata but when importing via AppleScript (which is how 'osxphotos
+            import' interacts with Photos), Photos does not always reliably do this. It is
+            recommended you use '--exiftool' to ensure metadata gets correctly imported.
 
-            You can also use `--clear-metadata` to remove any metadata automatically set by
+            You can also use '--clear-metadata' to remove any metadata automatically set by
             Photos upon import.
 
-            In addition to `--exiftool`, you can specify a template (see Template System below)
-            for setting title (`--title`), description (`--description`), and keywords (`--keywords`).
-            Location can be set using `--location`.  The album(s) of the imported file can likewise
-            be specified with `--album`.
+            In addition to '--exiftool', you can specify a template (see Template System below)
+            for setting title ('--title'), description ('--description'), and keywords ('--keywords').
+            Location can be set using '--location'.  The album(s) of the imported file can likewise
+            be specified with '--album'.
 
-            `--title`, `--description`, `--keyword`, and `--album` all take a literal string or an
+            '--title', '--description', '--keyword', and '--album' all take a literal string or an
             osxphotos template string.  If a template string is used, the template is rendered
             using the osxphotos template language to produce the final value.
 
             For example:
 
-            `--title "{exiftool:XMP:Title}"` sets the title of the imported file to whatever value
-            is in the `XMP:Title` metadata field (as read by `exiftool`).
+            '--title "{exiftool:XMP:Title}"' sets the title of the imported file to whatever value
+            is in the 'XMP:Title' metadata field (as read by 'exiftool').
 
-            `--keyword "Vacation"` sets the keyword for the imported file to the literal string "Vacation".
+            '--keyword "Vacation"' sets the keyword for the imported file to the literal string "Vacation".
 
-            If the photo metadata or sidecar contains the names of persons in the image (e.g. `XMP:PersonInImage`),
-            you can use the `{person}` template to add the names of the persons to the keywords.  For example:
+            If the photo metadata or sidecar contains the names of persons in the image (e.g. 'XMP:PersonInImage'),
+            you can use the '{person}' template to add the names of the persons to the keywords.  For example:
 
-            `--keyword "{person}"` will add the names of the persons in the image to the keywords.
+            '--keyword "{person}"' will add the names of the persons in the image to the keywords.
 
             This is helpful as Photos will not import person names from the metadata and osxphotos
             cannot set person names in Photos (this is a limitation of Photos).
 
-            To use the `{person}` template, you must have exiftool installed and in your path or
+            To use the '{person}' template, you must have exiftool installed and in your path or
             the data must be in a sidecar file.
 
             ## Template System
 
-            As mentioned above, the `--title`, `--description`, `--keyword`, and `--album` options
+            As mentioned above, the '--title', '--description', '--keyword', and '--album' options
             all take an osxphotos template language template string that is further rendered to
-            produce the final value.  The template system used by `osxphotos import` is a subset
-            of the template system used by `osxphotos export`. For a complete description of the
-            template system, see `osxphotos help export`.
+            produce the final value.  The template system used by osxphotos import' is a subset
+            of the template system used by 'osxphotos export'. For a complete description of the
+            template system, see 'osxphotos help export'.
 
-            Most fields in the osxphotos template system are not available to `osxphotos import` as
+            Most fields in the osxphotos template system are not available to osxphotos import' as
             they are derived from data in the Photos library and the photos will obviously not be
             imported yet. The following fields are available:
 
             #### {exiftool}
-            - `{exiftool}`: Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org)
+
+            - '{exiftool}': Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org)
             to extract metadata, in form GROUP:TAGNAME, from image.
+
             E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract
             keywords. See https://exiftooip=l.org/TagNames/ for list of valid tag names.
-            You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`.
+            You must specify group (e.g. EXIF, IPTC, etc) as used in 'exiftool -G'.
             exiftool must be installed in the path to use this template (alternatively, you can use
-            `--exiftool-path` to specify the path to exiftool.)
+            '--exiftool-path' to specify the path to exiftool.)
 
             #### {filepath}
 
-            - `{filepath}`: The full path to the file being imported.
-            For example, `/Volumes/photos/img_1234.jpg`.
+            - '{filepath}': The full path to the file being imported.
+            For example, '/Volumes/photos/img_1234.jpg'.
 
-            `{filepath}` has several subfields that
+            '{filepath}' has several subfields that
             allow you to access various parts of the path using the following subfield modifiers:
 
-            - `{filepath.parent}`: the parent directory
-            - `{filepath.name}`: the name of the file or final sub-directory
-            - `{filepath.stem}`: the name of the file without the extension
-            - `{filepath.suffix}`: the suffix of the file including the leading '.'
+            - '{filepath.parent}': the parent directory
+            - '{filepath.name}': the name of the file or final sub-directory
+            - '{filepath.stem}': the name of the file without the extension
+            - '{filepath.suffix}': the suffix of the file including the leading '.'
 
-            For example, if the field `{filepath}` is '/Shared/Backup/Photos/IMG_1234.JPG':
-            - `{filepath.parent}` is '/Shared/Backup/Photos'
-            - `{filepath.name}` is 'IMG_1234.JPG'
-            - `{filepath.stem}` is 'IMG_1234'
-            - `{filepath.suffix}` is '.JPG'
+            For example, if the field '{filepath}' is '/Shared/Backup/Photos/IMG_1234.JPG':
+            - '{filepath.parent}' is '/Shared/Backup/Photos'
+            - '{filepath.name}' is 'IMG_1234.JPG'
+            - '{filepath.stem}' is 'IMG_1234'
+            - '{filepath.suffix}' is '.JPG'
 
-            Subfields may be chained, for example, `{filepath.parent.parent}` in the above
-            example would be `/Shared/Backup` and `{filepath.parent.name}` would be `Photos`.
+            Subfields may be chained, for example, '{filepath.parent.parent}' in the above
+            example would be '/Shared/Backup' and '{filepath.parent.name}' would be 'Photos'.
 
-            `{filepath}` may be modified using the `--relative-to` option.  For example,
-            if the path to the imported photo is `/Volumes/Photos/Folder1/Album1/IMG_1234.jpg`
-            and you specify `--relative-to "/Volumes/Photos"` then `{filepath}` will be set
-            to `Folder1/Album1/IMG_1234.jpg`
-            (a subset of the path relative to the value of `--relative-to`).
+            '{filepath}' may be modified using the '--relative-to' option.  For example,
+            if the path to the imported photo is '/Volumes/Photos/Folder1/Album1/IMG_1234.jpg'
+            and you specify '--relative-to "/Volumes/Photos" then '{filepath}' will be set
+            to 'Folder1/Album1/IMG_1234.jpg'
+            (a subset of the path relative to the value of '--relative-to').
 
             #### {created}
 
-            - `{created}`: The date the file was created.  `{created}` must be used with a subfield to
+            - '{created}': The date the file was created.  '{created}' must be used with a subfield to
             specify the format of the date.
 
-            - `{created.date}`: Photo's creation date in ISO format, e.g. '2020-03-22'
-            - `{created.year}`: 4-digit year of photo creation time
-            - `{created.yy}`: 2-digit year of photo creation time
-            - `{created.mm}`: 2-digit month of the photo creation time (zero padded)
-            - `{created.month}`: Month name in user's locale of the photo creation time
-            - `{created.mon}`: Month abbreviation in the user's locale of the photo creation time
-            - `{created.dd}`: 2-digit day of the month (zero padded) of photo creation time
-            - `{created.dow}`: Day of week in user's locale of the photo creation time
-            - `{created.doy}`: 3-digit day of year (e.g Julian day) of photo creation time, starting from 1 (zero padded)
-            - `{created.hour}`: 2-digit hour of the photo creation time
-            - `{created.min}`: 2-digit minute of the photo creation time
-            - `{created.sec}`: 2-digit second of the photo creation time
-            - `{created.strftime}`: Apply strftime template to file creation date/time. Should be used in form
-            `{created.strftime,TEMPLATE}` where TEMPLATE is a valid strftime template, e.g.
-            `{created.strftime,%Y-%U}` would result in year-week number of year: '2020-23'.
+            - '{created.date}': Photo's creation date in ISO format, e.g. '2020-03-22'
+            - '{created.year}': 4-digit year of photo creation time
+            - '{created.yy}': 2-digit year of photo creation time
+            - '{created.mm}': 2-digit month of the photo creation time (zero padded)
+            - '{created.month}': Month name in user's locale of the photo creation time
+            - '{created.mon}': Month abbreviation in the user's locale of the photo creation time
+            - '{created.dd}': 2-digit day of the month (zero padded) of photo creation time
+            - '{created.dow}': Day of week in user's locale of the photo creation time
+            - '{created.doy}': 3-digit day of year (e.g Julian day) of photo creation time, starting from 1 (zero padded)
+            - '{created.hour}': 2-digit hour of the photo creation time
+            - '{created.min}': 2-digit minute of the photo creation time
+            - '{created.sec}': 2-digit second of the photo creation time
+            - '{created.strftime}': Apply strftime template to file creation date/time. Should be used in form
+            '{created.strftime,TEMPLATE}' where TEMPLATE is a valid strftime template, e.g.
+            '{created.strftime,%Y-%U}' would result in year-week number of year: '2020-23'.
             If used with no template will return null value.
             See https://strftime.org/ for help on strftime templates.
 
-            You may find the `--check-templates` option useful for testing templates.
-            When run with `--check-templates` osxphotos will not actually import anything
-            but will instead print out the rendered value for each `--title`, `--description`,
-            `--keyword`, and `--album` option. It will also print out the values extracted by
-            the `--exiftool` option.
+            You may find the '--check-templates' option useful for testing templates.
+            When run with '--check-templates' osxphotos will not actually import anything
+            but will instead print out the rendered value for each '--title', '--description',
+            '--keyword', and '--album' option. It will also print out the values extracted by
+            the '--exiftool' option.
 
             ## Parsing Dates/Times from File and Folder Names
 
-            The `--parse-date` option allows you to parse dates/times from the filename of the
+            The '--parse-date' option allows you to parse dates/times from the filename of the
             file being imported.  This is useful if you have a large number of files with
             dates/times embedded in the filename but not in the metadata.
 
-            Likewise, you can use `--parse-folder-date` to parse dates/times from the name of the
+            Likewise, you can use '--parse-folder-date' to parse dates/times from the name of the
             folder containing the file being imported.
 
-            The argument to `--parse-date` is a pattern string that is used to parse the date/time
-            from the filename. The pattern string is a superset of the python `strftime/strptime`
+            The argument to '--parse-date' is a pattern string that is used to parse the date/time
+            from the filename. The pattern string is a superset of the python 'strftime/strptime'
             format with the following additions:
 
             - *: Match any number of characters
@@ -448,8 +439,8 @@ class ImportCommand(click.Command):
             - {n}: Match exactly n characters
             - {n,}: Match at least n characters
             - {n,m}: Match at least n characters and at most m characters
-            - In addition to `%%` for a literal `%`, the following format codes are supported:
-                `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
+            - In addition to '%%' for a literal '%', the following format codes are supported:
+                '%^', '%$', '%*', '%|', '%{', '%}' for '^', '$', '*', '|', '{', '}' respectively
             - |: join multiple format codes; each code is tried in order until one matches
             - Unlike the standard library, the leading zero is not optional for
                 %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
@@ -460,27 +451,27 @@ class ImportCommand(click.Command):
 
             ### Examples
 
-            If you have photos with embedded names in filenames like `IMG_1234_20200322_123456.jpg`
-            and `12345678_20200322.jpg`, you can parse the dates with the following pattern:
-            `--parse-date "IMG_*_%Y%m%d_%H%M%S|*_%Y%m%d.*"`. The first pattern matches the first format
-            and the second pattern matches the second. The `|` character is used to separate the two
+            If you have photos with embedded names in filenames like 'IMG_1234_20200322_123456.jpg'
+            and '12345678_20200322.jpg', you can parse the dates with the following pattern:
+            '--parse-date "IMG_*_%Y%m%d_%H%M%S|*_%Y%m%d.*"'. The first pattern matches the first format
+            and the second pattern matches the second. The '|' character is used to separate the two
             patterns. The order is important as the first pattern will be tried first then the second
             and so on. If you have multiple formats in your filenames you will want to order the patterns
             from most specific to least specific to avoid false matches.
 
-            If your photos are organized by date into folders in format `YYYY/MM/DD`, for example,
-            `/Volumes/Photos/2020/03/22/IMG_1234.jpg`, you can parse the date from the folder name
-            using `--parse-folder-date "%Y/%m/%d$"`. In this example, the pattern is anchored to the
-            end of the string using `$` to avoid false matches if other parts of the path happen to match
+            If your photos are organized by date into folders in format 'YYYY/MM/DD', for example,
+            '/Volumes/Photos/2020/03/22/IMG_1234.jpg', you can parse the date from the folder name
+            using '--parse-folder-date "%Y/%m/%d$"'. In this example, the pattern is anchored to the
+            end of the string using '$' to avoid false matches if other parts of the path happen to match
             the pattern.
 
             ## Post Function
 
-            You can run a custom python function after each photo is imported using `--post-function`.
-            The format is `osxphotos import /file/to/import --post-function post_function.py::post_function`
-            where `post_function.py` is the name of the python file containing the function and `post_function`
+            You can run a custom python function after each photo is imported using '--post-function'.
+            The format is 'osxphotos import /file/to/import --post-function post_function.py::post_function'
+            where 'post_function.py' is the name of the python file containing the function and 'post_function'
             is the name of the function. The function will be called with the following arguments:
-            `post_function(photo: photoscript.Photo, filepath: pathlib.Path, verbose: t.Callable, **kwargs)`
+            'post_function(photo: photoscript.Photo, filepath: pathlib.Path, verbose: t.Callable, **kwargs)'
 
             - photo: photoscript.Photo instance for the photo that's just been imported
             - filepath: pathlib.Path to the file that was imported (this is the path to the source file, not the path inside the Photos library)
@@ -490,7 +481,7 @@ class ImportCommand(click.Command):
             The function will get called immediately after the photo has been imported into Photos
             and all metadata been set (e.g. --exiftool, --title, etc.)
 
-            You may call more than one function by repeating the `--post-function` option.
+            You may call more than one function by repeating the '--post-function' option.
 
             See https://rhettbull.github.io/PhotoScript/
             for documentation on photoscript and the Photo class that is passed to the function.
@@ -504,24 +495,33 @@ class ImportCommand(click.Command):
             - Unzip the archive
             - Run the following command to import the photos into Photos:
 
-            `osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv`
+            osxphotos import /path/to/Takeout --walk --album "{filepath.parent.name}" --sidecar  --verbose --report takeout_import.csv
 
             If you have persons tagged in Google Photos you can add this option to create keywords
-            for each person in the photo: `--keyword "{person}"`
+            for each person in the photo: '--keyword "{person}"'
 
             Google Takeout does not preserve the timezone of the photo. The metadata JSON sidecar
             produced by Google converts photo times to UTC. The import command will convert these
             to the correct time in the local timezone upon import. If your photos contain the correct
-            date/time and timezone information in the metadata you can use the `--sidecar-ignore-date`
+            date/time and timezone information in the metadata you can use the '--sidecar-ignore-date'
             option to ignore the date/time in the sidecar and use the date/time from the photo metadata.
 
-        """
+            """
         )
         console = Console()
-        with console.capture() as capture:
-            console.print(Markdown(extra_help), width=min(HELP_WIDTH, console.width))
-        formatter.write(capture.get())
+
+        # Check if running under Sphinx documentation generation
+        is_sphinx = "sphinx_click_custom" in sys.modules
+        if console.is_interactive and not is_sphinx:
+            formatter.write(format_markdown_for_console(extra_help, HELP_WIDTH))
+        else:
+            formatter.write(markdown_to_plaintext(extra_help))
         help_text += "\n\n" + formatter.getvalue()
+
+        # If Sphinx is running, filter all help text for RST compatibility
+        if is_sphinx_running():
+            help_text = filter_help_text_for_sphinx(help_text)
+
         return help_text
 
 
@@ -628,7 +628,7 @@ class ImportCommand(click.Command):
     "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
     "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
     "as the import command does not yet support setting time zone information. "
-    "For example, if your photos are in folder '2023/12/17/IMG_1234.jpg` where the date is "
+    "For example, if your photos are in folder '2023/12/17/IMG_1234.jpg' where the date is "
     "'2023-12-17', you could use the pattern '%Y/%m/%d$' as the DATE_PATTERN. "
     "If the pattern matches only date or only time, the missing information will be set to the "
     "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
@@ -836,7 +836,7 @@ class ImportCommand(click.Command):
     "-g",
     metavar="GLOB",
     multiple=True,
-    help="Only import files matching GLOB. GLOB is a Unix shell-style glob pattern, for example: '--glob \"*.jpg\"'. GLOB may be repeated to import multiple patterns.",
+    help="Only import files matching GLOB. GLOB is a Unix shell-style glob pattern, for example: '--glob \\*.jpg'. GLOB may be repeated to import multiple patterns.",
 )
 @click.option(
     "--check",
@@ -1006,6 +1006,7 @@ def import_main(
     The edited version of the file must also be named following one of these two conventions:
 
         \b
+
         Original: IMG_1234.jpg, edited: IMG_E1234.jpg
 
         Original: IMG_1234.jpg, original: IMG_1234_edited.jpg
