@@ -979,7 +979,7 @@ if __name__ == "__main__":
 
 [PhotosDB.photos()](#photosdbphotos) returns a list of [PhotoInfo](#photoinfo) objects.  Each PhotoInfo object represents a single photo in the Photos library.
 
-#### <a name="uuid">uuid</a>
+#### <a name="photoinfo-uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the photo.  This is how Photos keeps track of individual photos within the database.
 
@@ -1623,7 +1623,7 @@ nikon_photos = [
 
 [PhotosDB.album_info](#photosdb-albuminfo) and [PhotoInfo.album_info](#photoinfo-album-info) return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
 
-#### <a name="uuid">uuid</a>
+#### <a name="albuminfo-uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the album.  This is how Photos keeps track of individual objects within the database.
 
@@ -1689,7 +1689,7 @@ Returns a dictionary representation of the AlbumInfo object.
 
 PhotosDB.import_info returns a list of ImportInfo objects.  Each ImportInfo object represents an import session in the library.  PhotoInfo.import_info returns a single ImportInfo object representing the import session for the photo (or `None` if no associated import session).
 
-#### <a name="uuid">uuid</a>
+#### <a name="importinfo-uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the import session.  This is how Photos keeps track of individual objects within the database.
 
@@ -1721,7 +1721,7 @@ PhotosDB.projcet_info returns a list of ProjectInfo objects.  Each ProjectInfo o
 
 Projects (found under "My Projects" in Photos) are projects or creations such as cards, calendars, and slideshows created in Photos.  osxphotos provides only very basic information about projects and projects created with third party plugins may not accessible to osxphotos.
 
-#### <a name="uuid">uuid</a>
+#### <a name="projectinfo-uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the project.  This is how Photos keeps track of individual objects within the database.
 
@@ -1789,7 +1789,7 @@ Returns a dictionary representation of the moment.
 
 PhotosDB.folder_info returns a list of FolderInfo objects representing the top level folders in the library.  Each FolderInfo object represents a single folder in the Photos library.
 
-#### <a name="uuid">uuid</a>
+#### <a name="folderinfo-uuid">uuid</a>
 
 Returns the universally unique identifier (uuid) of the folder.  This is how Photos keeps track of individual objects within the database.
 
@@ -2072,7 +2072,7 @@ Returns the full name of the person represented in the photo. For example, "Mari
 
 Returns the display name of the person represented in the photo. For example, "Maria".
 
-#### <a name="uuid">uuid</a>
+#### <a name="personinfo-uuid">uuid</a>
 
 Returns the UUID of the person as stored in the Photos library database.
 
