@@ -1328,7 +1328,8 @@ def test_photosdb_library_path():
             os.path.join(PHOTOS_LIBRARY_PATH, "database"),
             os.path.join(tmpdir, "database"),
         )
-        dbpath = os.path.join(tmpdir, "database", "Photos.sqlite")
+        dbpath = pathlib.Path(tmpdir) / "database" / "Photos.sqlite"
+        dbpath = str(dbpath.resolve().absolute())
         photosdb = osxphotos.PhotosDB(dbpath, library_path=PHOTOS_LIBRARY_PATH)
         assert photosdb.library_path == PHOTOS_LIBRARY_PATH
         assert photosdb.db_path == dbpath

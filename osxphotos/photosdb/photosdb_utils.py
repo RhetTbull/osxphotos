@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import pathlib
 import plistlib
 import sys
@@ -38,7 +39,7 @@ __all__ = [
 LATEST_PHOTOS_VERSION = max(_DB_TABLE_NAMES.keys())
 
 
-def get_db_version(db_file):
+def get_db_version(db_file: os.PathLike) -> str:
     """Gets the Photos DB version from LiGlobals table
 
     Args:
