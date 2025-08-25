@@ -24,3 +24,5 @@ docs/.buildinfo.bak
 .envrc
 .zed/
 AGENT.md
+AGENTS.md
+CLAUDE.md
