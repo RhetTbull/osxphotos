@@ -16,31 +16,44 @@ jobs:
         os: [macos-14]
         python-version: ['3.10', '3.11', '3.12', '3.13']
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - name: Checkout (sparse)
+      uses: actions/checkout@v4
+      with:
+        # Fetch only what's needed for tests to speed up checkout
+        sparse-checkout: |
+          osxphotos
+          tests
+          examples
+          pyproject.toml
+          requirements.txt
+          dev_requirements.txt
+          pytest.ini
+          setup.py
+          MANIFEST.in
+          README.md
+    - name: Setup uv with Python ${{ matrix.python-version }}
+      uses: astral-sh/setup-uv@v4
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'pip' # caching pip dependencies
-    # virtual env must be used on Linux to avoid issue with setuptools
-    # this action creates and activates a virtual env while also caching it
-    - uses: syphar/restore-virtualenv@v1
-      id: cache-virtualenv
+    - name: Cache uv download cache
+      uses: actions/cache@v4
       with:
-        requirement_files: "*requirements.txt"
-    - uses: syphar/restore-pip-download-cache@v1
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-      # the package installation will only be executed when the
-      # requirements-files have changed.
-    - run: pip install -r requirements.txt
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-    - run: pip install -r dev_requirements.txt
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-    # - name: Install dependencies
-    #   run: |
-    #     python3 -m pip install --upgrade pip
-    #     python3 -m pip install -r dev_requirements.txt
-    #     python3 -m pip install -r requirements.txt
+        path: ~/.cache/uv
+        key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'dev_requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-uv-${{ matrix.python-version }}-
+    - name: Cache virtualenv
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: ${{ runner.os }}-venv-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'dev_requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-venv-${{ matrix.python-version }}-
+    - name: Install dependencies (uv)
+      run: |
+        uv venv
+        uv pip install -r requirements.txt
+        uv pip install -r dev_requirements.txt
     - name: Install exiftool
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -57,7 +70,7 @@ jobs:
         brew install exiftool
     - name: Test with pytest
       run: |
-        python -m pytest -v tests/
+        uv run python -m pytest -v tests/
     - name: Send failure notification
       if: ${{ failure() }}
       run: |
