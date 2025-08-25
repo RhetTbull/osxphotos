@@ -78,6 +78,7 @@ from osxphotos.utils import (
     terminal,
     under_test,
 )
+from osxphotos.volume_util import is_path_on_network_volume
 
 if is_macos:
     from osxmetadata import (
@@ -115,7 +116,7 @@ from .common import (
     OSXPHOTOS_HIDDEN,
     get_photos_db,
     noop,
-    require_macos
+    require_macos,
 )
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
@@ -149,15 +150,12 @@ if TYPE_CHECKING:
 @click.option(
     "--update",
     is_flag=True,
-    help="Only export new or updated files. "
-    "See also --force-update and notes below on export and --update.",
+    help="Only export new or updated files. See also --force-update and notes below on export and --update.",
 )
 @click.option(
     "--force-update",
     is_flag=True,
-    help="Only export new or updated files. Unlike --update, --force-update will re-export photos "
-    "if their metadata has changed even if this would not otherwise trigger an export. "
-    "See also --update and notes below on export and --update.",
+    help="Only export new or updated files. Unlike --update, --force-update will re-export photos if their metadata has changed even if this would not otherwise trigger an export. See also --update and notes below on export and --update.",
 )
 @click.option(
     "--update-errors",
@@ -189,14 +187,12 @@ if TYPE_CHECKING:
 @click.option(
     "--only-new",
     is_flag=True,
-    help="If used with --update, ignores any previously exported files, even if missing from "
-    "the export folder and only exports new files that haven't previously been exported.",
+    help="If used with --update, ignores any previously exported files, even if missing from the export folder and only exports new files that haven't previously been exported.",
 )
 @click.option(
     "--limit",
     metavar="LIMIT",
-    help="Export at most LIMIT photos. "
-    "Useful for testing. May be used with --update to export incrementally.",
+    help="Export at most LIMIT photos. Useful for testing. May be used with --update to export incrementally.",
     type=int,
 )
 @click.option(
@@ -207,10 +203,7 @@ if TYPE_CHECKING:
 @click.option(
     "--export-as-hardlink",
     is_flag=True,
-    help="Hardlink files instead of copying them. "
-    "Cannot be used with --exiftool which creates copies of the files with embedded EXIF data. "
-    "Note: on APFS volumes, files are cloned when exporting giving many of the same "
-    "advantages as hardlinks without having to use --export-as-hardlink.",
+    help="Hardlink files instead of copying them. Cannot be used with --exiftool which creates copies of the files with embedded EXIF data. Note: on APFS volumes, files are cloned when exporting giving many of the same advantages as hardlinks without having to use --export-as-hardlink.",
 )
 @click.option(
     "--touch-file",
@@ -220,23 +213,18 @@ if TYPE_CHECKING:
 @click.option(
     "--overwrite",
     is_flag=True,
-    help="Overwrite existing files. "
-    "Default behavior is to add (1), (2), etc to filename if file already exists. "
-    "Use this with caution as it may create name collisions on export. "
-    "(e.g. if two files happen to have the same name)",
+    help="Overwrite existing files. Default behavior is to add (1), (2), etc to filename if file already exists. Use this with caution as it may create name collisions on export. (e.g. if two files happen to have the same name)",
 )
 @click.option(
     "--retry",
     metavar="RETRY",
     type=click.INT,
-    help="Automatically retry export up to RETRY times if an error occurs during export.  "
-    "This may be useful with network drives that experience intermittent errors.",
+    help="Automatically retry export up to RETRY times if an error occurs during export.  This may be useful with network drives that experience intermittent errors.",
 )
 @click.option(
     "--export-by-date",
     is_flag=True,
-    help="Automatically create output folders to organize photos by date created "
-    "(e.g. DEST/2019/12/20/photoname.jpg).",
+    help="Automatically create output folders to organize photos by date created (e.g. DEST/2019/12/20/photoname.jpg).",
 )
 @click.option(
     "--skip-edited",
@@ -261,33 +249,27 @@ if TYPE_CHECKING:
 @click.option(
     "--skip-raw",
     is_flag=True,
-    help="Do not export associated RAW image of a RAW+JPEG pair.  "
-    "Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image "
-    "(e.g. the RAW file was imported to Photos without a JPEG preview).",
+    help="Do not export associated RAW image of a RAW+JPEG pair.  Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image (e.g. the RAW file was imported to Photos without a JPEG preview).",
 )
 @click.option(
     "--skip-uuid",
     metavar="UUID",
     default=None,
     multiple=True,
-    help="Skip photos with UUID(s) during export. "
-    "May be repeated to include multiple UUIDs.",
+    help="Skip photos with UUID(s) during export. May be repeated to include multiple UUIDs.",
 )
 @click.option(
     "--skip-uuid-from-file",
     metavar="FILE",
     default=None,
     multiple=False,
-    help="Skip photos with UUID(s) loaded from FILE. "
-    "Format is a single UUID per line.  Lines preceded with # are ignored.",
+    help="Skip photos with UUID(s) loaded from FILE. Format is a single UUID per line.  Lines preceded with # are ignored.",
     type=CatchSmartQuotesPath(exists=True),
 )
 @click.option(
     "--current-name",
     is_flag=True,
-    help="Use photo's current filename instead of original filename for export.  "
-    "Note: Starting with Photos 5, all photos are renamed upon import.  By default, "
-    "photos are exported with the the original name they had before import.",
+    help="Use photo's current filename instead of original filename for export.  Note: Starting with Photos 5, all photos are renamed upon import.  By default, photos are exported with the the original name they had before import.",
 )
 @click.option(
     "--convert-to-jpeg",
@@ -301,10 +283,7 @@ if TYPE_CHECKING:
 @click.option(
     "--jpeg-quality",
     type=click.FloatRange(0.0, 1.0),
-    help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. "
-    "A value of 1.0 specifies best quality, "
-    "a value of 0.0 specifies maximum compression. "
-    f"Defaults to {DEFAULT_JPEG_QUALITY}",
+    help=f"Value in range 0.0 to 1.0 to use with --convert-to-jpeg. A value of 1.0 specifies best quality, a value of 0.0 specifies maximum compression. Defaults to {DEFAULT_JPEG_QUALITY}",
 )
 @click.option(
     "--fix-orientation",
@@ -321,16 +300,12 @@ if TYPE_CHECKING:
 @click.option(
     "--preview",
     is_flag=True,
-    help="Export preview image generated by Photos. "
-    "This is a lower-resolution image used by Photos to quickly preview the image. "
-    "See also --preview-suffix and --preview-if-missing.",
+    help="Export preview image generated by Photos. This is a lower-resolution image used by Photos to quickly preview the image. See also --preview-suffix and --preview-if-missing.",
 )
 @click.option(
     "--preview-if-missing",
     is_flag=True,
-    help="Export preview image generated by Photos if the actual photo file is missing from the library. "
-    "This may be helpful if photos were not copied to the Photos library and the original photo is missing. "
-    "See also --preview-suffix and --preview.",
+    help="Export preview image generated by Photos if the actual photo file is missing from the library. This may be helpful if photos were not copied to the Photos library and the original photo is missing. See also --preview-suffix and --preview.",
 )
 @click.option(
     "--preview-suffix",
@@ -487,16 +462,12 @@ if TYPE_CHECKING:
 @click.option(
     "--favorite-rating",
     is_flag=True,
-    help="When used with --exiftool or --sidecar, "
-    "set XMP:Rating=5 for photos marked as Favorite and XMP:Rating=0 for non-Favorites. "
-    "If not specified, XMP:Rating is not set.",
+    help="When used with --exiftool or --sidecar, set XMP:Rating=5 for photos marked as Favorite and XMP:Rating=0 for non-Favorites. If not specified, XMP:Rating is not set.",
 )
 @click.option(
     "--ignore-date-modified",
     is_flag=True,
-    help="If used with --exiftool or --sidecar, will ignore the photo "
-    "modification date and set EXIF:ModifyDate to EXIF:DateTimeOriginal; "
-    "this is consistent with how Photos handles the EXIF:ModifyDate tag.",
+    help="If used with --exiftool or --sidecar, will ignore the photo modification date and set EXIF:ModifyDate to EXIF:DateTimeOriginal; this is consistent with how Photos handles the EXIF:ModifyDate tag.",
 )
 @click.option(
     "--person-keyword",
@@ -558,8 +529,7 @@ if TYPE_CHECKING:
 @click.option(
     "--finder-tag-keywords",
     is_flag=True,
-    help="Set MacOS Finder tags to keywords; any keywords specified via '--keyword-template', '--person-keyword', etc. "
-    "will also be used as Finder tags. See also '--finder-tag-template and Extended Attributes below.'.",
+    help="Set MacOS Finder tags to keywords; any keywords specified via '--keyword-template', '--person-keyword', etc. will also be used as Finder tags. See also '--finder-tag-template and Extended Attributes below.'.",
 )
 @click.option(
     "--xattr-template",
@@ -577,8 +547,7 @@ if TYPE_CHECKING:
     "--directory",
     metavar="DIRECTORY",
     default=None,
-    help="Optional template for specifying name of output directory in the form '{name,DEFAULT}'. "
-    "See below for additional details on templating system.",
+    help="Optional template for specifying name of output directory in the form '{name,DEFAULT}'. See below for additional details on templating system.",
     type=TemplateString(),
 )
 @click.option(
@@ -586,9 +555,7 @@ if TYPE_CHECKING:
     "filename_template",
     metavar="FILENAME",
     default=None,
-    help="Optional template for specifying name of output file in the form '{name,DEFAULT}'. "
-    "File extension will be added automatically--do not include an extension in the FILENAME template. "
-    "See below for additional details on templating system.",
+    help="Optional template for specifying name of output file in the form '{name,DEFAULT}'. File extension will be added automatically--do not include an extension in the FILENAME template. See below for additional details on templating system.",
     type=TemplateString(),
 )
 @click.option(
@@ -604,10 +571,7 @@ if TYPE_CHECKING:
 @click.option(
     "--strip",
     is_flag=True,
-    help="Optionally strip leading and trailing whitespace from any rendered templates. "
-    'For example, if --filename template is "{title,} {original_name}" and image has no '
-    "title, resulting file would have a leading space but if used with --strip, this will "
-    "be removed.",
+    help='Optionally strip leading and trailing whitespace from any rendered templates. For example, if --filename template is "{title,} {original_name}" and image has no title, resulting file would have a leading space but if used with --strip, this will be removed.',
 )
 @click.option(
     "--edited-suffix",
@@ -635,9 +599,7 @@ if TYPE_CHECKING:
 @click.option(
     "--use-photokit",
     is_flag=True,
-    help="Use with '--download-missing' or '--use-photos-export' to use direct Photos interface instead of AppleScript to export. "
-    "Highly experimental alpha feature; does not work with iTerm2 (use with Terminal.app). "
-    "This is faster and more reliable than the default AppleScript interface.",
+    help="Use with '--download-missing' or '--use-photos-export' to use direct Photos interface instead of AppleScript to export. Highly experimental alpha feature; does not work with iTerm2 (use with Terminal.app). This is faster and more reliable than the default AppleScript interface.",
 )
 @click.option(
     "--report",
@@ -654,8 +616,7 @@ if TYPE_CHECKING:
 @click.option(
     "--append",
     is_flag=True,
-    help="If used with --report, add data to existing report file instead of overwriting it. "
-    "See also --report.",
+    help="If used with --report, add data to existing report file instead of overwriting it. See also --report.",
 )
 @click.option(
     "--cleanup",
@@ -707,27 +668,21 @@ if TYPE_CHECKING:
     metavar="ALBUM",
     hidden=not is_macos,
     callback=require_macos,
-    help="Add all exported photos to album ALBUM in Photos. Album ALBUM will be created "
-    "if it doesn't exist.  All exported photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
+    help="Add all exported photos to album ALBUM in Photos. Album ALBUM will be created if it doesn't exist.  All exported photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--add-skipped-to-album",
     metavar="ALBUM",
     hidden=not is_macos,
     callback=require_macos,
-    help="Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created "
-    "if it doesn't exist.  All skipped photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
+    help="Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created if it doesn't exist.  All skipped photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--add-missing-to-album",
     metavar="ALBUM",
     hidden=not is_macos,
     callback=require_macos,
-    help="Add all missing photos to album ALBUM in Photos. Album ALBUM will be created "
-    "if it doesn't exist.  All missing photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
+    help="Add all missing photos to album ALBUM in Photos. Album ALBUM will be created if it doesn't exist.  All missing photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--post-command",
@@ -773,9 +728,7 @@ if TYPE_CHECKING:
     metavar="EXPORTDB_FILE",
     default=None,
     help=(
-        "Specify alternate path for database file which stores state information for export and --update. "
-        f"If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' "
-        "in the export directory.  If --exportdb is specified, it will be saved to the specified file. "
+        f"Specify alternate path for database file which stores state information for export and --update. If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' in the export directory.  If --exportdb is specified, it will be saved to the specified file. "
     ),
     type=ExportDBType(),
 )
@@ -784,7 +737,8 @@ if TYPE_CHECKING:
     is_flag=True,
     help="Copy export database to memory during export; "
     "will improve performance when exporting over a network or slow disk. "
-    "See also --checkpoint.",
+    "Note: osxphotos will automatically detect if export database is on a network volume and force use of --ramdb. "
+    "See also --exportdb to specifiy an alternate location for the export database and also --checkpoint.",
 )
 @click.option(
     "--checkpoint",
@@ -876,8 +830,7 @@ if TYPE_CHECKING:
     required=False,
     metavar="CONFIG_FILE",
     default=None,
-    help="Save options to file for use with --load-config. File format is TOML. "
-    "See also --config-only.",
+    help="Save options to file for use with --load-config. File format is TOML. See also --config-only.",
     type=CatchSmartQuotesPath(),
 )
 @click.option(
@@ -890,11 +843,7 @@ if TYPE_CHECKING:
     "print_template",
     metavar="TEMPLATE",
     multiple=True,
-    help="Render TEMPLATE string for each photo being exported and print to stdout. "
-    "TEMPLATE is an osxphotos template string. "
-    "This may be useful for creating custom reports, etc. "
-    "TEMPLATE will be printed after the photo is exported or skipped. "
-    "May be repeated to print multiple template strings. ",
+    help="Render TEMPLATE string for each photo being exported and print to stdout. TEMPLATE is an osxphotos template string. This may be useful for creating custom reports, etc. TEMPLATE will be printed after the photo is exported or skipped. May be repeated to print multiple template strings. ",
 )
 @click.option(
     "--beta",
@@ -908,8 +857,7 @@ if TYPE_CHECKING:
     metavar="NUM_PHOTOS",
     type=click.IntRange(min=1),
     hidden=OSXPHOTOS_HIDDEN,
-    help="Force osxphotos to crash after processing NUM_PHOTOS; "
-    "obviously this is only for testing and debugging crash handling.",
+    help="Force osxphotos to crash after processing NUM_PHOTOS; obviously this is only for testing and debugging crash handling.",
 )
 @THEME_OPTION
 @click.argument("dest", nargs=1, type=CatchSmartQuotesPath(exists=True))
@@ -1645,8 +1593,7 @@ def export_cli(
         for attr, _ in xattr_template:
             if attr not in EXTENDED_ATTRIBUTE_NAMES:
                 rich_click_echo(
-                    f"[error]Invalid attribute '{attr}' for --xattr-template; "
-                    f"valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
+                    f"[error]Invalid attribute '{attr}' for --xattr-template; valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
                     err=True,
                 )
                 return 1
@@ -1678,8 +1625,7 @@ def export_cli(
 
     if is_photoslibrary_path(dest):
         rich_click_echo(
-            f"[error]Error: DEST {dest} appears to be a Photos library. "
-            "You should not export into a Photos library.",
+            f"[error]Error: DEST {dest} appears to be a Photos library. You should not export into a Photos library.",
             err=True,
         )
         return 1
@@ -1696,16 +1642,13 @@ def export_cli(
 
     if (use_photokit or use_photos_export) and not check_photokit_authorization():
         click.echo(
-            "Requesting access to use your Photos library. "
-            "Click 'Allow Access to All Photos' in the dialog box to grant access."
+            "Requesting access to use your Photos library. Click 'Allow Access to All Photos' in the dialog box to grant access."
         )
         if not wait_for_photokit_authorization():
             if term := terminal():
                 term = f"terminal app ({term})" if term else "terminal app"
             rich_click_echo(
-                f"[error]Error: could not get authorization to access Photos library\n"
-                f"Please ensure that your {term} is granted access in "
-                "'System Settings > Privacy & Security > Photos'"
+                f"[error]Error: could not get authorization to access Photos library\nPlease ensure that your {term} is granted access in 'System Settings > Privacy & Security > Photos'"
             )
             return 1
 
@@ -1726,8 +1669,7 @@ def export_cli(
             exiftool_path = get_exiftool_path()
         except FileNotFoundError:
             rich_click_echo(
-                "[error]Could not find exiftool. Please download and install"
-                " from https://exiftool.org/",
+                "[error]Could not find exiftool. Please download and install from https://exiftool.org/",
                 err=True,
             )
             return 1
@@ -1751,15 +1693,12 @@ def export_cli(
     if not no_exportdb and exportdb and exportdb != str(expected_exportdb):
         if expected_exportdb.exists():
             rich_click_echo(
-                f"[warning]Warning: export database is '{exportdb}' but found "
-                f"'{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
+                f"[warning]Warning: export database is '{exportdb}' but found '{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
                 err=True,
             )
         if pathlib.Path(exportdb).resolve().parent != pathlib.Path(dest):
             rich_click_echo(
-                f"[warning]Warning: export database "
-                f"'{pathlib.Path(exportdb).resolve()}' is in a different "
-                f"directory than export destination '{dest}'",
+                f"[warning]Warning: export database '{pathlib.Path(exportdb).resolve()}' is in a different directory than export destination '{dest}'",
                 err=True,
             )
 
@@ -1772,15 +1711,12 @@ def export_cli(
         and pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB).exists()
     ):
         rich_click_echo(
-            f"[warning]Warning: found previous export database in '{dest}' but --update not specified; "
-            "osxphotos will not consider state of previous export which may result in duplicate files. "
-            "Please confirm that you want to continue without using --update",
+            f"[warning]Warning: found previous export database in '{dest}' but --update not specified; osxphotos will not consider state of previous export which may result in duplicate files. Please confirm that you want to continue without using --update",
             err=True,
         )
         if ignore_exportdb:
             rich_click_echo(
-                "[warning]Warning: option --ignore-exportdb enabled: ignoring export database; "
-                "osxphotos will not consider state of previous export which may result in duplicate files."
+                "[warning]Warning: option --ignore-exportdb enabled: ignoring export database; osxphotos will not consider state of previous export which may result in duplicate files."
             )
         elif not click.confirm("Do you want to continue?"):
             return 1
@@ -1790,10 +1726,7 @@ def export_cli(
         other_db_file := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)
     ):
         rich_click_echo(
-            "[warning]WARNING: found other export database file in this destination directory branch. "
-            "This likely means you are attempting to export files into a directory "
-            "that is either the parent or a child directory of a previous export. "
-            "Proceeding may cause your exported files to be overwritten.",
+            "[warning]WARNING: found other export database file in this destination directory branch. This likely means you are attempting to export files into a directory that is either the parent or a child directory of a previous export. Proceeding may cause your exported files to be overwritten.",
             err=True,
         )
         rich_click_echo(
@@ -1806,6 +1739,7 @@ def export_cli(
     export_db_path = exportdb or os.path.join(dest, OSXPHOTOS_EXPORT_DB)
 
     export_db_callback = None
+    ramdb = force_use_of_ramdb(ramdb, export_db_path, verbose)
     if dry_run:
         export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
         fileutil = FileUtilNoOp
@@ -2179,18 +2113,9 @@ def export_cli(
 
         photo_str_total = pluralize(len(photos), "photo", "photos")
         if update or force_update:
-            summary = (
-                f"Processed: [num]{len(photos)}[/] {photo_str_total}, "
-                f"exported: [num]{len(results.new)}[/], "
-                f"updated: [num]{len(results.updated)}[/], "
-                f"skipped: [num]{len(results.skipped)}[/], "
-                f"updated EXIF data: [num]{len(results.exif_updated)}[/], "
-            )
+            summary = f"Processed: [num]{len(photos)}[/] {photo_str_total}, exported: [num]{len(results.new)}[/], updated: [num]{len(results.updated)}[/], skipped: [num]{len(results.skipped)}[/], updated EXIF data: [num]{len(results.exif_updated)}[/], "
         else:
-            summary = (
-                f"Processed: [num]{len(photos)}[/] {photo_str_total}, "
-                f"exported: [num]{len(results.exported)}[/], "
-            )
+            summary = f"Processed: [num]{len(photos)}[/] {photo_str_total}, exported: [num]{len(results.exported)}[/], "
         summary += f"missing: [num]{len(results.missing)}[/], "
         summary += f"error: [num]{len(results.error)}[/]"
         if touch_file:
@@ -2199,7 +2124,7 @@ def export_cli(
             summary += f", limit: [num]{num_exported}[/]/[num]{limit}[/] exported"
         rich_echo(summary)
         stop_time = time.perf_counter()
-        rich_echo(f"Elapsed time: [time]{format_sec_to_hhmmss(stop_time-start_time)}")
+        rich_echo(f"Elapsed time: [time]{format_sec_to_hhmmss(stop_time - start_time)}")
     else:
         rich_echo("Did not find any photos to export")
 
@@ -3458,3 +3383,31 @@ def get_metadata_attribute_type(attr: str) -> Optional[str]:
             else None
         )
     )
+
+
+def force_use_of_ramdb(
+    ramdb: bool, export_db_path: str, verbose: Callable[[Any], None]
+) -> bool:
+    """Detect if export volume is a network share and if so, return
+
+    Args:
+        ramdb: value of --ramdb passed by user; if True, return True
+        export_db_path: path to the export database
+        verbose: function to print verbose messages
+
+    Returns:
+        True if use of ramdb should be required
+
+    Note: returns True if one of the following conditions applies, otherwise False:
+        - ramdb is True (user requested it)
+        - export_db_path is on a network volume
+    """
+
+    if ramdb:
+        return True
+    if is_path_on_network_volume(export_db_path):
+        verbose(
+            f"Using --ramdb option because export database is on network volume: {export_db_path}"
+        )
+        return True
+    return False
