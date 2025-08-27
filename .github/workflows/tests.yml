@@ -12,8 +12,8 @@ jobs:
         # remove ubuntu runner for now because pip is broken on ubuntu
         # with error pip._vendor.packaging.version.InvalidVersion: Invalid version: '6.5.0-1025-azure'
         # and I don't have time to try to fix this
-        # os: [macos-14, ubuntu-latest]
-        os: [macos-14]
+        os: [macos-15, ubuntu-latest]
+        # os: [macos-14]
         python-version: ['3.10', '3.11', '3.12', '3.13']
     steps:
     - name: Checkout (sparse)
