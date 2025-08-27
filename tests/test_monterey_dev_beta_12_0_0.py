@@ -1,4 +1,4 @@
-""" Basic tests for Photos 7 on macOS 12.0.0 Developer Beta """
+"""Basic tests for Photos 7 on macOS 12.0.0 Developer Beta"""
 
 import collections
 import datetime
@@ -26,7 +26,7 @@ SKIP_TEST = True  # don't run any of the local library tests
 PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 PHOTOS_DB = "tests/Test-12.0.0.dev-beta.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-12.0.0.dev-beta.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-12.0.0.dev-beta.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-12.0.0.dev-beta.photoslibrary"
 
 PHOTOS_DB_LEN = 21

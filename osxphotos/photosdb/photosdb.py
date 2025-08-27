@@ -359,14 +359,18 @@ class PhotosDB:
 
         dbfile: pathlib.Path = pathlib.Path(dbfile)
         dbfile = dbfile.resolve().absolute()
-        self._dbfile = self._dbfile_actual = None
+        self._dbfile, self._dbfile_actual = None, None
+        photos_5 = False
         if dbfile.is_dir():
             # passed a directory, assume it's a photoslibrary
-            if (dbfile / "database" / "photos.db").exists():
-                self._dbfile = self._dbfile_actual = dbfile / "database" / "photos.db"
             if (dbfile / "database" / "Photos.sqlite").exists():
                 # Photos 5+ file
                 self._dbfile_actual = dbfile / "database" / "Photos.sqlite"
+                photos_5 = True
+            if (dbfile / "database" / "photos.db").exists():
+                self._db_file = dbfile / "database" / "photos.db"
+                if not photos_5:
+                    self._dbfile_actual = self._db_file
             if not self._dbfile_actual:
                 raise FileNotFoundError(
                     f"Could not find Photos database file in {dbfile}"
@@ -375,13 +379,23 @@ class PhotosDB:
             # passed a non-existent file
             raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
         elif dbfile.name.lower() == "photos.db":
-            self._dbfile = self._dbfile_actual = dbfile
-            # check to see if Photos.sqlite exists
+            self._dbfile = dbfile
+            self._dbfile_actual = dbfile
+            # check to see if Photos.sqlite exists in same folder
             if (dbfile.parent / "Photos.sqlite").exists():
                 # Photos 5+ file
                 self._dbfile_actual = dbfile.parent / "Photos.sqlite"
         else:
-            self._dbfile = self._dbfile_actual = dbfile
+            # assume it was a Photos.sqlite file passed
+            self._dbfile_actual = dbfile
+            if (dbfile.parent / "photos.db").exists():
+                # photos.db should be in same folder as Photos.sqlite
+                self._dbfile = dbfile.parent / "photos.db"
+            else:
+                self._dbfile = dbfile
+
+        if not self._dbfile:
+            self._dbfile = self._dbfile_actual
 
         logger.debug(f"{self._dbfile=} {self._dbfile_actual=}")
 
@@ -394,8 +408,6 @@ class PhotosDB:
         # In either case, a temporary copy will be made if the DB is locked by Photos
         # or photosanalysisd
 
-        verbose(f"Processing database {self._filepath(self._dbfile)}")
-
         # if database is exclusively locked, make a copy of it and use the copy
         # Photos maintains an exclusive lock on the database file while Photos is open
         # photoanalysisd sometimes maintains this lock even after Photos is closed
@@ -404,6 +416,7 @@ class PhotosDB:
 
         # _db_version is set from photos.db
         if self._dbfile:
+            verbose(f"Processing database {self._filepath(self._dbfile)}")
             try:
                 if sqlite_db_is_locked(self._dbfile):
                     verbose("photos.db locked, creating temporary copy.")
@@ -413,9 +426,10 @@ class PhotosDB:
                 logging.warning(
                     f"Error getting database version from {self._dbfile}: {e}"
                 )
-                self._db_version = "5000"  # assume version 5000 and hope for the best
+                self._db_version = "6000"  # assume Photos 5+ and hope for the best
         else:
-            self._db_version = "5000"  # assume version 5000 and hope for the best
+            logger.debug(f"{self._dbfile=}, setting _db_version to 6000")
+            self._db_version = "6000"
 
         # _photos_version is set from Photos.sqlite which only exists for Photos 5+
         db_ver_int = int(self._db_version)
@@ -689,17 +703,17 @@ class PhotosDB:
 
     @property
     def db_version(self):
-        """Return the database version as stored in LiGlobals table"""
+        """Return the Photos database version"""
         return self._db_version
 
     @property
     def db_path(self):
-        """Returns path to the Photos library database PhotosDB was initialized with"""
-        return os.path.abspath(self._dbfile)
+        """Returns path to the Photos library database"""
+        return os.path.abspath(self._dbfile_actual)
 
     @property
     def library_path(self):
-        """Returns path to the Photos library PhotosDB was initialized with"""
+        """Returns path to the Photos library"""
         return self._library_path
 
     @property
@@ -731,9 +745,8 @@ class PhotosDB:
                 FileUtil.copy(f"{fname}-wal", f"{dest_path}-wal")
             if os.path.exists(f"{fname}-shm"):
                 FileUtil.copy(f"{fname}-shm", f"{dest_path}-shm")
-        except:
-            print(f"Error copying{fname} to {dest_path}", file=sys.stderr)
-            raise Exception
+        except Exception as e:
+            raise IOError(f"Error copying{fname} to {dest_path}") from e
 
         logger.debug(dest_path)
 

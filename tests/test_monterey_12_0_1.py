@@ -15,7 +15,7 @@ from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.adjustmentsinfo import AdjustmentsInfo
 
 PHOTOS_DB = "tests/Test-12.0.1.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-12.0.1.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-12.0.1.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-12.0.1.photoslibrary"
 
 PHOTOS_DB_LEN = 16
