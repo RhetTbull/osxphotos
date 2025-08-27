@@ -8,12 +8,12 @@ import pytest
 from click.testing import CliRunner
 
 from osxphotos import PhotosDB
-from osxphotos.cli.timewarp import timewarp
 from osxphotos.exiftool import ExifTool
 from osxphotos.platform import is_macos
 from tests.conftest import get_os_version
 
 if is_macos:
+    from osxphotos.cli.timewarp import timewarp
     from tests.parse_timewarp_output import (
         InspectValuesDateAdded,
         compare_inspect_output,
