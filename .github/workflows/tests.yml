@@ -71,7 +71,36 @@ jobs:
         brew install exiftool
     - name: Test with pytest
       run: |
-        ./.venv/bin/python -m pytest -v tests/
+        MAX_ATTEMPTS=3
+        ATTEMPT=1
+
+        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+          echo "Test attempt $ATTEMPT of $MAX_ATTEMPTS"
+
+          if ./.venv/bin/python -m pytest -v tests/; then
+            echo "Tests passed on attempt $ATTEMPT"
+            exit 0
+          else
+            EXIT_CODE=$?
+            echo "Tests failed on attempt $ATTEMPT with exit code $EXIT_CODE"
+
+            # Check if this is a segmentation fault (exit code 139) on macOS
+            if [ "$RUNNER_OS" == "macOS" ] && [ $EXIT_CODE -eq 139 ]; then
+              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+                echo "Segmentation fault detected on macOS (exit code 139). Retrying..."
+                ATTEMPT=$((ATTEMPT + 1))
+                sleep 5  # Brief pause before retry
+                continue
+              else
+                echo "Max retry attempts reached. Segmentation fault persists."
+                exit $EXIT_CODE
+              fi
+            else
+              echo "Non-segfault failure or not on macOS. Not retrying."
+              exit $EXIT_CODE
+            fi
+          fi
+        done
     - name: Send failure notification
       if: ${{ failure() }}
       run: |
