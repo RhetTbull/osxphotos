@@ -10,13 +10,18 @@ from click.testing import CliRunner
 from osxphotos import PhotosDB
 from osxphotos.cli.timewarp import timewarp
 from osxphotos.exiftool import ExifTool
+from osxphotos.platform import is_macos
 from tests.conftest import get_os_version
-from tests.parse_timewarp_output import (
-    InspectValuesDateAdded,
-    compare_inspect_output,
-    parse_compare_exif,
-    parse_inspect_output,
-)
+
+if is_macos:
+    from tests.parse_timewarp_output import (
+        InspectValuesDateAdded,
+        compare_inspect_output,
+        parse_compare_exif,
+        parse_inspect_output,
+    )
+else:
+    pytest.skip("Only runs on macOS", allow_module_level=True)
 
 # set timezone to avoid issues with comparing dates
 # @pytest.fixture(scope="module", autouse=True)

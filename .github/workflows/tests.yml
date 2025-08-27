@@ -19,6 +19,7 @@ jobs:
     - name: Checkout (sparse)
       uses: actions/checkout@v4
       with:
+        fetch-depth: 1
         # Fetch only what's needed for tests to speed up checkout
         sparse-checkout: |
           osxphotos
