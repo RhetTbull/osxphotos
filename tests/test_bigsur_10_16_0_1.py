@@ -15,7 +15,7 @@ from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.adjustmentsinfo import AdjustmentsInfo
 
 PHOTOS_DB = "tests/Test-10.16.0.1.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-10.16.0.1.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-10.16.0.1.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-10.16.0.1.photoslibrary"
 
 PHOTOS_DB_LEN = 16
@@ -938,10 +938,10 @@ def test_photosdb_repr():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = eval(repr(photosdb))
 
-    ignore_keys = ["_tmp_db", "_tempdir", "_tempdir_name", "_db_connection"]
-    assert {k: v for k, v in photosdb.__dict__.items() if k not in ignore_keys} == {
-        k: v for k, v in photosdb2.__dict__.items() if k not in ignore_keys
-    }
+    ignore_keys = ["_tmp_db", "_tempdir", "_tempdir_name", "_db_connection", "_dbfile"]
+    for k, v in photosdb.__dict__.items():
+        if k not in ignore_keys:
+            assert (k, photosdb2.__dict__[k]) == (k, v)
 
 
 def test_photosinfo_repr(photosdb):
