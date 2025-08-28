@@ -16,6 +16,7 @@ from osxphotos import QueryOptions, iPhotoDB
 from osxphotos.cli.export import export
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.iphoto import iPhotoPhotoInfo, is_iphoto_library
+from osxphotos.platform import is_macos
 
 logger = logging.getLogger("osxphotos")
 
@@ -243,7 +244,11 @@ def test_iphoto_info(iphotodb: iPhotoDB, photo_dict: dict[str, Any]):
     uuid = photo_dict["uuid"]
     photo = iphotodb.get_photo(uuid)
 
-    assert compare_dicts(json.loads(photo.json(shallow=False)), photo_dict)
+    # fingerprint not supported on linux
+    ignore_keys = [] if is_macos else ["fingerprint"]
+    assert compare_dicts(
+        json.loads(photo.json(shallow=False)), photo_dict, ignore_keys=ignore_keys
+    )
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
