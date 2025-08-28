@@ -1,11 +1,12 @@
-""" test FileUtil """
+"""test FileUtil"""
 
 import os
 import pathlib
+import time
 
 import pytest
 
-from osxphotos.fileutil import FileUtil, FileUtilShUtil
+from osxphotos.fileutil import FileUtil, FileUtilMacOS, FileUtilShUtil
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
 TEST_RAW = "tests/test-images/DSC03584.dng"
@@ -178,3 +179,102 @@ def test_tempdir_context_mgr():
     with FileUtil.tmpdir() as tmpdir_name:
         assert pathlib.Path(tmpdir_name).is_dir()
     assert not pathlib.Path(tmpdir_name).is_dir()
+
+
+def test_fileutil_utime():
+    """Test FileUtil.utime method"""
+    import tempfile
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    src = "tests/test-images/wedding.jpg"
+    dest = os.path.join(temp_dir.name, "wedding_utime.jpg")
+
+    # Copy a test file
+    FileUtil.copy(src, dest)
+
+    # Get original times
+    original_stat = os.stat(dest)
+    original_atime = original_stat.st_atime
+    original_mtime = original_stat.st_mtime
+
+    # Set new times (1 hour ago)
+    new_time = time.time() - 3600
+    new_times = (new_time, new_time)
+
+    # Update times using FileUtil.utime
+    result = FileUtil.utime(dest, new_times)
+
+    # Verify times were updated
+    updated_stat = os.stat(dest)
+    assert abs(updated_stat.st_atime - new_time) < 1.0  # Allow small tolerance
+    assert abs(updated_stat.st_mtime - new_time) < 1.0  # Allow small tolerance
+
+    # Verify times are different from original
+    assert abs(updated_stat.st_atime - original_atime) > 1.0
+    assert abs(updated_stat.st_mtime - original_mtime) > 1.0
+
+
+def test_fileutil_macos_utime():
+    """Test FileUtilMacOS.utime method"""
+    import tempfile
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    src = "tests/test-images/wedding.jpg"
+    dest = os.path.join(temp_dir.name, "wedding_utime_macos.jpg")
+
+    # Copy a test file
+    FileUtil.copy(src, dest)
+
+    # Get original times
+    original_stat = os.stat(dest)
+    original_atime = original_stat.st_atime
+    original_mtime = original_stat.st_mtime
+
+    # Set new times (2 hours ago)
+    new_time = time.time() - 7200
+    new_times = (new_time, new_time)
+
+    # Update times using FileUtilMacOS.utime
+    result = FileUtilMacOS.utime(dest, new_times)
+
+    # Verify times were updated
+    updated_stat = os.stat(dest)
+    assert abs(updated_stat.st_atime - new_time) < 1.0  # Allow small tolerance
+    assert abs(updated_stat.st_mtime - new_time) < 1.0  # Allow small tolerance
+
+    # Verify times are different from original
+    assert abs(updated_stat.st_atime - original_atime) > 1.0
+    assert abs(updated_stat.st_mtime - original_mtime) > 1.0
+
+
+def test_fileutil_utime_with_pathlib():
+    """Test FileUtil.utime method with pathlib.Path"""
+    import tempfile
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    src = pathlib.Path("tests/test-images/wedding.jpg")
+    dest = pathlib.Path(temp_dir.name) / "wedding_utime_pathlib.jpg"
+
+    # Copy a test file
+    FileUtil.copy(src, dest)
+
+    # Get original times
+    original_stat = dest.stat()
+    original_atime = original_stat.st_atime
+    original_mtime = original_stat.st_mtime
+
+    # Set new times (30 minutes ago)
+    new_time = time.time() - 1800
+    new_times = (new_time, new_time)
+
+    # Update times using FileUtil.utime with pathlib.Path
+    result = FileUtil.utime(dest, new_times)
+
+    # Verify times were updated
+    updated_stat = dest.stat()
+    assert abs(updated_stat.st_atime - new_time) < 1.0  # Allow small tolerance
+    assert abs(updated_stat.st_mtime - new_time) < 1.0  # Allow small tolerance
+
+    # Verify times are different from original
+    assert abs(updated_stat.st_atime - original_atime) > 1.0
+    assert abs(updated_stat.st_mtime - original_mtime) > 1.0
