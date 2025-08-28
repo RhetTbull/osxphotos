@@ -7,6 +7,7 @@ import time
 import pytest
 
 from osxphotos.fileutil import FileUtil, FileUtilMacOS, FileUtilShUtil
+from osxphotos.platform import is_macos
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
 TEST_RAW = "tests/test-images/DSC03584.dng"
@@ -214,6 +215,7 @@ def test_fileutil_utime():
     assert abs(updated_stat.st_mtime - original_mtime) > 1.0
 
 
+@pytest.mark.skipif(not is_macos, reason="Only runs on macOS")
 def test_fileutil_macos_utime():
     """Test FileUtilMacOS.utime method"""
     import tempfile
