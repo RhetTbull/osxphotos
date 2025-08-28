@@ -331,15 +331,17 @@ class FileUtilShUtil(FileUtilMacOS):
 
         return True
 
-
-class FileUtil(FileUtilShUtil):
-    """Various file utilities"""
-
     @classmethod
     def utime(cls, path, times):
         """Set the access and modified time of path."""
         path = normalize_fs_path(path)
         os.utime(path, times)
+
+
+class FileUtil(FileUtilShUtil):
+    """Various file utilities"""
+
+    pass
 
 
 class FileUtilNoOp(FileUtil):
