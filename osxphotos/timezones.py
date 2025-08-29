@@ -192,63 +192,68 @@ if is_macos:
                 return self.timezone == other.timezone
             return False
 
+else:
 
-# else:
+    def known_timezone_names() -> list[str]:
+        """Get list of valid timezones"""
+        return sorted(list(zoneinfo.available_timezones()))
 
-#     def known_timezone_names() -> list[str]:
-#         """Get list of valid timezones"""
-#         return sorted(list(zoneinfo.available_timezones()))
+    class Timezone:
+        """Create Timezone object from either name (str) or offset from GMT (int)"""
 
-#     class Timezone:
-#         """Create Timezone object from either name (str) or offset from GMT (int)"""
+        def __init__(self, tz: Union[str, int]):
+            if isinstance(tz, str):
+                try:
+                    self.timezone = zoneinfo.ZoneInfo(tz)
+                except Exception as e:
+                    raise ValueError(f"Invalid timezone: {tz}") from e
+                self._name = tz
+            elif isinstance(tz, int):
+                # POSIX convention for Etc/GMT±X: the sign is inverted from intuitive meaning
+                # Positive offset (east of GMT) uses GMT- prefix
+                # Negative offset (west of GMT) uses GMT+ prefix
+                hours = tz // 3600
+                if hours == 0:
+                    name = "Etc/GMT"
+                elif hours > 0:
+                    name = f"Etc/GMT-{hours}"
+                else:
+                    name = f"Etc/GMT+{-hours}"
+                self.timezone = zoneinfo.ZoneInfo(name)
+                self._name = self.timezone.key
+            else:
+                raise TypeError("Timezone must be a string or an int")
 
-#         def __init__(self, tz: Union[str, int]):
-#             if isinstance(tz, str):
-#                 try:
-#                     self.timezone = zoneinfo.ZoneInfo(tz)
-#                 except Exception as e:
-#                     raise ValueError(f"Invalid timezone: {tz}") from e
-#                 self._name = tz
-#             elif isinstance(tz, int):
-#                 if tz > 0:
-#                     name = f"Etc/GMT+{tz // 3600}"
-#                 else:
-#                     name = f"Etc/GMT-{-tz // 3600}"
-#                 self.timezone = zoneinfo.ZoneInfo(name)
-#                 self._name = self.timezone.key
-#             else:
-#                 raise TypeError("Timezone must be a string or an int")
+        @property
+        def name(self) -> str:
+            return self._name
 
-#         @property
-#         def name(self) -> str:
-#             return self._name
+        @property
+        def offset(self) -> int:
+            td = self.timezone.utcoffset(datetime.datetime.now())
+            assert td
+            return int(td.total_seconds())
 
-#         @property
-#         def offset(self) -> int:
-#             td = self.timezone.utcoffset(datetime.datetime.now())
-#             assert td
-#             return int(td.total_seconds())
+        @property
+        def offset_str(self) -> str:
+            return format_offset_time(self.offset)
 
-#         @property
-#         def offset_str(self) -> str:
-#             return format_offset_time(self.offset)
+        @property
+        def abbreviation(self) -> str:
+            return self.timezone.key
 
-#         @property
-#         def abbreviation(self) -> str:
-#             return self.timezone.key
+        @property
+        def tzinfo(self) -> zoneinfo.ZoneInfo:
+            """Return zoneinfo.ZoneInfo object"""
+            return self.timezone
 
-#         @property
-#         def tzinfo(self) -> zoneinfo.ZoneInfo:
-#             """Return zoneinfo.ZoneInfo object"""
-#             return self.timezone
+        def __str__(self):
+            return self.name
 
-#         def __str__(self):
-#             return self.name
+        def __repr__(self):
+            return self.name
 
-#         def __repr__(self):
-#             return self.name
-
-#         def __eq__(self, other):
-#             if isinstance(other, Timezone):
-#                 return self.timezone == other.timezone
-#             return False
+        def __eq__(self, other):
+            if isinstance(other, Timezone):
+                return self.timezone == other.timezone
+            return False
