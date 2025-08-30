@@ -1,16 +1,17 @@
 """Test timezones.py"""
 
 import datetime
-from datetime import timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import pytest
 
 from osxphotos.platform import is_macos
-from osxphotos.timezones import convert_offset_timezone_to_etc, format_offset_time
-
-if is_macos:
-    from osxphotos.timezones import Timezone, known_timezone_names
+from osxphotos.timezones import (
+    Timezone,
+    convert_offset_timezone_to_etc,
+    format_offset_time,
+    known_timezone_names,
+)
 
 
 @pytest.mark.skipif(not is_macos, reason="macOS only")
