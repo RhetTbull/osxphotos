@@ -187,6 +187,30 @@ def test_timezoneoffset():
         ("-00:00", 0),
         ("+01:00", 3600),
         ("-01:00", -3600),
+        ("+02:00", 7200),
+        ("-02:00", -7200),
+    ]
+
+    # Test offset-based timezones
+    for utcoffset_str, expected_offset in utcoffset_data:
+        result = TimezoneOffset().convert(utcoffset_str, None, None)
+        assert isinstance(result, Timezone)
+        assert result.offset == expected_offset
+
+    # Test named timezone
+    result = TimezoneOffset().convert("America/Los_Angeles", None, None)
+    assert isinstance(result, Timezone)
+    assert result.name == "America/Los_Angeles"
+
+
+@pytest.mark.skipif(not is_macos, reason="Only runs on macOS")
+def test_timezoneoffset_macos():
+    """Test TimezoneOffset on macOS; on macOS, Timezone supports unnamed partial hour timezones"""
+    utcoffset_data = [
+        ("+00:00", 0),
+        ("-00:00", 0),
+        ("+01:00", 3600),
+        ("-01:00", -3600),
         ("+01:30", 5400),
         ("-01:30", -5400),
     ]
@@ -196,11 +220,6 @@ def test_timezoneoffset():
         result = TimezoneOffset().convert(utcoffset_str, None, None)
         assert isinstance(result, Timezone)
         assert result.offset == expected_offset
-
-    # Test named timezone - this works on both platforms but may have different internal representations
-    result = TimezoneOffset().convert("America/Los_Angeles", None, None)
-    assert isinstance(result, Timezone)
-    assert result.name == "America/Los_Angeles"
 
 
 def test_utcoffset_invalid_format():
@@ -216,23 +235,12 @@ def test_timezone_direct_construction():
     # Test that both integer and string construction work properly
     # This ensures compatibility across both platform versions
 
-    if is_macos:
-        # On macOS, the Timezone class accepts int, float, and str
-        tz_int = Timezone(3600)  # should work
-        assert tz_int.offset == 3600
+    tz_int = Timezone(3600)
+    assert tz_int.offset == 3600
 
-        tz_float = Timezone(3600.0)  # should work on macOS
-        assert tz_float.offset == 3600
-    else:
-        # On non-macOS, only int and str are supported
-        tz_int = Timezone(3600)  # should work
-        assert tz_int.offset == 3600
+    tz_float = Timezone(3600.0)
+    assert tz_float.offset == 3600
 
-        # Test that float raises TypeError on non-macOS
-        with pytest.raises(TypeError):
-            Timezone(3600.0)
-
-    # String-based construction should work on both platforms
     tz_str = Timezone("America/Los_Angeles")
     assert tz_str.name == "America/Los_Angeles"
 

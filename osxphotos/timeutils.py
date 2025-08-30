@@ -250,3 +250,57 @@ def get_valid_timezone(tz_name: str, dt: datetime.datetime) -> str:
         return timezone_for_offset(tz_name, dt)
     except ValueError as e:
         raise ValueError(f"{tz_name} does not appear to be a valid timezone.") from e
+
+
+def etc_to_gmt_offset(etc_tz: str) -> str:
+    """
+    Convert an 'Etc/GMT±H' style timezone to 'GMT±HHMM' format.
+
+    Args:
+        etc_tz: the timezone str
+
+    Returns: converted timezone str
+
+    Raises:
+        ValueError if invalid format or offset
+
+    Note:
+      - 'Etc/GMT+5'  -> 'GMT-0500'  (POSIX sign inversion)
+      - 'Etc/GMT-3'  -> 'GMT+0300'
+      - Leading zeros for NON-ZERO hours are invalid (e.g., 'Etc/GMT+05' -> ValueError)
+      - Zero is allowed with or without a sign (e.g., 'Etc/GMT+0', 'Etc/GMT-0', 'Etc/GMT+00')
+
+    Example:
+        Etc/GMT+5  -> GMT-0500
+        Etc/GMT-3  -> GMT+0300
+        Etc/GMT+0  -> GMT+0000
+    """
+    prefix = "Etc/GMT"
+    if not isinstance(etc_tz, str) or not etc_tz.startswith(prefix):
+        raise ValueError(f"Invalid Etc/GMT format: {etc_tz!r}")
+
+    offset_part = etc_tz[len(prefix) :]
+    if not offset_part:
+        raise ValueError(f"Invalid offset in timezone: {etc_tz!r}")
+
+    # Optional sign, then digits only
+    sign_char = ""
+    digits = offset_part
+    if digits[0] in "+-":
+        sign_char = digits[0]
+        digits = digits[1:]
+
+    if not digits or not digits.isdigit():
+        raise ValueError(f"Invalid offset in timezone: {etc_tz!r}")
+
+    # Reject leading zeros on non-zero values (e.g., '05', '007', etc.)
+    if len(digits) > 1 and digits[0] == "0":
+        raise ValueError(f"Leading zeros not allowed: {etc_tz}")
+
+    offset_hours = int((sign_char or "+") + digits)
+
+    # Invert the sign because Etc/GMT+5 means GMT-5
+    sign = "-" if offset_hours > 0 else "+"
+    abs_hours = abs(offset_hours)
+
+    return f"GMT{sign}{abs_hours:02d}00"

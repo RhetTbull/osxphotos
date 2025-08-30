@@ -4,6 +4,7 @@ import datetime
 import re
 import zoneinfo
 from datetime import timedelta, timezone
+from math import floor
 from typing import Union
 
 from .platform import is_macos
@@ -201,14 +202,16 @@ else:
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
 
-        def __init__(self, tz: Union[str, int]):
+        def __init__(self, tz: Union[str, int, float]):
             if isinstance(tz, str):
                 try:
                     self.timezone = zoneinfo.ZoneInfo(tz)
                 except Exception as e:
                     raise ValueError(f"Invalid timezone: {tz}") from e
                 self._name = tz
-            elif isinstance(tz, int):
+            elif isinstance(tz, (int, float)):
+                if isinstance(tz, float):
+                    tz: int = floor(tz)
                 # POSIX convention for Etc/GMT±X: the sign is inverted from intuitive meaning
                 # Positive offset (east of GMT) uses GMT- prefix
                 # Negative offset (west of GMT) uses GMT+ prefix
@@ -231,7 +234,6 @@ else:
         @property
         def offset(self) -> int:
             td = self.timezone.utcoffset(datetime.datetime.now())
-            assert td
             return int(td.total_seconds())
 
         @property
@@ -242,10 +244,20 @@ else:
         def abbreviation(self) -> str:
             return self.timezone.key
 
-        @property
-        def tzinfo(self) -> zoneinfo.ZoneInfo:
-            """Return zoneinfo.ZoneInfo object"""
-            return self.timezone
+        def offset_for_date(self, dt: datetime.datetime) -> int:
+            dtz = dt.replace(tzinfo=self.timezone)
+            return int(dtz.utcoffset().total_seconds())
+
+        def offset_str_for_date(self, dt: datetime.datetime) -> str:
+            return format_offset_time(self.offset_for_date(dt))
+
+        def tzinfo(self, dt: datetime.datetime) -> zoneinfo.ZoneInfo:
+            """Return zoneinfo.ZoneInfo object for the timezone at the given datetime"""
+            if dt.tzinfo is None:
+                aware_dt = dt.replace(tzinfo=self.timezone)
+            else:
+                aware_dt = dt.astimezone(self.timezone)
+            return aware_dt.tzinfo
 
         def __str__(self):
             return self.name

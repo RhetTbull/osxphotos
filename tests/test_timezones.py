@@ -38,6 +38,16 @@ def test_timezone_by_offset():
     assert isinstance(tz.tzinfo(datetime.datetime.now()), ZoneInfo)
 
 
+@pytest.mark.skipif(is_macos, reason="non-macOS version of Timezone")
+def test_timezone_by_offset_non_macos():
+    """Test Timezone creation on non-macOS with an offset from GMT."""
+    tz = Timezone(-18000)  # UTC -5 hours
+    assert tz.name == "Etc/GMT+5"
+    assert tz.offset == -18000
+    assert tz.offset_str == "-05:00"
+    assert isinstance(tz.tzinfo(datetime.datetime.now()), ZoneInfo)
+
+
 @pytest.mark.skipif(not is_macos, reason="macOS only")
 def test_timezone_invalid_zone():
     """Test that Timezone creation fails with an invalid zone name."""
