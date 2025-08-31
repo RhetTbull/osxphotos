@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.72.2 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.72.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -167,7 +167,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.72.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.72.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.72.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2277,7 +2277,7 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-ramdb">
 <span class="sig-name descname"><span class="pre">--ramdb</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-ramdb" title="Link to this definition">¶</a></dt>
-<dd><p>Copy export database to memory during export; will improve performance when exporting over a network or slow disk. See also --checkpoint.</p>
+<dd><p>Copy export database to memory during export; will improve performance when exporting over a network or slow disk. Note: osxphotos will automatically detect if export database is on a network volume and force use of --ramdb. See also --exportdb to specifiy an alternate location for the export database and also --checkpoint.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2908,7 +2908,7 @@ name in the same folder; see also &#39;{album_seq}&#39;.
 <p>{cr}                            A carriage return: 'r'</p>
 <p>{crlf}                          A carriage return + line feed: 'rn'</p>
 <p>{tab}                           :A tab: 't'</p>
-<p>{osxphotos_version}             The osxphotos version, e.g. '0.72.2'</p>
+<p>{osxphotos_version}             The osxphotos version, e.g. '0.72.3'</p>
 <p>{osxphotos_cmd_line}            The full command line used to run osxphotos</p>
 <p>The following substitutions may result in multiple values. Thus if specified for --directory these could
 result in multiple copies of a photo being being exported, one to each directory.  For example: --directory
@@ -7217,7 +7217,7 @@ pattern string is a superset of the python 'strftime/strptime' format with the f
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=9cd837de"></script>
+</div><script src="_static/documentation_options.js?v=38a0b3c7"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
