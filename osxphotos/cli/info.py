@@ -10,7 +10,7 @@ import click
 import yaml
 
 import osxphotos
-from osxphotos import PhotosDB, iPhotoDB
+from osxphotos import PhotosDB
 from osxphotos._constants import (
     _DB_TABLE_NAMES,
     _PHOTOS_4_VERSION,
