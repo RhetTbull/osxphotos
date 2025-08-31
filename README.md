@@ -37,13 +37,11 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 Tested on Ubuntu Linux and macOS. Many features are only available on macOS.
 
-On Linux, macOS-specific features of the CLI will not be available (these will not be shown in the help output).
-The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos
-from a Photos library on a Linux machine.
+On Linux, macOS-specific features of the CLI will not be available (these will not be shown in the help output). The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos from a Photos library on a Linux machine.
 
-Tested on macOS Sierra (10.12.6) through macOS Sonoma (14.1). Tested on both x86 and Apple silicon (M1).
+Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.6). Tested on both x86 and Apple silicon (M1).
 
-**OSXPhotos has been minimally tested with macOS Sequoia (15 beta) but new beta versions may break osxphotos support. If you encounter problems with macOS 15.0, please open an issue.**
+**OSXPhotos has been minimally tested with macOS Tahoe (macOS 26 developer beta) but new beta versions may break osxphotos support. If you encounter problems with macOS 26, please open an issue.**
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
@@ -88,7 +86,7 @@ uv self update
 * Type the following into Terminal:
 
 ```bash
-uv tool install --python 3.12 osxphotos
+uv tool install --python 3.13 osxphotos
 ```
 
 * Now you should be able to run `osxphotos` by typing: `osxphotos`
@@ -99,9 +97,9 @@ Once you've installed osxphotos with `uv`, to upgrade to the latest version:
 uv tool upgrade osxphotos
 ```
 
-If you want to try `osxphotos` without installing it, you can run `uv tool run --python 3.12 osxphotos` or `uvx --python 3.12 osxphotos`.
+If you want to try `osxphotos` without installing it, you can run `uv tool run --python 3.13 osxphotos` or `uvx --python 3.13 osxphotos`.
 
-Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.12 from [python.org](https://www.python.org/downloads/) then running uv to install osxphotos.
+Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.13 from [python.org](https://www.python.org/downloads/) then running uv to install osxphotos.
 
 ### Installation using Brew
 
@@ -133,17 +131,7 @@ If you use the [MacPorts](https://www.macports.org) package manager on a Mac:
 
 ### Installation on Linux
 
-At least one of the Linux-specific python packages normally installed on Linux may cause an error during installation with `pip` or `pipx`. If you encounter an error similar to: `pip._vendor.packaging.version.InvalidVersion: Invalid version: '6.5.0-1022-generic`, you should still be able to install osxphotos by creating and activating a virtual environment:
-
-```bash
-python3 -m venv .venv-osxphotos
-source .venv-osxphotos/bin/activate
-python3 -m pip install osxphotos
-```
-
-To use osxphotos you will need to ensure the venv is activated using `source .venv-osxphotos/bin/activate`.
-
-You may name the virtual environment anything you want; `.venv-osxphotos` is used in this example to make it clear the virtual environment is used by osxphotos and to avoid conflict with other virtual environments which, by convention, are often named `.venv` or `venv`.
+At least one of the Linux-specific python packages normally installed on Linux may cause an error during installation with `pip` or `pipx`. If you encounter an error similar to: `pip._vendor.packaging.version.InvalidVersion: Invalid version: '6.5.0-1022-generic`, you should still be able to install osxphotos using the `uv` installation instructions above.
 
 ### Installation from git repository
 
