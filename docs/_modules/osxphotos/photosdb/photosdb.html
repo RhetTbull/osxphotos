@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.72.2 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.72.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.72.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.72.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.72.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -604,14 +604,18 @@
 
         <span class="n">dbfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dbfile</span><span class="p">)</span>
         <span class="n">dbfile</span> <span class="o">=</span> <span class="n">dbfile</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">photos_5</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">dbfile</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="c1"># passed a directory, assume it&#39;s a photoslibrary</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">dbfile</span> <span class="o">/</span> <span class="s2">&quot;database&quot;</span> <span class="o">/</span> <span class="s2">&quot;photos.db&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="n">dbfile</span> <span class="o">/</span> <span class="s2">&quot;database&quot;</span> <span class="o">/</span> <span class="s2">&quot;photos.db&quot;</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">dbfile</span> <span class="o">/</span> <span class="s2">&quot;database&quot;</span> <span class="o">/</span> <span class="s2">&quot;Photos.sqlite&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="c1"># Photos 5+ file</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="n">dbfile</span> <span class="o">/</span> <span class="s2">&quot;database&quot;</span> <span class="o">/</span> <span class="s2">&quot;Photos.sqlite&quot;</span>
+                <span class="n">photos_5</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dbfile</span> <span class="o">/</span> <span class="s2">&quot;database&quot;</span> <span class="o">/</span> <span class="s2">&quot;photos.db&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_db_file</span> <span class="o">=</span> <span class="n">dbfile</span> <span class="o">/</span> <span class="s2">&quot;database&quot;</span> <span class="o">/</span> <span class="s2">&quot;photos.db&quot;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">photos_5</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_file</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Could not find Photos database file in </span><span class="si">{</span><span class="n">dbfile</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -620,13 +624,23 @@
             <span class="c1"># passed a non-existent file</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dbfile </span><span class="si">{</span><span class="n">dbfile</span><span class="si">}</span><span class="s2"> does not exist&quot;</span><span class="p">,</span> <span class="n">dbfile</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">dbfile</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;photos.db&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="n">dbfile</span>
-            <span class="c1"># check to see if Photos.sqlite exists</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="n">dbfile</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="n">dbfile</span>
+            <span class="c1"># check to see if Photos.sqlite exists in same folder</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">dbfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;Photos.sqlite&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="c1"># Photos 5+ file</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="n">dbfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;Photos.sqlite&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="n">dbfile</span>
+            <span class="c1"># assume it was a Photos.sqlite file passed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="n">dbfile</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dbfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;photos.db&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="c1"># photos.db should be in same folder as Photos.sqlite</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="n">dbfile</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;photos.db&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="n">dbfile</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -639,8 +653,6 @@
         <span class="c1"># In either case, a temporary copy will be made if the DB is locked by Photos</span>
         <span class="c1"># or photosanalysisd</span>
 
-        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing database </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
         <span class="c1"># if database is exclusively locked, make a copy of it and use the copy</span>
         <span class="c1"># Photos maintains an exclusive lock on the database file while Photos is open</span>
         <span class="c1"># photoanalysisd sometimes maintains this lock even after Photos is closed</span>
@@ -649,6 +661,7 @@
 
         <span class="c1"># _db_version is set from photos.db</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">:</span>
+            <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing database </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">sqlite_db_is_locked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">):</span>
                     <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;photos.db locked, creating temporary copy.&quot;</span><span class="p">)</span>
@@ -658,9 +671,10 @@
                 <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Error getting database version from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="s2">&quot;5000&quot;</span>  <span class="c1"># assume version 5000 and hope for the best</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="s2">&quot;6000&quot;</span>  <span class="c1"># assume Photos 5+ and hope for the best</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="s2">&quot;5000&quot;</span>  <span class="c1"># assume version 5000 and hope for the best</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="si">=}</span><span class="s2">, setting _db_version to 6000&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="s2">&quot;6000&quot;</span>
 
         <span class="c1"># _photos_version is set from Photos.sqlite which only exists for Photos 5+</span>
         <span class="n">db_ver_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span>
@@ -934,17 +948,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">db_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the database version as stored in LiGlobals table&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Photos database version&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the Photos library database PhotosDB was initialized with&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the Photos library database&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">library_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the Photos library PhotosDB was initialized with&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to the Photos library&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_library_path</span>
 
     <span class="nd">@property</span>
@@ -979,9 +993,8 @@
                 <span class="n">FileUtil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">-wal&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_path</span><span class="si">}</span><span class="s2">-wal&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">-shm&quot;</span><span class="p">):</span>
                 <span class="n">FileUtil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">-shm&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_path</span><span class="si">}</span><span class="s2">-shm&quot;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error copying</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error copying</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span>
 
@@ -3516,7 +3529,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=9cd837de"></script>
+</div><script src="../../../_static/documentation_options.js?v=38a0b3c7"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
