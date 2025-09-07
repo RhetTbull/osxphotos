@@ -328,3 +328,20 @@ def test_batch_edit_uuid_from_file(test_photo):
         test_photo = osxphotos.PhotosDB().get_photo(TEST_DATA_BATCH_EDIT["uuid"])
         assert test_photo.favorite
         assert test_photo.keywords == ["test"]
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_error_if_no_photos(photoslib):
+    """Test batch-edit command with no photos to process"""
+    # fail if user has photos selected
+    assert not photoslib.selection
+
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            batch_edit,
+            [
+                "--keyword",
+                "test",
+            ],
+        )
+        assert result.exit_code != 0

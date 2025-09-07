@@ -169,15 +169,8 @@ def batch_edit(
     or 'osxphotos docs' for more information on the osxphotos template system.
     """
 
-    # TODO: switch all internal processing to use Photo instead of PhotoInfo
-    photos_for_processing = get_photos_for_processing(uuid, uuid_from_file)
-    photosdb = osxphotos.PhotosDB()
-    photos = photosdb.photos(uuid=[p.uuid for p in photos_for_processing])
-
-    # TODO: move validation ahead of get_photos_for_processing
     try:
         validate_options(
-            photos=photos,
             title=title,
             description=description,
             keyword=keyword,
@@ -191,7 +184,16 @@ def batch_edit(
         )
     except ValueError as e:
         echo_error(f"[error] {e} Use --help for more information.")
-        sys.exit(1)
+        raise click.Abort()
+
+    photos_for_processing = get_photos_for_processing(uuid, uuid_from_file)
+    if not photos_for_processing:
+        echo_error(
+            f"[error] No photos found to process. Select photos in the Photos app or use the --uuid/--uuid-from-file options."
+        )
+        raise click.Abort()
+    photosdb = osxphotos.PhotosDB()
+    photos = photosdb.photos(uuid=[p.uuid for p in photos_for_processing])
 
     # sort photos by date so that {counter} order is correct
     photos.sort(key=lambda p: p.date)
@@ -217,7 +219,6 @@ def batch_edit(
 
 
 def validate_options(
-    photos: list[osxphotos.PhotoInfo],
     title: str | None,
     description: str | None,
     keyword: tuple[str, ...],
@@ -257,9 +258,6 @@ def validate_options(
 
     if set_favorite and clear_favorite:
         raise ValueError("Cannot specify both --set-favorite and --clear-favorite")
-
-    if not photos:
-        raise ValueError("No photos selected")
 
 
 @functools.lru_cache(maxsize=1)
