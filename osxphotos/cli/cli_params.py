@@ -12,6 +12,11 @@ import click
 from ..platform import is_macos
 from .common import OSXPHOTOS_HIDDEN, print_version
 from .param_types import *
+from .verbose import (
+    config_theme_callback,
+    config_timestamp_callback,
+    config_verbose_callback,
+)
 
 __all__ = [
     "DB_ARGUMENT",
@@ -24,6 +29,7 @@ __all__ = [
     "THEME_OPTION",
     "TIMESTAMP_OPTION",
     "VERBOSE_OPTION",
+    "VERBOSE_OPTIONS",
     "VERSION_OPTION",
 ]
 
@@ -766,6 +772,7 @@ _THEME_PARAMETER = click.Option(
     help="Specify the color theme to use for output. "
     "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
     "Defaults to 'dark' or 'light' depending on system dark mode setting.",
+    callback=config_theme_callback,
 )
 THEME_OPTION = make_click_option_decorator(_THEME_PARAMETER)
 
@@ -773,13 +780,21 @@ _VERBOSE_PARAMETER = click.Option(
     ["--verbose", "-V", "verbose_flag"],
     count=True,
     help="Print verbose output; may be specified multiple times for more verbose output.",
+    callback=config_verbose_callback,
 )
 VERBOSE_OPTION = make_click_option_decorator(_VERBOSE_PARAMETER)
 
 _TIMESTAMP_PARAMETER = click.Option(
-    ["--timestamp"], is_flag=True, help="Add time stamp to verbose output"
+    ["--timestamp"],
+    is_flag=True,
+    help="Add time stamp to verbose output",
+    callback=config_timestamp_callback,
 )
 TIMESTAMP_OPTION = make_click_option_decorator(_TIMESTAMP_PARAMETER)
+
+_VERBOSE_OPTIONS = [_TIMESTAMP_PARAMETER, _VERBOSE_PARAMETER]
+"""Verbose options; add these to the CLI to automatically get --verbose and --timestamp options that respect the current theme"""
+VERBOSE_OPTIONS = make_click_option_decorator(*_VERBOSE_OPTIONS)
 
 _VERSION_PARAMETER = click.Option(
     ["--version", "-v", "_version_flag"],
