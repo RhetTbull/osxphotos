@@ -1,4 +1,4 @@
-""" photo_query and QueryOptions class for PhotosDB.query """
+"""photo_query and QueryOptions class for PhotosDB.query"""
 
 from __future__ import annotations
 
@@ -448,7 +448,7 @@ def photo_query(
     name = normalize_unicode(options.name)
 
     if album:
-        photos = _get_photos_by_attribute(photos, "albums", album, options.ignore_case)
+        photos = _get_photos_by_folder_album_path(photos, album, options.ignore_case)
 
     if keyword:
         photos = _get_photos_by_attribute(
@@ -466,19 +466,7 @@ def photo_query(
         photos = _get_photos_by_attribute(photos, "labels", label, options.ignore_case)
 
     if folder:
-        # search for photos in an album in folder
-        # finds photos that have albums whose top level folder matches folder
-        photo_list = []
-        for f in folder:
-            photo_list.extend(
-                [
-                    p
-                    for p in photos
-                    if p.album_info
-                    and f in [a.folder_names[0] for a in p.album_info if a.folder_names]
-                ]
-            )
-        photos = photo_list
+        photos = _get_photos_by_folder_album_path(photos, folder, options.ignore_case)
 
     if title:
         # search title field for text
@@ -886,6 +874,75 @@ def photo_query(
         photos = list(seen_uuids.values())
 
     return photos
+
+
+def _get_photos_by_folder_album_path(
+    photos: list[PhotoInfo], paths: list[str], ignore_case: bool
+) -> list[PhotoInfo]:
+    """Search for photos based on full album/folder paths
+
+    Args:
+        photos: a list of PhotoInfo objects
+        paths: list of paths to search for (e.g. ["Folder/Subfolder/Album1", "Folder2/Album2"])
+        ignore_case: ignore case when searching
+
+    Returns:
+        list of PhotoInfo objects matching search criteria
+
+    Notes:
+        - Paths should be in format "Folder/Subfolder/.../Album"
+        - Forward slashes in folder/album names should be escaped as "//"
+        - Multiple paths are combined with OR logic
+    """
+    if not paths:
+        return photos
+
+    # Normalize paths for comparison
+    normalized_paths = []
+    for path in paths:
+        # Handle escaped forward slashes: replace "//" with a placeholder
+        # then split on "/" and restore the escaped slashes
+        placeholder = "\x00ESCAPED_SLASH\x00"
+        path_normalized = path.replace("//", placeholder)
+        path_parts = [
+            part.replace(placeholder, "/") for part in path_normalized.split("/")
+        ]
+
+        if ignore_case:
+            path_parts = [part.lower() for part in path_parts]
+
+        normalized_paths.append(path_parts)
+
+    matching_photos = []
+
+    for photo in photos:
+        photo_matched = False
+        # Check each album the photo is in
+        for album_info in photo.album_info:
+            # Build the full path for this album
+            # folder_names gives us the hierarchy: ["Top folder", "sub folder", ...]
+            folder_names = album_info.folder_names or []
+            album_title = album_info.title or ""
+
+            # Construct full path: folder_names + album_title
+            full_path_parts = folder_names + [album_title]
+
+            if ignore_case:
+                full_path_parts_compare = [part.lower() for part in full_path_parts]
+            else:
+                full_path_parts_compare = full_path_parts
+
+            # Check if this path matches any of our target paths
+            for target_path_parts in normalized_paths:
+                if full_path_parts_compare == target_path_parts:
+                    matching_photos.append(photo)
+                    photo_matched = True
+                    break  # Found a match for this photo
+
+            if photo_matched:
+                break  # No need to check other albums for this photo
+
+    return list(set(matching_photos))  # Remove duplicates
 
 
 def _get_photos_by_attribute(photos, attribute, values, ignore_case):
