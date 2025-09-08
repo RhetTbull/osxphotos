@@ -5357,6 +5357,75 @@ def test_query_no_folder_1_14():
         assert json_got[0]["uuid"] == "15uNd7%8RguTEgNPKHfTWw"
 
 
+def test_query_folder_path():
+    # test --folder
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--json",
+                "--mute",
+                "--folder",
+                "Folder2",
+            ],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+        assert len(json_got) == 4
+
+
+def test_query_folder_path_with_subfolder():
+    # test --folder
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--json",
+                "--mute",
+                "--folder",
+                "Folder1/SubFolder2",
+            ],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+        assert len(json_got) == 2
+
+
+def test_query_folder_path_with_invalid_subfolder():
+    # test --folder
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--json",
+                "--mute",
+                "--folder",
+                "SubFolder2",
+            ],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+        assert len(json_got) == 0
+
+
 def test_export_sidecar_keyword_template():
     runner = CliRunner()
     cwd = os.getcwd()

@@ -215,7 +215,9 @@ _QUERY_PARAMETERS_DICT = {
         default=None,
         multiple=True,
         help="Search for photos in album ALBUM. "
-        'If more than one album, treated as "OR", e.g. find photos matching any album',
+        'If more than one album, treated as "OR", e.g. find photos matching any album. '
+        "For albums in a folder, specify the entire folder path, e.g. 'My Folder/My Album'. "
+        "If album name contains a forward slash, use double slashes to escape it, e.g. 'Travel//2025' for an album named 'Travel/2025'.",
     ),
     "--folder": click.Option(
         ["--folder"],
@@ -223,8 +225,9 @@ _QUERY_PARAMETERS_DICT = {
         default=None,
         multiple=True,
         help="Search for photos in an album in folder FOLDER. "
-        'If more than one folder, treated as "OR", e.g. find photos in any FOLDER.  '
-        "Only searches top level folders (e.g. does not look at subfolders)",
+        'If more than one folder, treated as "OR", e.g. find photos in any FOLDER. '
+        "To search subfolders, specify the entire folder path, e.g. 'My Folder/Subfolder'. "
+        "If folder name contains a forward slash, use double slashes to escape it, e.g. 'My Folder//Subfolder' for a folder named 'My Folder/Subfolder'.",
     ),
     "--name": click.Option(
         ["--name"],

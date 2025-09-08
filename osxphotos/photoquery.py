@@ -466,7 +466,9 @@ def photo_query(
         photos = _get_photos_by_attribute(photos, "labels", label, options.ignore_case)
 
     if folder:
-        photos = _get_photos_by_folder_album_path(photos, folder, options.ignore_case)
+        photos = _get_photos_by_folder_album_path(
+            photos, folder, options.ignore_case, True
+        )
 
     if title:
         # search title field for text
@@ -877,7 +879,10 @@ def photo_query(
 
 
 def _get_photos_by_folder_album_path(
-    photos: list[PhotoInfo], paths: list[str], ignore_case: bool
+    photos: list[PhotoInfo],
+    paths: list[str],
+    ignore_case: bool = False,
+    folders_only: bool = False,
 ) -> list[PhotoInfo]:
     """Search for photos based on full album/folder paths
 
@@ -885,14 +890,16 @@ def _get_photos_by_folder_album_path(
         photos: a list of PhotoInfo objects
         paths: list of paths to search for (e.g. ["Folder/Subfolder/Album1", "Folder2/Album2"])
         ignore_case: ignore case when searching
+        folders_only: if True, treat paths as folder paths and find photos in any albums within those folders
 
     Returns:
         list of PhotoInfo objects matching search criteria
 
     Notes:
-        - Paths should be in format "Folder/Subfolder/.../Album"
+        - Paths should be in format "Folder/Subfolder/.../Album" (or just "Folder/Subfolder" if folders_only=True)
         - Forward slashes in folder/album names should be escaped as "//"
         - Multiple paths are combined with OR logic
+        - If folders_only=True, finds photos in any albums that are children of the specified folder path
     """
     if not paths:
         return photos
@@ -924,20 +931,41 @@ def _get_photos_by_folder_album_path(
             folder_names = album_info.folder_names or []
             album_title = album_info.title or ""
 
-            # Construct full path: folder_names + album_title
-            full_path_parts = folder_names + [album_title]
+            if folders_only:
+                # For folders_only mode, we only care about the folder hierarchy
+                # Check if the album's folder path starts with any of our target folder paths
+                if ignore_case:
+                    folder_names_compare = [part.lower() for part in folder_names]
+                else:
+                    folder_names_compare = folder_names
 
-            if ignore_case:
-                full_path_parts_compare = [part.lower() for part in full_path_parts]
+                # Check if this album's folder hierarchy matches any target folder path
+                for target_path_parts in normalized_paths:
+                    # Check if the album's folder hierarchy starts with the target folder path
+                    if (
+                        len(folder_names_compare) >= len(target_path_parts)
+                        and folder_names_compare[: len(target_path_parts)]
+                        == target_path_parts
+                    ):
+                        matching_photos.append(photo)
+                        photo_matched = True
+                        break  # Found a match for this photo
             else:
-                full_path_parts_compare = full_path_parts
+                # Original exact path matching logic
+                # Construct full path: folder_names + album_title
+                full_path_parts = folder_names + [album_title]
 
-            # Check if this path matches any of our target paths
-            for target_path_parts in normalized_paths:
-                if full_path_parts_compare == target_path_parts:
-                    matching_photos.append(photo)
-                    photo_matched = True
-                    break  # Found a match for this photo
+                if ignore_case:
+                    full_path_parts_compare = [part.lower() for part in full_path_parts]
+                else:
+                    full_path_parts_compare = full_path_parts
+
+                # Check if this path matches any of our target paths
+                for target_path_parts in normalized_paths:
+                    if full_path_parts_compare == target_path_parts:
+                        matching_photos.append(photo)
+                        photo_matched = True
+                        break  # Found a match for this photo
 
             if photo_matched:
                 break  # No need to check other albums for this photo
