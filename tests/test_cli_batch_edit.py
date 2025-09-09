@@ -423,3 +423,22 @@ def test_batch_edit_album_filter_uuid(test_photo):
         )
         assert result.exit_code == 0
         assert "Processing 1 photo" in result.output
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_year(test_photo):
+    """Test batch-edit command with --year"""
+
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            batch_edit,
+            [
+                "--title",
+                "test",
+                "--year",
+                "2019",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Processing 2 photos" in result.output

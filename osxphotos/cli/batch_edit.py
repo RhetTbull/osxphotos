@@ -19,7 +19,12 @@ from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
-from .cli_params import THEME_OPTION, VERBOSE_OPTIONS
+from .cli_params import (
+    LIMITED_QUERY_OPTION_NAMES,
+    LIMITED_QUERY_OPTIONS,
+    THEME_OPTION,
+    VERBOSE_OPTIONS,
+)
 from .param_types import PathOrStdin
 from .timewarp import unique_photos
 
@@ -109,40 +114,7 @@ from .verbose import verbose
     is_flag=True,
     help="Restores photo metadata to what it was prior to the last batch edit. May be combined with --dry-run to see what will be undone. Note: --undo cannot undo album changes at this time; photos added to an album with --add-to-album will remain in the album after --undo.",
 )
-@click.option(
-    "--album",
-    "-A",
-    metavar="ALBUM",
-    default=None,
-    multiple=True,
-    help="Search for photos in album ALBUM. "
-    'If more than one album, treated as "OR", e.g. find photos matching any album. '
-    "For albums in a folder, specify the entire folder path, e.g. 'My Folder/My Album'. "
-    "If album name contains a forward slash, use double slashes to escape it, e.g. 'Travel//2025' for an album named 'Travel/2025'.",
-)
-@click.option(
-    "--ignore-case",
-    "-i",
-    is_flag=True,
-    help="Case insensitive search for --album.",
-)
-@click.option(
-    "--uuid",
-    "-u",
-    metavar="UUID",
-    default=None,
-    multiple=True,
-    help="Apple to photo(s) with UUID(s). May be repeated to include multiple UUIDs.",
-)
-@click.option(
-    "--uuid-from-file",
-    "-U",
-    metavar="FILE",
-    default=None,
-    multiple=False,
-    help="Apply to photos with UUID(s) loaded from FILE. Format is a single UUID per line. Lines preceded with # are ignored. If FILE is '-', read UUIDs from stdin.",
-    type=PathOrStdin(exists=True),
-)
+@LIMITED_QUERY_OPTIONS
 @VERBOSE_OPTIONS
 @THEME_OPTION
 def batch_edit(
@@ -157,10 +129,6 @@ def batch_edit(
     split_folder: str | None,
     dry_run: bool,
     undo: bool,
-    album: tuple[str, ...],
-    ignore_case: bool,
-    uuid: tuple[str, ...] | None,
-    uuid_from_file: click.Path | str | None,
     **kwargs: Any,
 ):
     """
@@ -205,7 +173,7 @@ def batch_edit(
         echo_error(f"[error] {e} Use --help for more information.")
         raise click.Abort()
 
-    photos = get_photos_for_processing(album, ignore_case, uuid, uuid_from_file)
+    photos = get_photos_for_processing(**kwargs)
     if not photos:
         # need this check here to avoid photosdb.photos() from retrieving all photos
         echo_error(
@@ -506,19 +474,11 @@ def render_album_template(
     return template_values
 
 
-def get_photos_for_processing(
-    album: tuple[str, ...],
-    ignore_case: bool,
-    uuid: tuple[str, ...],
-    uuid_from_file: click.Path | str | None,
-) -> list[osxphotos.PhotoInfo]:
-    """Get photos for processing from options or selection.
+def get_photos_for_processing(**kwargs) -> list[osxphotos.PhotoInfo]:
+    """Get photos for processing from query options or selection.
 
     Args:
-        album: tuple of album names to process
-        ignore_case: ignore case when matching album names
-        uuid: tipleof UUIDs to process
-        uuid_from_file: file path or "-" for stdin to read list of UUIDs for processing
+        **kwargs: keyword arguments for query options or a subset thereof
 
     Returns: list of photos to process.
 
@@ -526,14 +486,13 @@ def get_photos_for_processing(
         click.Abort if error getting selection.
     """
     photosdb = osxphotos.PhotosDB()
-    query_options = query_options_from_kwargs(
-        uuid=uuid, uuid_from_file=uuid_from_file, album=album, ignore_case=ignore_case
-    )
+    query_options = query_options_from_kwargs(**kwargs)
 
-    if any([album, uuid, uuid_from_file]):
+    # if any of the query options are specified, then operate over query results
+    if any([kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES]):
         return photo_query(photosdb, query_options)
 
-    # If neither album nor uuid nor uuid_from_file is specified, then operate over selected photos
+    # If no query options are specified, then operate over selected photos
     photo_sel = []
     try:
         photo_sel.extend(PhotosLibrary().selection)
@@ -554,4 +513,4 @@ def get_photos_for_processing(
 
     if not photo_sel:
         return []
-    return [photosdb.photos(uuid=[p.uuid for p in photo_sel])]
+    return photosdb.photos(uuid=[p.uuid for p in photo_sel])
