@@ -34,6 +34,7 @@ def set_timezone():
 
 
 TEST_UUID = "F12384F6-CD17-4151-ACBA-AE0E3688539E"
+TEST_UUID_IN_ALBUM = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
 TEST_DATA_BATCH_EDIT = {
     "uuid": TEST_UUID,  # Pumkins1.jpg,
     "data": [
@@ -272,7 +273,7 @@ def test_batch_edit_set_clear_favorite(test_photo):
 
 
 @pytest.mark.test_batch_edit
-def test_batch_edit_album(test_photo):
+def test_batch_edit_add_to_album(test_photo):
     """Test batch-edit with --add-to-album"""
     assert test_photo.uuid == TEST_DATA_BATCH_EDIT["uuid"]
 
@@ -345,3 +346,80 @@ def test_batch_edit_error_if_no_photos(photoslib):
             ],
         )
         assert result.exit_code != 0
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_album_filter(test_photo):
+    """Test batch-edit command with --album"""
+
+    assert test_photo.uuid == TEST_DATA_BATCH_EDIT["uuid"]
+    test_photo.title = "Pumpkin Farm"
+    test_photo.description = "Pumpkin Farm"
+    test_photo.keywords = ["kids"]
+
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            batch_edit,
+            ["--title", "test", "--album", "Folder/Subfolder/test2"],
+        )
+        assert result.exit_code == 0
+        test_photo = osxphotos.PhotosDB().get_photo(TEST_DATA_BATCH_EDIT["uuid"])
+        assert test_photo.title == "test"
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_album_filter_no_match(test_photo):
+    """Test batch-edit command with --album but no matching album"""
+
+    assert test_photo.uuid == TEST_DATA_BATCH_EDIT["uuid"]
+    test_photo.title = "Pumpkin Farm"
+    test_photo.description = "Pumpkin Farm"
+    test_photo.keywords = ["kids"]
+
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            batch_edit,
+            ["--title", "test", "--album", "Folder/Subfolder/IDontExist", "--verbose"],
+        )
+        assert result.exit_code != 0
+        assert "No photos found to process" in result.stderr
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_album_filter_ignore_case(test_photo):
+    """Test batch-edit command with --album with --ignore-case"""
+
+    assert test_photo.uuid == TEST_DATA_BATCH_EDIT["uuid"]
+    test_photo.title = "Pumpkin Farm"
+    test_photo.description = "Pumpkin Farm"
+    test_photo.keywords = ["kids"]
+
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            batch_edit,
+            ["--title", "test", "--album", "FOLDER/Subfolder/Test2", "--ignore-case"],
+        )
+        assert result.exit_code == 0
+        test_photo = osxphotos.PhotosDB().get_photo(TEST_DATA_BATCH_EDIT["uuid"])
+        assert test_photo.title == "test"
+
+
+@pytest.mark.test_batch_edit
+def test_batch_edit_album_filter_uuid(test_photo):
+    """Test batch-edit command with --album and --uuid"""
+
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            batch_edit,
+            [
+                "--title",
+                "test",
+                "--album",
+                "Folder1/SubFolder2/AlbumInFolder",
+                "--uuid",
+                TEST_UUID_IN_ALBUM,
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Processing 1 photo" in result.output

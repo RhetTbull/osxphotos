@@ -13,7 +13,7 @@ import click
 
 import osxphotos
 from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL, APP_NAME
-from osxphotos.photoquery import load_uuid_from_file
+from osxphotos.photoquery import photo_query, query_options_from_kwargs
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
@@ -110,6 +110,23 @@ from .verbose import verbose
     help="Restores photo metadata to what it was prior to the last batch edit. May be combined with --dry-run to see what will be undone. Note: --undo cannot undo album changes at this time; photos added to an album with --add-to-album will remain in the album after --undo.",
 )
 @click.option(
+    "--album",
+    "-A",
+    metavar="ALBUM",
+    default=None,
+    multiple=True,
+    help="Search for photos in album ALBUM. "
+    'If more than one album, treated as "OR", e.g. find photos matching any album. '
+    "For albums in a folder, specify the entire folder path, e.g. 'My Folder/My Album'. "
+    "If album name contains a forward slash, use double slashes to escape it, e.g. 'Travel//2025' for an album named 'Travel/2025'.",
+)
+@click.option(
+    "--ignore-case",
+    "-i",
+    is_flag=True,
+    help="Case insensitive search for --album.",
+)
+@click.option(
     "--uuid",
     "-u",
     metavar="UUID",
@@ -140,6 +157,8 @@ def batch_edit(
     split_folder: str | None,
     dry_run: bool,
     undo: bool,
+    album: tuple[str, ...],
+    ignore_case: bool,
     uuid: tuple[str, ...] | None,
     uuid_from_file: click.Path | str | None,
     **kwargs: Any,
@@ -186,14 +205,13 @@ def batch_edit(
         echo_error(f"[error] {e} Use --help for more information.")
         raise click.Abort()
 
-    photos_for_processing = get_photos_for_processing(uuid, uuid_from_file)
-    if not photos_for_processing:
+    photos = get_photos_for_processing(album, ignore_case, uuid, uuid_from_file)
+    if not photos:
+        # need this check here to avoid photosdb.photos() from retrieving all photos
         echo_error(
-            f"[error] No photos found to process. Select photos in the Photos app or use the --uuid/--uuid-from-file options."
+            f"[error] No photos found to process. Select photos in the Photos app or use the --album/--uuid/--uuid-from-file options."
         )
         raise click.Abort()
-    photosdb = osxphotos.PhotosDB()
-    photos = photosdb.photos(uuid=[p.uuid for p in photos_for_processing])
 
     # sort photos by date so that {counter} order is correct
     photos.sort(key=lambda p: p.date)
@@ -489,12 +507,17 @@ def render_album_template(
 
 
 def get_photos_for_processing(
-    uuid: tuple[str, ...] | None, uuid_from_file: click.Path | str | None
-) -> list[Photo]:
+    album: tuple[str, ...],
+    ignore_case: bool,
+    uuid: tuple[str, ...],
+    uuid_from_file: click.Path | str | None,
+) -> list[osxphotos.PhotoInfo]:
     """Get photos for processing from options or selection.
 
     Args:
-        uuid: list of UUIDs to process
+        album: tuple of album names to process
+        ignore_case: ignore case when matching album names
+        uuid: tipleof UUIDs to process
         uuid_from_file: file path or "-" for stdin to read list of UUIDs for processing
 
     Returns: list of photos to process.
@@ -502,35 +525,33 @@ def get_photos_for_processing(
     Raises:
         click.Abort if error getting selection.
     """
-    photos = []
-    if uuid:
-        photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
-    if uuid_from_file:
-        photos.extend(
-            list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file)))
-        )
+    photosdb = osxphotos.PhotosDB()
+    query_options = query_options_from_kwargs(
+        uuid=uuid, uuid_from_file=uuid_from_file, album=album, ignore_case=ignore_case
+    )
 
-    # If neither uuid nor uuid_from_file is specified, then operate over selected photos
-    if not (uuid or uuid_from_file):
-        try:
-            photos.extend(PhotosLibrary().selection)
-        except Exception as e:
-            # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
-            if "(-1728)" in str(e):
-                echo_error(
-                    "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
-                    "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
-                    f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
-                    "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
-                )
-            else:
-                echo_error(
-                    f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
-                )
-            raise click.Abort()
+    if any([album, uuid, uuid_from_file]):
+        return photo_query(photosdb, query_options)
 
-    if not photos:
-        echo_error("[warning]No photos selected[/]")
+    # If neither album nor uuid nor uuid_from_file is specified, then operate over selected photos
+    photo_sel = []
+    try:
+        photo_sel.extend(PhotosLibrary().selection)
+    except Exception as e:
+        # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
+        if "(-1728)" in str(e):
+            echo_error(
+                "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
+                "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
+                f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
+                "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
+            )
+        else:
+            echo_error(
+                f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
+            )
+        raise click.Abort()
+
+    if not photo_sel:
         return []
-
-    return unique_photos(photos)
+    return [photosdb.photos(uuid=[p.uuid for p in photo_sel])]

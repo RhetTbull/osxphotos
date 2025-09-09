@@ -448,7 +448,7 @@ def photo_query(
     name = normalize_unicode(options.name)
 
     if album:
-        photos = _get_photos_by_folder_album_path(photos, album, options.ignore_case)
+        photos = filter_photos_by_folder_album_path(photos, album, options.ignore_case)
 
     if keyword:
         photos = _get_photos_by_attribute(
@@ -466,7 +466,7 @@ def photo_query(
         photos = _get_photos_by_attribute(photos, "labels", label, options.ignore_case)
 
     if folder:
-        photos = _get_photos_by_folder_album_path(
+        photos = filter_photos_by_folder_album_path(
             photos, folder, options.ignore_case, True
         )
 
@@ -878,13 +878,13 @@ def photo_query(
     return photos
 
 
-def _get_photos_by_folder_album_path(
+def filter_photos_by_folder_album_path(
     photos: list[PhotoInfo],
     paths: list[str],
     ignore_case: bool = False,
     folders_only: bool = False,
 ) -> list[PhotoInfo]:
-    """Search for photos based on full album/folder paths
+    """Filter photos based on full album/folder paths
 
     Args:
         photos: a list of PhotoInfo objects
