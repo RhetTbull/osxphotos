@@ -132,9 +132,9 @@ class PhotosDB:
             In that case, set dbfile to the path to the database and set library_path to the path to the library root.
             For example:
 
-            ```python
+            '''python
             photosdb = PhotosDB(dbfile="/path/to/database/Photos.sqlite", library_path="/path/to/Photos Library.photoslibrary")
-            ```
+            '''
 
             If library_path is not provided, PhotosDB determine the library path from the database path. In most cases you should
             not provide the library_path argument.
@@ -155,9 +155,7 @@ class PhotosDB:
                 f"{v}.{m}" for (v, m) in _TESTED_OS_VERSIONS if m is not None
             )
             logging.warning(
-                f"WARNING: This module has only been tested with macOS versions "
-                f"[{tested_versions}]: "
-                f"you have {system}, OS version: {ver}.{major}"
+                f"WARNING: This module has only been tested with macOS versions [{tested_versions}]: you have {system}, OS version: {ver}.{major}"
             )
 
         if verbose is None:
@@ -325,6 +323,32 @@ class PhotosDB:
         # key is UUID and value is dict of syndication info
         self._db_syndication_uuid = {}
 
+        self._find_database(dbfile, library_path)
+
+        if int(self._db_version) <= int(_PHOTOS_4_VERSION):
+            self._process_database4()
+        else:
+            self._process_database5()
+
+        self._db_connection, _ = self.get_db_connection()
+
+        self._source = "Photos"
+
+    def _find_database(self, dbfile: str | None, library_path: str | None):
+        """Find the right Photos database file and initialize internal variables for"""
+
+        # This function is overly complex and a bit of a mess due to the way osxphotos evolved
+        # osxphotos was originally designed to work with only Photos legacy (<Photos 5) databases so all data was in photos.db
+        # Photos 5 introduced a new database format (Photos.sqlite) and a new library structure
+        # so this method attempts to find the right database file and also deal with situations where
+        # there is an exclusive lock on the database file by creating a read-only copy if necessary
+        # I apologize in advance if you need to work on this code!
+
+        # the database could be a library path ("/Users/user/Pictures/Photos Library.photoslibrary")
+        # or a pre-Photos 5 database file (photos.db) or a post-Photos 5 database file (Photos.sqlite)
+        # check for the right version and determine what version of Photos the database is from
+
+        verbose = self._verbose
         logger.debug(f"dbfile = {dbfile}")
 
         if dbfile is None:
@@ -333,17 +357,48 @@ class PhotosDB:
                 # get_last_library_path must have failed to find library
                 raise FileNotFoundError("Could not get path to photo library database")
 
-        if os.path.isdir(dbfile):
+        dbfile: pathlib.Path = pathlib.Path(dbfile)
+        dbfile = dbfile.resolve().absolute()
+        self._dbfile, self._dbfile_actual = None, None
+        photos_5 = False
+        if dbfile.is_dir():
             # passed a directory, assume it's a photoslibrary
-            dbfile = os.path.join(dbfile, "database/photos.db")
-
-        # if get here, should have a dbfile path; make sure it exists
-        if not _check_file_exists(dbfile):
+            if (dbfile / "database" / "Photos.sqlite").exists():
+                # Photos 5+ file
+                self._dbfile_actual = dbfile / "database" / "Photos.sqlite"
+                photos_5 = True
+            if (dbfile / "database" / "photos.db").exists():
+                self._db_file = dbfile / "database" / "photos.db"
+                if not photos_5:
+                    self._dbfile_actual = self._db_file
+            if not self._dbfile_actual:
+                raise FileNotFoundError(
+                    f"Could not find Photos database file in {dbfile}"
+                )
+        elif not dbfile.exists():
+            # passed a non-existent file
             raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
+        elif dbfile.name.lower() == "photos.db":
+            self._dbfile = dbfile
+            self._dbfile_actual = dbfile
+            # check to see if Photos.sqlite exists in same folder
+            if (dbfile.parent / "Photos.sqlite").exists():
+                # Photos 5+ file
+                self._dbfile_actual = dbfile.parent / "Photos.sqlite"
+        else:
+            # assume it was a Photos.sqlite file passed
+            self._dbfile_actual = dbfile
+            if (dbfile.parent / "photos.db").exists():
+                # photos.db should be in same folder as Photos.sqlite
+                self._dbfile = dbfile.parent / "photos.db"
+            else:
+                self._dbfile = dbfile
 
-        logger.debug(f"dbfile = {dbfile}")
+        if not self._dbfile:
+            self._dbfile = self._dbfile_actual
 
-        # init database names
+        logger.debug(f"{self._dbfile=} {self._dbfile_actual=}")
+
         # _tmp_db is the file that will processed by _process_database4/5
         # assume _tmp_db will be _dbfile or _dbfile_actual based on Photos version
         # unless DB is locked, in which case _tmp_db will point to a temporary copy
@@ -352,20 +407,30 @@ class PhotosDB:
         # photos data is in Photos.sqlite
         # In either case, a temporary copy will be made if the DB is locked by Photos
         # or photosanalysisd
-        self._dbfile = self._dbfile_actual = self._tmp_db = os.path.abspath(dbfile)
-
-        verbose(f"Processing database {self._filepath(self._dbfile)}")
 
         # if database is exclusively locked, make a copy of it and use the copy
         # Photos maintains an exclusive lock on the database file while Photos is open
         # photoanalysisd sometimes maintains this lock even after Photos is closed
         # In those cases, make a temp copy of the file for sqlite3 to read
-        if sqlite_db_is_locked(self._dbfile):
-            verbose("Database locked, creating temporary copy.")
-            self._tmp_db = self._copy_db_file(self._dbfile)
+        self._tmp_db = self._dbfile
 
         # _db_version is set from photos.db
-        self._db_version = get_db_version(self._tmp_db)
+        if self._dbfile:
+            verbose(f"Processing database {self._filepath(self._dbfile)}")
+            try:
+                if sqlite_db_is_locked(self._dbfile):
+                    verbose("photos.db locked, creating temporary copy.")
+                    self._tmp_db = self._copy_db_file(self._dbfile)
+                self._db_version = get_db_version(self._tmp_db)
+            except Exception as e:
+                logging.warning(
+                    f"Error getting database version from {self._dbfile}: {e}"
+                )
+                self._db_version = "6000"  # assume Photos 5+ and hope for the best
+        else:
+            logger.debug(f"{self._dbfile=}, setting _db_version to 6000")
+            self._db_version = "6000"
+
         # _photos_version is set from Photos.sqlite which only exists for Photos 5+
         db_ver_int = int(self._db_version)
         if db_ver_int < 3000:
@@ -380,16 +445,13 @@ class PhotosDB:
 
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) > int(_PHOTOS_4_VERSION):
-            dbpath = pathlib.Path(self._dbfile).parent
-            dbfile = dbpath / "Photos.sqlite"
-            if not _check_file_exists(dbfile):
-                raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
-            self._dbfile_actual = self._tmp_db = dbfile
             verbose(f"Processing database {self._filepath(self._dbfile_actual)}")
             # if database is exclusively locked, make a copy of it and use the copy
             if sqlite_db_is_locked(self._dbfile_actual):
                 verbose("Database locked, creating temporary copy.")
                 self._tmp_db = self._copy_db_file(self._dbfile_actual)
+            else:
+                self._tmp_db = self._dbfile_actual
             # set the photos version to actual value based on Photos.sqlite
             self._photos_ver = get_photos_version_from_model(self._tmp_db)
             self._model_ver = get_model_version(self._tmp_db)
@@ -401,30 +463,27 @@ class PhotosDB:
         if not library_path:
             # library_path not provided as argument (this is the normal case)
             # determine library path relative to the database path
-            library_path = os.path.dirname(os.path.abspath(dbfile))
-            (library_path, _) = os.path.split(library_path)  # drop /database from path
+            library_path = self._dbfile_actual.parent.parent
+        else:
+            library_path = pathlib.Path(library_path)
         self._library_path = library_path
         if int(self._db_version) <= int(_PHOTOS_4_VERSION):
-            masters_path = os.path.join(library_path, "Masters")
-            self._masters_path = masters_path
+            self._masters_path = self._library_path / "Masters"
         else:
-            masters_path = os.path.join(library_path, "originals")
-            self._masters_path = masters_path
+            self._masters_path = self._library_path / "originals"
 
-        logger.debug(f"library = {library_path}, masters = {masters_path}")
+        # legacy code expects all paths to be str so convert to str
+        self._dbfile = str(self._dbfile)
+        self._dbfile_actual = str(self._dbfile_actual)
+        self._tmp_db = str(self._tmp_db)
+        self._library_path = str(self._library_path)
+        self._masters_path = str(self._masters_path)
 
-        if int(self._db_version) <= int(_PHOTOS_4_VERSION):
-            self._process_database4()
-        else:
-            self._process_database5()
-
-        self._db_connection, _ = self.get_db_connection()
-
-        self._source = "Photos"
+        logger.debug(f"{self._library_path=},{self._masters_path=}")
 
     @property
     def keywords_as_dict(self):
-        """Teturn keywords as dict of keyword: count in reverse sorted order (descending)"""
+        """Return keywords as dict of keyword: count in reverse sorted order (descending)"""
         keywords = {
             k: len(self._dbkeywords_keyword[k]) for k in self._dbkeywords_keyword.keys()
         }
@@ -644,17 +703,17 @@ class PhotosDB:
 
     @property
     def db_version(self):
-        """Return the database version as stored in LiGlobals table"""
+        """Return the Photos database version"""
         return self._db_version
 
     @property
     def db_path(self):
-        """Returns path to the Photos library database PhotosDB was initialized with"""
-        return os.path.abspath(self._dbfile)
+        """Returns path to the Photos library database"""
+        return os.path.abspath(self._dbfile_actual)
 
     @property
     def library_path(self):
-        """Returns path to the Photos library PhotosDB was initialized with"""
+        """Returns path to the Photos library"""
         return self._library_path
 
     @property
@@ -686,9 +745,8 @@ class PhotosDB:
                 FileUtil.copy(f"{fname}-wal", f"{dest_path}-wal")
             if os.path.exists(f"{fname}-shm"):
                 FileUtil.copy(f"{fname}-shm", f"{dest_path}-shm")
-        except:
-            print(f"Error copying{fname} to {dest_path}", file=sys.stderr)
-            raise Exception
+        except Exception as e:
+            raise IOError(f"Error copying{fname} to {dest_path}") from e
 
         logger.debug(dest_path)
 
@@ -1374,8 +1432,7 @@ class PhotosDB:
                             # photo
                             if "edit_resource_id_photo" in self._dbphotos[uuid]:
                                 logger.debug(
-                                    f"WARNING: found more than one edit_resource_id_photo for "
-                                    f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
+                                    f"WARNING: found more than one edit_resource_id_photo for UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
                                 )
                             self._dbphotos[uuid]["edit_resource_id_photo"] = row[2]
                             self._dbphotos[uuid]["UTI_edited_photo"] = row[4]
@@ -1383,8 +1440,7 @@ class PhotosDB:
                             # video
                             if "edit_resource_id_video" in self._dbphotos[uuid]:
                                 logger.debug(
-                                    f"WARNING: found more than one edit_resource_id_video for "
-                                    f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
+                                    f"WARNING: found more than one edit_resource_id_video for UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
                                 )
                             self._dbphotos[uuid]["edit_resource_id_video"] = row[2]
                             self._dbphotos[uuid]["UTI_edited_video"] = row[4]
@@ -1495,9 +1551,7 @@ class PhotosDB:
         verbose("Processing location data.")
         # get the country codes
         country_codes = c.execute(
-            "SELECT modelID, countryCode "
-            "FROM RKPlace "
-            "WHERE countryCode IS NOT NULL "
+            "SELECT modelID, countryCode FROM RKPlace WHERE countryCode IS NOT NULL "
         ).fetchall()
         countries = {code[0]: code[1] for code in country_codes}
         self._db_countries = countries
@@ -1518,9 +1572,7 @@ class PhotosDB:
         for uuid in self._dbphotos:
             # get placeId which is then used to lookup defaultName
             place_ids_query = c.execute(
-                "SELECT placeId "
-                "FROM RKPlaceForVersion "
-                f"WHERE versionId = '{self._dbphotos[uuid]['modelID']}'"
+                f"SELECT placeId FROM RKPlaceForVersion WHERE versionId = '{self._dbphotos[uuid]['modelID']}'"
             )
 
             place_ids = [id[0] for id in place_ids_query.fetchall()]

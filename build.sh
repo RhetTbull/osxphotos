@@ -7,6 +7,10 @@ echo "Cleaning old build and dist directories"
 rm -rf dist
 rm -rf build
 
+echo "Clear Sphinx caches"
+# find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+rm -rf docsrc/_build
+
 echo "Updated phototemplate.md"
 cog -d -o osxphotos/phototemplate.md osxphotos/phototemplate.cog.md
 
@@ -41,7 +45,7 @@ rm docsrc/source/API_README.md
 
 # build docs
 echo "Building docs"
-(cd docsrc && make github && make pdf)
+(cd docsrc && make clean && make github)
 
 # copy docs to osxphotos/docs/docs.zip for use with `osxphotos docs` command
 echo "Zipping docs to osxphotos/docs/docs.zip"

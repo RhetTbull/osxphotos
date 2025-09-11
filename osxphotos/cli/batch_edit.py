@@ -12,24 +12,36 @@ from typing import Any
 import click
 
 import osxphotos
-from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
+from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL, APP_NAME
+from osxphotos.photoquery import photo_query, query_options_from_kwargs
 from osxphotos.phototemplate import RenderOptions
 from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
+from .cli_params import (
+    LIMITED_QUERY_OPTION_NAMES,
+    LIMITED_QUERY_OPTIONS,
+    THEME_OPTION,
+    VERBOSE_OPTIONS,
+)
+from .param_types import PathOrStdin
+from .timewarp import unique_photos
+
 assert_macos()
 
 import photoscript
+from photoscript import Photo, PhotosLibrary
 
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 
-from .cli_commands import echo, echo_error, selection_command, verbose
+from .cli_commands import echo, echo_error
 from .kvstore import kvstore
 from .param_types import Latitude, Longitude, TemplateString
+from .verbose import verbose
 
 
-@selection_command(name="batch-edit")
+@click.command()
 @click.option(
     "--title",
     "-t",
@@ -39,10 +51,11 @@ from .param_types import Latitude, Longitude, TemplateString
 )
 @click.option(
     "--description",
+    "--caption",
     "-d",
     metavar="DESCRIPTION_TEMPLATE",
     type=TemplateString(),
-    help="Set description of photo.",
+    help="Set description / caption of photo.",
 )
 @click.option(
     "--keyword",
@@ -56,33 +69,39 @@ from .param_types import Latitude, Longitude, TemplateString
     "--replace-keywords",
     "-K",
     is_flag=True,
-    help="When specified with --keyword, replace existing keywords. "
-    "Default is to add to existing keywords.",
+    help="When specified with --keyword, replace existing keywords. Default is to add to existing keywords.",
 )
 @click.option(
     "--location",
     "-l",
     metavar="LATITUDE LONGITUDE",
     type=click.Tuple([Latitude(), Longitude()]),
-    help="Set location of photo. "
-    "Must be specified as a pair of numbers with latitude in the range -90 to 90 and longitude in the range -180 to 180.",
+    help="Set location of photo. Must be specified as a pair of numbers with latitude in the range -90 to 90 and longitude in the range -180 to 180.",
 )
 @click.option(
-    "--album",
+    "--set-favorite",
+    "-F",
+    is_flag=True,
+    help="Set favorite flag for photo. If photo is already a favorite, --set-favorite has no effect. See also, --clear-favorite.",
+)
+@click.option(
+    "--clear-favorite",
+    "-c",
+    is_flag=True,
+    help="Clear favorite flag for photo. If photo is not marked as favorite, --clear-favorite has no effect. See also, --set-favorite.",
+)
+@click.option(
+    "--add-to-album",
     "-a",
     metavar="ALBUM_TEMPLATE",
     multiple=True,
     type=TemplateString(),
-    help="Add photo to album ALBUM_TEMPLATE. "
-    "ALBUM_TEMPLATE is an osxphotos template string. "
-    "Photos may be added to more than one album by repeating --album. "
-    "See also, --split-folder. "
-    "See Template System in help (`osxphotos docs`) for additional information.",
+    help="Add photo to album ALBUM_TEMPLATE. ALBUM_TEMPLATE is an osxphotos template string. Photos may be added to more than one album by repeating --add-to-album. See also, --split-folder. See Template System in help ('osxphotos docs') for additional information.",
 )
 @click.option(
     "--split-folder",
     "-f",
-    help="When used with --album, automatically create hierarchal folders for albums "
+    help="When used with --add-to-album, automatically create hierarchal folders for albums "
     "as needed by splitting album name into folders and album. "
     "You must specify the character used to split folders and albums. "
     "For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
@@ -91,21 +110,22 @@ from .param_types import Latitude, Longitude, TemplateString
 @click.option("--dry-run", is_flag=True, help="Don't actually change anything.")
 @click.option(
     "--undo",
-    "-u",
+    "-X",
     is_flag=True,
-    help="Restores photo metadata to what it was prior to the last batch edit. "
-    "May be combined with --dry-run to see what will be undone. "
-    "Note: --undo cannot undo album changes at this time; "
-    "photos added to an album with --album will remain in the album after --undo.",
+    help="Restores photo metadata to what it was prior to the last batch edit. May be combined with --dry-run to see what will be undone. Note: --undo cannot undo album changes at this time; photos added to an album with --add-to-album will remain in the album after --undo.",
 )
+@LIMITED_QUERY_OPTIONS
+@VERBOSE_OPTIONS
+@THEME_OPTION
 def batch_edit(
-    photos: list[osxphotos.PhotoInfo],
     title: str | None,
     description: str | None,
     keyword: tuple[str, ...],
     replace_keywords: bool,
     location: tuple[float, float],
-    album: tuple[str, ...],
+    set_favorite: bool,
+    clear_favorite: bool,
+    add_to_album: tuple[str, ...],
     split_folder: str | None,
     dry_run: bool,
     undo: bool,
@@ -116,6 +136,7 @@ def batch_edit(
     Operates on currently selected photos.
 
     Select one or more photos in Photos then run this command to edit the metadata.
+    Alternatively, you can specify photos by their UUIDs using --uuid or from a file of UUIDs using --uuid-from-file.
 
     For example:
 
@@ -123,33 +144,42 @@ def batch_edit(
         osxphotos batch-edit \\
         --verbose \\
         --title "California vacation 2023 {created.year}-{created.dd}-{created.mm} {counter:03d}" \\
-        --description "{place.name}" \\ 
+        --description "{place.name}" \\
         --keyword "Family" --keyword "Travel"
 
     This will set the title to "California vacation 2023 2023-02-20 001", and so on,
-    the description to the reverse geolocation place name, 
+    the description to the reverse geolocation place name,
     and add the keywords "Family" and "Travel".
 
     --title, --description, and --keyword may be any valid template string.
-    See https://rhettbull.github.io/osxphotos/template_help.html 
-    or `osxphotos docs` for more information on the osxphotos template system.
+    See https://rhettbull.github.io/osxphotos/template_help.html
+    or 'osxphotos docs' for more information on the osxphotos template system.
     """
 
     try:
         validate_options(
-            photos=photos,
             title=title,
             description=description,
             keyword=keyword,
             replace_keywords=replace_keywords,
             location=location,
-            album=album,
+            set_favorite=set_favorite,
+            clear_favorite=clear_favorite,
+            add_to_album=add_to_album,
             split_folder=split_folder,
             undo=undo,
         )
     except ValueError as e:
         echo_error(f"[error] {e} Use --help for more information.")
-        sys.exit(1)
+        raise click.Abort()
+
+    photos = get_photos_for_processing(**kwargs)
+    if not photos:
+        # need this check here to avoid photosdb.photos() from retrieving all photos
+        echo_error(
+            f"[error] No photos found to process. Select photos in the Photos app or use the --album/--uuid/--uuid-from-file options."
+        )
+        raise click.Abort()
 
     # sort photos by date so that {counter} order is correct
     photos.sort(key=lambda p: p.date)
@@ -157,7 +187,7 @@ def batch_edit(
     undo_store = kvstore("batch_edit")
     verbose(f"Undo database stored in [filepath]{undo_store.path}", level=2)
 
-    echo(f"Processing [num]{len(photos)}[/] photos...")
+    echo(f"Processing [num]{len(photos)}[/] photo{'s' if len(photos) != 1 else ''}...")
     for photo in photos:
         verbose(
             f"Processing [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
@@ -170,38 +200,50 @@ def batch_edit(
         set_photo_description_from_template(photo, description, dry_run)
         set_photo_keywords_from_template(photo, keyword, replace_keywords, dry_run)
         set_photo_location(photo, location, dry_run)
-        set_photo_albums_from_template(photo, album, split_folder, dry_run)
+        set_photo_albums_from_template(photo, add_to_album, split_folder, dry_run)
+        set_photo_favorite(photo, set_favorite, clear_favorite, dry_run)
 
 
 def validate_options(
-    photos: list[osxphotos.PhotoInfo],
     title: str | None,
     description: str | None,
     keyword: tuple[str, ...],
     replace_keywords: bool,
     location: tuple[float, float],
-    album: tuple[str, ...],
+    set_favorite: bool,
+    clear_favorite: bool,
+    add_to_album: tuple[str, ...],
     split_folder: str | None,
     undo: bool,
 ):
     """Validate options; raises ValueError if options are invalid"""
-    if not any([title, description, keyword, location, album, undo]):
+    if not any(
+        [
+            title,
+            description,
+            keyword,
+            location,
+            add_to_album,
+            set_favorite,
+            clear_favorite,
+            undo,
+        ]
+    ):
         raise ValueError(
-            "Must specify at least one of: "
-            " --title, --description, --keyword, --location, --album, --undo."
+            "Must specify at least one of:  --title, --description, --keyword, --location, --add-to-album, --set-favorite, --clear-favorite, --undo."
         )
 
-    if undo and any([title, description, keyword, location, album]):
+    if undo and any([title, description, keyword, location, add_to_album]):
         raise ValueError("Cannot specify --undo and any options other than --dry-run.")
 
     if replace_keywords and not keyword:
         raise ValueError("Cannot specify --replace-keywords without --keyword.")
 
-    if split_folder and not album:
-        raise ValueError("Cannot specify --split-folder without --album.")
+    if split_folder and not add_to_album:
+        raise ValueError("Cannot specify --split-folder without --add-to-album.")
 
-    if not photos:
-        raise ValueError("No photos selected")
+    if set_favorite and clear_favorite:
+        raise ValueError("Cannot specify both --set-favorite and --clear-favorite")
 
 
 @functools.lru_cache(maxsize=1)
@@ -373,6 +415,23 @@ def set_photo_location(
         ps_photo.location = (latitude, longitude)
 
 
+def set_photo_favorite(
+    photo: osxphotos.PhotoInfo, set_favorite: bool, clear_favorite: bool, dry_run: bool
+):
+    """Set or clear photo favorite status"""
+    if set_favorite:
+        verbose(f"Setting [i]favorite[/] flag")
+    if clear_favorite:
+        verbose(f"Clearing [i]favorite[/] flag")
+
+    if not dry_run:
+        ps_photo = photoscript_photo(photo)
+        if set_favorite and not ps_photo.favorite:
+            ps_photo.favorite = True
+        if clear_favorite and ps_photo.favorite:
+            ps_photo.favorite = False
+
+
 def set_photo_albums_from_template(
     photo: osxphotos.PhotoInfo,
     album: tuple[str, ...],
@@ -413,3 +472,45 @@ def render_album_template(
     template_values = [v.replace(_OSXPHOTOS_NONE_SENTINEL, "") for v in template_values]
     template_values = [v for v in template_values if v]
     return template_values
+
+
+def get_photos_for_processing(**kwargs) -> list[osxphotos.PhotoInfo]:
+    """Get photos for processing from query options or selection.
+
+    Args:
+        **kwargs: keyword arguments for query options or a subset thereof
+
+    Returns: list of photos to process.
+
+    Raises:
+        click.Abort if error getting selection.
+    """
+    photosdb = osxphotos.PhotosDB()
+    query_options = query_options_from_kwargs(**kwargs)
+
+    # if any of the query options are specified, then operate over query results
+    if any([kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES]):
+        return photo_query(photosdb, query_options)
+
+    # If no query options are specified, then operate over selected photos
+    photo_sel = []
+    try:
+        photo_sel.extend(PhotosLibrary().selection)
+    except Exception as e:
+        # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
+        if "(-1728)" in str(e):
+            echo_error(
+                "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
+                "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
+                f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
+                "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
+            )
+        else:
+            echo_error(
+                f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
+            )
+        raise click.Abort()
+
+    if not photo_sel:
+        return []
+    return photosdb.photos(uuid=[p.uuid for p in photo_sel])

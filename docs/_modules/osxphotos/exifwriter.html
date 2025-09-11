@@ -4,9 +4,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>osxphotos.exifwriter - osxphotos 0.68.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>osxphotos.exifwriter - osxphotos 0.72.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.68.6 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.72.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.68.6 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -243,27 +243,27 @@
           <h1>Source code for osxphotos.exifwriter</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Write metadata to files using exiftool&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">import</span> <span class="nn">dataclasses</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
-<span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="n">_MAX_IPTC_KEYWORD_LEN</span><span class="p">,</span> <span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span> <span class="n">_UNKNOWN_PERSON</span>
-<span class="kn">from</span> <span class="nn">.datetime_utils</span> <span class="kn">import</span> <span class="n">datetime_has_tz</span><span class="p">,</span> <span class="n">datetime_tz_to_utc</span>
-<span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">ExifToolCaching</span>
-<span class="kn">from</span> <span class="nn">.exportoptions</span> <span class="kn">import</span> <span class="n">ExportOptions</span>
-<span class="kn">from</span> <span class="nn">.phototemplate</span> <span class="kn">import</span> <span class="n">RenderOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">_MAX_IPTC_KEYWORD_LEN</span><span class="p">,</span> <span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span> <span class="n">_UNKNOWN_PERSON</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.datetime_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime_has_tz</span><span class="p">,</span> <span class="n">datetime_tz_to_utc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exiftool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">ExifToolCaching</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exportoptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.phototemplate</span><span class="w"> </span><span class="kn">import</span> <span class="n">RenderOptions</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.photoinfo</span> <span class="kn">import</span> <span class="n">PhotoInfo</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.photoinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotoInfo</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
@@ -276,7 +276,7 @@
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ExifOptions</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExifOptions</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Options class for writing metadata to files using exiftool</span>
 
 <span class="sd">    all keywords location faces date title description favorite</span>
@@ -323,11 +323,11 @@
     <span class="n">use_albums_as_keywords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">use_persons_as_keywords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">exif_options_from_options</span><span class="p">(</span><span class="n">export_options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExifOptions</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">exif_options_from_options</span><span class="p">(</span><span class="n">export_options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExifOptions</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Given an ExportOptions, which is a superset of ExifOptions, return an ExifOptions object&quot;&quot;&quot;</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">ExifOptions</span><span class="p">)</span>
     <span class="n">exif_options</span> <span class="o">=</span> <span class="n">ExifOptions</span><span class="p">()</span>
@@ -337,7 +337,7 @@
     <span class="k">return</span> <span class="n">exif_options</span>
 
 
-<span class="k">def</span> <span class="nf">exif_options_from_locals</span><span class="p">(</span><span class="n">locals_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ExifOptions</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">exif_options_from_locals</span><span class="p">(</span><span class="n">locals_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ExifOptions</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ExifOptions object from locals() dict&quot;&quot;&quot;</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">ExifOptions</span><span class="p">)</span>
     <span class="n">exif_options</span> <span class="o">=</span> <span class="n">ExifOptions</span><span class="p">()</span>
@@ -347,18 +347,18 @@
     <span class="k">return</span> <span class="n">exif_options</span>
 
 
-<span class="k">class</span> <span class="nc">_ExifMixin</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_ExifMixin</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin class to add methods for getting EXIF data about a photo.</span>
 <span class="sd">    Must be used in a class that defines self.photo</span>
 <span class="sd">    Call _ExifMixin.__init__(self) at end of __init__ of class that uses this mixin</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">photo</span> <span class="o">=</span> <span class="n">photo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_exiftool_path</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_get_exif_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_exif_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of keywords found in the file&#39;s exif metadata or [] if filepath is None&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -369,7 +369,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;IPTC:Keywords&quot;</span><span class="p">,</span> <span class="s2">&quot;XMP:TagsList&quot;</span><span class="p">,</span> <span class="s2">&quot;XMP:Subject&quot;</span><span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_exif_persons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_exif_persons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of persons found in the file&#39;s exif metadata or [] if filepath is None&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -378,7 +378,7 @@
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_exif_fields_as_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;XMP:PersonInImage&quot;</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">_get_exif_fields_as_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_exif_fields_as_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of values matching fields for exifdict</span>
 
 <span class="sd">        Args:</span>
@@ -403,14 +403,14 @@
 
 <div class="viewcode-block" id="ExifWriter">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExifWriter">[docs]</a>
-<span class="k">class</span> <span class="nc">ExifWriter</span><span class="p">(</span><span class="n">_ExifMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExifWriter</span><span class="p">(</span><span class="n">_ExifMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write EXIF &amp; other metadata to files using exiftool for a Photo asset</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        photo: PhotoInfo, the photo object to write metadata for</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create instance of ExifWriter</span>
 
 <span class="sd">        Args:</span>
@@ -421,7 +421,7 @@
 
 <div class="viewcode-block" id="ExifWriter.write_exif_data">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExifWriter.write_exif_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_exif_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExifOptions</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_exif_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExifOptions</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write exif data to image file at filepath</span>
 
 <span class="sd">        Args:</span>
@@ -449,7 +449,7 @@
 
 <div class="viewcode-block" id="ExifWriter.exiftool_dict">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExifWriter.exiftool_dict">[docs]</a>
-    <span class="k">def</span> <span class="nf">exiftool_dict</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exiftool_dict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">ExifOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -732,7 +732,7 @@
         <span class="k">return</span> <span class="n">exif</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_mwg_face_regions_exiftool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_mwg_face_regions_exiftool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dict with MWG face regions for use by exiftool&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">orientation</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]:</span>
             <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">height</span>
@@ -768,7 +768,7 @@
 
 <div class="viewcode-block" id="ExifWriter.exiftool_json_sidecar">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExifWriter.exiftool_json_sidecar">[docs]</a>
-    <span class="k">def</span> <span class="nf">exiftool_json_sidecar</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exiftool_json_sidecar</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">ExifOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tag_groups</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -841,7 +841,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">utc_offset_time</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">utc_offset_time</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the UTC offset for a datetime in format expected by exiftool (+/-HH:MM)</span>
 
 <span class="sd">    Args:</span>
@@ -865,7 +865,7 @@
     <span class="k">return</span> <span class="n">offsettime</span>
 
 
-<span class="k">def</span> <span class="nf">exiftool_datetime</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">exiftool_datetime</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Format a datetime to the format expected by exiftool (YYYY:MM:DD HH:MM:SS)</span>
 
 <span class="sd">    Args:</span>
@@ -876,7 +876,7 @@
     <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y:%m:</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">subsec_time</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">subsec_time</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return sub-second time as a string as expected by exiftool for EXIF:SubSecTime&quot;&quot;&quot;</span>
     <span class="c1"># strftime(&quot;%f&quot;) returns microseconds but only want milliseconds</span>
     <span class="c1"># if sub-second time is 0, it will return all zeros</span>
@@ -914,7 +914,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a98ddb9b"></script>
+</div><script src="../../_static/documentation_options.js?v=38a0b3c7"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

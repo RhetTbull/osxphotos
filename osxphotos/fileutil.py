@@ -1,5 +1,6 @@
-""" FileUtil class with methods for copy, hardlink, unlink, etc. """
+"""FileUtil class with methods for copy, hardlink, unlink, etc."""
 
+import fcntl
 import os
 import pathlib
 import shutil
@@ -8,7 +9,6 @@ import tempfile
 import typing as t
 from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
-import fcntl
 
 from .imageconverter import ImageConverter
 from .platform import is_macos
@@ -164,13 +164,13 @@ class FileUtilMacOS(FileUtilABC):
     def utime(cls, path, times):
         """Set the access and modified time of path."""
         path = normalize_fs_path(path)
-        
+
         fd = None
         try:
             # Open file and set F_NOCACHE to prevent filesystem cache interference
             fd = os.open(path, os.O_RDONLY)
             fcntl.fcntl(fd, fcntl.F_NOCACHE, 1)
-            
+
             os.utime(path, times)
             return True
         finally:
@@ -330,6 +330,12 @@ class FileUtilShUtil(FileUtilMacOS):
             raise OSError(f"Error copying {src} to {dest}: {e}") from e
 
         return True
+
+    @classmethod
+    def utime(cls, path, times):
+        """Set the access and modified time of path."""
+        path = normalize_fs_path(path)
+        os.utime(path, times)
 
 
 class FileUtil(FileUtilShUtil):

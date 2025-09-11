@@ -141,10 +141,10 @@ class PhotoInfo:
         set when the asset was imported.
 
         The original date is stored by Photos at import time
-        from the date in the photo's EXIF data. If this is not set (photo had no EXIF date) then `date_original`
-        returns the same value as `date`.
+        from the date in the photo's EXIF data. If this is not set (photo had no EXIF date) then 'date_original'
+        returns the same value as 'date'.
 
-        Photos 5+; on Photos version < 5, returns the same value as `date`.
+        Photos 5+; on Photos version < 5, returns the same value as 'date'.
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
             return self.date
@@ -939,17 +939,32 @@ class PhotoInfo:
     @property
     def burst_selected(self) -> bool:
         """Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_SELECTED)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_SELECTED)
 
     @property
     def burst_key(self) -> bool:
         """Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_KEY)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_KEY)
 
     @property
     def burst_default_pick(self) -> bool:
         """Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_DEFAULT_PICK)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_DEFAULT_PICK)
 
     @property
     def burst_photos(self) -> list[PhotoInfo]:
@@ -1821,9 +1836,9 @@ class PhotoInfo:
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
               if overwrite=False and increment=False, export will fail if destination file already exists
             sidecar_json: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. 'exiftool -G -j')
             sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. 'exiftool -j')
             sidecar_xmp: if set will write an XMP sidecar with IPTC data
               sidecar filename will be dest/filename.xmp
             use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
@@ -2021,7 +2036,7 @@ class PhotoInfo:
         # do not add any new properties to data_dict as this is used by export to determine
         # if a photo needs to be re-exported and adding new properties may cause all photos
         # to be re-exported
-        # see below `if not shallow:`
+        # see below 'if not shallow:'
         dict_data = {
             "albums": self.albums,
             "burst": self.burst,

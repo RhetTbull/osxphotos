@@ -141,15 +141,15 @@ from .verbose import get_verbose_console, verbose_print
 @click.option(
     "--report",
     metavar="REPORT_FILE RUN_ID",
-    help="Generate an export report as `osxphotos export ... --report REPORT_FILE` would have done. "
+    help="Generate an export report as 'osxphotos export ... --report REPORT_FILE' would have done. "
     "This allows you to re-create an export report if you didn't use the --report option "
-    "when running `osxphotos export`. "
+    "when running 'osxphotos export'. "
     "The extension of the report file is used to determine the format. "
     "Valid extensions are: "
     ".csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). "
     f"RUN_ID may be any integer from {-MAX_EXPORT_RESULTS_DATA_ROWS} to 0 specifying which run to use. "
-    "For example, `--report report.csv 0` will generate a CSV report for the last run and "
-    "`--report report.json -1` will generate a JSON report for the second-to-last run "
+    "For example, '--report report.csv 0' will generate a CSV report for the last run and "
+    "'--report report.json -1' will generate a JSON report for the second-to-last run "
     "(one run prior to last run). "
     "REPORT_FILE may be a template string (see Templating System), for example, "
     "--report 'export_{today.date}.csv' will write a CSV report file named with today's date. "
@@ -633,7 +633,7 @@ def exportdb(
         to use [filepath]{migrate_photos_library}[/] as the new source library.
         The last library used was [filepath]{last_library}[/].
         This will allow you to use the export database with the new library but it will
-        no longer work correctly with the old library unless you run the `--migrate-photos-library`
+        no longer work correctly with the old library unless you run the '--migrate-photos-library'
         command again to update the export database to use the previous library.
 
         A backup of the export database will be created in the same directory as the export database.

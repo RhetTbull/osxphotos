@@ -33,11 +33,14 @@ __verbose_function: Callable[..., None] | None = None
 
 
 __all__ = [
+    "config_theme_callback",
+    "config_timestamp_callback",
+    "config_verbose_callback",
     "get_verbose_console",
     "get_verbose_level",
     "set_verbose_level",
-    "verbose_print",
     "verbose",
+    "verbose_print",
 ]
 
 
@@ -276,3 +279,38 @@ def _verbose_print_function(
         return rich_verbose_testing_
     else:
         return verbose_
+
+
+def config_verbose_callback(ctx: click.Context, param: click.Parameter, value: t.Any):
+    """Callback for --verbose option"""
+    # calling verbose_print() will set the verbose level for the verbose() function
+    theme = ctx.params.get("theme")
+    timestamp = ctx.params.get("timestamp")
+    verbose_print(verbose=value, timestamp=timestamp, theme=theme)
+    return value
+
+
+def config_theme_callback(ctx: click.Context, param: click.Parameter, value: t.Any):
+    """Callback for --theme option"""
+    # calling verbose_print() will set the verbose level for the verbose() function
+    # if --verbose is passed after --theme, this callback won't have access it to
+    # and verbose_option will be None
+    # set to zero and if --verbose is passed, it will be set correctly by the
+    # config_verbose_callback (#1186)
+    verbose = ctx.params.get("verbose_option") or get_verbose_level()
+    timestamp = ctx.params.get("timestamp")
+    verbose_print(verbose=verbose, timestamp=timestamp, theme=value)
+    return value
+
+
+def config_timestamp_callback(ctx: click.Context, param: click.Parameter, value: t.Any):
+    """Callback for --timestamp option"""
+    # calling verbose_print() will set the verbose level for the verbose() function
+    # if --verbose is passed after --timestamp, this callback won't have access it to
+    # and verbose_option will be None
+    # set to zero and if --verbose is passed, it will be set correctly by the
+    # config_verbose_callback (#1186)
+    verbose = ctx.params.get("verbose_option") or get_verbose_level()
+    theme = ctx.params.get("theme")
+    verbose_print(verbose=verbose, timestamp=value, theme=theme)
+    return value

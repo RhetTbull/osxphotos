@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.photoinfo - osxphotos 0.69.2 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.72.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.69.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.72.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.69.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.72.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,6 +202,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
@@ -385,10 +386,10 @@
 <span class="sd">        set when the asset was imported.</span>
 
 <span class="sd">        The original date is stored by Photos at import time</span>
-<span class="sd">        from the date in the photo&#39;s EXIF data. If this is not set (photo had no EXIF date) then `date_original`</span>
-<span class="sd">        returns the same value as `date`.</span>
+<span class="sd">        from the date in the photo&#39;s EXIF data. If this is not set (photo had no EXIF date) then &#39;date_original&#39;</span>
+<span class="sd">        returns the same value as &#39;date&#39;.</span>
 
-<span class="sd">        Photos 5+; on Photos version &lt; 5, returns the same value as `date`.</span>
+<span class="sd">        Photos 5+; on Photos version &lt; 5, returns the same value as &#39;date&#39;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span>
@@ -1183,17 +1184,32 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">burst_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">BURST_SELECTED</span><span class="p">)</span>
+        <span class="n">burst_pick_type</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">burst_pick_type</span> <span class="o">&amp;</span> <span class="n">BURST_SELECTED</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">burst_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">BURST_KEY</span><span class="p">)</span>
+        <span class="n">burst_pick_type</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">burst_pick_type</span> <span class="o">&amp;</span> <span class="n">BURST_KEY</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">burst_default_pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">BURST_DEFAULT_PICK</span><span class="p">)</span>
+        <span class="n">burst_pick_type</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">burst_pick_type</span> <span class="o">&amp;</span> <span class="n">BURST_DEFAULT_PICK</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">burst_photos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]:</span>
@@ -2121,9 +2137,9 @@
 <span class="sd">            increment: (boolean, default=True); if True, will increment file name until a non-existant name is found</span>
 <span class="sd">              if overwrite=False and increment=False, export will fail if destination file already exists</span>
 <span class="sd">            sidecar_json: if set will write a json sidecar with data in format readable by exiftool</span>
-<span class="sd">              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)</span>
+<span class="sd">              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. &#39;exiftool -G -j&#39;)</span>
 <span class="sd">            sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool</span>
-<span class="sd">              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)</span>
+<span class="sd">              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. &#39;exiftool -j&#39;)</span>
 <span class="sd">            sidecar_xmp: if set will write an XMP sidecar with IPTC data</span>
 <span class="sd">              sidecar filename will be dest/filename.xmp</span>
 <span class="sd">            use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos</span>
@@ -2324,7 +2340,7 @@
         <span class="c1"># do not add any new properties to data_dict as this is used by export to determine</span>
         <span class="c1"># if a photo needs to be re-exported and adding new properties may cause all photos</span>
         <span class="c1"># to be re-exported</span>
-        <span class="c1"># see below `if not shallow:`</span>
+        <span class="c1"># see below &#39;if not shallow:&#39;</span>
         <span class="n">dict_data</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;albums&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">,</span>
             <span class="s2">&quot;burst&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
@@ -2667,7 +2683,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=24298b65"></script>
+</div><script src="../../_static/documentation_options.js?v=38a0b3c7"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

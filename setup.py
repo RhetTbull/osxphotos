@@ -61,7 +61,7 @@ setup(
     project_urls={"GitHub": "https://github.com/RhetTbull/osxphotos"},
     download_url="https://github.com/RhetTbull/osxphotos",
     packages=find_packages(exclude=["tests", "examples", "utils"])
-    + ["osxphotos.docs", "osxphotos.templates", "osxphotos.queries"],
+    + ["osxphotos.docs", "osxphotos.templates", "osxphotos.queries", "osxphotos.lib"],
     license="License :: OSI Approved :: MIT License",
     python_requires=">=3.10",
     classifiers=[
@@ -77,6 +77,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=[
+        "beautifulsoup4",
         "bitmath>=1.3.3.1,<1.4.0.0",
         "bpylist2>=4.1.1,<5.0.0",
         "cgmetadata>=0.2.0; sys_platform == 'darwin'",
@@ -84,6 +85,7 @@ setup(
         "mac-alias>=2.2.2,<3.0.0; sys_platform == 'darwin'",
         "makelive>=0.6.2; sys_platform == 'darwin'",
         "Mako>=1.2.2,<1.3.0",
+        "markdown2",
         "more-itertools>=8.8.0,<9.0.0",
         "objexplore>=1.6.3,<2.0.0",
         "osxmetadata>=1.4.0,<2.0.0; sys_platform == 'darwin'",

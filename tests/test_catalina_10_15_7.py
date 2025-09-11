@@ -1,4 +1,4 @@
-""" Basic tests for Photos 5 on MacOS 10.15.7 """
+"""Basic tests for Photos 5 on MacOS 10.15.7"""
 
 import collections
 import datetime
@@ -27,7 +27,7 @@ SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"
 PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.7.photoslibrary"
 
 PHOTOS_DB_LEN = 29

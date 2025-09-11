@@ -58,7 +58,7 @@ class PhotoInfoFromDict(PhotoInfoMixin):
         """Return AlbumInfo objects for photo"""
         if getattr(self, "_album_info"):
             return self._album_info
-        # this is a little hacky but it works for `osxphotos import` use case
+        # this is a little hacky but it works for 'osxphotos import' use case
         if not getattr(self, "folders"):
             self._album_info = []
         else:

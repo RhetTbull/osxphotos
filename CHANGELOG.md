@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.72.3](https://github.com/RhetTbull/osxphotos/compare/v0.72.2...v0.72.3)
+
+Bug fix for malformed photos.db file (again) and a few other fixes.
+
+### v0.72.3 (2025-08-31)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fix for malformed or missing photos.db file (#1893)
+- Fix for regex characters in file name on import (#1910)
+- Fix for invalid values in burst properties (#1908)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+
+## [v0.72.2](https://github.com/RhetTbull/osxphotos/compare/v0.72.1...v0.72.2)
+
+Bug fix for malformed photos.db file
+
+### v0.72.2 (2025-08-24)
+
+#### Added
+
+#### Changed
+
+- Updated documentation formatting for Sphinx.
+
+#### Removed
+
+#### Fixed
+
+- Fix for malformed or missing photos.db file (#1805, #1893)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+
 ## [v0.72.1](https://github.com/RhetTbull/osxphotos/compare/v0.72.1...v0.72.0)
 
 Added homebrew install support.

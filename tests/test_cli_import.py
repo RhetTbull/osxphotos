@@ -36,7 +36,7 @@ if is_macos:
     from osxphotos.cli.export import export
     from osxphotos.cli.import_cli import import_main
 else:
-    pytest.skip(allow_module_level=True)
+    pytest.skip("Only runs on macOS", allow_module_level=True)
 
 
 TERMINAL_WIDTH = 250

@@ -40,7 +40,7 @@ def show(ctx, db, uuid_or_name):
 
     osxphotos show IMG_1234.JPG
 
-    show can also be used to show a photo exported with `osxphotos export`:
+    show can also be used to show a photo exported with 'osxphotos export':
 
     osxphotos show /path/to/exported/photo.jpg
 

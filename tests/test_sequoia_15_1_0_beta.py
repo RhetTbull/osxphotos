@@ -21,7 +21,7 @@ from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
 PHOTOS_DB = "./tests/Test-15.1.0_beta.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-15.1.0_beta.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-15.1.0_beta.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-15.1.0_beta.photoslibrary"
 
 
