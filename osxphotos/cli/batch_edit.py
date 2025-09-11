@@ -136,7 +136,11 @@ def batch_edit(
     Operates on currently selected photos.
 
     Select one or more photos in Photos then run this command to edit the metadata.
-    Alternatively, you can specify photos by their UUIDs using --uuid or from a file of UUIDs using --uuid-from-file.
+    Alternatively, you can specify photos using one or more query options such as --album "My Album"
+    or --added-in-last "1 day".
+
+    If you have an Album open and no photos selected, all photos in the album will be edited unless you
+    specify one or more query options.
 
     For example:
 
@@ -154,6 +158,8 @@ def batch_edit(
     --title, --description, and --keyword may be any valid template string.
     See https://rhettbull.github.io/osxphotos/template_help.html
     or 'osxphotos docs' for more information on the osxphotos template system.
+
+    It is recommended you test your edits on a small set of photos before applying them to many photos.
     """
 
     try:
@@ -177,7 +183,7 @@ def batch_edit(
     if not photos:
         # need this check here to avoid photosdb.photos() from retrieving all photos
         echo_error(
-            f"[error] No photos found to process. Select photos in the Photos app or use the --album/--uuid/--uuid-from-file options."
+            f"[error] No photos found to process. Select photos in the Photos app or use the one of the query options."
         )
         raise click.Abort()
 
