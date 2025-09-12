@@ -116,6 +116,13 @@ def setup_photos_timewarp():
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
+def setup_photos_batchedit():
+    if not TEST_BATCH_EDIT:
+        return
+    copy_photos_library(TEST_LIBRARY, delay=LIBRARY_COPY_DELAY)
+
+
+@pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_photodates():
     if not TEST_PHOTODATES:
         return

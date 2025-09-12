@@ -29,11 +29,14 @@ from osxphotos.photodates import (
     update_photo_from_function,
     update_photo_time_for_new_timezone,
 )
-from osxphotos.photoquery import load_uuid_from_file
+from osxphotos.photoquery import photo_query, query_options_from_kwargs
+from osxphotos.photosdb import PhotosDB
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
 from osxphotos.timezones import Timezone
 from osxphotos.utils import noop, pluralize
+
+from .verbose import verbose
 
 assert_macos()
 
@@ -41,7 +44,12 @@ from photoscript import Photo, PhotosLibrary
 
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 
-from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
+from .cli_params import (
+    LIMITED_QUERY_OPTION_NAMES,
+    LIMITED_QUERY_OPTIONS,
+    THEME_OPTION,
+    VERBOSE_OPTIONS,
+)
 from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
 from .color_themes import get_theme
@@ -259,7 +267,7 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
 )
 @click.option(
     "--inspect",
-    "-i",
+    "-I",
     is_flag=True,
     help="Print out the date/time/timezone for each selected photo without changing any information.",
 )
@@ -354,25 +362,8 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     metavar="ALBUM",
     help="When used with --compare-exif, adds any photos with date/time/timezone differences between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.",
 )
-@click.option(
-    "--uuid",
-    "-u",
-    metavar="UUID",
-    default=None,
-    multiple=True,
-    help="Apple to photo(s) with UUID(s). May be repeated to include multiple UUIDs.",
-)
-@click.option(
-    "--uuid-from-file",
-    "-U",
-    metavar="FILE",
-    default=None,
-    multiple=False,
-    help="Apply to photos with UUID(s) loaded from FILE. Format is a single UUID per line. Lines preceded with # are ignored. If FILE is '-', read UUIDs from stdin.",
-    type=PathOrStdin(exists=True),
-)
-@VERBOSE_OPTION
-@TIMESTAMP_OPTION
+@LIMITED_QUERY_OPTIONS
+@VERBOSE_OPTIONS
 @click.option(
     "--library",
     "-L",
@@ -422,29 +413,33 @@ def timewarp(
     match_time: bool,
     use_file_time: bool,
     add_to_album: str | None,
-    uuid: tuple[str, ...] | None,
-    uuid_from_file: click.Path | str | None,
     exiftool_path: click.Path | None,
-    verbose_flag: int,
     library: click.Path | None,
-    theme: str | None,
     parse_date: str | None,
     plain: bool,
-    timestamp: bool,
     force: bool,
     reset: bool,
+    **kwargs,
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
-    Changes will be applied to: 1) photos specified via --uuid and
-    --uuid-from-file 2) photos currently selected in Photos in 'All Photos'
+    Changes will be applied to: 1) photos specified one or more query options,
+    for example, --album "My Album" to specify an albu, --added-in-last "1 day", etc.
+    2) photos currently selected in Photos in 'Library' / 'All Photos'
     or Album views 3) all photos in Album view, if no selection is made.
-    timewarp cannot operate on photos selected in a Smart Album;
-    select photos in a regular album or in the 'All Photos' view.
+
+    If you have an Album open and no photos selected, all photos in the album will be edited unless you
+    specify one or more query options.
+
     See Timewarp Overview below for additional information.
+
+    It is recommended you test your changes on a small set of photos before applying them to many photos.
     """
 
-    return_code = timewarp_cli(**locals())
+    _locals = locals()
+    _locals.pop("kwargs")
+    _locals = _locals | kwargs
+    return_code = timewarp_cli(**_locals)
     sys.exit(return_code or 0)
 
 
@@ -464,17 +459,13 @@ def timewarp_cli(
     match_time: bool,
     use_file_time: bool,
     add_to_album: str | None,
-    uuid: tuple[str, ...] | None,
-    uuid_from_file: click.Path | str | None,
     exiftool_path: click.Path | None,
-    verbose_flag: int,
     library: click.Path | None,
-    theme: str | None,
     parse_date: str | None,
     plain: bool,
-    timestamp: bool,
     force: bool,
     reset: bool,
+    **kwargs,
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
@@ -534,44 +525,18 @@ def timewarp_cli(
             "--reset may only be used with Photos version 8.0 and later (macOS Ventura and later)"
         )
 
-    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
-
     if any([compare_exif, push_exif, pull_exif]):
         exiftool_path = exiftool_path or get_exiftool_path()
         verbose(f"exiftool path: [filename]{exiftool_path}[/filename]")
 
-    photos = []
-    if uuid:
-        photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
-    if uuid_from_file:
-        photos.extend(
-            list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file)))
-        )
-
-    # If neither uuid nor uuid_from_file is specified, then operate over selected photos
-    if not (uuid or uuid_from_file):
-        try:
-            photos.extend(PhotosLibrary().selection)
-        except Exception as e:
-            # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
-            if "(-1728)" in str(e):
-                echo_error(
-                    "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
-                    "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
-                    f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
-                    "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
-                )
-            else:
-                echo_error(
-                    f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
-                )
-            return 1
-
+    try:
+        photos = get_photos_for_processing(**kwargs)
+    except RuntimeError as e:
+        echo_error(f"[error]Error getting photos: {e}")
+        return 1
     if not photos:
         echo_error("[warning]No photos selected[/]")
         return 0
-
-    photos = unique_photos(photos)
 
     # confirm with user before proceeding
     if (
@@ -803,3 +768,47 @@ def unique_photos(photos: list[Photo]) -> list[Photo]:
             seen[photo.uuid] = True
             unique.append(photo)
     return unique
+
+
+def get_photos_for_processing(**kwargs) -> list[Photo]:
+    """Get photos for processing from query options or selection.
+
+    Args:
+        **kwargs: keyword arguments for query options or a subset thereof
+
+    Returns: list of photos to process.
+
+    Raises:
+        RuntimeError if error getting selection.
+    """
+    # if any of the query options are specified, then operate over query results
+    if any([kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES]):
+        photosdb = PhotosDB(dbfile=kwargs.get("library"))
+        query_options = query_options_from_kwargs(**kwargs)
+        results = photo_query(photosdb, query_options)
+        return (
+            list(PhotosLibrary().photos(uuid=[photo.uuid for photo in results]))
+            if results
+            else []
+        )
+
+    # If no query options are specified, then operate over selected photos
+    photo_sel = []
+    try:
+        photo_sel.extend(PhotosLibrary().selection)
+    except Exception as e:
+        # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
+        if "(-1728)" in str(e):
+            echo_error(
+                "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
+                "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
+                f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
+                "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
+            )
+        else:
+            echo_error(
+                f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
+            )
+        raise RuntimeError("Could not get selected photos")
+
+    return photo_sel
