@@ -51,28 +51,17 @@ def get_exif_date_time_offset(
     # set to True if no date/time in EXIF and the FileModifyDate is used
     used_file_modify_date = False
 
-    # determine file type
-    mime_type = exif.get('File:MIMEType', 'image')
-    isphoto = mime_type.startswith("image")
-    ismovie = mime_type.startswith("video")
-
     # search these fields in this order for date/time/timezone
     # Prioritize QuickTime:ContentCreateDate over EXIF:DateTimeOriginal for videos
-    start_time_fields = [
+    time_fields = [
         "Composite:DateTimeCreated",
         "Composite:SubSecDateTimeOriginal",
         "Composite:SubSecCreateDate",
-    ]
-    photo_time_fields = [
-        "EXIF:DateTimeOriginal",
-        "EXIF:CreateDate",
-    ]
-    movie_time_fields = [
         "QuickTime:ContentCreateDate",
         "QuickTime:CreationDate",
         "QuickTime:CreateDate",
-    ]
-    end_time_fields = [
+        "EXIF:DateTimeOriginal",
+        "EXIF:CreateDate",
         "IPTC:DateCreated",
         "XMP-exif:DateTimeOriginal",
         "XMP-xmp:DateCreated",
@@ -87,13 +76,6 @@ def get_exif_date_time_offset(
         "ContentCreateDate",
         "CreationDate",
     ]
-    if isphoto:
-        time_fields = start_time_fields + photo_time_fields + movie_time_fields + end_time_fields
-    elif ismovie:
-        time_fields = start_time_fields + movie_time_fields + photo_time_fields + end_time_fields
-    else:
-        time_fields = start_time_fields + photo_time_fields + movie_time_fields + end_time_fields
-        
     if use_file_modify_date:
         time_fields.extend(["File:FileModifyDate", "FileModifyDate"])
 
