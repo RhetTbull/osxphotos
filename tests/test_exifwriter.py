@@ -317,6 +317,11 @@ def test_exifwriter_datetime(photosdb: PhotosDB, tmp_path: pathlib.Path):
     assert "EXIF:CreateDate" in exif_data
     assert exif_data["EXIF:CreateDate"] == photo.date.strftime("%Y:%m:%d %H:%M:%S")
 
+    assert "EXIF:SubSecTimeOriginal" in exif_data
+    assert exif_data["EXIF:SubSecTimeOriginal"] == photo.date.strftime("%f")[
+        :-3
+    ].rstrip("0")
+
 
 def test_exifwriter_merge_keywords_persons(photosdb: PhotosDB, tmp_path: pathlib.Path):
     """Test merge_merge_exif_keywords, merge_exif_persons"""

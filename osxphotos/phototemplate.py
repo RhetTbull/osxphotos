@@ -1,4 +1,4 @@
-""" Custom template system for osxphotos, implements metadata template language (MTL) """
+"""Custom template system for osxphotos, implements metadata template language (MTL)"""
 
 import datetime
 import locale
@@ -9,7 +9,7 @@ import shlex
 import sys
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from textx import TextXSyntaxError, metamodel_from_file
 
@@ -242,7 +242,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{exiftool}": "Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  "
     "E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. "
     "See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) "
-    "as used in `exiftool -G`. exiftool must be installed in the path to use this template.",
+    "as used in 'exiftool -G'. exiftool must be installed in the path to use this template.",
     "{searchinfo.holiday}": "Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
     "{searchinfo.activity}": "Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
     "{searchinfo.venue}": "Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
@@ -305,7 +305,7 @@ FILTER_VALUES = {
     + "slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().",
     "sslice(start:stop:step)": "[s(tring) slice] Slice values in a list using same semantics as Python's string slicing, "
     + "e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().",
-    "filter(x)": "Filter list of values using predicate x; for example, `{folder_album|filter(contains Events)}` returns only folders/albums containing the word 'Events' in their path.",
+    "filter(x)": "Filter list of values using predicate x; for example, '{folder_album|filter(contains Events)}' returns only folders/albums containing the word 'Events' in their path.",
     "int": "Convert values in list to integer, e.g. 1.0 => 1. If value cannot be converted to integer, remove value from list. "
     + "['1.1', 'x'] => ['1']. See also float.",
     "float": "Convert values in list to floating point number, e.g. 1 => 1.0. If value cannot be converted to float, remove value from list. "
@@ -1462,7 +1462,7 @@ class PhotoTemplate:
         elif caller == "import":
             # function signature is:
             # def example(filepath: pathlib.Path, args: Optional[str] = None, **kwargs) -> Union[List, str]:
-            # the PhotoInfoFromFile class used by import sets `path` to the path of the file being imported
+            # the PhotoInfoFromFile class used by import sets 'path' to the path of the file being imported
             values = template_func(pathlib.Path(self.photo.path), args=field_arg)
         else:
             raise ValueError(f"Unhandled caller: {caller}")

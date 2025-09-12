@@ -1,4 +1,4 @@
-"""Test the `template` command of the CLI.  """
+"""Test the `template` command of the CLI."""
 
 import os
 
@@ -36,7 +36,13 @@ def test_template_unknown_template():
         template_repl,
         ["--db", db_path, "--uuid", TEST_UUID, "--template", "{desc}"],
     )
-    assert "Unknown template" in results.output
+    assert results.exit_code != 0
+    try:
+        output = results.stderr  # click >= 8.2.0
+    except ValueError:
+        output = results.output  # click < 8.2.0
+
+    assert "Unknown template" in output
 
 
 def test_template_repl(monkeypatch):

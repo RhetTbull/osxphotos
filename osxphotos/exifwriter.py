@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import datetime
 import json
 import logging
 import os
@@ -13,7 +14,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from ._constants import _MAX_IPTC_KEYWORD_LEN, _OSXPHOTOS_NONE_SENTINEL, _UNKNOWN_PERSON
-from .datetime_utils import datetime_tz_to_utc
+from .datetime_utils import datetime_has_tz, datetime_tz_to_utc
 from .exiftool import ExifTool, ExifToolCaching
 from .exportoptions import ExportOptions
 from .phototemplate import RenderOptions
@@ -226,8 +227,11 @@ class ExifWriter(_ExifMixin):
             EXIF:GPSLatitude, EXIF:GPSLongitude
             EXIF:GPSPosition
             EXIF:DateTimeOriginal
-            EXIF:OffsetTimeOriginal
+            EXIF:SubSecTimeOriginal
+            EXIF:OffsetTimeOriginal (UTC offset for DateTimeOriginal)
             EXIF:ModifyDate
+            EXIF:SubSecTime
+            EXIF:OffsetTime (UTC offset for ModifyDate)
             IPTC:DateCreated
             IPTC:TimeCreated
             QuickTime:CreationDate
@@ -417,18 +421,16 @@ class ExifWriter(_ExifMixin):
 
         if options.datetime:
             date = self.photo.date
-            offsettime = date.strftime("%z")
-            # find timezone offset in format "-04:00"
-            offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
-            offset = offset[0]  # findall returns list of tuples
-            offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
+            offsettime = utc_offset_time(date)
+            subsec = subsec_time(date)
 
             # exiftool expects format to "2015:01:18 12:00:00"
-            datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
+            datetimeoriginal = exiftool_datetime(date)
 
             if self.photo.isphoto:
                 exif["EXIF:DateTimeOriginal"] = datetimeoriginal
                 exif["EXIF:CreateDate"] = datetimeoriginal
+                exif["EXIF:SubSecTimeOriginal"] = subsec
                 exif["EXIF:OffsetTimeOriginal"] = offsettime
 
                 dateoriginal = date.strftime("%Y:%m:%d")
@@ -441,13 +443,15 @@ class ExifWriter(_ExifMixin):
                     self.photo.date_modified is not None
                     and not options.ignore_date_modified
                 ):
-                    exif["EXIF:ModifyDate"] = self.photo.date_modified.strftime(
-                        "%Y:%m:%d %H:%M:%S"
+                    exif["EXIF:ModifyDate"] = exiftool_datetime(
+                        self.photo.date_modified
                     )
+                    exif["EXIF:SubSecTime"] = subsec_time(self.photo.date_modified)
+                    exif["EXIF:OffsetTime"] = utc_offset_time(self.photo.date_modified)
                 else:
-                    exif["EXIF:ModifyDate"] = self.photo.date.strftime(
-                        "%Y:%m:%d %H:%M:%S"
-                    )
+                    exif["EXIF:ModifyDate"] = exiftool_datetime(self.photo.date)
+                    exif["EXIF:SubSectime"] = subsec
+                    exif["EXIF:OffsetTime"] = offsettime
             elif self.photo.ismovie:
                 # QuickTime spec specifies times in UTC
                 # QuickTime:CreateDate and ModifyDate are in UTC w/ no timezone
@@ -462,14 +466,14 @@ class ExifWriter(_ExifMixin):
                 exif["QuickTime:ContentCreateDate"] = f"{datetimeoriginal}{offsettime}"
 
                 date_utc = datetime_tz_to_utc(date)
-                creationdate = date_utc.strftime("%Y:%m:%d %H:%M:%S")
+                creationdate = exiftool_datetime(date_utc)
                 exif["QuickTime:CreateDate"] = creationdate
                 if self.photo.date_modified is None or options.ignore_date_modified:
                     exif["QuickTime:ModifyDate"] = creationdate
                 else:
-                    exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
-                        self.photo.date_modified
-                    ).strftime("%Y:%m:%d %H:%M:%S")
+                    exif["QuickTime:ModifyDate"] = exiftool_datetime(
+                        datetime_tz_to_utc(self.photo.date_modified)
+                    )
 
         # if photo in PNG remove any IPTC tags (#1031)
         if self.photo.isphoto and self.photo.uti == "public.png":
@@ -528,28 +532,44 @@ class ExifWriter(_ExifMixin):
         Returns: JSON string for dict with exiftool tags / values
 
         Exports the following:
-            EXIF:ImageDescription
+            EXIF:ImageDescription (may include template)
             XMP:Description (may include template)
-            IPTC:CaptionAbstract
             XMP:Title
             IPTC:ObjectName
-            XMP:TagsList
+            XMP:TagsList (may include album name, person name, or template)
             IPTC:Keywords (may include album name, person name, or template)
-            XMP:Subject (set to keywords + person)
+            IPTC:Caption-Abstract
+            XMP:Subject (set to keywords + persons)
             XMP:PersonInImage
             EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
             EXIF:GPSLatitude, EXIF:GPSLongitude
             EXIF:GPSPosition
             EXIF:DateTimeOriginal
-            EXIF:OffsetTimeOriginal
+            EXIF:SubSecTimeOriginal
+            EXIF:OffsetTimeOriginal (UTC offset for DateTimeOriginal)
             EXIF:ModifyDate
-            IPTC:DigitalCreationDate
+            EXIF:SubSecTime
+            EXIF:OffsetTime (UTC offset for ModifyDate)
             IPTC:DateCreated
+            IPTC:TimeCreated
             QuickTime:CreationDate
+            QuickTime:ContentCreateDate
             QuickTime:CreateDate (UTC)
             QuickTime:ModifyDate (UTC)
             QuickTime:GPSCoordinates
             UserData:GPSCoordinates
+            XMP:Rating
+            XMP:RegionAppliedToDimensionsW
+            XMP:RegionAppliedToDimensionsH
+            XMP:RegionAppliedToDimensionsUnit
+            XMP:RegionName
+            XMP:RegionType
+            XMP:RegionAreaX
+            XMP:RegionAreaY
+            XMP:RegionAreaW
+            XMP:RegionAreaH
+            XMP:RegionAreaUnit
+            XMP:RegionPersonDisplayName
         """
 
         options = options or ExifOptions()
@@ -564,3 +584,46 @@ class ExifWriter(_ExifMixin):
             exif = exif_new
 
         return json.dumps([exif])
+
+
+def utc_offset_time(dt: datetime.datetime) -> str:
+    """Find the UTC offset for a datetime in format expected by exiftool (+/-HH:MM)
+
+    Args:
+        dt: datetime object to find offset for
+
+    Returns: string with offset in format "+/-HH:MM
+
+    Raises:
+        ValueError if datetime is not timezone aware or if timezone cannot be determined
+    """
+    if not datetime_has_tz(dt):
+        raise ValueError("datetime must be timezone aware")
+    offsettime = dt.strftime("%z")
+    offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
+    if not offset:
+        raise ValueError(f"could not parse timezone from datetime {dt}")
+    offset = offset[0]  # findall returns list of tuples
+    if len(offset) != 3:
+        raise ValueError(f"could not parse timezone from datetime {dt}")
+    offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
+    return offsettime
+
+
+def exiftool_datetime(dt: datetime.datetime) -> str:
+    """Format a datetime to the format expected by exiftool (YYYY:MM:DD HH:MM:SS)
+
+    Args:
+        dt: datetime to format
+
+    Returns: string formatted as date/time value expected by exiftool in YYYY:MM:DD HH:MM:SS format
+    """
+    return dt.strftime("%Y:%m:%d %H:%M:%S")
+
+
+def subsec_time(dt: datetime.datetime) -> str:
+    """Return sub-second time as a string as expected by exiftool for EXIF:SubSecTime"""
+    # strftime("%f") returns microseconds but only want milliseconds
+    # if sub-second time is 0, it will return all zeros
+    # strip off trailing zeroes
+    return dt.strftime("%f")[:-3].rstrip("0")

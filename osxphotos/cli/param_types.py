@@ -44,7 +44,7 @@ __all__ = [
     "TimeISO8601",
     "TimeOffset",
     "TimeString",
-    "UTCOffset",
+    "TimezoneOffset",
 ]
 
 
@@ -299,20 +299,25 @@ class TimeOffset(click.ParamType):
         )
 
 
-class UTCOffset(click.ParamType):
-    """A UTC offset timezone in format ±[hh]:[mm], ±[h]:[mm], or ±[hh][mm]"""
+class TimezoneOffset(click.ParamType):
+    """A UTC offset timezone in format ±[hh]:[mm], ±[h]:[mm], or ±[hh][mm] or a named timezone such as "America/Los_Angeles" """
 
-    name = "UTC_OFFSET"
+    name = "TIMEZONE_OFFSET"
 
     def convert(self, value, param, ctx):
         try:
             offset_seconds = utc_offset_string_to_seconds(value)
-            return Timezone(offset_seconds)
-        except Exception:
-            self.fail(
-                f"Invalid timezone format: {value}. "
-                "Valid format for timezone offset: '±HH:MM', '±H:MM', or '±HHMM'"
-            )
+            tz = Timezone(offset_seconds)
+            return tz
+        except ValueError as e:
+            try:
+                # might be named timezone
+                return Timezone(value)
+            except ValueError as e:
+                self.fail(
+                    f"Invalid timezone format or name: {value}. "
+                    "Valid format for timezone offset: '±HH:MM', '±H:MM', or '±HHMM' or named timezone such as 'America/Los_Angeles'"
+                )
 
 
 class StrpDateTimePattern(click.ParamType):

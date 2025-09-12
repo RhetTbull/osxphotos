@@ -1,15 +1,27 @@
 """Test macOS 14.0 Photos library"""
 
+import collections
+import datetime
 import json
-from collections import namedtuple
+import os
+import os.path
+import pathlib
+import sqlite3
+import tempfile
+import time
+from collections import Counter, namedtuple
 
 import pytest
 
 import osxphotos
+from osxphotos import PhotosDB
 from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.adjustmentsinfo import AdjustmentsInfo
+from osxphotos.exifwriter import ExifWriter
+from osxphotos.platform import get_macos_version, is_macos
 
 PHOTOS_DB = "tests/Test-14.0.0.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-14.0.0.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-14.0.0.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-14.0.0.photoslibrary"
 
 PHOTOS_DB_LEN = 16
@@ -278,7 +290,6 @@ def photosdb():
 
 def test_init1():
     # test named argument
-    import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert isinstance(photosdb, osxphotos.PhotosDB)
@@ -286,7 +297,6 @@ def test_init1():
 
 def test_init2():
     # test positional argument
-    import osxphotos
 
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
     assert isinstance(photosdb, osxphotos.PhotosDB)
@@ -294,7 +304,6 @@ def test_init2():
 
 def test_init3():
     # test positional and named argument (raises exception)
-    import osxphotos
 
     with pytest.raises(Exception):
         assert osxphotos.PhotosDB(PHOTOS_DB, dbfile=PHOTOS_DB)
@@ -302,10 +311,6 @@ def test_init3():
 
 def test_init4():
     # test invalid db
-    import os
-    import tempfile
-
-    import osxphotos
 
     (bad_db, bad_db_name) = tempfile.mkstemp(suffix=".db", prefix="osxphotos-")
     os.close(bad_db)
@@ -324,7 +329,6 @@ def test_init4():
 
 def test_init5(mocker):
     # test failed get_last_library_path
-    import osxphotos
 
     def bad_library():
         return None
@@ -352,21 +356,18 @@ def test_photos_version(photosdb):
 
 
 def test_persons(photosdb):
-    import collections
 
     assert "Katie" in photosdb.persons
     assert collections.Counter(PERSONS) == collections.Counter(photosdb.persons)
 
 
 def test_keywords(photosdb):
-    import collections
 
     assert "wedding" in photosdb.keywords
     assert collections.Counter(KEYWORDS) == collections.Counter(photosdb.keywords)
 
 
 def test_album_names(photosdb):
-    import collections
 
     assert "Pumpkin Farm" in photosdb.albums
     assert collections.Counter(ALBUMS) == collections.Counter(photosdb.albums)
@@ -405,7 +406,6 @@ def test_album_empty_album(photosdb):
 
 
 def test_attributes(photosdb):
-    import datetime
 
     photos = photosdb.photos(uuid=["D79B8D77-BFFC-460B-9312-034F2877D35B"])
     assert len(photos) == 1
@@ -438,7 +438,6 @@ def test_attributes(photosdb):
 
 def test_attributes_2(photosdb):
     """Test attributes including height, width, etc"""
-    import datetime
 
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
     assert len(photos) == 1
@@ -566,7 +565,6 @@ def test_external_edit2(photosdb):
 
 def test_path_edited_jpeg(photosdb):
     # test a valid edited path
-    import os.path
 
     photos = photosdb.photos(uuid=["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"])
     assert len(photos) == 1
@@ -580,7 +578,6 @@ def test_path_edited_jpeg(photosdb):
 
 def test_path_edited_heic(photosdb):
     # test a valid edited path for .heic image
-    import pathlib
 
     photo = photosdb.get_photo(UUID_HEIC_EDITED)
     assert photo.path_edited.endswith(PATH_HEIC_EDITED)
@@ -718,7 +715,6 @@ def test_get_library_path(photosdb):
 
 def test_get_db_connection(photosdb):
     """Test PhotosDB.get_db_connection"""
-    import sqlite3
 
     conn, cursor = photosdb.get_db_connection()
 
@@ -735,9 +731,6 @@ def test_get_db_connection(photosdb):
 def test_export_1(photosdb):
     # test basic export
     # get an unedited image and export it using default filename
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -753,10 +746,6 @@ def test_export_1(photosdb):
 
 def test_export_2(photosdb):
     # test export with user provided filename
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -773,10 +762,6 @@ def test_export_2(photosdb):
 
 def test_export_3(photosdb):
     # test file already exists and test increment=True (default)
-    import os
-    import os.path
-    import pathlib
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -796,11 +781,6 @@ def test_export_3(photosdb):
 
 def test_export_4(photosdb):
     # test user supplied file already exists and test increment=True (default)
-    import os
-    import os.path
-    import pathlib
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -821,9 +801,6 @@ def test_export_4(photosdb):
 def test_export_5(photosdb):
     # test file already exists and test increment=True (default)
     # and overwrite = True
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -843,11 +820,6 @@ def test_export_5(photosdb):
 def test_export_6(photosdb):
     # test user supplied file already exists and test increment=True (default)
     # and overwrite = True
-    import os
-    import os.path
-    import pathlib
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -868,9 +840,6 @@ def test_export_6(photosdb):
 def test_export_7(photosdb):
     # test file already exists and test increment=False (not default), overwrite=False (default)
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -888,9 +857,6 @@ def test_export_7(photosdb):
 def test_export_8(photosdb):
     # try to export missing file
     # should return empty list
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -902,9 +868,6 @@ def test_export_8(photosdb):
 def test_export_9(photosdb):
     # try to export edited file that's not edited
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -920,10 +883,6 @@ def test_export_9(photosdb):
 def test_export_10(photosdb):
     # try to export edited file that's not edited and name provided
     # should raise exception
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -939,10 +898,6 @@ def test_export_10(photosdb):
 
 def test_export_11(photosdb):
     # export edited file with name provided
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -958,10 +913,6 @@ def test_export_11(photosdb):
 
 def test_export_12(photosdb):
     # export edited file with default name
-    import os
-    import os.path
-    import pathlib
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -981,9 +932,6 @@ def test_export_12(photosdb):
 def test_export_13(photosdb):
     # export to invalid destination
     # should raise exception
-    import os
-    import os.path
-    import tempfile
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -1005,10 +953,6 @@ def test_export_13(photosdb):
 
 def test_export_14(caplog, photosdb):
     # test export with user provided filename with different (but valid) extension than source
-    import os
-    import os.path
-    import tempfile
-    import time
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -1027,7 +971,6 @@ def test_export_14(caplog, photosdb):
 
 def test_eq(photosdb):
     """Test equality of two PhotoInfo objects"""
-    import osxphotos
 
     photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
@@ -1037,7 +980,6 @@ def test_eq(photosdb):
 
 def test_eq_2(photosdb):
     """Test equality of two PhotoInfo objects when one has memoized property"""
-    import osxphotos
 
     photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos1 = photosdb.photos(uuid=[UUID_DICT["in_album"]])
@@ -1067,7 +1009,6 @@ def test_photosdb_repr():
 
 
 def test_photosinfo_repr(photosdb):
-    import datetime
 
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     photo = photos[0]
@@ -1080,16 +1021,15 @@ def test_photosinfo_repr(photosdb):
 
 @pytest.mark.usefixtures("set_tz_pacific")
 def test_from_to_date(photosdb):
-    import datetime as dt
 
-    photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
+    photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7
 
-    photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
+    photos = photosdb.photos(to_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7
 
     photos = photosdb.photos(
-        from_date=dt.datetime(2018, 9, 28), to_date=dt.datetime(2018, 9, 29)
+        from_date=datetime.datetime(2018, 9, 28), to_date=datetime.datetime(2018, 9, 29)
     )
     assert len(photos) == 4
 
@@ -1098,9 +1038,6 @@ def test_from_to_date(photosdb):
 def test_date_invalid():
     """Test date is invalid"""
     # doesn't run correctly with the module-level fixture
-    from datetime import datetime, timedelta, timezone
-
-    import osxphotos
 
     # UUID_DICT["date_invalid"] has an invalid date that's
     # been manually adjusted in the database
@@ -1108,14 +1045,11 @@ def test_date_invalid():
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
-    delta = timedelta(seconds=p.tzoffset)
-    tz = timezone(delta)
-    assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
+    assert p.date == datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
 
 def test_date_modified_invalid(photosdb):
     """Test date modified is invalid"""
-    from datetime import datetime, timedelta, timezone
 
     # UUID_DICT["date_invalid"] has an invalid modified date that's
     # been manually adjusted in the database
@@ -1158,7 +1092,6 @@ def test_is_reference(photosdb):
 
 def test_adjustments(photosdb):
     """test adjustments/AdjustmentsInfo"""
-    from osxphotos.adjustmentsinfo import AdjustmentsInfo
 
     photo = photosdb.get_photo(UUID_DICT["adjustments_info"])
     adjustments = photo.adjustments

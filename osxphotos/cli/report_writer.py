@@ -1,4 +1,4 @@
-"""Report writer for the --report option of `osxphotos export`"""
+"""Report writer for the --report option of 'osxphotos export'"""
 
 from __future__ import annotations
 
@@ -147,7 +147,7 @@ class ExportReportWriterJSON(ReportWriterABC):
         self.indent = 4
 
         self._first_record_written = False
-        if append:
+        if append and os.path.exists(self.output_file):
             with open(self.output_file, "r") as fh:
                 existing_data = json.load(fh)
             self._output_fh = open(self.output_file, "w")
@@ -579,7 +579,7 @@ class SyncReportWriterJSON(ReportWriterABC):
         self.indent = 4
 
         self._first_record_written = False
-        if append:
+        if append and os.path.exists(self.output_file):
             with open(self.output_file, "r") as fh:
                 existing_data = json.load(fh)
             self._output_fh = open(self.output_file, "w")
@@ -887,7 +887,7 @@ class PushExifReportWriterJSON(ReportWriterABC):
         self.indent = 4
 
         self._first_record_written = False
-        if append:
+        if append and os.path.exists(self.output_file):
             with open(self.output_file, "r") as fh:
                 existing_data = json.load(fh)
             self._output_fh = open(self.output_file, "w")

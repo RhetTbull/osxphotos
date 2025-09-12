@@ -7,8 +7,9 @@ import os
 import pathlib
 import sqlite3
 
-from ._constants import _DB_TABLE_NAMES, TIME_DELTA
+from ._constants import _DB_TABLE_NAMES
 from .fingerprint import fingerprint
+from .photos_datetime import photos_datetime
 from .photosdb.photosdb_utils import get_photos_version_from_model
 
 
@@ -56,7 +57,7 @@ class FingerprintQuery:
 
         results = self.conn.execute(sql, (fingerprint,)).fetchall()
         results = [
-            (row[0], photos_timestamp_to_datetime(row[1], row[2]), row[3])
+            (row[0], photos_datetime(row[1], row[2], default=True), row[3])
             for row in results
         ]
         return results
@@ -84,7 +85,7 @@ class FingerprintQuery:
 
         results = self.conn.execute(sql, (size, filename)).fetchall()
         results = [
-            (row[0], photos_timestamp_to_datetime(row[1], row[2]), row[3])
+            (row[0], photos_datetime(row[1], row[2], default=True), row[3])
             for row in results
         ]
         return results
@@ -117,32 +118,3 @@ class FingerprintQuery:
             return results
 
         return []
-
-
-def photos_timestamp_to_datetime(
-    timestamp: float, tzoffset: int | None = None
-) -> datetime.datetime:
-    """Convert Photos timestamp to datetime.datetime object
-
-    Args:
-        timestamp: Photos timestamp
-        tzoffset: timezone offset in seconds
-
-    Returns:
-        datetime.datetime object
-
-    Note: Photos timestamp is number of seconds since 1/1/2001
-    If tzoffset is not None, the datetime object will be timezone aware.
-    If timestamp is invalid, returns 1 Jan 1970 00:00:00
-    """
-    try:
-        dt = datetime.datetime.fromtimestamp(timestamp + TIME_DELTA)
-    except (ValueError, TypeError):
-        dt = datetime.datetime(1970, 1, 1, 0, 0, 0)
-
-    if tzoffset is not None:
-        delta = datetime.timedelta(seconds=tzoffset)
-        tz = datetime.timezone(delta)
-        dt = dt.astimezone(tz=tz)
-
-    return dt

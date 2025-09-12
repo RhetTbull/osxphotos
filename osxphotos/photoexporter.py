@@ -1,5 +1,4 @@
-""" PhotoExport class to export photos
-"""
+"""PhotoExport class to export photos"""
 
 from __future__ import annotations
 
@@ -9,6 +8,7 @@ import json
 import logging
 import os
 import pathlib
+import subprocess
 import typing as t
 from enum import Enum
 
@@ -20,6 +20,7 @@ from .exifwriter import ExifWriter, exif_options_from_options
 from .export_db import ExportDBTemp
 from .exportoptions import ExportOptions, ExportResults
 from .fileutil import FileUtil
+from .photoinfo_common import photoinfo_minify_dict
 from .phototemplate import RenderOptions
 from .platform import is_macos
 from .rich_utils import add_rich_markup_tag
@@ -58,6 +59,12 @@ if t.TYPE_CHECKING:
 
 # retry if download_missing/use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
+
+# threshold for consecutive AppleScript export errors before restarting Photos
+APPLESCRIPT_ERROR_THRESHOLD = 10
+
+# counter for tracking consecutive AppleScript export errors
+_consecutive_export_errors = 0
 
 logger = logging.getLogger("osxphotos")
 
@@ -137,6 +144,24 @@ class StagedFiles:
 class PhotoExporter:
     """Export a photo"""
 
+    @staticmethod
+    def _kill_photos_process():
+        """Kill the Photos app process to restart it"""
+        try:
+            # Use pkill to kill the main Photos application process
+            # Use -f to match the full path containing Photos.app
+            result = subprocess.run(
+                ["pkill", "-f", "Photos.app"], check=False, capture_output=True
+            )
+            if result.returncode == 0:
+                logger.debug(
+                    "Photos process killed due to consecutive AppleScript failures"
+                )
+            else:
+                logger.debug("No Photos process found to kill")
+        except Exception as e:
+            logger.warning(f"Failed to kill Photos process: {e}")
+
     def __init__(self, photo: "PhotoInfo", tmpdir: t.Optional[str] = None):
         self.photo = photo
         self._render_options = RenderOptions()
@@ -171,14 +196,14 @@ class PhotoExporter:
               in which case export will use the extension provided by Photos upon export.
               e.g. to get the extension of the edited photo,
               reference PhotoInfo.path_edited
-            options (`ExportOptions`): t.Optional ExportOptions instance
+            options ('ExportOptions'): t.Optional ExportOptions instance
 
         Returns:
             ExportResults instance
 
         Note:
             To use dry run mode, you must set options.dry_run=True and also pass in memory version of export_db,
-              and no-op fileutil (e.g. `ExportDBInMemory` and `FileUtilNoOp`) in options.export_db and options.fileutil respectively
+              and no-op fileutil (e.g. 'ExportDBInMemory' and 'FileUtilNoOp') in options.export_db and options.fileutil respectively
         """
 
         options = options or ExportOptions()
@@ -237,11 +262,11 @@ class PhotoExporter:
         dest, options = self._should_convert_to_jpeg(dest, options)
 
         # stage files for export by finding path in local library or downloading from iCloud as appropriate
-        # for `--download-missing` and `--update` case, this may cause unnecessary downloads
+        # for '--download-missing' and '--update' case, this may cause unnecessary downloads
         # as it will download the file even if it's not needed (won't be checked until the _should_update_photo() call from _export_photo()
         # fixing this will require major refactoring of the export code, see #1086
         # leaving it for now as this should not be a common use case
-        # (if using `--update` it is much better to be using "Download originals to this Mac" in Photos)
+        # (if using '--update' it is much better to be using "Download originals to this Mac" in Photos)
         staged_files = self._stage_photos_for_export(options)
         src = staged_files.edited if options.edited else staged_files.original
 
@@ -589,8 +614,7 @@ class PhotoExporter:
         staged = StagedFiles()
 
         if options.use_photos_export:
-            return self._stage_missing_photos_for_export_helper(
-                options=options)
+            return self._stage_missing_photos_for_export_helper(options=options)
 
         if options.raw_photo and self.photo.has_raw:
             staged.raw = self.photo.path_raw
@@ -648,7 +672,8 @@ class PhotoExporter:
             use_photokit=options.use_photokit,
         )
         missing_staged = self._stage_missing_photos_for_export_helper(
-            options=missing_options)
+            options=missing_options
+        )
         staged |= missing_staged
         return staged
 
@@ -1045,7 +1070,7 @@ class PhotoExporter:
         # set data in the database
         with export_db.create_or_get_file_record(dest_str, self.photo.uuid) as rec:
             if rec.photoinfo:
-                last_data = json.loads(rec.photoinfo)
+                last_data = photoinfo_minify_dict(json.loads(rec.photoinfo))
                 # to avoid issues with datetime comparisons, list order
                 # need to deserialize from photo.json() instead of using photo.asdict()
                 current_data = json.loads(self.photo.json(shallow=True))
@@ -1067,7 +1092,7 @@ class PhotoExporter:
                 diff = json.dumps(diff, default=_json_default) if diff else None
             else:
                 diff = None
-            rec.photoinfo = self.photo.json(shallow=True)
+            rec.photoinfo = self.photo.json(shallow=False)
             rec.export_options = options.bit_flags
             # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
             if not options.ignore_signature:
@@ -1140,6 +1165,17 @@ class PhotoExporter:
             has not been edited. This is due to how Photos Applescript interface works.
         """
 
+        global _consecutive_export_errors
+
+        # Check if we've hit the error threshold and need to restart Photos
+        if _consecutive_export_errors >= APPLESCRIPT_ERROR_THRESHOLD:
+            logger.warning(
+                f"AppleScript export has failed {_consecutive_export_errors} consecutive times, "
+                f"restarting Photos app"
+            )
+            self._kill_photos_process()
+            _consecutive_export_errors = 0
+
         dest = pathlib.Path(dest)
         if not dest.is_dir():
             raise ValueError(f"dest {dest} must be a directory")
@@ -1166,10 +1202,18 @@ class PhotoExporter:
                 )
                 retries += 1
         except Exception as e:
+            _consecutive_export_errors += 1
+            logger.debug(
+                f"AppleScript export error count: {_consecutive_export_errors}"
+            )
             raise ExportError(e)
 
         if not exported_files or not filename:
             # nothing got exported
+            _consecutive_export_errors += 1
+            logger.debug(
+                f"AppleScript export error count: {_consecutive_export_errors}"
+            )
             raise ExportError(f"Could not export photo {uuid} ({lineno(__file__)})")
         # need to find actual filename as sometimes Photos renames JPG to jpeg on export
         # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
@@ -1199,6 +1243,11 @@ class PhotoExporter:
                     FileUtil.unlink(dest_new)
                 FileUtil.copy(str(path), str(dest_new))
             exported_paths.append(str(dest_new))
+
+        # Reset error counter on successful export
+        if exported_paths:
+            _consecutive_export_errors = 0
+
         return exported_paths
 
     def _export_aae(
@@ -1233,7 +1282,10 @@ class PhotoExporter:
         if action == "skip":
             if dest.exists():
                 options.export_db.set_history(
-                    filename=str(dest), uuid=self.photo.uuid, action=f"AAE: {action}", diff=None
+                    filename=str(dest),
+                    uuid=self.photo.uuid,
+                    action=f"AAE: {action}",
+                    diff=None,
                 )
                 return ExportResults(aae_skipped=[str(dest)], skipped=[str(dest)])
             else:

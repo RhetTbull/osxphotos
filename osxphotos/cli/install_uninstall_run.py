@@ -42,7 +42,7 @@ class RunCommand(click.Command):
 @click.argument("packages", nargs=-1, required=False)
 def install(packages, upgrade, requirements_file):
     """Install Python packages into the same environment as osxphotos"""
-    args = ["pip", "install"]
+    args = ["pip", "--disable-pip-version-check", "--verbose", "install"]
     if upgrade:
         args += ["--upgrade"]
     if requirements_file:
@@ -73,10 +73,10 @@ def run(python_file, help, args):
     """Run a python file using same environment as osxphotos.
     Any args are made available to the python file.
 
-    The python file may be a path on disk, `osxphotos run /path/to/file.py`
+    The python file may be a path on disk, 'osxphotos run /path/to/file.py'
     or a URL to a python file, for example,
 
-    `osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/count_photos.py`
+    'osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/count_photos.py'
     """
 
     # Need to drop all the args from sys.argv up to and including the run command

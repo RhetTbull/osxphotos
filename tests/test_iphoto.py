@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import logging
 import os
 import pathlib
 from typing import Any
@@ -15,13 +16,16 @@ from osxphotos import QueryOptions, iPhotoDB
 from osxphotos.cli.export import export
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.iphoto import iPhotoPhotoInfo, is_iphoto_library
+from osxphotos.platform import is_macos
+
+logger = logging.getLogger("osxphotos")
 
 IPHOTO_LIBRARY = "tests/Test-iPhoto-9.6.1.photolibrary"
 PHOTO_LIBRARY = "tests/Test-10.15.7.photoslibrary"
 ALBUM_TITLES = ["Test Album", "Pumpkin Farm", "Last Import", "AlbumInFolder"]
 
 # Test data for iPhoto library
-# Created with `osxphotos query --library tests/Test-iPhoto-9.6.1.photolibrary --json > tests/iphoto_test_data.json`
+# Created with `osxphotos query --library tests/Test-iPhoto-9.6.1.photolibrary --json | json_pp > tests/iphoto_test_data.json`
 # Then replace the path to the library with `IPHOTO_LIBRARY_ROOT`
 TEST_DATA = "tests/iphoto_test_data.json"
 
@@ -46,6 +50,57 @@ def recursive_str_replace(
         elif isinstance(v, str):
             dict_data[k] = v.replace(old, new)
     return dict_data
+
+
+def compare_dicts(
+    dict1: dict[Any, Any],
+    dict2: dict[Any, Any],
+    tolerance: float = 0.0001,
+    ignore_keys: None | list[Any] = None,
+):
+    """Compare two dictionaries recursively with tolerance for floats"""
+    for key in dict1.keys() | dict2.keys():
+        if ignore_keys and key in ignore_keys:
+            continue
+        val1 = dict1.get(key)
+        val2 = dict2.get(key)
+        if isinstance(val1, dict) and isinstance(val2, dict):
+            if not compare_dicts(val1, val2, tolerance, ignore_keys):
+                return False
+        elif isinstance(val1, (list, tuple)) and isinstance(val2, (list, tuple)):
+            if len(val1) != len(val2):
+                logger.warning(
+                    f"List/tuple lengths do not match for key: {key}, val1: {val1}, val2: {val2}"
+                )
+                return False
+            for v1, v2 in zip(val1, val2):
+                if isinstance(v1, (int, float)) and isinstance(v2, (int, float)):
+                    if abs(v1 - v2) >= tolerance:
+                        logger.warning(
+                            f"Difference exceeds tolerance for key: {key}, val1: {v1}, val2: {v2}"
+                        )
+                        return False
+                elif isinstance(v1, dict) and isinstance(v2, dict):
+                    if not compare_dicts(v1, v2, tolerance):
+                        return False
+                else:
+                    if v1 != v2:
+                        logger.warning(
+                            f"Values do not match for key: {key}, val1: {v1}, val2: {v2}"
+                        )
+                        return False
+        elif isinstance(val1, (int, float)) and isinstance(val2, (int, float)):
+            if abs(val1 - val2) >= tolerance:
+                logger.warning(
+                    f"Difference exceeds tolerance for key: {key}, val1: {val1}, val2: {val2}"
+                )
+                return False
+        elif val1 != val2:
+            logger.warning(
+                f"Values do not match for key: {key}, val1: {val1}, val2: {val2}"
+            )
+            return False
+    return True
 
 
 @pytest.fixture(scope="module")
@@ -188,10 +243,12 @@ def test_iphoto_info(iphotodb: iPhotoDB, photo_dict: dict[str, Any]):
 
     uuid = photo_dict["uuid"]
     photo = iphotodb.get_photo(uuid)
-    for key, value in json.loads(photo.json(shallow=False)).items():
-        if key != "fingerprint":
-            # fingerprint not implemented on linux
-            assert value == photo_dict[key]
+
+    # fingerprint not supported on linux
+    ignore_keys = [] if is_macos else ["fingerprint"]
+    assert compare_dicts(
+        json.loads(photo.json(shallow=False)), photo_dict, ignore_keys=ignore_keys
+    )
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")

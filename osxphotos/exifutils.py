@@ -80,6 +80,9 @@ def get_exif_date_time_offset(
 
     for dt_str in time_fields:
         dt = exif.get(dt_str)
+        # Some old mp4 may return ContentCreationDate as YYYY (eg. 2014) which
+        # is converted to int causing re.match(pattern, dt) to fail.
+        dt = str(dt) if isinstance(dt, int) else dt
         if dt and dt_str in {"IPTC:DateCreated", "DateCreated"}:
             # also need time
             time_ = exif.get("IPTC:TimeCreated") or exif.get("TimeCreated")
@@ -97,7 +100,7 @@ def get_exif_date_time_offset(
 
     # try to get offset from EXIF:OffsetTimeOriginal
     offset = exif.get("EXIF:OffsetTimeOriginal") or exif.get("OffsetTimeOriginal")
-    if dt and not offset:
+    if dt and offset is None:
         # see if offset set in the dt string
         for pattern in (
             r"\d{4}:\d{2}:\d{2}\s\d{2}:\d{2}:\d{2}([+-]\d{2}:\d{2})",
@@ -119,10 +122,15 @@ def get_exif_date_time_offset(
                 dt = f"{matched.group(1)} 00:00:00"
                 default_time = True
 
+    if offset is not None:
+        # make sure we have offset
+        if not re.match(r"([+-]\d{2}:\d{2})", offset):
+            offset = None
+
     offset_seconds = exif_offset_to_seconds(offset) if offset else None
 
     if dt:
-        if offset:
+        if offset is not None:
             # drop offset from dt string and add it back on in datetime %z format
             dt = re.sub(r"[+-]\d{2}:\d{2}$", "", dt)
             dt = re.sub(r"\.\d+$", "", dt)

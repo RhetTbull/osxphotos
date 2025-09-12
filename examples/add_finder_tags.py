@@ -118,7 +118,9 @@ def add_metadata_to_photo(
 ):
     """Add Finder tags to matching photo in Photos library as keywords."""
     tags = get_finder_tags(filepath, include, exclude)
-    echo(f"Finder tags for [filepath]{filepath}[/]: [i]{', '.join(tags) if tags else None}[/]")
+    echo(
+        f"Finder tags for [filepath]{filepath}[/]: [i]{', '.join(tags) if tags else None}[/]"
+    )
     if matches := fq.possible_duplicates(filepath):
         echo(
             f"Adding Finder tags to [num]{len(matches)}[/] matching photo(s) in Photos library..."
@@ -128,7 +130,9 @@ def add_metadata_to_photo(
             if not photo:
                 echo(f"Could not find photo with UUID [uuid]{match[0]}[/]", err=True)
                 continue
-            echo(f"Processing photo [filename]{photo.filename}[/] ([uuid]{photo.uuid}[/])")
+            echo(
+                f"Processing photo [filename]{photo.filename}[/] ([uuid]{photo.uuid}[/])"
+            )
             add_keywords_to_photo(photo, tags, dry_run)
             if caption:
                 add_comment_to_photo(photo, filepath, dry_run)

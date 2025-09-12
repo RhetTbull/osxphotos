@@ -379,7 +379,7 @@ def import_metadata_for_photo(
         # If --set use origin location in the destination photo
         results += _set_location_for_photo(photo, metadata, dry_run, verbose)
     elif "location" in merge:
-        # if --merge 
+        # if --merge
         #   and property is set in the destination then no action is taken;
         #   if property is not set in the destination but is set in the source,
         #      then the value is copied to destination.
@@ -389,6 +389,7 @@ def import_metadata_for_photo(
     results += _merge_metadata_for_photo(photo, metadata, merge, dry_run, verbose)
 
     return results
+
 
 def _process_location_for_photo(
     photo: PhotoInfo,
@@ -433,7 +434,8 @@ def _process_location_for_photo(
         field,
         updated,
         before,
-        value)
+        value,
+    )
     return results
 
 
@@ -520,7 +522,7 @@ def _set_metadata_for_photo(
 
         value = metadata[field]
         before = getattr(photo, field)
-    
+
         if isinstance(value, list):
             value = sorted(value)
         if isinstance(before, list):
@@ -680,13 +682,13 @@ def print_import_summary(results: SyncResults):
     "Multiple metadata properties can be specified by repeating the --set option "
     "or by using a comma-separated list. "
     f"METADATA can be one of: {', '.join(SYNC_IMPORT_TYPES_ALL)}. "
-    "For example, to set keywords and favorite, use `--set keywords --set favorite` "
-    "or `--set keywords,favorite`. "
-    "If `--set all` is specified, all metadata will be set. "
+    "For example, to set keywords and favorite, use '--set keywords --set favorite' "
+    "or '--set keywords,favorite'. "
+    "If '--set all' is specified, all metadata will be set. "
     "Note that using --set overwrites any existing metadata in the local Photos library. "
     "For example, if a photo is marked as favorite in the local library but not in the import source, "
     "--set favorite will clear the favorite status in the local library. "
-    "The exception to this is that `--set albums` will not remove the photo "
+    "The exception to this is that '--set albums' will not remove the photo "
     "from any existing albums in the local library but will add the photo to any new albums specified "
     "in the import source."
     "See also --merge.",
@@ -702,9 +704,9 @@ def print_import_summary(results: SyncResults):
     "Multiple metadata properties can be specified by repeating the --merge option "
     "or by using a comma-separated list. "
     f"METADATA can be one of: {', '.join(SYNC_IMPORT_TYPES_ALL)}. "
-    "For example, to merge keywords and favorite, use `--merge keywords --merge favorite` "
-    "or `--merge keywords,favorite`. "
-    "If `--merge all` is specified, all metadata will be merged. "
+    "For example, to merge keywords and favorite, use '--merge keywords --merge favorite' "
+    "or '--merge keywords,favorite'. "
+    "If '--merge all' is specified, all metadata will be merged. "
     "Note that using --merge does not overwrite any existing metadata in the local Photos library. "
     "For example, if a photo is marked as favorite in the local library but not in the import source, "
     "--merge favorite will not change the favorite status in the local library. "

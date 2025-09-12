@@ -104,7 +104,7 @@ def template_repl(
 
     Launches a REPL (Read-Eval-Print-Loop) to interactively render a template for the selected photo.
 
-    Select a photo in Photos then run `osxphotos template` to start the REPL.
+    Select a photo in Photos then run 'osxphotos template' to start the REPL.
     """
     configure_readline(mode)
     if not template:
@@ -358,6 +358,7 @@ def handle_unmatched(unmatched: list[str]):
     if suggestions := suggest_template_fields(unmatched):
         print("Did you mean one of these?", file=sys.stderr)
         print(" ".join(suggestions), file=sys.stderr)
+    sys.stderr.flush()
 
 
 def print_intro():

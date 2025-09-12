@@ -53,7 +53,6 @@ from ._constants import (
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
-    TIME_DELTA,
 )
 from .datetime_utils import datetime_has_tz, datetime_naive_to_local
 from .exiftool import ExifToolCaching, get_exiftool_path
@@ -63,6 +62,7 @@ from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
+from .photos_datetime import photos_datetime, photos_datetime_local
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 from .scoreinfo import ScoreInfo
@@ -128,6 +128,7 @@ class iPhotoDB:
 
         # initialize database dictionaries
         self._db_photos = {}  # mapping of uuid to photo data
+        self._dbphotos = self._db_photos  # for compatability with PhotosDB
         self._db_event_notes = {}  # mapping of modelId to event notes
         self._db_places = {}  # mapping of modelId to places
         self._db_properties = {}  # mapping of versionId to properties
@@ -139,9 +140,10 @@ class iPhotoDB:
         self._db_albums = {}  # mapping of modelId to albums
         self._db_volumes = {}  # mapping of volume uuid to volume name
 
-        # set _db_version and _photos_ver even though they're not used in iPhoto because other code depends on these
+        # set _db_version, _photos_ver, _model_ver even though they're not used in iPhoto because other code depends on these
         self._db_version = _IPHOTO_VERSION
         self._photos_ver = 0
+        self._model_ver = 0
 
         self._load_library()
 
@@ -158,6 +160,7 @@ class iPhotoDB:
         self._load_folders()
         self._load_albums()
         self._load_keywords()
+        self._load_image_proxies()
         self._load_volumes()
         self._build_photo_paths()
 
@@ -258,14 +261,16 @@ class iPhotoDB:
         for row in results:
             self._db_photos[row["uuid"]] = dict(row)
 
-        # normalize unicode
         for uuid in self._db_photos:
+            # normalize unicode
             self._db_photos[uuid]["title"] = normalize_unicode(
                 self._db_photos[uuid]["title"]
             )
             self._db_photos[uuid]["rollname"] = normalize_unicode(
                 self._db_photos[uuid]["rollname"]
             )
+            # init preview_path (will be loaded by _load_image_proxies)
+            self._db_photos[uuid]["preview_path"] = None
         self.verbose(f"Loaded {len(self._db_photos)} assets from iPhoto library")
 
         # Event notes (pre-iPhoto 9.1)
@@ -712,6 +717,36 @@ class iPhotoDB:
             self._db_photos[uuid]["keywords"].append(normalize_unicode(row["name"]))
         conn.close()
 
+    def _load_image_proxies(self):
+        """Load image proxiesfrom the database"""
+
+        db = self.library_path.joinpath("Database/apdb/ImageProxies.apdb")
+        if not db.exists():
+            logger.warning(f"ImageProxies.apdb not found at {db}")
+            return
+
+        query = """
+            SELECT
+            modelId as modelId,
+            versionUuid as uuid,
+            fullSizePreviewPath as preview_path
+            FROM RKImageProxyState
+        """
+        logger.debug(f"Executing query: {query}")
+
+        conn = sqlite3.connect(db)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        self.verbose("Loading preview images from iPhoto library")
+        results = cursor.execute(query).fetchall()
+        for row in results:
+            uuid = row["uuid"]
+            if uuid not in self._db_photos:
+                # logger.warning(f"Missing uuid {uuid} in _db_library")
+                continue
+            self._db_photos[uuid]["preview_path"] = row["preview_path"]
+        conn.close()
+
     def _load_volumes(self):
         """Load volume data for referenced files"""
         library_db = self.library_path.joinpath("Database/apdb/Library.apdb")
@@ -762,20 +797,27 @@ class iPhotoDB:
 
             # edited path
             if photo["hasadjustments"]:
-                image_path = pathlib.Path(photo["imagepath"])
-                path_edited = self.library_path.joinpath(
-                    "Previews", image_path.parent, uuid
-                )
-                edited_files = list(path_edited.glob("*"))
-                # edited image named with Photo's title not imagepath.stem
-                if edited_files := [
-                    x
-                    for x in edited_files
-                    if normalize_unicode(x.stem) == photo["title"]
-                ]:
-                    photo["path_edited"] = edited_files[0]
+                if photo["preview_path"]:
+                    # preview path should be read from ImageProxies.apdb
+                    photo["path_edited"] = self.library_path.joinpath(
+                        "Previews", photo["preview_path"]
+                    )
                 else:
-                    photo["path_edited"] = ""
+                    # fallback to heuristic to find edited image
+                    image_path = pathlib.Path(photo["imagepath"])
+                    path_edited = self.library_path.joinpath(
+                        "Previews", image_path.parent, uuid
+                    )
+                    edited_files = list(path_edited.glob("*"))
+                    # edited image named with Photo's title not imagepath.stem
+                    if edited_files := [
+                        x
+                        for x in edited_files
+                        if normalize_unicode(x.stem) == photo["title"]
+                    ]:
+                        photo["path_edited"] = edited_files[0]
+                    else:
+                        photo["path_edited"] = ""
             else:
                 photo["path_edited"] = ""
 
@@ -1064,25 +1106,33 @@ class iPhotoPhotoInfo:
     @property
     def date(self) -> datetime.datetime:
         """Date photo was taken"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_taken"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_taken"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=True,
         )
+
+    @property
+    def date_original(self) -> datetime.datetime:
+        """Date photo was taken"""
+        return self.date
 
     @property
     def date_modified(self) -> datetime.datetime:
         """Date modified in library"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_modified"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_modified"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=False,
         )
 
     @property
     def date_added(self) -> datetime.datetime:
         """Date added to library"""
-        return iphoto_date_to_datetime(
-            self._db._db_photos[self._uuid]["date_imported"],
-            self._db._db_photos[self._uuid]["timezone"],
+        return photos_datetime(
+            timestamp=self._db._db_photos[self._uuid]["date_imported"],
+            tzname=self._db._db_photos[self._uuid]["timezone"],
+            default=True,
         )
 
     @property
@@ -1092,7 +1142,12 @@ class iPhotoPhotoInfo:
         if not tzname:
             return 0
         tz = ZoneInfo(tzname)
-        return int(tz.utcoffset(datetime.datetime.now()).total_seconds())
+        return int(tz.utcoffset(self.date).total_seconds())
+
+    @property
+    def tzname(self) -> str | None:
+        """Timezone name for the asset creation date"""
+        return self._db._db_photos[self._uuid]["timezone"] or None
 
     @property
     def path(self) -> str | None:
@@ -1440,9 +1495,9 @@ class iPhotoPhotoInfo:
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
               if overwrite=False and increment=False, export will fail if destination file already exists
             sidecar_json: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. 'exiftool -G -j')
             sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. 'exiftool -j')
             sidecar_xmp: if set will write an XMP sidecar with IPTC data
               sidecar filename will be dest/filename.xmp
             exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
@@ -1564,7 +1619,7 @@ class iPhotoPhotoInfo:
         # do not add any new properties to data_dict as this is used by export to determine
         # if a photo needs to be re-exported and adding new properties may cause all photos
         # to be re-exported
-        # see below `if not shallow:`
+        # see below 'if not shallow:'
         dict_data = {
             "albums": self.albums,
             "burst": self.burst,
@@ -1673,6 +1728,9 @@ class iPhotoPhotoInfo:
             dict_data["shared_moment"] = self.shared_moment
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
+            dict_data["screen_recording"] = self.screen_recording
+            dict_data["date_original"] = self.date_original
+            dict_data["tzname"] = self.tzname
 
         return dict_data
 
@@ -2382,7 +2440,7 @@ class iPhotoEventInfo:
     def _date_created(self) -> datetime.datetime | None:
         """Date the event created in iPhoto."""
         # not common with Photos MomentInfo so leave private
-        return naive_iphoto_date_to_datetime(self._event["date"])
+        return photos_datetime_local(self._event["date"])
 
     @property
     def modification_date(self) -> datetime.datetime | None:
@@ -2457,49 +2515,6 @@ class iPhotoExifInfo:
 
 
 ### Utility functions ###
-
-
-def iphoto_date_to_datetime(
-    date: int | None, tz: str | None = None
-) -> datetime.datetime:
-    """ "Convert iPhoto date to datetime; if tz provided, will be timezone aware
-
-    Args:
-        date: iPhoto date
-        tz: timezone name
-
-    Returns:
-        datetime.datetime
-
-    Note:
-        If date is None or invalid, will return 1970-01-01 00:00:00
-    """
-    try:
-        dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
-    except (ValueError, TypeError):
-        dt = datetime.datetime(1970, 1, 1)
-    if tz:
-        dt = dt.replace(tzinfo=ZoneInfo(tz))
-    return dt
-
-
-def naive_iphoto_date_to_datetime(date: int) -> datetime.datetime:
-    """ "Convert iPhoto date to datetime with local timezone
-
-    Args:
-        date: iPhoto date
-
-    Returns:
-        timezone aware datetime.datetime in local timezone
-
-    Note:
-        If date is invalid, will return 1970-01-01 00:00:00
-    """
-    try:
-        dt = datetime.datetime.fromtimestamp(date + TIME_DELTA)
-    except ValueError:
-        dt = datetime.datetime(1970, 1, 1)
-    return datetime_naive_to_local(dt)
 
 
 def default_return_value(name: str) -> Any:

@@ -857,6 +857,98 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "svet-b",
+      "name": "svet-b",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12831860?v=4",
+      "profile": "https://github.com/svet-b",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "Syntaxheld",
+      "name": "Syntaxheld",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6772181?v=4",
+      "profile": "https://github.com/Syntaxheld",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "christiansievers",
+      "name": "Christian Sievers",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20228200?v=4",
+      "profile": "https://christiansievers.info",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "mravery",
+      "name": "Avery Chan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1683929?v=4",
+      "profile": "https://github.com/mravery",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "dobernhardt",
+      "name": "dobernhardt",
+      "avatar_url": "https://avatars.githubusercontent.com/u/57567625?v=4",
+      "profile": "https://github.com/dobernhardt",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "JxxIT",
+      "name": "JxxIT",
+      "avatar_url": "https://avatars.githubusercontent.com/u/110342008?v=4",
+      "profile": "https://github.com/JxxIT",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "KeyPlayerMaek",
+      "name": "Marek Toth",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25553779?v=4",
+      "profile": "https://github.com/KeyPlayerMaek",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "pl804",
+      "name": "pl804",
+      "avatar_url": "https://avatars.githubusercontent.com/u/101955060?v=4",
+      "profile": "https://github.com/pl804",
+      "contributions": [
+        "test",
+        "data"
+      ]
+    },
+    {
+      "login": "cstaubli",
+      "name": "Christian Staubli",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6720436?v=4",
+      "profile": "https://github.com/cstaubli",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "YazdanRa",
+      "name": "Yazdan Ranjbar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32798567?v=4",
+      "profile": "http://yazdanra.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

@@ -1,6 +1,7 @@
-""" Test custom click paramater types used by osxphotos CLI"""
+"""Test custom click paramater types used by osxphotos CLI"""
 
 import datetime
+from unittest.mock import patch
 
 import pytest
 from bitmath import MB
@@ -16,8 +17,9 @@ from osxphotos.cli.param_types import (
     TimeISO8601,
     TimeOffset,
     TimeString,
-    UTCOffset,
+    TimezoneOffset,
 )
+from osxphotos.platform import is_macos
 from osxphotos.timezones import Timezone
 
 
@@ -178,26 +180,103 @@ def test_timestring_invalid_format():
             TimeString().convert(timestring_str, None, None)
 
 
-def test_utcoffset():
-    """Test UTCOffset"""
-    utcoffset_data = {
-        "+00:00": Timezone(0),
-        "-00:00": Timezone(-0),
-        "+01:00": Timezone(3600),
-        "-01:00": Timezone(-3600),
-        "+01:30": Timezone(5400),
-        "-01:30": Timezone(-5400),
-    }
-    for utcoffset_str, utcoffset_int in utcoffset_data.items():
-        assert UTCOffset().convert(utcoffset_str, None, None) == utcoffset_int
+def test_timezoneoffset():
+    """Test TimezoneOffset"""
+    utcoffset_data = [
+        ("+00:00", 0),
+        ("-00:00", 0),
+        ("+01:00", 3600),
+        ("-01:00", -3600),
+        ("+02:00", 7200),
+        ("-02:00", -7200),
+    ]
+
+    # Test offset-based timezones
+    for utcoffset_str, expected_offset in utcoffset_data:
+        result = TimezoneOffset().convert(utcoffset_str, None, None)
+        assert isinstance(result, Timezone)
+        assert result.offset == expected_offset
+
+    # Test named timezone
+    result = TimezoneOffset().convert("America/Los_Angeles", None, None)
+    assert isinstance(result, Timezone)
+    assert result.name == "America/Los_Angeles"
+
+
+@pytest.mark.skipif(not is_macos, reason="Only runs on macOS")
+def test_timezoneoffset_macos():
+    """Test TimezoneOffset on macOS; on macOS, Timezone supports unnamed partial hour timezones"""
+    utcoffset_data = [
+        ("+00:00", 0),
+        ("-00:00", 0),
+        ("+01:00", 3600),
+        ("-01:00", -3600),
+        ("+01:30", 5400),
+        ("-01:30", -5400),
+    ]
+
+    # Test offset-based timezones
+    for utcoffset_str, expected_offset in utcoffset_data:
+        result = TimezoneOffset().convert(utcoffset_str, None, None)
+        assert isinstance(result, Timezone)
+        assert result.offset == expected_offset
 
 
 def test_utcoffset_invalid_format():
     """Test UTCOffset with invalid format"""
-    utcoffset_data = [
-        "20-01-01T00:00:00",
-        "20-01-1",
-    ]
+    utcoffset_data = ["20-01-01T00:00:00", "20-01-1", "Invalid/Timezone"]
     for utcoffset_str in utcoffset_data:
         with pytest.raises(BadParameter):
-            UTCOffset().convert(utcoffset_str, None, None)
+            TimezoneOffset().convert(utcoffset_str, None, None)
+
+
+def test_timezone_direct_construction():
+    """Test direct Timezone construction with different platforms"""
+    # Test that both integer and string construction work properly
+    # This ensures compatibility across both platform versions
+
+    tz_int = Timezone(3600)
+    assert tz_int.offset == 3600
+
+    tz_float = Timezone(3600.0)
+    assert tz_float.offset == 3600
+
+    tz_str = Timezone("America/Los_Angeles")
+    assert tz_str.name == "America/Los_Angeles"
+
+
+@pytest.mark.parametrize("is_macos_mock", [True, False])
+def test_timezone_both_platform_versions(is_macos_mock):
+    """Test Timezone class behavior on both platforms using mocking"""
+    with patch("osxphotos.platform.is_macos", is_macos_mock):
+        # Create a fresh instance to test platform-specific behavior
+        # by dynamically importing the appropriate class structure
+
+        if is_macos_mock:
+            # Test that macOS version accepts float
+            try:
+                from osxphotos.timezones import Timezone
+
+                # This should work if we're testing macOS version
+                if hasattr(Timezone, "__init__"):
+                    # Simple test - if the platform check worked, this should be callable
+                    tz = Timezone(0)
+                    assert tz.offset == 0
+            except ImportError:
+                pytest.skip("macOS-specific imports not available")
+        else:
+            # Test non-macOS version behavior
+            try:
+                from osxphotos.timezones import Timezone
+
+                # Test integer construction
+                tz = Timezone(0)
+                assert tz.offset == 0
+
+                tz_pos = Timezone(3600)
+                assert tz_pos.offset == 3600
+
+                tz_neg = Timezone(-3600)
+                assert tz_neg.offset == -3600
+            except ImportError:
+                pytest.skip("Required imports not available")

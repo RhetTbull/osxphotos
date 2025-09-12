@@ -20,7 +20,7 @@ else:
 import osxphotos
 from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
-from osxphotos.platform import get_macos_version
+from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.utils import get_latest_version
 
 # used to show/hide hidden commands
@@ -111,7 +111,6 @@ def check_version():
     if latest_version and version.parse(latest_version) > version.parse(__version__):
         click.echo(
             f"New version {latest_version} available; you are running {__version__}\n"
-            "Run `pipx upgrade osxphotos` to upgrade.\n"
             "Use --no-version-check or set environment variable OSXPHOTOS_NO_VERSION_CHECK=1 "
             "to suppress this message and prevent osxphotos from checking for latest version.",
             err=True,
@@ -124,5 +123,19 @@ def print_version(ctx, param, value):
         return
     click.echo(f"osxphotos, version {__version__}")
     click.echo(f"Python {sys.version}")
-    click.echo(f"macOS {'.'.join(get_macos_version())}, {platform.machine()}")
+    click.echo(f"Python executable: {sys.executable}")
+    if sys.platform.lower() == "darwin":
+        click.echo(f"macOS {'.'.join(get_macos_version())}, {platform.machine()}")
+    else:
+        click.echo(f"{sys.platform} {platform.machine()}")
     ctx.exit()
+
+
+def require_macos(ctx, param, value):
+    """Callback for options that are only valid on macOS."""
+    if value and not is_macos:
+        raise click.UsageError(
+            message=f"{param.opts[0]} only works on macOS",
+            ctx=ctx
+        )
+    return value

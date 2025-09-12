@@ -1,4 +1,4 @@
-"""Generate custom sidecar files for use with `osxphotos export` command and --sidecar-template option"""
+"""Generate custom sidecar files for use with 'osxphotos export' command and --sidecar-template option"""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ def generate_user_sidecar(
     dry_run: bool,
     verbose: Callable[..., None],
 ) -> ExportResults:
-    """Generate custom sidecar files for use with `osxphotos export` command and --sidecar-template option
+    """Generate custom sidecar files for use with 'osxphotos export' command and --sidecar-template option
 
     Args:
         photo: PhotoInfo object for photo
@@ -225,9 +225,7 @@ def get_sidecar_file_with_template(
     if not sidecar_file or not sidecar_file.exists():
         if edited_suffix:
             # try again with the edited suffix removed
-            filepath = strip_edited_suffix(
-                filepath, edited_suffix, exiftool_path
-            )
+            filepath = strip_edited_suffix(filepath, edited_suffix, exiftool_path)
             return get_sidecar_file_with_template(
                 filepath,
                 sidecar,

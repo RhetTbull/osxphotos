@@ -1,5 +1,3 @@
-""" Constants used by osxphotos """
-
 from __future__ import annotations
 
 import logging
@@ -13,10 +11,6 @@ logger: logging.Logger = logging.getLogger("osxphotos")
 APP_NAME = "osxphotos"
 
 OSXPHOTOS_URL = "https://github.com/RhetTbull/osxphotos"
-
-# Time delta: add this to Photos times to get unix time
-# Apple Epoch is Jan 1, 2001
-TIME_DELTA = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622
@@ -34,7 +28,16 @@ _TESTED_DB_VERSIONS = ["6000", "5001", "4025", "4016", "3301", "2622"]
 # Photos 7 (12.0.1) == 15323
 # Photos 8 (13.0.0) == 16320
 # Photos 9 (14.0.0 dev preview) = 17120
-_TEST_MODEL_VERSIONS = ["13537", "13703", "14104", "15323", "16320", "17120"]
+_TEST_MODEL_VERSIONS = [
+    "13537",
+    "13703",
+    "14104",
+    "15323",
+    "16320",
+    "17120",
+    "18402",
+    "18508",
+]
 
 _IPHOTO_VERSION = "0000"
 
@@ -56,6 +59,7 @@ _PHOTOS_9_MODEL_VERSION = [17000, 17599]  # Sonoma dev preview: 17120
 _PHOTOS_9_14_6_MODEL_VERSION = [17600, 17999]  # macOS 14.6 changed the schema
 _PHOTOS_10B1_MODEL_VERSION = [18000, 18200]  # Sequoia dev preview 1: 18164
 _PHOTOS_10_MODEL_VERSION = [18201, 18999]
+_PHOTOS_11_MODEL_VERSION = [19063, 19999]
 
 # the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing
 _PHOTOS_SYNDICATION_MODEL_VERSION = 15323  # 12.0.1
@@ -193,6 +197,22 @@ _DB_TABLE_NAMES = {
         "MASTER_FINGERPRINT": "ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH",
         "HAS_ADJUSTMENTS": "ZASSET.ZADJUSTMENTSSTATE",
     },
+    11: {  # macOS 16 / 26 Tahoe
+        "ASSET": "ZASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_51KEYWORDS",
+        "ALBUM_JOIN": "Z_32ASSETS.Z_3ASSETS",
+        "ALBUM_SORT_ORDER": "Z_32ASSETS.Z_FOK_3ASSETS",
+        "IMPORT_FOK": "null",
+        "DEPTH_STATE": "ZASSET.ZDEPTHTYPE",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZCOMPACTUTI",
+        "ASSET_ALBUM_JOIN": "Z_32ASSETS.Z_32ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_32ASSETS",
+        "HDR_TYPE": "ZHDRTYPE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSONFORFACE",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSETFORFACE",
+        "MASTER_FINGERPRINT": "ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH",
+        "HAS_ADJUSTMENTS": "ZASSET.ZADJUSTMENTSSTATE",
+    },
 }
 
 # Which version operating systems have been tested
@@ -241,6 +261,14 @@ _TESTED_OS_VERSIONS = [
     ("14", "4"),
     ("14", "5"),
     ("14", "6"),
+    ("14", "7"),
+    ("15", "0"),
+    ("15", "1"),
+    ("15", "2"),
+    ("15", "3"),
+    ("15", "4"),
+    ("15", "5"),
+    ("15", "6"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face

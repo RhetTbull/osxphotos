@@ -1,4 +1,4 @@
-""" Update the timezone of a photo in Apple Photos' library """
+"""Update the timezone of a photo in Apple Photos' library"""
 
 # WARNING: This is a hack.  It might destroy your Photos library.
 # Ensure you have a backup before using!
@@ -14,8 +14,12 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from ._constants import _DB_TABLE_NAMES, SQLITE_CHECK_SAME_THREAD
 from .photosdb.photosdb_utils import get_photos_library_version
-from .timezones import Timezone
+from .platform import assert_macos
 from .utils import get_last_library_path, get_system_library_path, noop
+
+assert_macos()
+
+from .timezones import Timezone
 
 
 def tz_to_str(tz_seconds: int) -> str:
@@ -60,13 +64,13 @@ class PhotoTimeZone:
         """Return (timezone_seconds, timezone_str, timezone_name) of photo"""
         # Use retry decorator to retry if database is locked
         uuid = photo.uuid
-        sql = f"""  SELECT 
-                    ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, 
+        sql = f"""  SELECT
+                    ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
                     ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME
                     FROM ZADDITIONALASSETATTRIBUTES
-                    JOIN {self.ASSET_TABLE} 
+                    JOIN {self.ASSET_TABLE}
                     ON ZADDITIONALASSETATTRIBUTES.ZASSET = {self.ASSET_TABLE}.Z_PK
-                    WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}' 
+                    WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}'
             """
         with sqlite3.connect(
             self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
@@ -130,15 +134,15 @@ class PhotoTimeZoneUpdater:
         # Use retry decorator to retry if database is locked
         try:
             uuid = photo.uuid
-            sql = f"""  SELECT 
-                        ZADDITIONALASSETATTRIBUTES.Z_PK, 
-                        ZADDITIONALASSETATTRIBUTES.Z_OPT, 
-                        ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, 
+            sql = f"""  SELECT
+                        ZADDITIONALASSETATTRIBUTES.Z_PK,
+                        ZADDITIONALASSETATTRIBUTES.Z_OPT,
+                        ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
                         ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME
                         FROM ZADDITIONALASSETATTRIBUTES
-                        JOIN {self.ASSET_TABLE} 
+                        JOIN {self.ASSET_TABLE}
                         ON ZADDITIONALASSETATTRIBUTES.ZASSET = {self.ASSET_TABLE}.Z_PK
-                        WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}' 
+                        WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}'
                 """
             with sqlite3.connect(
                 self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
@@ -146,14 +150,23 @@ class PhotoTimeZoneUpdater:
                 c = conn.cursor()
                 c.execute(sql)
                 results = c.fetchone()
+
+            photo_tz_offset = self.timezone.offset_for_date(photo.date)
+            if results[2] == photo_tz_offset and results[3] == self.tz_name:
+                self.verbose(
+                    f"Skipping timezone update for photo [filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]): nothing to do"
+                )
+                return
+
             z_opt = results[1] + 1
             z_pk = results[0]
             tz_offset = results[2]
             tz_name = results[3]
             sql_update = f"""   UPDATE ZADDITIONALASSETATTRIBUTES
-                                SET Z_OPT={z_opt}, 
-                                ZTIMEZONEOFFSET={self.tz_offset}, 
-                                ZTIMEZONENAME='{self.tz_name}' 
+                                SET Z_OPT={z_opt},
+                                ZINFERREDTIMEZONEOFFSET={photo_tz_offset},
+                                ZTIMEZONEOFFSET={photo_tz_offset},
+                                ZTIMEZONENAME='{self.tz_name}'
                                 WHERE Z_PK={z_pk};
                         """
             with sqlite3.connect(
@@ -169,9 +182,10 @@ class PhotoTimeZoneUpdater:
             photo.date = photo.date - datetime.timedelta(seconds=1)
 
             self.verbose(
-                f"Updated timezone for photo [filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]) "
-                + f"from [tz]{tz_name}[/tz], offset=[tz]{tz_offset}[/tz] "
-                + f"to [tz]{self.tz_name}[/tz], offset=[tz]{self.tz_offset}[/tz]"
+                "Updated timezone for photo "
+                f"[filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]) "
+                f"from [tz]{tz_name}[/tz], offset=[tz]{tz_offset}[/tz] "
+                f"to [tz]{self.tz_name}[/tz], offset=[tz]{photo_tz_offset}[/tz]"
             )
         except Exception as e:
             raise e

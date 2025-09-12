@@ -120,20 +120,20 @@ def add_locations(
     then run this command again to add location information to the remaining photos.
 
     You can specify a subset of photos to update using the query options.  For example,
-    `--selected` to update only the selected photos, `--added-after 2020-01-01` to update
+    '--selected' to update only the selected photos, '--added-after 2020-01-01' to update
     only photos added after Jan 1, 2020, etc.
 
     Example:
 
     Add location data to all photos with missing location data within a ±2 hour window:
 
-    `osxphotos add-locations --window "2 hr" --verbose`
+    'osxphotos add-locations --window "2 hr" --verbose'
 
     The add-locations command assumes that photos already have the correct date and time.
     If you have photos that are missing both location data and date/time information,
-    you can use `osxphotos timewarp` to add date/time information to the photos and then
-    use `osxphotos add-locations` to add location information.
-    See `osxphotos help timewarp` for more information.
+    you can use 'osxphotos timewarp' to add date/time information to the photos and then
+    use 'osxphotos add-locations' to add location information.
+    See 'osxphotos help timewarp' for more information.
     """
     verbose = verbose_print(verbose_flag, timestamp, theme=theme)
 

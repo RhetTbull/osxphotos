@@ -17,10 +17,15 @@ from .datetime_utils import (
 )
 from .exiftool import ExifTool
 from .exifutils import ExifDateTime, get_exif_date_time_offset
+from .photodates import update_photo_date_time
 from .photosdb import PhotosDB
+from .platform import assert_macos
+from .utils import noop
+
+assert_macos()
+
 from .phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from .timezones import Timezone, format_offset_time
-from .utils import noop
 
 __all__ = ["ExifDateTimeUpdater"]
 
@@ -178,7 +183,7 @@ class ExifDateTimeUpdater:
             )
             return None
 
-        if dtinfo.offset_seconds:
+        if dtinfo.offset_seconds is not None:
             # update timezone then update date/time
             timezone = Timezone(dtinfo.offset_seconds)
             tzupdater = PhotoTimeZoneUpdater(
@@ -193,17 +198,28 @@ class ExifDateTimeUpdater:
         if dtinfo.datetime:
             if datetime_has_tz(dtinfo.datetime):
                 # convert datetime to naive local time for setting in photos
-                local_datetime = datetime_remove_tz(
-                    datetime_utc_to_local(datetime_tz_to_utc(dtinfo.datetime))
-                )
+                new_datetime = datetime_remove_tz(dtinfo.datetime)
+                # local_datetime = datetime_remove_tz(
+                #     datetime_utc_to_local(datetime_tz_to_utc(dtinfo.datetime))
+                # )
             else:
-                local_datetime = dtinfo.datetime
+                new_datetime = dtinfo.datetime
+            #     local_datetime = dtinfo.datetime
             # update date/time
-            photo.date = local_datetime
-            self.verbose(
-                "Updated date/time for photo "
-                f"[filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]): [time]{local_datetime}[/time]"
+            # photo.date = local_datetime
+            update_photo_date_time(
+                self.library_path,
+                photo,
+                new_datetime.date(),
+                new_datetime.time(),
+                None,
+                None,
+                self.verbose,
             )
+            # self.verbose(
+            #     "Updated date/time for photo "
+            #     f"[filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]): [time]{local_datetime}[/time]"
+            # )
 
         return None
 

@@ -16,11 +16,21 @@ from osxphotos.platform import assert_macos
 
 assert_macos()
 
-import cgmetadata
-import makelive
+try:
+    # won't be installed on macOS < 11
+    import cgmetadata
+except ImportError:
+    cgmetadata = None
+
+try:
+    # won't be installed on macOS < 11
+    import makelive
+except ImportError:
+    makelive = None
+
 import objc
 from Foundation import NSURL, NSURLTypeIdentifierKey
-from UniformTypeIdentifiers import UTType, UTTypeImage, UTTypeMovie
+from utitools import conforms_to_uti, uti_for_path
 
 logger = logging.getLogger("osxphotos")
 
@@ -31,18 +41,8 @@ EDITED_RE = r"^.*\/?[A-Za-z]{3}_E\d{4}.*$"
 
 
 def file_conforms_to_uti(path: str | os.PathLike, uti: str) -> bool:
-    file_url = NSURL.fileURLWithPath_(str(path))
-    resource_values, error = file_url.resourceValuesForKeys_error_(
-        [NSURLTypeIdentifierKey], None
-    )
-    if error:
-        raise ValueError(f"Error getting file type: {error}")
-    file_type = resource_values[NSURLTypeIdentifierKey]
-    file_uttype = UTType.typeWithIdentifier_(file_type)
-    uti_target = UTType.typeWithIdentifier_(uti)
-    if file_uttype.conformsToType_(uti_target):
-        return True
-    return False
+    """Return True if file at path conforms to UTI"""
+    return conforms_to_uti(uti_for_path(path) or "", uti)
 
 
 @cache
@@ -75,9 +75,13 @@ def is_raw_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> b
 
 def is_live_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> bool:
     """Return True if photos are a live photo pair"""
+    if not makelive:
+        return False
+
     if not is_image_file(filepath1) or not is_video_file(filepath2):
         # expects live pairs to be image, video
         return False
+
     return makelive.is_live_photo_pair(filepath1, filepath2)
 
 
@@ -85,8 +89,9 @@ def is_possible_live_pair(
     filepath1: str | os.PathLike, filepath2: str | os.PathLike
 ) -> bool:
     """Return True if photos could be a live photo pair (even if files lack the Content ID metadata"""
-    print(f"{filepath1=}, {filepath2=}")
-    if is_image_file(filepath1) and is_video_file(filepath2):
+    if (is_image_file(filepath1) and is_video_file(filepath2)) or (
+        is_video_file(filepath1) and is_image_file(filepath2)
+    ):
         return True
     return False
 
@@ -94,6 +99,9 @@ def is_possible_live_pair(
 def burst_uuid_from_path(path: pathlib.Path) -> str | None:
     """Get burst UUID of a file"""
     if not is_image_file(path):
+        return None
+
+    if not cgmetadata:
         return None
 
     md = cgmetadata.ImageMetadata(path)
@@ -118,7 +126,10 @@ def load_aae_file(filepath: str | os.PathLike) -> dict[str, Any] | None:
 def is_apple_photos_aae_file(filepath: str | os.PathLike) -> bool:
     """Return True if filepath is an AAE file containing Apple Photos adjustments; returns False is file contains adjustments for an external editor"""
     if plist := load_aae_file(filepath):
-        if plist.get("adjustmentFormatIdentifier") in ["com.apple.photo", "com.apple.video", ]:
+        if plist.get("adjustmentFormatIdentifier") in [
+            "com.apple.photo",
+            "com.apple.video",
+        ]:
             return True
     return False
 
@@ -127,7 +138,7 @@ def is_edited_version_of_file(file1: pathlib.Path, file2: pathlib.Path) -> bool:
     """Return True if file2 appears to be an edited version of file1"""
     if match := re.match(ORIGINAL_RE, str(file1)):
         if re.match(
-            f"{match.group(1)}{match.group(2)}_E{match.group(3)}{match.group(4)}",
+            f"{re.escape(match.group(1))}{match.group(2)}_E{match.group(3)}{re.escape(match.group(4))}",
             str(file2),
         ):
             return True

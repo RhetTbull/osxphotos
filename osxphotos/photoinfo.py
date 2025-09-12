@@ -55,7 +55,7 @@ from .adjustmentsinfo import AdjustmentsInfo
 from .albuminfo import AlbumInfo, ImportInfo, ProjectInfo
 from .bookmark import resolve_bookmark_path
 from .commentinfo import CommentInfo, LikeInfo
-from .exifinfo import ExifInfo
+from .exifinfo import ExifInfo, exifinfo_factory
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .exportoptions import ExportOptions
 from .momentinfo import MomentInfo
@@ -131,13 +131,31 @@ class PhotoInfo:
 
     @property
     def date(self) -> datetime.datetime:
-        """image creation date as timezone aware datetime object"""
+        """Asset creation date as timezone aware datetime object"""
         return self._info["imageDate"]
 
     @property
+    def date_original(self) -> datetime.datetime:
+        """Original creation date of asset as timezone aware datetime object.
+        If user has changed the asset's creation date in Photos, use this to access the original creation date
+        set when the asset was imported.
+
+        The original date is stored by Photos at import time
+        from the date in the photo's EXIF data. If this is not set (photo had no EXIF date) then 'date_original'
+        returns the same value as 'date'.
+
+        Photos 5+; on Photos version < 5, returns the same value as 'date'.
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return self.date
+        if self.exif_info and self.exif_info.date:
+            return self.exif_info.date
+        return self.date
+
+    @property
     def date_modified(self) -> datetime.datetime | None:
-        """image modification date as timezone aware datetime object
-        or None if no modification date set"""
+        """Asset modification date as timezone aware datetime.datetime object
+        in local timezone or None if no modification date set"""
 
         # Photos <= 4 provides no way to get date of adjustment and will update
         # lastmodifieddate anytime photo database record is updated (e.g. adding tags)
@@ -146,18 +164,17 @@ class PhotoInfo:
         if not self.hasadjustments and self._db._db_version <= _PHOTOS_4_VERSION:
             return None
 
-        if imagedate := self._info["lastmodifieddate"]:
-            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-            delta = timedelta(seconds=seconds)
-            tz = timezone(delta)
-            return imagedate.astimezone(tz=tz)
-        else:
-            return None
+        return self._info["lastmodifieddate"] or None
 
     @property
     def tzoffset(self) -> int:
-        """timezone offset from UTC in seconds"""
+        """Timezone offset from UTC in seconds for the Photo creation date"""
         return self._info["imageTimeZoneOffsetSeconds"]
+
+    @property
+    def tzname(self) -> str | None:
+        """Timezone name for the asset creation date; on Photos version < 5, returns None"""
+        return self._info["imageTimeZoneName"]
 
     @property
     def path(self) -> str | None:
@@ -699,7 +716,7 @@ class PhotoInfo:
     @property
     def hasadjustments(self) -> bool:
         """True if picture has adjustments / edits"""
-        return self._info["hasAdjustments"] == 1
+        return bool(self._info["hasAdjustments"])
 
     @property
     def adjustments_path(self) -> pathlib.Path | None:
@@ -772,34 +789,18 @@ class PhotoInfo:
 
     @property
     def date_trashed(self) -> datetime.datetime | None:
-        """Date asset was placed in the trash or None"""
-        # TODO: add add_timezone(dt, offset_seconds) to datetime_utils
-        # also update date_modified
-        trasheddate = self._info["trasheddate"]
-        if trasheddate:
-            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-            delta = timedelta(seconds=seconds)
-            tz = timezone(delta)
-            return trasheddate.astimezone(tz=tz)
-        else:
-            return None
+        """Date asset was placed in the trash or None.
+
+        Returns a timezone aware datetime.datetime object in the local timezone."""
+        return self._info["trasheddate"] or None
 
     @property
     def date_added(self) -> datetime.datetime | None:
-        """Date photo was added to the database"""
-        try:
-            return self._date_added
-        except AttributeError:
-            added_date = self._info["added_date"]
-            if added_date:
-                seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-                delta = timedelta(seconds=seconds)
-                tz = timezone(delta)
-                self._date_added = added_date.astimezone(tz=tz)
-            else:
-                self._date_added = None
+        """Date photo was added to the database or None if no added date is recorded.
 
-            return self._date_added
+        Returns a timezone aware datetime.datetime object in the local timezone
+        """
+        return self._info["added_date"] or None
 
     @property
     def location(self) -> tuple[float, float] | tuple[None, None]:
@@ -938,17 +939,32 @@ class PhotoInfo:
     @property
     def burst_selected(self) -> bool:
         """Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_SELECTED)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_SELECTED)
 
     @property
     def burst_key(self) -> bool:
         """Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_KEY)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_KEY)
 
     @property
     def burst_default_pick(self) -> bool:
         """Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_DEFAULT_PICK)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_DEFAULT_PICK)
 
     @property
     def burst_photos(self) -> list[PhotoInfo]:
@@ -1590,7 +1606,7 @@ class PhotoInfo:
         except:
             return []
 
-    @property
+    @cached_property
     def exif_info(self) -> ExifInfo | None:
         """Returns an ExifInfo object with the EXIF data for photo
         Note: the returned EXIF data is the data Photos stores in the database on import;
@@ -1604,52 +1620,10 @@ class PhotoInfo:
 
         try:
             exif = self._db._db_exifinfo_uuid[self.uuid]
-            exif_info = ExifInfo(
-                iso=exif["ZISO"],
-                flash_fired=True if exif["ZFLASHFIRED"] == 1 else False,
-                metering_mode=exif["ZMETERINGMODE"],
-                sample_rate=exif["ZSAMPLERATE"],
-                track_format=exif["ZTRACKFORMAT"],
-                white_balance=exif["ZWHITEBALANCE"],
-                aperture=exif["ZAPERTURE"],
-                bit_rate=exif["ZBITRATE"],
-                duration=exif["ZDURATION"],
-                exposure_bias=exif["ZEXPOSUREBIAS"],
-                focal_length=exif["ZFOCALLENGTH"],
-                fps=exif["ZFPS"],
-                latitude=exif["ZLATITUDE"],
-                longitude=exif["ZLONGITUDE"],
-                shutter_speed=exif["ZSHUTTERSPEED"],
-                camera_make=exif["ZCAMERAMAKE"],
-                camera_model=exif["ZCAMERAMODEL"],
-                codec=exif["ZCODEC"],
-                lens_model=exif["ZLENSMODEL"],
-            )
+            return exifinfo_factory(exif)
         except KeyError:
             logger.debug(f"Could not find exif record for uuid {self.uuid}")
-            exif_info = ExifInfo(
-                iso=None,
-                flash_fired=None,
-                metering_mode=None,
-                sample_rate=None,
-                track_format=None,
-                white_balance=None,
-                aperture=None,
-                bit_rate=None,
-                duration=None,
-                exposure_bias=None,
-                focal_length=None,
-                fps=None,
-                latitude=None,
-                longitude=None,
-                shutter_speed=None,
-                camera_make=None,
-                camera_model=None,
-                codec=None,
-                lens_model=None,
-            )
-
-        return exif_info
+            return exifinfo_factory(None)
 
     @property
     def exiftool(self) -> ExifToolCaching | None:
@@ -1862,9 +1836,9 @@ class PhotoInfo:
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
               if overwrite=False and increment=False, export will fail if destination file already exists
             sidecar_json: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. 'exiftool -G -j')
             sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. 'exiftool -j')
             sidecar_xmp: if set will write an XMP sidecar with IPTC data
               sidecar filename will be dest/filename.xmp
             use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
@@ -2062,7 +2036,7 @@ class PhotoInfo:
         # do not add any new properties to data_dict as this is used by export to determine
         # if a photo needs to be re-exported and adding new properties may cause all photos
         # to be re-exported
-        # see below `if not shallow:`
+        # see below 'if not shallow:'
         dict_data = {
             "albums": self.albums,
             "burst": self.burst,
@@ -2171,6 +2145,8 @@ class PhotoInfo:
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
             dict_data["screen_recording"] = self.screen_recording
+            dict_data["date_original"] = self.date_original
+            dict_data["tzname"] = self.tzname
 
         return dict_data
 

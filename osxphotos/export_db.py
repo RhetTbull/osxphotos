@@ -1,4 +1,4 @@
-""" Helper class for managing database used by PhotoExporter for tracking state of exports and updates """
+"""Helper class for managing database used by PhotoExporter for tracking state of exports and updates"""
 
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "10.0"
+OSXPHOTOS_EXPORTDB_VERSION = "10.1"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -741,6 +741,9 @@ class ExportDB:
         if current_version < float("10.0") and version >= float("10.0"):
             self._migrate_9_1_to_10_0(conn)
 
+        if current_version < float("10.1") and version >= float("10.1"):
+            self._migrate_10_0_to_10_1(conn)
+
         with self.lock:
             conn.execute("VACUUM;")
             conn.commit()
@@ -1101,6 +1104,25 @@ class ExportDB:
 
             conn.commit()
 
+    def _migrate_10_0_to_10_1(self, conn: sqlite3.Connection):
+        """Add history related indexes"""
+        with self.lock:
+            c = conn.cursor()
+
+            c.execute(
+                """ CREATE INDEX IF NOT EXISTS idx_history_filepath_id
+                    ON history (filepath_id);
+                    """
+            )
+
+            c.execute(
+                """ CREATE INDEX IF NOT EXISTS idx_history_path_uuid
+                    ON history_path (uuid);
+                    """
+            )
+
+            conn.commit()
+
     def _perform_db_maintenance(self, conn: sqlite3.Connection):
         """Perform database maintenance"""
         if float(self.version) < float("6.0"):
@@ -1179,7 +1201,10 @@ class ExportDBInMemory(ExportDB):
             # backup the old database to disk
             # this is just in case the write fails
             # so the user can recover the database
-            sqlite_backup_dbfiles(self._dbfile)
+            try:
+                sqlite_backup_dbfiles(self._dbfile)
+            except Exception as e:
+                logger.warning(f"Error backing up export db: {e}")
 
             # delete the old database if it exists
             if os.path.isfile(self._dbfile):
@@ -1194,7 +1219,10 @@ class ExportDBInMemory(ExportDB):
             conn_on_disk.close()
 
             # delete the backup
-            sqlite_delete_backup_files(self._dbfile)
+            try:
+                sqlite_delete_backup_files(self._dbfile)
+            except Exception as e:
+                logger.warning(f"Error deleting export database backup: {e}")
 
     @retry(
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),

@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-89-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-99-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
@@ -37,17 +37,16 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 Tested on Ubuntu Linux and macOS. Many features are only available on macOS.
 
-On Linux, macOS-specific features of the CLI will not be available (these will not be shown in the help output).
-The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos
-from a Photos library on a Linux machine.
+On Linux, macOS-specific features of the CLI will not be available (these will not be shown in the help output). The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos from a Photos library on a Linux machine.
 
-Tested on macOS Sierra (10.12.6) through macOS Sonoma (14.1). Tested on both x86 and Apple silicon (M1).
+Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.6). Tested on both x86 and Apple silicon (M1).
 
-**OSXPhotos has been minimally tested with macOS Sequoia (15 beta) but new beta versions may break osxphotos support. If you encounter problems with macOS 15.0, please open an issue.**
+**OSXPhotos has been minimally tested with macOS Tahoe (macOS 26 developer beta) but new beta versions may break osxphotos support. If you encounter problems with macOS 26, please open an issue.**
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
-| 15.0 beta         | Sequoia    | 10.0 (beta support) |
+| 26.0              | Tahoe      | 11.0 (alpha support)|
+| 15.0 - 15.6       | Sequoia    | 10.0 ✅             |
 | 14.0 - 14.6       | Sonoma     | 9.0 ✅              |
 | 13.0 - 13.6       | Ventura    | 8.0 ✅              |
 | 12.0 - 12.7       | Monterey   | 7.0 ✅              |
@@ -61,41 +60,62 @@ Limited support is also provided for exporting photos and metadata from iPhoto l
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
-Requires python >= `3.9`, <= `3.12`. Reading iPhoto libraries requires python >= `3.10`.
+Requires python >= `3.10`, <= `3.13`.
 
-For macOS 15.0 / Sequoia developer preview, alpha support is provided (very preliminary, not guaranteed to work). Not all features of osxphotos have been tested and some features may not work. If you encounter issues, please open an issue on GitHub.
+For macOS 26.0 / Tahoe developer preview, alpha support is provided (very preliminary, not guaranteed to work). Not all features of osxphotos have been tested and some features may not work. If you encounter issues, please open an issue on GitHub.
 
 ## Installation
 
-If you are new to python, I recommend you install osxphotos using pipx. See other options below. If installing on Linux, see instructions below.
+The recommended way to install `osxphotos` is via the [uv](https://github.com/astral-sh/uv) python package manager tool.
 
-### Installation using pipx
-
-If you aren't familiar with installing python applications, I recommend you install `osxphotos` with [pipx](https://github.com/pipxproject/pipx). The easiest way to do this on a Mac is to use [homebrew](https://brew.sh/):
+### Installation using `uv`
 
 * Open `Terminal` (search for `Terminal` in Spotlight or look in `Applications/Utilities`)
-* Install `homebrew` according to instructions at [https://brew.sh/](https://brew.sh/)
-* Type the following into Terminal: `brew install pipx`
-* Ensure that pipx installed packages are accessible in your PATH by typing: `pipx ensurepath`
-* Then type this: `pipx install osxphotos`
+* Install `uv` by running the following command in Terminal:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+If you previously installed `uv`, upgrade to the latest version:
+
+```bash
+uv self update
+```
+
+* Type the following into Terminal:
+
+```bash
+uv tool install --python 3.13 osxphotos
+```
+
 * Now you should be able to run `osxphotos` by typing: `osxphotos`
 
-Once you've installed osxphotos with pipx, to upgrade to the latest version:
+Once you've installed osxphotos with `uv`, to upgrade to the latest version:
 
-    pipx upgrade osxphotos
+```bash
+uv tool upgrade osxphotos
+```
 
-> [!NOTE]
-> When installing other packages with homebrew, homebrew may update the version of Python installed which would then cause any app (including osxphotos) installed with `pipx` to fail. If this happens, the easiest fix is to reinstall osxphotos with:
->
->     pipx reinstall osxphotos
->
-> Alternatively, you can reinstall all apps installed with `pipx` with:
->
->     pipx reinstall-all
+If you want to try `osxphotos` without installing it, you can run `uv tool run --python 3.13 osxphotos` or `uvx --python 3.13 osxphotos`.
+
+Note: If installing on an older version of macOS and you encounter issues installing with uv, try installing python 3.13 from [python.org](https://www.python.org/downloads/) then running uv to install osxphotos.
+
+### Installation using Brew
+
+You can install `osxphotos` via Homebrew
+
+```
+# Add the tap
+brew tap RhetTbull/osxphotos
+
+# Install osxphotos
+brew install osxphotos
+```
 
 ### Installation using pip
 
-You can also install directly from [pypi](https://pypi.org/project/osxphotos/):
+You can install `osxphotos` directly from [pypi](https://pypi.org/project/osxphotos/):
 
     python3 -m pip install osxphotos
 
@@ -111,17 +131,7 @@ If you use the [MacPorts](https://www.macports.org) package manager on a Mac:
 
 ### Installation on Linux
 
-At least one of the Linux-specific python packages normally installed on Linux may cause an error during installation with `pip` or `pipx`. If you encounter an error similar to: `pip._vendor.packaging.version.InvalidVersion: Invalid version: '6.5.0-1022-generic`, you should still be able to install osxphotos by creating and activating a virtual environment:
-
-```bash
-python3 -m venv .venv-osxphotos
-source .venv-osxphotos/bin/activate
-python3 -m pip install osxphotos
-```
-
-To use osxphotos you will need to ensure the venv is activated using `source .venv-osxphotos/bin/activate`.
-
-You may name the virtual environment anything you want; `.venv-osxphotos` is used in this example to make it clear the virtual environment is used by osxphotos and to avoid conflict with other virtual environments which, by convention, are often named `.venv` or `venv`.
+At least one of the Linux-specific python packages normally installed on Linux may cause an error during installation with `pip` or `pipx`. If you encounter an error similar to: `pip._vendor.packaging.version.InvalidVersion: Invalid version: '6.5.0-1022-generic`, you should still be able to install osxphotos using the `uv` installation instructions above.
 
 ### Installation from git repository
 
@@ -133,7 +143,7 @@ If you want to work on osxphotos code or contribute to the project, you can inst
 > [!NOTE]
 > The git repo for this project is very large (> 3GB) because it contains multiple Photos libraries used for testing on different versions of macOS.
 >
-> If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or `pipx` as described above.
+> If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or with `uv` as described above.
 >
 > Alternatively, to clone the repository without the test data:
 >
@@ -160,7 +170,7 @@ See also the developer notes in [README_DEV.md](README_DEV.md).
 
 ### Installing pre-built executable
 
-You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page. Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x86_64_v0.63.5.zip`. In this case `v0.63.5` specifies version 0.63.5 and `x86_64` specifies Intel x86 platform; you should download the latest version available. For Apple Silicon, there is an equivalent `arm64` version of the executable. Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings. If you don't know how to do this, I recommend using `pipx` as described above.
+You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page. Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x86_64_v0.63.5.zip`. In this case `v0.63.5` specifies version 0.63.5 and `x86_64` specifies Intel x86 platform; you should download the latest version available. For Apple Silicon, there is an equivalent `arm64` version of the executable. Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings. If you don't know how to do this, I recommend using `uv` as described above.
 
 ## Documentation
 
@@ -242,6 +252,7 @@ Commands:
   timewarp       Adjust date/time/timezone of photos in Apple Photos.
   tutorial       Display osxphotos tutorial.
   uninstall      Uninstall Python packages from the osxphotos environment
+  update         Update the installation to the latest version.
   uuid           Print out unique IDs (UUID) of photos selected in Photos
   version        Check for new version of osxphotos.
 
@@ -509,9 +520,9 @@ Another way to export metadata about your photos is through the use of sidecar f
 
 Unlike `--exiftool`, you do not need to install exiftool to use the `--sidecar` feature.  Many of the same configuration options that apply to `--exiftool` to modify metadata, for example, `--keyword-template` can also be used with `--sidecar`.  
 
-Sidecar files are named "photoname.ext.sidecar_ext".  For example, if the photo is named `IMG_1234.JPG` and the sidecar format is XMP, the sidecar would be named `IMG_1234.JPG.XMP`.  Some applications expect the sidecar in this case to be named `IMG_1234.XMP`.  You can use the `-sidecar-drop-ext` option to force osxphotos to name the sidecar files in this manner:
+Sidecar files are named "photoname.ext.sidecar_ext".  For example, if the photo is named `IMG_1234.JPG` and the sidecar format is XMP, the sidecar would be named `IMG_1234.JPG.XMP`.  Some applications expect the sidecar in this case to be named `IMG_1234.XMP`.  You can use the `--sidecar-drop-ext` option to force osxphotos to name the sidecar files in this manner:
 
-`osxphotos export /path/to/export --sidecar XMP -sidecar-drop-ext`
+`osxphotos export /path/to/export --sidecar XMP --sidecar-drop-ext`
 
 #### Updating a previous export
 
@@ -883,9 +894,9 @@ Options:
   --added-in-last TIME_DELTA      Search for items added to the library in the
                                   last TIME_DELTA, where TIME_DELTA is a string
                                   like '12 hrs', '1 day', '1d', '1 week',
-                                  '2weeks', '1 month', '1 year'. for example,
-                                  `--added-in-last 7d` and `--added-in-last '1
-                                  week'` are equivalent. months are assumed to
+                                  '2weeks', '1 month', '1 year'. for example, '
+                                  --added-in-last 7d' and '--added-in-last '1
+                                  week'' are equivalent. months are assumed to
                                   be 30 days and years are assumed to be 365
                                   days. Common English abbreviations are
                                   accepted, e.g. d, day, days or m, min,
@@ -965,18 +976,18 @@ Options:
   --exif EXIF_TAG VALUE           Search for photos where EXIF_TAG exists in
                                   photo's EXIF data and contains VALUE. For
                                   example, to find photos created by Adobe
-                                  Photoshop: `--exif Software 'Adobe Photoshop'
-                                  `or to find all photos shot on a Canon camera:
-                                  `--exif Make Canon`. EXIF_TAG can be any valid
+                                  Photoshop: '--exif Software 'Adobe Photoshop'
+                                  'or to find all photos shot on a Canon camera:
+                                  '--exif Make Canon'. EXIF_TAG can be any valid
                                   exiftool tag, with or without group name, e.g.
-                                  `EXIF:Make` or `Make`. To use --exif, exiftool
+                                  'EXIF:Make' or 'Make'. To use --exif, exiftool
                                   must be installed and in the path.
   --query-eval CRITERIA           Evaluate CRITERIA to filter photos. CRITERIA
                                   will be evaluated in context of the following
-                                  python list comprehension: `photos = [photo
-                                  for photo in photos if CRITERIA]` where photo
-                                  represents a PhotoInfo object. For example:
-                                  `--query-eval photo.favorite` returns all
+                                  python list comprehension: 'photos = [photo
+                                  for photo in photos if CRITERIA]' where photo
+                                  represents a PhotoInfo object. For example: '
+                                  --query-eval photo.favorite' returns all
                                   photos that have been favorited and is
                                   equivalent to --favorite. You may specify more
                                   than one CRITERIA by using --query-eval
@@ -985,9 +996,9 @@ Options:
                                   https://rhettbull.github.io/osxphotos/ for
                                   additional documentation on the PhotoInfo
                                   class.
-  --query-function filename.py::function
+  --query-function filename.py:function
                                   Run function to filter photos. Use this in
-                                  format: --query-function filename.py::function
+                                  format: --query-function filename.py:function
                                   where filename.py is a python file you've
                                   created and function is the name of the
                                   function in the python file you want to call.
@@ -1218,7 +1229,7 @@ Options:
                                   SIDECAR_FILENAME_TEMPLATE must be a valid
                                   template string (see Templating System in
                                   help) which will be rendered to generate the
-                                  filename of the sidecar file. The `{filepath}`
+                                  filename of the sidecar file. The '{filepath}'
                                   template variable may be used in the
                                   SIDECAR_FILENAME_TEMPLATE to refer to the
                                   filename of the photo being exported. OPTIONS
@@ -1244,20 +1255,19 @@ Options:
                                   file with extension .xmp using a template file
                                   named 'sidecar.mako' and write a sidecar for
                                   skipped photos and strip blank lines but not
-                                  whitespace: `--sidecar-template sidecar.mako
-                                  '{filepath}.xmp' write_skipped,strip_lines`.
+                                  whitespace: '--sidecar-template sidecar.mako
+                                  '{filepath}.xmp' write_skipped,strip_lines'.
                                   To do the same but to drop the photo extension
-                                  from the sidecar filename: `--sidecar-template
+                                  from the sidecar filename: '--sidecar-template
                                   sidecar.mako
-                                  '{filepath.parent}/{filepath.stem}.xmp'
-                                  write_skipped,strip_lines`. If you are not
+                                  "{filepath.parent}/{filepath.stem}.xmp"
+                                  write_skipped,strip_lines'. If you are not
                                   passing any options, you must pass 'none' as
-                                  the last argument to --sidecar-template:
-                                  `--sidecar-template sidecar.mako
-                                  '{filepath}.xmp' none`. For an example Mako
-                                  file see https://raw.githubusercontent.com/Rhe
-                                  tTbull/osxphotos/main/examples/custom_sidecar.
-                                  mako
+                                  the last argument to --sidecar-template: '--
+                                  sidecar-template sidecar.mako "{filepath}.xmp"
+                                  none'. For an example Mako file see https://ra
+                                  w.githubusercontent.com/RhetTbull/osxphotos/ma
+                                  in/examples/custom_sidecar.mako
   --exiftool                      Use exiftool to write metadata directly to
                                   exported photos. To use this option, exiftool
                                   must be installed and in the path.  exiftool
@@ -1282,8 +1292,8 @@ Options:
   --exiftool-path EXIFTOOL_PATH   Optionally specify path to exiftool; if not
                                   provided, will look for exiftool in $PATH.
   --exiftool-option OPTION        Optional flag/option to pass to exiftool when
-                                  using --exiftool. For example, --exiftool-
-                                  option '-m' to ignore minor warnings. Specify
+                                  using --exiftool. For example, "--exiftool-
+                                  option '-m'" to ignore minor warnings. Specify
                                   these as you would on the exiftool command
                                   line. See exiftool docs at
                                   https://exiftool.org/exiftool_pod.html for
@@ -1441,22 +1451,22 @@ Options:
                                   certain. To prevent files not generated by
                                   osxphotos from being deleted, you may specify
                                   one or more rules in a file named
-                                  `.osxphotos_keep` in the export directory.
+                                  '.osxphotos_keep' in the export directory.
                                   This file uses the same format as a .gitignore
                                   file and should contain one rule per line;
-                                  lines starting with a `#` will be ignored.
+                                  lines starting with a '#' will be ignored.
                                   Reference https://git-
                                   scm.com/docs/gitignore#_pattern_format for
                                   details. In addition to the standard
                                   .gitignore rules, the rules may also be the
                                   absolute path to a file or directory. For
                                   example if export destination is
-                                  `/Volumes/Photos` and you want to keep all
-                                  `.txt` files, in the top level of the export
-                                  directory, you can specify `/*.txt"` in the
+                                  '/Volumes/Photos' and you want to keep all
+                                  '.txt' files, in the top level of the export
+                                  directory, you can specify '/*.txt' in the
                                   .osxphotos_keep file. If you want to keep all
-                                  `.txt` files in the export directory and all
-                                  subdirectories, you can specify `**/*.txt`. If
+                                  '.txt' files in the export directory and all
+                                  subdirectories, you can specify '**/*.txt'. If
                                   present, the .osxphotos_keep file will be read
                                   after the export is completed and any rules
                                   found in the file will be added to the list of
@@ -1473,24 +1483,24 @@ Options:
                                   .gitignore rules, KEEP_RULE may also be the
                                   absolute path to a file or directory. For
                                   example if export destination is
-                                  `/Volumes/Photos` and you want to keep all
-                                  `.txt` files, in the top level of the export
-                                  directory, you can specify `--keep "/*.txt"`.
-                                  If you want to keep all `.txt` files in the
+                                  '/Volumes/Photos' and you want to keep all
+                                  '.txt' files, in the top level of the export
+                                  directory, you can specify '--keep "*.txt". If
+                                  you want to keep all '.txt' files in the
                                   export directory and all subdirectories, you
-                                  can specify `--keep "**/*.txt"`. If wild card
+                                  can specify '--keep "**/*.txt"'. If wild card
                                   is used, KEEP_RULE must be enclosed in quotes
                                   to prevent the shell from expanding the
                                   wildcard. --keep may be repeated to keep
                                   additional files/directories. Rules may also
-                                  be included in a file named `.osxphotos_keep`
+                                  be included in a file named '.osxphotos_keep'
                                   in the export directory. If present, this file
                                   will be read after the export is completed and
                                   any rules found in the file will be added to
                                   the list of rules to keep. This file uses the
                                   same format as a .gitignore file and should
                                   contain one rule per line; lines starting with
-                                  a `#` will be ignored.
+                                  a '#' will be ignored.
   --add-exported-to-album ALBUM   Add all exported photos to album ALBUM in
                                   Photos. Album ALBUM will be created if it
                                   doesn't exist.  All exported photos will be
@@ -1528,18 +1538,18 @@ Options:
                                   option with different arguments. See also
                                   --post-command-error and --post-function.See
                                   Post Command below.
-  --post-command-error ACTION     Specify either `continue` or `break` for
+  --post-command-error ACTION     Specify either 'continue' or 'break' for
                                   ACTION to control behavior when a post-command
-                                  fails. If `continue`, osxphotos will log the
-                                  error and continue processing. If `break`,
+                                  fails. If 'continue', osxphotos will log the
+                                  error and continue processing. If 'break',
                                   osxphotos will stop processing any additional
                                   --post-command commands for the current photo
                                   but will continue with the export. Without
                                   --post-command-error, osxphotos will abort the
                                   export if a post-command encounters an error.
-  --post-function filename.py::function
+  --post-function filename.py:function
                                   Run function on exported files. Use this in
-                                  format: --post-function filename.py::function
+                                  format: --post-function filename.py:function
                                   where filename.py is a python file you've
                                   created and function is the name of the
                                   function in the python file you want to call.
@@ -1550,7 +1560,7 @@ Options:
                                   repeating the '--post-function' option with
                                   different arguments. You may also specify a
                                   post function using a URL in format --post-
-                                  function 'https://path/to/module.py::function'
+                                  function 'https://path/to/module.py:function'
                                   See Post Function below.
   --exportdb EXPORTDB_FILE        Specify alternate path for database file which
                                   stores state information for export and
@@ -1561,7 +1571,12 @@ Options:
                                   will be saved to the specified file.
   --ramdb                         Copy export database to memory during export;
                                   will improve performance when exporting over a
-                                  network or slow disk. See also --checkpoint.
+                                  network or slow disk. Note: osxphotos will
+                                  automatically detect if export database is on
+                                  a network volume and force use of --ramdb. See
+                                  also --exportdb to specifiy an alternate
+                                  location for the export database and also
+                                  --checkpoint.
   --checkpoint NUMBER_OF_PHOTOS   When used with --ramdb, periodically save the
                                   export database back to disk after processing
                                   NUMBER_OF_PHOTOS. When using --ramdb, the
@@ -1572,7 +1587,7 @@ Options:
                                   export database is large. This is an advanced
                                   feature for those who need to fine-tune the
                                   behavior of osxphotos.  [x>=0]
-  -F, --ignore-exportdb           If exporting to a directory that already
+  -F, --ignore-exportdb           1) If exporting to a directory that already
                                   contains an export database and --update is
                                   not specified, do not prompt to continue but
                                   instead continue the export. Normally, if you
@@ -1584,8 +1599,13 @@ Options:
                                   this prompt and continue the export. The
                                   resulting export database will contain the
                                   combined state of both export sets. Short
-                                  option is '-F' (mnemonic: force export). See
-                                  also --update.
+                                  option is '-F' (mnemonic: force export). 2)
+                                  For advanced use: when used with --update,
+                                  --ignore-exportdb will skip searching for
+                                  export database files in the parent or child
+                                  of the export directory; thus avoiding what
+                                  could be a time comsuming search. 3) See also
+                                  --update.
   --no-exportdb                   Do not create an export database. This exports
                                   all photos in the export set but does not save
                                   any state information in the osxphotos export
@@ -1615,14 +1635,14 @@ Options:
                                   probably don't need. This may be useful when
                                   exporting from a library on a very slow
                                   external disk. In this case, you could copy
-                                  the `/database` folder from the Photos library
-                                  to the internal diskand use `--alt-db` to
+                                  the '/database' folder from the Photos library
+                                  to the internal diskand use '--alt-db' to
                                   specify the path to the database file on the
-                                  internal disk. then use `--library` to specify
+                                  internal disk. then use '--library' to specify
                                   the path to the Photos library root on the
-                                  external disk. For example: `--library
+                                  external disk. For example: '--library
                                   /Volumes/ExternalDisk/Photos.photoslibrary
-                                  --alt-db /path/to/database/Photos.sqlite`
+                                  --alt-db /path/to/database/Photos.sqlite'
   --load-config CONFIG_FILE       Load options from file as written with --save-
                                   config. This allows you to save a complex
                                   export command to file for later reuse. For
@@ -1863,7 +1883,7 @@ Valid filters are:
    semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc';      
    sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().                      
  • filter(x): Filter list of values using predicate x; for example,           
-   {folder_album|filter(contains Events)} returns only folders/albums         
+   '{folder_album|filter(contains Events)}' returns only folders/albums       
    containing the word 'Events' in their path.                                
  • int: Convert values in list to integer, e.g. 1.0 => 1. If value cannot be  
    converted to integer, remove value from list. ['1.1', 'x'] => ['1']. See   
@@ -2362,7 +2382,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.68.5'
+{osxphotos_version}             The osxphotos version, e.g. '0.72.3'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2403,7 +2423,7 @@ Substitution             Description
                          {exiftool:IPTC:Keywords} to extract keywords. See
                          https://exiftool.org/TagNames/ for list of valid
                          tag names.  You must specify group (e.g. EXIF,
-                         IPTC, etc) as used in `exiftool -G`. exiftool must
+                         IPTC, etc) as used in 'exiftool -G'. exiftool must
                          be installed in the path to use this template.
 {searchinfo.holiday}     Holiday names associated with a photo, e.g.
                          'Christmas Day'; (Photos 5+ only, applied
@@ -2658,7 +2678,7 @@ Valid filters are:
 - `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
 - `slice(start:stop:step)`: Slice list using same semantics as Python's list slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().
 - `sslice(start:stop:step)`: [s(tring) slice] Slice values in a list using same semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().
-- `filter(x)`: Filter list of values using predicate x; for example, `{folder_album|filter(contains Events)}` returns only folders/albums containing the word 'Events' in their path.
+- `filter(x)`: Filter list of values using predicate x; for example, '{folder_album|filter(contains Events)}' returns only folders/albums containing the word 'Events' in their path.
 - `int`: Convert values in list to integer, e.g. 1.0 => 1. If value cannot be converted to integer, remove value from list. ['1.1', 'x'] => ['1']. See also float.
 - `float`: Convert values in list to floating point number, e.g. 1 => 1.0. If value cannot be converted to float, remove value from list. ['1', 'x'] => ['1.0']. See also int.
 
@@ -2860,7 +2880,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.68.5'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.72.3'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -2872,7 +2892,7 @@ The following template field substitutions are availabe for use the templating s
 |{label}|Image categorization label associated with a photo (Photos 5+ only). Labels are added automatically by Photos using machine learning algorithms to categorize images. These are not the same as {keyword} which refers to the user-defined keywords/tags applied in Photos.|
 |{label_normalized}|All lower case version of 'label' (Photos 5+ only)|
 |{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5+ only)|
-|{exiftool}|Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
+|{exiftool}|Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in 'exiftool -G'. exiftool must be installed in the path to use this template.|
 |{searchinfo.holiday}|Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.activity}|Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
@@ -3025,6 +3045,20 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/alban73"><img src="https://avatars.githubusercontent.com/u/74853805?v=4?s=75" width="75px;" alt="alban73"/><br /><sub><b>alban73</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aalban73" title="Bug reports">🐛</a> <a href="#data-alban73" title="Data">🔣</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/justaLoli"><img src="https://avatars.githubusercontent.com/u/92238102?v=4?s=75" width="75px;" alt="justaLoli"/><br /><sub><b>justaLoli</b></sub></a><br /><a href="#ideas-justaLoli" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/arthurward"><img src="https://avatars.githubusercontent.com/u/8432358?v=4?s=75" width="75px;" alt="arthurward"/><br /><sub><b>arthurward</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aarthurward" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/svet-b"><img src="https://avatars.githubusercontent.com/u/12831860?v=4?s=75" width="75px;" alt="svet-b"/><br /><sub><b>svet-b</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Asvet-b" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Syntaxheld"><img src="https://avatars.githubusercontent.com/u/6772181?v=4?s=75" width="75px;" alt="Syntaxheld"/><br /><sub><b>Syntaxheld</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3ASyntaxheld" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://christiansievers.info"><img src="https://avatars.githubusercontent.com/u/20228200?v=4?s=75" width="75px;" alt="Christian Sievers"/><br /><sub><b>Christian Sievers</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=christiansievers" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mravery"><img src="https://avatars.githubusercontent.com/u/1683929?v=4?s=75" width="75px;" alt="Avery Chan"/><br /><sub><b>Avery Chan</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Amravery" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dobernhardt"><img src="https://avatars.githubusercontent.com/u/57567625?v=4?s=75" width="75px;" alt="dobernhardt"/><br /><sub><b>dobernhardt</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Adobernhardt" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JxxIT"><img src="https://avatars.githubusercontent.com/u/110342008?v=4?s=75" width="75px;" alt="JxxIT"/><br /><sub><b>JxxIT</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AJxxIT" title="Bug reports">🐛</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=JxxIT" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/KeyPlayerMaek"><img src="https://avatars.githubusercontent.com/u/25553779?v=4?s=75" width="75px;" alt="Marek Toth"/><br /><sub><b>Marek Toth</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AKeyPlayerMaek" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/pl804"><img src="https://avatars.githubusercontent.com/u/101955060?v=4?s=75" width="75px;" alt="pl804"/><br /><sub><b>pl804</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=pl804" title="Tests">⚠️</a> <a href="#data-pl804" title="Data">🔣</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/cstaubli"><img src="https://avatars.githubusercontent.com/u/6720436?v=4?s=75" width="75px;" alt="Christian Staubli"/><br /><sub><b>Christian Staubli</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Acstaubli" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://yazdanra.com"><img src="https://avatars.githubusercontent.com/u/32798567?v=4?s=75" width="75px;" alt="Yazdan Ranjbar"/><br /><sub><b>Yazdan Ranjbar</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=YazdanRa" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
