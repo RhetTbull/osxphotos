@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.photoquery - osxphotos 0.72.3 documentation</title>
+        <title>osxphotos.photoquery - osxphotos 0.73.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.72.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.73.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.72.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.73.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -241,7 +241,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.photoquery</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; photo_query and QueryOptions class for PhotosDB.query &quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;photo_query and QueryOptions class for PhotosDB.query&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -694,7 +694,7 @@
     <span class="n">name</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">album</span><span class="p">:</span>
-        <span class="n">photos</span> <span class="o">=</span> <span class="n">_get_photos_by_attribute</span><span class="p">(</span><span class="n">photos</span><span class="p">,</span> <span class="s2">&quot;albums&quot;</span><span class="p">,</span> <span class="n">album</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_case</span><span class="p">)</span>
+        <span class="n">photos</span> <span class="o">=</span> <span class="n">filter_photos_by_folder_album_path</span><span class="p">(</span><span class="n">photos</span><span class="p">,</span> <span class="n">album</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_case</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">keyword</span><span class="p">:</span>
         <span class="n">photos</span> <span class="o">=</span> <span class="n">_get_photos_by_attribute</span><span class="p">(</span>
@@ -712,19 +712,9 @@
         <span class="n">photos</span> <span class="o">=</span> <span class="n">_get_photos_by_attribute</span><span class="p">(</span><span class="n">photos</span><span class="p">,</span> <span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_case</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">folder</span><span class="p">:</span>
-        <span class="c1"># search for photos in an album in folder</span>
-        <span class="c1"># finds photos that have albums whose top level folder matches folder</span>
-        <span class="n">photo_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">folder</span><span class="p">:</span>
-            <span class="n">photo_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">p</span>
-                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span>
-                    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">album_info</span>
-                    <span class="ow">and</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">folder_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">album_info</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">folder_names</span><span class="p">]</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-        <span class="n">photos</span> <span class="o">=</span> <span class="n">photo_list</span>
+        <span class="n">photos</span> <span class="o">=</span> <span class="n">filter_photos_by_folder_album_path</span><span class="p">(</span>
+            <span class="n">photos</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_case</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
         <span class="c1"># search title field for text</span>
@@ -1134,6 +1124,101 @@
     <span class="k">return</span> <span class="n">photos</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_photos_by_folder_album_path</span><span class="p">(</span>
+    <span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">],</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">ignore_case</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">folders_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter photos based on full album/folder paths</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        photos: a list of PhotoInfo objects</span>
+<span class="sd">        paths: list of paths to search for (e.g. [&quot;Folder/Subfolder/Album1&quot;, &quot;Folder2/Album2&quot;])</span>
+<span class="sd">        ignore_case: ignore case when searching</span>
+<span class="sd">        folders_only: if True, treat paths as folder paths and find photos in any albums within those folders</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of PhotoInfo objects matching search criteria</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Paths should be in format &quot;Folder/Subfolder/.../Album&quot; (or just &quot;Folder/Subfolder&quot; if folders_only=True)</span>
+<span class="sd">        - Forward slashes in folder/album names should be escaped as &quot;//&quot;</span>
+<span class="sd">        - Multiple paths are combined with OR logic</span>
+<span class="sd">        - If folders_only=True, finds photos in any albums that are children of the specified folder path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">photos</span>
+
+    <span class="c1"># Normalize paths for comparison</span>
+    <span class="n">normalized_paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="c1"># Handle escaped forward slashes: replace &quot;//&quot; with a placeholder</span>
+        <span class="c1"># then split on &quot;/&quot; and restore the escaped slashes</span>
+        <span class="n">placeholder</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">ESCAPED_SLASH</span><span class="se">\x00</span><span class="s2">&quot;</span>
+        <span class="n">path_normalized</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;//&quot;</span><span class="p">,</span> <span class="n">placeholder</span><span class="p">)</span>
+        <span class="n">path_parts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">part</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">placeholder</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">path_normalized</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">ignore_case</span><span class="p">:</span>
+            <span class="n">path_parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">path_parts</span><span class="p">]</span>
+
+        <span class="n">normalized_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path_parts</span><span class="p">)</span>
+
+    <span class="n">matching_photos</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
+        <span class="n">photo_matched</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Check each album the photo is in</span>
+        <span class="k">for</span> <span class="n">album_info</span> <span class="ow">in</span> <span class="n">photo</span><span class="o">.</span><span class="n">album_info</span><span class="p">:</span>
+            <span class="c1"># Build the full path for this album</span>
+            <span class="c1"># folder_names gives us the hierarchy: [&quot;Top folder&quot;, &quot;sub folder&quot;, ...]</span>
+            <span class="n">folder_names</span> <span class="o">=</span> <span class="n">album_info</span><span class="o">.</span><span class="n">folder_names</span> <span class="ow">or</span> <span class="p">[]</span>
+            <span class="n">album_title</span> <span class="o">=</span> <span class="n">album_info</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">folders_only</span><span class="p">:</span>
+                <span class="c1"># For folders_only mode, we only care about the folder hierarchy</span>
+                <span class="c1"># Check if the album&#39;s folder path starts with any of our target folder paths</span>
+                <span class="k">if</span> <span class="n">ignore_case</span><span class="p">:</span>
+                    <span class="n">folder_names_compare</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">folder_names</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">folder_names_compare</span> <span class="o">=</span> <span class="n">folder_names</span>
+
+                <span class="c1"># Check if this album&#39;s folder hierarchy matches any target folder path</span>
+                <span class="k">for</span> <span class="n">target_path_parts</span> <span class="ow">in</span> <span class="n">normalized_paths</span><span class="p">:</span>
+                    <span class="c1"># Check if the album&#39;s folder hierarchy starts with the target folder path</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="n">folder_names_compare</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_path_parts</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="n">folder_names_compare</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_path_parts</span><span class="p">)]</span>
+                        <span class="o">==</span> <span class="n">target_path_parts</span>
+                    <span class="p">):</span>
+                        <span class="n">matching_photos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
+                        <span class="n">photo_matched</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>  <span class="c1"># Found a match for this photo</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Original exact path matching logic</span>
+                <span class="c1"># Construct full path: folder_names + album_title</span>
+                <span class="n">full_path_parts</span> <span class="o">=</span> <span class="n">folder_names</span> <span class="o">+</span> <span class="p">[</span><span class="n">album_title</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">ignore_case</span><span class="p">:</span>
+                    <span class="n">full_path_parts_compare</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">full_path_parts</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">full_path_parts_compare</span> <span class="o">=</span> <span class="n">full_path_parts</span>
+
+                <span class="c1"># Check if this path matches any of our target paths</span>
+                <span class="k">for</span> <span class="n">target_path_parts</span> <span class="ow">in</span> <span class="n">normalized_paths</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">full_path_parts_compare</span> <span class="o">==</span> <span class="n">target_path_parts</span><span class="p">:</span>
+                        <span class="n">matching_photos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
+                        <span class="n">photo_matched</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>  <span class="c1"># Found a match for this photo</span>
+
+            <span class="k">if</span> <span class="n">photo_matched</span><span class="p">:</span>
+                <span class="k">break</span>  <span class="c1"># No need to check other albums for this photo</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">matching_photos</span><span class="p">))</span>  <span class="c1"># Remove duplicates</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_photos_by_attribute</span><span class="p">(</span><span class="n">photos</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">ignore_case</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Search for photos based on values being in PhotoInfo.attribute</span>
 
@@ -1192,7 +1277,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=38a0b3c7"></script>
+</div><script src="../../_static/documentation_options.js?v=7e8d73f4"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

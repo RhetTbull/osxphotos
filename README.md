@@ -784,12 +784,21 @@ Options:
                                   photos matching any person
   --album ALBUM                   Search for photos in album ALBUM. If more than
                                   one album, treated as "OR", e.g. find photos
-                                  matching any album
+                                  matching any album. For albums in a folder,
+                                  specify the entire folder path, e.g. 'My
+                                  Folder/My Album'. If album name contains a
+                                  forward slash, use double slashes to escape
+                                  it, e.g. 'Travel//2025' for an album named
+                                  'Travel/2025'.
   --folder FOLDER                 Search for photos in an album in folder
                                   FOLDER. If more than one folder, treated as
-                                  "OR", e.g. find photos in any FOLDER.  Only
-                                  searches top level folders (e.g. does not look
-                                  at subfolders)
+                                  "OR", e.g. find photos in any FOLDER. To
+                                  search subfolders, specify the entire folder
+                                  path, e.g. 'My Folder/Subfolder'. If folder
+                                  name contains a forward slash, use double
+                                  slashes to escape it, e.g. 'My
+                                  Folder//Subfolder' for a folder named 'My
+                                  Folder/Subfolder'.
   --name FILENAME                 Search for photos with filename matching
                                   FILENAME. If more than one --name options is
                                   specified, they are treated as "OR", e.g. find
@@ -818,8 +827,8 @@ Options:
                                   matching any label
   --uti UTI                       Search for photos whose uniform type
                                   identifier (UTI) matches UTI
-  -i, --ignore-case               Case insensitive search for title,
-                                  description, place, keyword, person, or album.
+  -i, --ignore-case               Case insensitive search when used with other
+                                  query options.
   --edited                        Search for photos that have been edited.
   --not-edited                    Search for photos that have not been edited.
   --external-edit                 Search for photos edited in external editor.
@@ -2382,7 +2391,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.72.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.73.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2880,7 +2889,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.72.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.73.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
