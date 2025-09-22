@@ -29,7 +29,11 @@ from osxphotos.photodates import (
     update_photo_from_function,
     update_photo_time_for_new_timezone,
 )
-from osxphotos.photoquery import photo_query, query_options_from_kwargs, load_uuid_from_file
+from osxphotos.photoquery import (
+    load_uuid_from_file,
+    photo_query,
+    query_options_from_kwargs,
+)
 from osxphotos.photosdb import PhotosDB
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
@@ -534,11 +538,11 @@ def timewarp_cli(
         exiftool_path = exiftool_path or get_exiftool_path()
         verbose(f"exiftool path: [filename]{exiftool_path}[/filename]")
 
-    #Handle --uuid and --uuid-from-file options. 
+    # Handle --uuid and --uuid-from-file options.
     photos = []
     if uuid:
         photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
-    
+
     if uuid_from_file:
         photos.extend(
             list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file)))
