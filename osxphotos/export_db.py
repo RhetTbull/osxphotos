@@ -425,7 +425,7 @@ class ExportDB:
                 "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
                 (filepath_normalized,),
             ).fetchall()
-            return sum(self.delete_data_for_uuid(row[0]) for row in results)
+        return sum(self.delete_data_for_uuid(row[0]) for row in results)
 
     # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def set_history(
