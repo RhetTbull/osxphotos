@@ -127,7 +127,7 @@ setup(
         "toml>=0.10.2,<0.11.0",
         "tzdata",
         "utitools>=0.3.0",
-        "whenever>=0.8.3",
+        "whenever>=0.8.3,<=0.9.0",
         "wrapt>=1.14.1,<2.0.0",
         "wurlitzer>=3.0.2,<4.0.0",
         "xdg==5.1.1; python_version <= '3.9'",
