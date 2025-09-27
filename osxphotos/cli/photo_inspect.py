@@ -262,7 +262,10 @@ def format_score_info(photo: PhotoInfo) -> str:
     if photo.score:
         # add color tags to each key: value pair to easily associate keys/values
         score_values = add_cyclic_color_tag(
-            [f"{k}: {float(v):.2f}" for k, v in photo.score.asdict().items()]
+            [
+                f"{k}: {float(v):.2f}" if v is not None else f"{k}: None"
+                for k, v in photo.score.asdict().items()
+            ]
         )
         score_str += ", ".join(score_values)
     else:
