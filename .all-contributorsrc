@@ -958,6 +958,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "mherzberg",
+      "name": "Michael Herzberg",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12444544?v=4",
+      "profile": "https://www.mherzberg.de",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
