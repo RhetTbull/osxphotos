@@ -1080,7 +1080,7 @@ def export(
 
 def export_cli(
     dest: str,
-    db: str | None = None,
+    db: str | osxphotos.PhotosDB | None = None,
     add_exported_to_album: str | None = None,
     add_missing_to_album: str | None = None,
     add_skipped_to_album: str | None = None,
@@ -1269,6 +1269,10 @@ def export_cli(
     CLI argument '--from-date' converts user input in form '2023-01-01' to a
     datetime.datetime object. If passing 'from_date', you will be responsible for
     passing a datetime.datetime not the ISO string as is done on the command line.
+
+    The db argument can be either a path to a photos database or a PhotosDB object.
+    Passing a PhotosDB object allows you to repeatedly call export() without having
+    to open and load the database each time.
 
     Returns: 1 if error or 0 if no error
     """
@@ -1677,9 +1681,12 @@ def export_cli(
     if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]):
         verbose(f"exiftool path: [filepath]{exiftool_path}")
 
-    # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(db, cli_db)
+    # get the Photos library path
+    # db can also be an instance of PhotosDB which allows export_cli to be used in custom export code
+    cli_db = (
+        cli_obj.db if cli_obj is not None else None
+    )  # needed for to make CliRunner work for testing
+    db = db if isinstance(db, osxphotos.PhotosDB) else get_photos_db(db, cli_db)
     if not db:
         rich_click_echo(get_help_msg(export), err=True)
         rich_click_echo(
@@ -1764,7 +1771,7 @@ def export_cli(
                 print("\nAborting!", file=sys.stderr)
                 print(f"Writing export database to {export_db_path}", file=sys.stderr)
                 export_db.write_to_disk()
-                print("Aborted!")
+                print("Aborted!", file=sys.stderr)
                 sys.exit(1)
 
             signal.signal(signal.SIGINT, sigint_handler)
@@ -1812,28 +1819,11 @@ def export_cli(
     # if not verbose, set photosdb verbose to print to stderr
     # so that user can still see progress as database is loaded
     db_verbose = verbose if verbose_flag else rich_echo_error
-    if is_iphoto_library(db):
-        if alt_db:
-            click.echo("--alt-db is not supported for iPhoto libraries", err=True)
-            raise click.Abort()
-        photosdb = osxphotos.iPhotoDB(
-            dbfile=db, verbose=db_verbose, exiftool=exiftool_path, rich=False
-        )
-    else:
-        library_path = pathlib.Path(db)
-        if library_path.is_file():
-            # get the Photos library path from the database path
-            library_path = library_path.parent.parent
-        photosdb = osxphotos.PhotosDB(
-            dbfile=alt_db if alt_db else db,
-            verbose=db_verbose,
-            exiftool=exiftool_path,
-            rich=True,
-            library_path=library_path if alt_db else None,
-        )
+    photosdb = open_photosdb(
+        db=db, alt_db=alt_db, db_verbose=db_verbose, exiftool_path=exiftool_path
+    )
 
-    # enable beta features if requested
-    photosdb._beta = beta
+    photosdb._beta = beta  # enable beta features if requested
 
     try:
         photos = photosdb.query(query_options)
@@ -3411,3 +3401,48 @@ def force_use_of_ramdb(
         )
         return True
     return False
+
+
+def open_photosdb(
+    db: str | osxphotos.PhotosDB,
+    alt_db: str | None,
+    db_verbose: Callable[[Any], None],
+    exiftool_path: str | None,
+) -> osxphotos.PhotosDB:
+    """Open a PhotosDB object from a database path or an existing PhotosDB object.
+
+    Args:
+        db: path to the Photos database or an existing PhotosDB object
+        alt_db: path to the alternative Photos database
+        db_verbose: function to print verbose messages
+        exiftool_path: path to exiftool executable
+
+    Returns:
+        PhotosDB object
+
+    Raises:
+        click.Abort: if --alt-db is used with an iPhoto library
+    """
+    if isinstance(db, osxphotos.PhotosDB):
+        return db
+
+    if is_iphoto_library(db):
+        if alt_db:
+            click.echo("--alt-db is not supported for iPhoto libraries", err=True)
+            raise click.Abort()
+        photosdb = osxphotos.iPhotoDB(
+            dbfile=db, verbose=db_verbose, exiftool=exiftool_path, rich=False
+        )
+    else:
+        library_path = pathlib.Path(db)
+        if library_path.is_file():
+            # get the Photos library path from the database path
+            library_path = library_path.parent.parent
+        photosdb = osxphotos.PhotosDB(
+            dbfile=alt_db if alt_db else db,
+            verbose=db_verbose,
+            exiftool=exiftool_path,
+            rich=True,
+            library_path=library_path if alt_db else None,
+        )
+    return photosdb
