@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.73.0](https://github.com/RhetTbull/osxphotos/compare/v0.72.3...v0.73.0)
+
+Adds limited set of query options for `timewarp` and `batch-edit` commands. Adds `--set-favorite`, `--clear-favorite` to batch-edit. Buf fix for edited photos in iPhoto libraries.
+
+For example, to edit all photos in an album named "My Album" and set them as favorites:
+
+```
+osxphotos batch-edit --album "My Album" --set-favorite
+```
+
+Query options have also been added to `timewarp`. For example, to adjust the time on all photos added in the last 1 day:
+
+```
+osxphotos timewarp --time-delta "+1 hour" --added-in-last "1 day"
+```
+
+**NOTE**: This release includes breaking changes for `batch-edit` and `timewarp` commands and for the `--album` and `--folder` query options that apply to all commands including `query` and `export`.
+
+Specifically, the `--album` option for `batch-edit` has been renamed to `--add-to-album`. The `--inspect` shot option in `timewarp` is now `-I` instead of `-i`.
+
+Additionally, the `--album` and `--folder` query options in all commands that use query options now automatically split folders and albums. For example `--album "Folder/Album"` will only operate on the album "Album" in the folder "Folder". If the album name contains a slash, use a double slash `//` to escape it: `--album "Folder//Album"`.
+
+#### Added
+
+* Implement query options for `timewarp`
+* Implement query options for `batch-edit`
+* Add `--set-favorite`, `--clear-favorite` to batch-edit (#1900)
+
+#### Changed
+
+* `--album` option for `batch-edit` renamed to `--add-to-album`
+* `export_cli()` function can now accept either a path to the Photos library or a `PhotosDB()` instance. This allows custom usage for long-running use-cases.
+* `--inspect` short option in `timewarp` is now `-I` instead of `-i`.
+* `--album` and `--folder` query options in all commands that use query options now automatically split folders and albums on `/`, use `//` to escape a slash in the album or folder name.
+
+#### Removed
+
+#### Fixed
+
+* Prioritize QuickTime:ContentCreateDate over EXIF:DateTimeOriginal for videos.
+* Catch errors when creating backup database.
+* Fixed `path_edited` for iPhotos.
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+
 ## [v0.72.3](https://github.com/RhetTbull/osxphotos/compare/v0.72.2...v0.72.3)
 
 Bug fix for malformed photos.db file (again) and a few other fixes.

@@ -949,6 +949,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "m-reiter",
+      "name": "m-reiter",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5221258?v=4",
+      "profile": "https://github.com/m-reiter",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
