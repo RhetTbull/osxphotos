@@ -1270,6 +1270,10 @@ def export_cli(
     datetime.datetime object. If passing 'from_date', you will be responsible for
     passing a datetime.datetime not the ISO string as is done on the command line.
 
+    The db argument can be either a path to a photos database or a PhotosDB object.
+    Passing a PhotosDB object allows you to repeatedly call export() without having
+    to open and load the database each time.
+
     Returns: 1 if error or 0 if no error
     """
 
@@ -1767,7 +1771,7 @@ def export_cli(
                 print("\nAborting!", file=sys.stderr)
                 print(f"Writing export database to {export_db_path}", file=sys.stderr)
                 export_db.write_to_disk()
-                print("Aborted!")
+                print("Aborted!", file=sys.stderr)
                 sys.exit(1)
 
             signal.signal(signal.SIGINT, sigint_handler)
