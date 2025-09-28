@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.73.1](https://github.com/RhetTbull/osxphotos/compare/v0.73.0...v0.73.1)
+
+### v0.73.1 (2025-09-27)
+
+Bug fixes for broken dependency.
+
+#### Added
+
+#### Changed
+
+- All CLI commands check for macOS version before executing. (#1934)
+- Allow export_cli to accept a PhotosDB for the db argument (#1915)
+- `osxphotos timewarp` will not load database if `--uuid` or `--uuid-from-file` is specified (#1929)
+
+#### Removed
+
+#### Fixed
+
+Fix broken whenever dependency (#1937)
+Fix `export --delete-file` causes crash
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+
 ## [v0.73.0](https://github.com/RhetTbull/osxphotos/compare/v0.72.3...v0.73.0)
 
 Adds limited set of query options for `timewarp` and `batch-edit` commands. Adds `--set-favorite`, `--clear-favorite` to batch-edit. Buf fix for edited photos in iPhoto libraries.
@@ -23,6 +49,8 @@ osxphotos timewarp --time-delta "+1 hour" --added-in-last "1 day"
 Specifically, the `--album` option for `batch-edit` has been renamed to `--add-to-album`. The `--inspect` shot option in `timewarp` is now `-I` instead of `-i`.
 
 Additionally, the `--album` and `--folder` query options in all commands that use query options now automatically split folders and albums. For example `--album "Folder/Album"` will only operate on the album "Album" in the folder "Folder". If the album name contains a slash, use a double slash `//` to escape it: `--album "Folder//Album"`.
+
+### v0.73.0 (2025-09-17)
 
 #### Added
 
