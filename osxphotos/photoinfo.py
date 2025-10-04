@@ -753,6 +753,11 @@ class PhotoInfo:
             return self._adjustmentinfo
 
     @property
+    def adjustment_type(self) -> int | None:
+        """Returns adjustment type as int or None if no adjustments"""
+        return self._info.get("hasAdjustments")
+
+    @property
     def external_edit(self) -> bool:
         """Returns True if picture was edited outside of Photos using external editor"""
         return self._info["adjustmentFormatID"] == "com.apple.Photos.externalEdit"
@@ -2118,6 +2123,7 @@ class PhotoInfo:
             dict_data["adjustments"] = (
                 self.adjustments.asdict() if self.adjustments else {}
             )
+            dict_data["adjustment_type"] = self.adjustment_type
             dict_data["burst_album_info"] = [a.asdict() for a in self.burst_album_info]
             dict_data["burst_albums"] = self.burst_albums
             dict_data["burst_default_pick"] = self.burst_default_pick
