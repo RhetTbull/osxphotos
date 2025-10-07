@@ -1001,7 +1001,7 @@ Returns the timezone offset from UTC in seconds for the Photo creation date
 
 #### <a name="tzname">tzname</a>
 
-Returns the timezone name for the Photos creation date; on Photos version < 5, returns None
+Returns the timezone name for the Photos creation date
 
 #### <a name="date-original">date_original</a>
 

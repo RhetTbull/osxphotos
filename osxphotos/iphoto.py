@@ -1139,10 +1139,11 @@ class iPhotoPhotoInfo:
     def tzoffset(self) -> int:
         """TZ Offset from GMT in seconds"""
         tzname = self._db._db_photos[self._uuid]["timezone"]
-        if not tzname:
+        try:
+            return int(self.date.utcoffset().total_seconds())
+        except Exception as e:
+            logger.warning(f"Failed to get timezone info for {tzname}: {e}")
             return 0
-        tz = ZoneInfo(tzname)
-        return int(tz.utcoffset(self.date).total_seconds())
 
     @property
     def tzname(self) -> str | None:

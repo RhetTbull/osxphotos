@@ -1,6 +1,5 @@
 """Basic tests for Photos 5 on MacOS 10.15.7"""
 
-import collections
 import datetime
 import json
 import os
@@ -9,6 +8,7 @@ import pathlib
 import sqlite3
 import tempfile
 import time
+import zoneinfo
 from collections import Counter, namedtuple
 from unittest import mock
 from zoneinfo import ZoneInfo

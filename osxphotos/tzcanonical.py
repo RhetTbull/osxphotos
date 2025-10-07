@@ -1,0 +1,237 @@
+"""
+tzcanon: resolve a canonical IANA timezone from
+(naive local datetime, UTC offset seconds, and a timezone name token).
+
+Public API:
+    - canonical_timezone(naive_local_dt, offset_seconds_from_gmt, tz_token, require_unique=False) -> str | None
+    - candidates_by_abbrev_and_offset(naive_local_dt, offset_seconds_from_gmt, abbr) -> list[str]
+
+Requires Python 3.10+ (uses PEP 604 unions and zoneinfo).
+"""
+
+import re
+from datetime import datetime
+from zoneinfo import ZoneInfo, available_timezones
+
+
+def _etc_from_offset_seconds(offset_seconds: int) -> str | None:
+    """
+    Map a whole-hour UTC offset (seconds) to an IANA Etc/ zone.
+    Note: Etc/GMT sign is inverted per IANA convention:
+      UTC+3  -> "Etc/GMT-3"
+      UTC-7  -> "Etc/GMT+7"
+    Returns None if offset isn't a whole number of hours or zone not present.
+    """
+    if offset_seconds % 3600 != 0:
+        return None
+    hours = offset_seconds // 3600
+    if hours == 0:
+        return "Etc/UTC"
+    # invert sign for Etc naming
+    sign = "-" if hours > 0 else "+"
+    name = f"Etc/GMT{sign}{abs(hours)}"
+    return name if name in available_timezones() else None
+
+
+TZ_OVERRIDES: dict[str, str | None] = {
+    "IDT": "Asia/Jerusalem",
+    "BST": "Europe/London",
+    "CET": "Europe/Berlin",
+    "CEST": "Europe/Berlin",
+    "PDT": "America/Los_Angeles",
+    "PST": "America/Los_Angeles",
+    "MDT": "America/Denver",
+    "MST": "America/Denver",
+    "CDT": "America/Chicago",
+    "CST": "America/Chicago",
+    "EDT": "America/New_York",
+    "EST": "America/New_York",
+    "AKDT": "America/Anchorage",
+    "AKST": "America/Anchorage",
+    "HST": "Pacific/Honolulu",
+    "JST": "Asia/Tokyo",
+    "KST": "Asia/Seoul",
+    "AEST": "Australia/Sydney",
+    "AEDT": "Australia/Sydney",
+    "ACST": "Australia/Adelaide",
+    "ACDT": "Australia/Adelaide",
+    "AWST": "Australia/Perth",
+    "NZDT": "Pacific/Auckland",
+    "NZST": "Pacific/Auckland",
+    "UTC": "Etc/UTC",
+    "GMT": "Etc/GMT",
+}
+
+
+def _parse_offset_str(s: str) -> int | None:
+    if not s:
+        return None
+    t = s.strip().upper()
+    if t in {"Z", "UTC", "GMT"}:
+        return 0
+    m = re.fullmatch(r"([+-])(\d{2}):?(\d{2})", t)
+    if m:
+        sign = 1 if m.group(1) == "+" else -1
+        h = int(m.group(2))
+        mi = int(m.group(3))
+        return sign * (h * 3600 + mi * 60)
+    m2 = re.fullmatch(r"(\d{1,2}):(\d{2})", t)
+    if m2:
+        h = int(m2.group(1))
+        mi = int(m2.group(2))
+        return h * 3600 + mi * 60
+    return None
+
+
+class AbbrevIndex:
+    def __init__(self, sample_dates: list[datetime] | None = None):
+        if sample_dates is None:
+            sample_dates = [datetime(2025, 1, 15), datetime(2025, 7, 15)]
+        self.abbrev_to_zones: dict[str, set[str]] = {}
+        tzs = available_timezones()
+        for dt in sample_dates:
+            for tzname in tzs:
+                try:
+                    abbr = ZoneInfo(tzname).tzname(dt)
+                except Exception:
+                    continue
+                if not abbr:
+                    continue
+                self.abbrev_to_zones.setdefault(abbr, set()).add(tzname)
+
+    def candidates(self, abbr: str) -> list[str]:
+        return sorted(self.abbrev_to_zones.get(abbr, set()))
+
+
+_ABBREV_INDEX = AbbrevIndex()
+
+
+def _is_valid_iana(name: str) -> bool:
+    try:
+        ZoneInfo(name)
+        return True
+    except Exception:
+        return False
+
+
+def _filter_by_offset(
+    local_dt: datetime, offset_seconds: int, zones: list[str]
+) -> list[str]:
+    out: list[str] = []
+    for tzname in zones:
+        try:
+            zi = ZoneInfo(tzname)
+            utcoff = local_dt.replace(tzinfo=zi).utcoffset()
+            if utcoff is not None and int(utcoff.total_seconds()) == int(
+                offset_seconds
+            ):
+                out.append(tzname)
+        except Exception:
+            pass
+    return out
+
+
+def _rank_preferred(zones: list[str]) -> list[str]:
+    if not zones:
+        return zones
+    PREFERRED: set[str] = {
+        "America/New_York",
+        "America/Chicago",
+        "America/Denver",
+        "America/Los_Angeles",
+        "America/Phoenix",
+        "America/Toronto",
+        "America/Vancouver",
+        "America/Mexico_City",
+        "Europe/London",
+        "Europe/Dublin",
+        "Europe/Paris",
+        "Europe/Berlin",
+        "Europe/Rome",
+        "Europe/Madrid",
+        "Europe/Amsterdam",
+        "Europe/Brussels",
+        "Europe/Warsaw",
+        "Europe/Athens",
+        "Europe/Moscow",
+        "Asia/Jerusalem",
+        "Asia/Tokyo",
+        "Asia/Seoul",
+        "Asia/Shanghai",
+        "Asia/Hong_Kong",
+        "Asia/Singapore",
+        "Asia/Kolkata",
+        "Australia/Sydney",
+        "Australia/Melbourne",
+        "Australia/Perth",
+        "Pacific/Auckland",
+    }
+
+    def score(z: str) -> tuple[int, int, str]:
+        is_pref = 0 if z in PREFERRED else 1
+        is_bad = 1 if z.startswith("Etc/") or z.startswith("posix/") else 0
+        return (is_pref, is_bad, z)
+
+    return sorted(zones, key=score)
+
+
+def candidates_by_abbrev_and_offset(
+    naive_dt: datetime,
+    offset_seconds_from_gmt: int,
+    abbr: str,
+) -> list[str]:
+    abbr = (abbr or "").upper()
+    cand = _ABBREV_INDEX.candidates(abbr)
+    if not cand:
+        return []
+    return _filter_by_offset(naive_dt, offset_seconds_from_gmt, cand)
+
+
+def canonical_timezone(
+    naive_dt: datetime,
+    offset_seconds_from_gmt: int,
+    tz_token: str | None,
+    require_unique: bool = False,
+) -> str | None:
+    token = (tz_token or "").strip()
+
+    if token and _is_valid_iana(token):
+        return "Etc/UTC" if token == "UTC" else token
+
+    parsed = _parse_offset_str(token) if token else None
+    if parsed is not None and parsed == offset_seconds_from_gmt:
+        etc = _etc_from_offset_seconds(parsed)
+        return etc
+
+    key = token.upper()
+    if key in TZ_OVERRIDES and TZ_OVERRIDES[key]:
+        cand = TZ_OVERRIDES[key]
+        matched = (
+            _filter_by_offset(naive_dt, offset_seconds_from_gmt, [cand])
+            if cand
+            else []
+        )
+        if matched:
+            return matched[0]
+
+    if token:
+        cand = candidates_by_abbrev_and_offset(
+            naive_dt, offset_seconds_from_gmt, token
+        )
+        if len(cand) == 1:
+            return cand[0]
+        if len(cand) > 1:
+            if require_unique:
+                return None
+            return _rank_preferred(cand)[0]
+
+    all_match = _filter_by_offset(
+        naive_dt, offset_seconds_from_gmt, list(available_timezones())
+    )
+    if not all_match:
+        return None
+    if len(all_match) == 1:
+        return all_match[0]
+    if require_unique:
+        return None
+    return _rank_preferred(all_match)[0]
