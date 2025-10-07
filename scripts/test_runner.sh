@@ -30,6 +30,7 @@ echo "6) Import Takeout tests (--test-import-takeout)"
 echo "7) Sync tests (--test-sync)"
 echo "8) Add Locations tests (--test-add-locations)"
 echo "9) Batch Edit tests (--test-batch-edit)"
+echo "10) Run tests on Linux (via Docker)"
 echo "q) Quit"
 echo
 
@@ -98,6 +99,10 @@ case $choice in
         echo "Only one interactive test can be run at a time."
         cleanup_photos
         python -m pytest -vv --test-batch-edit -k batch
+        ;;
+    10)
+        echo "Running tests on Linux (via Docker)..."
+        scripts/run_linux_tests.sh
         ;;
     q|Q)
         echo "Exiting..."
