@@ -99,7 +99,8 @@ jobs:
           fi
         done
     - name: Send failure notification
-      if: ${{ failure() }}
+      # Only send if failure and repository is RhetTbull/osxphotos
+      if: ${{ failure() && github.repository == 'RhetTbull/osxphotos' }}
       run: |
         curl \
           -H "Click: https://github.com/RhetTbull/osxphotos/actions/" \

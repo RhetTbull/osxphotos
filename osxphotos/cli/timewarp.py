@@ -29,7 +29,11 @@ from osxphotos.photodates import (
     update_photo_from_function,
     update_photo_time_for_new_timezone,
 )
-from osxphotos.photoquery import photo_query, query_options_from_kwargs
+from osxphotos.photoquery import (
+    load_uuid_from_file,
+    photo_query,
+    query_options_from_kwargs,
+)
 from osxphotos.photosdb import PhotosDB
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
@@ -413,6 +417,8 @@ def timewarp(
     match_time: bool,
     use_file_time: bool,
     add_to_album: str | None,
+    uuid: tuple[str, ...] | None,
+    uuid_from_file: click.Path | str | None,
     exiftool_path: click.Path | None,
     library: click.Path | None,
     parse_date: str | None,
@@ -423,10 +429,11 @@ def timewarp(
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
-    Changes will be applied to: 1) photos specified one or more query options,
-    for example, --album "My Album" to specify an albu, --added-in-last "1 day", etc.
-    2) photos currently selected in Photos in 'Library' / 'All Photos'
-    or Album views 3) all photos in Album view, if no selection is made.
+    Changes will be applied to: 1) photos specified via --uuid and
+    --uuid-from-file 2) photos specified by one or more query options,
+    for example, --album "My Album" to specify an album, --added-in-last "1 day", etc.
+    3) photos currently selected in Photos in 'Library' / 'All Photos'
+    or Album views 4) all photos in Album view, if no selection is made.
 
     If you have an Album open and no photos selected, all photos in the album will be edited unless you
     specify one or more query options.
@@ -459,6 +466,8 @@ def timewarp_cli(
     match_time: bool,
     use_file_time: bool,
     add_to_album: str | None,
+    uuid: tuple[str, ...] | None,
+    uuid_from_file: click.Path | str | None,
     exiftool_path: click.Path | None,
     library: click.Path | None,
     parse_date: str | None,
@@ -529,11 +538,24 @@ def timewarp_cli(
         exiftool_path = exiftool_path or get_exiftool_path()
         verbose(f"exiftool path: [filename]{exiftool_path}[/filename]")
 
-    try:
-        photos = get_photos_for_processing(**kwargs)
-    except RuntimeError as e:
-        echo_error(f"[error]Error getting photos: {e}")
-        return 1
+    # Handle --uuid and --uuid-from-file options.
+    photos = []
+    if uuid:
+        photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
+
+    if uuid_from_file:
+        photos.extend(
+            list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file)))
+        )
+
+    # If neither uuid nor uuid_from_file is specified, operate over query or selected photos
+    if not (uuid or uuid_from_file):
+        try:
+            photos = get_photos_for_processing(**kwargs)
+        except RuntimeError as e:
+            echo_error(f"[error]Error getting photos: {e}")
+            return 1
+
     if not photos:
         echo_error("[warning]No photos selected[/]")
         return 0

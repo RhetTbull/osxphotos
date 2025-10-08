@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.iphoto - osxphotos 0.72.3 documentation</title>
+        <title>osxphotos.iphoto - osxphotos 0.73.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.72.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.73.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.72.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.73.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -405,6 +405,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_folders</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_albums</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_keywords</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_image_proxies</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_volumes</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_photo_paths</span><span class="p">()</span>
 
@@ -505,14 +506,16 @@
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
-        <span class="c1"># normalize unicode</span>
         <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">:</span>
+            <span class="c1"># normalize unicode</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;rollname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;rollname&quot;</span><span class="p">]</span>
             <span class="p">)</span>
+            <span class="c1"># init preview_path (will be loaded by _load_image_proxies)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;preview_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> assets from iPhoto library&quot;</span><span class="p">)</span>
 
         <span class="c1"># Event notes (pre-iPhoto 9.1)</span>
@@ -959,6 +962,36 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;keywords&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span>
         <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_image_proxies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load image proxiesfrom the database&quot;&quot;&quot;</span>
+
+        <span class="n">db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;Database/apdb/ImageProxies.apdb&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ImageProxies.apdb not found at </span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT</span>
+<span class="s2">            modelId as modelId,</span>
+<span class="s2">            versionUuid as uuid,</span>
+<span class="s2">            fullSizePreviewPath as preview_path</span>
+<span class="s2">            FROM RKImageProxyState</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Executing query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Row</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Loading preview images from iPhoto library&quot;</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">uuid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">:</span>
+                <span class="c1"># logger.warning(f&quot;Missing uuid {uuid} in _db_library&quot;)</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db_photos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;preview_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;preview_path&quot;</span><span class="p">]</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load volume data for referenced files&quot;&quot;&quot;</span>
         <span class="n">library_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;Database/apdb/Library.apdb&quot;</span><span class="p">)</span>
@@ -1009,20 +1042,27 @@
 
             <span class="c1"># edited path</span>
             <span class="k">if</span> <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;hasadjustments&quot;</span><span class="p">]:</span>
-                <span class="n">image_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">photo</span><span class="p">[</span><span class="s2">&quot;imagepath&quot;</span><span class="p">])</span>
-                <span class="n">path_edited</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-                    <span class="s2">&quot;Previews&quot;</span><span class="p">,</span> <span class="n">image_path</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">uuid</span>
-                <span class="p">)</span>
-                <span class="n">edited_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">path_edited</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">))</span>
-                <span class="c1"># edited image named with Photo&#39;s title not imagepath.stem</span>
-                <span class="k">if</span> <span class="n">edited_files</span> <span class="o">:=</span> <span class="p">[</span>
-                    <span class="n">x</span>
-                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">edited_files</span>
-                    <span class="k">if</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span> <span class="o">==</span> <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
-                <span class="p">]:</span>
-                    <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;path_edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edited_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;preview_path&quot;</span><span class="p">]:</span>
+                    <span class="c1"># preview path should be read from ImageProxies.apdb</span>
+                    <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;path_edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                        <span class="s2">&quot;Previews&quot;</span><span class="p">,</span> <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;preview_path&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;path_edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="c1"># fallback to heuristic to find edited image</span>
+                    <span class="n">image_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">photo</span><span class="p">[</span><span class="s2">&quot;imagepath&quot;</span><span class="p">])</span>
+                    <span class="n">path_edited</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">library_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                        <span class="s2">&quot;Previews&quot;</span><span class="p">,</span> <span class="n">image_path</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">uuid</span>
+                    <span class="p">)</span>
+                    <span class="n">edited_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">path_edited</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">))</span>
+                    <span class="c1"># edited image named with Photo&#39;s title not imagepath.stem</span>
+                    <span class="k">if</span> <span class="n">edited_files</span> <span class="o">:=</span> <span class="p">[</span>
+                        <span class="n">x</span>
+                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">edited_files</span>
+                        <span class="k">if</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span> <span class="o">==</span> <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+                    <span class="p">]:</span>
+                        <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;path_edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edited_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;path_edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;path_edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
@@ -2919,7 +2959,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=38a0b3c7"></script>
+</div><script src="../../_static/documentation_options.js?v=daf5f7ed"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.72.3 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.73.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.72.3 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.73.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.72.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.73.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -262,6 +262,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">rich</span><span class="w"> </span><span class="kn">import</span> <span class="nb">print</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_and_warn_macos_version</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">.._constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_DB_TABLE_NAMES</span><span class="p">,</span>
     <span class="n">_MOVIE_TYPE</span><span class="p">,</span>
@@ -280,7 +282,6 @@
     <span class="n">_PHOTOS_5_PROJECT_ALBUM_KIND</span><span class="p">,</span>
     <span class="n">_PHOTOS_5_ROOT_FOLDER_KIND</span><span class="p">,</span>
     <span class="n">_PHOTOS_5_SHARED_ALBUM_KIND</span><span class="p">,</span>
-    <span class="n">_TESTED_OS_VERSIONS</span><span class="p">,</span>
     <span class="n">_UNKNOWN_PERSON</span><span class="p">,</span>
     <span class="n">BURST_KEY</span><span class="p">,</span>
     <span class="n">BURST_PICK_TYPE_NONE</span><span class="p">,</span>
@@ -295,7 +296,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..photoinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotoInfo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..photoquery</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryOptions</span><span class="p">,</span> <span class="n">photo_query</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..photos_datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">photos_datetime</span><span class="p">,</span> <span class="n">photos_datetime_local</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_macos_version</span><span class="p">,</span> <span class="n">is_macos</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_macos</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..rich_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..sqlite_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">sqlite_db_is_locked</span><span class="p">,</span> <span class="n">sqlite_open_ro</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..unicode</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_unicode</span>
@@ -389,19 +390,7 @@
         <span class="k">if</span> <span class="n">dbfile</span> <span class="ow">and</span> <span class="n">is_iphoto_library</span><span class="p">(</span><span class="n">dbfile</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">PhotosDBReadError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dbfile</span><span class="si">}</span><span class="s2"> is an iPhoto library, not Photos&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Check OS version</span>
-        <span class="n">system</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
-        <span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="n">major</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">get_macos_version</span><span class="p">()</span> <span class="k">if</span> <span class="n">is_macos</span> <span class="k">else</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="p">((</span><span class="n">ver</span><span class="p">,</span> <span class="n">major</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_TESTED_OS_VERSIONS</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_TESTED_OS_VERSIONS</span>
-        <span class="p">):</span>
-            <span class="n">tested_versions</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_TESTED_OS_VERSIONS</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;WARNING: This module has only been tested with macOS versions [</span><span class="si">{</span><span class="n">tested_versions</span><span class="si">}</span><span class="s2">]: you have </span><span class="si">{</span><span class="n">system</span><span class="si">}</span><span class="s2">, OS version: </span><span class="si">{</span><span class="n">ver</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">major</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
+        <span class="n">check_and_warn_macos_version</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">verbose</span> <span class="o">=</span> <span class="n">noop</span>
@@ -3529,7 +3518,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=38a0b3c7"></script>
+</div><script src="../../../_static/documentation_options.js?v=daf5f7ed"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

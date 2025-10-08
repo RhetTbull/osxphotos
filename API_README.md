@@ -1146,6 +1146,10 @@ Returns `True` if the picture has been edited, otherwise `False`
 
 On Photos 5+, returns an [AdjustmentsInfo](#adjustmentsinfo) object representing the adjustments (edits) to the photo or None if there are no adjustments.  On earlier versions of Photos, always returns None.
 
+#### <a name="adjustment_type">adjustment_type</a>
+
+Returns the adjustment type as an int or None. See also [adjustments](#adjustments). For photos without and adjustment this is usually 0; for photos with adjustments made by the user, this is usually 1 or 2. For photos where the phone camera made an automatic adjustment (for example, user is shooting in 16:9 aspect), this is usually 3. The value also appears to be 3 for slow-motion videos and some other media types, even if no adjustments have been made. See also [adjustments](#adjustments).
+
 #### <a name="external-edit">external_edit</a>
 
 Returns `True` if the picture was edited in an external editor (outside Photos.app), otherwise `False`
@@ -2586,7 +2590,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.72.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.73.1'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

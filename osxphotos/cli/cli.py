@@ -10,7 +10,7 @@ import click
 
 from osxphotos._constants import PROFILE_SORT_KEYS
 from osxphotos.disclaim import disclaim, pyapp, pyinstaller
-from osxphotos.platform import is_macos
+from osxphotos.platform import check_and_warn_macos_version, is_macos
 
 from .about import about
 from .albums import albums
@@ -108,6 +108,8 @@ def cli_main(ctx, profile, profile_sort, **kwargs):
     # the debug options are handled in cli/__init__.py
     # before this function is called
     ctx.obj = CLI_Obj(group=cli_main)
+
+    check_and_warn_macos_version()
 
     if pyinstaller() or pyapp():
         # Running from executable, run disclaimer
