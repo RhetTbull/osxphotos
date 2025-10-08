@@ -193,6 +193,17 @@ def canonical_timezone(
     tz_token: str | None,
     require_unique: bool = False,
 ) -> str | None:
+    """Return canonical timezone name for given datetime, offset, and token.
+
+    Args:
+        naive_dt: datetime object without timezone information
+        offset_seconds_from_gmt: offset in seconds from GMT
+        tz_token: timezone token
+        require_unique: require unique timezone
+
+    Returns:
+        Canonical timezone name or None if no match found
+    """
     token = (tz_token or "").strip()
 
     if token and _is_valid_iana(token):
@@ -207,17 +218,13 @@ def canonical_timezone(
     if key in TZ_OVERRIDES and TZ_OVERRIDES[key]:
         cand = TZ_OVERRIDES[key]
         matched = (
-            _filter_by_offset(naive_dt, offset_seconds_from_gmt, [cand])
-            if cand
-            else []
+            _filter_by_offset(naive_dt, offset_seconds_from_gmt, [cand]) if cand else []
         )
         if matched:
             return matched[0]
 
     if token:
-        cand = candidates_by_abbrev_and_offset(
-            naive_dt, offset_seconds_from_gmt, token
-        )
+        cand = candidates_by_abbrev_and_offset(naive_dt, offset_seconds_from_gmt, token)
         if len(cand) == 1:
             return cand[0]
         if len(cand) > 1:

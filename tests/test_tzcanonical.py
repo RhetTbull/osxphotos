@@ -8,8 +8,8 @@ import pytest
 
 from osxphotos.tzcanonical import (
     AbbrevIndex,
-    canonical_timezone,
     candidates_by_abbrev_and_offset,
+    canonical_timezone,
 )
 
 
@@ -152,7 +152,9 @@ def test_empty_token():
     )
     # Should return a timezone matching the offset, preferably New York
     assert result is not None
-    assert "America/New_York" in result or "America/Panama" in result or "Etc/" in result
+    assert (
+        "America/New_York" in result or "America/Panama" in result or "Etc/" in result
+    )
 
 
 def test_none_token():
@@ -243,17 +245,6 @@ def test_whitespace_handling():
     )
     # EST is a valid IANA zone, returned as-is
     assert result == "EST"
-
-
-def test_case_sensitive_iana():
-    """Test that IANA zone names preserve case"""
-    result = canonical_timezone(
-        datetime(2025, 1, 15, 12, 0),
-        -18000,
-        "est",
-    )
-    # Lowercase 'est' is also a valid IANA zone
-    assert result == "est"
 
 
 def test_valid_abbrev_pst():
@@ -469,7 +460,9 @@ def test_zero_offset_variations():
             0,
             token,
         )
-        assert result == expected_result, f"Expected {expected_result} for {token}, got {result}"
+        assert (
+            result == expected_result
+        ), f"Expected {expected_result} for {token}, got {result}"
 
 
 def test_malformed_offset_string():

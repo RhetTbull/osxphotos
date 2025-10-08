@@ -1,14 +1,29 @@
 #!/bin/bash
 # Run linux tests on macOS
 # Requires colima and docker to be installed:
-# brew install colima docker
+# brew install colima docker docker-buildx
 #
-# Usage: ./run_linux_tests.sh [--python VERSION] [PYTEST_ARGS...]
+# docker-buildx is a Docker plugin. For Docker to find the plugin, add "cliPluginsExtraDirs" to ~/.docker/config.json:
+#    "cliPluginsExtraDirs": [
+#      "$HOMEBREW_PREFIX/lib/docker/cli-plugins"
+#    ]
+#
+# NOTE: in above, replace "$HOMEBREW_PREFIX" with the actual path to your Homebrew installation, for example '/opt/homebrew' on Apple Silicon
+#
+# Usage: ./run_linux_tests.sh [--python VERSION] [--build] [PYTEST_ARGS...]
 # Example: ./run_linux_tests.sh --python 3.13 -vv -k export
+#
+# Use --build to rebuild the custom Docker image with dependencies
+# First time setup: ./run_linux_tests.sh --python 3.13 --build
+# If you need to rebuild the image, use the --build flag
+# Once built, you can run tests with ./run_linux_tests.sh
+# You should only need to rebuild the image if you change the Dockerfile or the dependencies in requirements.txt
+#
 
 # Default arguments
 PYTHON_VERSION="3.13"
-PYTEST_ARGS="-vv tests/"
+PYTEST_ARGS=""
+BUILD_IMAGE=false
 
 # Memory in GB for the Docker container; tests fail if run with default 2GB
 CONTAINER_MEMORY=8
@@ -19,13 +34,22 @@ while [[ $# -gt 0 ]]; do
       PYTHON_VERSION="$2"
       shift 2
       ;;
+    --build)
+      BUILD_IMAGE=true
+      shift
+      ;;
     *)
-      # First non-option argument starts pytest args
+      # All remaining arguments are pytest args
       PYTEST_ARGS="$@"
       break
       ;;
   esac
 done
+
+# Use default pytest args if none provided
+if [ -z "$PYTEST_ARGS" ]; then
+  PYTEST_ARGS="-vv tests/"
+fi
 
 # Check if colima is already running
 COLIMA_WAS_RUNNING=false
@@ -35,23 +59,26 @@ else
   colima start --memory ${CONTAINER_MEMORY}
 fi
 
+# Image name for cached container
+IMAGE_NAME="osxphotos-test:${PYTHON_VERSION}"
+
+# Build custom image if requested or if it doesn't exist
+if [ "$BUILD_IMAGE" = true ] || ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
+  echo "Building Docker image: $IMAGE_NAME"
+  docker buildx build \
+    --load \
+    --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+    -t "$IMAGE_NAME" \
+    -f scripts/Dockerfile.linux-tests \
+    .
+fi
+
 docker run --rm -it \
-    -e TZ=America/Chicago \
+  -e TZ=America/Chicago \
   -v "$(pwd):/workspace" \
   -w /workspace \
-  python:${PYTHON_VERSION} \
+  "$IMAGE_NAME" \
   bash -c "
-    # Install system dependencies
-    apt-get update && apt-get install -y libimage-exiftool-perl curl tzdata &&
-
-    # Install uv
-    curl -LsSf https://astral.sh/uv/install.sh | sh &&
-    source \$HOME/.local/bin/env &&
-
-    # Install Python dependencies
-    uv pip install --system -r requirements.txt &&
-    uv pip install --system -r dev_requirements.txt &&
-
     # Run tests
     python -m pytest ${PYTEST_ARGS}
   "
