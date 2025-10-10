@@ -11,7 +11,24 @@ Requires Python 3.10+ (uses PEP 604 unions and zoneinfo).
 
 import re
 from datetime import datetime
+from functools import cache, lru_cache
 from zoneinfo import ZoneInfo, available_timezones
+
+# Cache available_timezones() as it's extremely expensive (filesystem scan)
+# This set is static for the lifetime of the process
+_AVAILABLE_TIMEZONES: set[str] | None = None
+
+
+def _get_available_timezones() -> set[str]:
+    """Get cached set of available timezones.
+
+    available_timezones() scans the filesystem and is extremely expensive.
+    Cache it once for the lifetime of the process.
+    """
+    global _AVAILABLE_TIMEZONES
+    if _AVAILABLE_TIMEZONES is None:
+        _AVAILABLE_TIMEZONES = available_timezones()
+    return _AVAILABLE_TIMEZONES
 
 
 def _etc_from_offset_seconds(offset_seconds: int) -> str | None:
@@ -30,7 +47,7 @@ def _etc_from_offset_seconds(offset_seconds: int) -> str | None:
     # invert sign for Etc naming
     sign = "-" if hours > 0 else "+"
     name = f"Etc/GMT{sign}{abs(hours)}"
-    return name if name in available_timezones() else None
+    return name if name in _get_available_timezones() else None
 
 
 TZ_OVERRIDES: dict[str, str | None] = {
@@ -63,6 +80,7 @@ TZ_OVERRIDES: dict[str, str | None] = {
 }
 
 
+@cache
 def _parse_offset_str(s: str) -> int | None:
     if not s:
         return None
@@ -83,16 +101,53 @@ def _parse_offset_str(s: str) -> int | None:
     return None
 
 
+@cache
+def _get_zoneinfo_cached(tzname: str) -> ZoneInfo | None:
+    """Cache ZoneInfo object creation to avoid repeated parsing."""
+    try:
+        return ZoneInfo(tzname)
+    except Exception:
+        return None
+
+
+@cache
+def _get_offset_for_zone(
+    tzname: str, year: int, month: int, day: int, hour: int, minute: int
+) -> int | None:
+    """Cache UTC offset calculation for a specific timezone and datetime.
+
+    Args:
+        tzname: IANA timezone name
+        year, month, day, hour, minute: datetime components
+
+    Returns:
+        UTC offset in seconds, or None if calculation fails
+    """
+    zi = _get_zoneinfo_cached(tzname)
+    if zi is None:
+        return None
+    try:
+        dt = datetime(year, month, day, hour, minute)
+        utcoff = dt.replace(tzinfo=zi).utcoffset()
+        return int(utcoff.total_seconds()) if utcoff is not None else None
+    except Exception:
+        return None
+
+
 class AbbrevIndex:
     def __init__(self, sample_dates: list[datetime] | None = None):
         if sample_dates is None:
             sample_dates = [datetime(2025, 1, 15), datetime(2025, 7, 15)]
         self.abbrev_to_zones: dict[str, set[str]] = {}
-        tzs = available_timezones()
+        tzs = _get_available_timezones()
         for dt in sample_dates:
             for tzname in tzs:
                 try:
-                    abbr = ZoneInfo(tzname).tzname(dt)
+                    # Use cached ZoneInfo lookup
+                    zi = _get_zoneinfo_cached(tzname)
+                    if zi is None:
+                        continue
+                    abbr = zi.tzname(dt)
                 except Exception:
                     continue
                 if not abbr:
@@ -107,27 +162,31 @@ _ABBREV_INDEX = AbbrevIndex()
 
 
 def _is_valid_iana(name: str) -> bool:
-    try:
-        ZoneInfo(name)
-        return True
-    except Exception:
-        return False
+    """Check if a string is a valid IANA timezone name (cached)."""
+    return _get_zoneinfo_cached(name) is not None
 
 
 def _filter_by_offset(
     local_dt: datetime, offset_seconds: int, zones: list[str]
 ) -> list[str]:
+    """Filter timezone list to those matching the given offset at the given datetime.
+
+    This function is heavily optimized with caching since it's called frequently.
+    """
     out: list[str] = []
+    target_offset = int(offset_seconds)
+    # Use cached offset lookup to avoid repeated ZoneInfo creation
     for tzname in zones:
-        try:
-            zi = ZoneInfo(tzname)
-            utcoff = local_dt.replace(tzinfo=zi).utcoffset()
-            if utcoff is not None and int(utcoff.total_seconds()) == int(
-                offset_seconds
-            ):
-                out.append(tzname)
-        except Exception:
-            pass
+        cached_offset = _get_offset_for_zone(
+            tzname,
+            local_dt.year,
+            local_dt.month,
+            local_dt.day,
+            local_dt.hour,
+            local_dt.minute,
+        )
+        if cached_offset is not None and cached_offset == target_offset:
+            out.append(tzname)
     return out
 
 
@@ -187,27 +246,37 @@ def candidates_by_abbrev_and_offset(
     return _filter_by_offset(naive_dt, offset_seconds_from_gmt, cand)
 
 
-def canonical_timezone(
-    naive_dt: datetime,
+@lru_cache(maxsize=8192)
+def _canonical_timezone_cached(
+    year: int,
+    month: int,
+    day: int,
+    hour: int,
+    minute: int,
     offset_seconds_from_gmt: int,
-    tz_token: str | None,
-    require_unique: bool = False,
+    tz_token: str,
+    require_unique: bool,
 ) -> str | None:
-    """Return canonical timezone name for given datetime, offset, and token.
+    """Cached implementation of canonical_timezone.
 
-    Args:
-        naive_dt: datetime object without timezone information
-        offset_seconds_from_gmt: offset in seconds from GMT
-        tz_token: timezone token
-        require_unique: require unique timezone
-
-    Returns:
-        Canonical timezone name or None if no match found
+    Uses datetime components as separate parameters to make the function hashable.
+    Note: seconds omitted because timezone rules operate at minute precision.
     """
-    token = (tz_token or "").strip()
+    # Seconds don't affect timezone resolution, so we omit them for better cache hits
+    naive_dt = datetime(year, month, day, hour, minute)
+    token = tz_token.strip()
 
+    # Fast path: if token is a valid IANA timezone, return it
+    # This trusts explicit IANA names without validation
     if token and _is_valid_iana(token):
         return "Etc/UTC" if token == "UTC" else token
+
+    # Fast path: for whole-hour offsets with no token, try Etc/GMT zones first
+    # But skip this if require_unique is True, as other zones might also match
+    if not token and not require_unique:
+        etc = _etc_from_offset_seconds(offset_seconds_from_gmt)
+        if etc:
+            return etc
 
     parsed = _parse_offset_str(token) if token else None
     if parsed is not None and parsed == offset_seconds_from_gmt:
@@ -232,8 +301,10 @@ def canonical_timezone(
                 return None
             return _rank_preferred(cand)[0]
 
+    # Last resort: search all timezones (expensive even with caching)
+    # Use cached set to avoid filesystem scan
     all_match = _filter_by_offset(
-        naive_dt, offset_seconds_from_gmt, list(available_timezones())
+        naive_dt, offset_seconds_from_gmt, list(_get_available_timezones())
     )
     if not all_match:
         return None
@@ -242,3 +313,33 @@ def canonical_timezone(
     if require_unique:
         return None
     return _rank_preferred(all_match)[0]
+
+
+def canonical_timezone(
+    naive_dt: datetime,
+    offset_seconds_from_gmt: int,
+    tz_token: str | None,
+    require_unique: bool = False,
+) -> str | None:
+    """Return canonical timezone name for given datetime, offset, and token.
+
+    Args:
+        naive_dt: datetime object without timezone information
+        offset_seconds_from_gmt: offset in seconds from GMT
+        tz_token: timezone token
+        require_unique: require unique timezone
+
+    Returns:
+        Canonical timezone name or None if no match found
+    """
+    # Delegate to cached implementation (seconds omitted for better cache hit rate)
+    return _canonical_timezone_cached(
+        naive_dt.year,
+        naive_dt.month,
+        naive_dt.day,
+        naive_dt.hour,
+        naive_dt.minute,
+        offset_seconds_from_gmt,
+        tz_token or "",
+        require_unique,
+    )
