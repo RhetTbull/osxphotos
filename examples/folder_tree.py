@@ -2,6 +2,10 @@
 Export Photos folder and album hierarchy to a text file with tab indentation.
 
 Modified from code by John Gordon: https://tech.kateva.org/2025/10/certified-vibe-coding-success-python.html
+
+If saved locally, run with osxphotos run folder_tree.py
+Otherwise, use the following command to run the script directly from GitHub:
+osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/refs/heads/main/examples/folder_tree.py
 """
 
 import sys
