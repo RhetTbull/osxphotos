@@ -5,6 +5,7 @@ import re
 import zoneinfo
 from math import floor
 from typing import Union
+from functools import cache
 
 from .platform import is_macos
 from .timeutils import timezone_for_offset
@@ -116,6 +117,7 @@ if is_macos:
     import Foundation
     import objc
 
+    @cache
     def known_timezone_names() -> list[str]:
         """Get list of valid timezones on macOS"""
         # sort by shortest length then alphabetically
@@ -194,6 +196,7 @@ if is_macos:
 
 else:
 
+    @cache
     def known_timezone_names() -> list[str]:
         """Get list of valid timezones"""
         return sorted(list(zoneinfo.available_timezones()))
