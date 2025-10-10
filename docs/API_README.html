@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Reference" href="reference.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>OSXPhotos Python API - osxphotos 0.73.1 documentation</title>
+        <title>OSXPhotos Python API - osxphotos 0.73.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -167,7 +167,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.73.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.73.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -191,7 +191,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.73.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.73.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1172,7 +1172,7 @@ See also <a class="reference external" href="#keywords-as-dict">keywords_as_dict
 </section>
 <section id="a-name-tzname-tzname-a">
 <h4><span class="raw-html-m2r"><a name="tzname">tzname</a></span><a class="headerlink" href="#a-name-tzname-tzname-a" title="Link to this heading">¶</a></h4>
-<p>Returns the timezone name for the Photos creation date; on Photos version &lt; 5, returns None</p>
+<p>Returns the timezone name for the Photos creation date</p>
 </section>
 <section id="a-name-date-original-date-original-a">
 <h4><span class="raw-html-m2r"><a name="date-original">date_original</a></span><a class="headerlink" href="#a-name-date-original-date-original-a" title="Link to this heading">¶</a></h4>
@@ -1313,6 +1313,10 @@ returns the same value as <code class="docutils literal notranslate"><span class
 <section id="a-name-adjustments-adjustments-a">
 <h4><span class="raw-html-m2r"><a name="adjustments">adjustments</a></span><a class="headerlink" href="#a-name-adjustments-adjustments-a" title="Link to this heading">¶</a></h4>
 <p>On Photos 5+, returns an <a class="reference external" href="#adjustmentsinfo">AdjustmentsInfo</a> object representing the adjustments (edits) to the photo or None if there are no adjustments.  On earlier versions of Photos, always returns None.</p>
+</section>
+<section id="a-name-adjustment-type-adjustment-type-a">
+<h4><span class="raw-html-m2r"><a name="adjustment_type">adjustment_type</a></span><a class="headerlink" href="#a-name-adjustment-type-adjustment-type-a" title="Link to this heading">¶</a></h4>
+<p>Returns the adjustment type as an int or None. See also <a class="reference external" href="#adjustments">adjustments</a>. For photos without and adjustment this is usually 0; for photos with adjustments made by the user, this is usually 1 or 2. For photos where the phone camera made an automatic adjustment (for example, user is shooting in 16:9 aspect), this is usually 3. The value also appears to be 3 for slow-motion videos and some other media types, even if no adjustments have been made. See also <a class="reference external" href="#adjustments">adjustments</a>.</p>
 </section>
 <section id="a-name-external-edit-external-edit-a">
 <h4><span class="raw-html-m2r"><a name="external-edit">external_edit</a></span><a class="headerlink" href="#a-name-external-edit-external-edit-a" title="Link to this heading">¶</a></h4>
@@ -1756,8 +1760,8 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="albuminfo-uuid">uuid</a></span><a class="headerlink" href="#a-name-albuminfo-uuid-uuid-a" title="Link to this heading">¶</a></h4>
 <p>Returns the universally unique identifier (uuid) of the album.  This is how Photos keeps track of individual objects within the database.</p>
 </section>
-<section id="id62">
-<h4><span class="raw-html-m2r"><a name="title">title</a></span><a class="headerlink" href="#id62" title="Link to this heading">¶</a></h4>
+<section id="id63">
+<h4><span class="raw-html-m2r"><a name="title">title</a></span><a class="headerlink" href="#id63" title="Link to this heading">¶</a></h4>
 <p>Returns the title or name of the album.</p>
 </section>
 <section id="a-name-albumphotos-photos-a">
@@ -1802,13 +1806,13 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="parent">parent</a></span><a class="headerlink" href="#a-name-parent-parent-a" title="Link to this heading">¶</a></h4>
 <p>Returns a <a class="reference external" href="#folderinfo">FolderInfo</a> object representing the albums parent folder or <code class="docutils literal notranslate"><span class="pre">None</span></code> if album is not a in a folder.</p>
 </section>
-<section id="id66">
-<h4><span class="raw-html-m2r"><a name="owner">owner</a></span><a class="headerlink" href="#id66" title="Link to this heading">¶</a></h4>
+<section id="id67">
+<h4><span class="raw-html-m2r"><a name="owner">owner</a></span><a class="headerlink" href="#id67" title="Link to this heading">¶</a></h4>
 <p>Returns full name of the album owner (person who shared the album) for shared albums or None if album is not shared.</p>
 <p><strong>Note</strong>: <em>Only valid on Photos 5 / MacOS 10.15+; on Photos &lt;= 4, returns None.</em>Only valid on Photos 5 / MacOS 10.15*</p>
 </section>
-<section id="id67">
-<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id67" title="Link to this heading">¶</a></h4>
+<section id="id68">
+<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id68" title="Link to this heading">¶</a></h4>
 <p>Returns a dictionary representation of the AlbumInfo object.</p>
 </section>
 </section>
@@ -1823,21 +1827,21 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="importphotos">photos</a></span><a class="headerlink" href="#a-name-importphotos-photos-a" title="Link to this heading">¶</a></h4>
 <p>Returns a list of <a class="reference external" href="#photoinfo">PhotoInfo</a> objects representing each photo contained in the import session.</p>
 </section>
-<section id="id69">
-<h4><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span><a class="headerlink" href="#id69" title="Link to this heading">¶</a></h4>
+<section id="id70">
+<h4><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span><a class="headerlink" href="#id70" title="Link to this heading">¶</a></h4>
 <p>Returns the creation date as a timezone aware datetime.datetime object of the import session.</p>
 </section>
-<section id="id70">
-<h4><span class="raw-html-m2r"><a name="start-date">start_date</a></span><a class="headerlink" href="#id70" title="Link to this heading">¶</a></h4>
+<section id="id71">
+<h4><span class="raw-html-m2r"><a name="start-date">start_date</a></span><a class="headerlink" href="#id71" title="Link to this heading">¶</a></h4>
 <p>Returns the start date as a timezone aware datetime.datetime object for when the import session began.</p>
 </section>
-<section id="id71">
-<h4><span class="raw-html-m2r"><a name="end-date">end_date</a></span><a class="headerlink" href="#id71" title="Link to this heading">¶</a></h4>
+<section id="id72">
+<h4><span class="raw-html-m2r"><a name="end-date">end_date</a></span><a class="headerlink" href="#id72" title="Link to this heading">¶</a></h4>
 <p>Returns the end date as a timezone aware datetime.datetime object for when the import session completed.</p>
 <p><strong>Note</strong>: On Photos &lt;=4, <code class="docutils literal notranslate"><span class="pre">start_date</span></code> and <code class="docutils literal notranslate"><span class="pre">end_date</span></code> will be the same as <code class="docutils literal notranslate"><span class="pre">creation_date</span></code>.</p>
 </section>
-<section id="id72">
-<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id72" title="Link to this heading">¶</a></h4>
+<section id="id73">
+<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id73" title="Link to this heading">¶</a></h4>
 <p>Returns a dictionary representation of the import session.</p>
 </section>
 </section>
@@ -1849,20 +1853,20 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="projectinfo-uuid">uuid</a></span><a class="headerlink" href="#a-name-projectinfo-uuid-uuid-a" title="Link to this heading">¶</a></h4>
 <p>Returns the universally unique identifier (uuid) of the project.  This is how Photos keeps track of individual objects within the database.</p>
 </section>
-<section id="id73">
-<h4><span class="raw-html-m2r"><a name="title">title</a></span><a class="headerlink" href="#id73" title="Link to this heading">¶</a></h4>
+<section id="id74">
+<h4><span class="raw-html-m2r"><a name="title">title</a></span><a class="headerlink" href="#id74" title="Link to this heading">¶</a></h4>
 <p>Returns the title or name of the project.</p>
 </section>
 <section id="a-name-projectphotos-photos-a">
 <h4><span class="raw-html-m2r"><a name="projectphotos">photos</a></span><a class="headerlink" href="#a-name-projectphotos-photos-a" title="Link to this heading">¶</a></h4>
 <p>Returns a list of <a class="reference external" href="#photoinfo">PhotoInfo</a> objects representing each photo contained in the project.</p>
 </section>
-<section id="id75">
-<h4><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span><a class="headerlink" href="#id75" title="Link to this heading">¶</a></h4>
+<section id="id76">
+<h4><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span><a class="headerlink" href="#id76" title="Link to this heading">¶</a></h4>
 <p>Returns the creation date as a timezone aware datetime.datetime object of the project.</p>
 </section>
-<section id="id76">
-<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id76" title="Link to this heading">¶</a></h4>
+<section id="id77">
+<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id77" title="Link to this heading">¶</a></h4>
 <p>Returns a dictionary representation of the ProjectInfo object.</p>
 </section>
 </section>
@@ -1873,28 +1877,28 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="pk">pk</a></span><a class="headerlink" href="#a-name-pk-pk-a" title="Link to this heading">¶</a></h4>
 <p>Returns the primary key of the moment in the Photos database.</p>
 </section>
-<section id="id77">
-<h4><span class="raw-html-m2r"><a name="location">location</a></span><a class="headerlink" href="#id77" title="Link to this heading">¶</a></h4>
+<section id="id78">
+<h4><span class="raw-html-m2r"><a name="location">location</a></span><a class="headerlink" href="#id78" title="Link to this heading">¶</a></h4>
 <p>Returns the location of the moment as a tuple of (latitude, longitude).</p>
 </section>
-<section id="id78">
-<h4><span class="raw-html-m2r"><a name="title">title</a></span><a class="headerlink" href="#id78" title="Link to this heading">¶</a></h4>
+<section id="id79">
+<h4><span class="raw-html-m2r"><a name="title">title</a></span><a class="headerlink" href="#id79" title="Link to this heading">¶</a></h4>
 <p>Returns the title of the moment.</p>
 </section>
 <section id="a-name-subtitle-subtitle-a">
 <h4><span class="raw-html-m2r"><a name="subtitle">subtitle</a></span><a class="headerlink" href="#a-name-subtitle-subtitle-a" title="Link to this heading">¶</a></h4>
 <p>Returns the subtitle of the moment.</p>
 </section>
-<section id="id79">
-<h4><span class="raw-html-m2r"><a name="start-date">start_date</a></span><a class="headerlink" href="#id79" title="Link to this heading">¶</a></h4>
+<section id="id80">
+<h4><span class="raw-html-m2r"><a name="start-date">start_date</a></span><a class="headerlink" href="#id80" title="Link to this heading">¶</a></h4>
 <p>Returns the start date of the moment as a timezone aware datetime.datetime object.</p>
 </section>
-<section id="id80">
-<h4><span class="raw-html-m2r"><a name="end-date">end_date</a></span><a class="headerlink" href="#id80" title="Link to this heading">¶</a></h4>
+<section id="id81">
+<h4><span class="raw-html-m2r"><a name="end-date">end_date</a></span><a class="headerlink" href="#id81" title="Link to this heading">¶</a></h4>
 <p>Returns the end date of the moment as a timezone aware datetime.datetime object.</p>
 </section>
-<section id="id81">
-<h4><span class="raw-html-m2r"><a name="date">date</a></span><a class="headerlink" href="#id81" title="Link to this heading">¶</a></h4>
+<section id="id82">
+<h4><span class="raw-html-m2r"><a name="date">date</a></span><a class="headerlink" href="#id82" title="Link to this heading">¶</a></h4>
 <p>Returns the date of the moment as a timezone aware datetime.datetime object.</p>
 </section>
 <section id="a-name-modification-date-modification-date-a">
@@ -1905,8 +1909,8 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="photos">photos</a></span><a class="headerlink" href="#a-name-photos-photos-a" title="Link to this heading">¶</a></h4>
 <p>Returns a list of [PhotoInfo] objects representing the photos in the moment.</p>
 </section>
-<section id="id82">
-<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id82" title="Link to this heading">¶</a></h4>
+<section id="id83">
+<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id83" title="Link to this heading">¶</a></h4>
 <p>Returns a dictionary representation of the moment.</p>
 </section>
 </section>
@@ -1917,8 +1921,8 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="folderinfo-uuid">uuid</a></span><a class="headerlink" href="#a-name-folderinfo-uuid-uuid-a" title="Link to this heading">¶</a></h4>
 <p>Returns the universally unique identifier (uuid) of the folder.  This is how Photos keeps track of individual objects within the database.</p>
 </section>
-<section id="id83">
-<h4><span class="raw-html-m2r"><a name="title">title</a></span><a class="headerlink" href="#id83" title="Link to this heading">¶</a></h4>
+<section id="id84">
+<h4><span class="raw-html-m2r"><a name="title">title</a></span><a class="headerlink" href="#id84" title="Link to this heading">¶</a></h4>
 <p>Returns the title or name of the folder.</p>
 </section>
 <section id="a-name-folderinfo-album-info-album-info-a">
@@ -1934,8 +1938,8 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="subfolders">subfolders</a></span><a class="headerlink" href="#a-name-subfolders-subfolders-a" title="Link to this heading">¶</a></h4>
 <p>Returns a list of <a class="reference external" href="#folderinfo">FolderInfo</a> objects representing the sub-folders of the folder.</p>
 </section>
-<section id="id87">
-<h4><span class="raw-html-m2r"><a name="parent">parent</a></span><a class="headerlink" href="#id87" title="Link to this heading">¶</a></h4>
+<section id="id88">
+<h4><span class="raw-html-m2r"><a name="parent">parent</a></span><a class="headerlink" href="#id88" title="Link to this heading">¶</a></h4>
 <p>Returns a <a class="reference external" href="#folderinfo">FolderInfo</a> object representing the folder's parent folder or <code class="docutils literal notranslate"><span class="pre">None</span></code> if album is not a in a folder.</p>
 </section>
 <section id="a-name-sort-order-sort-order-a">
@@ -1954,8 +1958,8 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="photo-indexphoto">photo_index(photo)</a></span><a class="headerlink" href="#a-name-photo-indexphoto-photo-index-photo-a" title="Link to this heading">¶</a></h4>
 <p>Returns index of photo in album (based on album sort order).</p>
 </section>
-<section id="id89">
-<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id89" title="Link to this heading">¶</a></h4>
+<section id="id90">
+<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id90" title="Link to this heading">¶</a></h4>
 <p>Returns a dictionary representation of the FolderInfo object.</p>
 <p><strong>Note</strong>: FolderInfo and AlbumInfo objects effectively work as a linked list.  The children of a folder are contained in <code class="docutils literal notranslate"><span class="pre">subfolders</span></code> and <code class="docutils literal notranslate"><span class="pre">album_info</span></code> and the parent object of both <code class="docutils literal notranslate"><span class="pre">AlbumInfo</span></code> and <code class="docutils literal notranslate"><span class="pre">FolderInfo</span></code> is represented by <code class="docutils literal notranslate"><span class="pre">parent</span></code>.  For example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
@@ -2169,16 +2173,16 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="all">all</a></span><a class="headerlink" href="#a-name-all-all-a" title="Link to this heading">¶</a></h4>
 <p>Returns all search_info properties as a single list of strings.</p>
 </section>
-<section id="id90">
-<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id90" title="Link to this heading">¶</a></h4>
+<section id="id91">
+<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id91" title="Link to this heading">¶</a></h4>
 <p>Returns all associated search_info metadata as a dict.</p>
 </section>
 </section>
 <section id="a-name-personinfo-personinfo-a">
 <h3><span class="raw-html-m2r"><a name="personinfo">PersonInfo</a></span><a class="headerlink" href="#a-name-personinfo-personinfo-a" title="Link to this heading">¶</a></h3>
 <p><a class="reference external" href="#photosdb-person-info">PhotosDB.person_info</a> and <a class="reference external" href="#photoinfo-person-info">PhotoInfo.person_info</a> return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.</p>
-<section id="id91">
-<h4><span class="raw-html-m2r"><a name="name">name</a></span><a class="headerlink" href="#id91" title="Link to this heading">¶</a></h4>
+<section id="id92">
+<h4><span class="raw-html-m2r"><a name="name">name</a></span><a class="headerlink" href="#id92" title="Link to this heading">¶</a></h4>
 <p>Returns the full name of the person represented in the photo. For example, &quot;Maria Smith&quot;.</p>
 </section>
 <section id="a-name-display-name-display-name-a">
@@ -2213,12 +2217,12 @@ is not intended for general use.</p>
 <h4><span class="raw-html-m2r"><a name="personsortorder">sort_order</a></span><a class="headerlink" href="#a-name-personsortorder-sort-order-a" title="Link to this heading">¶</a></h4>
 <p>Returns the sort order for the person in the Photos People view.  Available on Photos 5+ only; on Photos &lt;= 4, returns None.</p>
 </section>
-<section id="id93">
-<h4><span class="raw-html-m2r"><a name="json">json()</a></span><a class="headerlink" href="#id93" title="Link to this heading">¶</a></h4>
+<section id="id94">
+<h4><span class="raw-html-m2r"><a name="json">json()</a></span><a class="headerlink" href="#id94" title="Link to this heading">¶</a></h4>
 <p>Returns a json string representation of the PersonInfo instance.</p>
 </section>
-<section id="id94">
-<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id94" title="Link to this heading">¶</a></h4>
+<section id="id95">
+<h4><span class="raw-html-m2r"><a name="asdict">asdict()</a></span><a class="headerlink" href="#id95" title="Link to this heading">¶</a></h4>
 <p>Returns a dictionary representation of the PersonInfo instance.</p>
 </section>
 </section>
@@ -2893,7 +2897,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. '0.73.1'</p></td>
+<td><p>The osxphotos version, e.g. '0.73.2'</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -3512,6 +3516,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#a-name-ismissing-ismissing-a"><span class="raw-html-m2r"><a name="ismissing">ismissing</a></span></a></li>
 <li><a class="reference internal" href="#a-name-hasadjustments-hasadjustments-a"><span class="raw-html-m2r"><a name="hasadjustments">hasadjustments</a></span></a></li>
 <li><a class="reference internal" href="#a-name-adjustments-adjustments-a"><span class="raw-html-m2r"><a name="adjustments">adjustments</a></span></a></li>
+<li><a class="reference internal" href="#a-name-adjustment-type-adjustment-type-a"><span class="raw-html-m2r"><a name="adjustment_type">adjustment_type</a></span></a></li>
 <li><a class="reference internal" href="#a-name-external-edit-external-edit-a"><span class="raw-html-m2r"><a name="external-edit">external_edit</a></span></a></li>
 <li><a class="reference internal" href="#a-name-favorite-favorite-a"><span class="raw-html-m2r"><a name="favorite">favorite</a></span></a></li>
 <li><a class="reference internal" href="#a-name-flagged-flagged-a"><span class="raw-html-m2r"><a name="flagged">flagged</a></span></a></li>
@@ -3582,7 +3587,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#a-name-exifinfo-exifinfo-a"><span class="raw-html-m2r"><a name="exifinfo">ExifInfo</a></span></a></li>
 <li><a class="reference internal" href="#a-name-albuminfo-albuminfo-a"><span class="raw-html-m2r"><a name="albuminfo">AlbumInfo</a></span></a><ul>
 <li><a class="reference internal" href="#a-name-albuminfo-uuid-uuid-a"><span class="raw-html-m2r"><a name="albuminfo-uuid">uuid</a></span></a></li>
-<li><a class="reference internal" href="#id62"><span class="raw-html-m2r"><a name="title">title</a></span></a></li>
+<li><a class="reference internal" href="#id63"><span class="raw-html-m2r"><a name="title">title</a></span></a></li>
 <li><a class="reference internal" href="#a-name-albumphotos-photos-a"><span class="raw-html-m2r"><a name="albumphotos">photos</a></span></a></li>
 <li><a class="reference internal" href="#a-name-creation-date-creation-date-a"><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span></a></li>
 <li><a class="reference internal" href="#a-name-start-date-start-date-a"><span class="raw-html-m2r"><a name="start-date">start_date</a></span></a></li>
@@ -3590,50 +3595,50 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#a-name-folder-list-folder-list-a"><span class="raw-html-m2r"><a name="folder-list">folder_list</a></span></a></li>
 <li><a class="reference internal" href="#a-name-folder-names-folder-names-a"><span class="raw-html-m2r"><a name="folder-names">folder_names</a></span></a></li>
 <li><a class="reference internal" href="#a-name-parent-parent-a"><span class="raw-html-m2r"><a name="parent">parent</a></span></a></li>
-<li><a class="reference internal" href="#id66"><span class="raw-html-m2r"><a name="owner">owner</a></span></a></li>
-<li><a class="reference internal" href="#id67"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
+<li><a class="reference internal" href="#id67"><span class="raw-html-m2r"><a name="owner">owner</a></span></a></li>
+<li><a class="reference internal" href="#id68"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#a-name-importinfo-importinfo-a"><span class="raw-html-m2r"><a name="importinfo">ImportInfo</a></span></a><ul>
 <li><a class="reference internal" href="#a-name-importinfo-uuid-uuid-a"><span class="raw-html-m2r"><a name="importinfo-uuid">uuid</a></span></a></li>
 <li><a class="reference internal" href="#a-name-importphotos-photos-a"><span class="raw-html-m2r"><a name="importphotos">photos</a></span></a></li>
-<li><a class="reference internal" href="#id69"><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span></a></li>
-<li><a class="reference internal" href="#id70"><span class="raw-html-m2r"><a name="start-date">start_date</a></span></a></li>
-<li><a class="reference internal" href="#id71"><span class="raw-html-m2r"><a name="end-date">end_date</a></span></a></li>
-<li><a class="reference internal" href="#id72"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
+<li><a class="reference internal" href="#id70"><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span></a></li>
+<li><a class="reference internal" href="#id71"><span class="raw-html-m2r"><a name="start-date">start_date</a></span></a></li>
+<li><a class="reference internal" href="#id72"><span class="raw-html-m2r"><a name="end-date">end_date</a></span></a></li>
+<li><a class="reference internal" href="#id73"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#a-name-projectinfo-projectinfo-a"><span class="raw-html-m2r"><a name="projectinfo">ProjectInfo</a></span></a><ul>
 <li><a class="reference internal" href="#a-name-projectinfo-uuid-uuid-a"><span class="raw-html-m2r"><a name="projectinfo-uuid">uuid</a></span></a></li>
-<li><a class="reference internal" href="#id73"><span class="raw-html-m2r"><a name="title">title</a></span></a></li>
+<li><a class="reference internal" href="#id74"><span class="raw-html-m2r"><a name="title">title</a></span></a></li>
 <li><a class="reference internal" href="#a-name-projectphotos-photos-a"><span class="raw-html-m2r"><a name="projectphotos">photos</a></span></a></li>
-<li><a class="reference internal" href="#id75"><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span></a></li>
-<li><a class="reference internal" href="#id76"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
+<li><a class="reference internal" href="#id76"><span class="raw-html-m2r"><a name="creation-date">creation_date</a></span></a></li>
+<li><a class="reference internal" href="#id77"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#a-name-momentinfo-momentinfo-a"><span class="raw-html-m2r"><a name="momentinfo">MomentInfo</a></span></a><ul>
 <li><a class="reference internal" href="#a-name-pk-pk-a"><span class="raw-html-m2r"><a name="pk">pk</a></span></a></li>
-<li><a class="reference internal" href="#id77"><span class="raw-html-m2r"><a name="location">location</a></span></a></li>
-<li><a class="reference internal" href="#id78"><span class="raw-html-m2r"><a name="title">title</a></span></a></li>
+<li><a class="reference internal" href="#id78"><span class="raw-html-m2r"><a name="location">location</a></span></a></li>
+<li><a class="reference internal" href="#id79"><span class="raw-html-m2r"><a name="title">title</a></span></a></li>
 <li><a class="reference internal" href="#a-name-subtitle-subtitle-a"><span class="raw-html-m2r"><a name="subtitle">subtitle</a></span></a></li>
-<li><a class="reference internal" href="#id79"><span class="raw-html-m2r"><a name="start-date">start_date</a></span></a></li>
-<li><a class="reference internal" href="#id80"><span class="raw-html-m2r"><a name="end-date">end_date</a></span></a></li>
-<li><a class="reference internal" href="#id81"><span class="raw-html-m2r"><a name="date">date</a></span></a></li>
+<li><a class="reference internal" href="#id80"><span class="raw-html-m2r"><a name="start-date">start_date</a></span></a></li>
+<li><a class="reference internal" href="#id81"><span class="raw-html-m2r"><a name="end-date">end_date</a></span></a></li>
+<li><a class="reference internal" href="#id82"><span class="raw-html-m2r"><a name="date">date</a></span></a></li>
 <li><a class="reference internal" href="#a-name-modification-date-modification-date-a"><span class="raw-html-m2r"><a name="modification-date">modification_date</a></span></a></li>
 <li><a class="reference internal" href="#a-name-photos-photos-a"><span class="raw-html-m2r"><a name="photos">photos</a></span></a></li>
-<li><a class="reference internal" href="#id82"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
+<li><a class="reference internal" href="#id83"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#a-name-folderinfo-folderinfo-a"><span class="raw-html-m2r"><a name="folderinfo">FolderInfo</a></span></a><ul>
 <li><a class="reference internal" href="#a-name-folderinfo-uuid-uuid-a"><span class="raw-html-m2r"><a name="folderinfo-uuid">uuid</a></span></a></li>
-<li><a class="reference internal" href="#id83"><span class="raw-html-m2r"><a name="title">title</a></span></a></li>
+<li><a class="reference internal" href="#id84"><span class="raw-html-m2r"><a name="title">title</a></span></a></li>
 <li><a class="reference internal" href="#a-name-folderinfo-album-info-album-info-a"><span class="raw-html-m2r"><a name="folderinfo-album-info">album_info</a></span></a></li>
 <li><a class="reference internal" href="#a-name-folderinfo-album-info-shared-album-info-shared-a"><span class="raw-html-m2r"><a name="folderinfo-album-info-shared">album_info_shared</a></span></a></li>
 <li><a class="reference internal" href="#a-name-subfolders-subfolders-a"><span class="raw-html-m2r"><a name="subfolders">subfolders</a></span></a></li>
-<li><a class="reference internal" href="#id87"><span class="raw-html-m2r"><a name="parent">parent</a></span></a></li>
+<li><a class="reference internal" href="#id88"><span class="raw-html-m2r"><a name="parent">parent</a></span></a></li>
 <li><a class="reference internal" href="#a-name-sort-order-sort-order-a"><span class="raw-html-m2r"><a name="sort-order">sort_order</a></span></a></li>
 <li><a class="reference internal" href="#a-name-photo-indexphoto-photo-index-photo-a"><span class="raw-html-m2r"><a name="photo-indexphoto">photo_index(photo)</a></span></a></li>
-<li><a class="reference internal" href="#id89"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
+<li><a class="reference internal" href="#id90"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#a-name-placeinfo-placeinfo-a"><span class="raw-html-m2r"><a name="placeinfo">PlaceInfo</a></span></a><ul>
@@ -3666,11 +3671,11 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#a-name-venue-types-venue-types-a"><span class="raw-html-m2r"><a name="venue-types">venue_types</a></span></a></li>
 <li><a class="reference internal" href="#a-name-media-types-media-types-a"><span class="raw-html-m2r"><a name="media-types">media_types</a></span></a></li>
 <li><a class="reference internal" href="#a-name-all-all-a"><span class="raw-html-m2r"><a name="all">all</a></span></a></li>
-<li><a class="reference internal" href="#id90"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
+<li><a class="reference internal" href="#id91"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#a-name-personinfo-personinfo-a"><span class="raw-html-m2r"><a name="personinfo">PersonInfo</a></span></a><ul>
-<li><a class="reference internal" href="#id91"><span class="raw-html-m2r"><a name="name">name</a></span></a></li>
+<li><a class="reference internal" href="#id92"><span class="raw-html-m2r"><a name="name">name</a></span></a></li>
 <li><a class="reference internal" href="#a-name-display-name-display-name-a"><span class="raw-html-m2r"><a name="display-name">display_name</a></span></a></li>
 <li><a class="reference internal" href="#a-name-personinfo-uuid-uuid-a"><span class="raw-html-m2r"><a name="personinfo-uuid">uuid</a></span></a></li>
 <li><a class="reference internal" href="#a-name-keyphoto-keyphoto-a"><span class="raw-html-m2r"><a name="keyphoto">keyphoto</a></span></a></li>
@@ -3679,8 +3684,8 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><a class="reference internal" href="#a-name-person-face-info-face-info-a"><span class="raw-html-m2r"><a name="person-face-info">face_info</a></span></a></li>
 <li><a class="reference internal" href="#a-name-personfavorite-favorite-a"><span class="raw-html-m2r"><a name="personfavorite">favorite</a></span></a></li>
 <li><a class="reference internal" href="#a-name-personsortorder-sort-order-a"><span class="raw-html-m2r"><a name="personsortorder">sort_order</a></span></a></li>
-<li><a class="reference internal" href="#id93"><span class="raw-html-m2r"><a name="json">json()</a></span></a></li>
-<li><a class="reference internal" href="#id94"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
+<li><a class="reference internal" href="#id94"><span class="raw-html-m2r"><a name="json">json()</a></span></a></li>
+<li><a class="reference internal" href="#id95"><span class="raw-html-m2r"><a name="asdict">asdict()</a></span></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#a-name-faceinfo-faceinfo-a"><span class="raw-html-m2r"><a name="faceinfo">FaceInfo</a></span></a><ul>
@@ -3753,7 +3758,7 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=daf5f7ed"></script>
+</div><script src="_static/documentation_options.js?v=ed0d7d87"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
