@@ -10,6 +10,7 @@ import shutil
 import sqlite3
 import tempfile
 import time
+import zoneinfo
 from collections import Counter, namedtuple
 
 import pytest

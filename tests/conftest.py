@@ -472,14 +472,14 @@ def set_timezone(timezone):
 
 @pytest.fixture
 def set_tz_pacific():
-    timezone = "US/Pacific"
+    timezone = "America/Los_Angeles"
     with set_timezone(timezone):
         yield
 
 
 @pytest.fixture
 def set_tz_central():
-    timezone = "US/Central"
+    timezone = "America/Chicago"
     with set_timezone(timezone):
         yield
 
