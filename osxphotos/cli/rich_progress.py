@@ -48,7 +48,7 @@ def rich_progress(
     disable: bool = False,
     expand: bool = False,
     mock: bool = False,
-) -> None:
+) -> Progress | MockProgress:
     """Return a rich.progress.Progress object unless mock=True or os.getenv("OSXPHOTOS_IS_TESTING") is set"""
     # if OSXPHOTOS_IS_TESTING is set or mock=True, return a MockProgress object
     if mock or OSXPHOTOS_IS_TESTING:
