@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.73.1 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.73.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.73.1 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.73.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.73.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.73.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1299,7 +1299,8 @@
 <span class="sd">                    RKVersion.showInLibrary,</span>
 <span class="sd">                    RKMaster.fileIsReference,</span>
 <span class="sd">                    RKMaster.importGroupUuid,</span>
-<span class="sd">                    RKMaster.fingerprint</span>
+<span class="sd">                    RKMaster.fingerprint,</span>
+<span class="sd">                    RKVersion.imageTimeZoneName</span>
 <span class="sd">                    FROM RKVersion, RKMaster</span>
 <span class="sd">                    WHERE RKVersion.masterUuid = RKMaster.uuid&quot;&quot;&quot;</span>
             <span class="p">)</span>
@@ -1332,7 +1333,8 @@
 <span class="sd">                    RKVersion.showInLibrary,</span>
 <span class="sd">                    RKMaster.fileIsReference,</span>
 <span class="sd">                    RKMaster.importGroupUuid,</span>
-<span class="sd">                    RKMaster.fingerprint</span>
+<span class="sd">                    RKMaster.fingerprint,</span>
+<span class="sd">                    RKVersion.imageTimeZoneName</span>
 <span class="sd">                    FROM RKVersion, RKMaster</span>
 <span class="sd">                    WHERE RKVersion.masterUuid = RKMaster.uuid&quot;&quot;&quot;</span>
             <span class="p">)</span>
@@ -1384,6 +1386,7 @@
         <span class="c1"># 43    RKMaster.fileIsReference -- file is reference (imported without copying to Photos library)</span>
         <span class="c1"># 44    RKMaster.importGroupUuid -- to get date added from RKImportGroup</span>
         <span class="c1"># 45    RKMaster.fingerprint -- fingerprint / hash of the file</span>
+        <span class="c1"># 46    RKVersion.imageTimeZoneName -- time zone name of the image</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
             <span class="n">uuid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1400,12 +1403,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;lastmodifieddate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">photos_datetime_local</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageTimeZoneOffsetSeconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageTimeZoneName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 5+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageTimeZoneName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">46</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageDate_timestamp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">photos_datetime</span><span class="p">(</span>
                 <span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageTimeZoneOffsetSeconds&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;imageTimeZoneName&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -3518,7 +3522,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=daf5f7ed"></script>
+</div><script src="../../../_static/documentation_options.js?v=ed0d7d87"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>

@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.73.2](https://github.com/RhetTbull/osxphotos/compare/v0.73.1...v0.73.2)
+
+Bug fix for non-can timezones in timewarp
+
+### v0.73.2 (2025-10-10)
+
+#### Added
+
+- Added `adjustment_type` property to `PhotoInfo` class. `adjustment_type` is an int representing the type of adjustment made to the photo. Normal edits appear to be type 2 while edits that happen automatically at the time of shooting such as cropping to 16:9 aspect ratio appear to be type 3.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Improved handling of non-canonical timezones in timewarp. (#1952)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+
 ## [v0.73.1](https://github.com/RhetTbull/osxphotos/compare/v0.73.0...v0.73.1)
 
 ### v0.73.1 (2025-09-27)

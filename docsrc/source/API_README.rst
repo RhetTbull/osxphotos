@@ -1093,7 +1093,7 @@ Returns the timezone offset from UTC in seconds for the Photo creation date
 :raw-html-m2r:`<a name="tzname">tzname</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns the timezone name for the Photos creation date; on Photos version < 5, returns None
+Returns the timezone name for the Photos creation date
 
 :raw-html-m2r:`<a name="date-original">date_original</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1269,6 +1269,11 @@ Returns ``True`` if the picture has been edited, otherwise ``False``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On Photos 5+, returns an `AdjustmentsInfo <#adjustmentsinfo>`_ object representing the adjustments (edits) to the photo or None if there are no adjustments.  On earlier versions of Photos, always returns None.
+
+:raw-html-m2r:`<a name="adjustment_type">adjustment_type</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns the adjustment type as an int or None. See also `adjustments <#adjustments>`_. For photos without and adjustment this is usually 0; for photos with adjustments made by the user, this is usually 1 or 2. For photos where the phone camera made an automatic adjustment (for example, user is shooting in 16:9 aspect), this is usually 3. The value also appears to be 3 for slow-motion videos and some other media types, even if no adjustments have been made. See also `adjustments <#adjustments>`_.
 
 :raw-html-m2r:`<a name="external-edit">external_edit</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3056,7 +3061,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.73.1'
+     - The osxphotos version, e.g. '0.73.2'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
