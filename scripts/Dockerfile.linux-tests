@@ -1,0 +1,29 @@
+# Dockerfile for osxphotos Linux test environment
+# This creates a cached image with all dependencies pre-installed
+# Build for specific Python version: docker build --build-arg PYTHON_VERSION=3.12 -t osxphotos-test:3.12 -f scripts/Dockerfile.linux-tests .
+
+ARG PYTHON_VERSION=3.13
+FROM python:${PYTHON_VERSION}
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    exiftool \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy dependency files
+COPY requirements.txt dev_requirements.txt ./
+
+# Install Python dependencies
+RUN uv pip install --system -r requirements.txt && \
+    uv pip install --system -r dev_requirements.txt
+
+# Default command
+CMD ["/bin/bash"]

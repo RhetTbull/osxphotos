@@ -112,7 +112,7 @@ def test_attributes(photosdb):
         "/tests/Test-10.12.6.photoslibrary/Masters/2019/08/24/20190824-030824/Pumkins2.jpg"
     )
     assert not p.ismissing
-    assert p.tzname is None
+    assert p.tzname == "America/New_York"
     assert p.tzoffset == -14400
 
 

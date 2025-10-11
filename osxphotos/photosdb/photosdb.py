@@ -1051,7 +1051,8 @@ class PhotosDB:
                     RKVersion.showInLibrary,
                     RKMaster.fileIsReference,
                     RKMaster.importGroupUuid,
-                    RKMaster.fingerprint
+                    RKMaster.fingerprint,
+                    RKVersion.imageTimeZoneName
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -1084,7 +1085,8 @@ class PhotosDB:
                     RKVersion.showInLibrary,
                     RKMaster.fileIsReference,
                     RKMaster.importGroupUuid,
-                    RKMaster.fingerprint
+                    RKMaster.fingerprint,
+                    RKVersion.imageTimeZoneName
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -1136,6 +1138,7 @@ class PhotosDB:
         # 43    RKMaster.fileIsReference -- file is reference (imported without copying to Photos library)
         # 44    RKMaster.importGroupUuid -- to get date added from RKImportGroup
         # 45    RKMaster.fingerprint -- fingerprint / hash of the file
+        # 46    RKVersion.imageTimeZoneName -- time zone name of the image
 
         for row in c:
             uuid = row[0]
@@ -1152,12 +1155,13 @@ class PhotosDB:
             self._dbphotos[uuid]["lastmodifieddate"] = photos_datetime_local(row[4])
 
             self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
-            self._dbphotos[uuid]["imageTimeZoneName"] = None  # Photos 5+
+            self._dbphotos[uuid]["imageTimeZoneName"] = row[46]
             self._dbphotos[uuid]["imageDate_timestamp"] = row[5]
 
             self._dbphotos[uuid]["imageDate"] = photos_datetime(
                 row[5],
                 self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] or 0,
+                self._dbphotos[uuid]["imageTimeZoneName"] or None,
                 default=True,
             )
 
