@@ -5,6 +5,7 @@ tzcanon: resolve a canonical IANA timezone from
 Public API:
     - canonical_timezone(naive_local_dt, offset_seconds_from_gmt, tz_token, require_unique=False) -> str | None
     - candidates_by_abbrev_and_offset(naive_local_dt, offset_seconds_from_gmt, abbr) -> list[str]
+    - abbrev_to_canonical_timezone(abbrev) -> str | None
 
 Requires Python 3.10+ (uses PEP 604 unions and zoneinfo).
 """
@@ -77,6 +78,131 @@ TZ_OVERRIDES: dict[str, str | None] = {
     "NZST": "Pacific/Auckland",
     "UTC": "Etc/UTC",
     "GMT": "Etc/GMT",
+}
+
+# Comprehensive timezone abbreviation lookup table
+# For ambiguous abbreviations, the most common/populous timezone is chosen
+ABBREV_TO_CANONICAL: dict[str, str] = {
+    # UTC/GMT
+    "UTC": "Etc/UTC",
+    "GMT": "Etc/GMT",
+    "Z": "Etc/UTC",
+    "WET": "Europe/Lisbon",  # Western European Time
+    "WEST": "Europe/Lisbon",  # Western European Summer Time
+    # North America - Pacific
+    "PST": "America/Los_Angeles",
+    "PDT": "America/Los_Angeles",
+    # North America - Mountain
+    "MST": "America/Denver",
+    "MDT": "America/Denver",
+    # North America - Central
+    "CST": "America/Chicago",  # Note: Also China Standard Time - US more common
+    "CDT": "America/Chicago",
+    # North America - Eastern
+    "EST": "America/New_York",
+    "EDT": "America/New_York",
+    # North America - Atlantic
+    "AST": "America/Halifax",  # Note: Also Arabia Standard Time - Atlantic more common
+    "ADT": "America/Halifax",
+    # North America - Alaska
+    "AKST": "America/Anchorage",
+    "AKDT": "America/Anchorage",
+    # North America - Hawaii
+    "HST": "Pacific/Honolulu",
+    "HAST": "Pacific/Honolulu",
+    "HADT": "Pacific/Honolulu",
+    # North America - Other
+    "NST": "America/St_Johns",  # Newfoundland Standard Time
+    "NDT": "America/St_Johns",  # Newfoundland Daylight Time
+    # Europe - UK/Ireland
+    "BST": "Europe/London",  # British Summer Time
+    "IST": "Asia/Kolkata",  # Note: Ambiguous - India (most populous), also Israel/Ireland
+    "GMT": "Etc/GMT",
+    # Europe - Central
+    "CET": "Europe/Paris",
+    "CEST": "Europe/Paris",
+    "MEZ": "Europe/Berlin",  # Mitteleuropäische Zeit (German for CET)
+    "MESZ": "Europe/Berlin",  # Mitteleuropäische Sommerzeit (German for CEST)
+    # Europe - Eastern
+    "EET": "Europe/Athens",
+    "EEST": "Europe/Athens",
+    # Europe - Moscow
+    "MSK": "Europe/Moscow",
+    "MSD": "Europe/Moscow",
+    # Middle East
+    "IDT": "Asia/Jerusalem",  # Israel Daylight Time
+    "IST": "Asia/Kolkata",  # India Standard Time (most populous)
+    "PKT": "Asia/Karachi",  # Pakistan Time
+    "AFT": "Asia/Kabul",  # Afghanistan Time
+    "IRST": "Asia/Tehran",  # Iran Standard Time
+    "IRDT": "Asia/Tehran",  # Iran Daylight Time
+    "GST": "Asia/Dubai",  # Gulf Standard Time
+    "AST": "America/Halifax",  # Note: Also Arabia Standard Time - choosing Atlantic
+    # Asia - East
+    "CST": "America/Chicago",  # Note: Also China Standard Time - US more common for photos
+    "JST": "Asia/Tokyo",
+    "KST": "Asia/Seoul",
+    "HKT": "Asia/Hong_Kong",
+    "SGT": "Asia/Singapore",
+    "PHT": "Asia/Manila",  # Philippine Time
+    "WIB": "Asia/Jakarta",  # Western Indonesia Time
+    "WITA": "Asia/Makassar",  # Central Indonesia Time
+    "WIT": "Asia/Jayapura",  # Eastern Indonesia Time
+    # Asia - South
+    "IST": "Asia/Kolkata",  # India Standard Time
+    "NPT": "Asia/Kathmandu",  # Nepal Time
+    "BST": "Europe/London",  # Note: Also Bangladesh Standard Time - UK more common
+    "BTT": "Asia/Thimphu",  # Bhutan Time
+    "MVT": "Indian/Maldives",  # Maldives Time
+    # Asia - Southeast
+    "ICT": "Asia/Bangkok",  # Indochina Time (Thailand, Vietnam, Cambodia)
+    "MMT": "Asia/Yangon",  # Myanmar Time
+    # Australia/New Zealand
+    "AWST": "Australia/Perth",  # Australian Western Standard Time
+    "ACST": "Australia/Adelaide",  # Australian Central Standard Time
+    "ACDT": "Australia/Adelaide",  # Australian Central Daylight Time
+    "AEST": "Australia/Sydney",  # Australian Eastern Standard Time
+    "AEDT": "Australia/Sydney",  # Australian Eastern Daylight Time
+    "NZST": "Pacific/Auckland",  # New Zealand Standard Time
+    "NZDT": "Pacific/Auckland",  # New Zealand Daylight Time
+    # Pacific
+    "CHST": "Pacific/Guam",  # Chamorro Standard Time
+    "SST": "Pacific/Pago_Pago",  # Samoa Standard Time
+    "CHAST": "Pacific/Chatham",  # Chatham Standard Time
+    "CHADT": "Pacific/Chatham",  # Chatham Daylight Time
+    "FJST": "Pacific/Fiji",  # Fiji Summer Time
+    "FJT": "Pacific/Fiji",  # Fiji Time
+    "TOT": "Pacific/Tongatapu",  # Tonga Time
+    # South America
+    "BRT": "America/Sao_Paulo",  # Brasília Time
+    "BRST": "America/Sao_Paulo",  # Brasília Summer Time
+    "ART": "America/Argentina/Buenos_Aires",  # Argentina Time
+    "ARST": "America/Argentina/Buenos_Aires",  # Argentina Summer Time
+    "CLT": "America/Santiago",  # Chile Standard Time
+    "CLST": "America/Santiago",  # Chile Summer Time
+    "PET": "America/Lima",  # Peru Time
+    "COT": "America/Bogota",  # Colombia Time
+    "VET": "America/Caracas",  # Venezuelan Standard Time
+    "GYT": "America/Guyana",  # Guyana Time
+    "BOT": "America/La_Paz",  # Bolivia Time
+    "ECT": "America/Guayaquil",  # Ecuador Time
+    "PYST": "America/Asuncion",  # Paraguay Summer Time
+    "PYT": "America/Asuncion",  # Paraguay Time
+    "UYT": "America/Montevideo",  # Uruguay Time
+    "UYST": "America/Montevideo",  # Uruguay Summer Time
+    # Africa
+    "CAT": "Africa/Maputo",  # Central Africa Time
+    "EAT": "Africa/Nairobi",  # East Africa Time
+    "WAT": "Africa/Lagos",  # West Africa Time
+    "WAST": "Africa/Lagos",  # West Africa Summer Time
+    "SAST": "Africa/Johannesburg",  # South Africa Standard Time
+    # Atlantic
+    "AZOST": "Atlantic/Azores",  # Azores Summer Time
+    "AZOT": "Atlantic/Azores",  # Azores Time
+    "CVT": "Atlantic/Cape_Verde",  # Cape Verde Time
+    # Other common abbreviations
+    "CAT": "Africa/Maputo",  # Central Africa Time
+    "SAST": "Africa/Johannesburg",  # South Africa Standard Time
 }
 
 
@@ -343,3 +469,54 @@ def canonical_timezone(
         tz_token or "",
         require_unique,
     )
+
+
+@cache
+def abbrev_to_canonical_timezone(abbrev: str | None) -> str | None:
+    """Map a timezone abbreviation to a canonical IANA timezone name.
+
+    This function performs a simple lookup without requiring date/time context.
+    For ambiguous abbreviations (e.g., IST, CST, AST), the most common/populous
+    timezone is returned.
+
+    Args:
+        abbrev: Timezone abbreviation (e.g., "IDT", "PST", "JST")
+
+    Returns:
+        Canonical IANA timezone name (e.g., "Asia/Jerusalem", "America/Los_Angeles")
+        or None if the abbreviation is not recognized
+
+    Examples:
+        >>> abbrev_to_canonical_timezone("IDT")
+        'Asia/Jerusalem'
+        >>> abbrev_to_canonical_timezone("PST")
+        'America/Los_Angeles'
+        >>> abbrev_to_canonical_timezone("IST")  # Ambiguous - returns India (most populous)
+        'Asia/Kolkata'
+        >>> abbrev_to_canonical_timezone("UNKNOWN")
+        None
+
+    Note:
+        For ambiguous abbreviations:
+        - IST: Returns Asia/Kolkata (India) instead of Israel/Ireland
+        - CST: Returns America/Chicago (US Central) instead of China
+        - AST: Returns America/Halifax (Atlantic) instead of Arabia
+        - BST: Returns Europe/London (British) instead of Bangladesh
+    """
+    if not abbrev:
+        return None
+
+    # Normalize to uppercase for lookup
+    abbrev_upper = abbrev.strip().upper()
+
+    # First check the lookup table (prefer this over IANA names)
+    # Some abbreviations like EST, MST are also valid IANA zones but we want the location-based zones
+    if abbrev_upper in ABBREV_TO_CANONICAL:
+        return ABBREV_TO_CANONICAL[abbrev_upper]
+
+    # If not in lookup table, check if it's already a valid IANA timezone
+    # (e.g., "America/New_York" passed directly)
+    if _is_valid_iana(abbrev):
+        return "Etc/UTC" if abbrev_upper == "UTC" else abbrev
+
+    return None

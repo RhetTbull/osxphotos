@@ -133,3 +133,9 @@ def test_convert_offset_timezone_to_etc_invalid_bounds_raises_value_error(
 
 def test_convert_offset_timezone_to_etc_leading_trailing_whitespace_handled():
     assert convert_offset_timezone_to_etc("  GMT-0800 ") == "Etc/GMT+8"
+
+
+def test_convert_abbreviation_to_canonical():
+    """Test for abbreviation to canonical conversion."""
+    tz = Timezone("IDT")
+    assert tz.name == "Asia/Jerusalem"

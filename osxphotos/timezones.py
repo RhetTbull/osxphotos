@@ -3,12 +3,13 @@
 import datetime
 import re
 import zoneinfo
+from functools import cache
 from math import floor
 from typing import Union
-from functools import cache
 
 from .platform import is_macos
 from .timeutils import timezone_for_offset
+from .tzcanonical import abbrev_to_canonical_timezone
 
 VALID_ETC_TIMEZONES = {
     "Etc/GMT",
@@ -124,6 +125,12 @@ if is_macos:
         timezones = list(Foundation.NSTimeZone.knownTimeZoneNames())
         return sorted(timezones, key=lambda x: (len(x), x))
 
+    def ns_timezone_with_name(name: str) -> Foundation.NSTimeZone | None:
+        """Create NSTimeZone object from name or abbreviation"""
+        return Foundation.NSTimeZone.timeZoneWithAbbreviation_(
+            name
+        ) or Foundation.NSTimeZone.timeZoneWithName_(name)
+
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
 
@@ -132,15 +139,21 @@ if is_macos:
                 self._from_offset = False
                 if isinstance(tz, str):
                     # the NSTimeZone methods return nil if the timezone is invalid
-                    self.timezone = Foundation.NSTimeZone.timeZoneWithAbbreviation_(
-                        tz
-                    ) or Foundation.NSTimeZone.timeZoneWithName_(tz)
+                    self.timezone = ns_timezone_with_name(tz)
                     if not self.timezone:
-                        raise ValueError(f"Invalid timezone: {tz}")
+                        # try the canonical name (this is a fallback best guess; I've seen Photos databases with invalid timezones like "IDT")
+                        if canonical_timezone := abbrev_to_canonical_timezone(
+                            tz.upper()
+                        ):
+                            self.timezone = ns_timezone_with_name(canonical_timezone)
+                        if not self.timezone:
+                            raise ValueError(f"Invalid timezone: {tz}")
                 elif isinstance(tz, (int, float)):
                     self.timezone = Foundation.NSTimeZone.timeZoneForSecondsFromGMT_(
                         int(tz)
                     )
+                    if not self.timezone:
+                        raise ValueError(f"Invalid timezone offset: {tz}")
                     self._from_offset = True
                 else:
                     raise TypeError("Timezone must be a string or an int")
@@ -208,9 +221,16 @@ else:
             if isinstance(tz, str):
                 try:
                     self.timezone = zoneinfo.ZoneInfo(tz)
+                    self._name = tz
                 except Exception as e:
-                    raise ValueError(f"Invalid timezone: {tz}") from e
-                self._name = tz
+                    if tz_canonical := abbrev_to_canonical_timezone(tz):
+                        try:
+                            self.timezone = zoneinfo.ZoneInfo(tz_canonical)
+                            self._name = tz_canonical
+                        except Exception as e:
+                            raise ValueError(f"Invalid timezone: {tz}") from e
+                    else:
+                        raise ValueError(f"Invalid timezone: {tz}") from e
             elif isinstance(tz, (int, float)):
                 if isinstance(tz, float):
                     tz: int = floor(tz)
