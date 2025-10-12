@@ -81,9 +81,9 @@ def normalize_unicode(value: UnicodeDataType) -> UnicodeDataType:
     if value is None:
         return None
     if isinstance(value, tuple):
-        return tuple(unicodedata.normalize(form, v) for v in value)
+        return tuple(unicodedata.normalize(form, str(v)) for v in value)
     elif isinstance(value, list):
-        return [unicodedata.normalize(form, v) for v in value]
+        return [unicodedata.normalize(form, str(v)) for v in value]
     elif isinstance(value, str):
         return unicodedata.normalize(form, value)
     else:
