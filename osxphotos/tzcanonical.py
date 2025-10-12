@@ -19,6 +19,12 @@ from zoneinfo import ZoneInfo, available_timezones
 # This set is static for the lifetime of the process
 _AVAILABLE_TIMEZONES: set[str] | None = None
 
+__all__ = [
+    "canonical_timezone",
+    "candidates_by_abbrev_and_offset",
+    "abbrev_to_canonical_timezone",
+]
+
 
 def _get_available_timezones() -> set[str]:
     """Get cached set of available timezones.
@@ -213,6 +219,13 @@ def _parse_offset_str(s: str) -> int | None:
     t = s.strip().upper()
     if t in {"Z", "UTC", "GMT"}:
         return 0
+    # Match GMT±HHMM or GMT±HH:MM format
+    m_gmt = re.fullmatch(r"GMT([+-])(\d{2}):?(\d{2})", t)
+    if m_gmt:
+        sign = 1 if m_gmt.group(1) == "+" else -1
+        h = int(m_gmt.group(2))
+        mi = int(m_gmt.group(3))
+        return sign * (h * 3600 + mi * 60)
     m = re.fullmatch(r"([+-])(\d{2}):?(\d{2})", t)
     if m:
         sign = 1 if m.group(1) == "+" else -1
