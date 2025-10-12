@@ -808,3 +808,113 @@ def test_perth_timezone():
         "AWST",
     )
     assert result == "Australia/Perth"
+
+
+def test_gmt_negative_offset_format():
+    """Test GMT-0400 format returns Etc/GMT+4"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        -14400,  # -4 hours
+        "GMT-0400",
+    )
+    assert result == "Etc/GMT+4"
+
+
+def test_gmt_positive_offset_format():
+    """Test GMT+0400 format returns Etc/GMT-4"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        14400,  # +4 hours
+        "GMT+0400",
+    )
+    assert result == "Etc/GMT-4"
+
+
+def test_gmt_negative_offset_format_with_colon():
+    """Test GMT-04:00 format returns Etc/GMT+4"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        -14400,  # -4 hours
+        "GMT-04:00",
+    )
+    assert result == "Etc/GMT+4"
+
+
+def test_gmt_positive_offset_format_with_colon():
+    """Test GMT+04:00 format returns Etc/GMT-4"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        14400,  # +4 hours
+        "GMT+04:00",
+    )
+    assert result == "Etc/GMT-4"
+
+
+def test_gmt_zero_offset_negative():
+    """Test GMT-0000 format returns Etc/UTC"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        0,
+        "GMT-0000",
+    )
+    assert result == "Etc/UTC"
+
+
+def test_gmt_zero_offset_positive():
+    """Test GMT+0000 format returns Etc/UTC"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        0,
+        "GMT+0000",
+    )
+    assert result == "Etc/UTC"
+
+
+def test_gmt_extreme_negative_offset():
+    """Test GMT-1100 format returns Etc/GMT+11"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        -39600,  # -11 hours
+        "GMT-1100",
+    )
+    assert result == "Etc/GMT+11"
+
+
+def test_gmt_extreme_positive_offset():
+    """Test GMT+1400 format returns Etc/GMT-14"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        50400,  # +14 hours
+        "GMT+1400",
+    )
+    assert result == "Etc/GMT-14"
+
+
+def test_gmt_offset_lowercase():
+    """Test lowercase gmt-0400 format returns Etc/GMT+4"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        -14400,  # -4 hours
+        "gmt-0400",
+    )
+    assert result == "Etc/GMT+4"
+
+
+def test_gmt_offset_mixed_case():
+    """Test mixed case Gmt-0400 format returns Etc/GMT+4"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        -14400,  # -4 hours
+        "Gmt-0400",
+    )
+    assert result == "Etc/GMT+4"
+
+
+def test_gmt_offset_with_whitespace():
+    """Test GMT-0400 with whitespace returns Etc/GMT+4"""
+    result = canonical_timezone(
+        datetime(2025, 1, 15, 12, 0),
+        -14400,  # -4 hours
+        "  GMT-0400  ",
+    )
+    assert result == "Etc/GMT+4"

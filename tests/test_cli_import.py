@@ -1859,7 +1859,7 @@ def test_import_exportdb_datetime_set_timezone(tmp_path):
         14,
         40,
         24,
-        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+        tzinfo=ZoneInfo("Etc/GMT+4"),
     )
     assert photo.date == actual_date
     # verify timezone info set correctly
@@ -2183,7 +2183,7 @@ def test_import_exportdb_sidecar_sidecar_ignore_date(tmp_path):
         14,
         40,
         24,
-        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+        tzinfo=ZoneInfo("Etc/GMT+4"),
     )
     assert photo.date == actual_date  # date from exportdb
     # verify timezone info set correctly

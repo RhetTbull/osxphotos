@@ -2,12 +2,12 @@
 # The version in this file will be updated by bump2version
 
 app = "osxphotos"
-version = "0.73.2"
+version = "0.73.3"
 identifier = "org.rhettbull.osxphotos"
 license = "LICENSE"
 install = [
     [
-        "build/osxphotos-0.73.2-{{ machine }}",
+        "build/osxphotos-0.73.3-{{ machine }}",
         "/usr/local/bin/osxphotos",
     ],
 ]
