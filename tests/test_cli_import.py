@@ -247,6 +247,13 @@ def test_import():
         ["--verbose", test_image_1],
         terminal_width=TERMINAL_WIDTH,
     )
+    print(f"{type(result)=}")
+    print(f"{result.output=}")
+    print(f"{result.stdout=}")
+    print(f"{result.stderr=}")
+    print(f"{result.exit_code=}")
+    print(f"{result.exc_info=}")
+
     assert result.exit_code == 0
 
     import_data = parse_import_output(result.output)

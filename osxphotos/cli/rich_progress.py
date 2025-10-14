@@ -10,6 +10,105 @@ from rich.progress import GetTimeCallable, Progress, ProgressColumn, TaskID
 OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING", default=False))
 
 
+class MockTask:
+    """A mock task object similar to rich.progress.Task."""
+    def __init__(self, task_id, description="", total=100):
+        self.id = task_id
+        self.description = description
+        self.total = total
+        self.completed = 0
+        self.finished = False
+
+    # def advance(self, task_id, amount=1):
+    #     self.completed += amount
+    #     if self.completed >= self.total:
+    #         self.completed = self.total
+    #         self.finished = True
+
+
+class MockProgress:
+    """A mock version of rich.Progress for testing purposes."""
+    def __init__(self, *args, **kwargs):
+        self.tasks = []
+        self.live = False
+        self.console = kwargs.get("console", None)
+        self.auto_refresh = kwargs.get("auto_refresh", True)
+        self.transient = kwargs.get("transient", False)
+
+    # --- Context manager methods ---
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
+
+    # --- Lifecycle methods ---
+    def start(self):
+        self.live = True
+
+    def stop(self):
+        self.live = False
+
+    def refresh(self):
+        pass  # dummy method, does nothing
+
+    # --- Task management ---
+    def add_task(self, description="", total=100, **kwargs):
+        task_id = len(self.tasks)
+        task = MockTask(task_id, description, total)
+        self.tasks.append(task)
+        return task_id
+
+    def update(self, task_id, advance=0, completed=None, total=None, **kwargs):
+        task = self.tasks[task_id]
+        if completed is not None:
+            task.completed = completed
+        if total is not None:
+            task.total = total
+        if advance:
+            task.advance(advance)
+        return task
+
+    def advance(self, task_id, amount=1):
+        pass
+        # task = self.tasks[task_id]
+        # task.advance(amount)
+
+    def remove_task(self, task_id):
+        self.tasks[task_id] = None  # keep index stable
+
+    def get_task(self, task_id):
+        return self.tasks[task_id]
+
+    # --- Output simulation ---
+    def print(self, *args, **kwargs):
+        # mimic console.print()
+        if self.console:
+            self.console.print(*args, **kwargs)
+        else:
+            print(*args, **kwargs)
+
+    # --- Misc / dummy API methods ---
+    def __getitem__(self, task_id):
+        return self.tasks[task_id]
+
+    def __len__(self):
+        return len(self.tasks)
+
+    def reset(self, task_id, total=None):
+        task = self.tasks[task_id]
+        task.completed = 0
+        if total is not None:
+            task.total = total
+        task.finished = False
+
+    def stop_task(self, task_id):
+        task = self.tasks[task_id]
+        task.finished = True
+
+
+"""
 class MockProgress:
     def __init__(self):
         pass
@@ -33,7 +132,7 @@ class MockProgress:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
-
+"""
 
 def rich_progress(
     *columns: Union[str, ProgressColumn],
