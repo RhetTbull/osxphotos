@@ -40,14 +40,14 @@ def get_unicode_form() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     return _GLOBAL_UNICODE_FORM
 
 
-def set_unicode_form(format: Literal["NFC", "NFKC", "NFD", "NFKD"]) -> None:
+def set_unicode_form(fmt: Literal["NFC", "NFKC", "NFD", "NFKD"]) -> None:
     """Set the global unicode format"""
 
-    if format not in ["NFC", "NFKC", "NFD", "NFKD"]:
-        raise ValueError(f"Invalid unicode format: {format}")
+    if fmt not in ["NFC", "NFKC", "NFD", "NFKD"]:
+        raise ValueError(f"Invalid unicode format: {fmt}")
 
     global _GLOBAL_UNICODE_FORM
-    _GLOBAL_UNICODE_FORM = format
+    _GLOBAL_UNICODE_FORM = fmt
 
 
 def get_unicode_fs_form() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
@@ -56,14 +56,14 @@ def get_unicode_fs_form() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     return _GLOBAL_UNICODE_FS_FORM
 
 
-def set_unicode_fs_form(format: Literal["NFC", "NFKC", "NFD", "NFKD"]):
+def set_unicode_fs_form(fmt: Literal["NFC", "NFKC", "NFD", "NFKD"]):
     """Set the global unicode filesystem format"""
 
-    if format not in ["NFC", "NFKC", "NFD", "NFKD"]:
-        raise ValueError(f"Invalid unicode format: {format}")
+    if fmt not in ["NFC", "NFKC", "NFD", "NFKD"]:
+        raise ValueError(f"Invalid unicode format: {fmt}")
 
     global _GLOBAL_UNICODE_FS_FORM
-    _GLOBAL_UNICODE_FS_FORM = format
+    _GLOBAL_UNICODE_FS_FORM = fmt
 
 
 def normalize_fs_path(path: PathType) -> PathType:
@@ -81,9 +81,13 @@ def normalize_unicode(value: UnicodeDataType) -> UnicodeDataType:
     if value is None:
         return None
     if isinstance(value, tuple):
-        return tuple(unicodedata.normalize(form, str(v)) for v in value)
+        return tuple(
+            unicodedata.normalize(form, str(v if v is not None else "")) for v in value
+        )
     elif isinstance(value, list):
-        return [unicodedata.normalize(form, str(v)) for v in value]
+        return [
+            unicodedata.normalize(form, str(v if v is not None else "")) for v in value
+        ]
     elif isinstance(value, str):
         return unicodedata.normalize(form, value)
     else:
