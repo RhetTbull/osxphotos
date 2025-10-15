@@ -3289,9 +3289,14 @@ def run_post_command(
     """Run --post-command commands"""
     # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
 
+    should_return = False
     for category, command_template in post_command:
+        if should_return:
+            break
         files = getattr(export_results, category)
         for f in files:
+            if should_return:
+                break
             # some categories, like error, return a tuple of (file, error str)
             if isinstance(f, tuple):
                 f = f[0]
@@ -3309,19 +3314,20 @@ def run_post_command(
                         run_results = subprocess.run(command, shell=True, cwd=cwd)
                     except Exception as e:
                         run_error = e
-                    finally:
-                        returncode = run_results.returncode if run_results else None
-                        if run_error or returncode:
-                            # there was an error running the command
-                            error_str = f'Error running command "{command}": return code: {returncode}, exception: {run_error}'
-                            rich_echo_error(f"[error]{error_str}[/]")
-                            if not on_error:
-                                # no error handling specified, raise exception
-                                raise RuntimeError(error_str)
-                            if on_error == "break":
-                                # break out of loop and return
-                                return
-                            # else on_error must be continue
+
+                    returncode = run_results.returncode if run_results else None
+                    if run_error or returncode:
+                        # there was an error running the command
+                        error_str = f'Error running command "{command}": return code: {returncode}, exception: {run_error}'
+                        rich_echo_error(f"[error]{error_str}[/]")
+                        if not on_error:
+                            # no error handling specified, raise exception
+                            raise RuntimeError(error_str)
+                        if on_error == "break":
+                            # break out of both loops and return
+                            should_return = True
+                            break
+                        # else on_error must be continue
 
 
 def render_and_validate_report(report: str, exiftool_path: str, export_dir: str) -> str:
