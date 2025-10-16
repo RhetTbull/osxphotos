@@ -1094,7 +1094,7 @@ def import_cli(
     if (timezone or set_timezone) and not force:
         click.confirm(
             rich_text(
-                f":warning-emoji: Using --timezone or --set-timezone will directly modify "
+                ":warning-emoji: Using --timezone or --set-timezone will directly modify "
                 "the Photos library database using undocumented features. "
                 "While this functionality has been well tested, it is possible this may "
                 "corrupt, damage, or destroy your Photos library. "
@@ -1265,8 +1265,26 @@ def import_cli(
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
 
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
+    # Notify if import did not process all file groups, e.g. --stop-on-error threshold breached
+    not_processed = (
+        len(list(itertools.chain.from_iterable(files_to_import)))
+        - imported_count
+        - error_count
+        - skipped_count
+    )
+    not_processed_str = (
+        (
+            f", [num]{not_processed}[/] "
+            f"{pluralize(not_processed, 'file group', 'file groups')} not processed"
+        )
+        if not_processed > 0
+        else ""
+    )
     echo(
-        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, [num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}{skipped_str}",
+        f"Done: imported [num]{imported_count}[/] "
+        f"{pluralize(imported_count, 'file group', 'file groups')}, "
+        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
+        f"{skipped_str}{not_processed_str}",
         emoji=False,
     )
 
@@ -2652,7 +2670,7 @@ def collect_files_to_import(
             if filename_matches_patterns(os.path.basename(f), glob)
         ]
 
-    verbose(f"Getting absolute path of each import file...", level=2)
+    verbose("Getting absolute path of each import file...", level=2)
     files_to_import = [pathlib.Path(f).absolute() for f in files_to_import]
 
     # keep only image files, video files, and .aae files
@@ -3120,14 +3138,19 @@ def import_files(
                         if record.imported and not record.error:
                             # file already imported
                             verbose(
-                                f"Skipping [filepath]{filepath}[/], already imported on [time]{record.import_datetime.isoformat()}[/] with UUID [uuid]{record.uuid}[/]"
+                                f"Skipping [filepath]{filepath}[/], already imported on "
+                                f"[time]{record.import_datetime.isoformat()}[/] with "
+                                f"UUID [uuid]{record.uuid}[/]"
+                                f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
                             )
                             skipped_count += 1
                             progress.advance(task)
                             continue
 
                 verbose(
-                    f"Importing " + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
+                    "Importing "
+                    + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
+                    + f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
                 )
 
                 report_data[filepath] = ReportRecord(
