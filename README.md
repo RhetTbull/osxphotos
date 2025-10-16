@@ -61,7 +61,7 @@ Limited support is also provided for exporting photos and metadata from iPhoto l
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
-Requires python >= `3.10`, <= `3.13`.
+Requires python >= `3.10`, <= `3.14`.
 
 For macOS 26.0 / Tahoe developer preview, alpha support is provided (very preliminary, not guaranteed to work). Not all features of osxphotos have been tested and some features may not work. If you encounter issues, please open an issue on GitHub.
 
@@ -2397,7 +2397,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.73.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.73.4'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2895,7 +2895,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.73.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.73.4'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
