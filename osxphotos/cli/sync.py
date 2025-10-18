@@ -664,7 +664,7 @@ def print_import_summary(results: SyncResults):
 )
 @click.option(
     "--import",
-    "-i",
+    "-I",
     "import_path",
     metavar="IMPORT_PATH",
     help="Import metadata from file IMPORT_PATH. "
