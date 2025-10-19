@@ -1267,7 +1267,7 @@ def import_cli(
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
     # Notify if import did not process all file groups, e.g. --stop-on-error threshold breached
     not_processed = (
-        len(list(itertools.chain.from_iterable(files_to_import)))
+        len(files_to_import)    # groupcount
         - imported_count
         - error_count
         - skipped_count
@@ -2705,23 +2705,34 @@ def group_files_to_import(
     """Group files by live photo, burst UUID, raw+jpeg, etc."""
     # first collect all files by parent directory
     files_by_parent = {}
+    count = len(files)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
-        task = progress.add_task(
-            "Grouping files by parent directory...", total=len(files)
-        )
+        task = progress.add_task("Grouping files by parent directory...", total=count)
+        if not get_verbose_console().is_terminal:
+            verbose(
+                f"Grouping files by parent directory... {count} {pluralize(count, 'file', 'files')}"
+            )
         for file in files:
             parent = file.parent
             if parent not in files_by_parent:
                 files_by_parent[parent] = []
             files_by_parent[parent].append(file)
             progress.advance(task)
+            if not get_verbose_console().is_terminal:
+                verbose(
+                    f"...{file} "
+                    f" ({progress.tasks[task].completed}/{progress.tasks[task].total})"
+                )
 
     # walk through each parent directory and group files by same stem
     grouped_files = []
+    count = len(files_by_parent)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
-        task = progress.add_task(
-            "Grouping files into import groups...", total=len(files_by_parent)
-        )
+        task = progress.add_task("Grouping files into import groups...", total=count)
+        if not get_verbose_console().is_terminal:
+            verbose(
+                f"Grouping files by parent directory... {count} {pluralize(count, 'directory', 'directories')}"
+            )
         for parent, files in files_by_parent.items():
             grouped = group_files_by_stem(
                 files,
@@ -2734,6 +2745,11 @@ def group_files_to_import(
             )
             grouped_files.extend(grouped)
             progress.advance(task)
+            if not get_verbose_console().is_terminal:
+                verbose(
+                    f"...{parent.absolute()} "
+                    f" ({progress.tasks[task].completed}/{progress.tasks[task].total})"
+                )
 
     files_to_import = []
     for group in grouped_files:
