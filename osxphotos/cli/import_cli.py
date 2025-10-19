@@ -39,6 +39,8 @@ from osxphotos.strpdatetime_parts import fmt_has_date_time_codes
 from .help import filter_help_text_for_sphinx, is_sphinx_running, rich_text
 from .param_types import TimezoneOffset
 
+from osxphotos.cli.kill_photos import kill_photos
+
 assert_macos()
 
 try:
@@ -3265,7 +3267,13 @@ def import_files(
                             rich_echo_error(
                                 f"[error]Error count exceeded limit, stopping! Last file: [filename]{filepath.name}[/], error count = [num]{error_count}[/]"
                             )
-                            raise StopIteration
+                            if kill_photos():
+                                error_count = 0
+                                rich_echo_error(
+                                    f"[error]Restarted Photos! Resetting error count = [num]{error_count}[/]"
+                                )
+                            else:
+                                raise StopIteration
                         continue
                 else:
                     photo = None
