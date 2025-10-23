@@ -3270,7 +3270,7 @@ def import_files(
                             if kill_photos():
                                 error_count = 0
                                 rich_echo_error(
-                                    f"[error]Restarted Photos! Resetting error count = [num]{error_count}[/]"
+                                    f"[error] Restarted Photos! Resetting error count = [num]{error_count}[/]"
                                 )
                             else:
                                 raise StopIteration
