@@ -18,7 +18,7 @@ from osxphotos.photoquery import (
     QueryOptions,
     query_options_from_kwargs,
 )
-from osxphotos.photosalbum import PhotosAlbum
+from osxphotos.photosalbum import PhotosAlbum, PhotosAlbumPhotoScriptByPath
 from osxphotos.photosdb.photosdb_utils import get_db_version
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import assert_macos
@@ -468,9 +468,13 @@ def _update_albums_for_photo(
     """Add photo to new albums if necessary"""
     # add photo to any new albums but do not remove from existing albums
     results = SyncResults()
+    print(json.dumps(metadata, indent=2, sort_keys=True, ensure_ascii=False))
+
     value = sorted(metadata["albums"])
     before = sorted(photo.albums)
     albums_to_add = set(value) - set(before)
+
+
     if not albums_to_add:
         verbose(f"\tNothing to do for albums", level=2)
         results.add_result(
@@ -484,10 +488,16 @@ def _update_albums_for_photo(
         )
         return results
 
+
     for album in albums_to_add:
-        verbose(f"\tAdding to album [filepath]{album}[/]")
+        comps = metadata.get("folders", {}).get(album, [])  # list of folders (may be empty)
+        folder_path = "/".join(comps) if comps else ""           # path of containing folders
+        full_album_path = "/".join(comps + [album]) if comps else album  # folder(s) + album
+        print(album, "=> folder_path:", folder_path, "full_path:", full_album_path)
+
+        verbose(f"\tAdding to album [filepath]{full_album_path}[/]")
         if not dry_run:
-            PhotosAlbum(album, verbose=lambda x: verbose(f"\t{x}"), rich=True).add(
+            PhotosAlbumPhotoScriptByPath(full_album_path, verbose=lambda x: verbose(f"\t{x}"), rich=True).add(
                 photo
             )
     results.add_result(
