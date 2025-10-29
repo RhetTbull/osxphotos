@@ -9,7 +9,6 @@ import pathlib
 from typing import Any, Callable, Literal
 
 import click
-
 from photoscript import Photo
 
 from osxphotos import PhotoInfo, PhotosDB, __version__
@@ -470,17 +469,13 @@ def _update_albums_for_photo(
     """Add photo to new albums if necessary"""
     # add photo to any new albums but do not remove from existing albums
     results = SyncResults()
-    # debug code
-    print(json.dumps(metadata, indent=2, sort_keys=True, ensure_ascii=False))
-    # debug code
 
     value = sorted(metadata["albums"])
     before = sorted(photo.albums)
     albums_to_add = set(value) - set(before)
 
-
     if not albums_to_add:
-        verbose(f"\tNothing to do for albums", level=2)
+        verbose("\tNothing to do for albums", level=2)
         results.add_result(
             photo.uuid,
             photo.original_filename,
@@ -492,63 +487,39 @@ def _update_albums_for_photo(
         )
         return results
 
-# but to do this, you'll need to convert the PhotoInfo object to a Photo object.
-# This generally goes like this: photoscript_photo = Photo(photo.uuid) but you need 
-# catch an Exception because some objects like shared photos don't have an equivalent
-# AppleScript representation. 
-
-# Also, not sure if the album info passed to 
-# _update_albums_for_photo includes folder info so you may need 
-# to get the folder info, 
-# not just the album info from the metadata.
-
+    # Convert PhotoInfo object to Photo object to use PhotosAlbumPhotoScriptByPath
+    # And create Folder path for the Sync'ed Photo
+    photoscript_photo = None
     try:
         photoscript_photo = Photo(photo.uuid)
+    # TODO #1978 Should we re-raise an exception or simply return?
+    # TODO with the if photoscript_photo we should be covered.
     except Exception as e:
         echo_error(
             f"Error getting photoscript object for {photo.original_filename} ({photo.uuid}): {e}"
         )
 
-    # print(f"{type(photoscript_photo)=}")
-    # print(f"{type(photoscript_photo.albums)=}")
-
-    # this is the existing Albums Photo belongs to. It's just info
-    # for alb in photoscript_photo.albums:
-    #     # print(f"{type(alb)=}")
-    #     # print(f"{type(alb.name)=}")
-    #     print(f"-->\tDEBUG: {alb.name=} aka {alb.title=}")
-    #     print(f"\t\tDEBUG: PATH={alb.path_str()}")
-
     for album in albums_to_add:
-        # debug code
-        album_path = metadata.get("folders", {}).get(album, [])  # list of folders (may be empty)
-        album_path.append(album)
-        # folder_path = "/".join(album_path) if album_path else ""           # path of containing folders
+        album_path = metadata.get("folders", {}).get(
+            album, []
+        )  # list of folders (may be empty)
+        album_path.append(
+            album
+        )  # Add the album itself to pass on to PhotosAlbumPhotoScriptByPath
 
-        # TODO REMOVE
-        # album_path_str = "/".join(album_path + [album]) if album_path else album  # folder(s) + album
-        folder_path = "/".join(album_path[:-1]) if album_path else "" # path of containing folders
-        print(f"{type(album_path)=}, {album_path}")        
-        # print("REAL DEAL =====", album, "=> path:", folder_path, "full_path:", album_path_str)
-
-        # debug code
-        folder_path = f" in folder path: [filepath]{folder_path}[/]" if folder_path else ""
+        folder_path = (
+            "/".join(album_path[:-1]) if album_path else ""
+        )  # path of containing folders
+        folder_path = (
+            f" in folder path: [filepath]{folder_path}[/]" if folder_path else ""
+        )
         verbose(f"\tAdding to album [filepath]{album}[/]{folder_path}")
 
-        # verbose(f"\tAdding to album [filepath]{album_path}[/]")
-        # if not dry_run:
-        #     PhotosAlbum(album, verbose=lambda x: verbose(f"\t{x}"), rich=True).add(
-        #         photo
-        #     )
-
-        print("TODO UNCOMMENT DRY_RUN")
-        if photoscript_photo: # and not dry_run:
+        if photoscript_photo is not None and not dry_run:
             photos_album = PhotosAlbumPhotoScriptByPath(
                 album_path, verbose=verbose, rich=True
             )
-            print("ACTUAL ADD TO ALBUM COMMENTED")
-            print(f"{type(photos_album)=}")
-            # photos_album.add(photoscript_photo)
+            photos_album.add(photoscript_photo)
 
     results.add_result(
         photo.uuid,
