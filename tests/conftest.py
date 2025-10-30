@@ -90,11 +90,21 @@ if is_macos and (OS_VER[0] == "10" and OS_VER[1] in ("15", "16")):
     TEST_LIBRARY = "tests/Test-10.15.7.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
-    TEST_LIBRARY_TAKOUT = None
+    TEST_LIBRARY_TAKEOUT = None
     TEST_LIBRARY_TIMEWARP = None  # these tests do not run on macOS < 13
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
 
     TEST_LIBRARY_ADD_LOCATIONS = None
+if is_macos and (OS_VER[0] == "15"):
+    # Sequoia
+    TEST_LIBRARY = "tests/Test-15.4.1.photoslibrary"
+    TEST_LIBRARY_IMPORT = TEST_LIBRARY
+    TEST_LIBRARY_SYNC = "tests/Test-10.15.7.photoslibrary"
+    TEST_LIBRARY_TAKEOUT = TEST_LIBRARY
+    TEST_LIBRARY_TIMEWARP = TEST_LIBRARY
+    TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
+
+    TEST_LIBRARY_ADD_LOCATIONS = TEST_LIBRARY
 elif not is_macos or int(OS_VER[0]) >= 13:
     # Ventura
     TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
