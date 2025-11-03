@@ -23,8 +23,10 @@ from typing import TYPE_CHECKING, Callable, Tuple
 
 import click
 from rich.console import Console
+from rich.progress import Progress, TimeElapsedColumn
 from strpdatetime import strpdatetime
 
+from osxphotos.cli.kill_photos import kill_photos
 from osxphotos.fileutil import FileUtilMacOS
 from osxphotos.markdown_utils import format_markdown_for_console, markdown_to_plaintext
 from osxphotos.photodates import (
@@ -38,8 +40,6 @@ from osxphotos.strpdatetime_parts import fmt_has_date_time_codes
 
 from .help import filter_help_text_for_sphinx, is_sphinx_running, rich_text
 from .param_types import TimezoneOffset
-
-from osxphotos.cli.kill_photos import kill_photos
 
 assert_macos()
 
@@ -2702,10 +2702,21 @@ def group_files_to_import(
 
     # walk through each parent directory and group files by same stem
     grouped_files = []
-    with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
+    with rich_progress(
+        *Progress.get_default_columns(),
+        "Elapsed:",
+        TimeElapsedColumn(),
+        console=get_verbose_console(),
+        mock=no_progress,
+    ) as progress:
         task = progress.add_task(
-            "Grouping files into import groups...", total=len(files_by_parent)
+            "Grouping files into import groups...",
+            total=sum(len(files) for files in files_by_parent.values()),
         )
+
+        def advance_progress():
+            progress.advance(task)
+
         for parent, files in files_by_parent.items():
             grouped = group_files_by_stem(
                 files,
@@ -2715,9 +2726,9 @@ def group_files_to_import(
                 sidecar,
                 sidecar_filename_template,
                 auto_live,
+                advance_progress,
             )
             grouped_files.extend(grouped)
-            progress.advance(task)
 
     files_to_import = []
     for group in grouped_files:
@@ -2880,6 +2891,7 @@ def group_files_by_stem(
     sidecar: bool,
     sidecar_filename_template: str | None,
     auto_live: bool,
+    advance_progress: Callable[[], None],
 ) -> list[tuple[pathlib.Path, ...]]:
     """Group files by stem (filename without extension) and
     return list of tuples of files with same stem and list of files without a match"""
@@ -2921,9 +2933,11 @@ def group_files_by_stem(
             ):
                 group.append(path2)
                 file_list.pop(j)
+                advance_progress()
             else:
                 j = j + 1
         file_list.pop(i)
+        advance_progress()
         grouped_files.append(tuple(group))
     return grouped_files
 
