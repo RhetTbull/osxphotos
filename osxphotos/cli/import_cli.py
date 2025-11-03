@@ -18,6 +18,8 @@ import sys
 import tempfile
 from collections.abc import Iterable
 from contextlib import suppress
+from functools import cached_property
+from os import PathLike
 from textwrap import dedent
 from typing import TYPE_CHECKING, Callable, Tuple
 
@@ -2883,6 +2885,30 @@ def sort_paths(paths: Iterable[pathlib.Path]) -> tuple[pathlib.Path, ...]:
     return tuple(sorted(paths, key=path_key))
 
 
+@dataclasses.dataclass
+class Groupable:
+    path: pathlib.Path
+    stem: str
+    edited_stem_func: Callable[[pathlib.Path], str]
+
+    @cached_property
+    def edited_stem(self) -> str:
+        return self.edited_stem_func(self.path)
+
+    @cached_property
+    def burst_uuid(self) -> str | None:
+        return burst_uuid_from_path(self.path)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Groupable):
+            return self.path == other.path
+
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.path)
+
+
 def group_files_by_stem(
     files: list[pathlib.Path],
     edited_suffix: str,
@@ -2905,40 +2931,54 @@ def group_files_by_stem(
             raise ValueError("All files must have the same parent path")
 
     file_list = list(sort_paths(files))
-    grouped_files = []
-    i = 0
-    while i < len(file_list):
-        path1 = file_list[i]
-        stem1 = path1.stem.lower()
-        edited_stem1 = filepath_with_edited_suffix(
-            path1,
+
+    def edited_stem_func(path: pathlib.Path) -> str:
+        return filepath_with_edited_suffix(
+            path,
             edited_suffix,
             relative_filepath,
             exiftool_path,
             sidecar,
             sidecar_filename_template,
         ).stem.lower()
-        burst_uuid1 = burst_uuid_from_path(path1)
-        group = [path1]
-        j = i + 1
 
-        while j < len(file_list):
-            path2 = file_list[j]
-            stem2 = path2.stem.lower()
-            if (
-                (stem1 == stem2)
-                or (is_edited_version_of_file(path1, path2))
-                or (path2.stem.lower() == edited_stem1)
-                or (burst_uuid1 and burst_uuid_from_path(path2) == burst_uuid1)
-            ):
-                group.append(path2)
-                file_list.pop(j)
-                advance_progress()
-            else:
-                j = j + 1
-        file_list.pop(i)
+    groupable_files = [
+        Groupable(
+            path=path,
+            stem=path.stem.lower(),
+            edited_stem_func=edited_stem_func,
+        )
+        for path in file_list
+    ]
+
+    grouped_files = []
+    remaining_candidates = set(groupable_files)
+
+    for file1 in groupable_files:
+        if file1 not in remaining_candidates:
+            continue
+        remaining_candidates.remove(file1)
         advance_progress()
+
+        group = [file1.path]
+
+        matching_candidates = set()
+        for file2 in remaining_candidates:
+            if (
+                (file1.stem == file2.stem)
+                or (is_edited_version_of_file(file1.path, file2.path))
+                or (file2.stem == file1.edited_stem)
+                or (file1.burst_uuid and file2.burst_uuid == file1.burst_uuid)
+            ):
+                matching_candidates.add(file2)
+                advance_progress()
+
+        if matching_candidates:
+            remaining_candidates.difference_update(matching_candidates)
+            group.extend([f.path for f in matching_candidates])
+
         grouped_files.append(tuple(group))
+
     return grouped_files
 
 
