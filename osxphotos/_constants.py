@@ -59,7 +59,8 @@ _PHOTOS_9_MODEL_VERSION = [17000, 17599]  # Sonoma dev preview: 17120
 _PHOTOS_9_14_6_MODEL_VERSION = [17600, 17999]  # macOS 14.6 changed the schema
 _PHOTOS_10B1_MODEL_VERSION = [18000, 18200]  # Sequoia dev preview 1: 18164
 _PHOTOS_10_MODEL_VERSION = [18201, 18999]
-_PHOTOS_11_MODEL_VERSION = [19063, 19999]
+_PHOTOS_11_MODEL_VERSION = [19063, 19319]
+_PHOTOS_11_1_MODEL_VERSION = [19320, 19999]  # macOS 26.1
 
 # the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing
 _PHOTOS_SYNDICATION_MODEL_VERSION = 15323  # 12.0.1
@@ -213,6 +214,22 @@ _DB_TABLE_NAMES = {
         "MASTER_FINGERPRINT": "ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH",
         "HAS_ADJUSTMENTS": "ZASSET.ZADJUSTMENTSSTATE",
     },
+    11.1: {  # macOS 16 / 26.1 Tahoe
+        "ASSET": "ZASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_52KEYWORDS",
+        "ALBUM_JOIN": "Z_33ASSETS.Z_3ASSETS",
+        "ALBUM_SORT_ORDER": "Z_33ASSETS.Z_FOK_3ASSETS",
+        "IMPORT_FOK": "null",
+        "DEPTH_STATE": "ZASSET.ZDEPTHTYPE",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZCOMPACTUTI",
+        "ASSET_ALBUM_JOIN": "Z_33ASSETS.Z_33ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_33ASSETS",
+        "HDR_TYPE": "ZHDRTYPE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSONFORFACE",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSETFORFACE",
+        "MASTER_FINGERPRINT": "ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH",
+        "HAS_ADJUSTMENTS": "ZASSET.ZADJUSTMENTSSTATE",
+    },
 }
 
 # Which version operating systems have been tested
@@ -269,6 +286,10 @@ _TESTED_OS_VERSIONS = [
     ("15", "4"),
     ("15", "5"),
     ("15", "6"),
+    ("15", "7"),
+    ("26", None),
+    ("26", "0"),
+    ("26", "1"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face
