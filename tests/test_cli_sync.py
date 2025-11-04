@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 
 import pytest
 from click.testing import CliRunner
@@ -132,7 +133,10 @@ def test_sync_export_import_location():
     test_album = photoslib.create_album(TEST_ALBUM_NAME_LOCATION)
     for uuid in [UUID_TEST_PHOTO_3, UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
         photo = photoscript.Photo(uuid)
-        photo.favorite = True
+        # For unknown reasons, the favorite status doesn't always update when under test, #1972
+        while not photo.favorite:
+            photo.favorite = True
+            time.sleep(0.250)
         test_album.add([photo])
 
     # export data
