@@ -967,6 +967,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "EriksRemess",
+      "name": "Ēriks Remess",
+      "avatar_url": "https://avatars.githubusercontent.com/u/176241?v=4",
+      "profile": "https://toot.lv/@eriks",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
