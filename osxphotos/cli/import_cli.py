@@ -16,8 +16,10 @@ import re
 import sqlite3
 import sys
 import tempfile
+from collections import defaultdict
 from collections.abc import Iterable
 from contextlib import suppress
+from email.policy import default
 from functools import cached_property
 from os import PathLike
 from textwrap import dedent
@@ -40,7 +42,9 @@ from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
 from osxphotos.strpdatetime_parts import fmt_has_date_time_codes
 
+from . import import_grouper
 from .help import filter_help_text_for_sphinx, is_sphinx_running, rich_text
+from .import_grouper import group_files_for_import
 from .param_types import TimezoneOffset
 
 assert_macos()
@@ -2716,8 +2720,8 @@ def group_files_to_import(
             total=sum(len(files) for files in files_by_parent.values()),
         )
 
-        def advance_progress():
-            progress.advance(task)
+        def advance_progress(advance: float):
+            progress.advance(task, advance=advance)
 
         for parent, files in files_by_parent.items():
             grouped = group_files_by_stem(
@@ -2865,48 +2869,7 @@ def split_edited_from_file_group(
 
 
 def sort_paths(paths: Iterable[pathlib.Path]) -> tuple[pathlib.Path, ...]:
-    """Sort paths into desired order for import so the key file is first
-
-    Sort order is : alphabetically, length of filename (shorter first), MOV files, AAE file
-
-    For example:
-
-    ABC_1234.jpg, ABC_1234.mov, ABC_1234.aae, ABC_1234_edited.mov, IMG_1234.jpg
-
-    """
-
-    def path_key(path: pathlib.Path) -> tuple[str, int, int, int, int]:
-        extension = path.suffix.lower()
-        is_aae = extension == ".aae"
-        is_mov = extension in (".mov", ".mp4")
-        base_name = path.stem.split("_")[0]  # Extract the base name without suffixes
-        return (base_name, len(path.stem), is_aae, is_mov)
-
-    return tuple(sorted(paths, key=path_key))
-
-
-@dataclasses.dataclass
-class Groupable:
-    path: pathlib.Path
-    stem: str
-    edited_stem_func: Callable[[pathlib.Path], str]
-
-    @cached_property
-    def edited_stem(self) -> str:
-        return self.edited_stem_func(self.path)
-
-    @cached_property
-    def burst_uuid(self) -> str | None:
-        return burst_uuid_from_path(self.path)
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Groupable):
-            return self.path == other.path
-
-        return False
-
-    def __hash__(self) -> int:
-        return hash(self.path)
+    return tuple(import_grouper.sort_paths(paths, lambda p: p))
 
 
 def group_files_by_stem(
@@ -2917,20 +2880,12 @@ def group_files_by_stem(
     sidecar: bool,
     sidecar_filename_template: str | None,
     auto_live: bool,
-    advance_progress: Callable[[], None],
+    advance_progress: Callable[[float], None],
 ) -> list[tuple[pathlib.Path, ...]]:
     """Group files by stem (filename without extension) and
     return list of tuples of files with same stem and list of files without a match"""
     if not files:
         return []
-
-    # avoid foot-gun by verifying that all paths have the same parent
-    parent = files[0].parent
-    for f in files:
-        if f.parent != parent:
-            raise ValueError("All files must have the same parent path")
-
-    file_list = list(sort_paths(files))
 
     def edited_stem_func(path: pathlib.Path) -> str:
         return filepath_with_edited_suffix(
@@ -2942,44 +2897,9 @@ def group_files_by_stem(
             sidecar_filename_template,
         ).stem.lower()
 
-    groupable_files = [
-        Groupable(
-            path=path,
-            stem=path.stem.lower(),
-            edited_stem_func=edited_stem_func,
-        )
-        for path in file_list
-    ]
-
-    grouped_files = []
-    remaining_candidates = set(groupable_files)
-
-    for file1 in groupable_files:
-        if file1 not in remaining_candidates:
-            continue
-        remaining_candidates.remove(file1)
-        advance_progress()
-
-        group = [file1.path]
-
-        matching_candidates = set()
-        for file2 in remaining_candidates:
-            if (
-                (file1.stem == file2.stem)
-                or (is_edited_version_of_file(file1.path, file2.path))
-                or (file2.stem == file1.edited_stem)
-                or (file1.burst_uuid and file2.burst_uuid == file1.burst_uuid)
-            ):
-                matching_candidates.add(file2)
-                advance_progress()
-
-        if matching_candidates:
-            remaining_candidates.difference_update(matching_candidates)
-            group.extend([f.path for f in matching_candidates])
-
-        grouped_files.append(tuple(group))
-
-    return grouped_files
+    return group_files_for_import(
+        files, edited_stem_func, burst_uuid_from_path, advance_progress
+    )
 
 
 def file_type_for_import_group(
