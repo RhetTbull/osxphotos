@@ -12,7 +12,9 @@ from functools import cache
 import click
 
 import osxphotos
+from osxphotos import PhotoInfo
 from osxphotos.cli import query_command, verbose
+from osxphotos.phototemplate import RenderOptions
 
 logger = logging.getLogger("osxphotos")
 
@@ -50,12 +52,17 @@ def get_media_analysis_path(photosdb_path: str | os.PathLike) -> pathlib.Path:
 
 def get_media_analysis(photo: osxphotos.PhotoInfo) -> dict:
     """Get media analysis data for a photo"""
-    media_analysis_db = get_media_analysis_path(photo._db.db_path)
+
+    try:
+        media_analysis_db = get_media_analysis_path(photo._db.db_path)
+    except FileNotFoundError:
+        logger.warning(f"Media analysis database not found for photo {photo.filename}")
+        return {}
 
     try:
         conn = sqlite3.connect(media_analysis_db)
     except sqlite3.Error as e:
-        print(f"Error connecting to media analysis database: {e}")
+        logger.warning(f"Error connecting to media analysis database: {e}")
         return {}
 
     local_identifier = f"{photo.uuid}/L0/001"
@@ -209,6 +216,24 @@ def media_analysis(photos: list[osxphotos.PhotoInfo], json_option: bool, **kwarg
         else:
             caption = get_caption(results)
             print(f"{photo.original_filename}, {photo.uuid}, {caption}")
+
+
+def caption(
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list[str] | str:
+    """Template function for {function} template; returns media analysis caption
+
+    Args:
+        photo: osxphotos.PhotoInfo object
+        options: osxphotos.phototemplate.RenderOptions object
+        args: optional str of arguments passed to template function
+        **kwargs: not currently used, placeholder to keep functions compatible with possible changes to {function}
+
+    Returns:
+        str or list of str of values that should be substituted for the {function} template
+    """
+    results = get_media_analysis(photo)
+    return get_caption(results) or ""
 
 
 if __name__ == "__main__":
