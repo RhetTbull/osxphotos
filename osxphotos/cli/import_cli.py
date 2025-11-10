@@ -2743,7 +2743,7 @@ def group_files_to_import(
         )
         if not get_verbose_console().is_terminal:
             verbose(
-                f"Grouping files into import groups... {count} {pluralize(count, 'group', 'groups')}"
+                f"Grouping files into import groups... {count} {pluralize(count, 'file', 'files')}"
             )
 
         def advance_progress(advance: float):
@@ -2764,7 +2764,7 @@ def group_files_to_import(
             if not get_verbose_console().is_terminal:
                 verbose(
                     f"...{parent.absolute()} "
-                    f" ({progress.tasks[task].completed}/{progress.tasks[task].total})"
+                    f" ({int(progress.tasks[task].completed)}/{progress.tasks[task].total})"
                 )
 
     files_to_import = []
