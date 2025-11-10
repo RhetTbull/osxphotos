@@ -1271,8 +1271,26 @@ def import_cli(
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
 
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
+    # Notify if import did not process all file groups, e.g. --stop-on-error threshold breached
+    not_processed = (
+        len(files_to_import)    # groupcount
+        - imported_count
+        - error_count
+        - skipped_count
+    )
+    not_processed_str = (
+        (
+            f", [num]{not_processed}[/] "
+            f"{pluralize(not_processed, 'file group', 'file groups')} not processed"
+        )
+        if not_processed > 0
+        else ""
+    )
     echo(
-        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, [num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}{skipped_str}",
+        f"Done: imported [num]{imported_count}[/] "
+        f"{pluralize(imported_count, 'file group', 'file groups')}, "
+        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
+        f"{skipped_str}{not_processed_str}",
         emoji=False,
     )
 
@@ -2693,10 +2711,15 @@ def group_files_to_import(
     """Group files by live photo, burst UUID, raw+jpeg, etc."""
     # first collect all files by parent directory
     files_by_parent = {}
+    count = len(files)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
         task = progress.add_task(
-            "Grouping files by parent directory...", total=len(files)
+            "Grouping files by parent directory...", total=count
         )
+        if not get_verbose_console().is_terminal:
+            verbose(
+                f"Grouping files by parent directory... {count} {pluralize(count, 'file', 'files')}"
+            )
         for file in files:
             parent = file.parent
             if parent not in files_by_parent:
@@ -2706,6 +2729,7 @@ def group_files_to_import(
 
     # walk through each parent directory and group files by same stem
     grouped_files = []
+    count=sum(len(files) for files in files_by_parent.values()),
     with rich_progress(
         *Progress.get_default_columns(),
         "Elapsed:",
@@ -2715,8 +2739,12 @@ def group_files_to_import(
     ) as progress:
         task = progress.add_task(
             "Grouping files into import groups...",
-            total=sum(len(files) for files in files_by_parent.values()),
+            total=count,
         )
+        if not get_verbose_console().is_terminal:
+            verbose(
+                f"Grouping files into import groups... {count} {pluralize(count, 'group', 'groups')}"
+            )
 
         def advance_progress(advance: float):
             progress.advance(task, advance=advance)
@@ -2733,6 +2761,11 @@ def group_files_to_import(
                 advance_progress,
             )
             grouped_files.extend(grouped)
+            if not get_verbose_console().is_terminal:
+                verbose(
+                    f"...{parent.absolute()} "
+                    f" ({progress.tasks[task].completed}/{progress.tasks[task].total})"
+                )
 
     files_to_import = []
     for group in grouped_files:
@@ -3094,14 +3127,19 @@ def import_files(
                         if record.imported and not record.error:
                             # file already imported
                             verbose(
-                                f"Skipping [filepath]{filepath}[/], already imported on [time]{record.import_datetime.isoformat()}[/] with UUID [uuid]{record.uuid}[/]"
+                                f"Skipping [filepath]{filepath}[/], already imported on "
+                                f"[time]{record.import_datetime.isoformat()}[/] with "
+                                f"UUID [uuid]{record.uuid}[/]"
+                                f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
                             )
                             skipped_count += 1
                             progress.advance(task)
                             continue
 
                 verbose(
-                    f"Importing " + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
+                    "Importing "
+                    + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
+                    + f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
                 )
 
                 report_data[filepath] = ReportRecord(
