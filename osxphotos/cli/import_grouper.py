@@ -53,12 +53,16 @@ class GroupingNode:
     def add(
         self, item: Groupable, remaining: str, maybe_e: bool = False
     ) -> Groupable | None:
-        """
-        Add an item (Groupable) to the tree.
-        :param item: The Groupable.
-        :param remaining: The remaining part of the lowercase stem.
-        :param maybe_e: Trying to match a potentially edited version of a file to an original.
-        :return: None, if the item was added, original item if a match was not found (only possible if maybe_e is True).
+        """Add an item (Groupable) to the tree.
+
+        Args:
+            item (Groupable): The Groupable to add.
+            remaining (str): The remaining part of the lowercase stem.
+            maybe_e (bool): Whether to try matching a potentially edited version of a file to an original.
+
+        Returns:
+            Optional[Groupable]: None if the item was added, or the original item if a match was not found
+            (only possible if maybe_e is True).
         """
         if len(remaining) == 0:
             # Tried to find a matching original for a maybe edited file (=candidate). The matching original should
