@@ -16,10 +16,8 @@ import re
 import sqlite3
 import sys
 import tempfile
-from collections import defaultdict
 from collections.abc import Iterable
 from contextlib import suppress
-from email.policy import default
 from functools import cached_property
 from os import PathLike
 from textwrap import dedent
