@@ -1,3 +1,5 @@
+"""Group files for import so that edited files, burst images, live photos are imported properly"""
+
 import pathlib
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -5,9 +7,10 @@ from functools import cached_property
 from itertools import chain
 from re import match
 from typing import Callable, Iterable, TypeVar
+from osxphotos.platform import is_macos
 
-from osxphotos.image_file_utils import EDITED_RE, is_edited_version_of_file
-
+if is_macos:
+    from osxphotos.image_file_utils import EDITED_RE, is_edited_version_of_file
 
 @dataclass
 class Groupable:

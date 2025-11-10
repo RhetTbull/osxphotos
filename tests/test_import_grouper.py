@@ -1,9 +1,17 @@
+"""Test import_grouper.py"""
+
 import pathlib
 from random import shuffle
 from re import match
 
+import pytest
+
 from osxphotos.cli import import_grouper
 from osxphotos.cli.import_grouper import sort_paths
+from osxphotos.platform import is_macos
+
+if not is_macos:
+    pytest.skip("Only runs on macOS", allow_module_level=True)
 
 
 def test_no_groups():
