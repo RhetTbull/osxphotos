@@ -64,10 +64,10 @@ class MockProgress:
             task.advance(advance)
         return task
 
-    def advance(self, task_id, amount=1):
+    def advance(self, task_id: TaskID, advance: float = 1) -> None:
         pass
         # task = self.tasks[task_id]
-        # task.advance(amount)
+        # task.advance(advance)
 
     def remove_task(self, task_id):
         self.tasks[task_id] = None  # keep index stable

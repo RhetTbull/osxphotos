@@ -2729,7 +2729,7 @@ def group_files_to_import(
 
     # walk through each parent directory and group files by same stem
     grouped_files = []
-    count=sum(len(files) for files in files_by_parent.values()),
+    count=sum(len(files) for files in files_by_parent.values())
     with rich_progress(
         *Progress.get_default_columns(),
         "Elapsed:",
