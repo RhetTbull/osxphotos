@@ -296,8 +296,10 @@ def get_caption(results: dict[str, Any]) -> str | None:
     return None
 
 
-def media_analysis_results_to_json(results: dict[str, Any], indent: int = 4) -> str:
-    """Convert media analysis results to JSON str"""
+def media_analysis_results_to_json(
+    results: dict[str, Any] | list[dict[str, Any]], indent: int = 4
+) -> str:
+    """Convert media analysis results or list of results to JSON str"""
     json_str = json.dumps(results, indent=indent, cls=BytesEncoder)
     return json_str
 
@@ -312,20 +314,16 @@ def media_analysis(photos: list[osxphotos.PhotoInfo], json_option: bool, **kwarg
     Whatever text you put in the function's docstring here, will be used as the command's
     help text when run via `osxphotos run cli_example_1.py --help` or `python cli_example_1.py --help`
     """
-
-    # verbose() will print to stdout if --verbose option is set
-    # you can optionally provide a level (default is 1) to print only if --verbose is set to that level
-    # for example: -VV or --verbose --verbose == level 2
-    verbose(f"Found {len(photos)} photo(s)")
-
-    # do something with photos here
+    all_results = []
     for photo in photos:
         results = get_media_analysis_results(photo)
         if json_option:
-            print(media_analysis_results_to_json(results))
+            all_results.append(results)
         else:
             caption = get_caption(results)
             print(f"{photo.original_filename}, {photo.uuid}, {caption}")
+    if json_option:
+        print(media_analysis_results_to_json(all_results))
 
 
 def caption(
