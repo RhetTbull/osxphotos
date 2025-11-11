@@ -103,7 +103,7 @@ def get_media_analysis_date(photo: osxphotos.PhotoInfo) -> datetime.datetime | N
     else:
         sql = """
         SELECT ZDATEANALYZED
-        FROM ZASSETS
+        FROM ZASSET
         WHERE ZLOCALIDENTIFIER = ?;
         """
 
