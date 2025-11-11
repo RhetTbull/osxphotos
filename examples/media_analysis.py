@@ -39,15 +39,24 @@ UNKNOWN_KEY = "unknown"
 def get_media_analysis_path(photosdb_path: str | os.PathLike) -> pathlib.Path:
     """Get path to media analysis database for a photo"""
     # media analysis is in private/com.apple.mediaanalysisd/MediaAnalysis
-    media_analysis_path = (
+    # media analysis database is called MediaAnalysis.sqlite or mediaanalysis.db
+
+    base_path = (
         pathlib.Path(photosdb_path).parent.parent
-        / "private/com.apple.mediaanalysisd/MediaAnalysis/mediaanalysis.db"
+        / "private/com.apple.mediaanalysisd/MediaAnalysis"
     )
-    if not media_analysis_path.exists():
-        raise FileNotFoundError(
-            f"Media analysis database not found at {media_analysis_path}"
-        )
-    return media_analysis_path
+
+    # Check both possible database names
+    for db_name in ("MediaAnalysis.sqlite", "mediaanalysis.db"):
+        media_analysis_path = base_path / db_name
+        if media_analysis_path.exists():
+            return media_analysis_path
+
+    # If neither exists, raise error with both possible paths
+    raise FileNotFoundError(
+        f"Media analysis database not found at {base_path / 'mediaanalysis.db'} "
+        f"or {base_path / 'MediaAnalysis.sqlite'}"
+    )
 
 
 def get_media_analysis(photo: osxphotos.PhotoInfo) -> dict:
