@@ -107,6 +107,7 @@ def get_media_analysis_date(photo: osxphotos.PhotoInfo) -> datetime.datetime | N
         WHERE ZLOCALIDENTIFIER = ?;
         """
 
+    # convert to with block
     try:
         cursor = conn.cursor()
         cursor.execute(sql, (_local_identifier_for_photo(photo),))
@@ -116,6 +117,8 @@ def get_media_analysis_date(photo: osxphotos.PhotoInfo) -> datetime.datetime | N
             f"Error fetching media analysis date for photo {photo.original_filename}: {e}"
         )
         return None
+    finally:
+        conn.close()
 
     try:
         return photos_datetime_local(date_data[0])
@@ -165,7 +168,8 @@ def _get_media_analysis_data(
             f"Error fetching media analysis data for photo {photo.filename}: {e}"
         )
         data = []
-    conn.close()
+    finally:
+        conn.close()
 
     if not data:
         return None, []
