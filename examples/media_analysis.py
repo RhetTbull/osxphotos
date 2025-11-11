@@ -1,5 +1,6 @@
 """Query media analysis data for photos"""
 
+import datetime
 import json
 import logging
 import os
@@ -8,12 +9,14 @@ import plistlib
 import re
 import sqlite3
 from functools import cache
+from typing import Any
 
 import click
 
 import osxphotos
 from osxphotos import PhotoInfo
 from osxphotos.cli import query_command, verbose
+from osxphotos.photos_datetime import photos_datetime_local
 from osxphotos.phototemplate import RenderOptions
 
 logger = logging.getLogger("osxphotos")
@@ -36,7 +39,7 @@ UNKNOWN_KEY = "unknown"
 
 
 @cache
-def get_media_analysis_path(photosdb_path: str | os.PathLike) -> pathlib.Path:
+def _get_media_analysis_path(photosdb_path: str | os.PathLike) -> pathlib.Path:
     """Get path to media analysis database for a photo"""
     # media analysis is in private/com.apple.mediaanalysisd/MediaAnalysis
     # media analysis database is called MediaAnalysis.sqlite or mediaanalysis.db
@@ -54,16 +57,82 @@ def get_media_analysis_path(photosdb_path: str | os.PathLike) -> pathlib.Path:
 
     # If neither exists, raise error with both possible paths
     raise FileNotFoundError(
-        f"Media analysis database not found at {base_path / 'mediaanalysis.db'} "
-        f"or {base_path / 'MediaAnalysis.sqlite'}"
+        f"Media analysis database not found at {base_path / 'mediaanalysis.db'} or {base_path / 'MediaAnalysis.sqlite'}"
     )
 
 
-def get_media_analysis(photo: osxphotos.PhotoInfo) -> dict:
+def _get_media_analysis_db_path(photo: osxphotos.PhotoInfo) -> pathlib.Path | None:
+    """Given a photo, return the correct media analysis db path"""
+    try:
+        return _get_media_analysis_path(photo._db.db_path)
+    except FileNotFoundError:
+        logger.warning(
+            f"Media analysis database not found for photo {photo.original_filename}"
+        )
+        return None
+
+
+def _local_identifier_for_photo(photo: osxphotos.PhotoInfo) -> str:
+    """Return local identifier from photo's UUID"""
+    return f"{photo.uuid}/L0/001"
+
+
+def get_media_analysis_date(photo: osxphotos.PhotoInfo) -> datetime.datetime | None:
+    """Get media analysis date for a photo"""
+    sql = """
+    SELECT dateAnalyzed from Assets
+    WHERE Assets.localIdentifier = ?
+    """
+
+    media_analysis_db = _get_media_analysis_db_path(photo)
+    if not media_analysis_db:
+        return None
+
+    try:
+        conn = sqlite3.connect(media_analysis_db)
+    except sqlite3.Error as e:
+        logger.warning(f"Error connecting to media analysis database: {e}")
+        return None
+
+    if photo._db.photos_version < 11:
+        sql = """
+        SELECT dateAnalyzed
+        FROM Assets
+        WHERE localIdentifier = ?;
+        """
+    else:
+        sql = """
+        SELECT ZDATEANALYZED
+        FROM ZASSETS
+        WHERE ZLOCALIDENTIFIER = ?;
+        """
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql, (_local_identifier_for_photo(photo),))
+        date_data = cursor.fetchone()
+    except Exception as e:
+        logger.warning(
+            f"Error fetching media analysis date for photo {photo.original_filename}: {e}"
+        )
+        return None
+
+    try:
+        return photos_datetime_local(date_data[0])
+    except Exception as e:
+        logger.warning(
+            f"Error converting media analysis date for photo {photo.original_filename}: {e}"
+        )
+        return None
+
+
+def _get_media_analysis_data(
+    photo: osxphotos.PhotoInfo,
+) -> tuple[datetime.datetime | None, list[list[dict]]]:
     """Get media analysis data for a photo"""
 
     try:
-        media_analysis_db = get_media_analysis_path(photo._db.db_path)
+        media_analysis_db = _get_media_analysis_path(photo._db.db_path)
     except FileNotFoundError:
         logger.warning(f"Media analysis database not found for photo {photo.filename}")
         return {}
@@ -74,40 +143,49 @@ def get_media_analysis(photo: osxphotos.PhotoInfo) -> dict:
         logger.warning(f"Error connecting to media analysis database: {e}")
         return {}
 
-    local_identifier = f"{photo.uuid}/L0/001"
-    sql = """
-    SELECT results FROM Results
-    JOIN Assets ON Results.assetID = Assets.id
-    WHERE Assets.localIdentifier = ?
-    """
+    if photo._db.photos_version < 11:
+        sql = """
+        SELECT Results.results FROM Results
+        JOIN Assets ON Results.assetID = Assets.id
+        WHERE Assets.localIdentifier = ?;
+        """
+    else:
+        sql = """
+        SELECT ZRESULT.ZRESULTS FROM ZRESULT
+        JOIN ZASSET ON ZRESULT.ZASSET = ZASSET.Z_PK
+        WHERE ZASSET.ZLOCALIDENTIFIER = ?;
+        """
+
     try:
         cursor = conn.cursor()
-        cursor.execute(sql, (local_identifier,))
+        cursor.execute(sql, (_local_identifier_for_photo(photo),))
         data = cursor.fetchall()
-        conn.close()
     except Exception as e:
         logger.warning(
             f"Error fetching media analysis data for photo {photo.filename}: {e}"
         )
-        return []
+        data = []
+    conn.close()
 
     if not data:
-        return []
-    return [plistlib.loads(row[0], fmt=plistlib.FMT_BINARY) for row in data]
+        return None, []
+
+    analysis_date = get_media_analysis_date(photo)
+
+    results = []
+    for row in data:
+        try:
+            plist_data = plistlib.loads(row[0], fmt=plistlib.FMT_BINARY)
+        except Exception as e:
+            logger.warning(
+                f"Error parsing media analysis data for photo {photo.filename}: {e}"
+            )
+            plist_data = None
+        results.append(plist_data)
+    return analysis_date, results
 
 
-def get_caption(results: list[list[dict]]) -> str | None:
-    for result in results:
-        if result and result[0] and result[0].get("attributes"):
-            attrs = result[0]["attributes"]
-            if "imageCaptionText" in attrs:
-                return attrs["imageCaptionText"]
-            elif "videoCaptionText" in attrs:
-                return attrs["videoCaptionText"]
-    return None
-
-
-def get_key(d: dict) -> str:
+def _get_key_from_attributes(d: dict) -> str:
     if "attributes" in d:
         attrs = d["attributes"]
         if "faceBounds" in attrs:
@@ -140,7 +218,7 @@ def get_key(d: dict) -> str:
     return UNKNOWN_KEY
 
 
-def parse_bounds(bounds_str):
+def _parse_bounds(bounds_str):
     match = re.match(r"\{\{([^}]+)\}, \{([^}]+)\}\}", bounds_str)
     if match:
         p1 = tuple(float(x.strip()) for x in match.group(1).split(","))
@@ -149,7 +227,7 @@ def parse_bounds(bounds_str):
     return bounds_str
 
 
-def process_dict(d):
+def _process_dict(d):
     result = {}
     if "flags" in d:
         result["flags"] = d["flags"]
@@ -157,7 +235,7 @@ def process_dict(d):
         attrs = d["attributes"]
         for k, v in attrs.items():
             if k in ["faceBounds", "humanBounds"]:
-                result[k] = parse_bounds(v)
+                result[k] = _parse_bounds(v)
             else:
                 result[k] = v
     else:
@@ -166,13 +244,13 @@ def process_dict(d):
     return result
 
 
-def media_analysis_result_to_dict(data: list[list[dict]]) -> dict:
+def _media_analysis_result_to_dict(data: list[list[dict]]) -> dict:
     result = {}
     for sublist in data:
         if not sublist:
             continue
-        key = get_key(sublist[0])
-        processed = [process_dict(d) for d in sublist]
+        key = _get_key_from_attributes(sublist[0])
+        processed = [_process_dict(d) for d in sublist]
         if len(processed) == 1:
             result[key] = processed[0]
         else:
@@ -180,13 +258,13 @@ def media_analysis_result_to_dict(data: list[list[dict]]) -> dict:
     return result
 
 
-def remove_byte_keys(obj):
+def _remove_byte_keys(obj):
     if isinstance(obj, dict):
         return {
-            k: remove_byte_keys(v) for k, v in obj.items() if not isinstance(v, bytes)
+            k: _remove_byte_keys(v) for k, v in obj.items() if not isinstance(v, bytes)
         }
     elif isinstance(obj, list):
-        return [remove_byte_keys(i) for i in obj if not isinstance(i, bytes)]
+        return [_remove_byte_keys(i) for i in obj if not isinstance(i, bytes)]
     else:
         return obj
 
@@ -195,7 +273,33 @@ class BytesEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, bytes):
             return "<bytes>"  # or base64.b64encode(obj).decode('ascii')
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
         return super().default(obj)
+
+
+def get_media_analysis_results(photo: osxphotos.PhotoInfo) -> dict[str, Any]:
+    """Get media analysis results dictionary for a photo"""
+    date_analyzed, results = _get_media_analysis_data(photo)
+    results_dict = _media_analysis_result_to_dict(results)
+    results_dict["uuid"] = photo.uuid
+    results_dict["filename"] = photo.original_filename
+    results_dict["date_analyzed"] = date_analyzed
+    return results_dict
+
+
+def get_caption(results: dict[str, Any]) -> str | None:
+    if caption_dict := results.get(IMAGE_CAPTION_KEY):
+        return caption_dict.get("imageCaptionText")
+    if caption_dict := results.get(VIDEO_CAPTION_KEY):
+        return caption_dict.get("videoCaptionText")
+    return None
+
+
+def media_analysis_results_to_json(results: dict[str, Any], indent: int = 4) -> str:
+    """Convert media analysis results to JSON str"""
+    json_str = json.dumps(results, indent=indent, cls=BytesEncoder)
+    return json_str
 
 
 @query_command
@@ -216,12 +320,9 @@ def media_analysis(photos: list[osxphotos.PhotoInfo], json_option: bool, **kwarg
 
     # do something with photos here
     for photo in photos:
-        results = get_media_analysis(photo)
-        results_dict = media_analysis_result_to_dict(results)
+        results = get_media_analysis_results(photo)
         if json_option:
-            results_dict["uuid"] = photo.uuid
-            results_dict["filename"] = photo.original_filename
-            print(json.dumps(results_dict, cls=BytesEncoder, indent=4))
+            print(media_analysis_results_to_json(results))
         else:
             caption = get_caption(results)
             print(f"{photo.original_filename}, {photo.uuid}, {caption}")
@@ -241,7 +342,7 @@ def caption(
     Returns:
         str or list of str of values that should be substituted for the {function} template
     """
-    results = get_media_analysis(photo)
+    results = get_media_analysis_results(photo)
     return get_caption(results) or ""
 
 
