@@ -345,7 +345,4 @@ def caption(
 
 
 if __name__ == "__main__":
-    # call your function here
-    # you do not need to pass any arguments to the function
-    # as the decorator will handle parsing the command line arguments
     media_analysis()
