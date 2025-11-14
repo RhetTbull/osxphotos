@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.74.0](https://github.com/RhetTbull/osxphotos/compare/v0.73.4...v0.74.0)
+
+macOS 26.1 support
+
+### 2025-11-04
+
+#### Added
+
+- Support for macOS 26.1, thanks to @EriksRemess for testing and code.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Updates for macOS 15.7.2, thanks to @oPromessa (#1972)
+- Import hangs sometimes, thanks to @oPromessa kill and restart Photos (#1970)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+* @EriksRemess [@EriksRemess](https://github.com/EriksRemess).
+
 ## [v0.73.4](https://github.com/RhetTbull/osxphotos/compare/v0.73.3...v0.73.4)
 
 Python 3.14 support
