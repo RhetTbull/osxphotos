@@ -9,6 +9,7 @@ import pathlib
 from typing import Any, Callable, Literal
 
 import click
+from photoscript import Photo
 
 from osxphotos import PhotoInfo, PhotosDB, __version__
 from osxphotos.photo_signature import photo_signature
@@ -18,7 +19,7 @@ from osxphotos.photoquery import (
     QueryOptions,
     query_options_from_kwargs,
 )
-from osxphotos.photosalbum import PhotosAlbum
+from osxphotos.photosalbum import PhotosAlbum, PhotosAlbumPhotoScriptByPath
 from osxphotos.photosdb.photosdb_utils import get_db_version
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import assert_macos
@@ -468,11 +469,13 @@ def _update_albums_for_photo(
     """Add photo to new albums if necessary"""
     # add photo to any new albums but do not remove from existing albums
     results = SyncResults()
+
     value = sorted(metadata["albums"])
     before = sorted(photo.albums)
     albums_to_add = set(value) - set(before)
+
     if not albums_to_add:
-        verbose(f"\tNothing to do for albums", level=2)
+        verbose("\tNothing to do for albums", level=2)
         results.add_result(
             photo.uuid,
             photo.original_filename,
@@ -484,12 +487,40 @@ def _update_albums_for_photo(
         )
         return results
 
+    # Convert PhotoInfo object to Photo object to use PhotosAlbumPhotoScriptByPath
+    # And create Folder path for the Sync'ed Photo
+    photoscript_photo = None
+    try:
+        photoscript_photo = Photo(photo.uuid)
+    # TODO #1978 Should we re-raise an exception or simply return?
+    # TODO with the if photoscript_photo we should be covered.
+    except Exception as e:
+        echo_error(
+            f"Error getting photoscript object for {photo.original_filename} ({photo.uuid}): {e}"
+        )
+
     for album in albums_to_add:
-        verbose(f"\tAdding to album [filepath]{album}[/]")
-        if not dry_run:
-            PhotosAlbum(album, verbose=lambda x: verbose(f"\t{x}"), rich=True).add(
-                photo
+        album_path = metadata.get("folders", {}).get(
+            album, []
+        )  # list of folders (may be empty)
+        album_path.append(
+            album
+        )  # Add the album itself to pass on to PhotosAlbumPhotoScriptByPath
+
+        folder_path = (
+            "/".join(album_path[:-1]) if album_path else ""
+        )  # path of containing folders
+        folder_path = (
+            f" in folder path: [filepath]{folder_path}[/]" if folder_path else ""
+        )
+        verbose(f"\tAdding to album [filepath]{album}[/]{folder_path}")
+
+        if photoscript_photo is not None and not dry_run:
+            photos_album = PhotosAlbumPhotoScriptByPath(
+                album_path, verbose=verbose, rich=True
             )
+            photos_album.add(photoscript_photo)
+
     results.add_result(
         photo.uuid,
         photo.original_filename,
