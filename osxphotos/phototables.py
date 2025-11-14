@@ -40,6 +40,11 @@ class PhotoTables:
         return AdditionalAttributesTable(self.db, self.version, self.uuid)
 
     @property
+    def ZEXTENDEDATTRIBUTES(self) -> Table:
+        """Return the ZEXTENDEDATTRIBUTES table."""
+        return ExtendedAttributesTable(self.db, self.version, self.uuid)
+
+    @property
     def ZDETECTEDFACE(self) -> Table:
         """Return the ZDETECTEDFACE table."""
         return DetectedFaceTable(self.db, self.version, self.uuid)
@@ -156,6 +161,42 @@ class AdditionalAttributesTable(Table):
         )
 
 
+class ExtendedAttributesTable(Table):
+    """ZEXTENDEDATTRIBUTEStable."""
+
+    def __init__(self, db: osxphotos.PhotosDB, version: int, uuid: str):
+        """Create a Table object."""
+        super().__init__(db, version, uuid)
+        self.columns = get_table_columns(self.conn, "ZEXTENDEDATTRIBUTES")
+        self.table_name = "ZEXTENDEDATTRIBUTES"
+
+    def rows(self) -> list[tuple[Any]]:
+        """Return rows for this photo from the ZEXTENDEDATTRIBUTES table."""
+        conn, cursor = self.db.get_db_connection()
+        sql = f"""  SELECT ZEXTENDEDATTRIBUTES.*
+                    FROM ZEXTENDEDATTRIBUTES
+                    JOIN {self.asset_table} ON {self.asset_table}.Z_PK = ZEXTENDEDATTRIBUTES.ZASSET
+                    WHERE {self.asset_table}.ZUUID = ?;
+            """
+        cursor.execute(sql, (self.uuid,))
+        return result if (result := cursor.fetchall()) else []
+
+    def _get_column(self, column: str) -> tuple[Any]:
+        """Get column value for this photo from the ZEXTENDEDATTRIBUTES table."""
+        conn, cursor = self.db.get_db_connection()
+        sql = f"""  SELECT ZEXTENDEDATTRIBUTES.{column}
+                    FROM ZEXTENDEDATTRIBUTES
+                    JOIN {self.asset_table} ON {self.asset_table}.Z_PK = ZEXTENDEDATTRIBUTES.ZASSET
+                    WHERE {self.asset_table}.ZUUID = ?;
+            """
+        cursor.execute(sql, (self.uuid,))
+        return (
+            tuple(result[0] for result in results)
+            if (results := cursor.fetchall())
+            else ()
+        )
+
+
 class DetectedFaceTable(Table):
     """ZDETECTEDFACE table."""
 
@@ -207,7 +248,7 @@ class PersonTable(Table):
         person_fk = _DB_TABLE_NAMES[self.version]["DETECTED_FACE_PERSON_FK"]
         asset_fk = _DB_TABLE_NAMES[self.version]["DETECTED_FACE_ASSET_FK"]
         sql = f"""  SELECT ZPERSON.*
-                    FROM ZPERSON 
+                    FROM ZPERSON
                     JOIN ZDETECTEDFACE ON {person_fk} = ZPERSON.Z_PK
                     JOIN ZASSET ON ZASSET.Z_PK = {asset_fk}
                     WHERE {self.asset_table}.ZUUID = ?;
@@ -221,7 +262,7 @@ class PersonTable(Table):
         person_fk = _DB_TABLE_NAMES[self.version]["DETECTED_FACE_PERSON_FK"]
         asset_fk = _DB_TABLE_NAMES[self.version]["DETECTED_FACE_ASSET_FK"]
         sql = f"""  SELECT ZPERSON.{column}
-                    FROM ZPERSON 
+                    FROM ZPERSON
                     JOIN ZDETECTEDFACE ON {person_fk} = ZPERSON.Z_PK
                     JOIN ZASSET ON ZASSET.Z_PK = {asset_fk}
                     WHERE {self.asset_table}.ZUUID = ?;

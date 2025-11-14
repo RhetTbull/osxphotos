@@ -22,6 +22,7 @@ from .._constants import (
     _PHOTOS_9_MODEL_VERSION,
     _PHOTOS_10_MODEL_VERSION,
     _PHOTOS_10B1_MODEL_VERSION,
+    _PHOTOS_11_1_MODEL_VERSION,
     _PHOTOS_11_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
 )
@@ -151,10 +152,12 @@ def get_photos_version_from_model(db_file: str) -> int:
         return 10
     if _PHOTOS_11_MODEL_VERSION[0] <= model_ver <= _PHOTOS_11_MODEL_VERSION[1]:
         return 11
+    if _PHOTOS_11_1_MODEL_VERSION[0] <= model_ver <= _PHOTOS_11_1_MODEL_VERSION[1]:
+        return 11.1
     logger.warning(
         f"Unknown db / model version for {db_file}: model_ver={model_ver}; assuming latest version"
     )
-    return 10
+    return 11.1
 
 
 def get_photos_library_version(library_path: str | pathlib.Path) -> int:

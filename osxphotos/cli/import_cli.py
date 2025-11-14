@@ -18,13 +18,17 @@ import sys
 import tempfile
 from collections.abc import Iterable
 from contextlib import suppress
+from functools import cached_property
+from os import PathLike
 from textwrap import dedent
 from typing import TYPE_CHECKING, Callable, Tuple
 
 import click
 from rich.console import Console
+from rich.progress import Progress, TimeElapsedColumn
 from strpdatetime import strpdatetime
 
+from osxphotos.cli.kill_photos import kill_photos
 from osxphotos.fileutil import FileUtilMacOS
 from osxphotos.markdown_utils import format_markdown_for_console, markdown_to_plaintext
 from osxphotos.photodates import (
@@ -36,10 +40,10 @@ from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
 from osxphotos.strpdatetime_parts import fmt_has_date_time_codes
 
+from . import import_grouper
 from .help import filter_help_text_for_sphinx, is_sphinx_running, rich_text
+from .import_grouper import group_files_for_import
 from .param_types import TimezoneOffset
-
-from osxphotos.cli.kill_photos import kill_photos
 
 assert_macos()
 
@@ -1267,8 +1271,26 @@ def import_cli(
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
 
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
+    # Notify if import did not process all file groups, e.g. --stop-on-error threshold breached
+    not_processed = (
+        len(files_to_import)    # groupcount
+        - imported_count
+        - error_count
+        - skipped_count
+    )
+    not_processed_str = (
+        (
+            f", [num]{not_processed}[/] "
+            f"{pluralize(not_processed, 'file group', 'file groups')} not processed"
+        )
+        if not_processed > 0
+        else ""
+    )
     echo(
-        f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file group', 'file groups')}, [num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}{skipped_str}",
+        f"Done: imported [num]{imported_count}[/] "
+        f"{pluralize(imported_count, 'file group', 'file groups')}, "
+        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
+        f"{skipped_str}{not_processed_str}",
         emoji=False,
     )
 
@@ -2689,10 +2711,15 @@ def group_files_to_import(
     """Group files by live photo, burst UUID, raw+jpeg, etc."""
     # first collect all files by parent directory
     files_by_parent = {}
+    count = len(files)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
         task = progress.add_task(
-            "Grouping files by parent directory...", total=len(files)
+            "Grouping files by parent directory...", total=count
         )
+        if not get_verbose_console().is_terminal:
+            verbose(
+                f"Grouping files by parent directory... {count} {pluralize(count, 'file', 'files')}"
+            )
         for file in files:
             parent = file.parent
             if parent not in files_by_parent:
@@ -2702,10 +2729,26 @@ def group_files_to_import(
 
     # walk through each parent directory and group files by same stem
     grouped_files = []
-    with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
+    count=sum(len(files) for files in files_by_parent.values())
+    with rich_progress(
+        *Progress.get_default_columns(),
+        "Elapsed:",
+        TimeElapsedColumn(),
+        console=get_verbose_console(),
+        mock=no_progress,
+    ) as progress:
         task = progress.add_task(
-            "Grouping files into import groups...", total=len(files_by_parent)
+            "Grouping files into import groups...",
+            total=count,
         )
+        if not get_verbose_console().is_terminal:
+            verbose(
+                f"Grouping files into import groups... {count} {pluralize(count, 'file', 'files')}"
+            )
+
+        def advance_progress(advance: float):
+            progress.advance(task, advance=advance)
+
         for parent, files in files_by_parent.items():
             grouped = group_files_by_stem(
                 files,
@@ -2715,9 +2758,14 @@ def group_files_to_import(
                 sidecar,
                 sidecar_filename_template,
                 auto_live,
+                advance_progress,
             )
             grouped_files.extend(grouped)
-            progress.advance(task)
+            if not get_verbose_console().is_terminal:
+                verbose(
+                    f"...{parent.absolute()} "
+                    f" ({int(progress.tasks[task].completed)}/{progress.tasks[task].total})"
+                )
 
     files_to_import = []
     for group in grouped_files:
@@ -2852,24 +2900,7 @@ def split_edited_from_file_group(
 
 
 def sort_paths(paths: Iterable[pathlib.Path]) -> tuple[pathlib.Path, ...]:
-    """Sort paths into desired order for import so the key file is first
-
-    Sort order is : alphabetically, length of filename (shorter first), MOV files, AAE file
-
-    For example:
-
-    ABC_1234.jpg, ABC_1234.mov, ABC_1234.aae, ABC_1234_edited.mov, IMG_1234.jpg
-
-    """
-
-    def path_key(path: pathlib.Path) -> tuple[str, int, int, int, int]:
-        extension = path.suffix.lower()
-        is_aae = extension == ".aae"
-        is_mov = extension in (".mov", ".mp4")
-        base_name = path.stem.split("_")[0]  # Extract the base name without suffixes
-        return (base_name, len(path.stem), is_aae, is_mov)
-
-    return tuple(sorted(paths, key=path_key))
+    return tuple(import_grouper.sort_paths(paths, lambda p: p))
 
 
 def group_files_by_stem(
@@ -2880,52 +2911,26 @@ def group_files_by_stem(
     sidecar: bool,
     sidecar_filename_template: str | None,
     auto_live: bool,
+    advance_progress: Callable[[float], None],
 ) -> list[tuple[pathlib.Path, ...]]:
     """Group files by stem (filename without extension) and
     return list of tuples of files with same stem and list of files without a match"""
     if not files:
         return []
 
-    # avoid foot-gun by verifying that all paths have the same parent
-    parent = files[0].parent
-    for f in files:
-        if f.parent != parent:
-            raise ValueError("All files must have the same parent path")
-
-    file_list = list(sort_paths(files))
-    grouped_files = []
-    i = 0
-    while i < len(file_list):
-        path1 = file_list[i]
-        stem1 = path1.stem.lower()
-        edited_stem1 = filepath_with_edited_suffix(
-            path1,
+    def edited_stem_func(path: pathlib.Path) -> str:
+        return filepath_with_edited_suffix(
+            path,
             edited_suffix,
             relative_filepath,
             exiftool_path,
             sidecar,
             sidecar_filename_template,
         ).stem.lower()
-        burst_uuid1 = burst_uuid_from_path(path1)
-        group = [path1]
-        j = i + 1
 
-        while j < len(file_list):
-            path2 = file_list[j]
-            stem2 = path2.stem.lower()
-            if (
-                (stem1 == stem2)
-                or (is_edited_version_of_file(path1, path2))
-                or (path2.stem.lower() == edited_stem1)
-                or (burst_uuid1 and burst_uuid_from_path(path2) == burst_uuid1)
-            ):
-                group.append(path2)
-                file_list.pop(j)
-            else:
-                j = j + 1
-        file_list.pop(i)
-        grouped_files.append(tuple(group))
-    return grouped_files
+    return group_files_for_import(
+        files, edited_stem_func, burst_uuid_from_path, advance_progress
+    )
 
 
 def file_type_for_import_group(
@@ -3122,14 +3127,19 @@ def import_files(
                         if record.imported and not record.error:
                             # file already imported
                             verbose(
-                                f"Skipping [filepath]{filepath}[/], already imported on [time]{record.import_datetime.isoformat()}[/] with UUID [uuid]{record.uuid}[/]"
+                                f"Skipping [filepath]{filepath}[/], already imported on "
+                                f"[time]{record.import_datetime.isoformat()}[/] with "
+                                f"UUID [uuid]{record.uuid}[/]"
+                                f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
                             )
                             skipped_count += 1
                             progress.advance(task)
                             continue
 
                 verbose(
-                    f"Importing " + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
+                    "Importing "
+                    + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
+                    + f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
                 )
 
                 report_data[filepath] = ReportRecord(

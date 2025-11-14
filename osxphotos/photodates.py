@@ -70,7 +70,7 @@ def reset_photo_date_time_tz(
     tz_updater = PhotoTimeZoneUpdater(
         timezone=Timezone(tz), verbose=verbose, library_path=library_path
     )
-    tz_updater.update_photo(photo)
+    tz_updater.update_photo(photo, offset_only=True)
     update_photo_date_time(
         library_path=library_path,
         photo=photo,

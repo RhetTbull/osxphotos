@@ -58,6 +58,49 @@ def format_offset_time(offset: int) -> str:
     return f"{sign}{hours:02d}:{minutes:02d}"
 
 
+def match_etc_tzname(tz_string: str) -> tuple[str, str] | bool:
+    """Check if the timezone string matches the '±X' tzname format.
+
+    Args:
+        tz_string: Timezone string to match
+
+    Returns:
+        tuple[str, int]: Tuple of sign and offset in hoursif match, False otherwise.
+    """
+    if match := re.fullmatch(r"([+-])(\d{1,2})", tz_string.strip(), re.IGNORECASE):
+        sign, hh = match.groups()
+        return sign, int(hh)
+    return False
+
+
+def etc_tzname_to_etc(tz_string: str) -> str:
+    """Convert the tzname for a 'Etc/GMT±X' timezone back to 'Etc/GMT±X'
+    Args:
+        tz_string (str): Timezone string to convert
+
+    Returns:
+        str: 'Etc/GMT±X' string
+
+    Raises:
+        ValueError: If the timezone format is invalid or the offset is not a valid integer.
+
+    Note:
+        'Etc/GMT±X' timezones, tzname() yields ±x where x is 2 digit offset, e.g. 'Etc/GMT-8' -> '+08'
+    """
+    match = match_etc_tzname(tz_string)
+    if not match:
+        raise ValueError(f"Invalid timezone format: '{tz_string}'")
+    sign, hh = match
+    if hh < 0 or hh > 23:
+        raise ValueError(
+            f"Invalid timezone offset: '{hh}'. Expected integer between 0 and 23."
+        )
+    if hh == 0:
+        return "Etc/GMT"
+    sign = "+" if sign == "-" else "-"
+    return f"Etc/GMT{sign}{hh}"
+
+
 def convert_offset_timezone_to_etc(tz_string: str):
     """
     Convert a timezone string like 'GMT-0800', 'UTC+0500', etc. to matching 'Etc/GMT±X' string if possible
@@ -146,6 +189,8 @@ if is_macos:
                             tz.upper()
                         ):
                             self.timezone = ns_timezone_with_name(canonical_timezone)
+                        elif match_etc_tzname(tz):
+                            self.timezone = ns_timezone_with_name(etc_tzname_to_etc(tz))
                         if not self.timezone:
                             raise ValueError(f"Invalid timezone: {tz}")
                 elif isinstance(tz, (int, float)):
@@ -228,7 +273,12 @@ else:
                             self.timezone = zoneinfo.ZoneInfo(tz_canonical)
                             self._name = tz_canonical
                         except Exception as e:
-                            raise ValueError(f"Invalid timezone: {tz}") from e
+                            if match_etc_tzname(tz):
+                                tz_name = etc_tzname_to_etc(tz)
+                                self.timezone = ns_timezone_with_name(tz_name)
+                                self._name = tz_name
+                            else:
+                                raise ValueError(f"Invalid timezone: {tz}") from e
                     else:
                         raise ValueError(f"Invalid timezone: {tz}") from e
             elif isinstance(tz, (int, float)):

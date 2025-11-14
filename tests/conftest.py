@@ -105,6 +105,16 @@ if is_macos and (OS_VER[0] == "15"):
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
 
     TEST_LIBRARY_ADD_LOCATIONS = TEST_LIBRARY
+elif is_macos and (OS_VER[0] == "12" and OS_VER[1] in ("7",)):
+    # Monterey
+    TEST_LIBRARY = "tests/Test-12.0.1.photoslibrary"
+    TEST_LIBRARY_IMPORT = TEST_LIBRARY
+    TEST_LIBRARY_SYNC = TEST_LIBRARY
+    TEST_LIBRARY_TAKOUT = None
+    TEST_LIBRARY_TIMEWARP = None  # these tests do not run on macOS < 13
+    TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
+
+    TEST_LIBRARY_ADD_LOCATIONS = None     
 elif not is_macos or int(OS_VER[0]) >= 13:
     # Ventura
     TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
