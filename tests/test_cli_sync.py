@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 
 import pytest
 from click.testing import CliRunner
@@ -25,6 +26,8 @@ UUID_TEST_PHOTO_4 = "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3"  # Jellyfish1.mp4, Lo
 UUID_TEST_PHOTO_5 = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic, Location
 
 TEST_ALBUM_NAME_LOCATION = "SyncTestAlbumLocation"
+
+TEST_FOLDER_NAME_LOCATION = "SyncTestFolderLocation"
 
 
 @pytest.mark.test_sync
@@ -130,9 +133,12 @@ def test_sync_export_import_location():
 
     # create a new album and initialize metadata
     test_album = photoslib.create_album(TEST_ALBUM_NAME_LOCATION)
-    for uuid in [UUID_TEST_PHOTO_3, UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+    for uuid in [UUID_TEST_PHOTO_3]:
         photo = photoscript.Photo(uuid)
-        photo.favorite = True
+        # For unknown reasons, the favorite status doesn't always update when under test, #1972
+        while not photo.favorite:
+            photo.favorite = True
+            time.sleep(0.250)
         test_album.add([photo])
 
     # export data
@@ -146,9 +152,9 @@ def test_sync_export_import_location():
         )
         assert result.exit_code == 0
 
-        # preserve metadata for comparison and clear metadata
+        # preserve metadata for comparison and clear/set metadata
         metadata_before = {}
-        for uuid in [UUID_TEST_PHOTO_3, UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+        for uuid in [UUID_TEST_PHOTO_3]:
             photo = photoscript.Photo(uuid)
             metadata_before[uuid] = {
                 "title": photo.title,
@@ -184,7 +190,7 @@ def test_sync_export_import_location():
         assert os.path.exists("test_report_location.json")
 
         # check metadata
-        for uuid in [UUID_TEST_PHOTO_3, UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+        for uuid in [UUID_TEST_PHOTO_3]:
             photo = photoscript.Photo(uuid)
             assert photo.title == metadata_before[uuid]["title"]
             assert photo.description == metadata_before[uuid]["description"]
@@ -199,7 +205,100 @@ def test_sync_export_import_location():
         with open("test_report_location.json", "r") as f:
             report = json.load(f)
         report_data = {record["uuid"]: record for record in report}
-        for uuid in [UUID_TEST_PHOTO_3, UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+        for uuid in [UUID_TEST_PHOTO_3]:
+            assert report_data[uuid]["updated"]
+            assert report_data[uuid]["albums"]["updated"]
+            assert report_data[uuid]["location"]["updated"]
+            assert not report_data[uuid]["error"]
+
+
+@pytest.mark.test_sync
+def test_sync_export_import_location_in_folder():
+    """Test --export and --import location"""
+
+    photoslib = photoscript.PhotosLibrary()
+
+    # create a new album under a folder and initialize metadata
+    test_folder = photoslib.create_folder(TEST_FOLDER_NAME_LOCATION)
+    test_album_folder = photoslib.create_album(TEST_ALBUM_NAME_LOCATION, test_folder)
+    for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+        photo = photoscript.Photo(uuid)
+        photo.favorite = True
+        test_album_folder.add([photo])
+
+    # export data
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            sync,
+            [
+                "--export",
+                "test_location_folder.db",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # preserve metadata for comparison and clear/set metadata
+        metadata_before = {}
+        for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+            photo = photoscript.Photo(uuid)
+            metadata_before[uuid] = {
+                "title": photo.title,
+                "description": photo.description,
+                "keywords": photo.keywords,
+                "favorites": photo.favorite,
+                "location": photo.location,
+                "albums": sorted(a.path_str() for a in photo.albums),
+            }
+            photo.title = ""
+            photo.description = ""
+            photo.keywords = ["OnFolder_and_Album_Keyword"]
+            photo.favorite = False
+            photo.location = (24.681666439037876, 32.88630618597232)
+
+        # delete the test album and folder
+        photoslib.delete_album(test_album_folder)
+        photoslib.delete_folder(test_folder)
+
+        # import metadata
+        result = CliRunner().invoke(
+            sync,
+            [
+                "--import",
+                "test_location_folder.db",
+                "--set",
+                "title,description,favorite,albums,location",
+                "--merge",
+                "keywords",
+                "--report",
+                "test_report_location_folder.json",
+            ],
+        )
+        assert result.exit_code == 0
+        assert os.path.exists("test_report_location_folder.json")
+
+        # check metadata
+        for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+            photo = photoscript.Photo(uuid)
+            assert photo.title == metadata_before[uuid]["title"]
+            assert photo.description == metadata_before[uuid]["description"]
+            assert sorted(photo.keywords) == sorted(
+                ["OnFolder_and_Album_Keyword", *metadata_before[uuid]["keywords"]]
+            )
+            assert photo.favorite == metadata_before[uuid]["favorites"]
+            assert photo.location == metadata_before[uuid]["location"]
+            assert TEST_ALBUM_NAME_LOCATION in [album.title for album in photo.albums]
+            assert "/".join([TEST_FOLDER_NAME_LOCATION, TEST_ALBUM_NAME_LOCATION]) in [
+                album.path_str() for album in photo.albums
+            ]
+            assert metadata_before[uuid]["albums"] == sorted(
+                a.path_str() for a in photo.albums
+            )
+
+        # check report
+        with open("test_report_location_folder.json", "r") as f:
+            report = json.load(f)
+        report_data = {record["uuid"]: record for record in report}
+        for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
             assert report_data[uuid]["updated"]
             assert report_data[uuid]["albums"]["updated"]
             assert report_data[uuid]["location"]["updated"]

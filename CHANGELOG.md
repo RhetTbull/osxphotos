@@ -2,9 +2,79 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.74.0](https://github.com/RhetTbull/osxphotos/compare/v0.73.4...v0.74.0)
+
+macOS 26.1 support
+
+### 2025-11-04
+
+#### Added
+
+- Support for macOS 26.1, thanks to @EriksRemess for testing and code.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Updates for macOS 15.7.2, thanks to @oPromessa (#1972)
+- Import hangs sometimes, thanks to @oPromessa kill and restart Photos (#1970)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+* @EriksRemess [@EriksRemess](https://github.com/EriksRemess).
+
+## [v0.73.4](https://github.com/RhetTbull/osxphotos/compare/v0.73.3...v0.73.4)
+
+Python 3.14 support
+
+### 2025-10-15
+
+#### Added
+
+- Support for Python 3.14
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fixed import with numeric keywords (#1934), thanks to @oPromessa
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+
+## [v0.73.3](https://github.com/RhetTbull/osxphotos/compare/v0.73.2...v0.73.3)
+
+Fixed performance regression from v0.73.2
+
+### v0.73.3 (2025-10-10)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+-Fixed performance regression from v0.73.2
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+
 ## [v0.73.2](https://github.com/RhetTbull/osxphotos/compare/v0.73.1...v0.73.2)
 
-Bug fix for non-can timezones in timewarp
+Bug fix for non-can timezones in timewarp.
+
+*NOTE* Version 0.73.2 was yanked due to a performance regression.
 
 ### v0.73.2 (2025-10-10)
 
