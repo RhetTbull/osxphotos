@@ -12,10 +12,15 @@ from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
 
 from tenacity import (
+    RetryCallState,
     retry,
     stop_after_attempt,
+    retry_if_exception,
     wait_fixed,
+    before_log,
+    after_log,
 )
+
 
 from .imageconverter import ImageConverter
 from .platform import is_macos
@@ -28,8 +33,9 @@ logger = logging.getLogger(__name__)
 # Global configuration — PhotosLibrary can change these
 RETRY_FILEUTIL_CONFIG = {
     "retry_enabled": True,
-    "retries": 2,
-    "wait_seconds": 10,
+    "retries": 5,  # TODO
+    "wait_seconds": 30,  # TODO
+    "ALIAS_PATH": "/Users/msp/Library/Application Support/MyApp/TEST.alias"
 }
 
 
@@ -41,6 +47,40 @@ def configure_fileutil_run(retry_enabled=None, retries=None, wait_seconds=None):
         RETRY_FILEUTIL_CONFIG["retries"] = retries
     if wait_seconds is not None:
         RETRY_FILEUTIL_CONFIG["wait_seconds"] = wait_seconds
+
+
+# Check for errot "AppleScript timed out" to allow retry
+def is_fileutil_error(exception) -> bool:
+    """Check if exception is an AppleScript timed out"""
+    logger.warning("\n--------- IN is_fileutil_error")
+    # TODO
+    # return "Permission denied" in str(exception)
+    return True
+
+def retry_all_methods(**retry_kwargs):
+    """Apply tenacity.retry to all callable methods of a class."""
+    def decorator(cls):
+        logger.warning("\n--------- IN retry_all_methods")
+        for name, attr in cls.__dict__.items():
+            if callable(attr) and not name.startswith("__"):
+                wrapped = retry(**retry_kwargs)(attr)
+                setattr(cls, name, wrapped)
+        return cls
+    return decorator
+
+
+import subprocess
+
+def open_alias_script(retry_state: RetryCallState) -> None:
+    script = f'''
+    tell application "Finder"
+        open (POSIX file "{RETRY_FILEUTIL_CONFIG["ALIAS_PATH"]}") -- Finder resolves aliases automatically
+    end tell
+    '''
+
+    return subprocess.call(
+        ["osascript", "-e", script]
+    )
 
 
 if is_macos:
@@ -114,7 +154,15 @@ class FileUtilABC(ABC):
     ) -> tempfile.TemporaryDirectory:
         pass
 
-
+@retry_all_methods(
+    stop=stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]),
+    wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
+    retry=retry_if_exception(is_fileutil_error),
+    before_sleep=open_alias_script,
+    before=before_log(logger, logging.WARNING),
+    after=after_log(logger, logging.WARNING),
+    reraise=True,
+)
 class FileUtilMacOS(FileUtilABC):
     """Various file utilities"""
 
@@ -198,15 +246,21 @@ class FileUtilMacOS(FileUtilABC):
     @retry(
         stop=stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]),
         wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
-        # before_sleep=remount_smb,
+        retry=retry_if_exception(is_fileutil_error),
+        before_sleep=open_alias_script,
+        before=before_log(logger, logging.WARNING),
+        after=after_log(logger, logging.WARNING),
         reraise=True,
     )
     def makedirs(cls, name, mode: int = 511, exist_ok: bool = False) -> None:
         """create directory path; creates parent directories if needed"""
+        logger.warning(f"\n--------- IN makedirs: {name=}")
         dirpath = normalize_fs_path(name)
         if isinstance(dirpath, pathlib.Path):
+            logger.warning(f"\n--------- IN makedirs.mkdir")
             dirpath.mkdir(parents=True, mode=mode, exist_ok=exist_ok)
         else:
+            logger.warning(f"\n--------- IN makedirs.os.makedirs")
             os.makedirs(dirpath, mode=mode, exist_ok=exist_ok)
 
     @classmethod
