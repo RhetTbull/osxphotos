@@ -1,6 +1,7 @@
 """FileUtil class with methods for copy, hardlink, unlink, etc."""
 
 import fcntl
+import logging
 import os
 import pathlib
 import shutil
@@ -10,9 +11,37 @@ import typing as t
 from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
 
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_fixed,
+)
+
 from .imageconverter import ImageConverter
 from .platform import is_macos
 from .unicode import normalize_fs_path
+
+# logger
+logger = logging.getLogger(__name__)
+
+
+# Global configuration — PhotosLibrary can change these
+RETRY_FILEUTIL_CONFIG = {
+    "retry_enabled": True,
+    "retries": 2,
+    "wait_seconds": 10,
+}
+
+
+def configure_fileutil_run(retry_enabled=None, retries=None, wait_seconds=None):
+    """Change global retry behavior for FileUtil."""
+    if retry_enabled is not None:
+        RETRY_FILEUTIL_CONFIG["retry_enabled"] = retry_enabled
+    if retries is not None:
+        RETRY_FILEUTIL_CONFIG["retries"] = retries
+    if wait_seconds is not None:
+        RETRY_FILEUTIL_CONFIG["wait_seconds"] = wait_seconds
+
 
 if is_macos:
     import Foundation
@@ -35,12 +64,17 @@ class FileUtilABC(ABC):
 
     @classmethod
     @abstractmethod
-    def unlink(cls, dest):
+    def unlink(cls, filepath):
         pass
 
     @classmethod
     @abstractmethod
-    def rmdir(cls, dest):
+    def rmdir(cls, dirpath):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def makedirs(cls, name, mode: int = 511, exist_ok: bool = False) -> None:
         pass
 
     @classmethod
@@ -50,17 +84,17 @@ class FileUtilABC(ABC):
 
     @classmethod
     @abstractmethod
-    def cmp(cls, file1, file2, mtime1=None):
+    def cmp(cls, f1, f2, mtime1=None):
         pass
 
     @classmethod
     @abstractmethod
-    def cmp_file_sig(cls, file1, file2):
+    def cmp_file_sig(cls, f1, s2):
         pass
 
     @classmethod
     @abstractmethod
-    def file_sig(cls, file1):
+    def file_sig(cls, f1):
         pass
 
     @classmethod
@@ -76,7 +110,7 @@ class FileUtilABC(ABC):
     @classmethod
     @abstractmethod
     def tmpdir(
-        cls, prefix: t.Optional[str] = None, dir: t.Optional[str] = None
+        cls, prefix: t.Optional[str] = None, dirpath: t.Optional[str] = None
     ) -> tempfile.TemporaryDirectory:
         pass
 
@@ -159,6 +193,21 @@ class FileUtilMacOS(FileUtilABC):
             dirpath.rmdir()
         else:
             os.rmdir(dirpath)
+
+    @classmethod
+    @retry(
+        stop=stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]),
+        wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
+        # before_sleep=remount_smb,
+        reraise=True,
+    )
+    def makedirs(cls, name, mode: int = 511, exist_ok: bool = False) -> None:
+        """create directory path; creates parent directories if needed"""
+        dirpath = normalize_fs_path(name)
+        if isinstance(dirpath, pathlib.Path):
+            dirpath.mkdir(parents=True, mode=mode, exist_ok=exist_ok)
+        else:
+            os.makedirs(dirpath, mode=mode, exist_ok=exist_ok)
 
     @classmethod
     def utime(cls, path, times):
@@ -273,14 +322,14 @@ class FileUtilMacOS(FileUtilABC):
 
     @classmethod
     def tmpdir(
-        cls, prefix: t.Optional[str] = None, dir: t.Optional[str] = None
+        cls, prefix: t.Optional[str] = None, dirpath: t.Optional[str] = None
     ) -> tempfile.TemporaryDirectory:
         """Securely creates a temporary directory using the same rules as mkdtemp().
         The resulting object can be used as a context manager.
         On completion of the context or destruction of the temporary directory object,
         the newly created temporary directory and all its contents are removed from the filesystem.
         """
-        return TemporaryDirectory(prefix=prefix, dir=dir)
+        return TemporaryDirectory(prefix=prefix, dir=dirpath)
 
     @staticmethod
     def _sig(st):
@@ -341,8 +390,6 @@ class FileUtilShUtil(FileUtilMacOS):
 class FileUtil(FileUtilShUtil):
     """Various file utilities"""
 
-    pass
-
 
 class FileUtilNoOp(FileUtil):
     """No-Op implementation of FileUtil for testing / dry-run mode
@@ -372,11 +419,15 @@ class FileUtilNoOp(FileUtil):
         pass
 
     @classmethod
-    def unlink(cls, dest):
+    def unlink(cls, filepath):
         pass
 
     @classmethod
-    def rmdir(cls, dest):
+    def rmdir(cls, dirpath):
+        pass
+
+    @classmethod
+    def makedirs(cls, name, mode: int = 511, exist_ok: bool = False) -> None:
         pass
 
     @classmethod
@@ -384,7 +435,7 @@ class FileUtilNoOp(FileUtil):
         pass
 
     @classmethod
-    def file_sig(cls, file1):
+    def file_sig(cls, f1):
         return (42, 42, 42)
 
     @classmethod
@@ -397,11 +448,11 @@ class FileUtilNoOp(FileUtil):
 
     @classmethod
     def tmpdir(
-        cls, prefix: t.Optional[str] = None, dir: t.Optional[str] = None
+        cls, prefix: t.Optional[str] = None, dirpath: t.Optional[str] = None
     ) -> tempfile.TemporaryDirectory:
         """Securely creates a temporary directory using the same rules as mkdtemp().
         The resulting object can be used as a context manager.
         On completion of the context or destruction of the temporary directory object,
         the newly created temporary directory and all its contents are removed from the filesystem.
         """
-        return TemporaryDirectory(prefix=prefix, dir=dir)
+        return TemporaryDirectory(prefix=prefix, dir=dirpath)

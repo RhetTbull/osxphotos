@@ -112,6 +112,51 @@ def test_rmdir():
     assert not os.path.isdir(dir_name)
 
 
+def test_makedirs():
+    import os.path
+    import tempfile
+
+    from osxphotos.fileutil import FileUtil
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    new_dir = os.path.join(temp_dir.name, "folder1/subfolder1.1/subfolder1.1.1")
+
+    assert not os.path.isdir(new_dir)
+    FileUtil.makedirs(new_dir)
+    assert os.path.isdir(new_dir)
+
+
+def test_makedirs_retry(monkeypatch):
+    """Test that makedirs is retried on transient failure (uses tenacity retry)."""
+    import tempfile
+    from osxphotos.fileutil import FileUtil
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    new_dir = os.path.join(temp_dir.name, "folder_retry/sub1/sub2")
+
+    # track attempts
+    attempts = {"count": 0}
+    original_makedirs = os.makedirs
+
+    def fake_makedirs(path, mode=511, exist_ok=False):
+        attempts["count"] += 1
+        # fail the first attempt, succeed thereafter
+        if attempts["count"] < 2:
+            raise OSError("simulated transient error")
+        return original_makedirs(path, mode=mode, exist_ok=exist_ok)
+
+    # replace os.makedirs with our flaky version
+    monkeypatch.setattr(os, "makedirs", fake_makedirs)
+    # avoid actual sleeping between retries
+    monkeypatch.setattr(time, "sleep", lambda s: None)
+
+    assert not os.path.isdir(new_dir)
+    FileUtil.makedirs(new_dir)
+    assert os.path.isdir(new_dir)
+    # ensure it was attempted at least twice (one failure + one success)
+    assert attempts["count"] >= 2
+
+
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_CONVERT" not in os.environ,
     reason="Skip if running in Github actions, no GPU.",

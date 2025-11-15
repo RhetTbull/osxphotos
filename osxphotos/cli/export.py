@@ -2902,7 +2902,7 @@ def get_dirnames_from_template(
             dest, date_created.year, date_created.mm, date_created.dd
         )
         if not (dry_run or os.path.isdir(dest_path)):
-            os.makedirs(dest_path)
+            FileUtilMacOS.makedirs(dest_path)
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
@@ -2928,7 +2928,7 @@ def get_dirnames_from_template(
             if not is_valid_filepath(dest_path):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
             if not dry_run and not os.path.isdir(dest_path):
-                os.makedirs(dest_path)
+                FileUtilMacOS.makedirs(dest_path)
             dest_paths.append(dest_path)
     else:
         dest_paths = [dest]
