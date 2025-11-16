@@ -28,6 +28,7 @@ from rich.console import Console
 from rich.progress import Progress, TimeElapsedColumn
 from strpdatetime import strpdatetime
 
+from osxphotos.cli.kill_photos import kill_photos
 from osxphotos.fileutil import FileUtilMacOS
 from osxphotos.markdown_utils import format_markdown_for_console, markdown_to_plaintext
 from osxphotos.photodates import (
@@ -44,10 +45,7 @@ from .help import filter_help_text_for_sphinx, is_sphinx_running, rich_text
 from .import_grouper import group_files_for_import
 from .param_types import TimezoneOffset
 
-from osxphotos.cli.kill_photos import kill_photos
-
 assert_macos()
-
 
 try:
     # makelive does not work on macOS <= 10.15.x
