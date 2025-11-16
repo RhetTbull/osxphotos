@@ -1,26 +1,28 @@
 """FileUtil class with methods for copy, hardlink, unlink, etc."""
 
+import errno
 import fcntl
 import logging
 import os
 import pathlib
 import shutil
 import stat
+import subprocess
 import tempfile
+import types
 import typing as t
 from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
 
 from tenacity import (
     RetryCallState,
-    retry,
-    stop_after_attempt,
-    retry_if_exception,
-    wait_fixed,
-    before_log,
     after_log,
+    before_log,
+    retry,
+    retry_if_exception,
+    stop_after_attempt,
+    wait_fixed,
 )
-
 
 from .imageconverter import ImageConverter
 from .platform import is_macos
@@ -29,17 +31,26 @@ from .unicode import normalize_fs_path
 # logger
 logger = logging.getLogger(__name__)
 
+# stores import status so imports can be resumed
+NAS_EXPORT_ALIAS = (
+    "/Users/MSP/Documents/GitHub/Export/export/working/nas_export_alias.alias"
+)
 
 # Global configuration — PhotosLibrary can change these
 RETRY_FILEUTIL_CONFIG = {
-    "retry_enabled": True,
-    "retries": 5,  # TODO
-    "wait_seconds": 30,  # TODO
-    "ALIAS_PATH": "/Users/msp/Library/Application Support/MyApp/TEST.alias"
+    "retry_enabled": True,  # TODO Make it an option
+    "retries": 5,  # TODO Make it an option
+    "wait_seconds": 30,  # TODO Make it an option
+    "nas_export_alias": NAS_EXPORT_ALIAS,  # Make it an argument
 }
 
 
-def configure_fileutil_run(retry_enabled=None, retries=None, wait_seconds=None):
+def configure_fileutil_run(
+    retry_enabled=None,
+    retries=None,
+    wait_seconds=None,
+    nas_export_alias="nas_export_alias.alias",
+):
     """Change global retry behavior for FileUtil."""
     if retry_enabled is not None:
         RETRY_FILEUTIL_CONFIG["retry_enabled"] = retry_enabled
@@ -47,40 +58,97 @@ def configure_fileutil_run(retry_enabled=None, retries=None, wait_seconds=None):
         RETRY_FILEUTIL_CONFIG["retries"] = retries
     if wait_seconds is not None:
         RETRY_FILEUTIL_CONFIG["wait_seconds"] = wait_seconds
+    if nas_export_alias is not None:
+        RETRY_FILEUTIL_CONFIG["nas_export_alias"] = nas_export_alias
+
+
+# Set of recoverable errno values for SMB/network failures
+RECOVERABLE_ERRNOS = {
+    errno.EIO,  # Input/output error
+    errno.ETIMEDOUT,  # Operation timed out
+    errno.ENOTCONN,  # Socket is not connected
+    errno.EHOSTUNREACH,  # No route to host
+    errno.ECONNRESET,  # Connection reset by peer
+    errno.ECONNREFUSED,  # Connection refused
+    errno.ENETDOWN,  # Network is down
+    errno.ENETUNREACH,  # Network is unreachable
+}
 
 
 # Check for errot "AppleScript timed out" to allow retry
 def is_fileutil_error(exception) -> bool:
     """Check if exception is an AppleScript timed out"""
-    logger.warning("\n--------- IN is_fileutil_error")
-    # TODO
-    # return "Permission denied" in str(exception)
-    return True
+
+    if not RETRY_FILEUTIL_CONFIG["retry_enabled"]:
+        return False
+
+    logger.warning(
+        "⚠️  fileutil: exception: %s ", str(exception)
+    )  # TODO Maybe Remove Debug
+
+    if isinstance(exception, PermissionError) or "Permission denied" in str(exception):
+        return True
+
+    if isinstance(exception, OSError) and exception.errno in RECOVERABLE_ERRNOS:
+        return True
+
+    return False
+
 
 def retry_all_methods(**retry_kwargs):
     """Apply tenacity.retry to all callable methods of a class."""
+
     def decorator(cls):
-        logger.warning("\n--------- IN retry_all_methods")
-        for name, attr in cls.__dict__.items():
-            if callable(attr) and not name.startswith("__"):
-                wrapped = retry(**retry_kwargs)(attr)
-                setattr(cls, name, wrapped)
+        for name, value in cls.__dict__.items():
+
+            # Skip dunder methods (e.g. __init__, __str__, etc.)
+            if name.startswith("__"):
+                continue
+
+            # functions -> instance methods
+            if isinstance(value, types.FunctionType):
+                setattr(cls, name, retry(**retry_kwargs)(value))
+
+            # classmethod
+            elif isinstance(value, classmethod):
+                func = value.__func__
+                setattr(cls, name, classmethod(retry(**retry_kwargs)(func)))
+
+            # staticmethod
+            elif isinstance(value, staticmethod):
+                func = value.__func__
+                setattr(cls, name, staticmethod(retry(**retry_kwargs)(func)))
+
         return cls
+
     return decorator
 
 
-import subprocess
+def open_alias_script(retry_state: RetryCallState) -> int | None:
 
-def open_alias_script(retry_state: RetryCallState) -> None:
-    script = f'''
-    tell application "Finder"
-        open (POSIX file "{RETRY_FILEUTIL_CONFIG["ALIAS_PATH"]}") -- Finder resolves aliases automatically
-    end tell
-    '''
-
-    return subprocess.call(
-        ["osascript", "-e", script]
+    logger.warning(
+        "⚠️  fileutil: SMB error: %s mount SMB alias %s to continue...",
+        "retrying" if is_macos else "bypassing (not Macos)",
+        RETRY_FILEUTIL_CONFIG["nas_export_alias"],
     )
+
+    if not is_macos:
+        return None
+
+    script = f"""
+    tell application "Finder"
+        open (POSIX file "{RETRY_FILEUTIL_CONFIG["nas_export_alias"]}") -- Finder resolves aliases automatically
+    end tell
+    """
+
+    if rc := subprocess.call(["osascript", "-e", script]) == 0:
+        logger.warning("✅  fileutil: re-mounted SMB alias successfully.")
+    else:
+        logger.warning(
+            "❌  fileutil: re-mounted SMB alias failed with return code: %s", rc
+        )
+
+    return rc
 
 
 if is_macos:
@@ -154,12 +222,13 @@ class FileUtilABC(ABC):
     ) -> tempfile.TemporaryDirectory:
         pass
 
+
 @retry_all_methods(
     stop=stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]),
     wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
     retry=retry_if_exception(is_fileutil_error),
     before_sleep=open_alias_script,
-    before=before_log(logger, logging.WARNING),
+    # before=before_log(logger, logging.WARNING),
     after=after_log(logger, logging.WARNING),
     reraise=True,
 )
@@ -243,24 +312,12 @@ class FileUtilMacOS(FileUtilABC):
             os.rmdir(dirpath)
 
     @classmethod
-    @retry(
-        stop=stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]),
-        wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
-        retry=retry_if_exception(is_fileutil_error),
-        before_sleep=open_alias_script,
-        before=before_log(logger, logging.WARNING),
-        after=after_log(logger, logging.WARNING),
-        reraise=True,
-    )
     def makedirs(cls, name, mode: int = 511, exist_ok: bool = False) -> None:
         """create directory path; creates parent directories if needed"""
-        logger.warning(f"\n--------- IN makedirs: {name=}")
         dirpath = normalize_fs_path(name)
         if isinstance(dirpath, pathlib.Path):
-            logger.warning(f"\n--------- IN makedirs.mkdir")
             dirpath.mkdir(parents=True, mode=mode, exist_ok=exist_ok)
         else:
-            logger.warning(f"\n--------- IN makedirs.os.makedirs")
             os.makedirs(dirpath, mode=mode, exist_ok=exist_ok)
 
     @classmethod
@@ -395,6 +452,15 @@ class FileUtilMacOS(FileUtilABC):
         return (stat.S_IFMT(st.st_mode), st.st_size, int(st.st_mtime))
 
 
+@retry_all_methods(
+    stop=stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]),
+    wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
+    retry=retry_if_exception(is_fileutil_error),
+    before_sleep=open_alias_script,
+    before=before_log(logger, logging.WARNING),
+    after=after_log(logger, logging.WARNING),
+    reraise=True,
+)
 class FileUtilShUtil(FileUtilMacOS):
     """Various file utilities, uses shutil.copy to copy files instead of NSFileManager (#807)"""
 
@@ -445,6 +511,15 @@ class FileUtil(FileUtilShUtil):
     """Various file utilities"""
 
 
+@retry_all_methods(
+    stop=stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]),
+    wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
+    retry=retry_if_exception(is_fileutil_error),
+    before_sleep=open_alias_script,
+    before=before_log(logger, logging.WARNING),
+    after=after_log(logger, logging.WARNING),
+    reraise=True,
+)
 class FileUtilNoOp(FileUtil):
     """No-Op implementation of FileUtil for testing / dry-run mode
     all methods with exception of tmpdir, cmp, cmp_file_sig and file_cmp are no-op
