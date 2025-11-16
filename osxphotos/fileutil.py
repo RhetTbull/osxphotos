@@ -39,8 +39,8 @@ NAS_EXPORT_ALIAS = (
 # Global configuration — PhotosLibrary can change these
 RETRY_FILEUTIL_CONFIG = {
     "retry_enabled": True,  # TODO Make it an option
-    "retries": 5,  # TODO Make it an option
-    "wait_seconds": 30,  # TODO Make it an option
+    "retries": 3,  # TODO Make it an option
+    "wait_seconds": 10,  # TODO Make it an option
     "nas_export_alias": NAS_EXPORT_ALIAS,  # Make it an argument
 }
 
@@ -457,7 +457,6 @@ class FileUtilMacOS(FileUtilABC):
     wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
     retry=retry_if_exception(is_fileutil_error),
     before_sleep=open_alias_script,
-    before=before_log(logger, logging.WARNING),
     after=after_log(logger, logging.WARNING),
     reraise=True,
 )
@@ -516,7 +515,6 @@ class FileUtil(FileUtilShUtil):
     wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
     retry=retry_if_exception(is_fileutil_error),
     before_sleep=open_alias_script,
-    before=before_log(logger, logging.WARNING),
     after=after_log(logger, logging.WARNING),
     reraise=True,
 )
