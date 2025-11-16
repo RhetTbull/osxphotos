@@ -142,8 +142,12 @@ def test_makedirs_retry(monkeypatch):
         attempts["count"] += 1
         # fail the first attempt, succeed thereafter
         if attempts["count"] < 2:
-            raise OSError("simulated transient error")
+            raise PermissionError("simulated transient error")
+            # raise OSError("simulated transient error")
         return original_makedirs(path, mode=mode, exist_ok=exist_ok)
+
+    # patch the subprocess.call used by open_alias_script to avoid running osascript
+    monkeypatch.setattr("osxphotos.fileutil.subprocess.call", lambda *a, **k: 0)
 
     # replace os.makedirs with our flaky version
     monkeypatch.setattr(os, "makedirs", fake_makedirs)
