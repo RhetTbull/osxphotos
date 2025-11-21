@@ -1454,6 +1454,16 @@ class iPhotoPhotoInfo:
             return 0
         return angle_to_exif_orientation(rotation)
 
+    @property
+    def media_analysis(self) -> dict[str, Any]:
+        """Returns media analysis results as a dictionary (Photos 5+)"""
+        return dict()
+
+    @property
+    def ai_caption(self) -> str:
+        """Returns AI generated caption for photo or video (Photos 5+)"""
+        return ""
+
     def export(
         self,
         dest: str,
@@ -1732,6 +1742,8 @@ class iPhotoPhotoInfo:
             dict_data["screen_recording"] = self.screen_recording
             dict_data["date_original"] = self.date_original
             dict_data["tzname"] = self.tzname
+            dict_data["media_analysis"] = self.media_analysis
+            dict_data["ai_caption"] = self.ai_caption
 
         return dict_data
 
