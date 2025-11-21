@@ -138,13 +138,13 @@ def _get_media_analysis_data(
         media_analysis_db = _get_media_analysis_path(photo._db.db_path)
     except FileNotFoundError:
         logger.warning(f"Media analysis database not found for photo {photo.filename}")
-        return {}
+        return None, []
 
     try:
         conn = sqlite3.connect(media_analysis_db)
     except sqlite3.Error as e:
         logger.warning(f"Error connecting to media analysis database: {e}")
-        return {}
+        return None, []
 
     if photo._db.photos_version < 11:
         sql = """

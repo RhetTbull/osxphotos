@@ -58,6 +58,7 @@ from .commentinfo import CommentInfo, LikeInfo
 from .exifinfo import ExifInfo, exifinfo_factory
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .exportoptions import ExportOptions
+from .media_analysis import get_caption, get_media_analysis_results
 from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
 from .photoexporter import PhotoExporter
@@ -1701,6 +1702,16 @@ class PhotoInfo:
         """Returns fingerprint of original photo as a string or None if not available"""
         return self._info["masterFingerprint"]
 
+    @cached_property
+    def media_analysis(self) -> dict[str, Any]:
+        """Returns media analysis results as a dictionary (Photos 5+)"""
+        return get_media_analysis_results(self)
+
+    @cached_property
+    def ai_caption(self) -> str | None:
+        """Returns AI generated caption for photo or video (Photos 5+)"""
+        return get_caption(get_media_analysis_results(self))
+
     def detected_text(
         self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD
     ) -> list[tuple[str, float]]:
@@ -2153,6 +2164,8 @@ class PhotoInfo:
             dict_data["screen_recording"] = self.screen_recording
             dict_data["date_original"] = self.date_original
             dict_data["tzname"] = self.tzname
+            dict_data["media_analysis"] = self.media_analysis
+            dict_data["ai_caption"] = self.ai_caption
 
         return dict_data
 
