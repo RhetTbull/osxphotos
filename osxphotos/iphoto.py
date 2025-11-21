@@ -1460,9 +1460,9 @@ class iPhotoPhotoInfo:
         return dict()
 
     @property
-    def ai_caption(self) -> str | None:
+    def ai_caption(self) -> str:
         """Returns AI generated caption for photo or video (Photos 5+)"""
-        return None
+        return ""
 
     def export(
         self,

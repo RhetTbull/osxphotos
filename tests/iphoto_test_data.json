@@ -1,7 +1,7 @@
 [
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -195,7 +195,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -387,7 +387,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -580,7 +580,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -772,7 +772,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -965,7 +965,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -1153,7 +1153,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [
          {
             "folder_list" : [],
@@ -1483,7 +1483,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [
          {
             "folder_list" : [],
@@ -1746,7 +1746,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [
          {
             "folder_list" : [],
@@ -1961,7 +1961,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -2164,7 +2164,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -2371,7 +2371,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [],
       "albums" : [],
       "burst" : false,
@@ -2609,7 +2609,7 @@
    },
    {
       "adjustments" : {},
-      "ai_caption" : null,
+      "ai_caption" : "",
       "album_info" : [
          {
             "folder_list" : [

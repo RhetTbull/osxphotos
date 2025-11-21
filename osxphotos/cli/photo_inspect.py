@@ -218,7 +218,7 @@ def inspect_photo(
     properties.append(format_exif_info(photo))
     properties.append(format_score_info(photo))
 
-    properties.append(bold("AI-generated caption: ") + photo.ai_caption)
+    properties.append(bold("AI-generated caption: ") + photo.ai_caption or "")
 
     if detected_text:
         # have detected text for this photo

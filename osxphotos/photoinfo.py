@@ -1708,9 +1708,9 @@ class PhotoInfo:
         return get_media_analysis_results(self)
 
     @cached_property
-    def ai_caption(self) -> str | None:
+    def ai_caption(self) -> str:
         """Returns AI generated caption for photo or video (Photos 5+)"""
-        return get_caption(get_media_analysis_results(self))
+        return get_caption(get_media_analysis_results(self)) or ""
 
     def detected_text(
         self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD
