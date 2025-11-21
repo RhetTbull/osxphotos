@@ -68,7 +68,7 @@ def trim(text: str, pad: str = "") -> str:
     """Truncate a string to a fit in console, - len(pad) - 4; also removes new lines"""
     width = Console().width - len(pad) - 4
     text = text.replace("\n", " ")
-    return text if len(text) <= width else f"{text[: width- 3]}..."
+    return text if len(text) <= width else f"{text[: width - 3]}..."
 
 
 def format_search_info(photo: PhotoInfo) -> str:
@@ -104,9 +104,6 @@ def inspect_photo(
     Returns:
         str: formatted string with photo info
     """
-
-    if templates:
-        return inspect_photo_templates(photo, templates)
 
     properties = [
         bold("Filename: ") + f"[filename]{photo.original_filename}[/]",
@@ -229,20 +226,8 @@ def inspect_photo(
 
     properties.append(format_paths(photo))
 
-    return "\n".join(properties)
-
-
-def inspect_photo_templates(
-    photo: PhotoInfo, templates: Optional[List[str]] = None
-) -> str:
-    """Render and display photo templates"""
-    properties = [
-        bold("Filename: ") + f"[filename]{photo.original_filename}[/]",
-        bold("Type: ") + get_photo_type(photo),
-        bold("UUID: ") + f"[uuid]{photo.uuid}[/]",
-    ]
-    properties.append(bold("Templates: "))
-    properties.append(format_templates(photo, templates))
+    if templates:
+        properties.append(bold("Templates: ") + format_templates(photo, templates))
 
     return "\n".join(properties)
 
@@ -252,8 +237,8 @@ def format_templates(photo: PhotoInfo, templates: List[str]) -> str:
     formatted_templates = []
     for template in templates:
         template_str, _ = photo.render_template(template)
-        formatted_templates.append((template, template_str))
-    return "\n".join(f"{t[0]} = {t[1]}" for t in formatted_templates)
+        formatted_templates.extend(template_str)
+    return "\n".join(formatted_templates)
 
 
 def format_score_info(photo: PhotoInfo) -> str:
@@ -485,9 +470,7 @@ def make_layout() -> Layout:
     "-T",
     metavar="TEMPLATE",
     multiple=True,
-    help="Template string to render for each photo using template preview mode. "
-    "Useful for testing templates for export; may be repeated to test multiple templates. "
-    "If --template/-T is used, other inspection data will not be displayed. ",
+    help="Template string to render for each photo using template preview mode. Useful for testing templates for export; may be repeated to test multiple templates. If --template/-T is used, other inspection data will not be displayed. ",
 )
 @THEME_OPTION
 @DB_OPTION
