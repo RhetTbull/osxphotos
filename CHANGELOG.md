@@ -10,6 +10,10 @@ Updates to `osxphotos inspect` and `osxphotos albums`.
 
 #### Added
 
+- Added `media_analysis` property to `PhotoInfo` which returns a dictionary of the AI analysis data produced by Photos' media analysis process.
+- Added `ai_caption` property to `PhotoInfo` which returns the AI generated caption produced by the Photos media analysis process
+- Added AI generated caption to `osxphotos inspect`
+
 #### Changed
 
 - `osxphotos albums` now prints the full path to albums contained in folders, for example, `Folder/Subfolder/Album` (#2008)
