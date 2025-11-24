@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="OSXPhotos Python API" href="API_README.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Python Reference - osxphotos 0.74.0 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.74.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.74.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.74.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.74.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.74.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1889,6 +1889,12 @@ including keywords, persons, albums, uuid, path, etc.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.ai_caption">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ai_caption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.ai_caption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.ai_caption" title="Link to this definition">¶</a></dt>
+<dd><p>Returns AI generated caption for photo or video (Photos 5+)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.album_info">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">album_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osxphotos.AlbumInfo" title="osxphotos.albuminfo.AlbumInfo"><span class="pre">AlbumInfo</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osxphotos.PhotoInfo.album_info" title="Link to this definition">¶</a></dt>
 <dd><p>list of AlbumInfo objects representing albums the photo is contained in</p>
@@ -2325,6 +2331,12 @@ only valid on Photos 5, on older libraries returns empty list</p>
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.longitude">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">longitude</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.longitude" title="Link to this definition">¶</a></dt>
 <dd><p>Returns longitude as float in degrees or None</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.media_analysis">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media_analysis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.media_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.media_analysis" title="Link to this definition">¶</a></dt>
+<dd><p>Returns media analysis results as a dictionary (Photos 5+)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -4966,6 +4978,12 @@ including folders, albums, etc</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">iPhotoPhotoInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#osxphotos.iPhotoDB" title="osxphotos.iphoto.iPhotoDB"><span class="pre">iPhotoDB</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/iphoto.html#iPhotoPhotoInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.iPhotoPhotoInfo" title="Link to this definition">¶</a></dt>
 <dd><p>PhotoInfo implementation for iPhoto</p>
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.iPhotoPhotoInfo.ai_caption">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ai_caption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#osxphotos.iPhotoPhotoInfo.ai_caption" title="Link to this definition">¶</a></dt>
+<dd><p>Returns AI generated caption for photo or video (Photos 5+)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.iPhotoPhotoInfo.album_info">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">album_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osxphotos.iPhotoAlbumInfo" title="osxphotos.iphoto.iPhotoAlbumInfo"><span class="pre">iPhotoAlbumInfo</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osxphotos.iPhotoPhotoInfo.album_info" title="Link to this definition">¶</a></dt>
 <dd><p>&quot;Return list of iPhotoAlbumInfo objects for photo</p>
@@ -5252,6 +5270,12 @@ useful for detecting changes in any property/metadata of the photo</p>
 <dt class="sig sig-object py" id="osxphotos.iPhotoPhotoInfo.longitude">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">longitude</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#osxphotos.iPhotoPhotoInfo.longitude" title="Link to this definition">¶</a></dt>
 <dd><p>Longitude of photo</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.iPhotoPhotoInfo.media_analysis">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media_analysis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osxphotos.iPhotoPhotoInfo.media_analysis" title="Link to this definition">¶</a></dt>
+<dd><p>Returns media analysis results as a dictionary (Photos 5+)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -5665,6 +5689,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.adjustment_type"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.adjustment_type</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.adjustments"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.adjustments</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.adjustments_path"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.adjustments_path</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotoInfo.ai_caption"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.ai_caption</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.album_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.album_info</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.albums"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.albums</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.asdict"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.asdict()</span></code></a></li>
@@ -5720,6 +5745,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.live_photo"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.live_photo</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.location"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.location</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.longitude"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.longitude</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotoInfo.media_analysis"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.media_analysis</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.moment_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.moment_info</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.orientation"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.orientation</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.original_filename"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_filename</span></code></a></li>
@@ -6053,6 +6079,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo</span></code></a><ul>
+<li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.ai_caption"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.ai_caption</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.album_info"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.album_info</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.albums"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.albums</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.asdict"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.asdict()</span></code></a></li>
@@ -6089,6 +6116,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.latitude"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.latitude</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.location"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.location</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.longitude"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.longitude</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.media_analysis"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.media_analysis</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.moment_info"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.moment_info</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.orientation"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.orientation</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.iPhotoPhotoInfo.original_filename"><code class="docutils literal notranslate"><span class="pre">iPhotoPhotoInfo.original_filename</span></code></a></li>
@@ -6128,7 +6156,7 @@ useful for detecting changes in any property/metadata of the photo</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=f0d6823a"></script>
+</div><script src="_static/documentation_options.js?v=54ae0623"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

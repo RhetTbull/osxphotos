@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.74.1](https://github.com/RhetTbull/osxphotos/compare/v0.74.0...v0.74.1)
+
+Updates to `osxphotos inspect` and `osxphotos albums`.
+
+### 2025-11-21
+
+#### Added
+
+- Added `media_analysis` property to `PhotoInfo` which returns a dictionary of the AI analysis data produced by Photos' media analysis process.
+- Added `ai_caption` property to `PhotoInfo` which returns the AI generated caption produced by the Photos media analysis process
+- Added AI generated caption to `osxphotos inspect`
+
+#### Changed
+
+- `osxphotos albums` now prints the full path to albums contained in folders, for example, `Folder/Subfolder/Album` (#2008)
+- New option `--size` for `osxphotos albums` to sort albums by size instead of the default alphabetical
+- `osxphotos inspect --template` now adds the rendered template to the inspect output (#2010)
+
+For example, the direction the photo was taken can be added to the `inspect` output using:
+
+`osxphotos inspect -T "[bold]Direction:[/] {exiftool:EXIF:GPSImgDirection}"`
+
+#### Removed
+
+#### Fixed
+
+- Better progress details on `osxphotos import` (thanks @oPromessa)
+- `osxphotos sync --import` now creates folder structure for albums (thanks @oPromessa) (#1978)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+
 ## [v0.74.0](https://github.com/RhetTbull/osxphotos/compare/v0.73.4...v0.74.0)
 
 macOS 26.1 support

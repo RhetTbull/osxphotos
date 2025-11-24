@@ -1,5 +1,7 @@
 """Query media analysis data for photos"""
 
+from __future__ import annotations
+
 import datetime
 import json
 import logging
@@ -9,15 +11,13 @@ import plistlib
 import re
 import sqlite3
 from functools import cache
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-import click
 
-import osxphotos
-from osxphotos import PhotoInfo
-from osxphotos.cli import query_command, verbose
-from osxphotos.photos_datetime import photos_datetime_local
-from osxphotos.phototemplate import RenderOptions
+from .photos_datetime import photos_datetime_local
+
+if TYPE_CHECKING:
+    from .photoinfo import PhotoInfo
 
 logger = logging.getLogger("osxphotos")
 
@@ -61,7 +61,7 @@ def _get_media_analysis_path(photosdb_path: str | os.PathLike) -> pathlib.Path:
     )
 
 
-def _get_media_analysis_db_path(photo: osxphotos.PhotoInfo) -> pathlib.Path | None:
+def _get_media_analysis_db_path(photo: PhotoInfo) -> pathlib.Path | None:
     """Given a photo, return the correct media analysis db path"""
     try:
         return _get_media_analysis_path(photo._db.db_path)
@@ -72,12 +72,12 @@ def _get_media_analysis_db_path(photo: osxphotos.PhotoInfo) -> pathlib.Path | No
         return None
 
 
-def _local_identifier_for_photo(photo: osxphotos.PhotoInfo) -> str:
+def _local_identifier_for_photo(photo: PhotoInfo) -> str:
     """Return local identifier from photo's UUID"""
     return f"{photo.uuid}/L0/001"
 
 
-def get_media_analysis_date(photo: osxphotos.PhotoInfo) -> datetime.datetime | None:
+def get_media_analysis_date(photo: PhotoInfo) -> datetime.datetime | None:
     """Get media analysis date for a photo"""
     sql = """
     SELECT dateAnalyzed from Assets
@@ -130,7 +130,7 @@ def get_media_analysis_date(photo: osxphotos.PhotoInfo) -> datetime.datetime | N
 
 
 def _get_media_analysis_data(
-    photo: osxphotos.PhotoInfo,
+    photo: PhotoInfo,
 ) -> tuple[datetime.datetime | None, list[list[dict]]]:
     """Get media analysis data for a photo"""
 
@@ -282,7 +282,7 @@ class BytesEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def get_media_analysis_results(photo: osxphotos.PhotoInfo) -> dict[str, Any]:
+def get_media_analysis_results(photo: PhotoInfo) -> dict[str, Any]:
     """Get media analysis results dictionary for a photo"""
     date_analyzed, results = _get_media_analysis_data(photo)
     results_dict = _media_analysis_result_to_dict(results)
@@ -306,47 +306,3 @@ def media_analysis_results_to_json(
     """Convert media analysis results or list of results to JSON str"""
     json_str = json.dumps(results, indent=indent, cls=BytesEncoder)
     return json_str
-
-
-@query_command
-@click.option(
-    "--json", "-j", "json_option", is_flag=True, help="Output results in JSON format"
-)
-def media_analysis(photos: list[osxphotos.PhotoInfo], json_option: bool, **kwargs):
-    """Sample query command for osxphotos. Prints out the filename and date of each photo.
-
-    Whatever text you put in the function's docstring here, will be used as the command's
-    help text when run via `osxphotos run cli_example_1.py --help` or `python cli_example_1.py --help`
-    """
-    all_results = []
-    for photo in photos:
-        results = get_media_analysis_results(photo)
-        if json_option:
-            all_results.append(results)
-        else:
-            caption = get_caption(results)
-            print(f"{photo.original_filename}, {photo.uuid}, {caption}")
-    if json_option:
-        print(media_analysis_results_to_json(all_results))
-
-
-def caption(
-    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
-) -> list[str] | str:
-    """Template function for {function} template; returns media analysis caption
-
-    Args:
-        photo: osxphotos.PhotoInfo object
-        options: osxphotos.phototemplate.RenderOptions object
-        args: optional str of arguments passed to template function
-        **kwargs: not currently used, placeholder to keep functions compatible with possible changes to {function}
-
-    Returns:
-        str or list of str of values that should be substituted for the {function} template
-    """
-    results = get_media_analysis_results(photo)
-    return get_caption(results) or ""
-
-
-if __name__ == "__main__":
-    media_analysis()
