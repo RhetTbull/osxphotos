@@ -1,6 +1,7 @@
 """FileUtil class with methods for copy, hardlink, unlink, etc."""
 
 import datetime
+import enum
 import fcntl
 import logging
 import os
@@ -19,7 +20,24 @@ from .unicode import normalize_fs_path
 if is_macos:
     import Foundation
 
-__all__ = ["FileUtilABC", "FileUtilMacOS", "FileUtilShUtil", "FileUtil", "FileUtilNoOp"]
+
+class FileDateType(enum.IntFlag):
+    """Bitfield flags for file date types"""
+
+    CREATION = 1
+    MODIFICATION = 2
+    ACCESS = 4
+
+
+__all__ = [
+    "FileUtilABC",
+    "FileUtilMacOS",
+    "FileUtilShUtil",
+    "FileUtil",
+    "FileUtilNoOp",
+    "FileDateType",
+    "set_file_dates",
+]
 
 logger = logging.getLogger("osxphotos")
 
@@ -48,30 +66,40 @@ def utime_macos(path, times):
                     pass
 
 
-def set_file_creation_date(
-    file_path: pathlib.Path | os.PathLike, creation_date: datetime.datetime
+def set_file_dates(
+    file_path: pathlib.Path | os.PathLike,
+    date: datetime.datetime,
+    date_type: FileDateType = FileDateType.CREATION,
 ):
     """
-    Sets the creation date of a file to the specified date
+    Sets the specified date(s) of a file to the given datetime
 
     Args:
         file_path: The file system path to the file
-        creation_date: The datetime to set as the new creation date
+        date: The datetime to set for the specified date type(s)
+        date_type: Bitfield flag(s) specifying which date(s) to set
+                   (FileDateType.CREATION, FileDateType.MODIFICATION, FileDateType.ACCESS)
+                   Can be combined using bitwise OR: FileDateType.CREATION | FileDateType.MODIFICATION
 
     Returns:
         bool: True if successful, False if an error occurred
 
     Raises:
-        ValueError if invalid arguments
+        ValueError: if invalid arguments
         FileNotFoundError: if path is not found
     """
     if not is_macos:
         logger.warning("Only valid on macOS")
         return False
 
-    if not file_path or not creation_date:
+    if not file_path or not date:
         raise ValueError(
-            "Error: Invalid parameters - file_path and creation_date cannot be None"
+            "Error: Invalid parameters - file_path and date cannot be None"
+        )
+
+    if not isinstance(date_type, FileDateType):
+        raise ValueError(
+            f"Error: Invalid date_type - must be FileDateType, got {type(date_type)}"
         )
 
     file_url = Foundation.NSURL.fileURLWithPath_(str(file_path))
@@ -81,19 +109,26 @@ def set_file_creation_date(
             f"Error: File does not exist at path: {file_path}: {error}"
         )
 
-    ns_date = Foundation.NSDate.dateWithTimeIntervalSince1970_(
-        creation_date.timestamp()
-    )
-    success, error = file_url.setResourceValue_forKey_error_(
-        ns_date, Foundation.NSURLCreationDateKey, None
-    )
+    ns_date = Foundation.NSDate.dateWithTimeIntervalSince1970_(date.timestamp())
 
-    if not success:
-        error_msg = error.localizedDescription() if error else "Unknown error"
-        logger.warning(f"Error setting creation date: {error_msg}")
-        return False
+    # Map date type flags to Foundation keys
+    date_key_map = {
+        FileDateType.CREATION: Foundation.NSURLCreationDateKey,
+        FileDateType.MODIFICATION: Foundation.NSURLContentModificationDateKey,
+        FileDateType.ACCESS: Foundation.NSURLContentAccessDateKey,
+    }
 
-    return True
+    # Set each requested date type
+    all_success = True
+    for flag, key in date_key_map.items():
+        if date_type & flag:
+            success, error = file_url.setResourceValue_forKey_error_(ns_date, key, None)
+            if not success:
+                error_msg = error.localizedDescription() if error else "Unknown error"
+                logger.warning(f"Error setting {flag.name.lower()} date: {error_msg}")
+                all_success = False
+
+    return all_success
 
 
 class FileUtilABC(ABC):
