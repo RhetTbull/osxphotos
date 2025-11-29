@@ -1,6 +1,8 @@
 """FileUtil class with methods for copy, hardlink, unlink, etc."""
 
+import datetime
 import fcntl
+import logging
 import os
 import pathlib
 import shutil
@@ -19,9 +21,11 @@ if is_macos:
 
 __all__ = ["FileUtilABC", "FileUtilMacOS", "FileUtilShUtil", "FileUtil", "FileUtilNoOp"]
 
+logger = logging.getLogger("osxphotos")
+
 
 def utime_macos(path, times):
-    """Adjust file access and modified time on macOS, uses F_NOCACHE to prevent filesystem cache interference"""
+    """Adjust file access, modified time, and creation time on macOS, uses F_NOCACHE to prevent filesystem cache interference"""
 
     fd = None
     try:
@@ -42,6 +46,54 @@ def utime_macos(path, times):
                     os.close(fd)
                 except:
                     pass
+
+
+def set_file_creation_date(
+    file_path: pathlib.Path | os.PathLike, creation_date: datetime.datetime
+):
+    """
+    Sets the creation date of a file to the specified date
+
+    Args:
+        file_path: The file system path to the file
+        creation_date: The datetime to set as the new creation date
+
+    Returns:
+        bool: True if successful, False if an error occurred
+
+    Raises:
+        ValueError if invalid arguments
+        FileNotFoundError: if path is not found
+    """
+    if not is_macos:
+        logger.warning("Only valid on macOS")
+        return False
+
+    if not file_path or not creation_date:
+        raise ValueError(
+            "Error: Invalid parameters - file_path and creation_date cannot be None"
+        )
+
+    file_url = Foundation.NSURL.fileURLWithPath_(str(file_path))
+    exists, error = file_url.checkResourceIsReachableAndReturnError_(None)
+    if not exists:
+        raise FileNotFoundError(
+            f"Error: File does not exist at path: {file_path}: {error}"
+        )
+
+    ns_date = Foundation.NSDate.dateWithTimeIntervalSince1970_(
+        creation_date.timestamp()
+    )
+    success, error = file_url.setResourceValue_forKey_error_(
+        ns_date, Foundation.NSURLCreationDateKey, None
+    )
+
+    if not success:
+        error_msg = error.localizedDescription() if error else "Unknown error"
+        logger.warning(f"Error setting creation date: {error_msg}")
+        return False
+
+    return True
 
 
 class FileUtilABC(ABC):
