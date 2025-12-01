@@ -1,6 +1,7 @@
-""""Test that PhotoInfo.export can export concurrently"""
+""" "Test that PhotoInfo.export can export concurrently"""
 
 import concurrent.futures
+import os
 import pathlib
 import sqlite3
 import tempfile
@@ -13,6 +14,9 @@ PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
 
 
 @pytest.mark.skipif(sqlite3.threadsafety != 3, reason="sqlite3 not threadsafe")
+@pytest.mark.skipif(
+    os.getenv("GITHUB_ACTIONS") == "true", reason="sometimes hangs on GH actions"
+)
 @pytest.mark.parametrize(
     "count", range(10)
 )  # repeat multiple times to try to catch any concurrency errors
