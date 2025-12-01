@@ -42,41 +42,36 @@ __all__ = [
 logger = logging.getLogger("osxphotos")
 
 
-def utime_macos(path, times):
-    """Adjust file access, modified time, and creation time on macOS, uses F_NOCACHE to prevent filesystem cache interference"""
+def utime_macos(path: os.PathLike, times: tuple[int, int]) -> bool:
+    """Adjust file access, modified time, and creation time on macOS
 
-    fd = None
-    try:
-        # Open file and set F_NOCACHE to prevent filesystem cache interference
-        fd = os.open(path, os.O_RDONLY)
-        fcntl.fcntl(fd, fcntl.F_NOCACHE, 1)
+    Args:
+        path: The file system path to the file
+        times: A tuple of two integers representing the access and modification times in seconds since the epoch
 
-        os.utime(path, times)
-        return True
-    finally:
-        if fd is not None:
-            try:
-                # Clear F_NOCACHE flag before closing
-                fcntl.fcntl(fd, fcntl.F_NOCACHE, 0)
-                os.close(fd)
-            except:
-                try:
-                    os.close(fd)
-                except:
-                    pass
+    Returns:
+        bool: True if successful, False if an error occurred
+
+    Note:
+        The file access, modification, and creation date/time will all be set to the modification time passed inZ
+    """
+    dt = datetime.datetime.fromtimestamp(times[1])
+    return set_file_dates(path, dt)
 
 
 def set_file_dates(
     file_path: pathlib.Path | os.PathLike,
     date: datetime.datetime,
-    date_type: FileDateType = FileDateType.CREATION,
+    date_type: FileDateType = FileDateType.CREATION
+    | FileDateType.MODIFICATION
+    | FileDateType.ACCESS,
 ):
     """
     Sets the specified date(s) of a file to the given datetime
 
     Args:
         file_path: The file system path to the file
-        date: The datetime to set for the specified date type(s)
+        date: The datetime to set for the specified date type(s) (default is to set all file date types)
         date_type: Bitfield flag(s) specifying which date(s) to set
                    (FileDateType.CREATION, FileDateType.MODIFICATION, FileDateType.ACCESS)
                    Can be combined using bitwise OR: FileDateType.CREATION | FileDateType.MODIFICATION
