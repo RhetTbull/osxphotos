@@ -77,7 +77,7 @@ case $choice in
         echo "NOTE: These tests require interaction with Photos and configuring a specific test library."
         echo "Only one interactive test can be run at a time."
         cleanup_photos
-        python -m pytest -vv --test-import-takeout tests/test_cli_import.py
+        python -m pytest -vv --test-import-takeout tests/test_cli_import_takeout.py
         ;;
     7)
         echo "Running sync tests..."

@@ -68,6 +68,7 @@ from osxphotos.photokit_utils import wait_for_photokit_authorization
 from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos
+from osxphotos.sidecars import UserSidecarError
 from osxphotos.unicode import normalize_fs_path
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
@@ -129,7 +130,6 @@ from .param_types import (
 )
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
-from .sidecar import generate_user_sidecar
 from .verbose import get_verbose_console, verbose_print
 
 if TYPE_CHECKING:
@@ -1559,10 +1559,10 @@ def export_cli(
     dependent_options = [
         ("append", ("report")),
         ("checkpoint", ("ramdb")),
-        ("exiftool_merge_keywords", ("exiftool", "sidecar")),
-        ("exiftool_merge_persons", ("exiftool", "sidecar")),
+        ("exiftool_merge_keywords", ("exiftool", "sidecar", "sidecar_template")),
+        ("exiftool_merge_persons", ("exiftool", "sidecar", "sidecar_template")),
         ("exiftool_option", ("exiftool")),
-        ("favorite_rating", ("exiftool", "sidecar")),
+        ("favorite_rating", ("exiftool", "sidecar", "sidecar_template")),
         ("ignore_signature", ("update", "force_update")),
         ("jpeg_quality", ("convert_to_jpeg")),
         ("keep", ("cleanup")),
@@ -1921,18 +1921,6 @@ def export_cli(
                 kwargs["photo_num"] = photo_num
                 export_results = export_photo(**kwargs)
 
-                # generate custom sidecars if needed
-                if sidecar_template:
-                    export_results += generate_user_sidecar(
-                        photo=p,
-                        export_results=export_results,
-                        sidecar_template=sidecar_template,
-                        exiftool_path=exiftool_path,
-                        export_dir=dest,
-                        dry_run=dry_run,
-                        verbose=verbose,
-                    )
-
                 # run post functions
                 if run_results := run_post_function(
                     photo=p,
@@ -2203,6 +2191,7 @@ def export_photo(
     export_aae=None,
     sidecar=None,
     sidecar_drop_ext=False,
+    sidecar_template=None,
     update=None,
     force_update=None,
     ignore_signature=None,
@@ -2216,6 +2205,7 @@ def export_photo(
     exiftool=None,
     exiftool_merge_keywords=False,
     exiftool_merge_persons=False,
+    exiftool_path=None,
     directory=None,
     favorite_rating=False,
     filename_template=None,
@@ -2436,6 +2426,7 @@ def export_photo(
                 exiftool_merge_keywords=exiftool_merge_keywords,
                 exiftool_merge_persons=exiftool_merge_persons,
                 exiftool_option=exiftool_option,
+                exiftool_path=exiftool_path,
                 exiftool=exiftool,
                 export_as_hardlink=export_as_hardlink,
                 export_db=export_db,
@@ -2464,6 +2455,7 @@ def export_photo(
                 export_aae=export_aae,
                 sidecar_drop_ext=sidecar_drop_ext,
                 sidecar_flags=sidecar_flags,
+                sidecar_template=sidecar_template,
                 touch_file=touch_file,
                 update=update,
                 update_errors=update_errors,
@@ -2556,6 +2548,7 @@ def export_photo(
                     exiftool_merge_keywords=exiftool_merge_keywords,
                     exiftool_merge_persons=exiftool_merge_persons,
                     exiftool_option=exiftool_option,
+                    exiftool_path=exiftool_path,
                     exiftool=exiftool,
                     export_as_hardlink=export_as_hardlink,
                     export_db=export_db,
@@ -2584,6 +2577,7 @@ def export_photo(
                     export_aae=export_aae,
                     sidecar_drop_ext=sidecar_drop_ext,
                     sidecar_flags=sidecar_flags,
+                    sidecar_template=sidecar_template,
                     touch_file=touch_file,
                     update=update,
                     update_errors=update_errors,
@@ -2645,6 +2639,7 @@ def export_photo_to_directory(
     exiftool_merge_keywords,
     exiftool_merge_persons,
     exiftool_option,
+    exiftool_path,
     exiftool,
     export_as_hardlink,
     export_db,
@@ -2673,6 +2668,7 @@ def export_photo_to_directory(
     export_aae,
     sidecar_drop_ext,
     sidecar_flags,
+    sidecar_template,
     touch_file,
     update,
     update_errors,
@@ -2716,6 +2712,7 @@ def export_photo_to_directory(
                 edited=edited,
                 exiftool=exiftool,
                 exiftool_flags=exiftool_option,
+                exiftool_path=exiftool_path,
                 export_as_hardlink=export_as_hardlink,
                 export_db=export_db,
                 favorite_rating=favorite_rating,
@@ -2739,6 +2736,7 @@ def export_photo_to_directory(
                 export_aae=export_aae,
                 sidecar=sidecar_flags,
                 sidecar_drop_ext=sidecar_drop_ext,
+                sidecar_template=sidecar_template,
                 tmpdir=tmpdir,
                 touch_file=touch_file,
                 update=update,
@@ -2775,8 +2773,8 @@ def export_photo_to_directory(
                     f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])"
                 )
         except Exception as e:
-            if is_debug():
-                # if debug mode, don't swallow the exceptions
+            if is_debug() or isinstance(e, UserSidecarError):
+                # if debug mode or user didn't specify catch_errors, don't swallow the exceptions
                 raise e
             rich_echo(
                 f"[error]Error exporting photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename]) as [filepath]{filename}[/filepath]: {e}",

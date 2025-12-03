@@ -27,6 +27,7 @@ class ExportOptions:
         dry_run: (bool, default=False): set to True to run in "dry run" mode
         edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
         exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
+        exiftool_path (str): path to exiftool executable
         exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
         export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
         export_db: (ExportDB): instance of a class that conforms to ExportDB with methods for getting/setting data related to exported files to compare update state
@@ -72,6 +73,7 @@ class ExportOptions:
         tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory
         favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
         fix_orientation (bool): if True, will adjust image orientation based on exif data if necessary
+        sidecar_template (tuple of tuples): tuple of (template_file, filename_template, options) for user sidecar templates; multiple templates may be specified
 
     """
 
@@ -81,6 +83,7 @@ class ExportOptions:
     dry_run: bool = False
     edited: bool = False
     exiftool_flags: Optional[list[str]] = None
+    exiftool_path: Optional[str] = None
     exiftool: bool = False
     export_as_hardlink: bool = False
     export_db: Optional[ExportDB] = None
@@ -121,6 +124,7 @@ class ExportOptions:
     tmpdir: Optional[str] = None
     favorite_rating: bool = False
     fix_orientation: bool = False
+    sidecar_template: Optional[tuple[tuple[str, str, tuple[str, ...]], ...]] = None
 
     def asdict(self):
         return dataclasses.asdict(self)

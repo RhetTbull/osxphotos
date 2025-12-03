@@ -399,7 +399,9 @@ class PhotoExporter:
                 all_results += ExportResults(missing=[aae_name])
 
         sidecar_writer = SidecarWriter(self.photo)
-        all_results += sidecar_writer.write_sidecar_files(dest=dest, options=options)
+        all_results += sidecar_writer.write_sidecar_files(
+            dest=dest, options=options, export_results=all_results
+        )
 
         # write history record for any missing files
         # for any exported, skipped, updated files,

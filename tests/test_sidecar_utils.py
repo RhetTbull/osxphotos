@@ -2,7 +2,7 @@
 
 import pytest
 
-from osxphotos.cli.sidecar import get_sidecar_file_with_template
+from osxphotos.sidecars import get_sidecar_file_with_template
 
 # test data; the first file in the list is the photo file for which a template should be generated
 

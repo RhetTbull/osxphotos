@@ -592,3 +592,139 @@ def test_export_sidecar_template_catch_error():
             ],
         )
         assert result.exit_code == 0
+
+
+def test_export_sidecar_template_xmp_compare():
+    """test that user sidecar template with xmp_sidecar.mako produces same output as --sidecar xmp"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # Export with --sidecar xmp
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar",
+                "xmp",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # Read the XMP sidecar
+        xmp_file = pathlib.Path("wedding.jpg.xmp")
+        assert xmp_file.exists()
+        xmp_content = xmp_file.read_text()
+
+        # Remove the XMP sidecar and photo
+        xmp_file.unlink()
+        pathlib.Path("wedding.jpg").unlink()
+
+        # Export with --sidecar-template using xmp_sidecar.mako
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--overwrite",
+                "--ignore-exportdb",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar-template",
+                os.path.join(cwd, "osxphotos", "templates", "xmp_sidecar.mako"),
+                "{filepath}.xmp",
+                "strip_lines",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # Read the user sidecar
+        user_xmp_file = pathlib.Path("wedding.jpg.xmp")
+        assert user_xmp_file.exists()
+        user_xmp_content = user_xmp_file.read_text()
+
+        # Compare the two XMP files - they should be identical
+        assert xmp_content == user_xmp_content
+
+
+def test_export_sidecar_template_xmp_compare_with_options():
+    """test that user sidecar template with xmp_sidecar.mako and options produces same output as --sidecar xmp with options"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # Export with --sidecar xmp and various options
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar",
+                "xmp",
+                "--description-template",
+                "Description:{descr,}",
+                "--favorite-rating",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # Read the XMP sidecar
+        xmp_file = pathlib.Path("wedding.jpg.xmp")
+        assert xmp_file.exists()
+        xmp_content = xmp_file.read_text()
+
+        # Verify that the XMP has the expected content based on photo properties
+        # title: null, description: Bride Wedding day, favorite: true
+        # keywords: Maria, wedding, persons: Maria
+        assert (
+            "<rdf:li xml:lang='x-default'>Description:Bride Wedding day</rdf:li>"
+            in xmp_content
+        )
+        assert "<xmp:Rating>5</xmp:Rating>" in xmp_content
+        assert "<rdf:li>Maria</rdf:li>" in xmp_content
+
+        # Remove the XMP sidecar and photo
+        xmp_file.unlink()
+        pathlib.Path("wedding.jpg").unlink()
+
+        # Export with --sidecar-template using xmp_sidecar.mako and same options
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB),
+                ".",
+                "-V",
+                "--overwrite",
+                "--ignore-exportdb",
+                "--uuid",
+                PHOTO_UUID,
+                "--sidecar-template",
+                os.path.join(cwd, "osxphotos", "templates", "xmp_sidecar.mako"),
+                "{filepath}.xmp",
+                "strip_lines",
+                "--description-template",
+                "Description:{descr,}",
+                "--favorite-rating",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # Read the user sidecar
+        user_xmp_file = pathlib.Path("wedding.jpg.xmp")
+        assert user_xmp_file.exists()
+        user_xmp_content = user_xmp_file.read_text()
+
+        # Compare the two XMP files - they should be identical
+        assert xmp_content == user_xmp_content

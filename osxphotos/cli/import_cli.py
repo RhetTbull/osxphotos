@@ -66,7 +66,6 @@ from osxphotos.cli.cli_params import TIMESTAMP_OPTION, VERBOSE_OPTION
 from osxphotos.cli.common import get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.cli.param_types import FunctionCall, StrpDateTimePattern, TemplateString
-from osxphotos.cli.sidecar import get_sidecar_file_with_template
 from osxphotos.cli.signaturequery import SignatureQuery
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db_utils import export_db_get_photoinfo_for_filepath
@@ -97,6 +96,7 @@ from osxphotos.photoinfo_file import (
 )
 from osxphotos.photosalbum import PhotosAlbumPhotoScript, PhotosAlbumPhotoScriptByPath
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.sidecars import get_sidecar_file_with_template
 from osxphotos.sqlite_utils import sqlite_columns
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.timezones import Timezone
@@ -1273,7 +1273,7 @@ def import_cli(
     skipped_str = f", [num]{skipped_count}[/] skipped" if resume or skip_dups else ""
     # Notify if import did not process all file groups, e.g. --stop-on-error threshold breached
     not_processed = (
-        len(files_to_import)    # groupcount
+        len(files_to_import)  # groupcount
         - imported_count
         - error_count
         - skipped_count
@@ -2713,9 +2713,7 @@ def group_files_to_import(
     files_by_parent = {}
     count = len(files)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
-        task = progress.add_task(
-            "Grouping files by parent directory...", total=count
-        )
+        task = progress.add_task("Grouping files by parent directory...", total=count)
         if not get_verbose_console().is_terminal:
             verbose(
                 f"Grouping files by parent directory... {count} {pluralize(count, 'file', 'files')}"
@@ -2729,7 +2727,7 @@ def group_files_to_import(
 
     # walk through each parent directory and group files by same stem
     grouped_files = []
-    count=sum(len(files) for files in files_by_parent.values())
+    count = sum(len(files) for files in files_by_parent.values())
     with rich_progress(
         *Progress.get_default_columns(),
         "Elapsed:",
