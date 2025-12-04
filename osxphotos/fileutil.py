@@ -42,6 +42,44 @@ __all__ = [
 logger = logging.getLogger("osxphotos")
 
 
+def utime_no_cache(path: os.PathLike, times: tuple[int, int]) -> bool:
+    """Set file modification and access times with filesystem caching disabled
+
+    Args:
+        path: The file system path to the file
+        times: A tuple of two integers representing the access and modification times in seconds since the epoch
+
+    Returns:
+        bool: True if successful, False if an error occurred
+
+    Note:
+        The file access, modification will all be set to the modification time passed in.
+        This method is required for some network-attached storage which does not preserve utime results
+        if caching is not disabled.
+    """
+    fd = None
+    try:
+        # Open file and set F_NOCACHE to prevent filesystem cache interference
+        fd = os.open(path, os.O_RDONLY)
+        fcntl.fcntl(fd, fcntl.F_NOCACHE, 1)
+        os.utime(path, times)
+        return True
+    except Exception as e:
+        logger.warning(f"Could not set utime for file {path}: {e}")
+        return False
+    finally:
+        if fd is not None:
+            try:
+                # Clear F_NOCACHE flag before closing
+                fcntl.fcntl(fd, fcntl.F_NOCACHE, 0)
+                os.close(fd)
+            except:
+                try:
+                    os.close(fd)
+                except:
+                    pass
+
+
 def utime_macos(path: os.PathLike, times: tuple[int, int]) -> bool:
     """Adjust file access, modified time, and creation time on macOS
 
@@ -56,7 +94,11 @@ def utime_macos(path: os.PathLike, times: tuple[int, int]) -> bool:
         The file access, modification, and creation date/time will all be set to the modification time passed inZ
     """
     dt = datetime.datetime.fromtimestamp(times[1])
-    return set_file_dates(path, dt)
+    # set access/modification via utime for NAS devices
+    if not utime_no_cache(path, times):
+        return False
+    # set creation date with native macOS calls
+    return set_file_dates(path, dt, FileDateType.CREATION)
 
 
 def set_file_dates(
@@ -425,7 +467,7 @@ class FileUtilShUtil(FileUtilMacOS):
         if is_macos:
             utime_macos(path, times)
         else:
-            os.utime(path, times)
+            utime_no_cache(path, times)
 
 
 class FileUtil(FileUtilShUtil):
