@@ -1,6 +1,8 @@
 """FileUtil class with methods for copy, hardlink, unlink, etc."""
 
 import errno
+import datetime
+import enum
 import fcntl
 import logging
 import os
@@ -154,7 +156,152 @@ def open_alias_script(retry_state: RetryCallState) -> int | None:
 if is_macos:
     import Foundation
 
-__all__ = ["FileUtilABC", "FileUtilMacOS", "FileUtilShUtil", "FileUtil", "FileUtilNoOp"]
+
+class FileDateType(enum.IntFlag):
+    """Bitfield flags for file date types"""
+
+    CREATION = 1
+    MODIFICATION = 2
+    ACCESS = 4
+
+
+__all__ = [
+    "FileUtilABC",
+    "FileUtilMacOS",
+    "FileUtilShUtil",
+    "FileUtil",
+    "FileUtilNoOp",
+    "FileDateType",
+    "set_file_dates",
+]
+
+logger = logging.getLogger("osxphotos")
+
+
+def utime_no_cache(path: os.PathLike, times: tuple[int, int]) -> bool:
+    """Set file modification and access times with filesystem caching disabled
+
+    Args:
+        path: The file system path to the file
+        times: A tuple of two integers representing the access and modification times in seconds since the epoch
+
+    Returns:
+        bool: True if successful, False if an error occurred
+
+    Note:
+        The file access, modification will all be set to the modification time passed in.
+        This method is required for some network-attached storage which does not preserve utime results
+        if caching is not disabled.
+    """
+    fd = None
+    try:
+        # Open file and set F_NOCACHE to prevent filesystem cache interference
+        fd = os.open(path, os.O_RDONLY)
+        fcntl.fcntl(fd, fcntl.F_NOCACHE, 1)
+        os.utime(path, times)
+        return True
+    except Exception as e:
+        logger.warning(f"Could not set utime for file {path}: {e}")
+        return False
+    finally:
+        if fd is not None:
+            try:
+                # Clear F_NOCACHE flag before closing
+                fcntl.fcntl(fd, fcntl.F_NOCACHE, 0)
+                os.close(fd)
+            except:
+                try:
+                    os.close(fd)
+                except:
+                    pass
+
+
+def utime_macos(path: os.PathLike, times: tuple[int, int]) -> bool:
+    """Adjust file access, modified time, and creation time on macOS
+
+    Args:
+        path: The file system path to the file
+        times: A tuple of two integers representing the access and modification times in seconds since the epoch
+
+    Returns:
+        bool: True if successful, False if an error occurred
+
+    Note:
+        The file access, modification, and creation date/time will all be set to the modification time passed inZ
+    """
+    dt = datetime.datetime.fromtimestamp(times[1])
+    # set access/modification via utime for NAS devices
+    if not utime_no_cache(path, times):
+        return False
+    # set creation date with native macOS calls
+    return set_file_dates(path, dt, FileDateType.CREATION)
+
+
+def set_file_dates(
+    file_path: pathlib.Path | os.PathLike,
+    date: datetime.datetime,
+    date_type: FileDateType = FileDateType.CREATION
+    | FileDateType.MODIFICATION
+    | FileDateType.ACCESS,
+):
+    """
+    Sets the specified date(s) of a file to the given datetime
+
+    Args:
+        file_path: The file system path to the file
+        date: The datetime to set for the specified date type(s) (default is to set all file date types)
+        date_type: Bitfield flag(s) specifying which date(s) to set
+                   (FileDateType.CREATION, FileDateType.MODIFICATION, FileDateType.ACCESS)
+                   Can be combined using bitwise OR: FileDateType.CREATION | FileDateType.MODIFICATION
+
+    Returns:
+        bool: True if successful, False if an error occurred
+
+    Raises:
+        ValueError: if invalid arguments
+        FileNotFoundError: if path is not found
+    """
+    if not is_macos:
+        logger.warning("Only valid on macOS")
+        return False
+
+    if not file_path or not date:
+        raise ValueError(
+            "Error: Invalid parameters - file_path and date cannot be None"
+        )
+
+    if not isinstance(date_type, FileDateType):
+        raise ValueError(
+            f"Error: Invalid date_type - must be FileDateType, got {type(date_type)}"
+        )
+
+    file_url = Foundation.NSURL.fileURLWithPath_(str(file_path))
+    exists, error = file_url.checkResourceIsReachableAndReturnError_(None)
+    if not exists:
+        raise FileNotFoundError(
+            f"Error: File does not exist at path: {file_path}: {error}"
+        )
+
+    ns_date = Foundation.NSDate.dateWithTimeIntervalSince1970_(date.timestamp())
+
+    # Map date type flags to Foundation keys
+    date_key_map = {
+        FileDateType.CREATION: Foundation.NSURLCreationDateKey,
+        FileDateType.MODIFICATION: Foundation.NSURLContentModificationDateKey,
+        FileDateType.ACCESS: Foundation.NSURLContentAccessDateKey,
+    }
+
+    # Set each requested date type
+    all_success = True
+    for flag, key in date_key_map.items():
+        if date_type & flag:
+            success, error = file_url.setResourceValue_forKey_error_(ns_date, key, None)
+            if not success:
+                error_msg = error.localizedDescription() if error else "Unknown error"
+                logger.warning(f"Error setting {flag.name.lower()} date: {error_msg}")
+                all_success = False
+
+    return all_success
 
 
 class FileUtilABC(ABC):
@@ -324,26 +471,7 @@ class FileUtilMacOS(FileUtilABC):
     def utime(cls, path, times):
         """Set the access and modified time of path."""
         path = normalize_fs_path(path)
-
-        fd = None
-        try:
-            # Open file and set F_NOCACHE to prevent filesystem cache interference
-            fd = os.open(path, os.O_RDONLY)
-            fcntl.fcntl(fd, fcntl.F_NOCACHE, 1)
-
-            os.utime(path, times)
-            return True
-        finally:
-            if fd is not None:
-                try:
-                    # Clear F_NOCACHE flag before closing
-                    fcntl.fcntl(fd, fcntl.F_NOCACHE, 0)
-                    os.close(fd)
-                except:
-                    try:
-                        os.close(fd)
-                    except:
-                        pass
+        utime_macos(path, times)
 
     @classmethod
     def cmp(cls, f1, f2, mtime1=None):
@@ -503,7 +631,10 @@ class FileUtilShUtil(FileUtilMacOS):
     def utime(cls, path, times):
         """Set the access and modified time of path."""
         path = normalize_fs_path(path)
-        os.utime(path, times)
+        if is_macos:
+            utime_macos(path, times)
+        else:
+            utime_no_cache(path, times)
 
 
 class FileUtil(FileUtilShUtil):
