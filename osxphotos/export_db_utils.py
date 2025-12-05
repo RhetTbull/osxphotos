@@ -1,4 +1,4 @@
-""" Utility functions for working with export_db """
+"""Utility functions for working with export_db"""
 
 from __future__ import annotations
 
@@ -21,9 +21,10 @@ from ._constants import OSXPHOTOS_EXPORT_DB, SQLITE_CHECK_SAME_THREAD
 from ._version import __version__
 from .configoptions import ConfigOptions
 from .export_db import ExportDB
-from .fileutil import FileUtil
+from .fileutil import FileUtil, FileUtilMacOS
 from .photo_signature import photo_signature
 from .photosdb import PhotosDB
+from .platform import is_macos
 from .utils import hexdigest, noop
 
 __all__ = [
@@ -328,7 +329,8 @@ def export_db_touch_files(
         )
 
         if not dry_run:
-            os.utime(str(filepath), (ts, ts))
+            fileutil = FileUtilMacOS if is_macos else FileUtil
+            fileutil.utime(filepath, (ts, ts))
             rec = exportdb.get_file_record(filepath)
             rec.dest_sig = (dest_mode, dest_size, ts)
 

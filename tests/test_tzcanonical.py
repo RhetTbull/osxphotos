@@ -361,7 +361,7 @@ def test_candidates_known_abbrev():
 def test_candidates_unknown_abbrev():
     """Test getting candidates for unknown abbreviation"""
     index = AbbrevIndex()
-    candidates = index.candidates("ZZZZZ")
+    candidates = index.candidates("XXXXX")
     assert len(candidates) == 0
 
 
