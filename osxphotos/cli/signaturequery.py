@@ -4,9 +4,9 @@ import datetime
 import os
 import pathlib
 
-from osxphotos.cli.sidecar import get_sidecar_file_with_template
 from osxphotos.photoinfo_file import PhotoInfoFromFile
 from osxphotos.photosdb import PhotosDB
+from osxphotos.sidecars import get_sidecar_file_with_template
 
 
 class SignatureQuery:
