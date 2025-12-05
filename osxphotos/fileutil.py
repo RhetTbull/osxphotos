@@ -33,32 +33,42 @@ from .unicode import normalize_fs_path
 # logger
 logger = logging.getLogger(__name__)
 
-# stores import status so imports can be resumed
+# exporting to NAS SMB drive, Finder alias used to force macOS to re-mount in case of error
 NAS_EXPORT_ALIAS = (
-    "/Users/MSP/Documents/GitHub/Export/export/working/nas_export_alias.alias"
+    "nas_export_alias.alias"
 )
 
-# Global configuration — PhotosLibrary can change these
+# retry configuration for all fileutil operations
 RETRY_FILEUTIL_CONFIG = {
-    "retry_enabled": True,  # TODO Make it an option
-    "retries": 3,  # TODO Make it an option
+    "retry_enabled": False,
+    "retries": 3,  # TODO use --retry parameter
     "wait_seconds": 10,  # TODO Make it an option
-    "nas_export_alias": NAS_EXPORT_ALIAS,  # Make it an argument
+    "nas_export_alias": NAS_EXPORT_ALIAS,
 }
 
 
-def configure_fileutil_run(
-    retry_enabled=None,
-    retries=None,
-    wait_seconds=None,
-    nas_export_alias="nas_export_alias.alias",
+def cfg_fileutil_retry(
+    retry_enabled: bool | None = None,
+    retries: int | None = None,
+    wait_seconds: int | None = None,
+    nas_export_alias: str | None = None,
 ):
-    """Change global retry behavior for FileUtil."""
+    """Change global retry behavior for FileUtil.
+
+    Args:
+        retry_enabled (bool | None): Enable or disable retry logic. If None, leaves current setting unchanged.
+        retries (int | None): Number of retry attempts. If None, leaves current setting unchanged.
+        wait_seconds (int | None): Seconds to wait between retries. If None or non-positive, leaves current setting unchanged.
+        nas_export_alias (str | None): Path to Finder alias used to re-mount NAS on SMB errors. If None, leaves current setting unchanged.
+
+    Returns:
+        None: Modifies the module-level RETRY_FILEUTIL_CONFIG in place.
+    """
     if retry_enabled is not None:
         RETRY_FILEUTIL_CONFIG["retry_enabled"] = retry_enabled
     if retries is not None:
         RETRY_FILEUTIL_CONFIG["retries"] = retries
-    if wait_seconds is not None:
+    if wait_seconds is not None and wait_seconds > 0:
         RETRY_FILEUTIL_CONFIG["wait_seconds"] = wait_seconds
     if nas_export_alias is not None:
         RETRY_FILEUTIL_CONFIG["nas_export_alias"] = nas_export_alias
@@ -134,7 +144,7 @@ def open_alias_script(retry_state: RetryCallState) -> int | None:
         RETRY_FILEUTIL_CONFIG["nas_export_alias"],
     )
 
-    if not is_macos:
+    if not is_macos or RETRY_FILEUTIL_CONFIG["nas_export_alias"] == "":
         return None
 
     script = f"""

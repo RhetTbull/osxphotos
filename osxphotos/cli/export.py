@@ -60,7 +60,7 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifWriter, exif_options_from_options
 from osxphotos.export_db import ExportDB, ExportDBInMemory, ExportDBTemp
 from osxphotos.exportoptions import ExportOptions, ExportResults
-from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
+from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil, cfg_fileutil_retry
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
@@ -219,7 +219,21 @@ if TYPE_CHECKING:
     "--retry",
     metavar="RETRY",
     type=click.INT,
-    help="Automatically retry export up to RETRY times if an error occurs during export.  This may be useful with network drives that experience intermittent errors.",
+    help="Automatically retry export (and file operations) up to RETRY times if an error occurs "
+    "during export. This may be useful with network drives that experience intermittent errors. "
+    "See also option --retry-nas-alias.",
+)
+@click.option(
+    "--retry-nas-alias",
+    # type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
+    metavar="NAS.ALIAS",
+    default="nas_export_alias.alias",
+    multiple=False,
+    help="Alias filename to the SMB export destination folder to be used with --retry to force "
+    " macOs to re-mount the SMB export folder in case of loss of connection. "
+    "Create the alias file manually on Finder and make sure it's within the Sandboxed "
+    "environment of osxphotos. See also option --retry.",
+    type=CatchSmartQuotesPath(exists=True, file_okay=True, dir_okay=False, readable=True),
 )
 @click.option(
     "--export-by-date",
@@ -1209,6 +1223,7 @@ def export_cli(
     replace_keywords: bool = False,
     report: str | None = None,
     retry: int | None = None,
+    retry_nas_alias : str | None = None,
     save_config: bool = False,
     screenshot: bool = False,
     screen_recording: bool = False,
@@ -1782,6 +1797,12 @@ def export_cli(
             # as the copy used in FileUtilMacOS may cause exiftool to fail if permissions are wrong
             # this shouldn't impact performance as exiftool removes the benefit of copy-on-write
             fileutil = FileUtilShUtil
+            cfg_fileutil_retry(
+                retry_enabled=(retry > 0),
+                retries=retry or 0,
+                wait_seconds=None,  # TODO: Use default for now. To add an option.
+                nas_export_alias=retry_nas_alias,
+            )
         else:
             # on macOS, FileUtilMacOS will take advantage of copy-on-write for APFS volumes
             fileutil = FileUtilMacOS
