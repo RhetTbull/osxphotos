@@ -634,7 +634,7 @@ class FileUtilShUtil(FileUtilMacOS):
         if is_macos:
             utime_macos(path, times)
         else:
-            utime_no_cache(path, times)
+            os.utime(str(path), times)
 
 
 class FileUtil(FileUtilShUtil):
