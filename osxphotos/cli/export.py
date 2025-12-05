@@ -60,7 +60,7 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifWriter, exif_options_from_options
 from osxphotos.export_db import ExportDB, ExportDBInMemory, ExportDBTemp
 from osxphotos.exportoptions import ExportOptions, ExportResults
-from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
+from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil, cfg_fileutil_retry
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
@@ -219,7 +219,21 @@ if TYPE_CHECKING:
     "--retry",
     metavar="RETRY",
     type=click.INT,
-    help="Automatically retry export up to RETRY times if an error occurs during export.  This may be useful with network drives that experience intermittent errors.",
+    help="Automatically retry export (and file operations) up to RETRY times if an error occurs "
+    "during export. This may be useful with network drives that experience intermittent errors. "
+    "See also option --retry-nas-alias.",
+)
+@click.option(
+    "--retry-nas-alias",
+    # type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
+    metavar="NAS.ALIAS",
+    default=None,
+    multiple=False,
+    help="Alias filename to the SMB export destination folder to be used with --retry to force "
+    "macOs to re-mount the SMB export folder in case of loss of connection. "
+    "Create the alias file manually on Finder and make sure it's within the Sandboxed "
+    "environment of osxphotos. See also option --retry.",
+    type=CatchSmartQuotesPath(exists=True, file_okay=True, dir_okay=False, readable=True),
 )
 @click.option(
     "--export-by-date",
@@ -1012,6 +1026,7 @@ def export(
     replace_keywords: bool,
     report: str | None,
     retry: int | None,
+    retry_nas_alias: str | None,
     save_config: bool,
     screenshot: bool,
     screen_recording: bool,
@@ -1218,6 +1233,7 @@ def export_cli(
     replace_keywords: bool = False,
     report: str | None = None,
     retry: int | None = None,
+    retry_nas_alias : str | None = None,
     save_config: bool = False,
     screenshot: bool = False,
     screen_recording: bool = False,
@@ -1468,6 +1484,7 @@ def export_cli(
         replace_keywords = cfg.replace_keywords
         report = cfg.report
         retry = cfg.retry
+        retry_nas_alias = cfg.retry_nas_alias
         saved_to_library = cfg.saved_to_library
         screenshot = cfg.screenshot
         screen_recording = cfg.screen_recording
@@ -1578,6 +1595,8 @@ def export_cli(
         ("missing", ("download_missing", "use_photos_export")),
         ("only_new", ("update", "force_update")),
         ("update_errors", ("update")),
+        ("retry_nas_alias", ("retry")),
+
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1627,7 +1646,7 @@ def export_cli(
     preview_suffix = (
         DEFAULT_PREVIEW_SUFFIX if preview_suffix is None else preview_suffix
     )
-    retry = retry or 0
+    retry = max(0, retry or 0)
 
     dest = str(pathlib.Path(dest).resolve())
 
@@ -1785,6 +1804,12 @@ def export_cli(
 
             signal.signal(signal.SIGINT, sigint_handler)
 
+        cfg_fileutil_retry(
+            retry_enabled=(retry > 0),
+            retries=retry or 0,
+            wait_seconds=None,  # TODO: Use default for now. To add an option.
+            nas_export_alias=retry_nas_alias,
+        )
         if alt_copy or not is_macos or (exiftool and is_mounted_volume(dest)):
             # if alt_copy or not on macOS, use shutil for copying files
             # also, if destination appears to be on a mounted volume and using exiftool, use shutil
@@ -2909,7 +2934,7 @@ def get_dirnames_from_template(
             dest, date_created.year, date_created.mm, date_created.dd
         )
         if not (dry_run or os.path.isdir(dest_path)):
-            os.makedirs(dest_path)
+            FileUtilMacOS.makedirs(dest_path, exist_ok=True)
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
@@ -2935,7 +2960,7 @@ def get_dirnames_from_template(
             if not is_valid_filepath(dest_path):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
             if not dry_run and not os.path.isdir(dest_path):
-                os.makedirs(dest_path)
+                FileUtilMacOS.makedirs(dest_path, exist_ok=True)
             dest_paths.append(dest_path)
     else:
         dest_paths = [dest]
