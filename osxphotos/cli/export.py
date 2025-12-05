@@ -227,7 +227,7 @@ if TYPE_CHECKING:
     "--retry-nas-alias",
     # type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
     metavar="NAS.ALIAS",
-    default="nas_export_alias.alias",
+    default=None,
     multiple=False,
     help="Alias filename to the SMB export destination folder to be used with --retry to force "
     " macOs to re-mount the SMB export folder in case of loss of connection. "
@@ -1017,6 +1017,7 @@ def export(
     replace_keywords: bool,
     report: str | None,
     retry: int | None,
+    retry_nas_alias: str | None,
     save_config: bool,
     screenshot: bool,
     screen_recording: bool,

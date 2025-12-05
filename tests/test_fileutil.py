@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from osxphotos.fileutil import FileUtil, FileUtilMacOS, FileUtilShUtil
+from osxphotos.fileutil import FileUtil, FileUtilMacOS, FileUtilShUtil, cfg_fileutil_retry
 from osxphotos.platform import is_macos
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
@@ -130,6 +130,9 @@ def test_makedirs_retry(monkeypatch):
     """Test that makedirs is retried on transient failure (uses tenacity retry)."""
     import tempfile
     from osxphotos.fileutil import FileUtil
+
+    # make sure trey is enabled
+    cfg_fileutil_retry(retry_enabled = True, retries = 3)
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     new_dir = os.path.join(temp_dir.name, "folder_retry/sub1/sub2")

@@ -40,7 +40,7 @@ NAS_EXPORT_ALIAS = (
 
 # retry configuration for all fileutil operations
 RETRY_FILEUTIL_CONFIG = {
-    "retry_enabled": True,
+    "retry_enabled": False,
     "retries": 3,  # TODO use --retry parameter
     "wait_seconds": 10,  # TODO Make it an option
     "nas_export_alias": NAS_EXPORT_ALIAS,
