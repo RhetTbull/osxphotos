@@ -2733,6 +2733,7 @@ def export_photo_to_directory(
         verbose(f"Skipping original version of [filename]{photo.original_filename}")
         return results
 
+    # TODO Use this retry logic or use fileutil retry options (#2004)?
     tries = 0
     while tries <= retry:
         tries += 1

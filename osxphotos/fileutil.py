@@ -681,6 +681,8 @@ class FileUtilShUtil(FileUtilMacOS):
         try:
             shutil.copy(str(src), str(dest))
         except Exception as e:
+            # TODO: Code masks all exceptions as OSError and drops errno on raise.
+            # The retry wrapper, if active, will not execute. To be reviewed.
             raise OSError(f"Error copying {src} to {dest}: {e}") from e
 
         return True
