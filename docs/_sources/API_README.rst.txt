@@ -3071,7 +3071,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.74.1'
+     - The osxphotos version, e.g. '0.74.2'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
@@ -3358,9 +3358,9 @@ You can also retrieve the dictionary that will be used to write the metadata wit
    # photo is a PhotoInfo object
    writer = SidecarWriter(photo)
 
-   # dest is destination folder for sidecar files, options is an ExportOptions
+   # dest is destination folder for sidecar files, options is an ExportOptions, export_results is an ExportResults
    # returns ExportResults of sidecars written or skipped
-   results = writer.write_sidecar_files(dest, options)
+   results = writer.write_sidecar_files(dest, options, export_results)
 
 You can get the string for the XMP sidecar with ``xmp_sidecar()``\ :
 

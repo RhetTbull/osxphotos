@@ -1235,18 +1235,29 @@ Options:
                                   (MAKO_TEMPLATE_FILE). MAKO_TEMPLATE_FILE must
                                   be a valid Mako template (see
                                   https://www.makotemplates.org/). The template
-                                  will passed the following variables: photo
-                                  (PhotoInfo object for the photo being
-                                  exported), sidecar_path (pathlib.Path object
-                                  for the path to the sidecar being written),
-                                  and photo_path (pathlib.Path object for the
-                                  path to the exported photo.
-                                  SIDECAR_FILENAME_TEMPLATE must be a valid
-                                  template string (see Templating System in
-                                  help) which will be rendered to generate the
-                                  filename of the sidecar file. The '{filepath}'
-                                  template variable may be used in the
-                                  SIDECAR_FILENAME_TEMPLATE to refer to the
+                                  will passed the following variables: photo:
+                                  PhotoInfo object for the photo being exported,
+                                  sidecar_path: pathlib.Path object for the path
+                                  to the sidecar being written, photo_path:
+                                  pathlib.Path object for the path to the
+                                  exported photo, description:
+                                  description/caption of the photo, including
+                                  results of --description-template, keywords:
+                                  keywords associated with the photo, including
+                                  results of options like --person-keyword,
+                                  persons: persons in the photo, including
+                                  results of --exiftool-merge-persons, subjects:
+                                  equivalent to keywords, latlon: latitude &
+                                  longitude of photo as a tuple, rating: rating
+                                  of photo including result of --favorite-
+                                  rating, extension: file extension of the
+                                  exported photo, version: current osxphotos
+                                  version. SIDECAR_FILENAME_TEMPLATE must be a
+                                  valid template string (see Templating System
+                                  in help) which will be rendered to generate
+                                  the filename of the sidecar file. The
+                                  '{filepath}' template variable may be used in
+                                  the SIDECAR_FILENAME_TEMPLATE to refer to the
                                   filename of the photo being exported. OPTIONS
                                   is a comma-separated list of strings providing
                                   additional options to the template. Valid
@@ -2397,7 +2408,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.74.1'
+{osxphotos_version}             The osxphotos version, e.g. '0.74.2'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2895,7 +2906,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.74.1'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.74.2'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

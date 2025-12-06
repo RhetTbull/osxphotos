@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.exportoptions - osxphotos 0.74.1 documentation</title>
+        <title>osxphotos.exportoptions - osxphotos 0.74.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.74.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.74.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.74.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.74.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -262,6 +262,7 @@
 <span class="sd">        dry_run: (bool, default=False): set to True to run in &quot;dry run&quot; mode</span>
 <span class="sd">        edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version</span>
 <span class="sd">        exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g [&quot;-m&quot;, &quot;-F&quot;]</span>
+<span class="sd">        exiftool_path (str): path to exiftool executable</span>
 <span class="sd">        exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file</span>
 <span class="sd">        export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them</span>
 <span class="sd">        export_db: (ExportDB): instance of a class that conforms to ExportDB with methods for getting/setting data related to exported files to compare update state</span>
@@ -307,6 +308,7 @@
 <span class="sd">        tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory</span>
 <span class="sd">        favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites</span>
 <span class="sd">        fix_orientation (bool): if True, will adjust image orientation based on exif data if necessary</span>
+<span class="sd">        sidecar_template (tuple of tuples): tuple of (template_file, filename_template, options) for user sidecar templates; multiple templates may be specified</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -316,6 +318,7 @@
     <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">edited</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">exiftool_flags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">exiftool_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">exiftool</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">export_as_hardlink</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">export_db</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExportDB</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -356,6 +359,7 @@
     <span class="n">tmpdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">favorite_rating</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">fix_orientation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">sidecar_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -597,7 +601,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=54ae0623"></script>
+</div><script src="../../_static/documentation_options.js?v=63568c49"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
