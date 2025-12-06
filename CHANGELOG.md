@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.74.2](https://github.com/RhetTbull/osxphotos/compare/v0.74.1...v0.74.2)
+
+Enhancements to `--sidecar-template` and `--touch-file`, bug fixes.
+
+### 2025-12-06
+
+#### Added
+
+#### Changed
+
+- User sidecar templates, specified with `--sidecar-template` now have access to all variables that OSXPhotos uses when constructing the XMP sidecar (#2021)
+- `osxphotos export --touch-file` now sets file creation date in addition to the file modification and access date when exporting on macOS (#1899)
+
+#### Removed
+
+#### Fixed
+
+- Fix `--touch-file` regression for Synology NAS (#2017)
+- Fix decoding of adjustment data in some cases (#2018) (thanks to @EriksRemess for the fix)
+- Fix image and video captions where more than one caption was present (#2015) (thanks to @EriksRemess for the fix)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @EriksRemess [@EriksRemess](https://github.com/EriksRemess).
+
 ## [v0.74.1](https://github.com/RhetTbull/osxphotos/compare/v0.74.0...v0.74.1)
 
 Updates to `osxphotos inspect` and `osxphotos albums`.
