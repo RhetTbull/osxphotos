@@ -111,7 +111,7 @@ elif is_macos and (OS_VER[0] == "12" and OS_VER[1] in ("7",)):
     TEST_LIBRARY = "tests/Test-12.0.1.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
-    TEST_LIBRARY_TAKOUT = None
+    TEST_LIBRARY_TAKEOUT = None
     TEST_LIBRARY_TIMEWARP = None  # these tests do not run on macOS < 13
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
     TEST_LIBRARY_ADD_LOCATIONS = None

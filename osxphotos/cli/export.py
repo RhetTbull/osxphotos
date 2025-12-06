@@ -60,7 +60,12 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifWriter, exif_options_from_options
 from osxphotos.export_db import ExportDB, ExportDBInMemory, ExportDBTemp
 from osxphotos.exportoptions import ExportOptions, ExportResults
-from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil, cfg_fileutil_retry
+from osxphotos.fileutil import (
+    FileUtilMacOS,
+    FileUtilNoOp,
+    FileUtilShUtil,
+    cfg_fileutil_retry,
+)
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
@@ -232,7 +237,9 @@ if TYPE_CHECKING:
     "macOs to re-mount the SMB export folder in case of loss of connection. "
     "Create the alias file manually on Finder and make sure it's within the Sandboxed "
     "environment of osxphotos. See also option --retry and --retry-wait.",
-    type=CatchSmartQuotesPath(exists=True, file_okay=True, dir_okay=False, readable=True),
+    type=CatchSmartQuotesPath(
+        exists=True, file_okay=True, dir_okay=False, readable=True
+    ),
 )
 @click.option(
     "--retry-wait",
@@ -1242,7 +1249,7 @@ def export_cli(
     replace_keywords: bool = False,
     report: str | None = None,
     retry: int | None = None,
-    retry_nas_alias : str | None = None,
+    retry_nas_alias: str | None = None,
     retry_wait: int | None = None,
     save_config: bool = False,
     screenshot: bool = False,
@@ -1608,7 +1615,6 @@ def export_cli(
         ("update_errors", ("update")),
         ("retry_nas_alias", ("retry")),
         ("retry_wait", ("retry_nas_alias")),
-
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)

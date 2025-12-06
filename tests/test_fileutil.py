@@ -6,7 +6,12 @@ import time
 
 import pytest
 
-from osxphotos.fileutil import FileUtil, FileUtilMacOS, FileUtilShUtil, cfg_fileutil_retry
+from osxphotos.fileutil import (
+    FileUtil,
+    FileUtilMacOS,
+    FileUtilShUtil,
+    cfg_fileutil_retry,
+)
 from osxphotos.platform import is_macos
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
@@ -129,10 +134,13 @@ def test_makedirs():
 def test_makedirs_retry(monkeypatch):
     """Test that makedirs is retried on transient failure (uses tenacity retry)."""
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     # make sure retry is enabled
-    cfg_fileutil_retry(retry_enabled = True, retries = 3, nas_export_alias="nas_export.alias")
+    cfg_fileutil_retry(
+        retry_enabled=True, retries=3, nas_export_alias="nas_export.alias"
+    )
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     new_dir = os.path.join(temp_dir.name, "folder_retry/sub1/sub2")
@@ -163,14 +171,17 @@ def test_makedirs_retry(monkeypatch):
     # ensure it was attempted at least twice (one failure + one success)
     assert attempts["count"] >= 2
 
-# MAKE A TEST FOR LINUX... make a TEST for NOT DEFINED ALIAS OR FALSE.. OR RETRY = 0
+
 def test_makedirs_retry_not_macos(monkeypatch):
     """Test that makedirs is retried but alias mount is not attempted, on transient failure (uses tenacity retry)."""
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     # make sure retry is enabled
-    cfg_fileutil_retry(retry_enabled = True, retries = 3, nas_export_alias="nas_export.alias")
+    cfg_fileutil_retry(
+        retry_enabled=True, retries=3, nas_export_alias="nas_export.alias"
+    )
     monkeypatch.setattr("osxphotos.fileutil.is_macos", False)
     monkeypatch.setattr("osxphotos.platform.is_macos", False)
     monkeypatch.setattr("osxphotos.cli.common.is_macos", False)
@@ -207,16 +218,18 @@ def test_makedirs_retry_not_macos(monkeypatch):
     # no retry, so it was attempted only once
     assert attempts["count"] == 3
 
+
 def test_makedirs_retry_empty_retry_nas_alias(monkeypatch):
     """Test that makedirs is retried but alias mount is not attempted (because
-      --retry-nas-alias is empty) on transient failure (uses tenacity retry)."""
+    --retry-nas-alias is empty) on transient failure (uses tenacity retry)."""
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     # test for macOS and non-macOS
     for macos in (True, False):
         # make sure retry is enabled and test empty --retry-nas-alias
-        cfg_fileutil_retry(retry_enabled = True, retries = 2, nas_export_alias="")    
+        cfg_fileutil_retry(retry_enabled=True, retries=2, nas_export_alias="")
         monkeypatch.setattr("osxphotos.fileutil.is_macos", macos)
         monkeypatch.setattr("osxphotos.platform.is_macos", macos)
         monkeypatch.setattr("osxphotos.cli.common.is_macos", macos)
@@ -252,6 +265,7 @@ def test_makedirs_retry_empty_retry_nas_alias(monkeypatch):
         # assert os.path.isdir(new_dir)
         # no retry, so it was attempted only once
         assert attempts["count"] == 2
+
 
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_CONVERT" not in os.environ,

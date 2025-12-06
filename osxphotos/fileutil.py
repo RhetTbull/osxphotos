@@ -1,10 +1,10 @@
 """FileUtil class with methods for copy, hardlink, unlink, etc."""
 
-import functools
-import errno
 import datetime
 import enum
+import errno
 import fcntl
+import functools
 import logging
 import os
 import pathlib
@@ -39,11 +39,12 @@ logger = logging.getLogger(__name__)
 # applicable when --retry and --retry-nas-alias are provided. --retry-wait is optional
 # exporting to NAS SMB drive, Finder alias used to force macOS to re-mount in case of error
 RETRY_FILEUTIL_CONFIG = {
-    "retry_enabled": False,  # True with --retry and --retry-nas-alias 
+    "retry_enabled": False,  # True with --retry and --retry-nas-alias
     "retries": 3,  # --retry
     "wait_seconds": 15,  # --retry-wait
-    "nas_export_alias": "",  # --retry-nas-alias 
+    "nas_export_alias": "",  # --retry-nas-alias
 }
+
 
 def cfg_fileutil_retry(
     retry_enabled: bool | None = None,
@@ -106,16 +107,14 @@ def is_fileutil_error(exception) -> bool:
 
     Notes
     -----
-    - It relies on global configuration mapping RETRY_FILEUTIL_CONFIG with a boolean 
+    - It relies on global configuration mapping RETRY_FILEUTIL_CONFIG with a boolean
         "retry_enabled" key, and on the global RECOVERABLE_ERRNOS collection of errno integers.
     """
 
     if not RETRY_FILEUTIL_CONFIG["retry_enabled"]:
         return False
 
-    logger.warning(
-        "⚠️  fileutil: exception: %s ", str(exception)
-    )
+    logger.warning("⚠️  fileutil: exception: %s ", str(exception))
 
     if isinstance(exception, PermissionError) or "Permission denied" in str(exception):
         return True
@@ -149,6 +148,7 @@ def retry_all_methods():
                         reraise=True,
                     )
                     return retryer(func)(*args, **kwargs)
+
                 return wrapper
 
             # functions -> instance methods
@@ -164,6 +164,7 @@ def retry_all_methods():
                 setattr(cls, name, staticmethod(make_retry(value.__func__)))
 
         return cls
+
     return decorator
 
 
@@ -197,8 +198,16 @@ def open_alias_script(retry_state: RetryCallState) -> int | None:
     alias = RETRY_FILEUTIL_CONFIG.get("nas_export_alias", "")
     logger.warning(
         "⚠️  fileutil: SMB error: %s%s",
-        "retrying mount SMB alias" if is_macos else "not retrying mount SMB alias (not macOS)",
-        f': --retry-nas-alias="{alias}"...' if alias else ": bypassing (--retry-nas-alias not defined).",
+        (
+            "retrying mount SMB alias"
+            if is_macos
+            else "not retrying mount SMB alias (not macOS)"
+        ),
+        (
+            f': --retry-nas-alias="{alias}"...'
+            if alias
+            else ": bypassing (--retry-nas-alias not defined)."
+        ),
     )
 
     if not is_macos or RETRY_FILEUTIL_CONFIG["nas_export_alias"] == "":
@@ -243,6 +252,7 @@ __all__ = [
 ]
 
 logger = logging.getLogger("osxphotos")
+
 
 def utime_no_cache(path: os.PathLike, times: tuple[int, int]) -> bool:
     """Set file modification and access times with filesystem caching disabled
@@ -559,7 +569,7 @@ class FileUtilMacOS(FileUtilABC):
     @classmethod
     def cmp_file_sig(cls, file1, sig2):
         """Compare file file1 to signature sig2.
-        
+
         Args:
            file1 -- File name
            sig2  -- stats as returned by _sig
@@ -639,6 +649,7 @@ class FileUtilMacOS(FileUtilABC):
         # use int(st.st_mtime) because ditto does not copy fractional portion of mtime
         return (stat.S_IFMT(st.st_mode), st.st_size, int(st.st_mtime))
 
+
 @retry_all_methods()
 class FileUtilShUtil(FileUtilMacOS):
     """Various file utilities, uses shutil.copy to copy files instead of NSFileManager (#807)"""
@@ -693,6 +704,7 @@ class FileUtilShUtil(FileUtilMacOS):
 
 class FileUtil(FileUtilShUtil):
     """Various file utilities"""
+
 
 @retry_all_methods()
 class FileUtilNoOp(FileUtil):
