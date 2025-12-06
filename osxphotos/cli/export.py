@@ -1828,7 +1828,6 @@ def export_cli(
             wait_seconds=retry_wait,
             nas_export_alias=retry_nas_alias,
         )
-        sys.exit(99)
         if alt_copy or not is_macos or (exiftool and is_mounted_volume(dest)):
             # if alt_copy or not on macOS, use shutil for copying files
             # also, if destination appears to be on a mounted volume and using exiftool, use shutil
