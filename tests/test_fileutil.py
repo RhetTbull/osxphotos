@@ -131,8 +131,8 @@ def test_makedirs_retry(monkeypatch):
     import tempfile
     from osxphotos.fileutil import FileUtil
 
-    # make sure trey is enabled
-    cfg_fileutil_retry(retry_enabled = True, retries = 3)
+    # make sure retry is enabled
+    cfg_fileutil_retry(retry_enabled = True, retries = 3, nas_export_alias="nas_export.alias")
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     new_dir = os.path.join(temp_dir.name, "folder_retry/sub1/sub2")
@@ -145,8 +145,8 @@ def test_makedirs_retry(monkeypatch):
         attempts["count"] += 1
         # fail the first attempt, succeed thereafter
         if attempts["count"] < 2:
-            raise PermissionError("simulated transient error")
-            # raise OSError("simulated transient error")
+            raise PermissionError("simulated transient PermissionError")
+            # raise OSError("simulated transient OSError")
         return original_makedirs(path, mode=mode, exist_ok=exist_ok)
 
     # patch the subprocess.call used by open_alias_script to avoid running osascript
@@ -163,6 +163,49 @@ def test_makedirs_retry(monkeypatch):
     # ensure it was attempted at least twice (one failure + one success)
     assert attempts["count"] >= 2
 
+# MAKE A TEST FOR LINUX... make a TEST for NOT DEFINED ALIAS OR FALSE.. OR RETRY = 0
+def test_makedirs_retry_not_macos(monkeypatch):
+    """Test that makedirs is retried on transient failure (uses tenacity retry)."""
+    import tempfile
+    from osxphotos.fileutil import FileUtil
+
+    # make sure retry is enabled
+    cfg_fileutil_retry(retry_enabled = True, retries = 5, nas_export_alias="nas_export.alias")
+    monkeypatch.setattr("osxphotos.fileutil.is_macos", False)
+    monkeypatch.setattr("osxphotos.platform.is_macos", False)
+    monkeypatch.setattr("osxphotos.cli.common.is_macos", False)
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    new_dir = os.path.join(temp_dir.name, "folder_retry/sub1/sub2")
+
+    # track attempts
+    attempts = {"count": 0}
+    original_makedirs = os.makedirs
+
+    def fake_makedirs(path, mode=511, exist_ok=False):
+        attempts["count"] += 1
+        # fail the first attempt, succeed thereafter
+        if attempts["count"] < 2:
+            raise PermissionError("simulated transient PermissionError")
+            # raise OSError("simulated transient OSError")
+        return original_makedirs(path, mode=mode, exist_ok=exist_ok)
+
+    # patch the subprocess.call used by open_alias_script to avoid running osascript
+    # monkeypatch.setattr("osxphotos.fileutil.subprocess.call", lambda *a, **k: 0)
+
+    # replace os.makedirs with our flaky version
+    monkeypatch.setattr(os, "makedirs", fake_makedirs)
+    # avoid actual sleeping between retries
+    monkeypatch.setattr(time, "sleep", lambda s: None)
+
+    assert not os.path.isdir(new_dir)
+    with pytest.raises(PermissionError) as exc_info:
+        FileUtil.makedirs(new_dir)
+    assert "simulated transient PermissionError" in str(exc_info.value)
+
+    # assert os.path.isdir(new_dir)
+    # no retry, so it was attempted only once
+    assert attempts["count"] == 1
 
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_CONVERT" not in os.environ,
