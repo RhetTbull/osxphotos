@@ -39,9 +39,9 @@ Tested on Ubuntu Linux and macOS. Many features are only available on macOS.
 
 On Linux, macOS-specific features of the CLI will not be available (these will not be shown in the help output). The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos from a Photos library on a Linux machine.
 
-Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.6). Tested on both x86 and Apple silicon (M1).
+Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.i7.2). Tested on both x86 and Apple silicon (M1).
 
-**OSXPhotos has been minimally tested with macOS Tahoe (macOS 26 developer beta) but new beta versions may break osxphotos support. If you encounter problems with macOS 26, please open an issue.**
+**Most features work on macOS 26.1 but OSXPhotos does yet fully support 26.x. Notably OSXPhotos cannot read shared albums on macOS 26.x.**
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
