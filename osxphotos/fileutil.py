@@ -36,13 +36,13 @@ logger = logging.getLogger(__name__)
 
 
 # retry configuration for fileutil operations
+# applicable when --retry and --retry-nas-alias are provided. --retry-wait is optional
 # exporting to NAS SMB drive, Finder alias used to force macOS to re-mount in case of error
-# TODO: what if NAS_EXPORT_ALIAS is either not specified or not a valid fie. how to use --retry?
 RETRY_FILEUTIL_CONFIG = {
-    "retry_enabled": False,
-    "retries": 3,  # TODO use --retry parameter
-    "wait_seconds": 10,  # TODO Make it an option
-    "nas_export_alias": "",  # Provided via --retry-nas-alias 
+    "retry_enabled": False,  # True with --retry and --retry-nas-alias 
+    "retries": 3,  # --retry
+    "wait_seconds": 15,  # --retry-wait
+    "nas_export_alias": "",  # --retry-nas-alias 
 }
 
 def cfg_fileutil_retry(
@@ -71,12 +71,6 @@ def cfg_fileutil_retry(
     if nas_export_alias is not None:
         RETRY_FILEUTIL_CONFIG["nas_export_alias"] = nas_export_alias
 
-
-def show_fileutil_retry():
-    print(f"DEBUG------------------"
-        f"\n\t{RETRY_FILEUTIL_CONFIG["retry_enabled"]=}\n\t{RETRY_FILEUTIL_CONFIG["retries"]=}"
-        f"\n\t{RETRY_FILEUTIL_CONFIG["wait_seconds"]=}\n\t{RETRY_FILEUTIL_CONFIG["nas_export_alias"]=}"
-    )
 
 # Set of recoverable errno values for SMB/network failures
 RECOVERABLE_ERRNOS = {
@@ -119,7 +113,6 @@ def is_fileutil_error(exception) -> bool:
     if not RETRY_FILEUTIL_CONFIG["retry_enabled"]:
         return False
 
-    show_fileutil_retry()
     logger.warning(
         "⚠️  fileutil: exception: %s ", str(exception)
     )

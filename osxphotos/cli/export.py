@@ -60,7 +60,7 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifWriter, exif_options_from_options
 from osxphotos.export_db import ExportDB, ExportDBInMemory, ExportDBTemp
 from osxphotos.exportoptions import ExportOptions, ExportResults
-from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil, cfg_fileutil_retry, show_fileutil_retry
+from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil, cfg_fileutil_retry
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
@@ -240,7 +240,8 @@ if TYPE_CHECKING:
     type=click.INT,
     help="Seconds to wait in between --retry file operations attempts during export. "
     "Must be used with --retry and --retry-nas-alias. This is useful with network drives "
-    "that experience intermittent errors. See also option --retry and --retry-nas-alias.",
+    "that experience intermittent errors. If not specified, default is 15s. "
+    "See also option --retry and --retry-nas-alias.",
 )
 @click.option(
     "--export-by-date",
@@ -1815,14 +1816,13 @@ def export_cli(
 
             signal.signal(signal.SIGINT, sigint_handler)
 
-        show_fileutil_retry()
         cfg_fileutil_retry(
-            retry_enabled=(retry > 0),
+            retry_enabled=(retry > 0) and retry_nas_alias is not None,
             retries=retry or 0,
             wait_seconds=retry_wait,
             nas_export_alias=retry_nas_alias,
         )
-        show_fileutil_retry()
+        sys.exit(99)
         if alt_copy or not is_macos or (exiftool and is_mounted_volume(dest)):
             # if alt_copy or not on macOS, use shutil for copying files
             # also, if destination appears to be on a mounted volume and using exiftool, use shutil

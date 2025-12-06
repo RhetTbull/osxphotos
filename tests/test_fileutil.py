@@ -165,12 +165,12 @@ def test_makedirs_retry(monkeypatch):
 
 # MAKE A TEST FOR LINUX... make a TEST for NOT DEFINED ALIAS OR FALSE.. OR RETRY = 0
 def test_makedirs_retry_not_macos(monkeypatch):
-    """Test that makedirs is retried on transient failure (uses tenacity retry)."""
+    """Test that makedirs is retried but alias mount is not attempted, on transient failure (uses tenacity retry)."""
     import tempfile
     from osxphotos.fileutil import FileUtil
 
     # make sure retry is enabled
-    cfg_fileutil_retry(retry_enabled = True, retries = 5, nas_export_alias="nas_export.alias")
+    cfg_fileutil_retry(retry_enabled = True, retries = 3, nas_export_alias="nas_export.alias")
     monkeypatch.setattr("osxphotos.fileutil.is_macos", False)
     monkeypatch.setattr("osxphotos.platform.is_macos", False)
     monkeypatch.setattr("osxphotos.cli.common.is_macos", False)
@@ -185,13 +185,13 @@ def test_makedirs_retry_not_macos(monkeypatch):
     def fake_makedirs(path, mode=511, exist_ok=False):
         attempts["count"] += 1
         # fail the first attempt, succeed thereafter
-        if attempts["count"] < 2:
+        if attempts["count"] < 4:
             raise PermissionError("simulated transient PermissionError")
             # raise OSError("simulated transient OSError")
         return original_makedirs(path, mode=mode, exist_ok=exist_ok)
 
     # patch the subprocess.call used by open_alias_script to avoid running osascript
-    # monkeypatch.setattr("osxphotos.fileutil.subprocess.call", lambda *a, **k: 0)
+    monkeypatch.setattr("osxphotos.fileutil.subprocess.call", lambda *a, **k: 0)
 
     # replace os.makedirs with our flaky version
     monkeypatch.setattr(os, "makedirs", fake_makedirs)
@@ -205,7 +205,53 @@ def test_makedirs_retry_not_macos(monkeypatch):
 
     # assert os.path.isdir(new_dir)
     # no retry, so it was attempted only once
-    assert attempts["count"] == 1
+    assert attempts["count"] == 3
+
+def test_makedirs_retry_empty_retry_nas_alias(monkeypatch):
+    """Test that makedirs is retried but alias mount is not attempted (because
+      --retry-nas-alias is empty) on transient failure (uses tenacity retry)."""
+    import tempfile
+    from osxphotos.fileutil import FileUtil
+
+    # test for macOS and non-macOS
+    for macos in (True, False):
+        # make sure retry is enabled and test empty --retry-nas-alias
+        cfg_fileutil_retry(retry_enabled = True, retries = 2, nas_export_alias="")    
+        monkeypatch.setattr("osxphotos.fileutil.is_macos", macos)
+        monkeypatch.setattr("osxphotos.platform.is_macos", macos)
+        monkeypatch.setattr("osxphotos.cli.common.is_macos", macos)
+
+        temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+        new_dir = os.path.join(temp_dir.name, "folder_retry/sub1/sub2")
+
+        # track attempts
+        attempts = {"count": 0}
+        original_makedirs = os.makedirs
+
+        def fake_makedirs(path, mode=511, exist_ok=False):
+            attempts["count"] += 1
+            # fail the first attempt, succeed thereafter
+            if attempts["count"] < 3:
+                raise PermissionError("simulated transient PermissionError")
+                # raise OSError("simulated transient OSError")
+            return original_makedirs(path, mode=mode, exist_ok=exist_ok)
+
+        # patch the subprocess.call used by open_alias_script to avoid running osascript
+        monkeypatch.setattr("osxphotos.fileutil.subprocess.call", lambda *a, **k: 0)
+
+        # replace os.makedirs with our flaky version
+        monkeypatch.setattr(os, "makedirs", fake_makedirs)
+        # avoid actual sleeping between retries
+        monkeypatch.setattr(time, "sleep", lambda s: None)
+
+        assert not os.path.isdir(new_dir)
+        with pytest.raises(PermissionError) as exc_info:
+            FileUtil.makedirs(new_dir)
+        assert "simulated transient PermissionError" in str(exc_info.value)
+
+        # assert os.path.isdir(new_dir)
+        # no retry, so it was attempted only once
+        assert attempts["count"] == 2
 
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_CONVERT" not in os.environ,
