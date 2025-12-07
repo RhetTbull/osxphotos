@@ -35,14 +35,12 @@ from .unicode import normalize_fs_path
 logger = logging.getLogger(__name__)
 
 
-# retry configuration for fileutil operations
-# applicable when --retry and --retry-nas-alias are provided. --retry-wait is optional
-# exporting to NAS SMB drive, Finder alias used to force macOS to re-mount in case of error
+# module-level dict RETRY_FILEUTIL_CONFIG that controls retry behavior. See cfg_fileutil_retry
 RETRY_FILEUTIL_CONFIG = {
-    "retry_enabled": False,  # True with --retry and --retry-nas-alias
-    "retries": 3,  # --retry
-    "wait_seconds": 15,  # --retry-wait
-    "nas_export_alias": "",  # --retry-nas-alias
+    "retry_enabled": False,
+    "retries": 3,
+    "wait_seconds": 15,
+    "nas_export_alias": "",
 }
 
 
@@ -54,14 +52,70 @@ def cfg_fileutil_retry(
 ):
     """Change global retry behavior for FileUtil.
 
+    Retry configuration for fileutil operations.
+    The configuration is kept on the module-level dict RETRY_FILEUTIL_CONFIG.
+
+    Useful when operating over NAS SMB drive, in the event of connection failure.
+    The retry passes to Finder, an alias file to the NAS SMB drive, which causes
+      macOS to re-mount the drive.
+
+    Applicable when retry_enabled is True. If nas_export_alias is not defined, the
+      re-mount is bypassed. wait-seconds coonfiguration is the delay in between attempts.
+
+    Only methods on classes decorated with @retry_all_methods() are wrapped with tenacity
+    retry logic — changing the config affects in real-time those wrapped methods.
+
+    Key config keys and effects
+
+    - retry_enabled (bool)
+      - If False (default) is_fileutil_error() immediately returns False =>
+      retry_if_exception(is_fileutil_error) will not trigger retries. Wrapped
+      methods still run but will not retry on errors.
+      - If True, recoverable exceptions will cause retries.
+    - retries (int)
+      - Controls stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]) — maximum retry attempts.
+    - wait_seconds (int)
+      - Controls wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]) — delay between attempts.
+    - nas_export_alias (str)
+      - Path used by open_alias_script() (called before sleeping between retries) to attempt
+      re-mounting an SMB alias via osascript on macOS.
+
+    Behavioral flow on exception (when retry_enabled=True)
+
+    1. A wrapped method raises an exception.
+    2. is_fileutil_error(exception) is called:
+      - Logs a warning.
+      - Returns True if PermissionError or "Permission denied" in message,
+      or if OSError with errno in RECOVERABLE_ERRNOS.
+    3. If True, tenacity will:
+      - Call open_alias_script(...) before each retry sleep (which will attempt
+      to open the Finder alias if set and on macOS).
+      - Wait wait_seconds between attempts.
+      - Stop after retries attempts.
+      - Reraise final exception if still failing.
+    4. after_log logs retry events.
+
+    Notes and caveats
+
+    - cfg_fileutil_retry modifies a global dict — changes take effect immediately for
+    subsequent calls but are not thread-safe.
+    - Only exceptions that satisfy is_fileutil_error trigger retries; other exceptions
+    propagate immediately.
+    - The retry wrapper is applied at class decoration time, but the wrapper reads current
+    RETRY_FILEUTIL_CONFIG values when invoked, so updating config later changes runtime behavior.
+    - open_alias_script only runs on macOS and only if nas_export_alias is non-empty.
+
     Args:
-        retry_enabled (bool | None): Enable or disable retry logic. If None, leaves current setting unchanged.
-        retries (int | None): Number of retry attempts. If None, leaves current setting unchanged.
-        wait_seconds (int | None): Seconds to wait between retries. If None or non-positive, leaves current setting unchanged.
-        nas_export_alias (str | None): Path to Finder alias used to re-mount NAS on SMB errors. If None, leaves current setting unchanged.
+    - retry_enabled (bool | None): Enable or disable retry logic. If None,
+    leaves current setting unchanged.
+    - retries (int | None): Number of retry attempts. If None, leaves current setting unchanged.
+    - wait_seconds (int | None): Seconds to wait between retries. If None or non-positive,
+    leaves current setting unchanged.
+    - nas_export_alias (str | None): Path to Finder alias used to re-mount NAS on SMB errors.
+    If None, leaves current setting unchanged.
 
     Returns:
-        None: Modifies the module-level RETRY_FILEUTIL_CONFIG in place.
+    - None: Modifies the module-level RETRY_FILEUTIL_CONFIG in place.
     """
     if retry_enabled is not None:
         RETRY_FILEUTIL_CONFIG["retry_enabled"] = retry_enabled
@@ -204,9 +258,9 @@ def open_alias_script(retry_state: RetryCallState) -> int | None:
             else "not retrying mount SMB alias (not macOS)"
         ),
         (
-            f': --retry-nas-alias="{alias}"...'
+            f': nas_export_alias="{alias}"...'
             if alias
-            else ": bypassing (--retry-nas-alias not defined)."
+            else ": bypassing nas_export_alias not defined)."
         ),
     )
 

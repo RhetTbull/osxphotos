@@ -2953,7 +2953,7 @@ def get_dirnames_from_template(
             dest, date_created.year, date_created.mm, date_created.dd
         )
         if not (dry_run or os.path.isdir(dest_path)):
-            FileUtilMacOS.makedirs(dest_path, exist_ok=True)
+            FileUtilShUtil.makedirs(dest_path, exist_ok=True)
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
