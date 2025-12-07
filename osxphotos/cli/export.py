@@ -1823,7 +1823,7 @@ def export_cli(
             signal.signal(signal.SIGINT, sigint_handler)
 
         cfg_fileutil_retry(
-            retry_enabled=(retry > 0) and retry_nas_alias is not None,
+            retry_enabled=(retry > 0),
             retries=retry or 0,
             wait_seconds=retry_wait,
             nas_export_alias=retry_nas_alias,
