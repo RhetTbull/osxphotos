@@ -423,7 +423,7 @@ class PhotoExporter:
             return
 
         fileutil = options.fileutil or FileUtil
-        self._temp_dir = fileutil.tmpdir(prefix="osxphotos_export_", dir=options.tmpdir)
+        self._temp_dir = fileutil.tmpdir(prefix="osxphotos_export_", dirpath=options.tmpdir)
         self._temp_dir_path = pathlib.Path(self._temp_dir.name)
         return
 
@@ -1187,7 +1187,7 @@ class PhotoExporter:
 
         # export to a subdirectory of tmpdir
         tmpdir = self.fileutil.tmpdir(
-            "osxphotos_applescript_export_", dir=self._temp_dir_path
+            "osxphotos_applescript_export_", dirpath=self._temp_dir_path
         )
 
         exported_files = []

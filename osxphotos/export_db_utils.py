@@ -234,7 +234,7 @@ def export_db_check_signatures(
             continue
         file_sig = fileutil.file_sig(filepath)
         file_rec = exportdb.get_file_record(filepath)
-        if file_rec.dest_sig == file_sig:
+        if file_rec is not None and file_rec.dest_sig == file_sig:
             matched += 1
             verbose_(f"[green]Signatures matched[/green]: '[filepath]{filepath}[/]'")
         else:
