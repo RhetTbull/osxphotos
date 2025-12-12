@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Python Reference" href="reference.html"><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Python API - osxphotos 0.74.1 documentation</title>
+        <title>OSXPhotos Python API - osxphotos 0.74.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.74.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.74.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.74.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.74.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2895,7 +2895,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. '0.74.1'</p></td>
+<td><p>The osxphotos version, e.g. '0.74.2'</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -3171,9 +3171,9 @@ cog.out("\n"+get_template_field_table()+"\n")
 <span class="c1"># photo is a PhotoInfo object</span>
 <span class="n">writer</span> <span class="o">=</span> <span class="n">SidecarWriter</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
 
-<span class="c1"># dest is destination folder for sidecar files, options is an ExportOptions</span>
+<span class="c1"># dest is destination folder for sidecar files, options is an ExportOptions, export_results is an ExportResults</span>
 <span class="c1"># returns ExportResults of sidecars written or skipped</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">write_sidecar_files</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">write_sidecar_files</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">export_results</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can get the string for the XMP sidecar with <code class="docutils literal notranslate"><span class="pre">xmp_sidecar()</span></code>:</p>
@@ -3758,7 +3758,7 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=54ae0623"></script>
+</div><script src="_static/documentation_options.js?v=63568c49"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

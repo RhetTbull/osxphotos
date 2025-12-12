@@ -294,8 +294,24 @@ def get_media_analysis_results(photo: PhotoInfo) -> dict[str, Any]:
 
 def get_caption(results: dict[str, Any]) -> str | None:
     if caption_dict := results.get(IMAGE_CAPTION_KEY):
+        if isinstance(caption_dict, list):
+            caption_dict = max(
+                caption_dict,
+                key=lambda item: item.get("imageCaptionConfidence", float("-inf")),
+                default=None,
+            )
+            if not isinstance(caption_dict, dict):
+                return None
         return caption_dict.get("imageCaptionText")
     if caption_dict := results.get(VIDEO_CAPTION_KEY):
+        if isinstance(caption_dict, list):
+            caption_dict = max(
+                caption_dict,
+                key=lambda item: item.get("videoCaptionConfidence", float("-inf")),
+                default=None,
+            )
+            if not isinstance(caption_dict, dict):
+                return None
         return caption_dict.get("videoCaptionText")
     return None
 

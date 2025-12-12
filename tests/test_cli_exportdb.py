@@ -192,3 +192,33 @@ def test_exportdb_last_export_dir():
         result = runner.invoke(exportdb, [cwd, "--last-export-dir"])
         assert result.exit_code == 0
         assert cwd in result.output
+
+
+def test_exportdb_touch_file():
+    """Test --touch-file"""
+
+    runner = CliRunner()
+    library = os.path.join(os.getcwd(), CLI_PHOTOS_DB)
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        # Export photos first
+        result = runner.invoke(export, [cwd, "--library", library, "-V"])
+        assert result.exit_code == 0
+
+        # Modify timestamps of exported files
+        modified_count = 0
+        for file in pathlib.Path(cwd).rglob("*.jpg"):
+            # Set timestamp to a different value (e.g., 1 day ago)
+            old_time = file.stat().st_mtime - 86400
+            os.utime(file, (old_time, old_time))
+            modified_count += 1
+
+        # Run exportdb --touch-file
+        result = runner.invoke(exportdb, [cwd, "--touch-file"])
+        assert result.exit_code == 0
+        assert "Done." in result.output
+        assert "Touched" in result.output
+        # Verify at least one file was touched if we modified any
+        if modified_count > 0:
+            # Output format: "Done. Touched [num]X[/] files, skipped [num]Y[/] up to date files..."
+            assert not result.output.startswith("Done. Touched [num]0[/]")

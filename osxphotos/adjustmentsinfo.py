@@ -1,12 +1,12 @@
-""" AdjustmentsInfo class to read adjustments data for photos edited in Apple's Photos.app
-    In Catalina and Big Sur, the adjustments data (data about edits done to the photo)
-    is stored in a plist file in
-    ~/Pictures/Photos Library.photoslibrary/resources/renders/X/UUID.plist
-    where X is first character of the photo's UUID string and UUID is the full UUID,
-    e.g.: ~/Pictures/Photos Library.photoslibrary/resources/renders/3/30362C1D-192F-4CCD-9A2A-968F436DC0DE.plist
+"""AdjustmentsInfo class to read adjustments data for photos edited in Apple's Photos.app
+In Catalina and Big Sur, the adjustments data (data about edits done to the photo)
+is stored in a plist file in
+~/Pictures/Photos Library.photoslibrary/resources/renders/X/UUID.plist
+where X is first character of the photo's UUID string and UUID is the full UUID,
+e.g.: ~/Pictures/Photos Library.photoslibrary/resources/renders/3/30362C1D-192F-4CCD-9A2A-968F436DC0DE.plist
 
-    Thanks to @neilpa who figured out how to decode this information:
-    Reference: https://github.com/neilpa/photohack/issues/4
+Thanks to @neilpa who figured out how to decode this information:
+Reference: https://github.com/neilpa/photohack/issues/4
 """
 
 import datetime
@@ -14,6 +14,7 @@ import json
 import logging
 import plistlib
 import zlib
+from typing import Any
 
 from .datetime_utils import datetime_naive_to_utc
 
@@ -50,19 +51,68 @@ class AdjustmentsInfo:
             logger.debug(f"Could not decode adjustments data: {plist_file}")
             self._adjustments = None
 
-    def _decode_adjustments_from_plist(self, plist):
+    def _decode_adjustments_from_plist(self, plist) -> dict | Any | None:
         """decode adjustmentData from Apple Photos adjustments
 
         Args:
             plist: a plist dict as loaded by plistlib
 
         Returns:
-            decoded adjustmentsData as dict
-        """
+            decoded adjustmentData as a Python object (usually dict) or None if no data
 
-        return json.loads(
-            zlib.decompress(plist["adjustmentData"], -zlib.MAX_WBITS).decode()
-        )
+        Raises:
+            AdjustmentsDecodeError if the data cannot be decoded
+        """
+        data = plist.get("adjustmentData")
+        if data is None:
+            return None
+
+        if isinstance(data, str):
+            data = data.encode("utf-8")
+        if not isinstance(data, (bytes, bytearray)):
+            raise AdjustmentsDecodeError(
+                f"'adjustmentData' must be bytes, got {type(data)}"
+            )
+
+        def _decode_bytes(b: bytes):
+            """Try to decode raw bytes as binary plist, JSON, or XML plist.
+
+            Returns decoded object or None if not decodable.
+            """
+            if b.startswith(b"bplist00"):
+                try:
+                    return plistlib.loads(b)
+                except Exception:
+                    pass
+
+            try:
+                return plistlib.loads(b)
+            except Exception:
+                pass
+
+            try:
+                return json.loads(b.decode("utf-8"))
+            except Exception:
+                pass
+
+            return None
+
+        result = _decode_bytes(data)
+        if result is not None:
+            return result
+
+        # Result may be zlib compressed
+        for wbits in (-zlib.MAX_WBITS, zlib.MAX_WBITS):
+            try:
+                decompressed = zlib.decompress(data, wbits)
+            except zlib.error:
+                continue
+
+            result = _decode_bytes(decompressed)
+            if result is not None:
+                return result
+
+        raise AdjustmentsDecodeError("Could not decode adjustment data")
 
     def _load_plist_file(self, plist_file):
         """Load plist file from disk

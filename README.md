@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-102-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-105-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
@@ -39,9 +39,9 @@ Tested on Ubuntu Linux and macOS. Many features are only available on macOS.
 
 On Linux, macOS-specific features of the CLI will not be available (these will not be shown in the help output). The export and query CLI commands as well as the Python API will work on Linux which enables you to export photos from a Photos library on a Linux machine.
 
-Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.6). Tested on both x86 and Apple silicon (M1).
+Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.i7.2). Tested on both x86 and Apple silicon (M1).
 
-**OSXPhotos has been minimally tested with macOS Tahoe (macOS 26 developer beta) but new beta versions may break osxphotos support. If you encounter problems with macOS 26, please open an issue.**
+**Most features work on macOS 26.1 but OSXPhotos does yet fully support 26.x. Notably OSXPhotos cannot read shared albums on macOS 26.x.**
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
@@ -1235,18 +1235,29 @@ Options:
                                   (MAKO_TEMPLATE_FILE). MAKO_TEMPLATE_FILE must
                                   be a valid Mako template (see
                                   https://www.makotemplates.org/). The template
-                                  will passed the following variables: photo
-                                  (PhotoInfo object for the photo being
-                                  exported), sidecar_path (pathlib.Path object
-                                  for the path to the sidecar being written),
-                                  and photo_path (pathlib.Path object for the
-                                  path to the exported photo.
-                                  SIDECAR_FILENAME_TEMPLATE must be a valid
-                                  template string (see Templating System in
-                                  help) which will be rendered to generate the
-                                  filename of the sidecar file. The '{filepath}'
-                                  template variable may be used in the
-                                  SIDECAR_FILENAME_TEMPLATE to refer to the
+                                  will passed the following variables: photo:
+                                  PhotoInfo object for the photo being exported,
+                                  sidecar_path: pathlib.Path object for the path
+                                  to the sidecar being written, photo_path:
+                                  pathlib.Path object for the path to the
+                                  exported photo, description:
+                                  description/caption of the photo, including
+                                  results of --description-template, keywords:
+                                  keywords associated with the photo, including
+                                  results of options like --person-keyword,
+                                  persons: persons in the photo, including
+                                  results of --exiftool-merge-persons, subjects:
+                                  equivalent to keywords, latlon: latitude &
+                                  longitude of photo as a tuple, rating: rating
+                                  of photo including result of --favorite-
+                                  rating, extension: file extension of the
+                                  exported photo, version: current osxphotos
+                                  version. SIDECAR_FILENAME_TEMPLATE must be a
+                                  valid template string (see Templating System
+                                  in help) which will be rendered to generate
+                                  the filename of the sidecar file. The
+                                  '{filepath}' template variable may be used in
+                                  the SIDECAR_FILENAME_TEMPLATE to refer to the
                                   filename of the photo being exported. OPTIONS
                                   is a comma-separated list of strings providing
                                   additional options to the template. Valid
@@ -2397,7 +2408,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.74.1'
+{osxphotos_version}             The osxphotos version, e.g. '0.74.2'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2895,7 +2906,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.74.1'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.74.2'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -3076,7 +3087,10 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="http://yazdanra.com"><img src="https://avatars.githubusercontent.com/u/32798567?v=4?s=75" width="75px;" alt="Yazdan Ranjbar"/><br /><sub><b>Yazdan Ranjbar</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=YazdanRa" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/m-reiter"><img src="https://avatars.githubusercontent.com/u/5221258?v=4?s=75" width="75px;" alt="m-reiter"/><br /><sub><b>m-reiter</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Am-reiter" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.mherzberg.de"><img src="https://avatars.githubusercontent.com/u/12444544?v=4?s=75" width="75px;" alt="Michael Herzberg"/><br /><sub><b>Michael Herzberg</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Amherzberg" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://toot.lv/@eriks"><img src="https://avatars.githubusercontent.com/u/176241?v=4?s=75" width="75px;" alt="Ēriks Remess"/><br /><sub><b>Ēriks Remess</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=EriksRemess" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://toot.lv/@eriks"><img src="https://avatars.githubusercontent.com/u/176241?v=4?s=75" width="75px;" alt="Ēriks Remess"/><br /><sub><b>Ēriks Remess</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=EriksRemess" title="Code">💻</a> <a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AEriksRemess" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/pkaila"><img src="https://avatars.githubusercontent.com/u/870219?v=4?s=75" width="75px;" alt="pkaila"/><br /><sub><b>pkaila</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=pkaila" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ZeliTheZealot"><img src="https://avatars.githubusercontent.com/u/19900255?v=4?s=75" width="75px;" alt="ZeliTheZealot"/><br /><sub><b>ZeliTheZealot</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AZeliTheZealot" title="Bug reports">🐛</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=ZeliTheZealot" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/benw-git"><img src="https://avatars.githubusercontent.com/u/85592899?v=4?s=75" width="75px;" alt="benw-git"/><br /><sub><b>benw-git</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Abenw-git" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>

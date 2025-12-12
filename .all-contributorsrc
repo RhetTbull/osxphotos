@@ -974,7 +974,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/176241?v=4",
       "profile": "https://toot.lv/@eriks",
       "contributions": [
-        "code"
+        "code",
+        "bug"
       ]
     },
     {
@@ -984,6 +985,25 @@
       "profile": "https://github.com/pkaila",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "ZeliTheZealot",
+      "name": "ZeliTheZealot",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19900255?v=4",
+      "profile": "https://github.com/ZeliTheZealot",
+      "contributions": [
+        "bug",
+        "doc"
+      ]
+    },
+    {
+      "login": "benw-git",
+      "name": "benw-git",
+      "avatar_url": "https://avatars.githubusercontent.com/u/85592899?v=4",
+      "profile": "https://github.com/benw-git",
+      "contributions": [
+        "bug"
       ]
     }
   ],
