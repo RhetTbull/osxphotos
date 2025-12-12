@@ -26,6 +26,7 @@ from .exportdb import exportdb
 from .grep import grep
 from .help import help
 from .info import info
+from .install_completion import install_completion
 from .install_uninstall_run import install, run, uninstall
 from .keywords import keywords
 from .labels import labels
@@ -157,6 +158,7 @@ commands = [
     help,
     info,
     install,
+    install_completion,
     keywords,
     labels,
     list_libraries,
