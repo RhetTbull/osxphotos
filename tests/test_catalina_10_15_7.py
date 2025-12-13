@@ -23,7 +23,7 @@ from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
-SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"
+SKIP_TEST = "OSXPHOTOS_TEST_LOCAL" not in os.environ or OS_VERSION[1] != "15"
 PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"

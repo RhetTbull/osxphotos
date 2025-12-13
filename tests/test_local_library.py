@@ -8,10 +8,12 @@ import tempfile
 import time
 
 import pytest
+from click.testing import CliRunner
 
 import osxphotos
 import osxphotos.exiftool
 from osxphotos import PhotosDB
+from osxphotos.cli import export
 from osxphotos.platform import get_macos_version, is_macos
 
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
@@ -32,6 +34,11 @@ UUID_DICT_LOCAL = {
     "has_adjustments": "ADDEC5FD-F3DC-418A-B358-717C748C34BC",  # IMG_1929.JPG
     "no_adjustments": "ED9BCC94-C73C-416D-AA92-B6ABA8CDC6F0",  # IMG_9847.JPG
     "live": "50B35845-9C2B-45AF-A68F-83BE394A7FB1",  # IMG_3259.HEIC
+}
+
+UUID_SKIP_LIVE_PHOTOKIT = {
+    "5220373D-9AD4-4EE6-84E0-CB21F6BE3EC4": ["IMG_3203_edited.jpeg"],
+    "E22A7BCA-442D-46A6-B064-8E0345961EC8": ["IMG_4179.jpeg"],
 }
 
 UUID_BURSTS = {
@@ -242,3 +249,33 @@ def test_burst_albums(photosdb):
         assert photo.burst_selected == UUID_BURSTS[uuid]["selected"]
         assert sorted(photo.albums) == sorted(UUID_BURSTS[uuid]["albums"])
         assert sorted(photo.burst_albums) == sorted(UUID_BURSTS[uuid]["burst_albums"])
+
+
+def test_export_skip_live_photokit():
+    """test that --skip-live works with --use-photokit (issue #537)"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    for uuid in UUID_SKIP_LIVE_PHOTOKIT:
+        with runner.isolated_filesystem():
+            result = runner.invoke(
+                export,
+                [
+                    ".",
+                    "--library",
+                    os.path.join(cwd, PHOTOS_DB_LOCAL),
+                    "-V",
+                    "-F",
+                    "--uuid",
+                    uuid,
+                    "--use-photos-export",
+                    "--use-photokit",
+                    "--skip-live",
+                    "--skip-original-if-edited",
+                    "--convert-to-jpeg",
+                ],
+            )
+            assert result.exit_code == 0
+            files = [str(p) for p in pathlib.Path(".").glob("IMG*")]
+            assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])
