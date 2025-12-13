@@ -22,9 +22,6 @@ from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
-# SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "17"
-SKIP_TEST = True  # don't run any of the local library tests
-PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 PHOTOS_DB = "tests/Test-12.0.0.dev-beta.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-12.0.0.dev-beta.photoslibrary/database/Photos.sqlite"
@@ -150,17 +147,6 @@ UUID_DICT = {
     "multi_query_2": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
 }
 
-UUID_DICT_LOCAL = {
-    "not_visible": "4A836160-51B2-4E32-907D-ECDDB2CEC657",  # IMG_9815.JPG
-    "burst": "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F",  # IMG_9812.JPG
-    "burst_key": "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F",  # IMG_9812.JPG
-    "burst_not_key": "4A836160-51B2-4E32-907D-ECDDB2CEC657",  # IMG_9815.JPG
-    "burst_selected": "75154738-83AA-4DCD-A913-632D5D1C0FEE",  # IMG_9814.JPG
-    "burst_not_selected": "89E235DD-B9AC-4E8D-BDA2-986981CA7582",  # IMG_9813.JPG
-    "burst_default": "F5E6BD24-B493-44E9-BDA2-7AD9D2CC8C9D",  # IMG_9816.JPG
-    "burst_not_default": "75154738-83AA-4DCD-A913-632D5D1C0FEE",  # IMG_9814.JPG
-}
-
 UUID_PUMPKIN_FARM = [
     "F12384F6-CD17-4151-ACBA-AE0E3688539E",
     "D79B8D77-BFFC-460B-9312-034F2877D35B",
@@ -260,11 +246,6 @@ UUID_DUPLICATE = ""
 @pytest.fixture(scope="module")
 def photosdb():
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
-
-@pytest.fixture(scope="module")
-def photosdb_local():
-    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_LOCAL)
 
 
 def test_init1():
@@ -1226,55 +1207,6 @@ def test_original_filename(photosdb):
     photo._info["originalFilename"] = None
     assert photo.original_filename == ORIGINAL_FILENAME_DICT["filename"]
     photo._info["originalFilename"] = original_filename
-
-
-# The following tests only run on the author's personal library
-# They test things difficult to test in the test libraries
-@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
-def test_not_visible_burst(photosdb_local):
-    """test not visible and burst (needs image from local library)"""
-    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["not_visible"])
-    assert not photo.visible
-    assert photo.burst
-
-
-@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
-def test_visible_burst(photosdb_local):
-    """test not visible and burst (needs image from local library)"""
-    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst"])
-    assert photo.visible
-    assert photo.burst
-    assert len(photo.burst_photos) == 4
-
-
-@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
-def test_burst_key(photosdb_local):
-    """test burst_key"""
-    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_key"])
-    assert photo.burst_key
-
-    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_not_key"])
-    assert not photo.burst_key
-
-
-@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
-def test_burst_selected(photosdb_local):
-    """test burst_selected"""
-    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_selected"])
-    assert photo.burst_selected
-
-    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_not_selected"])
-    assert not photo.burst_selected
-
-
-@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
-def test_burst_default_pic(photosdb_local):
-    """test burst_default_pick"""
-    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_default"])
-    assert photo.burst_default_pick
-
-    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_not_default"])
-    assert not photo.burst_default_pick
 
 
 def test_is_reference(photosdb):
