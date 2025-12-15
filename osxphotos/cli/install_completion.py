@@ -3,27 +3,32 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 import click
+import psutil
 
 from .click_rich_echo import rich_click_echo
 from .common import get_data_dir
 
 
 @click.command(name="install-completion")
-@click.option(
-    "--shell",
+@click.argument(
+    "shell",
     type=click.Choice(["bash", "zsh", "fish"], case_sensitive=False),
-    help="Shell type (auto-detected if not specified)",
+    required=False,
 )
 def install_completion(shell: str | None):
     """Install shell completion for osxphotos.
 
     Installs tab completion for your shell. Supports bash, zsh, and fish.
     The shell type is auto-detected if not specified.
+
+    Arguments:
+        SHELL: Shell type (bash, zsh, or fish). Auto-detected if not specified.
 
     After installation, restart your shell or source your shell config file
     for the changes to take effect.
@@ -76,19 +81,30 @@ def install_completion(shell: str | None):
         sys.exit(1)
 
     try:
-        # Generate the completion script
-        rich_click_echo(f"Generating completion script to {completion_file}...")
-
-        result = subprocess.run(
-            ["osxphotos"],
-            env={**os.environ, env_var.split("=")[0]: env_var.split("=")[1]},
-            capture_output=True,
-            text=True,
-            check=True,
+        # Generate or copy the completion script
+        rich_click_echo(
+            f"Installing completion script to [filename]{completion_file}[/] ..."
         )
 
-        completion_file.write_text(result.stdout)
-        rich_click_echo("[success]✓[/success] Completion script generated")
+        if shell == "fish":
+            # Use our custom fish completion script to avoid Click's buggy fish completion
+            import osxphotos
+
+            share_dir = Path(osxphotos.__file__).parent / "share"
+            fish_source = share_dir / "osxphotos.fish"
+            shutil.copy(fish_source, completion_file)
+        else:
+            # Generate bash/zsh completions using Click
+            result = subprocess.run(
+                ["osxphotos"],
+                env={**os.environ, env_var.split("=")[0]: env_var.split("=")[1]},
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            completion_file.write_text(result.stdout)
+
+        rich_click_echo("[green]✓[/green] Completion script installed")
 
         # Add source line to shell config (bash/zsh only)
         if shell_config and source_line:
@@ -98,18 +114,28 @@ def install_completion(shell: str | None):
                     rich_click_echo(f"Adding completion to {shell_config}...")
                     with shell_config.open("a") as f:
                         f.write(f"\n# osxphotos completion\n{source_line}")
-                    rich_click_echo("[success]✓[/success] Added to shell config")
+                    rich_click_echo("[green]✓[/green] Added to shell config")
                 else:
-                    rich_click_echo(f"[warning]Completion already in {shell_config}[/warning]")
+                    rich_click_echo(
+                        f"[warning]Completion already in {shell_config}[/warning]"
+                    )
             else:
+                rich_click_echo(f"Creating {shell_config}...")
+                shell_config.parent.mkdir(parents=True, exist_ok=True)
+                with shell_config.open("w") as f:
+                    f.write(f"# osxphotos completion\n{source_line}")
                 rich_click_echo(
-                    f"[warning]Shell config file {shell_config} not found. "
-                    f"Please add this line manually:[/warning]\n  {source_line.strip()}"
+                    "[green]✓[/green] Created shell config and added completion"
                 )
 
-        rich_click_echo("\n[success]Installation complete![/success]")
-        rich_click_echo(f"\nTo activate completion, run: [command]source {shell_config}[/command]")
-        rich_click_echo("Or restart your shell.\n")
+        rich_click_echo("\n[green]Installation complete![/green]")
+        if shell_config:
+            rich_click_echo(
+                f"\nTo activate completion, run: [filepath]source {shell_config}[/filepath]"
+            )
+            rich_click_echo("Or restart your shell.\n")
+        else:
+            rich_click_echo("\nRestart your shell to activate completion.\n")
 
     except subprocess.CalledProcessError as e:
         rich_click_echo(f"[error]Failed to generate completion script: {e}[/error]")
@@ -130,7 +156,6 @@ def detect_shell() -> str | None:
 
     # Try parent process (works in most cases)
     try:
-        import psutil
         parent = psutil.Process(os.getppid())
         parent_name = parent.name()
         for shell in ["bash", "zsh", "fish"]:
