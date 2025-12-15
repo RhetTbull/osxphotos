@@ -7,7 +7,7 @@ osxphotos supports tab completion for bash, zsh, and fish shells. This provides 
 The easiest way to install shell completion is using the built-in command:
 
 ```bash
-osxphotos install-completion
+osxphotos shell-completion
 ```
 
 This will:

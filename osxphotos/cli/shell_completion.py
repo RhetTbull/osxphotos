@@ -15,13 +15,13 @@ from .click_rich_echo import rich_click_echo
 from .common import get_data_dir
 
 
-@click.command(name="install-completion")
+@click.command(name="shell-completion")
 @click.argument(
     "shell",
     type=click.Choice(["bash", "zsh", "fish"], case_sensitive=False),
     required=False,
 )
-def install_completion(shell: str | None):
+def install_shell_completion(shell: str | None):
     """Install shell completion for osxphotos.
 
     Installs tab completion for your shell. Supports bash, zsh, and fish.
