@@ -2979,7 +2979,7 @@ def get_dirnames_from_template(
             if not is_valid_filepath(dest_path):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
             if not dry_run and not os.path.isdir(dest_path):
-                FileUtilMacOS.makedirs(dest_path, exist_ok=True)
+                FileUtilShUtil.makedirs(dest_path, exist_ok=True)
             dest_paths.append(dest_path)
     else:
         dest_paths = [dest]
