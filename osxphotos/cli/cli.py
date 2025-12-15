@@ -35,6 +35,7 @@ from .persons import persons
 from .places import places
 from .query import query
 from .repl import repl
+from .shell_completion import install_shell_completion
 from .snap_diff import diff, snap
 from .template_repl import template_repl
 from .theme import theme
@@ -157,6 +158,7 @@ commands = [
     help,
     info,
     install,
+    install_shell_completion,
     keywords,
     labels,
     list_libraries,
