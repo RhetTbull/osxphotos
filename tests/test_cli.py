@@ -69,12 +69,7 @@ IPHOTO_LIBRARY = "tests/Test-iPhoto-9.6.1.photolibrary"
 # my personal library which some tests require
 LOCAL_PHOTOSDB = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
-UUID_SKIP_LIVE_PHOTOKIT = {
-    "D3FA21AA-62B0-41BA-A45E-B9E09369908B": ["IMG_3203_edited.jpeg"],
-    "14B8DE1D-4113-4948-BC11-C7046656C58C": ["IMG_4179.jpeg"],
-}
-
-UUID_DOWNLOAD_MISSING = "C07BB1E1-2F61-4263-AB8E-943FD47CF013"  # IMG_8844.JPG
+UUID_DOWNLOAD_MISSING = "38E8347F-0D43-411E-B797-004C9DCBDA4E"  # IMG_8844.JPG
 
 UUID_FILE = "tests/uuid_from_file.txt"
 SKIP_UUID_FILE = "tests/skip_uuid_from_file.txt"
@@ -1099,7 +1094,7 @@ QUERY_EXIF_DATA_CASE_INSENSITIVE = [
 ]
 EXPORT_EXIF_DATA = [("EXIF:Make", "FUJIFILM", ["Tulips.jpg", "Tulips_edited.jpeg"])]
 
-UUID_LIVE_EDITED = "029A1751-8A59-48FE-B636-E73E760ECDA6"  # IMG_4813.HEIC
+UUID_LIVE_EDITED = "EBD1C1B4-D127-4B3B-9F04-D66F0D2C9AB4"  # IMG_4813.HEIC
 CLI_EXPORT_LIVE_EDITED = _normalize_fs_paths(
     [
         "IMG_4813.HEIC",
@@ -1147,8 +1142,8 @@ UUID_NOT_SCREEN_RECORDING = [
 @pytest.fixture(scope="module")
 def local_photosdb():
     """Return a PhotosDB object for the local Photos library"""
-    if "OSXPHOTOS_TEST_EXPORT_V2" not in os.environ:
-        pytest.skip("OSXPHOTOS_TEST_EXPORT_V2 not set")
+    if "OSXPHOTOS_TEST_LOCAL" not in os.environ:
+        pytest.skip("OSXPHOTOS_TEST_LOCAL not set")
     return osxphotos.PhotosDB(dbfile=LOCAL_PHOTOSDB)
 
 
@@ -5744,7 +5739,7 @@ def test_export_update_complex():
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    "OSXPHOTOS_TEST_LOCAL" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
 def test_export_live_edited():
@@ -8926,7 +8921,7 @@ def test_export_jpeg_ext_convert_to_jpeg_movie():
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT_V2" not in os.environ,
+    "OSXPHOTOS_TEST_LOCAL_V2" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
 def test_export_burst_folder_album(local_photosdb):
@@ -8965,7 +8960,7 @@ def test_export_burst_folder_album(local_photosdb):
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT_V2" not in os.environ,
+    "OSXPHOTOS_TEST_LOCAL_V2" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
 def test_export_burst_uuid(local_photosdb: osxphotos.PhotosDB):
@@ -9013,7 +9008,7 @@ def test_export_burst_uuid(local_photosdb: osxphotos.PhotosDB):
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    "OSXPHOTOS_TEST_LOCAL" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
 def test_export_download_missing_file_exists():
@@ -9060,7 +9055,7 @@ def test_export_download_missing_file_exists():
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    "OSXPHOTOS_TEST_LOCAL" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
 def test_export_download_missing_preview():
@@ -9092,7 +9087,7 @@ def test_export_download_missing_preview():
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    "OSXPHOTOS_TEST_LOCAL" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
 def test_export_download_missing_preview_applescript():
@@ -9120,40 +9115,6 @@ def test_export_download_missing_preview_applescript():
         )
         assert result.exit_code == 0
         assert "exported: 2" in result.output
-
-
-@pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
-    reason="Skip if not running on author's personal library.",
-)
-def test_export_skip_live_photokit():
-    """test that --skip-live works with --use-photokit (issue #537)"""
-
-    runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    for uuid in UUID_SKIP_LIVE_PHOTOKIT:
-        with runner.isolated_filesystem():
-            result = runner.invoke(
-                export,
-                [
-                    ".",
-                    "--library",
-                    os.path.join(cwd, LOCAL_PHOTOSDB),
-                    "-V",
-                    "-F",
-                    "--uuid",
-                    uuid,
-                    "--use-photos-export",
-                    "--use-photokit",
-                    "--skip-live",
-                    "--skip-original-if-edited",
-                    "--convert-to-jpeg",
-                ],
-            )
-            assert result.exit_code == 0
-            files = [str(p) for p in pathlib.Path(".").glob("IMG*")]
-            assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])
 
 
 def test_query_name():

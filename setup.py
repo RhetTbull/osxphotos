@@ -61,7 +61,13 @@ setup(
     project_urls={"GitHub": "https://github.com/RhetTbull/osxphotos"},
     download_url="https://github.com/RhetTbull/osxphotos",
     packages=find_packages(exclude=["tests", "examples", "utils"])
-    + ["osxphotos.docs", "osxphotos.templates", "osxphotos.queries", "osxphotos.lib"],
+    + [
+        "osxphotos.docs",
+        "osxphotos.templates",
+        "osxphotos.queries",
+        "osxphotos.lib",
+        "osxphotos.share",
+    ],
     license="License :: OSI Approved :: MIT License",
     python_requires=">=3.10",
     classifiers=[
@@ -94,6 +100,7 @@ setup(
         "pathvalidate>=2.4.1,<4.0.0",
         "photoscript>=0.5.0; sys_platform == 'darwin'",
         "pip",
+        "psutil",
         "ptpython>=3.0.20,<4.0.0",
         "pyobjc-core>=9.0; sys_platform == 'darwin' and platform_release >= '22.0'",
         "pyobjc-framework-AppleScriptKit>=9.0; sys_platform == 'darwin' and platform_release >= '22.0'",

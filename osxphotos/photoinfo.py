@@ -963,6 +963,18 @@ class PhotoInfo:
         return bool(burst_pick_type & BURST_KEY)
 
     @property
+    def burst_key_photo(self) -> PhotoInfo | None:
+        """If a photo is part of a burst group, returns the PhotoInfo object for the key photo of a burst group otherwise None"""
+        if not self.burst:
+            return None
+        if self.burst_key:
+            return self
+        for photo in self.burst_photos:
+            if photo.burst_key:
+                return photo
+        return None
+
+    @property
     def burst_default_pick(self) -> bool:
         """Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False"""
         burst_pick_type = (
