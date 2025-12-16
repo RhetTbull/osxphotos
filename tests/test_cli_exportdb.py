@@ -254,3 +254,16 @@ def test_exportdb_uuid():
         )
         assert result.exit_code == 0
         assert result.stdout.strip() == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
+
+
+def test_exportdb_missing():
+    """Test --missing"""
+
+    runner = CliRunner()
+    library = os.path.join(os.getcwd(), CLI_PHOTOS_DB)
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        result = runner.invoke(export, [cwd, "--library", library, "-V"])
+        result = runner.invoke(exportdb, [cwd, "--missing"])
+        assert result.exit_code == 0
+        assert "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C" in result.output  # Pumpkins4.jpg
