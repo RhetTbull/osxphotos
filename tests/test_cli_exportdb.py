@@ -264,6 +264,6 @@ def test_exportdb_missing():
     with runner.isolated_filesystem():
         cwd = os.getcwd()
         result = runner.invoke(export, [cwd, "--library", library, "-V"])
-        result = runner.invoke(exportdb, [cwd, "--missing"])
+        result = runner.invoke(exportdb, [cwd, "--missing", "--library", library])
         assert result.exit_code == 0
         assert "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C" in result.output  # Pumpkins4.jpg
