@@ -9,6 +9,7 @@ from textwrap import dedent
 import click
 from rich import print
 
+import osxphotos
 from osxphotos._constants import OSXPHOTOS_EXPORT_DB, UUID_PATTERN
 from osxphotos._version import __version__
 from osxphotos.export_db import (
@@ -35,7 +36,7 @@ from osxphotos.export_db_utils import (
 from osxphotos.sqlite_utils import sqlite_check_integrity, sqlite_repair_db
 from osxphotos.utils import pluralize
 
-from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
+from .cli_params import DB_OPTION, THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
 from .click_rich_echo import (
     rich_click_echo,
     rich_echo,
@@ -44,6 +45,7 @@ from .click_rich_echo import (
     set_rich_theme,
 )
 from .color_themes import get_theme
+from .common import get_photos_db
 from .export import render_and_validate_report
 from .param_types import TemplateString
 from .report_writer import export_report_writer_factory
@@ -54,8 +56,7 @@ from .verbose import get_verbose_console, verbose_print
 @click.option(
     "--version",
     is_flag=True,
-    help="Print export database version and exit "
-    "(this shows the version of osxphotos that originally created the export database).",
+    help="Print export database version and exit (this shows the version of osxphotos that originally created the export database).",
 )
 @click.option("--vacuum", is_flag=True, help="Run VACUUM to defragment the database.")
 @click.option(
@@ -111,6 +112,13 @@ from .verbose import get_verbose_console, verbose_print
     help="Print list of files that had warnings/errors on last export run.",
 )
 @click.option(
+    "--missing",
+    is_flag=True,
+    help="Print list of UUIDs missing from export database. "
+    "May be used with --library to specify which Photos library to compare to. "
+    "Output format is suitable for use with 'osxphotos export --uuid-from-file'",
+)
+@click.option(
     "--uuid-files",
     metavar="UUID",
     nargs=1,
@@ -146,8 +154,7 @@ from .verbose import get_verbose_console, verbose_print
     metavar="FILE_PATH",
     nargs=1,
     multiple=True,
-    help="Delete all data associated with FILE_PATH from the database; "
-    "does not delete the actual exported file if it exists, only the data in the database.",
+    help="Delete all data associated with FILE_PATH from the database; does not delete the actual exported file if it exists, only the data in the database.",
 )
 @click.option(
     "--report",
@@ -176,9 +183,7 @@ from .verbose import get_verbose_console, verbose_print
 @click.option(
     "--repair",
     is_flag=True,
-    help="Repair export database. "
-    "This may be useful if the export database is corrupted and osxphotos reports "
-    "'database disk image is malformed' errors. ",
+    help="Repair export database. This may be useful if the export database is corrupted and osxphotos reports 'database disk image is malformed' errors. ",
 )
 @click.option(
     "--sql",
@@ -188,10 +193,7 @@ from .verbose import get_verbose_console, verbose_print
 @click.option(
     "--migrate-photos-library",
     metavar="PHOTOS_LIBRARY",
-    help="Migrate the export database to use the specified Photos library. "
-    "Use this if you have moved your Photos library to a new location or computer and "
-    "want to keep using the same export database. "
-    "This will update the UUIDs in the export database to match the new Photos library.",
+    help="Migrate the export database to use the specified Photos library. Use this if you have moved your Photos library to a new location or computer and want to keep using the same export database. This will update the UUIDs in the export database to match the new Photos library.",
     type=click.Path(exists=True, file_okay=True, dir_okay=True),
 )
 @click.option(
@@ -202,12 +204,12 @@ from .verbose import get_verbose_console, verbose_print
 @click.option(
     "--append",
     is_flag=True,
-    help="If used with --report, add data to existing report file instead of overwriting it. "
-    "See also --report.",
+    help="If used with --report, add data to existing report file instead of overwriting it. See also --report.",
 )
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
 @THEME_OPTION
+@DB_OPTION
 @click.option(
     "--dry-run",
     is_flag=True,
@@ -238,6 +240,7 @@ def exportdb(
     touch_file,
     update_signatures,
     upgrade,
+    missing,
     uuid_files,
     uuid_info,
     uuid,
@@ -247,6 +250,7 @@ def exportdb(
     vacuum,
     verbose_flag,
     version,
+    db,
 ):
     """Utilities for working with the osxphotos export database"""
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
@@ -293,6 +297,7 @@ def exportdb(
             uuid,
             vacuum,
             version,
+            missing,
         ]
     ]
     if sum(sub_commands) > 1:
@@ -318,8 +323,7 @@ def exportdb(
             sys.exit(1)
         else:
             rich_echo(
-                f"Export database version: [num]{export_db_ver}[/], "
-                f"created by osxphotos version [num]{osxphotos_ver}[/] on [time]{date_created}[/]"
+                f"Export database version: [num]{export_db_ver}[/], created by osxphotos version [num]{osxphotos_ver}[/] on [time]{date_created}[/]"
             )
         sys.exit(0)
 
@@ -449,8 +453,7 @@ def exportdb(
             sys.exit(1)
         else:
             rich_echo(
-                f"Done. Found [num]{matched}[/] matching signatures and [num]{notmatched}[/] signatures that don't match. "
-                f"Skipped [num]{skipped}[/] missing files."
+                f"Done. Found [num]{matched}[/] matching signatures and [num]{notmatched}[/] signatures that don't match. Skipped [num]{skipped}[/] missing files."
             )
             sys.exit(0)
 
@@ -464,8 +467,7 @@ def exportdb(
             sys.exit(1)
         else:
             rich_echo(
-                f"Done. Touched [num]{touched}[/] files, skipped [num]{not_touched}[/] up to date files, "
-                f"skipped [num]{skipped}[/] missing files."
+                f"Done. Touched [num]{touched}[/] files, skipped [num]{not_touched}[/] up to date files, skipped [num]{skipped}[/] missing files."
             )
             sys.exit(0)
 
@@ -677,6 +679,25 @@ def exportdb(
             export_db, migrate_photos_library, verbose, dry_run
         )
         rich_echo(
-            f"Migrated [num]{migrated}[/] {pluralize(migrated, 'photo', 'photos')}, "
-            f"[num]{notmigrated}[/] not migrated."
+            f"Migrated [num]{migrated}[/] {pluralize(migrated, 'photo', 'photos')}, [num]{notmigrated}[/] not migrated."
         )
+
+    if missing:
+        # find UUIDs from library that are missing in the export DB
+        db = get_photos_db(db)
+        if not db:
+            rich_echo_error(
+                f"[error]Could not find Photos library; use --library to specify path to library[/error]"
+            )
+            sys.exit(1)
+        exportdb = ExportDB(dbfile=export_db, export_dir=export_dir)
+        rich_echo_error("Loading Photos library...")
+        all_photos = osxphotos.PhotosDB(dbfile=db).photos()
+        for p in all_photos:
+            files = exportdb.get_files_for_uuid(p.uuid)
+            # need to check files where a sidecar might have been generated for a missing photo
+            # if all files in files end with .xmp, .XMP, .json, .JSON, then only sidecar was exported
+            if not files or all(
+                f.endswith((".xmp", ".XMP", ".json", ".JSON")) for f in files
+            ):
+                print(f"# {p.original_filename}\n{p.uuid}")
