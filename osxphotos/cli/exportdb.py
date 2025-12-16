@@ -51,7 +51,12 @@ from .verbose import get_verbose_console, verbose_print
 
 
 @click.command(name="exportdb")
-@click.option("--version", is_flag=True, help="Print export database version and exit.")
+@click.option(
+    "--version",
+    is_flag=True,
+    help="Print export database version and exit "
+    "(this shows the version of osxphotos that originally created the export database).",
+)
 @click.option("--vacuum", is_flag=True, help="Run VACUUM to defragment the database.")
 @click.option(
     "--create", metavar="VERSION", help="Create a new export database with VERSION."
@@ -116,6 +121,12 @@ from .verbose import get_verbose_console, verbose_print
     metavar="UUID",
     nargs=1,
     help="Print information about UUID contained in the database.",
+)
+@click.option(
+    "--uuid",
+    metavar="FILEPATH",
+    nargs=1,
+    help="Print UUID associated with a file in the database",
 )
 @click.option(
     "--history",
@@ -229,6 +240,7 @@ def exportdb(
     upgrade,
     uuid_files,
     uuid_info,
+    uuid,
     history,
     delete_uuid,
     delete_file,
@@ -278,6 +290,7 @@ def exportdb(
             update_signatures,
             uuid_files,
             uuid_info,
+            uuid,
             vacuum,
             version,
         ]
@@ -536,6 +549,21 @@ def exportdb(
                 rich_echo(
                     f"[error]UUID '{uuid_files}' not found in export database[/error]"
                 )
+            sys.exit(0)
+
+    if uuid:
+        # Print UUID for a file
+        exportdb = ExportDB(export_db, export_dir)
+        try:
+            info_rec = exportdb.get_file_record(uuid)
+        except Exception as e:
+            rich_echo_error(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+        else:
+            if info_rec:
+                rich_echo(info_rec.uuid)
+            else:
+                rich_echo(f"[error]File '{uuid}' not found in export database[/error]")
             sys.exit(0)
 
     if history:
