@@ -224,19 +224,14 @@ if TYPE_CHECKING:
     "--retry",
     metavar="RETRY",
     type=click.INT,
-    help="Automatically retry export (and file operations) up to RETRY times if an error occurs "
-    "during export. This may be useful with network drives that experience intermittent errors. "
-    "See also option --retry-nas-alias.",
+    help="Automatically retry export (and file operations) up to RETRY times if an error occurs during export. This may be useful with network drives that experience intermittent errors. See also option --retry-nas-alias.",
 )
 @click.option(
     "--retry-nas-alias",
     metavar="NAS.ALIAS",
     default=None,
     multiple=False,
-    help="Alias filename to the SMB export destination folder to be used with --retry to force "
-    "macOs to re-mount the SMB export folder in case of loss of connection. "
-    "Create the alias file manually on Finder and make sure it's within the Sandboxed "
-    "environment of osxphotos. See also option --retry and --retry-wait.",
+    help="Alias filename to the SMB export destination folder to be used with --retry to force macOs to re-mount the SMB export folder in case of loss of connection. Create the alias file manually on Finder and make sure it's within the Sandboxed environment of osxphotos. See also option --retry and --retry-wait.",
     type=CatchSmartQuotesPath(
         exists=True, file_okay=True, dir_okay=False, readable=True
     ),
@@ -245,10 +240,7 @@ if TYPE_CHECKING:
     "--retry-wait",
     metavar="WAIT",
     type=click.INT,
-    help="Seconds to wait in between --retry file operations attempts during export. "
-    "Must be used with --retry and --retry-nas-alias. This is useful with network drives "
-    "that experience intermittent errors. If not specified, default is 15s. "
-    "See also option --retry and --retry-nas-alias.",
+    help="Seconds to wait in between --retry file operations attempts during export. Must be used with --retry and --retry-nas-alias. This is useful with network drives that experience intermittent errors. If not specified, default is 15s. See also option --retry and --retry-nas-alias.",
 )
 @click.option(
     "--export-by-date",
@@ -676,6 +668,7 @@ if TYPE_CHECKING:
     "you can specify '**/*.txt'. "
     "If present, the .osxphotos_keep file will be read after the export is completed and any rules found in the file "
     "will be added to the list of rules to keep. "
+    "Files whose name starts with '.' (dot-files) will not be deleted. "
     "See also --keep.",
 )
 @click.option(
@@ -700,6 +693,28 @@ if TYPE_CHECKING:
     "will be added to the list of rules to keep. "
     "This file uses the same format as a .gitignore file and should contain one rule per line; "
     "lines starting with a '#' will be ignored. ",
+)
+@click.option(
+    "--cleanup-command",
+    metavar="COMMAND",
+    nargs=1,
+    multiple=True,
+    help="Run COMMAND on files that would be cleaned up (deleted) if --cleanup was run. "
+    "COMMAND is an osxphotos template string, for example: '--cleanup-command \"mv {filepath|shell_quote} /Volumes/cleanup\"' "
+    "{filepath} will be set to the full path of the file to be cleaned up. "
+    "If both --cleanup and --cleanup-command are passed, --cleanup-command is processed before --cleanup. "
+    "See also --cleanup-command-error.",
+    type=TemplateString(),
+)
+@click.option(
+    "--cleanup-command-error",
+    metavar="ACTION",
+    help="Specify either 'continue' or 'break' for ACTION to control behavior when a cleanup-command fails. "
+    "If 'continue', osxphotos will log the error and continue processing. "
+    "If 'break', osxphotos will stop processing any additional --cleanup-command commands for the current photo "
+    "but will continue with the export. "
+    "Without --cleanup-command-error, osxphotos will abort the export if a --cleanup-command encounters an error. ",
+    type=click.Choice(["continue", "break"], case_sensitive=False),
 )
 @click.option(
     "--add-exported-to-album",
@@ -928,6 +943,8 @@ def export(
     burst: bool,
     checkpoint: int | None,
     cleanup: bool,
+    cleanup_command: tuple[tuple[str, str], ...],
+    cleanup_command_error: Literal["continue", "break"] | None,
     cloudasset: bool,
     config_only: bool,
     convert_to_jpeg: bool,
@@ -1137,6 +1154,8 @@ def export_cli(
     burst: bool = False,
     checkpoint: int | None = None,
     cleanup: bool = False,
+    cleanup_command: tuple[tuple[str, str], ...] = (),
+    cleanup_command_error: Literal["continue", "break"] | None = None,
     cloudasset: bool = False,
     config_only: bool = False,
     convert_to_jpeg: bool = False,
@@ -1383,6 +1402,8 @@ def export_cli(
         burst = cfg.burst
         checkpoint = cfg.checkpoint
         cleanup = cfg.cleanup
+        cleanup_command = cfg.cleanup_command
+        cleanup_command_error = cfg.cleanup_command_error
         cloudasset = cfg.cloudasset
         convert_to_jpeg = cfg.convert_to_jpeg
         crash_after = cfg.crash_after
@@ -2159,7 +2180,7 @@ def export_cli(
         rich_echo("Did not find any photos to export")
 
     # cleanup files and do report if needed
-    if cleanup:
+    if cleanup or cleanup_command:
         db_file = str(pathlib.Path(export_db_path).resolve())
         db_files = [db_file, db_file + "-wal", db_file + "-shm"]
         keep_file = str(pathlib.Path(dest) / ".osxphotos_keep")
@@ -3085,7 +3106,7 @@ def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose):
 
     deleted_files = []
     for p in pathlib.Path(dest_path).rglob("*"):
-        if p.is_file() and normalize_fs_path(str(p).lower()) not in keepers:
+        if p.is_file() and normalize_fs_path(str(p).lower()) not in keepers and not p.name.startswith("."):
             verbose(f"Deleting [filepath]{p}")
             try:
                 fileutil.unlink(p)

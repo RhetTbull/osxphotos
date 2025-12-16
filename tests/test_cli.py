@@ -7362,6 +7362,65 @@ def test_export_cleanup():
         assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
 
 
+def test_export_cleanup_ignore_dot_files():
+    """test export with --cleanup flag and ensure dot files are ignored"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, ["--library", os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"]
+        )
+        assert result.exit_code == 0
+
+        # create 2 files and a directory
+        with open("delete_me.txt", "w") as fd:
+            fd.write("delete me!")
+        os.mkdir("./foo")
+        with open("foo/delete_me_too.txt", "w") as fd:
+            fd.write("delete me too!")
+        assert pathlib.Path("./delete_me.txt").is_file()
+        with open(".do_not_delete_me", "w") as fd:
+            fd.write("do_not_delete_me!")
+        assert pathlib.Path("./.do_not_delete_me").is_file()
+
+        # run cleanup with dry-run
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--cleanup",
+                "--dry-run",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Deleted: 2 files, 0 directories" in result.output
+        assert pathlib.Path("./delete_me.txt").is_file()
+        assert pathlib.Path("./foo/delete_me_too.txt").is_file()
+
+        # run cleanup without dry-run
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--cleanup",
+            ],
+        )
+        assert "Deleted: 2 files, 1 directory" in result.output
+        assert not pathlib.Path("./delete_me.txt").is_file()
+        assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
+        assert pathlib.Path("./.do_not_delete_me").is_file()
+
+
 def test_export_cleanup_report():
     """test export with --cleanup flag with --report in the export dir (#739)"""
 
