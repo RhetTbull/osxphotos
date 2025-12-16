@@ -7,6 +7,7 @@ import datetime
 import json
 import os
 import os.path
+import pathlib
 import sqlite3
 import sys
 from abc import ABC, abstractmethod
@@ -79,7 +80,7 @@ class ExportReportWriterCSV(ReportWriterABC):
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
     ):
-        self.output_file = output_file
+        self.output_file = pathlib.Path(output_file)
         self.append = append
 
         report_columns = [
@@ -113,11 +114,12 @@ class ExportReportWriterCSV(ReportWriterABC):
             "aae_skipped",
         ]
 
+        # write the header if creating a new file
+        write_header = (append and not self.output_file.exists()) or not append
         mode = "a" if append else "w"
         self._output_fh = open(self.output_file, mode)
-
         self._csv_writer = csv.DictWriter(self._output_fh, fieldnames=report_columns)
-        if not append:
+        if write_header:
             self._csv_writer.writeheader()
 
     def write(self, export_results: ExportResults):
@@ -545,6 +547,9 @@ class SyncReportWriterCSV(ReportWriterABC):
     ):
         self.output_file = output_file
         self.append = append
+        self.write_header = (
+            append and not pathlib.Path(output_file).exists()
+        ) or not append
         mode = "a" if append else "w"
         self._output_fh = open(self.output_file, mode)
 
@@ -552,7 +557,7 @@ class SyncReportWriterCSV(ReportWriterABC):
         """Write results to the output file"""
         report_columns = sync_results.results_header
         self._csv_writer = csv.DictWriter(self._output_fh, fieldnames=report_columns)
-        if not self.append:
+        if self.write_header:
             self._csv_writer.writeheader()
 
         for data in sync_results.results_list:
@@ -795,10 +800,11 @@ class PushExifReportWriterCSV(ReportWriterABC):
         ]
         self.output_file = output_file
         self.append = append
+        write_header = (append and not pathlib.Path(output_file).exists()) or not append
         mode = "a" if append else "w"
         self._output_fh = open(self.output_file, mode)
         self._csv_writer = csv.DictWriter(self._output_fh, fieldnames=report_columns)
-        if not append:
+        if write_header:
             self._csv_writer.writeheader()
 
     def write(self, uuid: str, original_filename: str, push_results: PushResults):
@@ -1014,10 +1020,7 @@ class PushExifReportWriterSQLite(ReportWriterABC):
         # data = [str(v) if v else "" for v in row]
         cursor = self._conn.cursor()
         cursor.execute(
-            "INSERT INTO report "
-            "(report_id, uuid, original_filename, datetime, filename, written, updated, skipped, missing, warning, error)"
-            "VALUES "
-            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO report (report_id, uuid, original_filename, datetime, filename, written, updated, skipped, missing, warning, error)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (report_id, *data),
         )
         self._conn.commit()
