@@ -6981,6 +6981,39 @@ def test_export_report():
         )
 
 
+def test_export_report_append_new():
+    """test export with --report --append on new report file (#2033)"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # test report creation
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "-F",
+                "--uuid",
+                UUID_REPORT[0]["uuid"],
+                "--report",
+                "report.csv",
+                "--append",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote export report" in result.output
+        assert os.path.exists("report.csv")
+        with open("report.csv", "r") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert sorted(filenames) == sorted(UUID_REPORT[0]["filenames"])
+
+
 def test_export_report_json():
     """test export with --report option for JSON report"""
 
