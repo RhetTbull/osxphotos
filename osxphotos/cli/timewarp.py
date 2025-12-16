@@ -29,11 +29,18 @@ from osxphotos.photodates import (
     update_photo_from_function,
     update_photo_time_for_new_timezone,
 )
-from osxphotos.photoquery import load_uuid_from_file
+from osxphotos.photoquery import (
+    load_uuid_from_file,
+    photo_query,
+    query_options_from_kwargs,
+)
+from osxphotos.photosdb import PhotosDB
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.platform import assert_macos
 from osxphotos.timezones import Timezone
 from osxphotos.utils import noop, pluralize
+
+from .verbose import verbose
 
 assert_macos()
 
@@ -41,13 +48,18 @@ from photoscript import Photo, PhotosLibrary
 
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 
-from .cli_params import THEME_OPTION, TIMESTAMP_OPTION, VERBOSE_OPTION
+from .cli_params import (
+    LIMITED_QUERY_OPTION_NAMES,
+    LIMITED_QUERY_OPTIONS,
+    THEME_OPTION,
+    VERBOSE_OPTIONS,
+)
 from .click_rich_echo import rich_click_echo as echo
 from .click_rich_echo import rich_echo_error as echo_error
 from .color_themes import get_theme
 from .common import OSXPHOTOS_CRASH_LOG
 from .darkmode import is_dark_mode
-from .help import HELP_WIDTH, rich_text
+from .help import HELP_WIDTH, filter_help_text_for_sphinx, is_sphinx_running, rich_text
 from .param_types import (
     DateOffset,
     DateTimeISO8601,
@@ -80,13 +92,13 @@ class TimeWarpCommand(click.Command):
 
 Timewarp operates on photos selected in Apple Photos.  To use it, open Photos, select the photos for which you'd like to adjust the date/time/timezone, then run osxphotos timewarp from the command line:
 
-`osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone -0700 --verbose`
+'osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone -0700 --verbose'
 
 A named timezone can also be specified:
 
-`osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone "America/Los_Angeles" --verbose`
+'osxphotos timewarp --date 2021-09-10 --time-delta "-1 hour" --timezone "America/Los_Angeles" --verbose'
 
-This example sets the date for all selected photos to `2021-09-10`, subtracts 1 hour from the time of each photo, and sets the timezone of each photo to `GMT -07:00` (Pacific Daylight Time).
+This example sets the date for all selected photos to '2021-09-10', subtracts 1 hour from the time of each photo, and sets the timezone of each photo to 'GMT -07:00' (Pacific Daylight Time).
 
 **Caution**: This app directly modifies your Photos library database using undocumented features.  It may corrupt, damage, or destroy your Photos library.  Use at your own caution.  I strongly recommend you make a backup of your Photos library before using this script (e.g. use Time Machine).
 
@@ -94,56 +106,56 @@ This example sets the date for all selected photos to `2021-09-10`, subtracts 1 
 
 **Add 1 day to the date of each photo**
 
-`osxphotos timewarp --date-delta 1`
+'osxphotos timewarp --date-delta 1'
 
 or
 
-`osxphotos timewarp --date-delta "+1 day"`
+'osxphotos timewarp --date-delta "+1 day"'
 
 **Set the date of each photo to 23 April 2020 and add 3 hours to the time**
 
-`osxphotos timewarp --date 2020-04-23 --time-delta "+3 hours"`
+'osxphotos timewarp --date 2020-04-23 --time-delta "+3 hours"'
 
 or
 
-`osxphotos timewarp --date 2020-04-23 --time-delta "+03:00:00"`
+'osxphotos timewarp --date 2020-04-23 --time-delta "+03:00:00"'
 
 **Set the time of each photo to 14:30 and set the timezone to UTC +1:00 (Central European Time)**
 
-`osxphotos timewarp --time 14:30 --timezone +01:00`
+'osxphotos timewarp --time 14:30 --timezone +01:00'
 
 or
 
-`osxphotos timewarp --time 14:30 --timezone +0100`
+'osxphotos timewarp --time 14:30 --timezone +0100'
 
 **Subtract 1 week from the date for each photo, add 3 hours to the time, set the timezone to UTC -07:00 (Pacific Daylight Time) and also use exiftool to update the EXIF metadata accordingly in the original file; use --verbose to print additional details**
 
-`osxphotos timewarp --date-delta "-1 week" --time-delta "+3 hours" --timezone -0700 --push-exif --verbose`
+'osxphotos timewarp --date-delta "-1 week" --time-delta "+3 hours" --timezone -0700 --push-exif --verbose'
 
-For this to work, you'll need to install the third-party exiftool (https://exiftool.org/) utility.  If you use  homebrew (https://brew.sh/) you can do this with `brew install exiftool`.
+For this to work, you'll need to install the third-party exiftool (https://exiftool.org/) utility.  If you use  homebrew (https://brew.sh/) you can do this with 'brew install exiftool'.
 
 **Set the timezone to UTC +03:00 for each photo but keep the time the same (that is, don't adjust time for the new timezone)**
 
-`osxphotos timewarp --timezone 0300 --match-time`
+'osxphotos timewarp --timezone 0300 --match-time'
 
-*Note on timezones and times*: In Photos, when you change the timezone, Photos assumes the time itself was correct for the previous timezone and adjusts the time accordingly to the new timezone.  E.g. if the photo's time is `13:00` and the timezone is `GMT -07:00` and you adjust the timezone one hour east to `GMT -06:00`, Photos will change the time of the photo to `14:00`.  osxphotos timewarp follows this behavior.  Using `--match-time` allows you to adjust the timezone but keep the same time without adjustment. For example, if your camera clock was correct but lacked timezone information and you took photos in one timezone but imported them to photos in another, Photos will add the timezone of the computer at time of import.  You can use osxphotos timewarp to adjust the timezone but keep the time using `--match-time`.
+*Note on timezones and times*: In Photos, when you change the timezone, Photos assumes the time itself was correct for the previous timezone and adjusts the time accordingly to the new timezone.  E.g. if the photo's time is '13:00' and the timezone is 'GMT -07:00' and you adjust the timezone one hour east to 'GMT -06:00', Photos will change the time of the photo to '14:00'.  osxphotos timewarp follows this behavior.  Using '--match-time' allows you to adjust the timezone but keep the same time without adjustment. For example, if your camera clock was correct but lacked timezone information and you took photos in one timezone but imported them to photos in another, Photos will add the timezone of the computer at time of import.  You can use osxphotos timewarp to adjust the timezone but keep the time using '--match-time'.
 
 **Update the date the photos were added to Photos**
 
-`osxphotos timewarp --date-added 2021-09-10`
+'osxphotos timewarp --date-added 2021-09-10'
 
 **Update the date the photos were added to Photos to match the date of the photo**
 
-`osxphotos timewarp --date-added-from-photo`
+'osxphotos timewarp --date-added-from-photo'
 
 **Compare the date/time/timezone of selected photos with the date/time/timezone in the photos' original EXIF metadata**
 
-`osxphotos timewarp --compare-exif`
+'osxphotos timewarp --compare-exif'
 
 **Read the date/time/timezone from the photos' original EXIF metadata to update the photos' date/time/timezone;
 if the EXIF data is missing, use the file modification date/time; show verbose output**
 
-`osxphotos timewarp --pull-exif --use-file-time --verbose`
+'osxphotos timewarp --pull-exif --use-file-time --verbose'
 
 ## Parsing Dates/Times from Filenames
 
@@ -151,8 +163,8 @@ The --parse-date option allows you to parse dates/times from the original filena
 This is useful if you files with dates/times embedded in the filename but not in the metadata.
 
 
-The argument to `--parse-date` is a pattern string that is used to parse the date/time
-from the filename. The pattern string is a superset of the python `strftime/strptime`
+The argument to '--parse-date' is a pattern string that is used to parse the date/time
+from the filename. The pattern string is a superset of the python 'strftime/strptime'
 format with the following additions:
 
 - *: Match any number of characters
@@ -161,8 +173,8 @@ format with the following additions:
 - {n}: Match exactly n characters
 - {n,}: Match at least n characters
 - {n,m}: Match at least n characters and at most m characters
-- In addition to `%%` for a literal `%`, the following format codes are supported:
-    `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
+- In addition to '%%' for a literal '%', the following format codes are supported:
+    '%^', '%$', '%*', '%|', '%{', '%}' for '^', '$', '*', '|', '{', '}' respectively
 - |: join multiple format codes; each code is tried in order until one matches
 - Unlike the standard library, the leading zero is not optional for
     %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
@@ -178,6 +190,11 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
             )
         )
         help_text += formatter.getvalue()
+
+        # If Sphinx is running, filter all help text for RST compatibility
+        if is_sphinx_running():
+            help_text = filter_help_text_for_sphinx(help_text)
+
         return help_text
 
 
@@ -254,7 +271,7 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
 )
 @click.option(
     "--inspect",
-    "-i",
+    "-I",
     is_flag=True,
     help="Print out the date/time/timezone for each selected photo without changing any information.",
 )
@@ -349,25 +366,8 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     metavar="ALBUM",
     help="When used with --compare-exif, adds any photos with date/time/timezone differences between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.",
 )
-@click.option(
-    "--uuid",
-    "-u",
-    metavar="UUID",
-    default=None,
-    multiple=True,
-    help="Apple to photo(s) with UUID(s). May be repeated to include multiple UUIDs.",
-)
-@click.option(
-    "--uuid-from-file",
-    "-U",
-    metavar="FILE",
-    default=None,
-    multiple=False,
-    help="Apply to photos with UUID(s) loaded from FILE. Format is a single UUID per line. Lines preceded with # are ignored. If FILE is '-', read UUIDs from stdin.",
-    type=PathOrStdin(exists=True),
-)
-@VERBOSE_OPTION
-@TIMESTAMP_OPTION
+@LIMITED_QUERY_OPTIONS
+@VERBOSE_OPTIONS
 @click.option(
     "--library",
     "-L",
@@ -420,26 +420,33 @@ def timewarp(
     uuid: tuple[str, ...] | None,
     uuid_from_file: click.Path | str | None,
     exiftool_path: click.Path | None,
-    verbose_flag: int,
     library: click.Path | None,
-    theme: str | None,
     parse_date: str | None,
     plain: bool,
-    timestamp: bool,
     force: bool,
     reset: bool,
+    **kwargs,
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
     Changes will be applied to: 1) photos specified via --uuid and
-    --uuid-from-file 2) photos currently selected in Photos in 'All Photos'
-    or Album views 3) all photos in Album view, if no selection is made.
-    timewarp cannot operate on photos selected in a Smart Album;
-    select photos in a regular album or in the 'All Photos' view.
+    --uuid-from-file 2) photos specified by one or more query options,
+    for example, --album "My Album" to specify an album, --added-in-last "1 day", etc.
+    3) photos currently selected in Photos in 'Library' / 'All Photos'
+    or Album views 4) all photos in Album view, if no selection is made.
+
+    If you have an Album open and no photos selected, all photos in the album will be edited unless you
+    specify one or more query options.
+
     See Timewarp Overview below for additional information.
+
+    It is recommended you test your changes on a small set of photos before applying them to many photos.
     """
 
-    return_code = timewarp_cli(**locals())
+    _locals = locals()
+    _locals.pop("kwargs")
+    _locals = _locals | kwargs
+    return_code = timewarp_cli(**_locals)
     sys.exit(return_code or 0)
 
 
@@ -462,14 +469,12 @@ def timewarp_cli(
     uuid: tuple[str, ...] | None,
     uuid_from_file: click.Path | str | None,
     exiftool_path: click.Path | None,
-    verbose_flag: int,
     library: click.Path | None,
-    theme: str | None,
     parse_date: str | None,
     plain: bool,
-    timestamp: bool,
     force: bool,
     reset: bool,
+    **kwargs,
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
@@ -477,8 +482,8 @@ def timewarp_cli(
     If you want to call the timewarp function directly in your own code, you may call
     timewarp_cli() directly. In this case you will be responsible for ensuring that all
     arguments are passed and all arguments are of the correct type. For example, the
-    CLI argument `--date` converts user input in form `2023-01-01` to a
-    datetime.datetime object. If passing `date`, you will be responsible for
+    CLI argument '--date' converts user input in form '2023-01-01' to a
+    datetime.datetime object. If passing 'date', you will be responsible for
     passing a datetime.datetime not the ISO string as is done on the command line.
 
     Returns: 1 if error or 0 if no error
@@ -529,44 +534,31 @@ def timewarp_cli(
             "--reset may only be used with Photos version 8.0 and later (macOS Ventura and later)"
         )
 
-    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
-
     if any([compare_exif, push_exif, pull_exif]):
         exiftool_path = exiftool_path or get_exiftool_path()
         verbose(f"exiftool path: [filename]{exiftool_path}[/filename]")
 
+    # Handle --uuid and --uuid-from-file options.
     photos = []
     if uuid:
         photos.extend(list(PhotosLibrary().photos(uuid=uuid)))
+
     if uuid_from_file:
         photos.extend(
             list(PhotosLibrary().photos(uuid=load_uuid_from_file(uuid_from_file)))
         )
 
-    # If neither uuid nor uuid_from_file is specified, then operate over selected photos
+    # If neither uuid nor uuid_from_file is specified, operate over query or selected photos
     if not (uuid or uuid_from_file):
         try:
-            photos.extend(PhotosLibrary().selection)
-        except Exception as e:
-            # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
-            if "(-1728)" in str(e):
-                echo_error(
-                    "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
-                    "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
-                    f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
-                    "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
-                )
-            else:
-                echo_error(
-                    f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
-                )
+            photos = get_photos_for_processing(**kwargs)
+        except RuntimeError as e:
+            echo_error(f"[error]Error getting photos: {e}")
             return 1
 
     if not photos:
         echo_error("[warning]No photos selected[/]")
         return 0
-
-    photos = unique_photos(photos)
 
     # confirm with user before proceeding
     if (
@@ -798,3 +790,47 @@ def unique_photos(photos: list[Photo]) -> list[Photo]:
             seen[photo.uuid] = True
             unique.append(photo)
     return unique
+
+
+def get_photos_for_processing(**kwargs) -> list[Photo]:
+    """Get photos for processing from query options or selection.
+
+    Args:
+        **kwargs: keyword arguments for query options or a subset thereof
+
+    Returns: list of photos to process.
+
+    Raises:
+        RuntimeError if error getting selection.
+    """
+    # if any of the query options are specified, then operate over query results
+    if any([kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES]):
+        photosdb = PhotosDB(dbfile=kwargs.get("library"))
+        query_options = query_options_from_kwargs(**kwargs)
+        results = photo_query(photosdb, query_options)
+        return (
+            list(PhotosLibrary().photos(uuid=[photo.uuid for photo in results]))
+            if results
+            else []
+        )
+
+    # If no query options are specified, then operate over selected photos
+    photo_sel = []
+    try:
+        photo_sel.extend(PhotosLibrary().selection)
+    except Exception as e:
+        # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
+        if "(-1728)" in str(e):
+            echo_error(
+                "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
+                "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
+                f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
+                "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
+            )
+        else:
+            echo_error(
+                f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
+            )
+        raise RuntimeError("Could not get selected photos")
+
+    return photo_sel

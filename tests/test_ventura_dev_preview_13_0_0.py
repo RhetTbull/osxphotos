@@ -6,6 +6,7 @@ import pathlib
 import sqlite3
 import tempfile
 import time
+import zoneinfo
 from collections import namedtuple
 
 import pytest
@@ -15,7 +16,7 @@ from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.adjustmentsinfo import AdjustmentsInfo
 
 PHOTOS_DB = "tests/Test-Ventura-dev_preview-13.0.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-Ventura-dev_preview-13.0.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-Ventura-dev_preview-13.0.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-Ventura-dev_preview-13.0.photoslibrary"
 
 PHOTOS_DB_LEN = 16

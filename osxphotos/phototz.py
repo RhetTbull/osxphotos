@@ -115,14 +115,15 @@ class PhotoTimeZoneUpdater:
         self.db_path = db_path
         self.ASSET_TABLE = _DB_TABLE_NAMES[photos_version]["ASSET"]
 
-    def update_photo(self, photo: Photo):
+    def update_photo(self, photo: Photo, offset_only: bool = False):
         """Update the timezone of a photo in the database
 
         Args:
             photo: Photo object to update
+            offset_only: If True, compare only timezone offset when updating (Used for resetting timezone)
         """
         try:
-            self._update_photo(photo)
+            self._update_photo(photo, offset_only)
         except Exception as e:
             self.verbose(f"Error updating {photo.uuid}: {e}")
 
@@ -130,7 +131,7 @@ class PhotoTimeZoneUpdater:
         wait=wait_exponential(multiplier=1, min=0.100, max=5),
         stop=stop_after_attempt(10),
     )
-    def _update_photo(self, photo: Photo):
+    def _update_photo(self, photo: Photo, offset_only: bool = False):
         # Use retry decorator to retry if database is locked
         try:
             uuid = photo.uuid
@@ -152,7 +153,9 @@ class PhotoTimeZoneUpdater:
                 results = c.fetchone()
 
             photo_tz_offset = self.timezone.offset_for_date(photo.date)
-            if results[2] == photo_tz_offset and results[3] == self.tz_name:
+            if results[2] == photo_tz_offset and (
+                offset_only or results[3] == self.tz_name
+            ):
                 self.verbose(
                     f"Skipping timezone update for photo [filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]): nothing to do"
                 )

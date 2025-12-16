@@ -1,7 +1,12 @@
+"""Test converting live photos to jpeg"""
+
 import os
+import pathlib
+import tempfile
 
 import pytest
 
+import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.exportoptions import ExportOptions
 from osxphotos.photoexporter import PhotoExporter
@@ -20,22 +25,17 @@ UUID_DICT = {
 
 NAMES_DICT = {"raw": "DSC03584.jpeg", "heic": "IMG_3092.jpeg"}
 
-UUID_LIVE_HEIC = "03EE6CE2-20E6-489D-A149-A2EC7D11C70A"  # IMG_3259.heic
+UUID_LIVE_HEIC = "50B35845-9C2B-45AF-A68F-83BE394A7FB1"  # IMG_3259.heic
 NAMES_LIVE_HEIC = ["IMG_3259.jpeg", "IMG_3259.mov"]
 
 
 @pytest.fixture(scope="module")
 def photosdb():
-    import osxphotos
-
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
 
 def test_export_convert_raw_to_jpeg(photosdb):
-    # test export with convert_to_jpeg
-    import pathlib
-    import tempfile
-
+    """test export with convert_to_jpeg"""
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["raw"]])
@@ -50,10 +50,7 @@ def test_export_convert_raw_to_jpeg(photosdb):
 
 
 def test_export_convert_heic_to_jpeg(photosdb):
-    # test export with convert_to_jpeg
-    import pathlib
-    import tempfile
-
+    """test export with convert_to_jpeg"""
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["heic"]])
@@ -68,19 +65,13 @@ def test_export_convert_heic_to_jpeg(photosdb):
 
 
 @pytest.mark.skipif(
-    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    "OSXPHOTOS_TEST_LOCAL" not in os.environ,
     reason="Skip if not running against author's personal library",
 )
 def test_export_convert_live_heic_to_jpeg():
-    # test export with convert_to_jpeg with live heic (issue #235)
+    """test export with convert_to_jpeg with live heic (issue #235)"""
     # don't have a live HEIC in one of the test libraries so use one from
     # my personal library
-    import os
-    import pathlib
-    import tempfile
-
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB()
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name

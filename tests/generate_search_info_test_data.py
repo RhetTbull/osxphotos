@@ -1,4 +1,4 @@
-""" Create the test data needed for test_search_info_10_15_7.py """
+"""Create the test data needed for test_search_info_10_15_7.py"""
 
 # reads data from the author's system photo library to build the test data
 # used to test SearchInfo
@@ -10,9 +10,9 @@ import json
 import osxphotos
 
 UUID = [
-    "14B8DE1D-4113-4948-BC11-C7046656C58C",  # IMG_4179.HEIC
-    "F21DFA19-E3E8-4610-8401-0447345F3074",  # IMG_1929.JPG,
-    "7D852FC8-EA03-49C9-96F7-B049CE44A7EA",  # IMG_6162.JPG
+    "E22A7BCA-442D-46A6-B064-8E0345961EC8",  # IMG_4179.HEIC
+    "ADDEC5FD-F3DC-418A-B358-717C748C34BC",  # IMG_1929.JPG,
+    "C2BB17B6-306D-421E-A1FC-7CD1A1541FE3",  # IMG_6162.JPG
 ]
 
 data = {

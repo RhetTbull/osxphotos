@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import pathlib
 import plistlib
 import sys
@@ -21,6 +22,7 @@ from .._constants import (
     _PHOTOS_9_MODEL_VERSION,
     _PHOTOS_10_MODEL_VERSION,
     _PHOTOS_10B1_MODEL_VERSION,
+    _PHOTOS_11_1_MODEL_VERSION,
     _PHOTOS_11_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
 )
@@ -38,7 +40,7 @@ __all__ = [
 LATEST_PHOTOS_VERSION = max(_DB_TABLE_NAMES.keys())
 
 
-def get_db_version(db_file):
+def get_db_version(db_file: os.PathLike) -> str:
     """Gets the Photos DB version from LiGlobals table
 
     Args:
@@ -73,8 +75,8 @@ def get_db_version(db_file):
     conn.close()
 
     if version not in _TESTED_DB_VERSIONS:
-        print(
-            f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
+        logger.warning(
+            f"WARNING: OSXPhotos has only been tested on Photos database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
             + f" You have database version={version} which has not been tested",
             file=sys.stderr,
         )
@@ -150,10 +152,12 @@ def get_photos_version_from_model(db_file: str) -> int:
         return 10
     if _PHOTOS_11_MODEL_VERSION[0] <= model_ver <= _PHOTOS_11_MODEL_VERSION[1]:
         return 11
+    if _PHOTOS_11_1_MODEL_VERSION[0] <= model_ver <= _PHOTOS_11_1_MODEL_VERSION[1]:
+        return 11.1
     logger.warning(
         f"Unknown db / model version for {db_file}: model_ver={model_ver}; assuming latest version"
     )
-    return 10
+    return 11.1
 
 
 def get_photos_library_version(library_path: str | pathlib.Path) -> int:
@@ -165,19 +169,29 @@ def get_photos_library_version(library_path: str | pathlib.Path) -> int:
     Returns: int of major Photos version number (e.g. 5, 6, ...)
     """
     library_path = pathlib.Path(library_path)
-    if library_path.is_dir():
-        library_path = library_path / "database" / "photos.db"
-    db_ver = int(get_db_version(str(library_path)))
-    if db_ver == int(_PHOTOS_2_VERSION):
-        return 2
-    if db_ver == int(_PHOTOS_3_VERSION):
-        return 3
-    if db_ver == int(_PHOTOS_4_VERSION):
-        return 4
+    if not library_path.is_dir():
+        # assume we got passed library path/database/Photos.sqlite or library path/database/photos.db
+        library_path = library_path.parent.parent
+
+    db_path = library_path / "database" / "photos.db"
+    if db_path.exists():
+        try:
+            db_ver = int(get_db_version(str(db_path)))
+            if db_ver == int(_PHOTOS_2_VERSION):
+                return 2
+            if db_ver == int(_PHOTOS_3_VERSION):
+                return 3
+            if db_ver == int(_PHOTOS_4_VERSION):
+                return 4
+        except Exception:
+            pass
 
     # assume it's a Photos 5+ library, get the model version to determine which version
-    library_path = library_path.parent / "Photos.sqlite"
-    return get_photos_version_from_model(str(library_path))
+    db_path = library_path / "database" / "Photos.sqlite"
+    if db_path.exists():
+        return get_photos_version_from_model(str(db_path))
+    else:
+        raise ValueError(f"Could not find Photos database at: {library_path}")
 
 
 def get_db_path_for_library(photos_library: str | pathlib.Path) -> pathlib.Path:

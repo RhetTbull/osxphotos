@@ -1,4 +1,4 @@
-"""Options class and results class for PhotoExporter """
+"""Options class and results class for PhotoExporter"""
 
 from __future__ import annotations
 
@@ -27,6 +27,7 @@ class ExportOptions:
         dry_run: (bool, default=False): set to True to run in "dry run" mode
         edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
         exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
+        exiftool_path (str): path to exiftool executable
         exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
         export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
         export_db: (ExportDB): instance of a class that conforms to ExportDB with methods for getting/setting data related to exported files to compare update state
@@ -53,11 +54,11 @@ class ExportOptions:
         rich (bool): if True, will use rich markup with verbose output
         export_aae (bool): if True, also exports adjustments as .AAE file
         sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
-        sidecar: bit field (int): set to one or more of `SIDECAR_XMP`, `SIDECAR_JSON`, `SIDECAR_EXIFTOOL`
+        sidecar: bit field (int): set to one or more of 'SIDECAR_XMP', 'SIDECAR_JSON', 'SIDECAR_EXIFTOOL'
           - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-          includes exiftool tag group names (e.g. `exiftool -G -j`)
+          includes exiftool tag group names (e.g. 'exiftool -G -j')
           - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-          does not include exiftool tag group names (e.g. `exiftool -j`)
+          does not include exiftool tag group names (e.g. 'exiftool -j')
           - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
         strip (bool): if True, strip whitespace from rendered templates
         timeout (int, default=120): timeout in seconds used with use_photos_export
@@ -72,6 +73,7 @@ class ExportOptions:
         tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory
         favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
         fix_orientation (bool): if True, will adjust image orientation based on exif data if necessary
+        sidecar_template (tuple of tuples): tuple of (template_file, filename_template, options) for user sidecar templates; multiple templates may be specified
 
     """
 
@@ -81,6 +83,7 @@ class ExportOptions:
     dry_run: bool = False
     edited: bool = False
     exiftool_flags: Optional[list[str]] = None
+    exiftool_path: Optional[str] = None
     exiftool: bool = False
     export_as_hardlink: bool = False
     export_db: Optional[ExportDB] = None
@@ -121,6 +124,7 @@ class ExportOptions:
     tmpdir: Optional[str] = None
     favorite_rating: bool = False
     fix_orientation: bool = False
+    sidecar_template: Optional[tuple[tuple[str, str, tuple[str, ...]], ...]] = None
 
     def asdict(self):
         return dataclasses.asdict(self)

@@ -2,6 +2,278 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.74.2](https://github.com/RhetTbull/osxphotos/compare/v0.74.1...v0.74.2)
+
+Enhancements to `--sidecar-template` and `--touch-file`, bug fixes.
+
+### 2025-12-06
+
+#### Added
+
+#### Changed
+
+- User sidecar templates, specified with `--sidecar-template` now have access to all variables that OSXPhotos uses when constructing the XMP sidecar (#2021)
+- `osxphotos export --touch-file` now sets file creation date in addition to the file modification and access date when exporting on macOS (#1899)
+
+#### Removed
+
+#### Fixed
+
+- Fix `--touch-file` regression for Synology NAS (#2017)
+- Fix decoding of adjustment data in some cases (#2018) (thanks to @EriksRemess for the fix)
+- Fix image and video captions where more than one caption was present (#2015) (thanks to @EriksRemess for the fix)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @EriksRemess [@EriksRemess](https://github.com/EriksRemess).
+
+## [v0.74.1](https://github.com/RhetTbull/osxphotos/compare/v0.74.0...v0.74.1)
+
+Updates to `osxphotos inspect` and `osxphotos albums`.
+
+### 2025-11-21
+
+#### Added
+
+- Added `media_analysis` property to `PhotoInfo` which returns a dictionary of the AI analysis data produced by Photos' media analysis process.
+- Added `ai_caption` property to `PhotoInfo` which returns the AI generated caption produced by the Photos media analysis process
+- Added AI generated caption to `osxphotos inspect`
+
+#### Changed
+
+- `osxphotos albums` now prints the full path to albums contained in folders, for example, `Folder/Subfolder/Album` (#2008)
+- New option `--size` for `osxphotos albums` to sort albums by size instead of the default alphabetical
+- `osxphotos inspect --template` now adds the rendered template to the inspect output (#2010)
+
+For example, the direction the photo was taken can be added to the `inspect` output using:
+
+`osxphotos inspect -T "[bold]Direction:[/] {exiftool:EXIF:GPSImgDirection}"`
+
+#### Removed
+
+#### Fixed
+
+- Better progress details on `osxphotos import` (thanks @oPromessa)
+- `osxphotos sync --import` now creates folder structure for albums (thanks @oPromessa) (#1978)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+
+## [v0.74.0](https://github.com/RhetTbull/osxphotos/compare/v0.73.4...v0.74.0)
+
+macOS 26.1 support
+
+### 2025-11-04
+
+#### Added
+
+- Support for macOS 26.1, thanks to @EriksRemess for testing and code.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Updates for macOS 15.7.2, thanks to @oPromessa (#1972)
+- Import hangs sometimes, thanks to @oPromessa kill and restart Photos (#1970)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+* @EriksRemess [@EriksRemess](https://github.com/EriksRemess).
+
+## [v0.73.4](https://github.com/RhetTbull/osxphotos/compare/v0.73.3...v0.73.4)
+
+Python 3.14 support
+
+### 2025-10-15
+
+#### Added
+
+- Support for Python 3.14
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fixed import with numeric keywords (#1934), thanks to @oPromessa
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+
+## [v0.73.3](https://github.com/RhetTbull/osxphotos/compare/v0.73.2...v0.73.3)
+
+Fixed performance regression from v0.73.2
+
+### v0.73.3 (2025-10-10)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+-Fixed performance regression from v0.73.2
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+
+## [v0.73.2](https://github.com/RhetTbull/osxphotos/compare/v0.73.1...v0.73.2)
+
+Bug fix for non-can timezones in timewarp.
+
+*NOTE* Version 0.73.2 was yanked due to a performance regression.
+
+### v0.73.2 (2025-10-10)
+
+#### Added
+
+- Added `adjustment_type` property to `PhotoInfo` class. `adjustment_type` is an int representing the type of adjustment made to the photo. Normal edits appear to be type 2 while edits that happen automatically at the time of shooting such as cropping to 16:9 aspect ratio appear to be type 3.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Improved handling of non-canonical timezones in timewarp. (#1952)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+
+## [v0.73.1](https://github.com/RhetTbull/osxphotos/compare/v0.73.0...v0.73.1)
+
+### v0.73.1 (2025-09-27)
+
+Bug fixes for broken dependency.
+
+#### Added
+
+#### Changed
+
+- All CLI commands check for macOS version before executing. (#1934)
+- Allow export_cli to accept a PhotosDB for the db argument (#1915)
+- `osxphotos timewarp` will not load database if `--uuid` or `--uuid-from-file` is specified (#1929)
+
+#### Removed
+
+#### Fixed
+
+Fix broken whenever dependency (#1937)
+Fix `export --delete-file` causes crash
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+
+## [v0.73.0](https://github.com/RhetTbull/osxphotos/compare/v0.72.3...v0.73.0)
+
+Adds limited set of query options for `timewarp` and `batch-edit` commands. Adds `--set-favorite`, `--clear-favorite` to batch-edit. Buf fix for edited photos in iPhoto libraries.
+
+For example, to edit all photos in an album named "My Album" and set them as favorites:
+
+```
+osxphotos batch-edit --album "My Album" --set-favorite
+```
+
+Query options have also been added to `timewarp`. For example, to adjust the time on all photos added in the last 1 day:
+
+```
+osxphotos timewarp --time-delta "+1 hour" --added-in-last "1 day"
+```
+
+**NOTE**: This release includes breaking changes for `batch-edit` and `timewarp` commands and for the `--album` and `--folder` query options that apply to all commands including `query` and `export`.
+
+Specifically, the `--album` option for `batch-edit` has been renamed to `--add-to-album`. The `--inspect` shot option in `timewarp` is now `-I` instead of `-i`.
+
+Additionally, the `--album` and `--folder` query options in all commands that use query options now automatically split folders and albums. For example `--album "Folder/Album"` will only operate on the album "Album" in the folder "Folder". If the album name contains a slash, use a double slash `//` to escape it: `--album "Folder//Album"`.
+
+### v0.73.0 (2025-09-17)
+
+#### Added
+
+* Implement query options for `timewarp`
+* Implement query options for `batch-edit`
+* Add `--set-favorite`, `--clear-favorite` to batch-edit (#1900)
+
+#### Changed
+
+* `--album` option for `batch-edit` renamed to `--add-to-album`
+* `export_cli()` function can now accept either a path to the Photos library or a `PhotosDB()` instance. This allows custom usage for long-running use-cases.
+* `--inspect` short option in `timewarp` is now `-I` instead of `-i`.
+* `--album` and `--folder` query options in all commands that use query options now automatically split folders and albums on `/`, use `//` to escape a slash in the album or folder name.
+
+#### Removed
+
+#### Fixed
+
+* Prioritize QuickTime:ContentCreateDate over EXIF:DateTimeOriginal for videos.
+* Catch errors when creating backup database.
+* Fixed `path_edited` for iPhotos.
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+* @oPromessa [@oPromessa](https://github.com/oPromessa).
+
+## [v0.72.3](https://github.com/RhetTbull/osxphotos/compare/v0.72.2...v0.72.3)
+
+Bug fix for malformed photos.db file (again) and a few other fixes.
+
+### v0.72.3 (2025-08-31)
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fix for malformed or missing photos.db file (#1893)
+- Fix for regex characters in file name on import (#1910)
+- Fix for invalid values in burst properties (#1908)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+
+## [v0.72.2](https://github.com/RhetTbull/osxphotos/compare/v0.72.1...v0.72.2)
+
+Bug fix for malformed photos.db file
+
+### v0.72.2 (2025-08-24)
+
+#### Added
+
+#### Changed
+
+- Updated documentation formatting for Sphinx.
+
+#### Removed
+
+#### Fixed
+
+- Fix for malformed or missing photos.db file (#1805, #1893)
+
+#### Contributors
+
+- @RhetTbull [@RhetTbull](https://github.com/rhettbull).
+
 ## [v0.72.1](https://github.com/RhetTbull/osxphotos/compare/v0.72.1...v0.72.0)
 
 Added homebrew install support.

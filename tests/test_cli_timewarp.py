@@ -8,15 +8,20 @@ import pytest
 from click.testing import CliRunner
 
 from osxphotos import PhotosDB
-from osxphotos.cli.timewarp import timewarp
 from osxphotos.exiftool import ExifTool
+from osxphotos.platform import is_macos
 from tests.conftest import get_os_version
-from tests.parse_timewarp_output import (
-    InspectValuesDateAdded,
-    compare_inspect_output,
-    parse_compare_exif,
-    parse_inspect_output,
-)
+
+if is_macos:
+    from osxphotos.cli.timewarp import timewarp
+    from tests.parse_timewarp_output import (
+        InspectValuesDateAdded,
+        compare_inspect_output,
+        parse_compare_exif,
+        parse_inspect_output,
+    )
+else:
+    pytest.skip("Only runs on macOS", allow_module_level=True)
 
 # set timezone to avoid issues with comparing dates
 # @pytest.fixture(scope="module", autouse=True)
@@ -90,7 +95,7 @@ def ask_user_to_make_selection(
 
 @pytest.mark.timewarp
 def test_inspect(photoslib, suspend_capture):
-    """Test --inspect. NOTE: this test requires user interaction"""
+    """Test --inspect"""
 
     runner = CliRunner()
     result = runner.invoke(
@@ -1425,3 +1430,33 @@ def test_reset(photoslib, suspend_capture):
     )
     values = parse_inspect_output(result.output)
     assert compare_inspect_output(TEST_DATA["reset"]["expected"], values)
+
+
+@pytest.mark.timewarp
+def test_album_query(photoslib, suspend_capture):
+    """Test --album"""
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--album", "Different EXIF"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    values = parse_inspect_output(result.output)
+    assert values[0].filename == "IMG_6501.jpeg"
+
+
+@pytest.mark.timewarp
+def test_year_query(photoslib, suspend_capture):
+    """Test --year"""
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "--year", "2021"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    values = parse_inspect_output(result.output)
+    assert len(values) == 4

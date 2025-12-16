@@ -1,4 +1,4 @@
-"""Use exiftool to update exif data in photos """
+"""Use exiftool to update exif data in photos"""
 
 from __future__ import annotations
 
@@ -204,9 +204,6 @@ class ExifDateTimeUpdater:
                 # )
             else:
                 new_datetime = dtinfo.datetime
-            #     local_datetime = dtinfo.datetime
-            # update date/time
-            # photo.date = local_datetime
             update_photo_date_time(
                 self.library_path,
                 photo,
@@ -216,10 +213,6 @@ class ExifDateTimeUpdater:
                 None,
                 self.verbose,
             )
-            # self.verbose(
-            #     "Updated date/time for photo "
-            #     f"[filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]): [time]{local_datetime}[/time]"
-            # )
 
         return None
 

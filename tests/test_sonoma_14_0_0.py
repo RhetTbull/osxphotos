@@ -9,6 +9,7 @@ import pathlib
 import sqlite3
 import tempfile
 import time
+import zoneinfo
 from collections import Counter, namedtuple
 
 import pytest
@@ -21,7 +22,7 @@ from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
 PHOTOS_DB = "tests/Test-14.0.0.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-14.0.0.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-14.0.0.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-14.0.0.photoslibrary"
 
 PHOTOS_DB_LEN = 16

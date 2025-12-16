@@ -1,11 +1,12 @@
-""" Utilities for working with date/time values in the Photos library """
+"""Utilities for working with date/time values in the Photos library"""
 
 from __future__ import annotations
 
 import datetime
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .datetime_utils import datetime_naive_to_local, get_local_tz
+from .tzcanonical import canonical_timezone
 
 # Time delta: add this to Photos times to get unix time
 # Apple Epoch is Jan 1, 2001
@@ -29,7 +30,20 @@ def photos_datetime(
     tzname: str | None = None,
     default: bool = False,
 ) -> datetime.datetime | None:
-    """Convert a timestamp from the Photos database to a timezone aware datetime"""
+    """Convert a timestamp from the Photos database to a timezone aware datetime
+
+    Args:
+        timestamp: The timestamp to convert.
+        tzoffset: The timezone offset in seconds.
+        tzname: The timezone name.
+        default: Whether to return the default datetime if the conversion fails.
+
+    Returns:
+        A timezone aware datetime or None if the conversion fails.
+
+    Note: This function aggressively tries to return a timezone aware datetime.
+    For example, given an invalid tzname but a valid tzoffset, it will use the tzoffset.
+    """
     if timestamp is None:
         return DEFAULT_DATETIME if default else None
 
@@ -38,13 +52,14 @@ def photos_datetime(
         dt = datetime.datetime.fromtimestamp(timestamp + TIME_DELTA)
         # Try to use tzname if provided
         if tzname:
-            try:
-                tz = ZoneInfo(tzname)
-                return dt.astimezone(tz)
-            except Exception:
-                # If tzname fails, fall back to tzoffset
-                pass
-
+            # get canonical timezone name, for example if tzname is "IDT", convert to"Asia/Jerusalem"
+            if tz_canonical := canonical_timezone(dt, tzoffset, tzname):
+                try:
+                    tz = ZoneInfo(tz_canonical)
+                    return dt.astimezone(tz)
+                except ZoneInfoNotFoundError:
+                    # default to tzoffset
+                    pass
         # Use tzoffset if tzname wasn't provided or failed
         tz = datetime.timezone(datetime.timedelta(seconds=tzoffset))
         return dt.astimezone(tz)

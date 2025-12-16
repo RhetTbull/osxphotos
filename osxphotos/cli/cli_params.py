@@ -12,6 +12,11 @@ import click
 from ..platform import is_macos
 from .common import OSXPHOTOS_HIDDEN, print_version
 from .param_types import *
+from .verbose import (
+    config_theme_callback,
+    config_timestamp_callback,
+    config_verbose_callback,
+)
 
 __all__ = [
     "DB_ARGUMENT",
@@ -20,10 +25,13 @@ __all__ = [
     "DELETED_OPTIONS",
     "FIELD_OPTION",
     "JSON_OPTION",
+    "LIMITED_QUERY_OPTIONS",
+    "LIMITED_QUERY_OPTION_NAMES",
     "QUERY_OPTIONS",
     "THEME_OPTION",
     "TIMESTAMP_OPTION",
     "VERBOSE_OPTION",
+    "VERBOSE_OPTIONS",
     "VERSION_OPTION",
 ]
 
@@ -52,7 +60,7 @@ def validate_selected(ctx, param, value):
                 --selected option used but no photos selected in Photos.
 
                 To select photos in Photos use one of the following methods:
-    
+
                 - Select a single photo: Click the photo, or press the arrow keys to quickly navigate to and select the photo.
 
                 - Select a group of adjacent photos in a day: Click the first photo, then hold down the Shift key while you click the last photo.
@@ -117,9 +125,7 @@ _DB_PARAMETER = click.Option(
     metavar="PHOTOS_LIBRARY_PATH",
     default=None,
     help=(
-        "Specify path to Photos library. "
-        "If not provided, will attempt to find the library to use in the following order: "
-        "1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary"
+        "Specify path to Photos library. If not provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary"
     ),
     type=click.Path(exists=True),
 )
@@ -131,9 +137,7 @@ DB_ARGUMENT = click.argument(
     nargs=-1,
     type=DeprecatedPath(
         exists=True,
-        deprecation_warning="The PHOTOS_LIBRARY argument is deprecated and "
-        "will be removed in a future version of osxphotos. "
-        "Use --library instead to specify the Photos Library path.",
+        deprecation_warning="The PHOTOS_LIBRARY argument is deprecated and will be removed in a future version of osxphotos. Use --library instead to specify the Photos Library path.",
     ),
 )
 
@@ -152,11 +156,7 @@ _FIELD_PARAMETER = click.Option(
     metavar="FIELD TEMPLATE",
     multiple=True,
     nargs=2,
-    help="Output only specified custom fields. "
-    "FIELD is the name of the field and TEMPLATE is the template to use as the field value. "
-    "May be repeated to output multiple fields. "
-    "For example, to output photo uuid, name, and title: "
-    '`--field uuid "{uuid}" --field name "{original_name}" --field title "{title}"`.',
+    help='Output only specified custom fields. FIELD is the name of the field and TEMPLATE is the template to use as the field value. May be repeated to output multiple fields. For example, to output photo uuid, name, and title: \'--field uuid "{uuid}" --field name "{original_name}" --field title "{title}"\'.',
 )
 
 FIELD_OPTION = make_click_option_decorator(_FIELD_PARAMETER)
@@ -176,6 +176,147 @@ _DELETED_PARAMETERS = [
 
 DELETED_OPTIONS = make_click_option_decorator(*_DELETED_PARAMETERS)
 
+
+# The following options are a limited set of query options useful for some commands where deeterministic
+# and more limited query results are useful (for example, batch-edit which can change photos in the library)
+# Exposing the entire set of query options could cause the user to accidentally include photos they did not intend to.
+ALBUM_OPTION = click.Option(
+    ["--album"],
+    metavar="ALBUM",
+    default=None,
+    multiple=True,
+    help="Search for photos in album ALBUM. "
+    'If more than one album, treated as "OR", e.g. find photos matching any album. '
+    "For albums in a folder, specify the entire folder path, e.g. 'My Folder/My Album'. "
+    "If album name contains a forward slash, use double slashes to escape it, e.g. 'Travel//2025' for an album named 'Travel/2025'.",
+)
+FOLDER_OPTION = click.Option(
+    ["--folder"],
+    metavar="FOLDER",
+    default=None,
+    multiple=True,
+    help="Search for photos in an album in folder FOLDER. "
+    'If more than one folder, treated as "OR", e.g. find photos in any FOLDER. '
+    "To search subfolders, specify the entire folder path, e.g. 'My Folder/Subfolder'. "
+    "If folder name contains a forward slash, use double slashes to escape it, e.g. 'My Folder//Subfolder' for a folder named 'My Folder/Subfolder'.",
+)
+UUID_OPTION = click.Option(
+    ["--uuid"],
+    metavar="UUID",
+    default=None,
+    multiple=True,
+    help="Search for photos with UUID(s). May be repeated to include multiple UUIDs.",
+)
+UUID_FROM_FILE_OPTION = click.Option(
+    ["--uuid-from-file"],
+    metavar="FILE",
+    default=None,
+    multiple=False,
+    help="Search for photos with UUID(s) loaded from FILE. Format is a single UUID per line. Lines preceded with # are ignored. If FILE is '-', read UUIDs from stdin.",
+    type=PathOrStdin(exists=True),
+)
+FROM_DATE_OPTION = click.Option(
+    ["--from-date"],
+    metavar="DATE",
+    help="Search for items created on or after DATE, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
+    type=DateTimeISO8601(),
+)
+TO_DATE_OPTION = click.Option(
+    ["--to-date"],
+    metavar="DATE",
+    help="Search for items created before DATE, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
+    type=DateTimeISO8601(),
+)
+YEAR_OPTION = click.Option(
+    ["--year"],
+    metavar="YEAR",
+    help="Search for items from a specific year, e.g. --year 2022 to find all photos from the year 2022. May be repeated to search multiple years.",
+    multiple=True,
+    type=int,
+)
+ADDED_BEFORE_OPTION = click.Option(
+    ["--added-before"],
+    metavar="DATE",
+    help="Search for items added to the library before a specific date/time, e.g. --added-before e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
+    type=DateTimeISO8601(),
+)
+ADDED_AFTER_OPTION = click.Option(
+    ["--added-after"],
+    metavar="DATE",
+    help="Search for items added to the library on or after a specific date/time, e.g. --added-after e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
+    type=DateTimeISO8601(),
+)
+ADDED_IN_LAST_OPTION = click.Option(
+    ["--added-in-last"],
+    metavar="TIME_DELTA",
+    help="Search for items added to the library in the last TIME_DELTA, "
+    "where TIME_DELTA is a string like "
+    "'12 hrs', '1 day', '1d', '1 week', '2weeks', '1 month', '1 year'. "
+    "for example, '--added-in-last 7d' and '--added-in-last '1 week'' are equivalent. "
+    "months are assumed to be 30 days and years are assumed to be 365 days. "
+    "Common English abbreviations are accepted, e.g. d, day, days or m, min, minutes.",
+    type=TimeOffset(),
+)
+IGNORE_CASE_OPTION = click.Option(
+    ["-i", "--ignore-case"],
+    is_flag=True,
+    help="Case insensitive search when used with other query options.",
+)
+
+_LIMITED_QUERY_OPTIONS_DICT = {
+    "--album": ALBUM_OPTION,
+    "--folder": FOLDER_OPTION,
+    "--uuid": UUID_OPTION,
+    "--uuid-from-file": UUID_FROM_FILE_OPTION,
+    "--from-date": FROM_DATE_OPTION,
+    "--to-date": TO_DATE_OPTION,
+    "--year": YEAR_OPTION,
+    "--added-before": ADDED_BEFORE_OPTION,
+    "--added-after": ADDED_AFTER_OPTION,
+    "--added-in-last": ADDED_IN_LAST_OPTION,
+    "--ignore-case": IGNORE_CASE_OPTION,
+}
+# exclude ignore_case because it is only a modifier for other options
+LIMITED_QUERY_OPTION_NAMES = [
+    "album",
+    "folder",
+    "uuid",
+    "uuid_from_file",
+    "from_date",
+    "to_date",
+    "year",
+    "added_before",
+    "added_after",
+    "added_in_last",
+]
+
+
+def LIMITED_QUERY_OPTIONS(
+    wrapped=None, *, exclude: list[str] | None = None
+) -> Callable[..., Any]:
+    """Function decorator to add subset of query options to a click command.
+
+    Args:
+        wrapped: function to decorate (this is normally passed automatically
+        exclude: list of query options to exclude from the command, for example 'exclude=["--album"]
+    """
+    if wrapped is None:
+        return functools.partial(LIMITED_QUERY_OPTIONS, exclude=exclude)
+
+    exclude = exclude or []
+
+    def _add_options(wrapped):
+        """Add query options to wrapped function"""
+        for option in reversed(_LIMITED_QUERY_OPTIONS_DICT.keys()):
+            if option in exclude:
+                continue
+            click_opt = _LIMITED_QUERY_OPTIONS_DICT[option]
+            _param_memo(wrapped, click_opt)
+        return wrapped
+
+    return _add_options(wrapped)
+
+
 # The following are used by the query command and by
 # QUERY_OPTIONS to add the query options to other commands
 # To add new query options, add them to _QUERY_OPTIONS as
@@ -187,8 +328,7 @@ _QUERY_PARAMETERS_DICT = {
         metavar="KEYWORD",
         default=None,
         multiple=True,
-        help="Search for photos with keyword KEYWORD. "
-        'If more than one keyword, treated as "OR", e.g. find photos matching any keyword',
+        help='Search for photos with keyword KEYWORD. If more than one keyword, treated as "OR", e.g. find photos matching any keyword',
     ),
     "--no-keyword": click.Option(
         ["--no-keyword"],
@@ -200,53 +340,19 @@ _QUERY_PARAMETERS_DICT = {
         metavar="PERSON",
         default=None,
         multiple=True,
-        help="Search for photos with person PERSON. "
-        'If more than one person, treated as "OR", e.g. find photos matching any person',
+        help='Search for photos with person PERSON. If more than one person, treated as "OR", e.g. find photos matching any person',
     ),
-    "--album": click.Option(
-        ["--album"],
-        metavar="ALBUM",
-        default=None,
-        multiple=True,
-        help="Search for photos in album ALBUM. "
-        'If more than one album, treated as "OR", e.g. find photos matching any album',
-    ),
-    "--folder": click.Option(
-        ["--folder"],
-        metavar="FOLDER",
-        default=None,
-        multiple=True,
-        help="Search for photos in an album in folder FOLDER. "
-        'If more than one folder, treated as "OR", e.g. find photos in any FOLDER.  '
-        "Only searches top level folders (e.g. does not look at subfolders)",
-    ),
+    "--album": ALBUM_OPTION,
+    "--folder": FOLDER_OPTION,
     "--name": click.Option(
         ["--name"],
         metavar="FILENAME",
         default=None,
         multiple=True,
-        help="Search for photos with filename matching FILENAME. "
-        'If more than one --name options is specified, they are treated as "OR", '
-        "e.g. find photos matching any FILENAME. ",
+        help='Search for photos with filename matching FILENAME. If more than one --name options is specified, they are treated as "OR", e.g. find photos matching any FILENAME. ',
     ),
-    "--uuid": click.Option(
-        ["--uuid"],
-        metavar="UUID",
-        default=None,
-        multiple=True,
-        help="Search for photos with UUID(s). "
-        "May be repeated to include multiple UUIDs.",
-    ),
-    "--uuid-from-file": click.Option(
-        ["--uuid-from-file"],
-        metavar="FILE",
-        default=None,
-        multiple=False,
-        help="Search for photos with UUID(s) loaded from FILE. "
-        "Format is a single UUID per line. Lines preceded with # are ignored. "
-        "If FILE is '-', read UUIDs from stdin.",
-        type=PathOrStdin(exists=True),
-    ),
+    "--uuid": UUID_OPTION,
+    "--uuid-from-file": UUID_FROM_FILE_OPTION,
     "--title": click.Option(
         ["--title"],
         metavar="TITLE",
@@ -295,8 +401,7 @@ _QUERY_PARAMETERS_DICT = {
         ["--label"],
         metavar="LABEL",
         multiple=True,
-        help="Search for photos with image classification label LABEL (Photos 5+ only). "
-        'If more than one label, treated as "OR", e.g. find photos matching any label',
+        help='Search for photos with image classification label LABEL (Photos 5+ only). If more than one label, treated as "OR", e.g. find photos matching any label',
     ),
     "--uti": click.Option(
         ["--uti"],
@@ -305,11 +410,7 @@ _QUERY_PARAMETERS_DICT = {
         multiple=False,
         help="Search for photos whose uniform type identifier (UTI) matches UTI",
     ),
-    "--ignore_case": click.Option(
-        ["-i", "--ignore-case"],
-        is_flag=True,
-        help="Case insensitive search for title, description, place, keyword, person, or album.",
-    ),
+    "--ignore_case": IGNORE_CASE_OPTION,
     "--edited": click.Option(
         ["--edited"],
         is_flag=True,
@@ -454,18 +555,8 @@ _QUERY_PARAMETERS_DICT = {
         is_flag=True,
         help="Search only for photos/images (default searches both images and movies).",
     ),
-    "--from-date": click.Option(
-        ["--from-date"],
-        metavar="DATE",
-        help="Search for items created on or after DATE, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
-        type=DateTimeISO8601(),
-    ),
-    "--to-date": click.Option(
-        ["--to-date"],
-        metavar="DATE",
-        help="Search for items created before DATE, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
-        type=DateTimeISO8601(),
-    ),
+    "--from-date": FROM_DATE_OPTION,
+    "--to-date": TO_DATE_OPTION,
     "--from-time": click.Option(
         ["--from-time"],
         metavar="TIME",
@@ -477,39 +568,10 @@ _QUERY_PARAMETERS_DICT = {
         help="Search for items created before TIME of day, e.g. 12:00 or 12:00:00.",
         type=TimeISO8601(),
     ),
-    "--year": click.Option(
-        ["--year"],
-        metavar="YEAR",
-        help="Search for items from a specific year, e.g. --year 2022 to find all photos from the year 2022. "
-        "May be repeated to search multiple years.",
-        multiple=True,
-        type=int,
-    ),
-    "--added-before": click.Option(
-        ["--added-before"],
-        metavar="DATE",
-        help="Search for items added to the library before a specific date/time, "
-        "e.g. --added-before e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
-        type=DateTimeISO8601(),
-    ),
-    "--added-after": click.Option(
-        ["--added-after"],
-        metavar="DATE",
-        help="Search for items added to the library on or after a specific date/time, "
-        "e.g. --added-after e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
-        type=DateTimeISO8601(),
-    ),
-    "--added-in-last": click.Option(
-        ["--added-in-last"],
-        metavar="TIME_DELTA",
-        help="Search for items added to the library in the last TIME_DELTA, "
-        "where TIME_DELTA is a string like "
-        "'12 hrs', '1 day', '1d', '1 week', '2weeks', '1 month', '1 year'. "
-        "for example, `--added-in-last 7d` and `--added-in-last '1 week'` are equivalent. "
-        "months are assumed to be 30 days and years are assumed to be 365 days. "
-        "Common English abbreviations are accepted, e.g. d, day, days or m, min, minutes.",
-        type=TimeOffset(),
-    ),
+    "--year": YEAR_OPTION,
+    "--added-before": ADDED_BEFORE_OPTION,
+    "--added-after": ADDED_AFTER_OPTION,
+    "--added-in-last": ADDED_IN_LAST_OPTION,
     "--has-comment": click.Option(
         ["--has-comment"],
         is_flag=True,
@@ -534,8 +596,7 @@ _QUERY_PARAMETERS_DICT = {
     "--not-reference": click.Option(
         ["--not-reference"],
         is_flag=True,
-        help="Search for photos that are not references, that is, they were copied into the Photos library "
-        "and are managed by Photos.",
+        help="Search for photos that are not references, that is, they were copied into the Photos library and are managed by Photos.",
     ),
     "--in-album": click.Option(
         ["--in-album"],
@@ -559,19 +620,13 @@ _QUERY_PARAMETERS_DICT = {
         ["--min-size"],
         metavar="SIZE",
         type=BitMathSize(),
-        help="Search for photos with size >= SIZE bytes. "
-        "The size evaluated is the photo's original size (when imported to Photos). "
-        "Size may be specified as integer bytes or using SI or NIST units. "
-        "For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'.",
+        help="Search for photos with size >= SIZE bytes. The size evaluated is the photo's original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'.",
     ),
     "--max-size": click.Option(
         ["--max-size"],
         metavar="SIZE",
         type=BitMathSize(),
-        help="Search for photos with size <= SIZE bytes. "
-        "The size evaluated is the photo's original size (when imported to Photos). "
-        "Size may be specified as integer bytes or using SI or NIST units. "
-        "For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'.",
+        help="Search for photos with size <= SIZE bytes. The size evaluated is the photo's original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'.",
     ),
     "--missing": click.Option(
         ["--missing"], is_flag=True, help="Search for photos missing from disk."
@@ -646,9 +701,7 @@ _QUERY_PARAMETERS_DICT = {
         metavar="REGEX TEMPLATE",
         nargs=2,
         multiple=True,
-        help="Search for photos where TEMPLATE matches regular expression REGEX. "
-        "For example, to find photos in an album that begins with 'Beach': '--regex \"^Beach\" \"{album}\"'. "
-        "You may specify more than one regular expression match by repeating '--regex' with different arguments.",
+        help="Search for photos where TEMPLATE matches regular expression REGEX. For example, to find photos in an album that begins with 'Beach': '--regex \"^Beach\" \"{album}\"'. You may specify more than one regular expression match by repeating '--regex' with different arguments.",
     ),
     "--selected": click.Option(
         ["--selected"],
@@ -662,9 +715,9 @@ _QUERY_PARAMETERS_DICT = {
         nargs=2,
         multiple=True,
         help="Search for photos where EXIF_TAG exists in photo's EXIF data and contains VALUE. "
-        "For example, to find photos created by Adobe Photoshop: `--exif Software 'Adobe Photoshop' `"
-        "or to find all photos shot on a Canon camera: `--exif Make Canon`. "
-        "EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. `EXIF:Make` or `Make`. "
+        "For example, to find photos created by Adobe Photoshop: '--exif Software 'Adobe Photoshop' '"
+        "or to find all photos shot on a Canon camera: '--exif Make Canon'. "
+        "EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. 'EXIF:Make' or 'Make'. "
         "To use --exif, exiftool must be installed and in the path.",
     ),
     "--query-eval": click.Option(
@@ -673,9 +726,9 @@ _QUERY_PARAMETERS_DICT = {
         multiple=True,
         help="Evaluate CRITERIA to filter photos. "
         "CRITERIA will be evaluated in context of the following python list comprehension: "
-        "`photos = [photo for photo in photos if CRITERIA]` "
+        "'photos = [photo for photo in photos if CRITERIA]' "
         "where photo represents a PhotoInfo object. "
-        "For example: `--query-eval photo.favorite` returns all photos that have been "
+        "For example: '--query-eval photo.favorite' returns all photos that have been "
         "favorited and is equivalent to --favorite. "
         "You may specify more than one CRITERIA by using --query-eval multiple times. "
         "CRITERIA must be a valid python expression. "
@@ -683,10 +736,10 @@ _QUERY_PARAMETERS_DICT = {
     ),
     "--query-function": click.Option(
         ["--query-function"],
-        metavar="filename.py::function",
+        metavar="filename.py:function",
         multiple=True,
         type=FunctionCall(),
-        help="Run function to filter photos. Use this in format: --query-function filename.py::function where filename.py is a python "
+        help="Run function to filter photos. Use this in format: --query-function filename.py:function where filename.py is a python "
         "file you've created and function is the name of the function in the python file you want to call. "
         "Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. "
         "You may use more than one function by repeating the --query-function option with a different value. "
@@ -708,7 +761,7 @@ def QUERY_OPTIONS(
 
     Args:
         wrapped: function to decorate (this is normally passed automatically
-        exclude: list of query options to exclude from the command, for example `exclude=["--shared"]
+        exclude: list of query options to exclude from the command, for example 'exclude=["--shared"]
     """
     if wrapped is None:
         return functools.partial(QUERY_OPTIONS, exclude=exclude)
@@ -763,9 +816,8 @@ _THEME_PARAMETER = click.Option(
     ["--theme"],
     metavar="THEME",
     type=click.Choice(["dark", "light", "mono", "plain"], case_sensitive=False),
-    help="Specify the color theme to use for output. "
-    "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
-    "Defaults to 'dark' or 'light' depending on system dark mode setting.",
+    help="Specify the color theme to use for output. Valid themes are 'dark', 'light', 'mono', and 'plain'. Defaults to 'dark' or 'light' depending on system dark mode setting.",
+    callback=config_theme_callback,
 )
 THEME_OPTION = make_click_option_decorator(_THEME_PARAMETER)
 
@@ -773,13 +825,21 @@ _VERBOSE_PARAMETER = click.Option(
     ["--verbose", "-V", "verbose_flag"],
     count=True,
     help="Print verbose output; may be specified multiple times for more verbose output.",
+    callback=config_verbose_callback,
 )
 VERBOSE_OPTION = make_click_option_decorator(_VERBOSE_PARAMETER)
 
 _TIMESTAMP_PARAMETER = click.Option(
-    ["--timestamp"], is_flag=True, help="Add time stamp to verbose output"
+    ["--timestamp"],
+    is_flag=True,
+    help="Add time stamp to verbose output",
+    callback=config_timestamp_callback,
 )
 TIMESTAMP_OPTION = make_click_option_decorator(_TIMESTAMP_PARAMETER)
+
+_VERBOSE_OPTIONS = [_TIMESTAMP_PARAMETER, _VERBOSE_PARAMETER]
+"""Verbose options; add these to the CLI to automatically get --verbose and --timestamp options that respect the current theme"""
+VERBOSE_OPTIONS = make_click_option_decorator(*_VERBOSE_OPTIONS)
 
 _VERSION_PARAMETER = click.Option(
     ["--version", "-v", "_version_flag"],

@@ -1,23 +1,23 @@
 <!doctype html>
 <html class="no-js" lang="en" data-content_root="../../">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
-        <title>osxphotos.fileutil - osxphotos 0.69.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+        <title>osxphotos.fileutil - osxphotos 0.74.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
 
 
 <style>
   body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
   }
   @media not print {
@@ -144,14 +144,10 @@
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
 
 <a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
@@ -161,17 +157,15 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.69.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.74.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
           <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
           <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -179,8 +173,7 @@
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
@@ -189,8 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  
-  <span class="sidebar-brand-text">osxphotos 0.69.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.74.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,6 +194,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_README.html">OSXPhotos Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos Python Reference</a></li>
@@ -225,8 +218,7 @@
         </a>
         <div class="content-icon-container">
           <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
@@ -234,14 +226,17 @@
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.fileutil</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; FileUtil class with methods for copy, hardlink, unlink, etc. &quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;FileUtil class with methods for copy, hardlink, unlink, etc.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fcntl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
@@ -250,7 +245,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">t</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">fcntl</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.imageconverter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageConverter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_macos</span>
@@ -259,7 +253,152 @@
 <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">Foundation</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;FileUtilABC&quot;</span><span class="p">,</span> <span class="s2">&quot;FileUtilMacOS&quot;</span><span class="p">,</span> <span class="s2">&quot;FileUtilShUtil&quot;</span><span class="p">,</span> <span class="s2">&quot;FileUtil&quot;</span><span class="p">,</span> <span class="s2">&quot;FileUtilNoOp&quot;</span><span class="p">]</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FileDateType</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">IntFlag</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bitfield flags for file date types&quot;&quot;&quot;</span>
+
+    <span class="n">CREATION</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MODIFICATION</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ACCESS</span> <span class="o">=</span> <span class="mi">4</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;FileUtilABC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FileUtilMacOS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FileUtilShUtil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FileUtil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FileUtilNoOp&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FileDateType&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;set_file_dates&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">utime_no_cache</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">times</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set file modification and access times with filesystem caching disabled</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path: The file system path to the file</span>
+<span class="sd">        times: A tuple of two integers representing the access and modification times in seconds since the epoch</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if successful, False if an error occurred</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The file access, modification will all be set to the modification time passed in.</span>
+<span class="sd">        This method is required for some network-attached storage which does not preserve utime results</span>
+<span class="sd">        if caching is not disabled.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Open file and set F_NOCACHE to prevent filesystem cache interference</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDONLY</span><span class="p">)</span>
+        <span class="n">fcntl</span><span class="o">.</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">fcntl</span><span class="o">.</span><span class="n">F_NOCACHE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not set utime for file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Clear F_NOCACHE flag before closing</span>
+                <span class="n">fcntl</span><span class="o">.</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">fcntl</span><span class="o">.</span><span class="n">F_NOCACHE</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">utime_macos</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">times</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adjust file access, modified time, and creation time on macOS</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path: The file system path to the file</span>
+<span class="sd">        times: A tuple of two integers representing the access and modification times in seconds since the epoch</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if successful, False if an error occurred</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The file access, modification, and creation date/time will all be set to the modification time passed inZ</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># set access/modification via utime for NAS devices</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">utime_no_cache</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">times</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># set creation date with native macOS calls</span>
+    <span class="k">return</span> <span class="n">set_file_dates</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">FileDateType</span><span class="o">.</span><span class="n">CREATION</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">set_file_dates</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+    <span class="n">date_type</span><span class="p">:</span> <span class="n">FileDateType</span> <span class="o">=</span> <span class="n">FileDateType</span><span class="o">.</span><span class="n">CREATION</span>
+    <span class="o">|</span> <span class="n">FileDateType</span><span class="o">.</span><span class="n">MODIFICATION</span>
+    <span class="o">|</span> <span class="n">FileDateType</span><span class="o">.</span><span class="n">ACCESS</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the specified date(s) of a file to the given datetime</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_path: The file system path to the file</span>
+<span class="sd">        date: The datetime to set for the specified date type(s) (default is to set all file date types)</span>
+<span class="sd">        date_type: Bitfield flag(s) specifying which date(s) to set</span>
+<span class="sd">                   (FileDateType.CREATION, FileDateType.MODIFICATION, FileDateType.ACCESS)</span>
+<span class="sd">                   Can be combined using bitwise OR: FileDateType.CREATION | FileDateType.MODIFICATION</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if successful, False if an error occurred</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if invalid arguments</span>
+<span class="sd">        FileNotFoundError: if path is not found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_macos</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Only valid on macOS&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">date</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Error: Invalid parameters - file_path and date cannot be None&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date_type</span><span class="p">,</span> <span class="n">FileDateType</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Error: Invalid date_type - must be FileDateType, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">date_type</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">file_url</span> <span class="o">=</span> <span class="n">Foundation</span><span class="o">.</span><span class="n">NSURL</span><span class="o">.</span><span class="n">fileURLWithPath_</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+    <span class="n">exists</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">file_url</span><span class="o">.</span><span class="n">checkResourceIsReachableAndReturnError_</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Error: File does not exist at path: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">ns_date</span> <span class="o">=</span> <span class="n">Foundation</span><span class="o">.</span><span class="n">NSDate</span><span class="o">.</span><span class="n">dateWithTimeIntervalSince1970_</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span>
+
+    <span class="c1"># Map date type flags to Foundation keys</span>
+    <span class="n">date_key_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">FileDateType</span><span class="o">.</span><span class="n">CREATION</span><span class="p">:</span> <span class="n">Foundation</span><span class="o">.</span><span class="n">NSURLCreationDateKey</span><span class="p">,</span>
+        <span class="n">FileDateType</span><span class="o">.</span><span class="n">MODIFICATION</span><span class="p">:</span> <span class="n">Foundation</span><span class="o">.</span><span class="n">NSURLContentModificationDateKey</span><span class="p">,</span>
+        <span class="n">FileDateType</span><span class="o">.</span><span class="n">ACCESS</span><span class="p">:</span> <span class="n">Foundation</span><span class="o">.</span><span class="n">NSURLContentAccessDateKey</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Set each requested date type</span>
+    <span class="n">all_success</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">date_key_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">date_type</span> <span class="o">&amp;</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">success</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">file_url</span><span class="o">.</span><span class="n">setResourceValue_forKey_error_</span><span class="p">(</span><span class="n">ns_date</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">localizedDescription</span><span class="p">()</span> <span class="k">if</span> <span class="n">error</span> <span class="k">else</span> <span class="s2">&quot;Unknown error&quot;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error setting </span><span class="si">{</span><span class="n">flag</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2"> date: </span><span class="si">{</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">all_success</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">all_success</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">FileUtilABC</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
@@ -406,26 +545,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">utime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">times</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the access and modified time of path.&quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        
-        <span class="n">fd</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Open file and set F_NOCACHE to prevent filesystem cache interference</span>
-            <span class="n">fd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDONLY</span><span class="p">)</span>
-            <span class="n">fcntl</span><span class="o">.</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">fcntl</span><span class="o">.</span><span class="n">F_NOCACHE</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            
-            <span class="n">os</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">fd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="c1"># Clear F_NOCACHE flag before closing</span>
-                    <span class="n">fcntl</span><span class="o">.</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">fcntl</span><span class="o">.</span><span class="n">F_NOCACHE</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
-                    <span class="k">except</span><span class="p">:</span>
-                        <span class="k">pass</span>
+        <span class="n">utime_macos</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cmp</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">mtime1</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -573,6 +693,15 @@
 
         <span class="k">return</span> <span class="kc">True</span>
 
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">utime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">times</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the access and modified time of path.&quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
+            <span class="n">utime_macos</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">times</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="FileUtil">
 <a class="viewcode-back" href="../../reference.html#osxphotos.FileUtil">[docs]</a>
@@ -706,10 +835,10 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=24298b65"></script>
+</div><script src="../../_static/documentation_options.js?v=63568c49"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     </body>

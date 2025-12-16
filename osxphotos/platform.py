@@ -1,7 +1,12 @@
 """Functions for multi-platform support"""
 
+import logging
 import platform
 import sys
+
+from ._constants import _TESTED_OS_VERSIONS
+
+logger = logging.getLogger("osxphotos")
 
 is_macos = sys.platform == "darwin"
 
@@ -27,3 +32,19 @@ def get_macos_version():
             )
         )
     return (ver, major, minor)
+
+
+def check_and_warn_macos_version():
+    """Check OS version and warn if not tested"""
+    system = platform.system()
+    (ver, major, _) = get_macos_version() if is_macos else (None, None, None)
+    if system == "Darwin" and (
+        ((ver, major) not in _TESTED_OS_VERSIONS)
+        and (ver, None) not in _TESTED_OS_VERSIONS
+    ):
+        tested_versions = ", ".join(
+            f"{v}.{m}" for (v, m) in _TESTED_OS_VERSIONS if m is not None
+        )
+        logger.warning(
+            f"WARNING: This module has only been tested with macOS versions [{tested_versions}]: you have {system}, OS version: {ver}.{major}"
+        )

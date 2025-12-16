@@ -1,4 +1,4 @@
-"""dump command for osxphotos CLI """
+"""dump command for osxphotos CLI"""
 
 import click
 
@@ -58,7 +58,7 @@ def dump(
     """Print list of all photos & associated info from the Photos library.
 
     NOTE: dump is DEPRECATED and will be removed in a future release.
-    Use `osxphotos query` instead.
+    Use 'osxphotos query' instead.
     """
 
     # below needed for to make CliRunner work for testing

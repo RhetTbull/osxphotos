@@ -48,8 +48,8 @@ def snap(ctx, cli_obj, db):
 
     # get all the sqlite files including the write ahead log if any
     files = db_path.glob("*.sqlite*")
-    os.makedirs(destination_path)
     fu = osxphotos.fileutil.FileUtil()
+    fu.makedirs(destination_path)
     count = 0
     for file in files:
         if file.is_file():
@@ -84,13 +84,13 @@ def snap(ctx, cli_obj, db):
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
 def diff(ctx, cli_obj, db, raw_output, style, db2, verbose_flag, timestamp):
-    """Compare two Photos databases; see also `osxphotos snap`
+    """Compare two Photos databases; see also 'osxphotos snap'
 
     To use the diff command, you'll need to install sqldiff via homebrew:
 
      - Install homebrew (https://brew.sh/) if not already installed
 
-     - Install sqldiff: `brew install sqldiff`
+     - Install sqldiff: 'brew install sqldiff'
 
     When run with no arguments, compares the current Photos library to the
     most recent snapshot in the the OSXPHOTOS_SNAPSHOT directory.
@@ -104,7 +104,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose_flag, timestamp):
     If run with both the --db option and the DB2 argument, compares the
     library specified by --db to the database specified by DB2
 
-    See also `osxphotos snap`
+    See also 'osxphotos snap'
 
     If the OSXPHOTOS_SNAPSHOT environment variable is not set, will use
     '/private/tmp/osxphotos_snapshots'
@@ -117,7 +117,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose_flag, timestamp):
     sqldiff = shutil.which("sqldiff")
     if not sqldiff:
         click.echo(
-            "sqldiff not found; install via homebrew (https://brew.sh/): `brew install sqldiff`"
+            "sqldiff not found; install via homebrew (https://brew.sh/): 'brew install sqldiff'"
         )
         ctx.exit(2)
     verbose(f"sqldiff found at '{sqldiff}'")

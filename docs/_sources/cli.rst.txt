@@ -1,8 +1,6 @@
 OSXPhotos Command Line Interface (CLI)
 ======================================
 
-.. click:: osxphotos.cli:cli_main
+.. click-custom:: osxphotos.cli:cli_main
    :prog: osxphotos
    :nested: full
-
-.. program-output:: python3 -m osxphotos --help

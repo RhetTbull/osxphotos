@@ -52,15 +52,16 @@ def get_exif_date_time_offset(
     used_file_modify_date = False
 
     # search these fields in this order for date/time/timezone
+    # Prioritize QuickTime:ContentCreateDate over EXIF:DateTimeOriginal for videos
     time_fields = [
         "Composite:DateTimeCreated",
         "Composite:SubSecDateTimeOriginal",
         "Composite:SubSecCreateDate",
-        "EXIF:DateTimeOriginal",
-        "EXIF:CreateDate",
         "QuickTime:ContentCreateDate",
         "QuickTime:CreationDate",
         "QuickTime:CreateDate",
+        "EXIF:DateTimeOriginal",
+        "EXIF:CreateDate",
         "IPTC:DateCreated",
         "XMP-exif:DateTimeOriginal",
         "XMP-xmp:DateCreated",

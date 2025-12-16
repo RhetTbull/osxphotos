@@ -1,5 +1,5 @@
 __all__ = ["PyReplQuitter", "embed_repl"]
-""" Custom Python REPL based on ptpython that allows quitting with custom keywords instead of `quit()` """
+""" Custom Python REPL based on ptpython that allows quitting with custom keywords instead of 'quit()' """
 
 """ This file is distributed under the same license as the ptpython package:
 
@@ -72,14 +72,14 @@ def embed_repl(
 ) -> None:
     """
     Call this to embed  Python shell at the current point in your program.
-    It's similar to `IPython.embed` and `bpython.embed`. ::
+    It's similar to 'IPython.embed' and 'bpython.embed'. ::
         from prompt_toolkit.contrib.repl import embed
         embed(globals(), locals())
     :param vi_mode: Boolean. Use Vi instead of Emacs key bindings.
-    :param configure: Callable that will be called with the `PythonRepl` as a first
+    :param configure: Callable that will be called with the 'PythonRepl' as a first
                       argument, to trigger configuration.
     :param title: Title to be displayed in the terminal titlebar. (None or string.)
-    :param patch_stdout:  When true, patch `sys.stdout` so that background
+    :param patch_stdout:  When true, patch 'sys.stdout' so that background
         threads that are printing will print nicely above the prompt.
     """
     # Default globals/locals

@@ -1,6 +1,5 @@
-""" Basic tests for Photos 5 on MacOS 10.15.7 """
+"""Basic tests for Photos 5 on MacOS 10.15.7"""
 
-import collections
 import datetime
 import json
 import os
@@ -9,6 +8,7 @@ import pathlib
 import sqlite3
 import tempfile
 import time
+import zoneinfo
 from collections import Counter, namedtuple
 from unittest import mock
 from zoneinfo import ZoneInfo
@@ -23,11 +23,11 @@ from osxphotos.exifwriter import ExifWriter
 from osxphotos.platform import get_macos_version, is_macos
 
 OS_VERSION = get_macos_version() if is_macos else (None, None, None)
-SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"
+SKIP_TEST = "OSXPHOTOS_TEST_LOCAL" not in os.environ or OS_VERSION[1] != "15"
 PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/Photos.sqlite"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.7.photoslibrary"
 
 PHOTOS_DB_LEN = 29

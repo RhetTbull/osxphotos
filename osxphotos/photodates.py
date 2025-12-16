@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 import photoscript
 from strpdatetime import strpdatetime
 from tenacity import retry, stop_after_attempt, wait_exponential
-from whenever import Date, PlainDateTime, SystemDateTime, Time, ZonedDateTime
+from whenever import Date, PlainDateTime, Time, ZonedDateTime
 
 from osxphotos.strpdatetime_parts import (
     date_str_matches_date_time_codes,
@@ -70,7 +70,7 @@ def reset_photo_date_time_tz(
     tz_updater = PhotoTimeZoneUpdater(
         timezone=Timezone(tz), verbose=verbose, library_path=library_path
     )
-    tz_updater.update_photo(photo)
+    tz_updater.update_photo(photo, offset_only=True)
     update_photo_date_time(
         library_path=library_path,
         photo=photo,
@@ -142,15 +142,19 @@ def update_photo_date_time(
             photo_tz_name = "UTC"
 
     # Convert photo's date to the photo's timezone for manipulation
-    photo_date_with_tz = SystemDateTime(
-        year=photo_date.year,
-        month=photo_date.month,
-        day=photo_date.day,
-        hour=photo_date.hour,
-        minute=photo_date.minute,
-        second=photo_date.second,
-        nanosecond=photo_date.microsecond * 1000,
-    ).to_tz(photo_tz_name)
+    photo_date_with_tz = (
+        PlainDateTime(
+            year=photo_date.year,
+            month=photo_date.month,
+            day=photo_date.day,
+            hour=photo_date.hour,
+            minute=photo_date.minute,
+            second=photo_date.second,
+            nanosecond=photo_date.microsecond * 1000,
+        )
+        .assume_system_tz(disambiguate="compatible")
+        .to_tz(photo_tz_name)
+    )
 
     new_photo_date_with_tz = photo_date_with_tz
     if date is not None:
@@ -294,7 +298,7 @@ def update_datetime_for_new_timezone(
     Shift *original_naive* (interpreted in *original_zone*) so that after
     attaching *new_zone* the wall-clock date/time is **unchanged**.
 
-    The function returns a **naive** `datetime` whose value you should later
+    The function returns a **naive** 'datetime' whose value you should later
     tag with *original_zone*.  Converting that aware value to *new_zone*
     reproduces the original wall-time, even across DST changes and in
     fixed-offset regions.
@@ -305,26 +309,6 @@ def update_datetime_for_new_timezone(
     shifted_zdt = desired_zdt.to_tz(system_tz)
     new_datetime = shifted_zdt.py_datetime().replace(tzinfo=None)
     return new_datetime
-
-
-# def update_datetime_for_new_timezone(
-#     original_naive: datetime.datetime,
-#     original_zone: ZoneInfo,
-#     new_zone: ZoneInfo,
-# ) -> datetime.datetime:
-#     """
-#     Shift *original_naive* (interpreted in *original_zone*) so that after
-#     attaching *new_zone* the wall-clock date/time is **unchanged**.
-
-#     The function returns a **naive** `datetime` whose value you should later
-#     tag with *original_zone*.  Converting that aware value to *new_zone*
-#     reproduces the original wall-time, even across DST changes and in
-#     fixed-offset regions.
-#     """
-#     current_zoned_dt = SystemDateTime.from_py_datetime(original_naive.replace(tzinfo=get_local_tz(original_naive)))
-#     new_timezone_zoned_dt = current_zoned_dt.to_tz(str(new_zone))
-#     local_system_dt = new_timezone_zoned_dt.to_system_tz()
-#     return local_system_dt.py_datetime().replace(tzinfo=None)
 
 
 def update_photo_time_for_new_timezone(

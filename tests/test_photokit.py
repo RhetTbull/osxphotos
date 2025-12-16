@@ -1,4 +1,4 @@
-""" test photokit.py methods """
+"""test photokit.py methods"""
 
 import os
 import pathlib
@@ -21,7 +21,7 @@ if is_macos:
 else:
     pytest.skip(allow_module_level=True)
 
-skip_test = "OSXPHOTOS_TEST_EXPORT" not in os.environ
+skip_test = "OSXPHOTOS_TEST_LOCAL" not in os.environ
 pytestmark = pytest.mark.skipif(
     skip_test, reason="Skip if not running with author's personal library."
 )
@@ -29,41 +29,41 @@ pytestmark = pytest.mark.skipif(
 
 UUID_DICT = {
     "plain_photo": {
-        "uuid": "C07BB1E1-2F61-4263-AB8E-943FD47CF013",
+        "uuid": "38E8347F-0D43-411E-B797-004C9DCBDA4E",
         "filename": "IMG_8844.JPG",
     },
-    "hdr": {"uuid": "7D852FC8-EA03-49C9-96F7-B049CE44A7EA", "filename": "IMG_6162.JPG"},
+    "hdr": {"uuid": "C2BB17B6-306D-421E-A1FC-7CD1A1541FE3", "filename": "IMG_6162.JPG"},
     "selfie": {
-        "uuid": "F21DFA19-E3E8-4610-8401-0447345F3074",
+        "uuid": "ADDEC5FD-F3DC-418A-B358-717C748C34BC",
         "filename": "IMG_1929.JPG",
     },
     "video": {
-        "uuid": "A6F31CC4-213B-4F27-85FD-7DD81AF1ED09",
+        "uuid": "6075C306-1B72-4B11-9E5C-1A080B359730",
         "filename": "IMG_9411.TRIM.MOV",
     },
     "hasadjustments": {
-        "uuid": "1D99D83D-F820-4D30-A831-7B45BDF294D3",
+        "uuid": "B1CC5EF6-9B13-4771-A896-C11FD5CBFF99",
         "filename": "IMG_2860.JPG",
         "adjusted_size": 3012634,
         "unadjusted_size": 2580058,
     },
     "slow_mo": {
-        "uuid": "1B3FC526-9D27-48A1-A39D-47C5E1F0633C",
+        "uuid": "D716F9CA-B4CB-433A-AE12-DECECCF816C2",
         "filename": "IMG_4055.MOV",
     },
     "live_photo": {
-        "uuid": "03EE6CE2-20E6-489D-A149-A2EC7D11C70A",
+        "uuid": "50B35845-9C2B-45AF-A68F-83BE394A7FB1",
         "filename": "IMG_3259.HEIC",
         "filename_video": "IMG_3259.mov",
     },
     "burst": {
-        "uuid": "A9BC0824-1200-4B6F-A071-779E1C555465",
+        "uuid": "023AF0E5-E63E-4D27-B11B-889E9E759760",
         "filename": "IMG_8196.JPG",
         "burst_selected": 4,
         "burst_all": 5,
     },
     "raw+jpeg": {
-        "uuid": "3C973493-7109-40E9-BF8D-6476AE7C8001",
+        "uuid": "053F520F-4A6C-44D2-8175-B5C45B9466F9",
         "filename": "IMG_1994.JPG",
         "raw_filename": "IMG_1994.CR2",
         "unadjusted_size": 16128420,

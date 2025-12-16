@@ -1,4 +1,4 @@
-""" pytest test configuration """
+"""pytest test configuration"""
 
 import os
 import pathlib
@@ -85,26 +85,46 @@ TEST_LIBRARY_TAKEOUT = None
 TEST_LIBRARY_PHOTODATES = None
 
 OS_VER = get_os_version() if is_macos else [None, None]
-if OS_VER[0] == "10" and OS_VER[1] in ("15", "16"):
+if is_macos and (OS_VER[0] == "10" and OS_VER[1] in ("15", "16")):
     # Catalina
     TEST_LIBRARY = "tests/Test-10.15.7.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
-    TEST_LIBRARY_TAKOUT = None
+    TEST_LIBRARY_TAKEOUT = None
     TEST_LIBRARY_TIMEWARP = None  # these tests do not run on macOS < 13
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
-
     TEST_LIBRARY_ADD_LOCATIONS = None
-elif int(OS_VER[0]) >= 13:
+
+if is_macos and (OS_VER[0] == "15"):
+    # Sequoia
+    TEST_LIBRARY = "tests/Test-15.4.1.photoslibrary"
+    TEST_LIBRARY_IMPORT = TEST_LIBRARY
+    TEST_LIBRARY_SYNC = "tests/Test-10.15.7.photoslibrary"
+    TEST_LIBRARY_TAKEOUT = TEST_LIBRARY
+    from tests.config_timewarp_ventura import TEST_LIBRARY_TIMEWARP
+
+    TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
+    TEST_LIBRARY_ADD_LOCATIONS = TEST_LIBRARY
+
+elif is_macos and (OS_VER[0] == "12" and OS_VER[1] in ("7",)):
+    # Monterey
+    TEST_LIBRARY = "tests/Test-12.0.1.photoslibrary"
+    TEST_LIBRARY_IMPORT = TEST_LIBRARY
+    TEST_LIBRARY_SYNC = TEST_LIBRARY
+    TEST_LIBRARY_TAKEOUT = None
+    TEST_LIBRARY_TIMEWARP = None  # these tests do not run on macOS < 13
+    TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
+    TEST_LIBRARY_ADD_LOCATIONS = None
+
+elif not is_macos or int(OS_VER[0]) >= 13:
     # Ventura
     TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
-    TEST_LIBRARY_SYNC = TEST_LIBRARY
+    TEST_LIBRARY_SYNC = "tests/Test-10.15.7.photoslibrary"
     TEST_LIBRARY_TAKEOUT = "tests/Test-Empty-Library-Ventura-13-5.photoslibrary"
     from tests.config_timewarp_ventura import TEST_LIBRARY_TIMEWARP
 
     TEST_LIBRARY_PHOTODATES = TEST_LIBRARY
-
     TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
 
 
@@ -113,6 +133,13 @@ def setup_photos_timewarp():
     if not TEST_TIMEWARP:
         return
     copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=LIBRARY_COPY_DELAY)
+
+
+@pytest.fixture(scope="session", autouse=is_macos)
+def setup_photos_batchedit():
+    if not TEST_BATCH_EDIT:
+        return
+    copy_photos_library(TEST_LIBRARY, delay=LIBRARY_COPY_DELAY)
 
 
 @pytest.fixture(scope="session", autouse=is_macos)
@@ -465,14 +492,14 @@ def set_timezone(timezone):
 
 @pytest.fixture
 def set_tz_pacific():
-    timezone = "US/Pacific"
+    timezone = "America/Los_Angeles"
     with set_timezone(timezone):
         yield
 
 
 @pytest.fixture
 def set_tz_central():
-    timezone = "US/Central"
+    timezone = "America/Chicago"
     with set_timezone(timezone):
         yield
 

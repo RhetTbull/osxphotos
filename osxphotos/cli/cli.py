@@ -10,7 +10,7 @@ import click
 
 from osxphotos._constants import PROFILE_SORT_KEYS
 from osxphotos.disclaim import disclaim, pyapp, pyinstaller
-from osxphotos.platform import is_macos
+from osxphotos.platform import check_and_warn_macos_version, is_macos
 
 from .about import about
 from .albums import albums
@@ -35,6 +35,7 @@ from .persons import persons
 from .places import places
 from .query import query
 from .repl import repl
+from .shell_completion import install_shell_completion
 from .snap_diff import diff, snap
 from .template_repl import template_repl
 from .theme import theme
@@ -109,6 +110,8 @@ def cli_main(ctx, profile, profile_sort, **kwargs):
     # before this function is called
     ctx.obj = CLI_Obj(group=cli_main)
 
+    check_and_warn_macos_version()
+
     if pyinstaller() or pyapp():
         # Running from executable, run disclaimer
         disclaim()
@@ -155,6 +158,7 @@ commands = [
     help,
     info,
     install,
+    install_shell_completion,
     keywords,
     labels,
     list_libraries,

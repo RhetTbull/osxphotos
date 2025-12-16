@@ -315,6 +315,38 @@ def test_cli_push_exif_report_csv(monkeypatch):
         assert missing["missing"] == "original"
 
 
+def test_cli_push_exif_report_csv_append(monkeypatch):
+    """Test push-exif command with --report csv --append"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+
+        if sys.version_info[0:2] <= (3, 9):
+            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        else:
+            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+
+        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+        result = runner.invoke(
+            push_exif,
+            [
+                "all",
+                "-V",
+                "--force",
+                "--library",
+                test_library,
+                "--report",
+                "report.csv",
+                "--append",
+            ],
+        )
+        assert result.exit_code == 0
+        report_data = list(csv.DictReader(open("report.csv")))
+        assert len(report_data) == 17
+        missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
+        assert missing["missing"] == "original"
+
+
 def test_cli_push_exif_report_json(monkeypatch):
     """Test push-exif command with --report json"""
     runner = CliRunner()

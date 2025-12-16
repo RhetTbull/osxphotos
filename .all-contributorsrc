@@ -949,6 +949,62 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "m-reiter",
+      "name": "m-reiter",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5221258?v=4",
+      "profile": "https://github.com/m-reiter",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "mherzberg",
+      "name": "Michael Herzberg",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12444544?v=4",
+      "profile": "https://www.mherzberg.de",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "EriksRemess",
+      "name": "Ēriks Remess",
+      "avatar_url": "https://avatars.githubusercontent.com/u/176241?v=4",
+      "profile": "https://toot.lv/@eriks",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "pkaila",
+      "name": "pkaila",
+      "avatar_url": "https://avatars.githubusercontent.com/u/870219?v=4",
+      "profile": "https://github.com/pkaila",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ZeliTheZealot",
+      "name": "ZeliTheZealot",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19900255?v=4",
+      "profile": "https://github.com/ZeliTheZealot",
+      "contributions": [
+        "bug",
+        "doc"
+      ]
+    },
+    {
+      "login": "benw-git",
+      "name": "benw-git",
+      "avatar_url": "https://avatars.githubusercontent.com/u/85592899?v=4",
+      "profile": "https://github.com/benw-git",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>cookie</key>
+	<string>6C4F391A-1274-4C52-A6E9-6DD7CFE4FE67</string>
+	<key>deferSyncCount</key>
+	<integer>1</integer>
+	<key>journalSerialNumber</key>
+	<integer>1</integer>
+	<key>menuItemsSyncCount</key>
+	<integer>1</integer>
+	<key>syncCount</key>
+	<integer>1</integer>
+	<key>version</key>
+	<integer>1</integer>
+</dict>
+</plist>

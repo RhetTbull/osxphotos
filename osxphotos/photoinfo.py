@@ -58,6 +58,7 @@ from .commentinfo import CommentInfo, LikeInfo
 from .exifinfo import ExifInfo, exifinfo_factory
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .exportoptions import ExportOptions
+from .media_analysis import get_caption, get_media_analysis_results
 from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
 from .photoexporter import PhotoExporter
@@ -141,10 +142,10 @@ class PhotoInfo:
         set when the asset was imported.
 
         The original date is stored by Photos at import time
-        from the date in the photo's EXIF data. If this is not set (photo had no EXIF date) then `date_original`
-        returns the same value as `date`.
+        from the date in the photo's EXIF data. If this is not set (photo had no EXIF date) then 'date_original'
+        returns the same value as 'date'.
 
-        Photos 5+; on Photos version < 5, returns the same value as `date`.
+        Photos 5+; on Photos version < 5, returns the same value as 'date'.
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
             return self.date
@@ -753,6 +754,11 @@ class PhotoInfo:
             return self._adjustmentinfo
 
     @property
+    def adjustment_type(self) -> int | None:
+        """Returns adjustment type as int or None if no adjustments"""
+        return self._info.get("hasAdjustments")
+
+    @property
     def external_edit(self) -> bool:
         """Returns True if picture was edited outside of Photos using external editor"""
         return self._info["adjustmentFormatID"] == "com.apple.Photos.externalEdit"
@@ -939,17 +945,44 @@ class PhotoInfo:
     @property
     def burst_selected(self) -> bool:
         """Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_SELECTED)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_SELECTED)
 
     @property
     def burst_key(self) -> bool:
         """Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_KEY)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_KEY)
+
+    @property
+    def burst_key_photo(self) -> PhotoInfo | None:
+        """If a photo is part of a burst group, returns the PhotoInfo object for the key photo of a burst group otherwise None"""
+        if not self.burst:
+            return None
+        if self.burst_key:
+            return self
+        for photo in self.burst_photos:
+            if photo.burst_key:
+                return photo
+        return None
 
     @property
     def burst_default_pick(self) -> bool:
         """Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False"""
-        return bool(self._info["burstPickType"] & BURST_DEFAULT_PICK)
+        burst_pick_type = (
+            self._info["burstPickType"]
+            if self._info["burstPickType"] is not None
+            else 0
+        )
+        return bool(burst_pick_type & BURST_DEFAULT_PICK)
 
     @property
     def burst_photos(self) -> list[PhotoInfo]:
@@ -1681,6 +1714,16 @@ class PhotoInfo:
         """Returns fingerprint of original photo as a string or None if not available"""
         return self._info["masterFingerprint"]
 
+    @cached_property
+    def media_analysis(self) -> dict[str, Any]:
+        """Returns media analysis results as a dictionary (Photos 5+)"""
+        return get_media_analysis_results(self)
+
+    @cached_property
+    def ai_caption(self) -> str:
+        """Returns AI generated caption for photo or video (Photos 5+)"""
+        return get_caption(get_media_analysis_results(self)) or ""
+
     def detected_text(
         self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD
     ) -> list[tuple[str, float]]:
@@ -1821,9 +1864,9 @@ class PhotoInfo:
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
               if overwrite=False and increment=False, export will fail if destination file already exists
             sidecar_json: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. 'exiftool -G -j')
             sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
-              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. 'exiftool -j')
             sidecar_xmp: if set will write an XMP sidecar with IPTC data
               sidecar filename will be dest/filename.xmp
             use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
@@ -2021,7 +2064,7 @@ class PhotoInfo:
         # do not add any new properties to data_dict as this is used by export to determine
         # if a photo needs to be re-exported and adding new properties may cause all photos
         # to be re-exported
-        # see below `if not shallow:`
+        # see below 'if not shallow:'
         dict_data = {
             "albums": self.albums,
             "burst": self.burst,
@@ -2103,6 +2146,7 @@ class PhotoInfo:
             dict_data["adjustments"] = (
                 self.adjustments.asdict() if self.adjustments else {}
             )
+            dict_data["adjustment_type"] = self.adjustment_type
             dict_data["burst_album_info"] = [a.asdict() for a in self.burst_album_info]
             dict_data["burst_albums"] = self.burst_albums
             dict_data["burst_default_pick"] = self.burst_default_pick
@@ -2132,6 +2176,8 @@ class PhotoInfo:
             dict_data["screen_recording"] = self.screen_recording
             dict_data["date_original"] = self.date_original
             dict_data["tzname"] = self.tzname
+            dict_data["media_analysis"] = self.media_analysis
+            dict_data["ai_caption"] = self.ai_caption
 
         return dict_data
 

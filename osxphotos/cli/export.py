@@ -60,7 +60,12 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifWriter, exif_options_from_options
 from osxphotos.export_db import ExportDB, ExportDBInMemory, ExportDBTemp
 from osxphotos.exportoptions import ExportOptions, ExportResults
-from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
+from osxphotos.fileutil import (
+    FileUtilMacOS,
+    FileUtilNoOp,
+    FileUtilShUtil,
+    cfg_fileutil_retry,
+)
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
@@ -68,6 +73,7 @@ from osxphotos.photokit_utils import wait_for_photokit_authorization
 from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos
+from osxphotos.sidecars import UserSidecarError
 from osxphotos.unicode import normalize_fs_path
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
@@ -78,6 +84,7 @@ from osxphotos.utils import (
     terminal,
     under_test,
 )
+from osxphotos.volume_util import is_path_on_network_volume
 
 if is_macos:
     from osxmetadata import (
@@ -115,7 +122,7 @@ from .common import (
     OSXPHOTOS_HIDDEN,
     get_photos_db,
     noop,
-    require_macos
+    require_macos,
 )
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
@@ -128,7 +135,6 @@ from .param_types import (
 )
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
-from .sidecar import generate_user_sidecar
 from .verbose import get_verbose_console, verbose_print
 
 if TYPE_CHECKING:
@@ -149,15 +155,12 @@ if TYPE_CHECKING:
 @click.option(
     "--update",
     is_flag=True,
-    help="Only export new or updated files. "
-    "See also --force-update and notes below on export and --update.",
+    help="Only export new or updated files. See also --force-update and notes below on export and --update.",
 )
 @click.option(
     "--force-update",
     is_flag=True,
-    help="Only export new or updated files. Unlike --update, --force-update will re-export photos "
-    "if their metadata has changed even if this would not otherwise trigger an export. "
-    "See also --update and notes below on export and --update.",
+    help="Only export new or updated files. Unlike --update, --force-update will re-export photos if their metadata has changed even if this would not otherwise trigger an export. See also --update and notes below on export and --update.",
 )
 @click.option(
     "--update-errors",
@@ -189,14 +192,12 @@ if TYPE_CHECKING:
 @click.option(
     "--only-new",
     is_flag=True,
-    help="If used with --update, ignores any previously exported files, even if missing from "
-    "the export folder and only exports new files that haven't previously been exported.",
+    help="If used with --update, ignores any previously exported files, even if missing from the export folder and only exports new files that haven't previously been exported.",
 )
 @click.option(
     "--limit",
     metavar="LIMIT",
-    help="Export at most LIMIT photos. "
-    "Useful for testing. May be used with --update to export incrementally.",
+    help="Export at most LIMIT photos. Useful for testing. May be used with --update to export incrementally.",
     type=int,
 )
 @click.option(
@@ -207,10 +208,7 @@ if TYPE_CHECKING:
 @click.option(
     "--export-as-hardlink",
     is_flag=True,
-    help="Hardlink files instead of copying them. "
-    "Cannot be used with --exiftool which creates copies of the files with embedded EXIF data. "
-    "Note: on APFS volumes, files are cloned when exporting giving many of the same "
-    "advantages as hardlinks without having to use --export-as-hardlink.",
+    help="Hardlink files instead of copying them. Cannot be used with --exiftool which creates copies of the files with embedded EXIF data. Note: on APFS volumes, files are cloned when exporting giving many of the same advantages as hardlinks without having to use --export-as-hardlink.",
 )
 @click.option(
     "--touch-file",
@@ -220,23 +218,42 @@ if TYPE_CHECKING:
 @click.option(
     "--overwrite",
     is_flag=True,
-    help="Overwrite existing files. "
-    "Default behavior is to add (1), (2), etc to filename if file already exists. "
-    "Use this with caution as it may create name collisions on export. "
-    "(e.g. if two files happen to have the same name)",
+    help="Overwrite existing files. Default behavior is to add (1), (2), etc to filename if file already exists. Use this with caution as it may create name collisions on export. (e.g. if two files happen to have the same name)",
 )
 @click.option(
     "--retry",
     metavar="RETRY",
     type=click.INT,
-    help="Automatically retry export up to RETRY times if an error occurs during export.  "
-    "This may be useful with network drives that experience intermittent errors.",
+    help="Automatically retry export (and file operations) up to RETRY times if an error occurs "
+    "during export. This may be useful with network drives that experience intermittent errors. "
+    "See also option --retry-nas-alias.",
+)
+@click.option(
+    "--retry-nas-alias",
+    metavar="NAS.ALIAS",
+    default=None,
+    multiple=False,
+    help="Alias filename to the SMB export destination folder to be used with --retry to force "
+    "macOs to re-mount the SMB export folder in case of loss of connection. "
+    "Create the alias file manually on Finder and make sure it's within the Sandboxed "
+    "environment of osxphotos. See also option --retry and --retry-wait.",
+    type=CatchSmartQuotesPath(
+        exists=True, file_okay=True, dir_okay=False, readable=True
+    ),
+)
+@click.option(
+    "--retry-wait",
+    metavar="WAIT",
+    type=click.INT,
+    help="Seconds to wait in between --retry file operations attempts during export. "
+    "Must be used with --retry and --retry-nas-alias. This is useful with network drives "
+    "that experience intermittent errors. If not specified, default is 15s. "
+    "See also option --retry and --retry-nas-alias.",
 )
 @click.option(
     "--export-by-date",
     is_flag=True,
-    help="Automatically create output folders to organize photos by date created "
-    "(e.g. DEST/2019/12/20/photoname.jpg).",
+    help="Automatically create output folders to organize photos by date created (e.g. DEST/2019/12/20/photoname.jpg).",
 )
 @click.option(
     "--skip-edited",
@@ -261,33 +278,27 @@ if TYPE_CHECKING:
 @click.option(
     "--skip-raw",
     is_flag=True,
-    help="Do not export associated RAW image of a RAW+JPEG pair.  "
-    "Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image "
-    "(e.g. the RAW file was imported to Photos without a JPEG preview).",
+    help="Do not export associated RAW image of a RAW+JPEG pair.  Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image (e.g. the RAW file was imported to Photos without a JPEG preview).",
 )
 @click.option(
     "--skip-uuid",
     metavar="UUID",
     default=None,
     multiple=True,
-    help="Skip photos with UUID(s) during export. "
-    "May be repeated to include multiple UUIDs.",
+    help="Skip photos with UUID(s) during export. May be repeated to include multiple UUIDs.",
 )
 @click.option(
     "--skip-uuid-from-file",
     metavar="FILE",
     default=None,
     multiple=False,
-    help="Skip photos with UUID(s) loaded from FILE. "
-    "Format is a single UUID per line.  Lines preceded with # are ignored.",
+    help="Skip photos with UUID(s) loaded from FILE. Format is a single UUID per line.  Lines preceded with # are ignored.",
     type=CatchSmartQuotesPath(exists=True),
 )
 @click.option(
     "--current-name",
     is_flag=True,
-    help="Use photo's current filename instead of original filename for export.  "
-    "Note: Starting with Photos 5, all photos are renamed upon import.  By default, "
-    "photos are exported with the the original name they had before import.",
+    help="Use photo's current filename instead of original filename for export.  Note: Starting with Photos 5, all photos are renamed upon import.  By default, photos are exported with the the original name they had before import.",
 )
 @click.option(
     "--convert-to-jpeg",
@@ -301,10 +312,7 @@ if TYPE_CHECKING:
 @click.option(
     "--jpeg-quality",
     type=click.FloatRange(0.0, 1.0),
-    help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. "
-    "A value of 1.0 specifies best quality, "
-    "a value of 0.0 specifies maximum compression. "
-    f"Defaults to {DEFAULT_JPEG_QUALITY}",
+    help=f"Value in range 0.0 to 1.0 to use with --convert-to-jpeg. A value of 1.0 specifies best quality, a value of 0.0 specifies maximum compression. Defaults to {DEFAULT_JPEG_QUALITY}",
 )
 @click.option(
     "--fix-orientation",
@@ -321,16 +329,12 @@ if TYPE_CHECKING:
 @click.option(
     "--preview",
     is_flag=True,
-    help="Export preview image generated by Photos. "
-    "This is a lower-resolution image used by Photos to quickly preview the image. "
-    "See also --preview-suffix and --preview-if-missing.",
+    help="Export preview image generated by Photos. This is a lower-resolution image used by Photos to quickly preview the image. See also --preview-suffix and --preview-if-missing.",
 )
 @click.option(
     "--preview-if-missing",
     is_flag=True,
-    help="Export preview image generated by Photos if the actual photo file is missing from the library. "
-    "This may be helpful if photos were not copied to the Photos library and the original photo is missing. "
-    "See also --preview-suffix and --preview.",
+    help="Export preview image generated by Photos if the actual photo file is missing from the library. This may be helpful if photos were not copied to the Photos library and the original photo is missing. See also --preview-suffix and --preview.",
 )
 @click.option(
     "--preview-suffix",
@@ -416,12 +420,21 @@ if TYPE_CHECKING:
     ),
     help="Create a custom sidecar file for each photo exported with user provided Mako template (MAKO_TEMPLATE_FILE). "
     "MAKO_TEMPLATE_FILE must be a valid Mako template (see https://www.makotemplates.org/). "
-    "The template will passed the following variables: photo (PhotoInfo object for the photo being exported), "
-    "sidecar_path (pathlib.Path object for the path to the sidecar being written), and "
-    "photo_path (pathlib.Path object for the path to the exported photo. "
+    "The template will passed the following variables: "
+    "photo: PhotoInfo object for the photo being exported, "
+    "sidecar_path: pathlib.Path object for the path to the sidecar being written, "
+    "photo_path: pathlib.Path object for the path to the exported photo, "
+    "description: description/caption of the photo, including results of --description-template, "
+    "keywords: keywords associated with the photo, including results of options like --person-keyword, "
+    "persons: persons in the photo, including results of --exiftool-merge-persons, "
+    "subjects: equivalent to keywords, "
+    "latlon: latitude & longitude of photo as a tuple, "
+    "rating: rating of photo including result of --favorite-rating, "
+    "extension: file extension of the exported photo, "
+    "version: current osxphotos version. "
     "SIDECAR_FILENAME_TEMPLATE must be a valid template string (see Templating System in help) "
     "which will be rendered to generate the filename of the sidecar file. "
-    "The `{filepath}` template variable may be used in the SIDECAR_FILENAME_TEMPLATE to refer to the filename of the "
+    "The '{filepath}' template variable may be used in the SIDECAR_FILENAME_TEMPLATE to refer to the filename of the "
     "photo being exported. "
     "OPTIONS is a comma-separated list of strings providing additional options to the template. "
     "Valid options are: write_skipped, strip_whitespace, strip_lines, skip_zero, catch_errors, none. "
@@ -434,11 +447,11 @@ if TYPE_CHECKING:
     "Without catch_errors, osxphotos will abort the export if an error occurs in the template. "
     "For example, to create a sidecar file with extension .xmp using a template file named 'sidecar.mako' "
     "and write a sidecar for skipped photos and strip blank lines but not whitespace: "
-    "`--sidecar-template sidecar.mako '{filepath}.xmp' write_skipped,strip_lines`. "
+    "'--sidecar-template sidecar.mako '{filepath}.xmp' write_skipped,strip_lines'. "
     "To do the same but to drop the photo extension from the sidecar filename: "
-    "`--sidecar-template sidecar.mako '{filepath.parent}/{filepath.stem}.xmp' write_skipped,strip_lines`. "
+    "'--sidecar-template sidecar.mako \"{filepath.parent}/{filepath.stem}.xmp\" write_skipped,strip_lines'. "
     "If you are not passing any options, you must pass 'none' as the last argument to --sidecar-template: "
-    "`--sidecar-template sidecar.mako '{filepath}.xmp' none`. "
+    "'--sidecar-template sidecar.mako \"{filepath}.xmp\" none'. "
     "For an example Mako file see https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/custom_sidecar.mako",
 )
 @click.option(
@@ -468,7 +481,7 @@ if TYPE_CHECKING:
     multiple=True,
     metavar="OPTION",
     help="Optional flag/option to pass to exiftool when using --exiftool. "
-    "For example, --exiftool-option '-m' to ignore minor warnings. "
+    "For example, \"--exiftool-option '-m'\" to ignore minor warnings. "
     "Specify these as you would on the exiftool command line. "
     "See exiftool docs at https://exiftool.org/exiftool_pod.html for full list of options. "
     "More than one option may be specified by repeating the option, e.g. "
@@ -487,16 +500,12 @@ if TYPE_CHECKING:
 @click.option(
     "--favorite-rating",
     is_flag=True,
-    help="When used with --exiftool or --sidecar, "
-    "set XMP:Rating=5 for photos marked as Favorite and XMP:Rating=0 for non-Favorites. "
-    "If not specified, XMP:Rating is not set.",
+    help="When used with --exiftool or --sidecar, set XMP:Rating=5 for photos marked as Favorite and XMP:Rating=0 for non-Favorites. If not specified, XMP:Rating is not set.",
 )
 @click.option(
     "--ignore-date-modified",
     is_flag=True,
-    help="If used with --exiftool or --sidecar, will ignore the photo "
-    "modification date and set EXIF:ModifyDate to EXIF:DateTimeOriginal; "
-    "this is consistent with how Photos handles the EXIF:ModifyDate tag.",
+    help="If used with --exiftool or --sidecar, will ignore the photo modification date and set EXIF:ModifyDate to EXIF:DateTimeOriginal; this is consistent with how Photos handles the EXIF:ModifyDate tag.",
 )
 @click.option(
     "--person-keyword",
@@ -558,8 +567,7 @@ if TYPE_CHECKING:
 @click.option(
     "--finder-tag-keywords",
     is_flag=True,
-    help="Set MacOS Finder tags to keywords; any keywords specified via '--keyword-template', '--person-keyword', etc. "
-    "will also be used as Finder tags. See also '--finder-tag-template and Extended Attributes below.'.",
+    help="Set MacOS Finder tags to keywords; any keywords specified via '--keyword-template', '--person-keyword', etc. will also be used as Finder tags. See also '--finder-tag-template and Extended Attributes below.'.",
 )
 @click.option(
     "--xattr-template",
@@ -577,8 +585,7 @@ if TYPE_CHECKING:
     "--directory",
     metavar="DIRECTORY",
     default=None,
-    help="Optional template for specifying name of output directory in the form '{name,DEFAULT}'. "
-    "See below for additional details on templating system.",
+    help="Optional template for specifying name of output directory in the form '{name,DEFAULT}'. See below for additional details on templating system.",
     type=TemplateString(),
 )
 @click.option(
@@ -586,9 +593,7 @@ if TYPE_CHECKING:
     "filename_template",
     metavar="FILENAME",
     default=None,
-    help="Optional template for specifying name of output file in the form '{name,DEFAULT}'. "
-    "File extension will be added automatically--do not include an extension in the FILENAME template. "
-    "See below for additional details on templating system.",
+    help="Optional template for specifying name of output file in the form '{name,DEFAULT}'. File extension will be added automatically--do not include an extension in the FILENAME template. See below for additional details on templating system.",
     type=TemplateString(),
 )
 @click.option(
@@ -604,10 +609,7 @@ if TYPE_CHECKING:
 @click.option(
     "--strip",
     is_flag=True,
-    help="Optionally strip leading and trailing whitespace from any rendered templates. "
-    'For example, if --filename template is "{title,} {original_name}" and image has no '
-    "title, resulting file would have a leading space but if used with --strip, this will "
-    "be removed.",
+    help='Optionally strip leading and trailing whitespace from any rendered templates. For example, if --filename template is "{title,} {original_name}" and image has no title, resulting file would have a leading space but if used with --strip, this will be removed.',
 )
 @click.option(
     "--edited-suffix",
@@ -635,9 +637,7 @@ if TYPE_CHECKING:
 @click.option(
     "--use-photokit",
     is_flag=True,
-    help="Use with '--download-missing' or '--use-photos-export' to use direct Photos interface instead of AppleScript to export. "
-    "Highly experimental alpha feature; does not work with iTerm2 (use with Terminal.app). "
-    "This is faster and more reliable than the default AppleScript interface.",
+    help="Use with '--download-missing' or '--use-photos-export' to use direct Photos interface instead of AppleScript to export. Highly experimental alpha feature; does not work with iTerm2 (use with Terminal.app). This is faster and more reliable than the default AppleScript interface.",
 )
 @click.option(
     "--report",
@@ -654,8 +654,7 @@ if TYPE_CHECKING:
 @click.option(
     "--append",
     is_flag=True,
-    help="If used with --report, add data to existing report file instead of overwriting it. "
-    "See also --report.",
+    help="If used with --report, add data to existing report file instead of overwriting it. See also --report.",
 )
 @click.option(
     "--cleanup",
@@ -666,15 +665,15 @@ if TYPE_CHECKING:
     "for example, your own scripts or other files.  Be sure this is what you intend before using "
     "--cleanup.  Use --dry-run with --cleanup first if you're not certain. "
     "To prevent files not generated by osxphotos from being deleted, you may specify one or more rules "
-    "in a file named `.osxphotos_keep` in the export directory. "
+    "in a file named '.osxphotos_keep' in the export directory. "
     "This file uses the same format as a .gitignore file and should contain one rule per line; "
-    "lines starting with a `#` will be ignored. "
+    "lines starting with a '#' will be ignored. "
     "Reference https://git-scm.com/docs/gitignore#_pattern_format for details. "
     "In addition to the standard .gitignore rules, the rules may also be the absolute path to a file or directory. "
-    "For example if export destination is `/Volumes/Photos` and you want to keep all `.txt` files, "
-    'in the top level of the export directory, you can specify `/*.txt"` in the .osxphotos_keep file. '
-    "If you want to keep all `.txt` files in the export directory and all subdirectories, "
-    "you can specify `**/*.txt`. "
+    "For example if export destination is '/Volumes/Photos' and you want to keep all '.txt' files, "
+    "in the top level of the export directory, you can specify '/*.txt' in the .osxphotos_keep file. "
+    "If you want to keep all '.txt' files in the export directory and all subdirectories, "
+    "you can specify '**/*.txt'. "
     "If present, the .osxphotos_keep file will be read after the export is completed and any rules found in the file "
     "will be added to the list of rules to keep. "
     "See also --keep.",
@@ -690,44 +689,38 @@ if TYPE_CHECKING:
     "KEEP_RULE follows the same format rules a .gitignore file. "
     "Reference https://git-scm.com/docs/gitignore#_pattern_format for details. "
     "In addition to the standard .gitignore rules, KEEP_RULE may also be the absolute path to a file or directory. "
-    "For example if export destination is `/Volumes/Photos` and you want to keep all `.txt` files, "
-    'in the top level of the export directory, you can specify `--keep "/*.txt"`. '
-    "If you want to keep all `.txt` files in the export directory and all subdirectories, "
-    'you can specify `--keep "**/*.txt"`. '
+    "For example if export destination is '/Volumes/Photos' and you want to keep all '.txt' files, "
+    'in the top level of the export directory, you can specify \'--keep "*.txt". '
+    "If you want to keep all '.txt' files in the export directory and all subdirectories, "
+    "you can specify '--keep \"**/*.txt\"'. "
     "If wild card is used, KEEP_RULE must be enclosed in quotes to prevent the shell from expanding the wildcard. "
     "--keep may be repeated to keep additional files/directories. "
-    "Rules may also be included in a file named `.osxphotos_keep` in the export directory. "
+    "Rules may also be included in a file named '.osxphotos_keep' in the export directory. "
     "If present, this file will be read after the export is completed and any rules found in the file "
     "will be added to the list of rules to keep. "
     "This file uses the same format as a .gitignore file and should contain one rule per line; "
-    "lines starting with a `#` will be ignored. ",
+    "lines starting with a '#' will be ignored. ",
 )
 @click.option(
     "--add-exported-to-album",
     metavar="ALBUM",
     hidden=not is_macos,
     callback=require_macos,
-    help="Add all exported photos to album ALBUM in Photos. Album ALBUM will be created "
-    "if it doesn't exist.  All exported photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
+    help="Add all exported photos to album ALBUM in Photos. Album ALBUM will be created if it doesn't exist.  All exported photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--add-skipped-to-album",
     metavar="ALBUM",
     hidden=not is_macos,
     callback=require_macos,
-    help="Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created "
-    "if it doesn't exist.  All skipped photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
+    help="Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created if it doesn't exist.  All skipped photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--add-missing-to-album",
     metavar="ALBUM",
     hidden=not is_macos,
     callback=require_macos,
-    help="Add all missing photos to album ALBUM in Photos. Album ALBUM will be created "
-    "if it doesn't exist.  All missing photos will be added to this album. "
-    "This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
+    help="Add all missing photos to album ALBUM in Photos. Album ALBUM will be created if it doesn't exist.  All missing photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--post-command",
@@ -748,24 +741,24 @@ if TYPE_CHECKING:
 @click.option(
     "--post-command-error",
     metavar="ACTION",
-    help="Specify either `continue` or `break` for ACTION to control behavior when a post-command fails. "
-    "If `continue`, osxphotos will log the error and continue processing. "
-    "If `break`, osxphotos will stop processing any additional --post-command commands for the current photo "
+    help="Specify either 'continue' or 'break' for ACTION to control behavior when a post-command fails. "
+    "If 'continue', osxphotos will log the error and continue processing. "
+    "If 'break', osxphotos will stop processing any additional --post-command commands for the current photo "
     "but will continue with the export. "
     "Without --post-command-error, osxphotos will abort the export if a post-command encounters an error. ",
     type=click.Choice(["continue", "break"], case_sensitive=False),
 )
 @click.option(
     "--post-function",
-    metavar="filename.py::function",
+    metavar="filename.py:function",
     nargs=1,
     type=FunctionCall(),
     multiple=True,
-    help="Run function on exported files. Use this in format: --post-function filename.py::function where filename.py is a python "
+    help="Run function on exported files. Use this in format: --post-function filename.py:function where filename.py is a python "
     "file you've created and function is the name of the function in the python file you want to call.  The function will be "
     "passed information about the photo that's been exported and a list of all exported files associated with the photo. "
     "You can run more than one function by repeating the '--post-function' option with different arguments. "
-    "You may also specify a post function using a URL in format --post-function 'https://path/to/module.py::function' "
+    "You may also specify a post function using a URL in format --post-function 'https://path/to/module.py:function' "
     "See Post Function below.",
 )
 @click.option(
@@ -773,9 +766,7 @@ if TYPE_CHECKING:
     metavar="EXPORTDB_FILE",
     default=None,
     help=(
-        "Specify alternate path for database file which stores state information for export and --update. "
-        f"If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' "
-        "in the export directory.  If --exportdb is specified, it will be saved to the specified file. "
+        f"Specify alternate path for database file which stores state information for export and --update. If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' in the export directory.  If --exportdb is specified, it will be saved to the specified file. "
     ),
     type=ExportDBType(),
 )
@@ -784,7 +775,8 @@ if TYPE_CHECKING:
     is_flag=True,
     help="Copy export database to memory during export; "
     "will improve performance when exporting over a network or slow disk. "
-    "See also --checkpoint.",
+    "Note: osxphotos will automatically detect if export database is on a network volume and force use of --ramdb. "
+    "See also --exportdb to specifiy an alternate location for the export database and also --checkpoint.",
 )
 @click.option(
     "--checkpoint",
@@ -850,10 +842,10 @@ if TYPE_CHECKING:
     help="Specify alternate path to Photos library database. "
     "This is an advanced feature you probably don't need. "
     "This may be useful when exporting from a library on a very slow external disk. "
-    "In this case, you could copy the `/database` folder from the Photos library to the internal disk"
-    "and use `--alt-db` to specify the path to the database file on the internal disk. "
-    "then use `--library` to specify the path to the Photos library root on the external disk. "
-    "For example: `--library /Volumes/ExternalDisk/Photos.photoslibrary --alt-db /path/to/database/Photos.sqlite` ",
+    "In this case, you could copy the '/database' folder from the Photos library to the internal disk"
+    "and use '--alt-db' to specify the path to the database file on the internal disk. "
+    "then use '--library' to specify the path to the Photos library root on the external disk. "
+    "For example: '--library /Volumes/ExternalDisk/Photos.photoslibrary --alt-db /path/to/database/Photos.sqlite' ",
     type=CatchSmartQuotesPath(exists=True),
 )
 @click.option(
@@ -876,8 +868,7 @@ if TYPE_CHECKING:
     required=False,
     metavar="CONFIG_FILE",
     default=None,
-    help="Save options to file for use with --load-config. File format is TOML. "
-    "See also --config-only.",
+    help="Save options to file for use with --load-config. File format is TOML. See also --config-only.",
     type=CatchSmartQuotesPath(),
 )
 @click.option(
@@ -890,11 +881,7 @@ if TYPE_CHECKING:
     "print_template",
     metavar="TEMPLATE",
     multiple=True,
-    help="Render TEMPLATE string for each photo being exported and print to stdout. "
-    "TEMPLATE is an osxphotos template string. "
-    "This may be useful for creating custom reports, etc. "
-    "TEMPLATE will be printed after the photo is exported or skipped. "
-    "May be repeated to print multiple template strings. ",
+    help="Render TEMPLATE string for each photo being exported and print to stdout. TEMPLATE is an osxphotos template string. This may be useful for creating custom reports, etc. TEMPLATE will be printed after the photo is exported or skipped. May be repeated to print multiple template strings. ",
 )
 @click.option(
     "--beta",
@@ -908,8 +895,7 @@ if TYPE_CHECKING:
     metavar="NUM_PHOTOS",
     type=click.IntRange(min=1),
     hidden=OSXPHOTOS_HIDDEN,
-    help="Force osxphotos to crash after processing NUM_PHOTOS; "
-    "obviously this is only for testing and debugging crash handling.",
+    help="Force osxphotos to crash after processing NUM_PHOTOS; obviously this is only for testing and debugging crash handling.",
 )
 @THEME_OPTION
 @click.argument("dest", nargs=1, type=CatchSmartQuotesPath(exists=True))
@@ -1055,6 +1041,8 @@ def export(
     replace_keywords: bool,
     report: str | None,
     retry: int | None,
+    retry_nas_alias: str | None,
+    retry_wait: int | None,
     save_config: bool,
     screenshot: bool,
     screen_recording: bool,
@@ -1132,7 +1120,7 @@ def export(
 
 def export_cli(
     dest: str,
-    db: str | None = None,
+    db: str | osxphotos.PhotosDB | None = None,
     add_exported_to_album: str | None = None,
     add_missing_to_album: str | None = None,
     add_skipped_to_album: str | None = None,
@@ -1261,6 +1249,8 @@ def export_cli(
     replace_keywords: bool = False,
     report: str | None = None,
     retry: int | None = None,
+    retry_nas_alias: str | None = None,
+    retry_wait: int | None = None,
     save_config: bool = False,
     screenshot: bool = False,
     screen_recording: bool = False,
@@ -1318,9 +1308,13 @@ def export_cli(
     If you want to call the export function directly in your own code, you may call
     export_cli() directly. In this case you will be responsible for ensuring that all
     arguments are passed and all arguments are of the correct type. For example, the
-    CLI argument `--from-date` converts user input in form `2023-01-01` to a
-    datetime.datetime object. If passing `from_date`, you will be responsible for
+    CLI argument '--from-date' converts user input in form '2023-01-01' to a
+    datetime.datetime object. If passing 'from_date', you will be responsible for
     passing a datetime.datetime not the ISO string as is done on the command line.
+
+    The db argument can be either a path to a photos database or a PhotosDB object.
+    Passing a PhotosDB object allows you to repeatedly call export() without having
+    to open and load the database each time.
 
     Returns: 1 if error or 0 if no error
     """
@@ -1507,6 +1501,8 @@ def export_cli(
         replace_keywords = cfg.replace_keywords
         report = cfg.report
         retry = cfg.retry
+        retry_nas_alias = cfg.retry_nas_alias
+        retry_wait = cfg.retry_wait
         saved_to_library = cfg.saved_to_library
         screenshot = cfg.screenshot
         screen_recording = cfg.screen_recording
@@ -1607,16 +1603,18 @@ def export_cli(
     dependent_options = [
         ("append", ("report")),
         ("checkpoint", ("ramdb")),
-        ("exiftool_merge_keywords", ("exiftool", "sidecar")),
-        ("exiftool_merge_persons", ("exiftool", "sidecar")),
+        ("exiftool_merge_keywords", ("exiftool", "sidecar", "sidecar_template")),
+        ("exiftool_merge_persons", ("exiftool", "sidecar", "sidecar_template")),
         ("exiftool_option", ("exiftool")),
-        ("favorite_rating", ("exiftool", "sidecar")),
+        ("favorite_rating", ("exiftool", "sidecar", "sidecar_template")),
         ("ignore_signature", ("update", "force_update")),
         ("jpeg_quality", ("convert_to_jpeg")),
         ("keep", ("cleanup")),
         ("missing", ("download_missing", "use_photos_export")),
         ("only_new", ("update", "force_update")),
         ("update_errors", ("update")),
+        ("retry_nas_alias", ("retry")),
+        ("retry_wait", ("retry_nas_alias")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1645,8 +1643,7 @@ def export_cli(
         for attr, _ in xattr_template:
             if attr not in EXTENDED_ATTRIBUTE_NAMES:
                 rich_click_echo(
-                    f"[error]Invalid attribute '{attr}' for --xattr-template; "
-                    f"valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
+                    f"[error]Invalid attribute '{attr}' for --xattr-template; valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
                     err=True,
                 )
                 return 1
@@ -1667,7 +1664,7 @@ def export_cli(
     preview_suffix = (
         DEFAULT_PREVIEW_SUFFIX if preview_suffix is None else preview_suffix
     )
-    retry = retry or 0
+    retry = max(0, retry or 0)
 
     dest = str(pathlib.Path(dest).resolve())
 
@@ -1678,8 +1675,7 @@ def export_cli(
 
     if is_photoslibrary_path(dest):
         rich_click_echo(
-            f"[error]Error: DEST {dest} appears to be a Photos library. "
-            "You should not export into a Photos library.",
+            f"[error]Error: DEST {dest} appears to be a Photos library. You should not export into a Photos library.",
             err=True,
         )
         return 1
@@ -1696,16 +1692,13 @@ def export_cli(
 
     if (use_photokit or use_photos_export) and not check_photokit_authorization():
         click.echo(
-            "Requesting access to use your Photos library. "
-            "Click 'Allow Access to All Photos' in the dialog box to grant access."
+            "Requesting access to use your Photos library. Click 'Allow Access to All Photos' in the dialog box to grant access."
         )
         if not wait_for_photokit_authorization():
             if term := terminal():
                 term = f"terminal app ({term})" if term else "terminal app"
             rich_click_echo(
-                f"[error]Error: could not get authorization to access Photos library\n"
-                f"Please ensure that your {term} is granted access in "
-                "'System Settings > Privacy & Security > Photos'"
+                f"[error]Error: could not get authorization to access Photos library\nPlease ensure that your {term} is granted access in 'System Settings > Privacy & Security > Photos'"
             )
             return 1
 
@@ -1726,8 +1719,7 @@ def export_cli(
             exiftool_path = get_exiftool_path()
         except FileNotFoundError:
             rich_click_echo(
-                "[error]Could not find exiftool. Please download and install"
-                " from https://exiftool.org/",
+                "[error]Could not find exiftool. Please download and install from https://exiftool.org/",
                 err=True,
             )
             return 1
@@ -1735,9 +1727,12 @@ def export_cli(
     if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]):
         verbose(f"exiftool path: [filepath]{exiftool_path}")
 
-    # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(db, cli_db)
+    # get the Photos library path
+    # db can also be an instance of PhotosDB which allows export_cli to be used in custom export code
+    cli_db = (
+        cli_obj.db if cli_obj is not None else None
+    )  # needed for to make CliRunner work for testing
+    db = db if isinstance(db, osxphotos.PhotosDB) else get_photos_db(db, cli_db)
     if not db:
         rich_click_echo(get_help_msg(export), err=True)
         rich_click_echo(
@@ -1751,15 +1746,12 @@ def export_cli(
     if not no_exportdb and exportdb and exportdb != str(expected_exportdb):
         if expected_exportdb.exists():
             rich_click_echo(
-                f"[warning]Warning: export database is '{exportdb}' but found "
-                f"'{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
+                f"[warning]Warning: export database is '{exportdb}' but found '{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
                 err=True,
             )
         if pathlib.Path(exportdb).resolve().parent != pathlib.Path(dest):
             rich_click_echo(
-                f"[warning]Warning: export database "
-                f"'{pathlib.Path(exportdb).resolve()}' is in a different "
-                f"directory than export destination '{dest}'",
+                f"[warning]Warning: export database '{pathlib.Path(exportdb).resolve()}' is in a different directory than export destination '{dest}'",
                 err=True,
             )
 
@@ -1772,15 +1764,12 @@ def export_cli(
         and pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB).exists()
     ):
         rich_click_echo(
-            f"[warning]Warning: found previous export database in '{dest}' but --update not specified; "
-            "osxphotos will not consider state of previous export which may result in duplicate files. "
-            "Please confirm that you want to continue without using --update",
+            f"[warning]Warning: found previous export database in '{dest}' but --update not specified; osxphotos will not consider state of previous export which may result in duplicate files. Please confirm that you want to continue without using --update",
             err=True,
         )
         if ignore_exportdb:
             rich_click_echo(
-                "[warning]Warning: option --ignore-exportdb enabled: ignoring export database; "
-                "osxphotos will not consider state of previous export which may result in duplicate files."
+                "[warning]Warning: option --ignore-exportdb enabled: ignoring export database; osxphotos will not consider state of previous export which may result in duplicate files."
             )
         elif not click.confirm("Do you want to continue?"):
             return 1
@@ -1790,10 +1779,7 @@ def export_cli(
         other_db_file := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)
     ):
         rich_click_echo(
-            "[warning]WARNING: found other export database file in this destination directory branch. "
-            "This likely means you are attempting to export files into a directory "
-            "that is either the parent or a child directory of a previous export. "
-            "Proceeding may cause your exported files to be overwritten.",
+            "[warning]WARNING: found other export database file in this destination directory branch. This likely means you are attempting to export files into a directory that is either the parent or a child directory of a previous export. Proceeding may cause your exported files to be overwritten.",
             err=True,
         )
         rich_click_echo(
@@ -1806,6 +1792,7 @@ def export_cli(
     export_db_path = exportdb or os.path.join(dest, OSXPHOTOS_EXPORT_DB)
 
     export_db_callback = None
+    ramdb = force_use_of_ramdb(ramdb, export_db_path, verbose)
     if dry_run:
         export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
         fileutil = FileUtilNoOp
@@ -1830,11 +1817,17 @@ def export_cli(
                 print("\nAborting!", file=sys.stderr)
                 print(f"Writing export database to {export_db_path}", file=sys.stderr)
                 export_db.write_to_disk()
-                print("Aborted!")
+                print("Aborted!", file=sys.stderr)
                 sys.exit(1)
 
             signal.signal(signal.SIGINT, sigint_handler)
 
+        cfg_fileutil_retry(
+            retry_enabled=(retry > 0),
+            retries=retry or 0,
+            wait_seconds=retry_wait,
+            nas_export_alias=retry_nas_alias,
+        )
         if alt_copy or not is_macos or (exiftool and is_mounted_volume(dest)):
             # if alt_copy or not on macOS, use shutil for copying files
             # also, if destination appears to be on a mounted volume and using exiftool, use shutil
@@ -1878,28 +1871,11 @@ def export_cli(
     # if not verbose, set photosdb verbose to print to stderr
     # so that user can still see progress as database is loaded
     db_verbose = verbose if verbose_flag else rich_echo_error
-    if is_iphoto_library(db):
-        if alt_db:
-            click.echo("--alt-db is not supported for iPhoto libraries", err=True)
-            raise click.Abort()
-        photosdb = osxphotos.iPhotoDB(
-            dbfile=db, verbose=db_verbose, exiftool=exiftool_path, rich=False
-        )
-    else:
-        library_path = pathlib.Path(db)
-        if library_path.is_file():
-            # get the Photos library path from the database path
-            library_path = library_path.parent.parent
-        photosdb = osxphotos.PhotosDB(
-            dbfile=alt_db if alt_db else db,
-            verbose=db_verbose,
-            exiftool=exiftool_path,
-            rich=True,
-            library_path=library_path if alt_db else None,
-        )
+    photosdb = open_photosdb(
+        db=db, alt_db=alt_db, db_verbose=db_verbose, exiftool_path=exiftool_path
+    )
 
-    # enable beta features if requested
-    photosdb._beta = beta
+    photosdb._beta = beta  # enable beta features if requested
 
     try:
         photos = photosdb.query(query_options)
@@ -1996,18 +1972,6 @@ def export_cli(
                 kwargs["photo"] = p
                 kwargs["photo_num"] = photo_num
                 export_results = export_photo(**kwargs)
-
-                # generate custom sidecars if needed
-                if sidecar_template:
-                    export_results += generate_user_sidecar(
-                        photo=p,
-                        export_results=export_results,
-                        sidecar_template=sidecar_template,
-                        exiftool_path=exiftool_path,
-                        export_dir=dest,
-                        dry_run=dry_run,
-                        verbose=verbose,
-                    )
 
                 # run post functions
                 if run_results := run_post_function(
@@ -2179,18 +2143,9 @@ def export_cli(
 
         photo_str_total = pluralize(len(photos), "photo", "photos")
         if update or force_update:
-            summary = (
-                f"Processed: [num]{len(photos)}[/] {photo_str_total}, "
-                f"exported: [num]{len(results.new)}[/], "
-                f"updated: [num]{len(results.updated)}[/], "
-                f"skipped: [num]{len(results.skipped)}[/], "
-                f"updated EXIF data: [num]{len(results.exif_updated)}[/], "
-            )
+            summary = f"Processed: [num]{len(photos)}[/] {photo_str_total}, exported: [num]{len(results.new)}[/], updated: [num]{len(results.updated)}[/], skipped: [num]{len(results.skipped)}[/], updated EXIF data: [num]{len(results.exif_updated)}[/], "
         else:
-            summary = (
-                f"Processed: [num]{len(photos)}[/] {photo_str_total}, "
-                f"exported: [num]{len(results.exported)}[/], "
-            )
+            summary = f"Processed: [num]{len(photos)}[/] {photo_str_total}, exported: [num]{len(results.exported)}[/], "
         summary += f"missing: [num]{len(results.missing)}[/], "
         summary += f"error: [num]{len(results.error)}[/]"
         if touch_file:
@@ -2199,7 +2154,7 @@ def export_cli(
             summary += f", limit: [num]{num_exported}[/]/[num]{limit}[/] exported"
         rich_echo(summary)
         stop_time = time.perf_counter()
-        rich_echo(f"Elapsed time: [time]{format_sec_to_hhmmss(stop_time-start_time)}")
+        rich_echo(f"Elapsed time: [time]{format_sec_to_hhmmss(stop_time - start_time)}")
     else:
         rich_echo("Did not find any photos to export")
 
@@ -2264,7 +2219,7 @@ def export_cli(
         results.deleted_files = cleaned_files
         results.deleted_directories = cleaned_dirs
 
-    # store results so they can be used by `osxphotos exportdb --report`
+    # store results so they can be used by 'osxphotos exportdb --report'
     export_db.set_export_results(results)
 
     if report:
@@ -2288,6 +2243,7 @@ def export_photo(
     export_aae=None,
     sidecar=None,
     sidecar_drop_ext=False,
+    sidecar_template=None,
     update=None,
     force_update=None,
     ignore_signature=None,
@@ -2301,6 +2257,7 @@ def export_photo(
     exiftool=None,
     exiftool_merge_keywords=False,
     exiftool_merge_persons=False,
+    exiftool_path=None,
     directory=None,
     favorite_rating=False,
     filename_template=None,
@@ -2521,6 +2478,7 @@ def export_photo(
                 exiftool_merge_keywords=exiftool_merge_keywords,
                 exiftool_merge_persons=exiftool_merge_persons,
                 exiftool_option=exiftool_option,
+                exiftool_path=exiftool_path,
                 exiftool=exiftool,
                 export_as_hardlink=export_as_hardlink,
                 export_db=export_db,
@@ -2549,6 +2507,7 @@ def export_photo(
                 export_aae=export_aae,
                 sidecar_drop_ext=sidecar_drop_ext,
                 sidecar_flags=sidecar_flags,
+                sidecar_template=sidecar_template,
                 touch_file=touch_file,
                 update=update,
                 update_errors=update_errors,
@@ -2641,6 +2600,7 @@ def export_photo(
                     exiftool_merge_keywords=exiftool_merge_keywords,
                     exiftool_merge_persons=exiftool_merge_persons,
                     exiftool_option=exiftool_option,
+                    exiftool_path=exiftool_path,
                     exiftool=exiftool,
                     export_as_hardlink=export_as_hardlink,
                     export_db=export_db,
@@ -2669,6 +2629,7 @@ def export_photo(
                     export_aae=export_aae,
                     sidecar_drop_ext=sidecar_drop_ext,
                     sidecar_flags=sidecar_flags,
+                    sidecar_template=sidecar_template,
                     touch_file=touch_file,
                     update=update,
                     update_errors=update_errors,
@@ -2730,6 +2691,7 @@ def export_photo_to_directory(
     exiftool_merge_keywords,
     exiftool_merge_persons,
     exiftool_option,
+    exiftool_path,
     exiftool,
     export_as_hardlink,
     export_db,
@@ -2758,6 +2720,7 @@ def export_photo_to_directory(
     export_aae,
     sidecar_drop_ext,
     sidecar_flags,
+    sidecar_template,
     touch_file,
     update,
     update_errors,
@@ -2788,6 +2751,7 @@ def export_photo_to_directory(
         verbose(f"Skipping original version of [filename]{photo.original_filename}")
         return results
 
+    # TODO Use this retry logic or use fileutil retry options (#2004)?
     tries = 0
     while tries <= retry:
         tries += 1
@@ -2801,6 +2765,7 @@ def export_photo_to_directory(
                 edited=edited,
                 exiftool=exiftool,
                 exiftool_flags=exiftool_option,
+                exiftool_path=exiftool_path,
                 export_as_hardlink=export_as_hardlink,
                 export_db=export_db,
                 favorite_rating=favorite_rating,
@@ -2824,6 +2789,7 @@ def export_photo_to_directory(
                 export_aae=export_aae,
                 sidecar=sidecar_flags,
                 sidecar_drop_ext=sidecar_drop_ext,
+                sidecar_template=sidecar_template,
                 tmpdir=tmpdir,
                 touch_file=touch_file,
                 update=update,
@@ -2860,8 +2826,8 @@ def export_photo_to_directory(
                     f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])"
                 )
         except Exception as e:
-            if is_debug():
-                # if debug mode, don't swallow the exceptions
+            if is_debug() or isinstance(e, UserSidecarError):
+                # if debug mode or user didn't specify catch_errors, don't swallow the exceptions
                 raise e
             rich_echo(
                 f"[error]Error exporting photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename]) as [filepath]{filename}[/filepath]: {e}",
@@ -2987,7 +2953,7 @@ def get_dirnames_from_template(
             dest, date_created.year, date_created.mm, date_created.dd
         )
         if not (dry_run or os.path.isdir(dest_path)):
-            os.makedirs(dest_path)
+            FileUtilShUtil.makedirs(dest_path, exist_ok=True)
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
@@ -3013,7 +2979,7 @@ def get_dirnames_from_template(
             if not is_valid_filepath(dest_path):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
             if not dry_run and not os.path.isdir(dest_path):
-                os.makedirs(dest_path)
+                FileUtilShUtil.makedirs(dest_path, exist_ok=True)
             dest_paths.append(dest_path)
     else:
         dest_paths = [dest]
@@ -3374,9 +3340,14 @@ def run_post_command(
     """Run --post-command commands"""
     # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
 
+    should_return = False
     for category, command_template in post_command:
+        if should_return:
+            break
         files = getattr(export_results, category)
         for f in files:
+            if should_return:
+                break
             # some categories, like error, return a tuple of (file, error str)
             if isinstance(f, tuple):
                 f = f[0]
@@ -3394,19 +3365,20 @@ def run_post_command(
                         run_results = subprocess.run(command, shell=True, cwd=cwd)
                     except Exception as e:
                         run_error = e
-                    finally:
-                        returncode = run_results.returncode if run_results else None
-                        if run_error or returncode:
-                            # there was an error running the command
-                            error_str = f'Error running command "{command}": return code: {returncode}, exception: {run_error}'
-                            rich_echo_error(f"[error]{error_str}[/]")
-                            if not on_error:
-                                # no error handling specified, raise exception
-                                raise RuntimeError(error_str)
-                            if on_error == "break":
-                                # break out of loop and return
-                                return
-                            # else on_error must be continue
+
+                    returncode = run_results.returncode if run_results else None
+                    if run_error or returncode:
+                        # there was an error running the command
+                        error_str = f'Error running command "{command}": return code: {returncode}, exception: {run_error}'
+                        rich_echo_error(f"[error]{error_str}[/]")
+                        if not on_error:
+                            # no error handling specified, raise exception
+                            raise RuntimeError(error_str)
+                        if on_error == "break":
+                            # break out of both loops and return
+                            should_return = True
+                            break
+                        # else on_error must be continue
 
 
 def render_and_validate_report(report: str, exiftool_path: str, export_dir: str) -> str:
@@ -3458,3 +3430,76 @@ def get_metadata_attribute_type(attr: str) -> Optional[str]:
             else None
         )
     )
+
+
+def force_use_of_ramdb(
+    ramdb: bool, export_db_path: str, verbose: Callable[[Any], None]
+) -> bool:
+    """Detect if export volume is a network share and if so, return
+
+    Args:
+        ramdb: value of --ramdb passed by user; if True, return True
+        export_db_path: path to the export database
+        verbose: function to print verbose messages
+
+    Returns:
+        True if use of ramdb should be required
+
+    Note: returns True if one of the following conditions applies, otherwise False:
+        - ramdb is True (user requested it)
+        - export_db_path is on a network volume
+    """
+
+    if ramdb:
+        return True
+    if is_path_on_network_volume(export_db_path):
+        verbose(
+            f"Using --ramdb option because export database is on network volume: {export_db_path}"
+        )
+        return True
+    return False
+
+
+def open_photosdb(
+    db: str | osxphotos.PhotosDB,
+    alt_db: str | None,
+    db_verbose: Callable[[Any], None],
+    exiftool_path: str | None,
+) -> osxphotos.PhotosDB:
+    """Open a PhotosDB object from a database path or an existing PhotosDB object.
+
+    Args:
+        db: path to the Photos database or an existing PhotosDB object
+        alt_db: path to the alternative Photos database
+        db_verbose: function to print verbose messages
+        exiftool_path: path to exiftool executable
+
+    Returns:
+        PhotosDB object
+
+    Raises:
+        click.Abort: if --alt-db is used with an iPhoto library
+    """
+    if isinstance(db, osxphotos.PhotosDB):
+        return db
+
+    if is_iphoto_library(db):
+        if alt_db:
+            click.echo("--alt-db is not supported for iPhoto libraries", err=True)
+            raise click.Abort()
+        photosdb = osxphotos.iPhotoDB(
+            dbfile=db, verbose=db_verbose, exiftool=exiftool_path, rich=False
+        )
+    else:
+        library_path = pathlib.Path(db)
+        if library_path.is_file():
+            # get the Photos library path from the database path
+            library_path = library_path.parent.parent
+        photosdb = osxphotos.PhotosDB(
+            dbfile=alt_db if alt_db else db,
+            verbose=db_verbose,
+            exiftool=exiftool_path,
+            rich=True,
+            library_path=library_path if alt_db else None,
+        )
+    return photosdb

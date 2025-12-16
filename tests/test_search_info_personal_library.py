@@ -1,4 +1,4 @@
-""" test SearchInfo class """
+"""test SearchInfo class"""
 
 # Note: Run tests/generate_search_info_test_data.py to generate the UUID_SEARCH_INFO dict
 
@@ -10,14 +10,14 @@ import pytest
 import osxphotos
 
 # These tests must be run against the author's personal photo library
-skip_test = "OSXPHOTOS_TEST_EXPORT" not in os.environ
+skip_test = "OSXPHOTOS_TEST_LOCAL" not in os.environ
 pytestmark = pytest.mark.skipif(
     skip_test, reason="These tests only run against system Photos library"
 )
 
 PHOTOS_DB = "/Users/rhet/Pictures/Photos Library.photoslibrary"
 
-with open("tests/search_info_test_data_13.json") as fp:
+with open("tests/search_info_test_data.json") as fp:
     test_data = json.load(fp)
 
 UUID_SEARCH_INFO = test_data["UUID_SEARCH_INFO"]

@@ -1,6 +1,7 @@
-""" Test basic methods for Mojave 10.14.6 """
+"""Test basic methods for Mojave 10.14.6"""
 
 import datetime
+import zoneinfo
 from collections import namedtuple
 
 import pytest
