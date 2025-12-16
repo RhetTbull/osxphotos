@@ -497,7 +497,7 @@ class ImportCommand(click.Command):
             If you have a Google Takeout archive of your Google Photos library, you can import
             it using the following steps:
 
-            - Download the Google Takout archive from Google Photos
+            - Download the Google Takeout archive from Google Photos
             - Unzip the archive
             - Run the following command to import the photos into Photos:
 

@@ -48,8 +48,8 @@ def snap(ctx, cli_obj, db):
 
     # get all the sqlite files including the write ahead log if any
     files = db_path.glob("*.sqlite*")
-    os.makedirs(destination_path)
     fu = osxphotos.fileutil.FileUtil()
+    fu.makedirs(destination_path)
     count = 0
     for file in files:
         if file.is_file():
