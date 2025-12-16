@@ -663,7 +663,7 @@ def set_photo_property(photo: photoscript.Photo, property: str, value: Any):
         # If the value is missing or is not a string, setting it to an empty string, will result in an error.
         # So we can ignore this property if the value is None or not a string.
         echo_error(
-            f"[warning]WARNING: The property '{property}' of '{photo.original_filename}' is missing or invalid."
+            f"[warning] The property '{property}' of '{photo.original_filename}' is missing or invalid."
         )
         return
     elif property == "favorite":
