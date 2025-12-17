@@ -5,6 +5,7 @@ from __future__ import annotations
 import atexit
 import datetime
 import inspect
+import json
 import os
 import pathlib
 import platform
@@ -69,6 +70,7 @@ from osxphotos.fileutil import (
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
+from osxphotos.photoinfo_dict import photoinfo_from_dict
 from osxphotos.photokit_utils import wait_for_photokit_authorization
 from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
@@ -224,19 +226,14 @@ if TYPE_CHECKING:
     "--retry",
     metavar="RETRY",
     type=click.INT,
-    help="Automatically retry export (and file operations) up to RETRY times if an error occurs "
-    "during export. This may be useful with network drives that experience intermittent errors. "
-    "See also option --retry-nas-alias.",
+    help="Automatically retry export (and file operations) up to RETRY times if an error occurs during export. This may be useful with network drives that experience intermittent errors. See also option --retry-nas-alias.",
 )
 @click.option(
     "--retry-nas-alias",
     metavar="NAS.ALIAS",
     default=None,
     multiple=False,
-    help="Alias filename to the SMB export destination folder to be used with --retry to force "
-    "macOs to re-mount the SMB export folder in case of loss of connection. "
-    "Create the alias file manually on Finder and make sure it's within the Sandboxed "
-    "environment of osxphotos. See also option --retry and --retry-wait.",
+    help="Alias filename to the SMB export destination folder to be used with --retry to force macOs to re-mount the SMB export folder in case of loss of connection. Create the alias file manually on Finder and make sure it's within the Sandboxed environment of osxphotos. See also option --retry and --retry-wait.",
     type=CatchSmartQuotesPath(
         exists=True, file_okay=True, dir_okay=False, readable=True
     ),
@@ -245,10 +242,7 @@ if TYPE_CHECKING:
     "--retry-wait",
     metavar="WAIT",
     type=click.INT,
-    help="Seconds to wait in between --retry file operations attempts during export. "
-    "Must be used with --retry and --retry-nas-alias. This is useful with network drives "
-    "that experience intermittent errors. If not specified, default is 15s. "
-    "See also option --retry and --retry-nas-alias.",
+    help="Seconds to wait in between --retry file operations attempts during export. Must be used with --retry and --retry-nas-alias. This is useful with network drives that experience intermittent errors. If not specified, default is 15s. See also option --retry and --retry-nas-alias.",
 )
 @click.option(
     "--export-by-date",
@@ -676,6 +670,7 @@ if TYPE_CHECKING:
     "you can specify '**/*.txt'. "
     "If present, the .osxphotos_keep file will be read after the export is completed and any rules found in the file "
     "will be added to the list of rules to keep. "
+    "Files whose name starts with '.' (dot-files) will not be deleted. "
     "See also --keep.",
 )
 @click.option(
@@ -700,6 +695,30 @@ if TYPE_CHECKING:
     "will be added to the list of rules to keep. "
     "This file uses the same format as a .gitignore file and should contain one rule per line; "
     "lines starting with a '#' will be ignored. ",
+)
+@click.option(
+    "--cleanup-command",
+    metavar="COMMAND",
+    nargs=1,
+    multiple=True,
+    help="Run COMMAND on files that would be cleaned up (deleted) if --cleanup was run. "
+    "COMMAND is an osxphotos template string, for example: '--cleanup-command \"mv {filepath|shell_quote} /Volumes/cleanup\"' "
+    "{filepath} will be set to the full path of the file to be cleaned up. "
+    "If the osxphotos can determine which photo the file is associated with, the other templates such as {uuid} will be available. "
+    "Otherwise, any photo-related templates will return a null value. "
+    "If both --cleanup and --cleanup-command are passed, --cleanup-command is processed before --cleanup. "
+    "See also --cleanup-command-error.",
+    type=TemplateString(),
+)
+@click.option(
+    "--cleanup-command-error",
+    metavar="ACTION",
+    help="Specify either 'continue' or 'break' for ACTION to control behavior when a cleanup-command fails. "
+    "If 'continue', osxphotos will log the error and continue processing. "
+    "If 'break', osxphotos will stop processing any additional --cleanup-command commands for the current file "
+    "but will continue with running commands for other files. "
+    "Without --cleanup-command-error, osxphotos will abort running cleanup commands if a command encounters an error. ",
+    type=click.Choice(["continue", "break"], case_sensitive=False),
 )
 @click.option(
     "--add-exported-to-album",
@@ -928,6 +947,8 @@ def export(
     burst: bool,
     checkpoint: int | None,
     cleanup: bool,
+    cleanup_command: tuple[tuple[str, str], ...],
+    cleanup_command_error: Literal["continue", "break"] | None,
     cloudasset: bool,
     config_only: bool,
     convert_to_jpeg: bool,
@@ -1137,6 +1158,8 @@ def export_cli(
     burst: bool = False,
     checkpoint: int | None = None,
     cleanup: bool = False,
+    cleanup_command: tuple[tuple[str, str], ...] = (),
+    cleanup_command_error: Literal["continue", "break"] | None = None,
     cloudasset: bool = False,
     config_only: bool = False,
     convert_to_jpeg: bool = False,
@@ -1383,6 +1406,8 @@ def export_cli(
         burst = cfg.burst
         checkpoint = cfg.checkpoint
         cleanup = cfg.cleanup
+        cleanup_command = cfg.cleanup_command
+        cleanup_command_error = cfg.cleanup_command_error
         cloudasset = cfg.cloudasset
         convert_to_jpeg = cfg.convert_to_jpeg
         crash_after = cfg.crash_after
@@ -2159,7 +2184,7 @@ def export_cli(
         rich_echo("Did not find any photos to export")
 
     # cleanup files and do report if needed
-    if cleanup:
+    if cleanup or cleanup_command:
         db_file = str(pathlib.Path(export_db_path).resolve())
         db_files = [db_file, db_file + "-wal", db_file + "-shm"]
         keep_file = str(pathlib.Path(dest) / ".osxphotos_keep")
@@ -2201,23 +2226,39 @@ def export_cli(
         files_to_keep, dirs_to_keep = collect_files_to_keep(keep, dest)
         all_files += files_to_keep
 
-        rich_echo(f"Cleaning up [filepath]{dest}")
-        cleaned_files, cleaned_dirs = cleanup_files(
-            dest, all_files, dirs_to_keep, fileutil, verbose=verbose
-        )
-        file_str = "files" if len(cleaned_files) != 1 else "file"
-        dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
+        if cleanup_command:
+            rich_echo(f"Running cleanup command on [filepath]{dest}")
+            run_cleanup_command(
+                cleanup_command=cleanup_command,
+                dest_path=dest,
+                exportdb=export_db,
+                files_to_keep=all_files,
+                dry_run=dry_run,
+                exiftool_path=exiftool_path,
+                on_error=cleanup_command_error,
+                verbose=verbose,
+            )
 
-        rich_echo(
-            f"Deleted: [num]{len(cleaned_files)}[/num] {file_str}, [num]{len(cleaned_dirs)}[/num] {dir_str}"
-        )
+        if cleanup:
+            rich_echo(f"Cleaning up [filepath]{dest}")
+            cleaned_files, cleaned_dirs = cleanup_files(
+                dest, all_files, dirs_to_keep, fileutil, verbose=verbose
+            )
+            file_str = "files" if len(cleaned_files) != 1 else "file"
+            dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
 
-        report_writer.write(
-            ExportResults(deleted_files=cleaned_files, deleted_directories=cleaned_dirs)
-        )
+            rich_echo(
+                f"Deleted: [num]{len(cleaned_files)}[/num] {file_str}, [num]{len(cleaned_dirs)}[/num] {dir_str}"
+            )
 
-        results.deleted_files = cleaned_files
-        results.deleted_directories = cleaned_dirs
+            report_writer.write(
+                ExportResults(
+                    deleted_files=cleaned_files, deleted_directories=cleaned_dirs
+                )
+            )
+
+            results.deleted_files = cleaned_files
+            results.deleted_directories = cleaned_dirs
 
     # store results so they can be used by 'osxphotos exportdb --report'
     export_db.set_export_results(results)
@@ -3065,7 +3106,13 @@ def collect_files_to_keep(
     return files_to_keep, dirs_to_keep
 
 
-def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose):
+def cleanup_files(
+    dest_path: str | os.PathLike,
+    files_to_keep: list[str],
+    dirs_to_keep: list[str],
+    fileutil: FileUtilMacOS | FileUtilShUtil | FileUtilNoOp,
+    verbose: Callable[..., None],
+):
     """cleanup dest_path by deleting and files and empty directories
         not in files_to_keep
 
@@ -3085,7 +3132,11 @@ def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose):
 
     deleted_files = []
     for p in pathlib.Path(dest_path).rglob("*"):
-        if p.is_file() and normalize_fs_path(str(p).lower()) not in keepers:
+        if (
+            p.is_file()
+            and normalize_fs_path(str(p).lower()) not in keepers
+            and not p.name.startswith(".")
+        ):
             verbose(f"Deleting [filepath]{p}")
             try:
                 fileutil.unlink(p)
@@ -3376,6 +3427,87 @@ def run_post_command(
                             raise RuntimeError(error_str)
                         if on_error == "break":
                             # break out of both loops and return
+                            should_return = True
+                            break
+                        # else on_error must be continue
+
+
+def run_cleanup_command(
+    cleanup_command: tuple[tuple[str, str]],
+    dest_path: str | os.PathLike,
+    exportdb: ExportDB | ExportDBInMemory | ExportDBTemp,
+    files_to_keep: list[str],
+    dry_run: bool,
+    exiftool_path: str,
+    on_error: Literal["break", "continue"] | None,
+    verbose: Callable[..., None],
+):
+    """Run cleanup command on each file in dest that should be cleaned up
+
+    Args:
+        cleanup_command: tuple of one or more commands to run
+        dest_path: path to directory to clean
+        exportdb: export database object
+        files_to_keep: list of full file paths to keep (not delete)
+        dry_run: dry run mode
+        exiftool_path: path to exiftool executable
+        on_error: action to take on error (break or continue)
+        verbose: verbose callable for printing verbose output
+
+    Returns:
+        tuple of (list of files deleted, list of directories deleted)
+    """
+    # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
+    keepers = {
+        normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep
+    }
+
+    for f in pathlib.Path(dest_path).rglob("*"):
+        if (
+            f.is_file()
+            and normalize_fs_path(str(f).lower()) not in keepers
+            and not f.name.startswith(".")
+        ):
+            should_return = False
+            photo = PhotoInfoNone()
+            # try to reconstitute the PhotoInfo class for this file
+            if uuid := exportdb.get_uuid_for_file(f):
+                if photo_info := exportdb.get_photoinfo_for_uuid(uuid):
+                    try:
+                        photo = photoinfo_from_dict(
+                            json.loads(photo_info), exiftool=exiftool_path
+                        )
+                    except Exception as e:
+                        pass
+            for command_template in cleanup_command:
+                if should_return:
+                    break
+                render_options = RenderOptions(
+                    export_dir=dest_path, filepath=str(f.absolute())
+                )
+                template = PhotoTemplate(photo, exiftool_path=exiftool_path)
+                command, _ = template.render(command_template, options=render_options)
+                command = command[0] if command else None
+                if command:
+                    verbose(f'Running command: "{command}"')
+                if not dry_run:
+                    cwd = pathlib.Path(f).parent
+                    run_error = None
+                    run_results = None
+                    try:
+                        run_results = subprocess.run(command, shell=True, cwd=cwd)
+                    except Exception as e:
+                        run_error = e
+
+                    returncode = run_results.returncode if run_results else None
+                    if run_error or returncode:
+                        # there was an error running the command
+                        error_str = f'Error running command "{command}": return code: {returncode}, exception: {run_error}'
+                        rich_echo_error(f"[error]{error_str}[/]")
+                        if not on_error:
+                            # no error handling specified, raise exception
+                            raise RuntimeError(error_str)
+                        if on_error == "break":
                             should_return = True
                             break
                         # else on_error must be continue
