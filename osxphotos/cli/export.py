@@ -5,6 +5,7 @@ from __future__ import annotations
 import atexit
 import datetime
 import inspect
+import json
 import os
 import pathlib
 import platform
@@ -60,10 +61,16 @@ from osxphotos.exiftool import get_exiftool_path
 from osxphotos.exifwriter import ExifWriter, exif_options_from_options
 from osxphotos.export_db import ExportDB, ExportDBInMemory, ExportDBTemp
 from osxphotos.exportoptions import ExportOptions, ExportResults
-from osxphotos.fileutil import FileUtilMacOS, FileUtilNoOp, FileUtilShUtil
+from osxphotos.fileutil import (
+    FileUtilMacOS,
+    FileUtilNoOp,
+    FileUtilShUtil,
+    cfg_fileutil_retry,
+)
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
+from osxphotos.photoinfo_dict import photoinfo_from_dict
 from osxphotos.photokit_utils import wait_for_photokit_authorization
 from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
@@ -219,7 +226,23 @@ if TYPE_CHECKING:
     "--retry",
     metavar="RETRY",
     type=click.INT,
-    help="Automatically retry export up to RETRY times if an error occurs during export.  This may be useful with network drives that experience intermittent errors.",
+    help="Automatically retry export (and file operations) up to RETRY times if an error occurs during export. This may be useful with network drives that experience intermittent errors. See also option --retry-nas-alias.",
+)
+@click.option(
+    "--retry-nas-alias",
+    metavar="NAS.ALIAS",
+    default=None,
+    multiple=False,
+    help="Alias filename to the SMB export destination folder to be used with --retry to force macOs to re-mount the SMB export folder in case of loss of connection. Create the alias file manually on Finder and make sure it's within the Sandboxed environment of osxphotos. See also option --retry and --retry-wait.",
+    type=CatchSmartQuotesPath(
+        exists=True, file_okay=True, dir_okay=False, readable=True
+    ),
+)
+@click.option(
+    "--retry-wait",
+    metavar="WAIT",
+    type=click.INT,
+    help="Seconds to wait in between --retry file operations attempts during export. Must be used with --retry and --retry-nas-alias. This is useful with network drives that experience intermittent errors. If not specified, default is 15s. See also option --retry and --retry-nas-alias.",
 )
 @click.option(
     "--export-by-date",
@@ -647,6 +670,7 @@ if TYPE_CHECKING:
     "you can specify '**/*.txt'. "
     "If present, the .osxphotos_keep file will be read after the export is completed and any rules found in the file "
     "will be added to the list of rules to keep. "
+    "Files whose name starts with '.' (dot-files) will not be deleted. "
     "See also --keep.",
 )
 @click.option(
@@ -671,6 +695,30 @@ if TYPE_CHECKING:
     "will be added to the list of rules to keep. "
     "This file uses the same format as a .gitignore file and should contain one rule per line; "
     "lines starting with a '#' will be ignored. ",
+)
+@click.option(
+    "--cleanup-command",
+    metavar="COMMAND",
+    nargs=1,
+    multiple=True,
+    help="Run COMMAND on files that would be cleaned up (deleted) if --cleanup was run. "
+    "COMMAND is an osxphotos template string, for example: '--cleanup-command \"mv {filepath|shell_quote} /Volumes/cleanup\"' "
+    "{filepath} will be set to the full path of the file to be cleaned up. "
+    "If the osxphotos can determine which photo the file is associated with, the other templates such as {uuid} will be available. "
+    "Otherwise, any photo-related templates will return a null value. "
+    "If both --cleanup and --cleanup-command are passed, --cleanup-command is processed before --cleanup. "
+    "See also --cleanup-command-error.",
+    type=TemplateString(),
+)
+@click.option(
+    "--cleanup-command-error",
+    metavar="ACTION",
+    help="Specify either 'continue' or 'break' for ACTION to control behavior when a cleanup-command fails. "
+    "If 'continue', osxphotos will log the error and continue processing. "
+    "If 'break', osxphotos will stop processing any additional --cleanup-command commands for the current file "
+    "but will continue with running commands for other files. "
+    "Without --cleanup-command-error, osxphotos will abort running cleanup commands if a command encounters an error. ",
+    type=click.Choice(["continue", "break"], case_sensitive=False),
 )
 @click.option(
     "--add-exported-to-album",
@@ -899,6 +947,8 @@ def export(
     burst: bool,
     checkpoint: int | None,
     cleanup: bool,
+    cleanup_command: tuple[tuple[str, str], ...],
+    cleanup_command_error: Literal["continue", "break"] | None,
     cloudasset: bool,
     config_only: bool,
     convert_to_jpeg: bool,
@@ -1012,6 +1062,8 @@ def export(
     replace_keywords: bool,
     report: str | None,
     retry: int | None,
+    retry_nas_alias: str | None,
+    retry_wait: int | None,
     save_config: bool,
     screenshot: bool,
     screen_recording: bool,
@@ -1106,6 +1158,8 @@ def export_cli(
     burst: bool = False,
     checkpoint: int | None = None,
     cleanup: bool = False,
+    cleanup_command: tuple[tuple[str, str], ...] = (),
+    cleanup_command_error: Literal["continue", "break"] | None = None,
     cloudasset: bool = False,
     config_only: bool = False,
     convert_to_jpeg: bool = False,
@@ -1218,6 +1272,8 @@ def export_cli(
     replace_keywords: bool = False,
     report: str | None = None,
     retry: int | None = None,
+    retry_nas_alias: str | None = None,
+    retry_wait: int | None = None,
     save_config: bool = False,
     screenshot: bool = False,
     screen_recording: bool = False,
@@ -1350,6 +1406,8 @@ def export_cli(
         burst = cfg.burst
         checkpoint = cfg.checkpoint
         cleanup = cfg.cleanup
+        cleanup_command = cfg.cleanup_command
+        cleanup_command_error = cfg.cleanup_command_error
         cloudasset = cfg.cloudasset
         convert_to_jpeg = cfg.convert_to_jpeg
         crash_after = cfg.crash_after
@@ -1468,6 +1526,8 @@ def export_cli(
         replace_keywords = cfg.replace_keywords
         report = cfg.report
         retry = cfg.retry
+        retry_nas_alias = cfg.retry_nas_alias
+        retry_wait = cfg.retry_wait
         saved_to_library = cfg.saved_to_library
         screenshot = cfg.screenshot
         screen_recording = cfg.screen_recording
@@ -1578,6 +1638,8 @@ def export_cli(
         ("missing", ("download_missing", "use_photos_export")),
         ("only_new", ("update", "force_update")),
         ("update_errors", ("update")),
+        ("retry_nas_alias", ("retry")),
+        ("retry_wait", ("retry_nas_alias")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1627,7 +1689,7 @@ def export_cli(
     preview_suffix = (
         DEFAULT_PREVIEW_SUFFIX if preview_suffix is None else preview_suffix
     )
-    retry = retry or 0
+    retry = max(0, retry or 0)
 
     dest = str(pathlib.Path(dest).resolve())
 
@@ -1785,6 +1847,12 @@ def export_cli(
 
             signal.signal(signal.SIGINT, sigint_handler)
 
+        cfg_fileutil_retry(
+            retry_enabled=(retry > 0),
+            retries=retry or 0,
+            wait_seconds=retry_wait,
+            nas_export_alias=retry_nas_alias,
+        )
         if alt_copy or not is_macos or (exiftool and is_mounted_volume(dest)):
             # if alt_copy or not on macOS, use shutil for copying files
             # also, if destination appears to be on a mounted volume and using exiftool, use shutil
@@ -2116,7 +2184,7 @@ def export_cli(
         rich_echo("Did not find any photos to export")
 
     # cleanup files and do report if needed
-    if cleanup:
+    if cleanup or cleanup_command:
         db_file = str(pathlib.Path(export_db_path).resolve())
         db_files = [db_file, db_file + "-wal", db_file + "-shm"]
         keep_file = str(pathlib.Path(dest) / ".osxphotos_keep")
@@ -2158,23 +2226,39 @@ def export_cli(
         files_to_keep, dirs_to_keep = collect_files_to_keep(keep, dest)
         all_files += files_to_keep
 
-        rich_echo(f"Cleaning up [filepath]{dest}")
-        cleaned_files, cleaned_dirs = cleanup_files(
-            dest, all_files, dirs_to_keep, fileutil, verbose=verbose
-        )
-        file_str = "files" if len(cleaned_files) != 1 else "file"
-        dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
+        if cleanup_command:
+            rich_echo(f"Running cleanup command on [filepath]{dest}")
+            run_cleanup_command(
+                cleanup_command=cleanup_command,
+                dest_path=dest,
+                exportdb=export_db,
+                files_to_keep=all_files,
+                dry_run=dry_run,
+                exiftool_path=exiftool_path,
+                on_error=cleanup_command_error,
+                verbose=verbose,
+            )
 
-        rich_echo(
-            f"Deleted: [num]{len(cleaned_files)}[/num] {file_str}, [num]{len(cleaned_dirs)}[/num] {dir_str}"
-        )
+        if cleanup:
+            rich_echo(f"Cleaning up [filepath]{dest}")
+            cleaned_files, cleaned_dirs = cleanup_files(
+                dest, all_files, dirs_to_keep, fileutil, verbose=verbose
+            )
+            file_str = "files" if len(cleaned_files) != 1 else "file"
+            dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
 
-        report_writer.write(
-            ExportResults(deleted_files=cleaned_files, deleted_directories=cleaned_dirs)
-        )
+            rich_echo(
+                f"Deleted: [num]{len(cleaned_files)}[/num] {file_str}, [num]{len(cleaned_dirs)}[/num] {dir_str}"
+            )
 
-        results.deleted_files = cleaned_files
-        results.deleted_directories = cleaned_dirs
+            report_writer.write(
+                ExportResults(
+                    deleted_files=cleaned_files, deleted_directories=cleaned_dirs
+                )
+            )
+
+            results.deleted_files = cleaned_files
+            results.deleted_directories = cleaned_dirs
 
     # store results so they can be used by 'osxphotos exportdb --report'
     export_db.set_export_results(results)
@@ -2708,6 +2792,7 @@ def export_photo_to_directory(
         verbose(f"Skipping original version of [filename]{photo.original_filename}")
         return results
 
+    # TODO Use this retry logic or use fileutil retry options (#2004)?
     tries = 0
     while tries <= retry:
         tries += 1
@@ -2909,7 +2994,7 @@ def get_dirnames_from_template(
             dest, date_created.year, date_created.mm, date_created.dd
         )
         if not (dry_run or os.path.isdir(dest_path)):
-            os.makedirs(dest_path)
+            FileUtilShUtil.makedirs(dest_path, exist_ok=True)
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
@@ -2935,7 +3020,7 @@ def get_dirnames_from_template(
             if not is_valid_filepath(dest_path):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
             if not dry_run and not os.path.isdir(dest_path):
-                os.makedirs(dest_path)
+                FileUtilShUtil.makedirs(dest_path, exist_ok=True)
             dest_paths.append(dest_path)
     else:
         dest_paths = [dest]
@@ -3021,7 +3106,13 @@ def collect_files_to_keep(
     return files_to_keep, dirs_to_keep
 
 
-def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose):
+def cleanup_files(
+    dest_path: str | os.PathLike,
+    files_to_keep: list[str],
+    dirs_to_keep: list[str],
+    fileutil: FileUtilMacOS | FileUtilShUtil | FileUtilNoOp,
+    verbose: Callable[..., None],
+):
     """cleanup dest_path by deleting and files and empty directories
         not in files_to_keep
 
@@ -3041,7 +3132,11 @@ def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose):
 
     deleted_files = []
     for p in pathlib.Path(dest_path).rglob("*"):
-        if p.is_file() and normalize_fs_path(str(p).lower()) not in keepers:
+        if (
+            p.is_file()
+            and normalize_fs_path(str(p).lower()) not in keepers
+            and not p.name.startswith(".")
+        ):
             verbose(f"Deleting [filepath]{p}")
             try:
                 fileutil.unlink(p)
@@ -3332,6 +3427,87 @@ def run_post_command(
                             raise RuntimeError(error_str)
                         if on_error == "break":
                             # break out of both loops and return
+                            should_return = True
+                            break
+                        # else on_error must be continue
+
+
+def run_cleanup_command(
+    cleanup_command: tuple[tuple[str, str]],
+    dest_path: str | os.PathLike,
+    exportdb: ExportDB | ExportDBInMemory | ExportDBTemp,
+    files_to_keep: list[str],
+    dry_run: bool,
+    exiftool_path: str,
+    on_error: Literal["break", "continue"] | None,
+    verbose: Callable[..., None],
+):
+    """Run cleanup command on each file in dest that should be cleaned up
+
+    Args:
+        cleanup_command: tuple of one or more commands to run
+        dest_path: path to directory to clean
+        exportdb: export database object
+        files_to_keep: list of full file paths to keep (not delete)
+        dry_run: dry run mode
+        exiftool_path: path to exiftool executable
+        on_error: action to take on error (break or continue)
+        verbose: verbose callable for printing verbose output
+
+    Returns:
+        tuple of (list of files deleted, list of directories deleted)
+    """
+    # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
+    keepers = {
+        normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep
+    }
+
+    for f in pathlib.Path(dest_path).rglob("*"):
+        if (
+            f.is_file()
+            and normalize_fs_path(str(f).lower()) not in keepers
+            and not f.name.startswith(".")
+        ):
+            should_return = False
+            photo = PhotoInfoNone()
+            # try to reconstitute the PhotoInfo class for this file
+            if uuid := exportdb.get_uuid_for_file(f):
+                if photo_info := exportdb.get_photoinfo_for_uuid(uuid):
+                    try:
+                        photo = photoinfo_from_dict(
+                            json.loads(photo_info), exiftool=exiftool_path
+                        )
+                    except Exception as e:
+                        pass
+            for command_template in cleanup_command:
+                if should_return:
+                    break
+                render_options = RenderOptions(
+                    export_dir=dest_path, filepath=str(f.absolute())
+                )
+                template = PhotoTemplate(photo, exiftool_path=exiftool_path)
+                command, _ = template.render(command_template, options=render_options)
+                command = command[0] if command else None
+                if command:
+                    verbose(f'Running command: "{command}"')
+                if not dry_run:
+                    cwd = pathlib.Path(f).parent
+                    run_error = None
+                    run_results = None
+                    try:
+                        run_results = subprocess.run(command, shell=True, cwd=cwd)
+                    except Exception as e:
+                        run_error = e
+
+                    returncode = run_results.returncode if run_results else None
+                    if run_error or returncode:
+                        # there was an error running the command
+                        error_str = f'Error running command "{command}": return code: {returncode}, exception: {run_error}'
+                        rich_echo_error(f"[error]{error_str}[/]")
+                        if not on_error:
+                            # no error handling specified, raise exception
+                            raise RuntimeError(error_str)
+                        if on_error == "break":
                             should_return = True
                             break
                         # else on_error must be continue

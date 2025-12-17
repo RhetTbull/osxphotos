@@ -311,7 +311,7 @@ def export_file(
     aae_count = 0
     error_count = 0
     if not dry_run:
-        os.makedirs(output_path.parent, exist_ok=True)
+        fileutil.makedirs(output_path.parent, exist_ok=True)
 
     if output_path.exists():
         # This shouldn't happen as get_output_path increments the filename if it already exists

@@ -1,5 +1,6 @@
 """Test osxphotos sync command"""
 
+import csv
 import json
 import os
 import time
@@ -123,6 +124,78 @@ def test_sync_export_import():
             assert report_data[uuid]["updated"]
             assert report_data[uuid]["albums"]["updated"]
             assert not report_data[uuid]["error"]
+
+
+@pytest.mark.test_sync
+def test_sync_export_import_csv():
+    """Test --export and --import with CSV report"""
+
+    photoslib = photoscript.PhotosLibrary()
+
+    # create a new album and initialize metadata
+    test_album = photoslib.create_album(TEST_ALBUM_NAME)
+    for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
+        photo = photoscript.Photo(uuid)
+        photo.favorite = True
+        photo.keywords = [k for k in photo.keywords if k != "NewKeyword"]
+        test_album.add([photo])
+
+    # export data
+    with CliRunner().isolated_filesystem():
+        result = CliRunner().invoke(
+            sync,
+            [
+                "--export",
+                "test.db",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # preserve metadata for comparison and clear metadata
+        metadata_before = {}
+        for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
+            photo = photoscript.Photo(uuid)
+            metadata_before[uuid] = {
+                "title": photo.title,
+                "description": photo.description,
+                "keywords": photo.keywords,
+                "favorites": photo.favorite,
+            }
+            photo.title = ""
+            photo.description = ""
+            photo.keywords = ["NewKeyword"]
+            photo.favorite = False
+
+        # delete the test album
+        photoslib.delete_album(test_album)
+
+        # import metadata
+        result = CliRunner().invoke(
+            sync,
+            [
+                "--import",
+                "test.db",
+                "--set",
+                "title,description,favorite,albums",
+                "--merge",
+                "keywords",
+                "--report",
+                "test_report.csv",
+                "--append",
+            ],
+        )
+        assert result.exit_code == 0
+        assert os.path.exists("test_report.csv")
+
+        # check report
+        with open("test_report.csv", "r") as f:
+            report_data = csv.DictReader(f)
+            for row in report_data:
+                if row["uuid"] == UUID_TEST_PHOTO_1:
+                    assert (
+                        row["keywords_after"]
+                        == f'{sorted(["NewKeyword", *metadata_before[UUID_TEST_PHOTO_1]["keywords"]])}'
+                    )
 
 
 @pytest.mark.test_sync

@@ -222,3 +222,48 @@ def test_exportdb_touch_file():
         if modified_count > 0:
             # Output format: "Done. Touched [num]X[/] files, skipped [num]Y[/] up to date files..."
             assert not result.output.startswith("Done. Touched [num]0[/]")
+
+
+def test_exportdb_info():
+    """Test --info"""
+
+    runner = CliRunner()
+    library = os.path.join(os.getcwd(), CLI_PHOTOS_DB)
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        runner.invoke(export, [cwd, "--library", library, "-V"])
+        result = runner.invoke(
+            exportdb, [cwd, "--info", os.path.join(cwd, "wedding.jpg")]
+        )
+        assert result.exit_code == 0
+        json_str = result.stdout.replace("\n", "").strip()
+        result_dict = json.loads(json_str)
+        assert result_dict["uuid"] == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
+
+
+def test_exportdb_uuid():
+    """Test --uuid"""
+
+    runner = CliRunner()
+    library = os.path.join(os.getcwd(), CLI_PHOTOS_DB)
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        runner.invoke(export, [cwd, "--library", library, "-V"])
+        result = runner.invoke(
+            exportdb, [cwd, "--uuid", os.path.join(cwd, "wedding.jpg")]
+        )
+        assert result.exit_code == 0
+        assert result.stdout.strip() == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
+
+
+def test_exportdb_missing():
+    """Test --missing"""
+
+    runner = CliRunner()
+    library = os.path.join(os.getcwd(), CLI_PHOTOS_DB)
+    with runner.isolated_filesystem():
+        cwd = os.getcwd()
+        result = runner.invoke(export, [cwd, "--library", library, "-V"])
+        result = runner.invoke(exportdb, [cwd, "--missing", "--library", library])
+        assert result.exit_code == 0
+        assert "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C" in result.output  # Pumpkins4.jpg
