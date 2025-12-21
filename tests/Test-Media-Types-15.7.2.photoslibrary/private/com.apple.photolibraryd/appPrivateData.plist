@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Library</key>
+	<dict>
+		<key>Identifier</key>
+		<dict>
+			<key>ContainerIdentifier</key>
+			<string>com.apple.photos</string>
+			<key>Name</key>
+			<string>Sequoia_15_7_2</string>
+			<key>Path</key>
+			<string>/Users/rhet/Pictures/Sequoia_15_7_2.photoslibrary</string>
+			<key>UUID</key>
+			<string>69F7C65D-4008-464B-8B47-6F7BA2C6619E</string>
+			<key>UserDescription</key>
+			<string></string>
+		</dict>
+	</dict>
+	<key>PLDeferredCriticalMaintenanceTask</key>
+	<date>2025-12-20T03:53:10Z</date>
+	<key>PLModelMigrator.CreateOptions</key>
+	<dict>
+		<key>PLPhotoLibraryCreateOptions</key>
+		<integer>32</integer>
+	</dict>
+</dict>
+</plist>
