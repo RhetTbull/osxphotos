@@ -30,6 +30,7 @@ FULL_KEYS = [
     "screen_recording",
     "date_original",
     "tzname",
+    "media_analysis",
 ]
 
 
