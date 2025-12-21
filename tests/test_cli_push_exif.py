@@ -42,10 +42,19 @@ UUID_NOT_FAVORITE = UUID_KEYWORDS_PERSONS
 UUID_DATE_MODIFIED = UUID_FAVORITE
 UUID_LOCATION = "3DD2C897-F19E-4CA6-8C22-B027D5A71907"  # IMG_4547.jpg
 
+PHOTOS_DB_LIVE_PHOTO = "tests/Test-Media-Types-15.7.2.photoslibrary/"
+UUID_LIVE_PHOTO = "D562F353-7A22-4367-9A7F-153A4D9F149C"  # IMG_4580.HEIC
+LIVE_PHOTO_LOCATION = (41, -86)  # location modified for the live photo
+
 
 def copy_photos_library(dest):
     """Make a copy of the Photos library for testing"""
     return shutil.copytree(os.path.join(CWD, PHOTOS_DB), dest)
+
+
+def copy_photos_library_live_photo(dest):
+    """Make a copy of the Photos library for testing"""
+    return shutil.copytree(os.path.join(CWD, PHOTOS_DB_LIVE_PHOTO), dest)
 
 
 def get_exiftool_tag_as_list(photo: PhotoInfo, tag: str) -> list[str]:
@@ -111,6 +120,13 @@ def clear_exiftool_metadata(photo: PhotoInfo):
     exiftool_path = get_exiftool_path()
     cmd = [exiftool_path, "-overwrite_original", "-all=", photo.path]
     subprocess.run(cmd, check=True)
+
+
+def get_exiftool_location(path: str | os.PathLike):
+    """Get exiftool location data as lat, lon pair for a photo and live photo component"""
+    exif = ExifTool(path).asdict()
+    lat, lon = exif["Composite:GPSLatitude"], exif["Composite:GPSLongitude"]
+    return lat, lon
 
 
 def test_cli_push_exif_basic(monkeypatch):
@@ -1002,3 +1018,43 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
         exif = ExifTool(photo.path).asdict()
         assert photo.title == exif["XMP:Title"]
         assert "IPTC:Keywords" not in exif
+
+
+def test_cli_push_exif_live_photo(monkeypatch):
+    """Test push-exif command with live photo (#2027)"""
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cwd = pathlib.Path(os.getcwd())
+
+        if sys.version_info[0:2] <= (3, 9):
+            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
+        else:
+            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+
+        test_library = copy_photos_library_live_photo(
+            os.path.join(cwd, "Test.photoslibrary")
+        )
+
+        result = runner.invoke(
+            push_exif,
+            [
+                "all",
+                "-V",
+                "--force",
+                "--uuid",
+                UUID_LIVE_PHOTO,
+                "--library",
+                test_library,
+            ],
+        )
+        assert result.exit_code == 0
+        assert (
+            "Summary: 2 written, 0 updated, 0 skipped, 0 missing, 0 warning, 0 error"
+            in result.output
+        )
+
+        # verify location pushed to both live photo assets
+        photosdb = PhotosDB(test_library)
+        photo = photosdb.get_photo(UUID_LIVE_PHOTO)
+        assert photo.location == get_exiftool_location(photo.path)
+        assert photo.location == get_exiftool_location(photo.path_live_photo)

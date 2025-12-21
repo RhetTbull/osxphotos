@@ -17,6 +17,7 @@ from ._constants import _MAX_IPTC_KEYWORD_LEN, _OSXPHOTOS_NONE_SENTINEL, _UNKNOW
 from .datetime_utils import datetime_has_tz, datetime_tz_to_utc
 from .exiftool import ExifTool, ExifToolCaching
 from .exportoptions import ExportOptions
+from .image_file_utils import is_video_file
 from .phototemplate import RenderOptions
 
 if TYPE_CHECKING:
@@ -185,7 +186,7 @@ class ExifWriter(_ExifMixin):
         """
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Could not find file {filepath}")
-        exif_info = self.exiftool_dict(options=options)
+        exif_info = self.exiftool_dict(options=options, video=is_video_file(filepath))
         with ExifTool(
             filepath,
             flags=options.exiftool_flags,
@@ -203,6 +204,7 @@ class ExifWriter(_ExifMixin):
         self,
         options: ExifOptions | None = None,
         filename: str | None = None,
+        video: bool = False,
     ):
         """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
             Does not include all the EXIF fields as those are likely already in the image.
@@ -210,6 +212,7 @@ class ExifWriter(_ExifMixin):
         Args:
             options (ExifOptions): options for export
             filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
+            video (bool): if True, returns the video metadata even if asset is a Photo (this is needed for the Quicktime component of a Live Video pair)
 
         Returns: dict with exiftool tags / values
 
@@ -394,16 +397,17 @@ class ExifWriter(_ExifMixin):
         if options.location:
             (lat, lon) = self.photo.location
             if lat is not None and lon is not None:
-                if self.photo.isphoto:
+                if video or self.photo.ismovie:
+                    exif["Keys:GPSCoordinates"] = f"{lat} {lon}"
+                    exif["UserData:GPSCoordinates"] = f"{lat} {lon}"
+                else:
                     exif["EXIF:GPSLatitude"] = lat
                     exif["EXIF:GPSLongitude"] = lon
                     lat_ref = "N" if lat >= 0 else "S"
                     lon_ref = "E" if lon >= 0 else "W"
                     exif["EXIF:GPSLatitudeRef"] = lat_ref
                     exif["EXIF:GPSLongitudeRef"] = lon_ref
-                elif self.photo.ismovie:
-                    exif["Keys:GPSCoordinates"] = f"{lat} {lon}"
-                    exif["UserData:GPSCoordinates"] = f"{lat} {lon}"
+
         # process date/time and timezone offset
         # Photos exports the following fields and sets modify date to creation date
         # [EXIF]    Modify Date             : 2020:10:30 00:00:00
@@ -427,7 +431,29 @@ class ExifWriter(_ExifMixin):
             # exiftool expects format to "2015:01:18 12:00:00"
             datetimeoriginal = exiftool_datetime(date)
 
-            if self.photo.isphoto:
+            if video or self.photo.ismovie:
+                # QuickTime spec specifies times in UTC
+                # QuickTime:CreateDate and ModifyDate are in UTC w/ no timezone
+                # QuickTime:CreationDate must include time offset or Photos shows invalid values
+                # reference: https://exiftool.org/TagNames/QuickTime.html#Keys
+                #            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369
+                exif["QuickTime:CreationDate"] = f"{datetimeoriginal}{offsettime}"
+
+                # also add QuickTime:ContentCreateDate
+                # reference: https://github.com/RhetTbull/osxphotos/pull/888
+                # exiftool writes this field with timezone so include it here
+                exif["QuickTime:ContentCreateDate"] = f"{datetimeoriginal}{offsettime}"
+
+                date_utc = datetime_tz_to_utc(date)
+                creationdate = exiftool_datetime(date_utc)
+                exif["QuickTime:CreateDate"] = creationdate
+                if self.photo.date_modified is None or options.ignore_date_modified:
+                    exif["QuickTime:ModifyDate"] = creationdate
+                else:
+                    exif["QuickTime:ModifyDate"] = exiftool_datetime(
+                        datetime_tz_to_utc(self.photo.date_modified)
+                    )
+            else:
                 exif["EXIF:DateTimeOriginal"] = datetimeoriginal
                 exif["EXIF:CreateDate"] = datetimeoriginal
                 exif["EXIF:SubSecTimeOriginal"] = subsec
@@ -452,28 +478,6 @@ class ExifWriter(_ExifMixin):
                     exif["EXIF:ModifyDate"] = exiftool_datetime(self.photo.date)
                     exif["EXIF:SubSectime"] = subsec
                     exif["EXIF:OffsetTime"] = offsettime
-            elif self.photo.ismovie:
-                # QuickTime spec specifies times in UTC
-                # QuickTime:CreateDate and ModifyDate are in UTC w/ no timezone
-                # QuickTime:CreationDate must include time offset or Photos shows invalid values
-                # reference: https://exiftool.org/TagNames/QuickTime.html#Keys
-                #            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369
-                exif["QuickTime:CreationDate"] = f"{datetimeoriginal}{offsettime}"
-
-                # also add QuickTime:ContentCreateDate
-                # reference: https://github.com/RhetTbull/osxphotos/pull/888
-                # exiftool writes this field with timezone so include it here
-                exif["QuickTime:ContentCreateDate"] = f"{datetimeoriginal}{offsettime}"
-
-                date_utc = datetime_tz_to_utc(date)
-                creationdate = exiftool_datetime(date_utc)
-                exif["QuickTime:CreateDate"] = creationdate
-                if self.photo.date_modified is None or options.ignore_date_modified:
-                    exif["QuickTime:ModifyDate"] = creationdate
-                else:
-                    exif["QuickTime:ModifyDate"] = exiftool_datetime(
-                        datetime_tz_to_utc(self.photo.date_modified)
-                    )
 
         # if photo in PNG remove any IPTC tags (#1031)
         if self.photo.isphoto and self.photo.uti == "public.png":

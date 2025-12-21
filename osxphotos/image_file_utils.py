@@ -12,25 +12,25 @@ from contextlib import suppress
 from functools import cache
 from typing import Any
 
-from osxphotos.platform import assert_macos
-
-assert_macos()
-
-try:
-    # won't be installed on macOS < 11
-    import cgmetadata
-except ImportError:
-    cgmetadata = None
-
-try:
-    # won't be installed on macOS < 11
-    import makelive
-except ImportError:
-    makelive = None
-
-import objc
-from Foundation import NSURL, NSURLTypeIdentifierKey
 from utitools import conforms_to_uti, uti_for_path
+
+from osxphotos.platform import is_macos
+
+if is_macos:
+    try:
+        # won't be installed on macOS < 11
+        import cgmetadata
+    except ImportError:
+        cgmetadata = None
+
+    try:
+        # won't be installed on macOS < 11
+        import makelive
+    except ImportError:
+        makelive = None
+
+    import objc
+    from Foundation import NSURL, NSURLTypeIdentifierKey
 
 logger = logging.getLogger("osxphotos")
 
