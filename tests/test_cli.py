@@ -53,6 +53,13 @@ def _normalize_fs_paths(paths):
     return [normalize_fs_path(p) for p in paths]
 
 
+def get_exiftool_location(path: str | os.PathLike):
+    """Get exiftool location data as lat, lon pair for a photo and live photo component"""
+    exif = ExifTool(path).asdict()
+    lat, lon = exif["Composite:GPSLatitude"], exif["Composite:GPSLongitude"]
+    return lat, lon
+
+
 CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
@@ -1137,6 +1144,11 @@ UUID_NOT_SCREEN_RECORDING = [
     "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
     "DC99FBDD-7A52-4100-A5BB-344131646C30",
 ]
+
+PHOTOS_DB_LIVE_PHOTO = "tests/Test-Media-Types-15.7.2.photoslibrary/"
+UUID_LIVE_PHOTO = "D562F353-7A22-4367-9A7F-153A4D9F149C"  # IMG_4580.HEIC
+LIVE_PHOTO_FILENAME = "IMG_4580.HEIC"
+LIVE_PHOTO_LOCATION = (41, -86)  # location modified for the live photo
 
 
 @pytest.fixture(scope="module")
@@ -2374,6 +2386,34 @@ def test_export_exiftool():
             assert (
                 "XMP:Rating" not in exif
             )  # non-iPhoto library doesn't have rating, #1353
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_live_photo():
+    """Test that location data for Live Photo gets exported correctly (#2027)"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_LIVE_PHOTO),
+                ".",
+                "-V",
+                "--exiftool",
+                "--uuid",
+                UUID_LIVE_PHOTO,
+            ],
+        )
+        assert result.exit_code == 0
+        live_photo_file = pathlib.Path(LIVE_PHOTO_FILENAME)
+        live_video_file = live_photo_file.with_suffix(".mov")
+        assert live_photo_file.is_file()
+        assert live_video_file.is_file()
+        assert get_exiftool_location(live_photo_file) == LIVE_PHOTO_LOCATION
+        assert get_exiftool_location(live_video_file) == LIVE_PHOTO_LOCATION
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")

@@ -1075,7 +1075,7 @@ class PhotoExporter:
                 last_data = photoinfo_minify_dict(json.loads(rec.photoinfo))
                 # to avoid issues with datetime comparisons, list order
                 # need to deserialize from photo.json() instead of using photo.asdict()
-                current_data = json.loads(self.photo.json(shallow=True))
+                current_data = photoinfo_minify_dict(json.loads(self.photo.json(shallow=False)))
                 try:
                     diff = dictdiff(last_data, current_data)
                 except Exception as e:
