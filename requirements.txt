@@ -13,7 +13,7 @@ objexplore>=1.6.3,<2.0.0
 osxmetadata>=1.4.0,<2.0.0; sys_platform == 'darwin'
 packaging>=21.3
 pathvalidate>=2.4.1,<4.0.0
-photoscript>=0.5.0; sys_platform == 'darwin'
+photoscript>=0.5.3; sys_platform == 'darwin'
 pip
 psutil
 ptpython>=3.0.20,<4.0.0
