@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="OSXPhotos Python API" href="API_README.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Python Reference - osxphotos 0.74.2 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.75.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.74.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.74.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -444,7 +444,7 @@ If called in context manager, returns True (execution is delayed until exiting c
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExifWriter.exiftool_dict">
-<span class="sig-name descname"><span class="pre">exiftool_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExifOptions</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/exifwriter.html#ExifWriter.exiftool_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExifWriter.exiftool_dict" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">exiftool_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ExifOptions</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/exifwriter.html#ExifWriter.exiftool_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExifWriter.exiftool_dict" title="Link to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</dt><dd><p>Does not include all the EXIF fields as those are likely already in the image.</p>
 </dd>
@@ -454,6 +454,7 @@ If called in context manager, returns True (execution is delayed until exiting c
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>options</strong> (<em>ExifOptions</em>) -- options for export</p></li>
 <li><p><strong>filename</strong> (<em>str</em>) -- name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included</p></li>
+<li><p><strong>video</strong> (<em>bool</em>) -- if True, returns the video metadata even if asset is a Photo (this is needed for the Quicktime component of a Live Video pair)</p></li>
 </ul>
 </dd>
 </dl>
@@ -1591,7 +1592,7 @@ dest may be either directory or file; in either case, src file must not exist in
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.FileUtilNoOp.file_sig">
 <em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">file_sig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/fileutil.html#FileUtilNoOp.file_sig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FileUtilNoOp.file_sig" title="Link to this definition">¶</a></dt>
-<dd><p>return os.stat signature for file f1 as tuple of (mode, size, mtime)</p>
+<dd><p>return os.stat signature for file file1 as tuple of (mode, size, mtime)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1601,6 +1602,12 @@ dest may be either directory or file; in either case, src file must not exist in
 src: source path as string
 dest: destination path as string
 Raises exception if linking fails or either path is None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="osxphotos.FileUtilNoOp.makedirs">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">makedirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">511</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exist_ok</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/osxphotos/fileutil.html#FileUtilNoOp.makedirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FileUtilNoOp.makedirs" title="Link to this definition">¶</a></dt>
+<dd><p>create directory path; creates parent directories if needed</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1622,13 +1629,13 @@ Raises exception if linking fails or either path is None</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.FileUtilNoOp.rmdir">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rmdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/fileutil.html#FileUtilNoOp.rmdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FileUtilNoOp.rmdir" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rmdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/fileutil.html#FileUtilNoOp.rmdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FileUtilNoOp.rmdir" title="Link to this definition">¶</a></dt>
 <dd><p>remove directory filepath; dirpath must be empty</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.FileUtilNoOp.tmpdir">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tmpdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TemporaryDirectory</span></span></span><a class="reference internal" href="_modules/osxphotos/fileutil.html#FileUtilNoOp.tmpdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FileUtilNoOp.tmpdir" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tmpdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TemporaryDirectory</span></span></span><a class="reference internal" href="_modules/osxphotos/fileutil.html#FileUtilNoOp.tmpdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FileUtilNoOp.tmpdir" title="Link to this definition">¶</a></dt>
 <dd><p>Securely creates a temporary directory using the same rules as mkdtemp().
 The resulting object can be used as a context manager.
 On completion of the context or destruction of the temporary directory object,
@@ -1637,7 +1644,7 @@ the newly created temporary directory and all its contents are removed from the 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.FileUtilNoOp.unlink">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unlink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/fileutil.html#FileUtilNoOp.unlink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FileUtilNoOp.unlink" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unlink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/fileutil.html#FileUtilNoOp.unlink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.FileUtilNoOp.unlink" title="Link to this definition">¶</a></dt>
 <dd><p>unlink filepath; if it's pathlib.Path, use Path.unlink, otherwise use os.unlink</p>
 </dd></dl>
 
@@ -1974,6 +1981,12 @@ including keywords, persons, albums, uuid, path, etc.</p>
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.burst_key">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">burst_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.burst_key" title="Link to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.burst_key_photo">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">burst_key_photo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#osxphotos.PhotoInfo" title="osxphotos.photoinfo.PhotoInfo"><span class="pre">PhotoInfo</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.burst_key_photo" title="Link to this definition">¶</a></dt>
+<dd><p>If a photo is part of a burst group, returns the PhotoInfo object for the key photo of a burst group otherwise None</p>
 </dd></dl>
 
 <dl class="py property">
@@ -5675,6 +5688,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.FileUtilNoOp.copy"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.copy()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FileUtilNoOp.file_sig"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.file_sig()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FileUtilNoOp.hardlink"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.hardlink()</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.FileUtilNoOp.makedirs"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.makedirs()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FileUtilNoOp.rename"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.rename()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FileUtilNoOp.rmdir"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.rmdir()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FileUtilNoOp.tmpdir"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.tmpdir()</span></code></a></li>
@@ -5739,6 +5753,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_albums"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_albums</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_default_pick"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_default_pick</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_key"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_key</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_key_photo"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_key_photo</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_photos"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_photos</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.burst_selected"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_selected</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.cloud_guid"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.cloud_guid</span></code></a></li>
@@ -6198,7 +6213,7 @@ useful for detecting changes in any property/metadata of the photo</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=63568c49"></script>
+</div><script src="_static/documentation_options.js?v=8103c863"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

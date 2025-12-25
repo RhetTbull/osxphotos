@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.exifwriter - osxphotos 0.74.2 documentation</title>
+        <title>osxphotos.exifwriter - osxphotos 0.75.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.74.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.74.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -250,6 +250,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.datetime_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime_has_tz</span><span class="p">,</span> <span class="n">datetime_tz_to_utc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exiftool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExifTool</span><span class="p">,</span> <span class="n">ExifToolCaching</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exportoptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.image_file_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_video_file</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.phototemplate</span><span class="w"> </span><span class="kn">import</span> <span class="n">RenderOptions</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -422,7 +423,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find file </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">exif_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_dict</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">exif_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_dict</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">video</span><span class="o">=</span><span class="n">is_video_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
         <span class="k">with</span> <span class="n">ExifTool</span><span class="p">(</span>
             <span class="n">filepath</span><span class="p">,</span>
             <span class="n">flags</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">exiftool_flags</span><span class="p">,</span>
@@ -443,6 +444,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">ExifOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">video</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</span>
 <span class="sd">            Does not include all the EXIF fields as those are likely already in the image.</span>
@@ -450,6 +452,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            options (ExifOptions): options for export</span>
 <span class="sd">            filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included</span>
+<span class="sd">            video (bool): if True, returns the video metadata even if asset is a Photo (this is needed for the Quicktime component of a Live Video pair)</span>
 
 <span class="sd">        Returns: dict with exiftool tags / values</span>
 
@@ -634,16 +637,17 @@
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">location</span><span class="p">:</span>
             <span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">location</span>
             <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">isphoto</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">video</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">ismovie</span><span class="p">:</span>
+                    <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;Keys:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;UserData:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLatitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat</span>
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLongitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon</span>
                     <span class="n">lat_ref</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
                     <span class="n">lon_ref</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">lon</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;W&quot;</span>
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLatitudeRef&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat_ref</span>
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLongitudeRef&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon_ref</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">ismovie</span><span class="p">:</span>
-                    <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;Keys:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;UserData:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
+
         <span class="c1"># process date/time and timezone offset</span>
         <span class="c1"># Photos exports the following fields and sets modify date to creation date</span>
         <span class="c1"># [EXIF]    Modify Date             : 2020:10:30 00:00:00</span>
@@ -667,7 +671,29 @@
             <span class="c1"># exiftool expects format to &quot;2015:01:18 12:00:00&quot;</span>
             <span class="n">datetimeoriginal</span> <span class="o">=</span> <span class="n">exiftool_datetime</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">isphoto</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">video</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">ismovie</span><span class="p">:</span>
+                <span class="c1"># QuickTime spec specifies times in UTC</span>
+                <span class="c1"># QuickTime:CreateDate and ModifyDate are in UTC w/ no timezone</span>
+                <span class="c1"># QuickTime:CreationDate must include time offset or Photos shows invalid values</span>
+                <span class="c1"># reference: https://exiftool.org/TagNames/QuickTime.html#Keys</span>
+                <span class="c1">#            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:CreationDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetimeoriginal</span><span class="si">}{</span><span class="n">offsettime</span><span class="si">}</span><span class="s2">&quot;</span>
+
+                <span class="c1"># also add QuickTime:ContentCreateDate</span>
+                <span class="c1"># reference: https://github.com/RhetTbull/osxphotos/pull/888</span>
+                <span class="c1"># exiftool writes this field with timezone so include it here</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:ContentCreateDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetimeoriginal</span><span class="si">}{</span><span class="n">offsettime</span><span class="si">}</span><span class="s2">&quot;</span>
+
+                <span class="n">date_utc</span> <span class="o">=</span> <span class="n">datetime_tz_to_utc</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+                <span class="n">creationdate</span> <span class="o">=</span> <span class="n">exiftool_datetime</span><span class="p">(</span><span class="n">date_utc</span><span class="p">)</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:CreateDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">creationdate</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_date_modified</span><span class="p">:</span>
+                    <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:ModifyDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">creationdate</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:ModifyDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exiftool_datetime</span><span class="p">(</span>
+                        <span class="n">datetime_tz_to_utc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:DateTimeOriginal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetimeoriginal</span>
                 <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:CreateDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetimeoriginal</span>
                 <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:SubSecTimeOriginal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subsec</span>
@@ -692,28 +718,6 @@
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:ModifyDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exiftool_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span>
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:SubSectime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subsec</span>
                     <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:OffsetTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">offsettime</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">ismovie</span><span class="p">:</span>
-                <span class="c1"># QuickTime spec specifies times in UTC</span>
-                <span class="c1"># QuickTime:CreateDate and ModifyDate are in UTC w/ no timezone</span>
-                <span class="c1"># QuickTime:CreationDate must include time offset or Photos shows invalid values</span>
-                <span class="c1"># reference: https://exiftool.org/TagNames/QuickTime.html#Keys</span>
-                <span class="c1">#            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369</span>
-                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:CreationDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetimeoriginal</span><span class="si">}{</span><span class="n">offsettime</span><span class="si">}</span><span class="s2">&quot;</span>
-
-                <span class="c1"># also add QuickTime:ContentCreateDate</span>
-                <span class="c1"># reference: https://github.com/RhetTbull/osxphotos/pull/888</span>
-                <span class="c1"># exiftool writes this field with timezone so include it here</span>
-                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:ContentCreateDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetimeoriginal</span><span class="si">}{</span><span class="n">offsettime</span><span class="si">}</span><span class="s2">&quot;</span>
-
-                <span class="n">date_utc</span> <span class="o">=</span> <span class="n">datetime_tz_to_utc</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
-                <span class="n">creationdate</span> <span class="o">=</span> <span class="n">exiftool_datetime</span><span class="p">(</span><span class="n">date_utc</span><span class="p">)</span>
-                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:CreateDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">creationdate</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_date_modified</span><span class="p">:</span>
-                    <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:ModifyDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">creationdate</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:ModifyDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exiftool_datetime</span><span class="p">(</span>
-                        <span class="n">datetime_tz_to_utc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span>
-                    <span class="p">)</span>
 
         <span class="c1"># if photo in PNG remove any IPTC tags (#1031)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">isphoto</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti</span> <span class="o">==</span> <span class="s2">&quot;public.png&quot;</span><span class="p">:</span>
@@ -904,7 +908,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=63568c49"></script>
+</div><script src="../../_static/documentation_options.js?v=8103c863"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

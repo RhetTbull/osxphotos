@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.phototemplate - osxphotos 0.74.2 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.75.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.74.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.74.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -242,7 +242,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">suppress</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">textx</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextXSyntaxError</span><span class="p">,</span> <span class="n">metamodel_from_file</span>
 
@@ -305,15 +305,14 @@
     <span class="s2">&quot;</span><span class="si">{title}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Title of the photo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{descr}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Description of the photo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{media_type}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Special media type resolved in this precedence: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">MEDIA_TYPE_DEFAULTS</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
-        <span class="s2">&quot;Defaults to &#39;photo&#39; or &#39;video&#39; if no special type. &quot;</span>
-        <span class="s2">&quot;Customize one or more media types using format: &#39;{media_type,video=vidéo;time_lapse=vidéo_accélérée}&#39;&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Special media type resolved in this precedence: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">MEDIA_TYPE_DEFAULTS</span><span class="p">)</span><span class="si">}</span><span class="s2">. Defaults to &#39;photo&#39; or &#39;video&#39; if no special type. Customize one or more media types using format: &#39;</span><span class="se">{{</span><span class="s2">media_type,video=vidéo;time_lapse=vidéo_accélérée</span><span class="se">}}</span><span class="s2">&#39;&quot;</span>
     <span class="p">),</span>
     <span class="s2">&quot;</span><span class="si">{photo_or_video}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;&#39;photo&#39; or &#39;video&#39; depending on what type the image is. To customize, use default value as in &#39;{photo_or_video,photo=fotos;video=videos}&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{hdr}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Photo is HDR?; True/False value, use in format &#39;{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{edited}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;True if photo has been edited (has adjustments), otherwise False; use in format &#39;{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{edited_version}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;True if template is being rendered for the edited version of a photo, otherwise False. &quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{favorite}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Photo has been marked as favorite?; True/False value, use in format &#39;{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}&#39;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{burst}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;If photo is a burst photo, returns the stem of the burst&#39;s key photo, e.g. &#39;IMG_1234&#39;, otherwise returns no value.&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{created}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Photo&#39;s creation date in ISO format, e.g. &#39;2020-03-22&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{created.date}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Photo&#39;s creation date in ISO format, e.g. &#39;2020-03-22&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{created.year}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;4-digit year of photo creation time&quot;</span><span class="p">,</span>
@@ -467,9 +466,7 @@
     <span class="s2">&quot;</span><span class="si">{folder_album_project}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Folder path + album (includes projects as albums) photo is contained in. e.g. &#39;Folder/Subfolder/Album&#39; or just &#39;Album&#39; if no enclosing folder&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{keyword}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Keyword(s) assigned to photo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{person}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Person(s) / face(s) in a photo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;</span><span class="si">{label}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Image categorization label associated with a photo (Photos 5+ only). &quot;</span>
-    <span class="s2">&quot;Labels are added automatically by Photos using machine learning algorithms to categorize images. &quot;</span>
-    <span class="s2">&quot;These are not the same as </span><span class="si">{keyword}</span><span class="s2"> which refers to the user-defined keywords/tags applied in Photos.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{label}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Image categorization label associated with a photo (Photos 5+ only). Labels are added automatically by Photos using machine learning algorithms to categorize images. These are not the same as </span><span class="si">{keyword}</span><span class="s2"> which refers to the user-defined keywords/tags applied in Photos.&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{label_normalized}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;All lower case version of &#39;label&#39; (Photos 5+ only)&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{comment}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Comment(s) on shared Photos; format is &#39;Person name: comment text&#39; (Photos 5+ only)&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{exiftool}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Format: &#39;{exiftool:GROUP:TAGNAME}&#39;; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  &quot;</span>
@@ -539,6 +536,7 @@
     <span class="s2">&quot;sslice(start:stop:step)&quot;</span><span class="p">:</span> <span class="s2">&quot;[s(tring) slice] Slice values in a list using same semantics as Python&#39;s string slicing, &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;e.g. sslice(1:3):&#39;abcd =&gt; &#39;bc&#39;; sslice(1:4:2): &#39;abcd&#39; =&gt; &#39;bd&#39;, etc. See also slice().&quot;</span><span class="p">,</span>
     <span class="s2">&quot;filter(x)&quot;</span><span class="p">:</span> <span class="s2">&quot;Filter list of values using predicate x; for example, &#39;{folder_album|filter(contains Events)}&#39; returns only folders/albums containing the word &#39;Events&#39; in their path.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;Convert values in list into pathlib objects for path manipulation; pathlib properties can be appended and chained. For example &#39;{photo.original_filename|path.stem}&#39; is functionally equivalent to &#39;</span><span class="si">{original_name}</span><span class="s2">&#39; which doesn&#39;t include the extension.&quot;</span><span class="p">,</span>
     <span class="s2">&quot;int&quot;</span><span class="p">:</span> <span class="s2">&quot;Convert values in list to integer, e.g. 1.0 =&gt; 1. If value cannot be converted to integer, remove value from list. &quot;</span>
     <span class="o">+</span> <span class="s2">&quot;[&#39;1.1&#39;, &#39;x&#39;] =&gt; [&#39;1&#39;]. See also float.&quot;</span><span class="p">,</span>
     <span class="s2">&quot;float&quot;</span><span class="p">:</span> <span class="s2">&quot;Convert values in list to floating point number, e.g. 1 =&gt; 1.0. If value cannot be converted to float, remove value from list. &quot;</span>
@@ -1232,6 +1230,12 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="n">format_str_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">subfield</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;counter&quot;</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="n">get_counter_value</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">field_arg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;burst&quot;</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">burst_key_photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">burst</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">burst_key_photo</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># if here, didn&#39;t get a match</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unhandled template value: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1296,7 +1300,10 @@
 
         <span class="c1"># check that filter name (without subfields or arguments) is valid</span>
         <span class="n">valid_filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">FILTER_VALUES</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">filter_</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_filters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">filter_</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_filters</span>
+            <span class="ow">and</span> <span class="n">filter_</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_filters</span>
+        <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown filter: </span><span class="si">{</span><span class="n">filter_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">filter_</span> <span class="ow">in</span> <span class="p">[</span>
@@ -1412,6 +1419,8 @@
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">&quot;float&quot;</span><span class="p">:</span>
             <span class="c1"># convert value to float</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">values_to_float</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filter_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">get_template_values_pathlib</span><span class="p">(</span><span class="n">filter_</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">filter_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;function:&quot;</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_filter_function</span><span class="p">(</span><span class="n">filter_</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2074,6 +2083,42 @@
             <span class="k">return</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">iso_country_code</span> <span class="ow">or</span> <span class="kc">None</span>
     <span class="c1"># did not find a match</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unhandled template value: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_template_values_pathlib</span><span class="p">(</span><span class="nb">filter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns values after applying pathlib conversion and optional chained pathlib.Path properties</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filter: Filter string, optionally in format &quot;path.property1.property2...&quot;</span>
+<span class="sd">                where properties are valid Path attributes (e.g., &quot;path.parent.parent&quot;)</span>
+<span class="sd">        values: Iterable of values to convert to pathlib.Path objects</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of converted values (strings or Path properties)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        SyntaxError: If an invalid pathlib property is specified in the chain</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">properties</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">:</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="nb">filter</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Skip the first part which is &quot;path&quot;</span>
+
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid pathlib property: </span><span class="si">{</span><span class="n">prop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="n">path_obj</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">properties</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+                <span class="n">path_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">path_obj</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path_obj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path_obj</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">result</span>
 </pre></div>
         </article>
       </div>
@@ -2106,7 +2151,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=63568c49"></script>
+</div><script src="../../_static/documentation_options.js?v=8103c863"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

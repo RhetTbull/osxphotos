@@ -127,39 +127,40 @@ This package will install a command line utility called ``osxphotos`` that allow
     -h, --help     Show this message and exit.
 
   Commands:
-    about          Print information about osxphotos including license.
-    add-locations  Add missing location data to photos in Photos.app using...
-    albums         Print out albums found in the Photos library.
-    batch-edit     Batch edit photo metadata such as title, description,...
-    compare        Compare two Photos libraries to find differences
-    docs           Open osxphotos documentation in your browser.
-    dump           Print list of all photos & associated info from the Photos...
-    exiftool       Run exiftool on previously exported files to update metadata.
-    export         Export photos from the Photos database.
-    exportdb       Utilities for working with the osxphotos export database
-    help           Print help; for help on commands: help <command>.
-    import         Import photos and videos into Photos.
-    info           Print out descriptive info of the Photos library database.
-    inspect        Interactively inspect photos selected in Photos.
-    install        Install Python packages into the same environment as...
-    keywords       Print out keywords found in the Photos library.
-    labels         Print out image classification labels found in the Photos...
-    list           Print list of Photos libraries found on the system.
-    orphans        Find orphaned photos in a Photos library
-    persons        Print out persons (faces) found in the Photos library.
-    places         Print out places found in the Photos library.
-    push-exif      Write photo metadata to original files in the Photos library
-    query          Query the Photos database using 1 or more search options;...
-    repl           Run interactive osxphotos REPL shell (useful for...
-    run            Run a python file using same environment as osxphotos.
-    show           Show photo, album, or folder in Photos from UUID_OR_NAME
-    sync           Sync metadata and albums between Photos libraries.
-    template       Interactively render templates for selected photo.
-    theme          Manage osxphotos color themes.
-    timewarp       Adjust date/time/timezone of photos in Apple Photos.
-    tutorial       Display osxphotos tutorial.
-    uninstall      Uninstall Python packages from the osxphotos environment
-    update         Update the installation to the latest version.
-    uuid           Print out unique IDs (UUID) of photos selected in Photos
-    version        Check for new version of osxphotos.
+    about             Print information about osxphotos including license.
+    add-locations     Add missing location data to photos in Photos.app using...
+    albums            Print out albums found in the Photos library.
+    batch-edit        Batch edit photo metadata such as title, description,...
+    compare           Compare two Photos libraries to find differences
+    docs              Open osxphotos documentation in your browser.
+    dump              Print list of all photos & associated info from the...
+    exiftool          Run exiftool on previously exported files to update...
+    export            Export photos from the Photos database.
+    exportdb          Utilities for working with the osxphotos export database
+    help              Print help; for help on commands: help <command>.
+    import            Import photos and videos into Photos.
+    info              Print out descriptive info of the Photos library database.
+    inspect           Interactively inspect photos selected in Photos.
+    install           Install Python packages into the same environment as...
+    keywords          Print out keywords found in the Photos library.
+    labels            Print out image classification labels found in the...
+    list              Print list of Photos libraries found on the system.
+    orphans           Find orphaned photos in a Photos library
+    persons           Print out persons (faces) found in the Photos library.
+    places            Print out places found in the Photos library.
+    push-exif         Write photo metadata to original files in the Photos...
+    query             Query the Photos database using 1 or more search...
+    repl              Run interactive osxphotos REPL shell (useful for...
+    run               Run a python file using same environment as osxphotos.
+    shell-completion  Install shell completion for osxphotos.
+    show              Show photo, album, or folder in Photos from UUID_OR_NAME
+    sync              Sync metadata and albums between Photos libraries.
+    template          Interactively render templates for selected photo.
+    theme             Manage osxphotos color themes.
+    timewarp          Adjust date/time/timezone of photos in Apple Photos.
+    tutorial          Display osxphotos tutorial.
+    uninstall         Uninstall Python packages from the osxphotos environment
+    update            Update the installation to the latest version.
+    uuid              Print out unique IDs (UUID) of photos selected in Photos
+    version           Check for new version of osxphotos.
 
