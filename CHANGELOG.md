@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.75.0](https://github.com/RhetTbull/osxphotos/compare/v0.74.2...v0.75.0)
+
+New exportdb commands, shell completions, better burst handling, multiple fixes.
+
+### 2025-12-25
+
+#### Added
+
+- `--cleanup-command` to `osxphotos export` to run custom command on cleanup files, #1786
+- `--missing` to `osxphotos exportdb` to print list of files missing from exportdb, #1988 
+- `--uuid` to `osxphotos exportdb` to print UUID associated with a given filepath
+- New `osxphotos shell-completion` command to install shell completions, #220
+- Added new `burst_key_photo` property to `PhotoInfo` which returns the `PhotoInfo` object for the key photo if photo is a burst photo, #2032
+- Added new `{burst}` template which returns the stem of the burst key photo for a burst group; this lets you do something like this: `--directory "{burst?{burst},}"` to output all burst photos into a folder named for the stem of the burst group key photo, #2032
+- Added `--retry-wait` and `--retry-nas-alias` to export for better handling of flaky NAS connections, #2004
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fix for selection in full screen preview, #2044
+- Fix for ai_caption in exportdb diff, #2046 
+- Fix for live video file metadata, #2027 
+- Fix for --cleanup so it doesn't delete dot files, #1506
+- Fix `--version` for `osxphotos exportdb`, #1392
+- Fix for `--append` with new CSV report, #2033
+- Improved retry handling for export to NAS, #2004
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull)
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull)
+* @ZeliTheZealot [@ZeliTheZealot](https://github.com/ZeliTheZealot)
+
 ## [v0.74.2](https://github.com/RhetTbull/osxphotos/compare/v0.74.1...v0.74.2)
 
 Enhancements to `--sidecar-template` and `--touch-file`, bug fixes.
