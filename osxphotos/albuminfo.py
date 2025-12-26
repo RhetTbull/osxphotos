@@ -11,6 +11,7 @@ PhotosDB.folders() returns a list of FolderInfo objects
 """
 
 from datetime import datetime, timedelta, timezone
+from functools import cached_property
 
 from ._constants import (
     _PHOTOS_4_ALBUM_KIND,
@@ -253,6 +254,19 @@ class AlbumInfo(AlbumInfoBaseClass):
         else:
             return AlbumSortOrder.UNKNOWN
 
+    @property
+    def library_list_order(self) -> tuple[int, ...]:
+        """Return order that album appears in the Photos library sidebar"""
+        try:
+            results = self._db.execute(
+                "SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?",
+                (self.uuid,),
+            ).fetchone()[0]
+            order = int(results)
+            return (*(f.library_list_order for f in self.folder_list), order)
+        except Exception:
+            return (9_999_999,)
+
     def photo_index(self, photo):
         """return index of photo in album (based on album sort order)"""
         for index, p in enumerate(self.photos):
@@ -464,6 +478,18 @@ class FolderInfo:
                 ]
             self._folders = folders
             return self._folders
+
+    @property
+    def library_list_order(self) -> int:
+        """Return order that album appears in the Photos library sidebar"""
+        try:
+            results = self._db.execute(
+                "SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?",
+                (self.uuid,),
+            ).fetchone()[0]
+            return int(results)
+        except Exception:
+            return 9_999_999
 
     def asdict(self):
         """Return folder info as a dict"""
