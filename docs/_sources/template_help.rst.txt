@@ -64,6 +64,7 @@ Valid filters are:
 * `slice(start:stop:step)`: Slice list using same semantics as Python's list slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().
 * `sslice(start:stop:step)`: [s(tring) slice] Slice values in a list using same semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().
 * ``filter(x)``\ : Filter list of values using predicate x; for example, '{folder_album|filter(contains Events)}' returns only folders/albums containing the word 'Events' in their path.
+* ``path``\ : Convert values in list into pathlib objects for path manipulation; pathlib properties can be appended and chained. For example '{photo.original_filename|path.stem}' is functionally equivalent to '{original_name}' which doesn't include the extension.
 * ``int``\ : Convert values in list to integer, e.g. 1.0 => 1. If value cannot be converted to integer, remove value from list. ['1.1', 'x'] => ['1']. See also float.
 * ``float``\ : Convert values in list to floating point number, e.g. 1 => 1.0. If value cannot be converted to float, remove value from list. ['1', 'x'] => ['1.0']. See also int.
 
@@ -202,6 +203,8 @@ Template Substitutions
      - True if template is being rendered for the edited version of a photo, otherwise False.
    * - {favorite}
      - Photo has been marked as favorite?; True/False value, use in format '{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'
+   * - {burst}
+     - If photo is a burst photo, returns the stem of the burst's key photo, e.g. 'IMG_1234', otherwise returns no value.
    * - {created}
      - Photo's creation date in ISO format, e.g. '2020-03-22'
    * - {created.date}
@@ -369,7 +372,7 @@ Template Substitutions
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.74.2'
+     - The osxphotos version, e.g. '0.75.0'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}

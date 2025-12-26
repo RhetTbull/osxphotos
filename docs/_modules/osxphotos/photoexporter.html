@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.photoexporter - osxphotos 0.74.2 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.75.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.74.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.74.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -661,7 +661,7 @@
             <span class="k">return</span>
 
         <span class="n">fileutil</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">fileutil</span> <span class="ow">or</span> <span class="n">FileUtil</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;osxphotos_export_&quot;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;osxphotos_export_&quot;</span><span class="p">,</span> <span class="n">dirpath</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span>
 
@@ -1313,7 +1313,7 @@
                 <span class="n">last_data</span> <span class="o">=</span> <span class="n">photoinfo_minify_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span><span class="p">))</span>
                 <span class="c1"># to avoid issues with datetime comparisons, list order</span>
                 <span class="c1"># need to deserialize from photo.json() instead of using photo.asdict()</span>
-                <span class="n">current_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="n">current_data</span> <span class="o">=</span> <span class="n">photoinfo_minify_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">diff</span> <span class="o">=</span> <span class="n">dictdiff</span><span class="p">(</span><span class="n">last_data</span><span class="p">,</span> <span class="n">current_data</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1425,7 +1425,7 @@
 
         <span class="c1"># export to a subdirectory of tmpdir</span>
         <span class="n">tmpdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileutil</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">(</span>
-            <span class="s2">&quot;osxphotos_applescript_export_&quot;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_path</span>
+            <span class="s2">&quot;osxphotos_applescript_export_&quot;</span><span class="p">,</span> <span class="n">dirpath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_path</span>
         <span class="p">)</span>
 
         <span class="n">exported_files</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1765,7 +1765,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=63568c49"></script>
+</div><script src="../../_static/documentation_options.js?v=8103c863"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

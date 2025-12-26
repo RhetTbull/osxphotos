@@ -1,5 +1,5 @@
-""" Automatically update certain sections of README.md for osxphotos 
-    Also updates osxphotos/phototemplate.md 
+""" Automatically update certain sections of README.md for osxphotos
+    Also updates osxphotos/phototemplate.md
 """
 
 # This is a pretty "dumb" script that searches the README.md for
@@ -18,11 +18,6 @@ from osxphotos.cli import cli_main
 from osxphotos.phototemplate import get_template_field_table, get_template_help
 
 TUTORIAL_HELP = "osxphotos/tutorial.md"
-
-USAGE_START = (
-    "<!-- OSXPHOTOS-EXPORT-USAGE:START - Do not remove or modify this section -->"
-)
-USAGE_STOP = "<!-- OSXPHOTOS-EXPORT-USAGE:END -->"
 
 TEMPLATE_TABLE_START = (
     "<!-- OSXPHOTOS-TEMPLATE-TABLE:START - Do not remove or modify this section -->"
@@ -95,14 +90,8 @@ def replace_text(text, start_tag, stop_tag, replacement_text, prefix="", postfix
 def main():
     """update README.md"""
 
-    # update the help text for `osxphotos help export`
-    print("Updating help for `osxphotos help export`")
     with open("README.md", "r") as file:
-        readme = file.read()
-    help_txt = generate_help_text("export")
-    new_readme = replace_text(
-        readme, USAGE_START, USAGE_STOP, help_txt, prefix="\n```\n", postfix="\n```\n"
-    )
+        new_readme = file.read()
 
     # update the template substitution table
     print("Updating template substitution table")
