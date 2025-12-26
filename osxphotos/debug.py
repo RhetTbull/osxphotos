@@ -31,7 +31,11 @@ def set_debug(debug: bool):
     """set debug flag"""
     global __osxphotos_debug
     __osxphotos_debug = debug
-    logging.disable(logging.NOTSET if debug else logging.DEBUG)
+    logger = logging.getLogger("osxphotos")
+    if debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.WARNING)
 
 
 def is_debug():

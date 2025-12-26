@@ -23,6 +23,8 @@ import time
 from functools import lru_cache  # pylint: disable=syntax-error
 from typing import Any
 
+logger = logging.getLogger("osxphotos")
+
 __all__ = [
     "escape_str",
     "exiftool_can_write",
@@ -168,7 +170,7 @@ class _ExifToolProc:
         if hasattr(self, "_process_running") and self._process_running:
             # already running
             if exiftool is not None and exiftool != self._exiftool:
-                logging.warning(
+                logger.warning(
                     f"exiftool subprocess already running, "
                     f"ignoring exiftool={exiftool}"
                 )
@@ -199,7 +201,7 @@ class _ExifToolProc:
         """start exiftool in batch mode"""
 
         if self._process_running:
-            logging.warning("exiftool already running: {self._process}")
+            logger.warning("exiftool already running: {self._process}")
             return
 
         # open exiftool procGess
@@ -473,7 +475,7 @@ class ExifTool:
         except Exception as e:
             # will fail with some commands, e.g --ext AVI which produces
             # 'No file with specified extension' instead of json
-            logging.warning(f"error loading json returned by exiftool: {e} {json_str}")
+            logger.warning(f"error loading json returned by exiftool: {e} {json_str}")
             return dict()
         exifdict = exifdict[0]
         if not tag_groups:

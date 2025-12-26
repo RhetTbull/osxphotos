@@ -1,4 +1,4 @@
-""" PhotoInfo and FaceInfo classes to expose info about persons and faces in the Photos library """
+"""PhotoInfo and FaceInfo classes to expose info about persons and faces in the Photos library"""
 
 import json
 import logging
@@ -7,6 +7,8 @@ from collections import namedtuple
 from functools import cached_property
 
 import osxphotos
+
+logger = logging.getLogger("osxphotos")
 
 __all__ = ["PersonInfo", "FaceInfo", "rotate_image_point"]
 
@@ -220,7 +222,7 @@ class FaceInfo:
         except AttributeError:
             self._photo = self._db.get_photo(self.asset_uuid)
             if self._photo is None:
-                logging.warning(f"Could not get photo for uuid: {self.asset_uuid}")
+                logger.warning(f"Could not get photo for uuid: {self.asset_uuid}")
             return self._photo
 
     @property
@@ -368,7 +370,7 @@ class FaceInfo:
             # set by osxphotos if adjusted orientation cannot be read, assume it's 1
             y = 1.0 - y
         else:
-            logging.warning(f"Unhandled orientation: {orientation}")
+            logger.warning(f"Unhandled orientation: {orientation}")
 
         return (x, y)
 

@@ -1292,7 +1292,7 @@ class PhotoInfo:
                     except Exception as e:
                         # sometimes the reverse geolocation data is corrupted
                         # and this can cause a UnsupportedArchiver error
-                        logging.warning(
+                        logger.warning(
                             f"Error creating PlaceInfo5 for {self.uuid}: {str(e)}"
                         )
                         self._place = None
@@ -1375,7 +1375,7 @@ class PhotoInfo:
                     duplicates.append(self._db.get_photo(uuid))
         except KeyError:
             # don't expect this to happen as the signature should be in db
-            logging.warning(f"Did not find signature for {self.uuid} in _db_signatures")
+            logger.warning(f"Did not find signature for {self.uuid} in _db_signatures")
         return duplicates
 
     @property
@@ -1663,7 +1663,7 @@ class PhotoInfo:
             except FileNotFoundError:
                 # get_exiftool_path raises FileNotFoundError if exiftool not found
                 exiftool = None
-                logging.warning(
+                logger.warning(
                     "exiftool not in path; download and install from https://exiftool.org/"
                 )
 
@@ -1746,7 +1746,7 @@ class PhotoInfo:
             try:
                 detected_text = self._detected_text()
             except Exception as e:
-                logging.warning(f"Error detecting text in photo {self.uuid}: {e}")
+                logger.warning(f"Error detecting text in photo {self.uuid}: {e}")
                 detected_text = []
 
             self._detected_text_cache[confidence_threshold] = [
@@ -2319,7 +2319,7 @@ def frozen_photoinfo_factory(photo: PhotoInfo) -> SimpleNamespace:
             try:
                 detected_text = frozen._detected_text()
             except Exception as e:
-                logging.warning(f"Error detecting text in photo {frozen.uuid}: {e}")
+                logger.warning(f"Error detecting text in photo {frozen.uuid}: {e}")
                 detected_text = []
 
             frozen._detected_text_cache[confidence_threshold] = [

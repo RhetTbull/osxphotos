@@ -1,4 +1,4 @@
-""" Utility functions used in osxphotos """
+"""Utility functions used in osxphotos"""
 
 from __future__ import annotations
 
@@ -223,7 +223,7 @@ def get_last_library_path() -> str | None:
                 urllib.parse.unquote(urllib.parse.urlparse(photosurlstr).path)
             )
         else:
-            logging.warning(
+            logger.warning(
                 "Could not extract photos URL String from IPXDefaultLibraryURLBookmark"
             )
             return None
