@@ -226,41 +226,42 @@ Options:
   -h, --help     Show this message and exit.
 
 Commands:
-  about          Print information about osxphotos including license.
-  add-locations  Add missing location data to photos in Photos.app using...
-  albums         Print out albums found in the Photos library.
-  batch-edit     Batch edit photo metadata such as title, description,...
-  compare        Compare two Photos libraries to find differences
-  docs           Open osxphotos documentation in your browser.
-  dump           Print list of all photos & associated info from the Photos...
-  exiftool       Run exiftool on previously exported files to update metadata.
-  export         Export photos from the Photos database.
-  exportdb       Utilities for working with the osxphotos export database
-  help           Print help; for help on commands: help <command>.
-  import         Import photos and videos into Photos.
-  info           Print out descriptive info of the Photos library database.
-  inspect        Interactively inspect photos selected in Photos.
-  install        Install Python packages into the same environment as...
-  keywords       Print out keywords found in the Photos library.
-  labels         Print out image classification labels found in the Photos...
-  list           Print list of Photos libraries found on the system.
-  orphans        Find orphaned photos in a Photos library
-  persons        Print out persons (faces) found in the Photos library.
-  places         Print out places found in the Photos library.
-  push-exif      Write photo metadata to original files in the Photos library
-  query          Query the Photos database using 1 or more search options;...
-  repl           Run interactive osxphotos REPL shell (useful for...
-  run            Run a python file using same environment as osxphotos.
-  show           Show photo, album, or folder in Photos from UUID_OR_NAME
-  sync           Sync metadata and albums between Photos libraries.
-  template       Interactively render templates for selected photo.
-  theme          Manage osxphotos color themes.
-  timewarp       Adjust date/time/timezone of photos in Apple Photos.
-  tutorial       Display osxphotos tutorial.
-  uninstall      Uninstall Python packages from the osxphotos environment
-  update         Update the installation to the latest version.
-  uuid           Print out unique IDs (UUID) of photos selected in Photos
-  version        Check for new version of osxphotos.
+  about             Print information about osxphotos including license.
+  add-locations     Add missing location data to photos in Photos.app using...
+  albums            Print out albums found in the Photos library.
+  batch-edit        Batch edit photo metadata such as title, description,...
+  compare           Compare two Photos libraries to find differences
+  docs              Open osxphotos documentation in your browser.
+  dump              Print list of all photos & associated info from the...
+  exiftool          Run exiftool on previously exported files to update...
+  export            Export photos from the Photos database.
+  exportdb          Utilities for working with the osxphotos export database
+  help              Print help; for help on commands: help <command>.
+  import            Import photos and videos into Photos.
+  info              Print out descriptive info of the Photos library database.
+  inspect           Interactively inspect photos selected in Photos.
+  install           Install Python packages into the same environment as...
+  keywords          Print out keywords found in the Photos library.
+  labels            Print out image classification labels found in the...
+  list              Print list of Photos libraries found on the system.
+  orphans           Find orphaned photos in a Photos library
+  persons           Print out persons (faces) found in the Photos library.
+  places            Print out places found in the Photos library.
+  push-exif         Write photo metadata to original files in the Photos...
+  query             Query the Photos database using 1 or more search...
+  repl              Run interactive osxphotos REPL shell (useful for...
+  run               Run a python file using same environment as osxphotos.
+  shell-completion  Install shell completion for osxphotos.
+  show              Show photo, album, or folder in Photos from UUID_OR_NAME
+  sync              Sync metadata and albums between Photos libraries.
+  template          Interactively render templates for selected photo.
+  theme             Manage osxphotos color themes.
+  timewarp          Adjust date/time/timezone of photos in Apple Photos.
+  tutorial          Display osxphotos tutorial.
+  uninstall         Uninstall Python packages from the osxphotos environment
+  update            Update the installation to the latest version.
+  uuid              Print out unique IDs (UUID) of photos selected in Photos
+  version           Check for new version of osxphotos.
 
 ```
 <!--[[[end]]] -->
@@ -822,6 +823,7 @@ Valid filters are:
 - `slice(start:stop:step)`: Slice list using same semantics as Python's list slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().
 - `sslice(start:stop:step)`: [s(tring) slice] Slice values in a list using same semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().
 - `filter(x)`: Filter list of values using predicate x; for example, '{folder_album|filter(contains Events)}' returns only folders/albums containing the word 'Events' in their path.
+- `path`: Convert values in list into pathlib objects for path manipulation; pathlib properties can be appended and chained. For example '{photo.original_filename|path.stem}' is functionally equivalent to '{original_name}' which doesn't include the extension.
 - `int`: Convert values in list to integer, e.g. 1.0 => 1. If value cannot be converted to integer, remove value from list. ['1.1', 'x'] => ['1']. See also float.
 - `float`: Convert values in list to floating point number, e.g. 1 => 1.0. If value cannot be converted to float, remove value from list. ['1', 'x'] => ['1.0']. See also int.
 
@@ -1024,7 +1026,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.74.2'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.75.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
