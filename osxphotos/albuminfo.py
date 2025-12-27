@@ -263,7 +263,11 @@ class AlbumInfo(AlbumInfoBaseClass):
                 (self.uuid,),
             ).fetchone()[0]
             order = int(results)
-            return (*(f.library_list_order for f in self.folder_list), order)
+            # If album is in folders, use the last folder's full path tuple
+            if self.folder_list:
+                return (*self.folder_list[-1].library_list_order, order)
+            else:
+                return (order,)
         except Exception:
             return (9_999_999,)
 
@@ -480,16 +484,21 @@ class FolderInfo:
             return self._folders
 
     @property
-    def library_list_order(self) -> int:
-        """Return order that album appears in the Photos library sidebar"""
+    def library_list_order(self) -> tuple[int, ...]:
+        """Return order that folder appears in the Photos library sidebar"""
         try:
             results = self._db.execute(
                 "SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?",
                 (self.uuid,),
             ).fetchone()[0]
-            return int(results)
+            order = int(results)
+            # Build tuple from parent folder path if exists
+            if self.parent:
+                return (*self.parent.library_list_order, order)
+            else:
+                return (order,)
         except Exception:
-            return 9_999_999
+            return (9_999_999,)
 
     def asdict(self):
         """Return folder info as a dict"""
