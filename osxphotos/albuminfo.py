@@ -256,7 +256,12 @@ class AlbumInfo(AlbumInfoBaseClass):
 
     @property
     def library_list_order(self) -> tuple[int, ...]:
-        """Return order that album appears in the Photos library sidebar"""
+        """Returns a tuple of ints indicating relative order that album or folder appears in the Photos sidebar.
+
+        Note: This can be used to sort the albums in the same order as they appear in Photos.
+            The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.
+            This can be used directly as the `sorted` key to sort albums.
+        """
         try:
             results = self._db.execute(
                 "SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?",
@@ -485,7 +490,12 @@ class FolderInfo:
 
     @property
     def library_list_order(self) -> tuple[int, ...]:
-        """Return order that folder appears in the Photos library sidebar"""
+        """Returns a tuple of ints indicating relative order that folder appears in the Photos sidebar.
+
+        Note: This can be used to sort the albums in the same order as they appear in Photos.
+            The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.
+            This can be used directly as the `sorted` key to sort albums.
+        """
         try:
             results = self._db.execute(
                 "SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?",
