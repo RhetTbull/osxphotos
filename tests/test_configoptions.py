@@ -1,5 +1,6 @@
-""" test ConfigOptions class """
+"""test ConfigOptions class"""
 
+import datetime
 import pathlib
 from io import StringIO
 
@@ -95,3 +96,25 @@ def test_validate():
     cfg.foo = None
     with pytest.raises(ConfigOptionsInvalidError):
         assert cfg.validate(inclusive=[("foo", "bar")])
+
+
+def test_load_datetime_from_toml(tmpdir):
+    """Test that datetime.date objects from TOML are converted to datetime.datetime, #1925"""
+    # Create a TOML file with date values (TOML parser converts these to datetime.date)
+    cfg_file = pathlib.Path(str(tmpdir)) / "test_date.toml"
+    toml_content = """
+[test]
+added_after = 2025-01-01
+added_before = 2025-12-31
+"""
+    cfg_file.write_text(toml_content)
+
+    # Load the TOML file
+    vars_with_dates = {"added_after": None, "added_before": None}
+    cfg = ConfigOptions("test", vars_with_dates).load_from_file(str(cfg_file))
+
+    # Verify that the date values are converted to datetime.datetime objects
+    assert isinstance(cfg.added_after, datetime.datetime)
+    assert isinstance(cfg.added_before, datetime.datetime)
+    assert cfg.added_after == datetime.datetime(2025, 1, 1, 0, 0, 0)
+    assert cfg.added_before == datetime.datetime(2025, 12, 31, 0, 0, 0)
