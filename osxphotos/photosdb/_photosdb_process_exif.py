@@ -1,11 +1,13 @@
-""" PhotosDB method for processing exif info 
-    Do not import this module directly """
+"""PhotosDB method for processing exif info
+Do not import this module directly"""
 
 import logging
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from .photosdb_utils import get_db_version
+
+logger = logging.getLogger("osxphotos")
 
 
 def _process_exifinfo(self):
@@ -55,7 +57,7 @@ def _process_exifinfo_5(photosdb):
         record = dict(zip(cols, row))
         uuid = record["ZUUID"]
         if uuid in photosdb._db_exifinfo_uuid:
-            logging.warning(f"duplicate exifinfo record found for uuid {uuid}")
+            logger.warning(f"duplicate exifinfo record found for uuid {uuid}")
         photosdb._db_exifinfo_uuid[uuid] = record
 
     conn.close()

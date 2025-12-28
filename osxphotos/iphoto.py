@@ -1601,7 +1601,7 @@ class iPhotoPhotoInfo:
         except FileNotFoundError:
             # get_exiftool_path raises FileNotFoundError if exiftool not found
             exiftool = None
-            logging.warning(
+            logger.warning(
                 "exiftool not in path; download and install from https://exiftool.org/"
             )
         return exiftool

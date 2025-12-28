@@ -1,4 +1,4 @@
-""" Use Apple's Vision Framework via PyObjC to perform text detection on images (macOS 10.15+ only) """
+"""Use Apple's Vision Framework via PyObjC to perform text detection on images (macOS 10.15+ only)"""
 
 import logging
 import sys
@@ -15,6 +15,8 @@ from Foundation import NSDictionary
 
 # needed to capture system-level stderr
 from wurlitzer import pipes
+
+logger = logging.getLogger("osxphotos")
 
 __all__ = ["detect_text", "make_request_handler"]
 
@@ -35,7 +37,7 @@ def detect_text(img_path: str, orientation: Optional[int] = None) -> List:
         orientation: optional EXIF orientation (if known, passing orientation may improve quality of results)
     """
     if not vision:
-        logging.warning("detect_text not implemented for this version of macOS")
+        logger.warning("detect_text not implemented for this version of macOS")
         return []
 
     with objc.autorelease_pool():

@@ -412,7 +412,7 @@ class PhotosDB:
                     self._tmp_db = self._copy_db_file(self._dbfile)
                 self._db_version = get_db_version(self._tmp_db)
             except Exception as e:
-                logging.warning(
+                logger.warning(
                     f"Error getting database version from {self._dbfile}: {e}"
                 )
                 self._db_version = "6000"  # assume Photos 5+ and hope for the best
@@ -1572,7 +1572,7 @@ class PhotosDB:
             self._dbphotos[uuid]["placeIDs"] = place_ids
             country_code = [countries[x] for x in place_ids if x in countries]
             if len(country_code) > 1:
-                logging.warning(f"Found more than one country code for uuid: {uuid}")
+                logger.warning(f"Found more than one country code for uuid: {uuid}")
 
             if country_code:
                 self._dbphotos[uuid]["countryCode"] = country_code[0]
@@ -2852,11 +2852,9 @@ class PhotosDB:
         returns empty list of album is not in any folders"""
         # title = photosdb._dbalbum_details[album_uuid]["title"]
         folders = self._dbalbum_folders[album_uuid]
-        # logging.warning(f"uuid = {album_uuid}, folder = {folders}")
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):
             """Recursively walk the folders dict to build list of folder hierarchy"""
-            # logging.warning(f"folders={folders},hierarchy = {hierarchy}")
             if not folders:
                 # empty folder dict (album has no folder hierarchy)
                 return []
@@ -2877,7 +2875,6 @@ class PhotosDB:
             return hierarchy
 
         hierarchy = _recurse_folder_hierarchy(folders)
-        # logging.warning(f"hierarchy = {hierarchy}")
         return hierarchy
 
     def _album_folder_hierarchy_folderinfo_5(self, album_uuid):
@@ -2936,12 +2933,12 @@ class PhotosDB:
 
         if self._db_version <= _PHOTOS_4_VERSION:
             if shared:
-                logging.warning(
+                logger.warning(
                     f"Shared albums not implemented for Photos library version {self._db_version}"
                 )
                 return []  # not implemented for _PHOTOS_4_VERSION
             elif import_session:
-                logging.warning(
+                logger.warning(
                     f"Import sessions not implemented for Photos library version {self._db_version}"
                 )
                 return []  # not implemented for _PHOTOS_4_VERSION

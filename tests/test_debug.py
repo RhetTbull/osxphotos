@@ -1,6 +1,8 @@
 """Test debug"""
 
+import importlib
 import logging
+import sys
 
 import osxphotos
 from osxphotos.debug import is_debug, set_debug
@@ -33,3 +35,138 @@ def test_debug_print_false(caplog):
     logger = osxphotos.logger
     logger.debug("test debug")
     assert caplog.text == ""
+
+
+def test_import_does_not_affect_root_logger():
+    """Test that importing osxphotos does not affect the root logger"""
+    # Get root logger state before reimporting
+    root_logger = logging.getLogger()
+    initial_level = root_logger.level
+    initial_handlers_count = len(root_logger.handlers)
+
+    # Reimport osxphotos to simulate fresh import
+    if "osxphotos" in sys.modules:
+        # Store reference and reload
+        importlib.reload(sys.modules["osxphotos"])
+
+    # Check root logger wasn't modified
+    assert root_logger.level == initial_level, "Root logger level should not change"
+    assert (
+        len(root_logger.handlers) == initial_handlers_count
+    ), "Root logger handlers should not change"
+
+
+def test_import_does_not_call_basicConfig():
+    """Test that importing osxphotos doesn't call logging.basicConfig"""
+    # Get root logger
+    root_logger = logging.getLogger()
+    initial_handlers = root_logger.handlers[:]
+
+    # Reimport osxphotos
+    if "osxphotos" in sys.modules:
+        importlib.reload(sys.modules["osxphotos"])
+
+    # If basicConfig was called, it would add a handler to root logger
+    # (unless one already exists, but we're checking it didn't add new ones)
+    new_handlers = [h for h in root_logger.handlers if h not in initial_handlers]
+    assert len(new_handlers) == 0, "No handlers should be added to root logger"
+
+
+def test_osxphotos_logger_exists():
+    """Test that osxphotos logger is properly configured"""
+    logger = logging.getLogger("osxphotos")
+    assert logger is not None
+    assert logger.name == "osxphotos"
+
+    # Should have at least one handler (the one we configured)
+    assert len(logger.handlers) > 0, "osxphotos logger should have handlers"
+
+
+def test_osxphotos_logger_is_not_root():
+    """Test that osxphotos.logger is not the root logger"""
+    root_logger = logging.getLogger()
+    osxphotos_logger = logging.getLogger("osxphotos")
+
+    assert (
+        osxphotos_logger is not root_logger
+    ), "osxphotos logger should not be root logger"
+    assert osxphotos_logger.name != "", "osxphotos logger should have a name"
+
+
+def test_set_debug_does_not_affect_root_logger():
+    """Test that set_debug only affects osxphotos logger, not root"""
+    root_logger = logging.getLogger()
+    initial_root_level = root_logger.level
+
+    # Enable debug
+    set_debug(True)
+    assert (
+        root_logger.level == initial_root_level
+    ), "Root logger level unchanged after set_debug(True)"
+
+    # Disable debug
+    set_debug(False)
+    assert (
+        root_logger.level == initial_root_level
+    ), "Root logger level unchanged after set_debug(False)"
+
+
+def test_set_debug_true_enables_debug_level():
+    """Test that set_debug(True) sets osxphotos logger to DEBUG"""
+    set_debug(True)
+    logger = logging.getLogger("osxphotos")
+
+    assert logger.level == logging.DEBUG, "Logger level should be DEBUG"
+    assert logger.isEnabledFor(logging.DEBUG), "Logger should be enabled for DEBUG"
+
+
+def test_set_debug_false_sets_warning_level():
+    """Test that set_debug(False) sets osxphotos logger to WARNING"""
+    set_debug(False)
+    logger = logging.getLogger("osxphotos")
+
+    assert logger.level == logging.WARNING, "Logger level should be WARNING"
+    assert not logger.isEnabledFor(
+        logging.DEBUG
+    ), "Logger should not be enabled for DEBUG"
+    assert logger.isEnabledFor(logging.WARNING), "Logger should be enabled for WARNING"
+
+
+def test_debug_messages_visible_when_enabled(caplog):
+    """Test that debug messages are actually logged when debug is enabled"""
+    set_debug(True)
+    logger = logging.getLogger("osxphotos")
+
+    with caplog.at_level(logging.DEBUG, logger="osxphotos"):
+        logger.debug("test debug message")
+        assert "test debug message" in caplog.text
+
+
+def test_debug_messages_hidden_when_disabled(caplog):
+    """Test that debug messages are not logged when debug is disabled"""
+    set_debug(False)
+    logger = logging.getLogger("osxphotos")
+
+    # Don't use caplog.at_level() - let the logger's own level control what's captured
+    logger.debug("test debug message")
+    # Debug message should not appear because logger level is WARNING
+    assert "test debug message" not in caplog.text
+
+
+def test_warning_messages_always_visible(caplog):
+    """Test that warning messages are logged regardless of debug state"""
+    # Test with debug disabled
+    set_debug(False)
+    logger = logging.getLogger("osxphotos")
+
+    with caplog.at_level(logging.WARNING, logger="osxphotos"):
+        logger.warning("test warning message")
+        assert "test warning message" in caplog.text
+
+    caplog.clear()
+
+    # Test with debug enabled
+    set_debug(True)
+    with caplog.at_level(logging.WARNING, logger="osxphotos"):
+        logger.warning("test warning message 2")
+        assert "test warning message 2" in caplog.text
