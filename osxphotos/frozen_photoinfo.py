@@ -19,6 +19,8 @@ from .exiftool import ExifToolCaching, get_exiftool_path
 from .phototemplate import PhotoTemplate, RenderOptions
 from .text_detection import detect_text
 
+logger = logging.getLogger("osxphotos")
+
 
 def frozen_photoinfo_factory(photo: "osxphotos.photoinfo.PhotoInfo") -> SimpleNamespace:
     """Return a frozen SimpleNamespace object for a PhotoInfo object"""
@@ -87,7 +89,7 @@ def _add_detected_text(frozen: SimpleNamespace) -> SimpleNamespace:
             try:
                 detected_text = frozen._detected_text()
             except Exception as e:
-                logging.warning(f"Error detecting text in photo {frozen.uuid}: {e}")
+                logger.warning(f"Error detecting text in photo {frozen.uuid}: {e}")
                 detected_text = []
 
             frozen._detected_text_cache[confidence_threshold] = [

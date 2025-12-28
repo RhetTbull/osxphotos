@@ -41,13 +41,20 @@ if is_macos:
     from .photosalbum import PhotosAlbum, PhotosAlbumPhotoScript
 
 # configure logging; every module in osxphotos should use this logger
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
-)
 logger: logging.Logger = logging.getLogger("osxphotos")
-if not is_debug():
-    logging.disable(logging.DEBUG)
+logger.handlers.clear()
+handler = logging.StreamHandler()
+handler.setLevel(logging.NOTSET)  # Let the logger level control filtering
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s"
+)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+if is_debug():
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.WARNING)
 
 __all__ = [
     "AlbumInfo",

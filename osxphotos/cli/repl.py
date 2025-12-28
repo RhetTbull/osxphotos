@@ -82,7 +82,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     from osxphotos.searchinfo import SearchInfo
     from osxphotos.sidecars import SidecarWriter, exiftool_json_sidecar, xmp_sidecar
 
-    logger = logging.getLogger()
+    logger = logging.getLogger("osxphotos")
     logger.disabled = True
 
     pretty.install()
