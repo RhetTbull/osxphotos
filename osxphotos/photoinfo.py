@@ -742,6 +742,24 @@ class PhotoInfo:
         return plist_file
 
     @property
+    def original_adjustments_path(self) -> pathlib.Path | None:
+        """Returns path to original adjustments file or None if file doesn't exist (for example, Portrait images contain an origial adjustments file)"""
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return None
+
+        library = self._db._library_path
+        directory = self._uuid[0]  # first char of uuid
+        aae_file = (
+            pathlib.Path(library)
+            / "originals"
+            / directory
+            / f"{self._uuid}_5.aae"  # There may be other AAE files but the _5 variant is all I've seen
+        )
+        if not aae_file.is_file():
+            return None
+        return aae_file
+
+    @property
     def adjustments(self) -> AdjustmentsInfo | None:
         """Returns AdjustmentsInfo class for adjustment data or None if no adjustments; Photos 5+ only"""
         try:
@@ -752,6 +770,13 @@ class PhotoInfo:
                 return None
             self._adjustmentinfo = AdjustmentsInfo(plist_file)
             return self._adjustmentinfo
+
+    @cached_property
+    def original_adjustments(self) -> AdjustmentsInfo | None:
+        """Returns AdjustmentsInfo class for original adjustment data or None if no adjustments; Photos 5+ only"""
+        if self.original_adjustments_path:
+            return AdjustmentsInfo(self.original_adjustments_path)
+        return None
 
     @property
     def adjustment_type(self) -> int | None:
@@ -2178,6 +2203,9 @@ class PhotoInfo:
             dict_data["tzname"] = self.tzname
             dict_data["media_analysis"] = self.media_analysis
             dict_data["ai_caption"] = self.ai_caption
+            dict_data["original_adjustments"] = (
+                self.original_adjustments.asdict() if self.original_adjustments else {}
+            )
 
         return dict_data
 
