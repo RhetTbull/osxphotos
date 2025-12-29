@@ -124,6 +124,25 @@ def test_date_time_iso8601():
         )
 
 
+def test_date_time_iso8601_from_date_object():
+    """Test DateTimeISO8601 handles datetime.date objects from TOML, #1925"""
+    # TOML parser converts date strings to datetime.date objects
+    # DateTimeISO8601 should convert them to datetime.datetime
+    date_obj = datetime.date(2025, 1, 1)
+    result = DateTimeISO8601().convert(date_obj, None, None)
+    assert isinstance(result, datetime.datetime)
+    assert result == datetime.datetime(2025, 1, 1, 0, 0, 0)
+
+
+def test_date_time_iso8601_from_datetime_object():
+    """Test DateTimeISO8601 handles datetime.datetime objects, #1925"""
+    # If already a datetime object, should return as-is
+    dt_obj = datetime.datetime(2025, 1, 1, 12, 30, 45)
+    result = DateTimeISO8601().convert(dt_obj, None, None)
+    assert isinstance(result, datetime.datetime)
+    assert result == dt_obj
+
+
 def test_date_time_iso8601_invalid_format():
     """Test DateTimeISO8601 with invalid format"""
     date_time_iso8601_data = [

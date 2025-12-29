@@ -126,6 +126,14 @@ class DateTimeISO8601(click.ParamType):
     name = "DATETIME"
 
     def convert(self, value, param, ctx):
+        # Handle datetime objects that may come from TOML files
+        if isinstance(value, datetime.datetime):
+            return value
+        if isinstance(value, datetime.date):
+            # Convert date to datetime at midnight
+            return datetime.datetime(value.year, value.month, value.day)
+
+        # Handle string values from CLI
         try:
             return datetime.datetime.fromisoformat(value)
         except Exception:

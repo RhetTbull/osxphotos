@@ -1,4 +1,6 @@
-""" ConfigOptions class to load/save config settings for osxphotos CLI """
+"""ConfigOptions class to load/save config settings for osxphotos CLI"""
+
+import datetime
 
 import bitmath
 import toml
@@ -186,6 +188,12 @@ class ConfigOptions:
                 val = getattr(self, attr) or val
             if type(self._attrs[attr]) == tuple:
                 val = tuple(val)
+            # TOML parser converts date strings to datetime.date objects
+            # but osxphotos expects datetime.datetime objects, so convert them
+            if isinstance(val, datetime.date) and not isinstance(
+                val, datetime.datetime
+            ):
+                val = datetime.datetime(val.year, val.month, val.day)
             setattr(self, attr, val)
         return self
 
