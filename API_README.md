@@ -1693,6 +1693,10 @@ Returns full name of the album owner (person who shared the album) for shared al
 
 **Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.*Only valid on Photos 5 / MacOS 10.15*
 
+#### <a name="albuminfo_library_list_order">library_list_order</a>
+
+Returns a tuple of ints indicating relative order that album or folder appears in the Photos sidebar. This can be used to sort the albums in the same order as they appear in Photos. The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder. This can be used directly as the `sorted` key to sort albums.
+
 #### <a name="asdict">asdict()</a>
 
 Returns a dictionary representation of the AlbumInfo object.
@@ -1842,6 +1846,10 @@ Returns album sort order (as `AlbumSortOrder` enum).  On Photos <=4, always retu
 #### <a name="photo-indexphoto">photo_index(photo)</a>
 
 Returns index of photo in album (based on album sort order).
+
+#### <a name="folderinfo_library_list_order">library_list_order</a>
+
+Returns a tuple of ints indicating relative order that folder appears in the Photos sidebar. This can be used to sort the albums in the same order as they appear in Photos. The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder. This can be used directly as the `sorted` key to sort albums.
 
 #### <a name="asdict">asdict()</a>
 
