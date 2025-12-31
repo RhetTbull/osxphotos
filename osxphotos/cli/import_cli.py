@@ -1007,7 +1007,10 @@ def import_main(
     preserves the non-destructive edits. For this to work, there must be an associated .AAE file
     for the photo. The .AAE file stores non-destructive edits to the photo and can be exported with
     'osxphotos export ... --export-aae'. If the original file is named IMG_1234.jpg, the .AAE file
-    should be named IMG_1234.aae or IMG_1234.AAE.
+    should be named IMG_1234.aae or IMG_1234.AAE. Some photos such as certain Portrait images may
+    have an associated AAE for the original image even if the photo is not edited. These will be
+    named like IMG_O1234.AAE. They will be exported by osxphotos export --export-aae and will be
+    handled by osxphotos import.
 
     The edited version of the file must also be named following one of these two conventions:
 

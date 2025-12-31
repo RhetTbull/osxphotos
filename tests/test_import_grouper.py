@@ -102,6 +102,30 @@ def test_group_burst():
     )
 
 
+def test_group_original_adjustments():
+    """Test grouping of original adjustment AAE files (IMG_O1234.AAE or Filename_O.AAE)"""
+    execute_grouping_test(
+        (
+            # Sorted by base name and stem length (per sort_paths function)
+            # Custom.jpg comes first (base: 'custom')
+            ("Custom.jpg", "Custom_O.AAE", "Custom_edited.jpg"),
+            # IMG_* files sorted by digits (base: 'img', then by full name)
+            ("IMG_1234.heic", "IMG_O1234.AAE"),
+            ("IMG_3000.heic", "IMG_E3000.JPG", "IMG_O3000.AAE"),
+            ("IMG_5678.JPG", "IMG_5678.aae", "IMG_O5678.AAE"),
+            ("IMG_O9999.AAE",),  # IMG_O without original - standalone
+            # Missing_O (base: 'missing')
+            ("Missing_O.AAE",),  # Filename_O without original - standalone
+            # MyFile (base: 'myfile')
+            ("MyFile.jpeg", "MyFile_O.AAE"),
+            # Photo (base: 'photo')
+            ("Photo.png", "Photo.aae", "Photo_O.AAE"),
+            # Something_Other (base: 'something')
+            ("Something_Other.AAE",),  # Should NOT match _O pattern
+        ),
+    )
+
+
 def test_sort_paths():
     expected = create_path_list(
         (

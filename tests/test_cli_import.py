@@ -63,6 +63,12 @@ TEST_LIVE_PHOTO_EDITED_PHOTO = "IMG_E1853.heic"
 TEST_LIVE_PHOTO_ORIGINAL_VIDEO = "IMG_1853.MOV"
 TEST_LIVE_PHOTO_EDITED_VIDEO = "IMG_E1853.mov"
 TEST_LIVE_PHOTO_AAE = "IMG_1853.AAE"
+TEST_LIVE_PHOTO_ORIGINAL_PHOTO_ORIGINAL_AAE = "IMG_3582.HEIC"
+TEST_LIVE_PHOTO_EDITED_PHOTO_ORIGINAL_AAE = "IMG_3582_edited.heic"
+TEST_LIVE_PHOTO_ORIGINAL_VIDEO_ORIGINAL_AAE = "IMG_3582.MOV"
+TEST_LIVE_PHOTO_EDITED_VIDEO_ORIGINAL_AAE = "IMG_3582_edited.mov"
+TEST_LIVE_PHOTO_AAE_ORIGINAL_AAE = "IMG_3582.AAE"
+TEST_LIVE_PHOTO_ORIGINAL_AAE_ORIGINAL_AAE = "IMG_O3582.AAE"
 
 TEST_DATA = {
     TEST_IMAGE_1: {
@@ -160,6 +166,21 @@ LIVE_PHOTO_FILENAMES = [
             "LivePhoto.aae",
         ),
         "IMG_0001_LivePhoto.heic",
+    ),
+]
+
+
+LIVE_PHOTO_ORIGINAL_AAE_FILENAMES = [
+    (
+        (
+            "IMG_3582.heic",
+            "IMG_3582.mov",
+            "IMG_3582_edited.heic",
+            "IMG_3582_edited.mov",
+            "IMG_3582.aae",
+            "IMG_O3582.aae",
+        ),
+        "IMG_3582.heic",
     ),
 ]
 
@@ -2453,3 +2474,81 @@ def test_import_edited_live(filenames, imported_name):
         photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
         assert photo.hasadjustments
         assert photo.original_filename == imported_name
+
+
+@pytest.mark.test_import
+@pytest.mark.parametrize("filenames,imported_name", LIVE_PHOTO_ORIGINAL_AAE_FILENAMES)
+def test_import_edited_live_original_aae(filenames, imported_name):
+    """Test import of edited live photo with an original AAE (portrait mode)"""
+
+    # reset the counter in import_cli
+    import_cli._global_image_counter = 1
+
+    (
+        live_photo,
+        live_video,
+        live_photo_edited,
+        live_video_edited,
+        live_aae,
+        original_aae,
+    ) = filenames
+
+    cwd = os.getcwd()
+    source_image_original = os.path.join(
+        cwd,
+        "tests/test-images/original_aae",
+        TEST_LIVE_PHOTO_ORIGINAL_PHOTO_ORIGINAL_AAE,
+    )
+    source_image_edited = os.path.join(
+        cwd, "tests/test-images/original_aae", TEST_LIVE_PHOTO_EDITED_PHOTO_ORIGINAL_AAE
+    )
+    source_video_original = os.path.join(
+        cwd,
+        "tests/test-images/original_aae",
+        TEST_LIVE_PHOTO_ORIGINAL_VIDEO_ORIGINAL_AAE,
+    )
+    source_video_edited = os.path.join(
+        cwd, "tests/test-images/original_aae", TEST_LIVE_PHOTO_EDITED_VIDEO_ORIGINAL_AAE
+    )
+    source_image_aae = os.path.join(
+        cwd, "tests/test-images/original_aae", TEST_LIVE_PHOTO_AAE_ORIGINAL_AAE
+    )
+    source_original_aae = os.path.join(
+        cwd, "tests/test-images/original_aae", TEST_LIVE_PHOTO_ORIGINAL_AAE_ORIGINAL_AAE
+    )
+
+    # need a clean temporary directory for each test so use TemporaryDirectory() rather than pytest's tmp_path
+    with TemporaryDirectory() as tmp_path:
+        live_photo = os.path.join(tmp_path, live_photo)
+        live_video = os.path.join(tmp_path, live_video)
+        live_photo_edited = os.path.join(tmp_path, live_photo_edited)
+        live_video_edited = os.path.join(tmp_path, live_video_edited)
+        live_aae = os.path.join(tmp_path, live_aae)
+        original_aae = os.path.join(tmp_path, original_aae)
+
+        shutil.copy(source_image_original, live_photo)
+        shutil.copy(source_video_original, live_video)
+        shutil.copy(source_image_edited, live_photo_edited)
+        shutil.copy(source_video_edited, live_video_edited)
+        shutil.copy(source_image_aae, live_aae)
+        shutil.copy(source_original_aae, original_aae)
+
+        runner = CliRunner()
+        result = runner.invoke(
+            import_main,
+            ["--verbose", tmp_path],
+            terminal_width=TERMINAL_WIDTH,
+        )
+
+        assert (
+            "Processing live photo pair with .AAE file with edited version"
+            in result.output
+        )
+        import_data = parse_import_output(result.output)
+        uuid_1 = import_data[imported_name]
+
+        photosdb = PhotosDB()
+        photo = photosdb.query(QueryOptions(uuid=[uuid_1]))[0]
+        assert photo.hasadjustments
+        assert photo.original_filename == imported_name
+        assert photo.original_adjustments_path
