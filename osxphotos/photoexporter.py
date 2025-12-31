@@ -11,6 +11,7 @@ import pathlib
 import subprocess
 import typing as t
 from enum import Enum
+import re
 
 from ._version import __version__
 from .dictdiff import dictdiff
@@ -1527,8 +1528,8 @@ def rename_jpeg_files(files, jpeg_ext, fileutil):
 
 def original_aae_name(dest: pathlib.Path):
     """Return name for original AAE file (e.g. for Portrait images)"""
-    # if name matches IMG_1234.ext, name the AAE file IMG_O1234.aae, otherwise, use IMG_NAME_O.aae (append _O and use aae extension)
-    if dest.name.startswith("IMG_"):
-        return normalize_fs_path(dest.parent / f"IMG_O{dest.stem[4:]}.AAE")
+    # if name matches IMG_1234.ext, name the AAE file IMG_O1234.AAE, otherwise, use IMG_NAME_O.AAE (append _O and use aae extension)
+    if re.match(r"^IMG_\d{4}\.", dest.name, re.IGNORECASE):
+        return normalize_fs_path(dest.parent / f"{dest.stem}_O.AAE")
     else:
         return normalize_fs_path(dest.parent / f"{dest.stem}_O.AAE")
