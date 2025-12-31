@@ -354,7 +354,8 @@ if TYPE_CHECKING:
     "--export-aae",
     is_flag=True,
     help="Also export an adjustments file detailing edits made to the original. "
-    "The resulting file is named photoname.AAE. "
+    "The resulting file is named photoname.AAE or IMG_O1234.AAE for AAE files associated with "
+    "certain images like Portrait photos. "
     "Note that to import these files back to Photos succesfully, you also need to "
     "export the edited photo and match the filename format Photos.app expects: "
     "--filename 'IMG_{edited_version?E,}{id:04d}' --edited-suffix ''",
