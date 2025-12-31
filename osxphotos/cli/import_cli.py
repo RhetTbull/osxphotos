@@ -1714,7 +1714,11 @@ def set_photo_metadata_from_metadata(
     set_timezone: bool,
 ) -> MetaData:
     """Set metadata from a MetaData object"""
-    if any([metadata.title, metadata.description, metadata.keywords]):
+    # sometimes metadata.keywords has an empty string
+    metadata.keywords = [kw for kw in metadata.keywords if kw]
+    if any(
+        [metadata.title, metadata.description, metadata.keywords, metadata.favorite]
+    ):
         metadata = set_photo_metadata(photo, metadata, merge_keywords, dry_run)
         verbose(f"Set metadata for [filename]{filepath.name}[/]:")
         empty_str = ""
