@@ -2291,6 +2291,8 @@ class ReportRecord:
     title: str = ""
     uuid: str = ""
     datetime: datetime.datetime | None = None
+    skipped: bool = False
+    duplicate_of: str = ""  # UUID of duplicate photo in library when skipped
 
     @classmethod
     def serialize(cls, record: "ReportRecord") -> str:
@@ -3195,6 +3197,8 @@ def import_files(
                         verbose(f"Skipping duplicate [filename]{filepath.name}[/]")
                         skipped_count += 1
                         report_record.imported = False
+                        report_record.skipped = True
+                        report_record.duplicate_of = duplicates[0][0]  # UUID of first duplicate
 
                         if not dup_albums:
                             continue
