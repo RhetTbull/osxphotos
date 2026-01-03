@@ -63,9 +63,9 @@ class MetaData:
     def __ior__(self, other):
         if not isinstance(other, MetaData):
             raise TypeError("Unsupported operand type")
-        for field in fields(self):
-            if other_value := getattr(other, field.name):
-                setattr(self, field.name, other_value)
+        for f in fields(self):
+            if other_value := getattr(other, f.name):
+                setattr(self, f.name, other_value)
         return self
 
 

@@ -2005,56 +2005,72 @@ class PhotosDB:
 
         # get details about photos
         verbose("Processing photo details.")
-        c.execute(
-            f"""SELECT {asset_table}.ZUUID,
-                {master_fingerprint},
-                ZADDITIONALASSETATTRIBUTES.ZTITLE,
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME,
-                {asset_table}.ZMODIFICATIONDATE,
-                {asset_table}.ZDATECREATED,
-                ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
-                ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET,
-                ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME,
-                {asset_table}.ZHIDDEN,
-                {asset_table}.ZFAVORITE,
-                {asset_table}.ZDIRECTORY,
-                {asset_table}.ZFILENAME,
-                {asset_table}.ZLATITUDE,
-                {asset_table}.ZLONGITUDE,
-                {has_adjustments},
-                {asset_table}.ZCLOUDBATCHPUBLISHDATE,
-                {asset_table}.ZKIND,
-                {asset_table}.ZUNIFORMTYPEIDENTIFIER,
-                {asset_table}.ZAVALANCHEUUID,
-                {asset_table}.ZAVALANCHEPICKTYPE,
-                {asset_table}.ZKINDSUBTYPE,
-                {asset_table}.{hdr_type_column},
-                ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
-                {asset_table}.ZCLOUDASSETGUID,
-                ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,
-                {asset_table}.ZMOMENT,
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,
-                {asset_table}.ZTRASHEDSTATE,
-                {asset_table}.ZHEIGHT,
-                {asset_table}.ZWIDTH,
-                {asset_table}.ZORIENTATION,
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT,
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH,
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
-                ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE,
-                {depth_state},
-                {asset_table}.ZADJUSTMENTTIMESTAMP,
-                {asset_table}.ZVISIBILITYSTATE,
-                {asset_table}.ZTRASHEDDATE,
-                {asset_table}.ZSAVEDASSETTYPE,
-                {asset_table}.ZADDEDDATE,
-                {asset_table}.Z_PK,
-                {asset_table}.ZCLOUDOWNERHASHEDPERSONID,
-                {asset_table}.ZMOMENTSHARE
-                FROM {asset_table}
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
-                ORDER BY {asset_table}.ZUUID  """
-        )
+        sql = f"""SELECT {asset_table}.ZUUID,
+            {master_fingerprint},
+            ZADDITIONALASSETATTRIBUTES.ZTITLE,
+            ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME,
+            {asset_table}.ZMODIFICATIONDATE,
+            {asset_table}.ZDATECREATED,
+            ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
+            ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET,
+            ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME,
+            {asset_table}.ZHIDDEN,
+            {asset_table}.ZFAVORITE,
+            {asset_table}.ZDIRECTORY,
+            {asset_table}.ZFILENAME,
+            {asset_table}.ZLATITUDE,
+            {asset_table}.ZLONGITUDE,
+            {has_adjustments},
+            {asset_table}.ZCLOUDBATCHPUBLISHDATE,
+            {asset_table}.ZKIND,
+            {asset_table}.ZUNIFORMTYPEIDENTIFIER,
+            {asset_table}.ZAVALANCHEUUID,
+            {asset_table}.ZAVALANCHEPICKTYPE,
+            {asset_table}.ZKINDSUBTYPE,
+            {asset_table}.{hdr_type_column},
+            ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
+            {asset_table}.ZCLOUDASSETGUID,
+            ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,
+            {asset_table}.ZMOMENT,
+            ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,
+            {asset_table}.ZTRASHEDSTATE,
+            {asset_table}.ZHEIGHT,
+            {asset_table}.ZWIDTH,
+            {asset_table}.ZORIENTATION,
+            ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT,
+            ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH,
+            ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
+            ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE,
+            {depth_state},
+            {asset_table}.ZADJUSTMENTTIMESTAMP,
+            {asset_table}.ZVISIBILITYSTATE,
+            {asset_table}.ZTRASHEDDATE,
+            {asset_table}.ZSAVEDASSETTYPE,
+            {asset_table}.ZADDEDDATE,
+            {asset_table}.Z_PK,
+            {asset_table}.ZCLOUDOWNERHASHEDPERSONID,
+            {asset_table}.ZMOMENTSHARE,
+         """
+
+        if self.photos_version >= 7:
+            # ZIMPORTEDBY... only valid on Photos 7+
+            sql += """
+                ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYDISPLAYNAME,
+                ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYBUNDLEIDENTIFIER
+            """
+        else:
+            sql += """
+                null,
+                null
+            """
+
+        sql += f"""
+            FROM {asset_table}
+            JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
+            ORDER BY {asset_table}.ZUUID
+            """
+
+        c.execute(sql)
         # Order of results
         # 0    SELECT ZGENERICASSET.ZUUID,
         # 1    ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT,
@@ -2102,6 +2118,8 @@ class PhotosDB:
         # 42   ZGENERICASSET.Z_PK -- primary key
         # 43   ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID -- used to look up owner name (for shared photos)
         # 44   ZASSET.ZMOMENTSHARE -- FK for ZSHARE (shared moments, Photos 5+; in Photos 7+ these are in the scopes/momentshared folder)
+        # 45   ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYDISPLAYNAME
+        # 46   ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYBUNDLEIDENTIFIER
 
         for row in c:
             uuid = row[0]
@@ -2278,6 +2296,9 @@ class PhotosDB:
             info["cloudownerhashedpersonid"] = row[43]
 
             info["moment_share"] = row[44]
+
+            info["imported_by_display_name"] = row[45]
+            info["imported_by_bundle_id"] = row[46]
 
             # initialize import session info which will be filled in later
             # not every photo has an import session so initialize all records now

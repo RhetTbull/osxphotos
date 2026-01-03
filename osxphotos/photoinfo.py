@@ -672,6 +672,20 @@ class PhotoInfo:
             else None
         )
 
+    @cached_property
+    def imported_by(self) -> tuple[str | None, str | None]:
+        """Returns tuple of 'imported by' display name and bundle ID; one or both may be None; Photos 7+ only, on earlier versions returns (None, None)
+
+        For example: ('Photos', 'com.apple.Photos'); ('Camera', 'com.apple.camera'); ('Messages', 'com.apple.MobileSMS')
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return None, None
+
+        return (
+            self._info["imported_by_display_name"],
+            self._info["imported_by_bundle_id"],
+        )
+
     @property
     def project_info(self) -> list[ProjectInfo]:
         """list of ProjectInfo objects representing projects for the photo or None if no projects"""

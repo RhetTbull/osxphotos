@@ -1359,7 +1359,8 @@ class PhotoTemplate:
                 values = [str(obj)]
             else:
                 try:
-                    values = [str(o) for o in obj]
+                    # set value to str(o) unless o is None in which case use None
+                    values = [str(o) if o is not None else None for o in obj]
                 except TypeError:
                     values = [str(obj)]
         elif field == "detected_text":
