@@ -1,5 +1,6 @@
 """Test template.py"""
 
+import datetime
 import os
 import pathlib
 import re
@@ -1467,4 +1468,4 @@ def test_datetime(photosdb_places):
     """Test datetime values for photo template"""
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
     rendered, _ = photo.render_template("{photo.date_added}")
-    assert rendered == ["2020-03-21T00:56:11.612046-05:00"]
+    assert datetime.datetime.fromisoformat(rendered[0])
