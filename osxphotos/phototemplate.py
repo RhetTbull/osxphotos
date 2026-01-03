@@ -155,6 +155,8 @@ TEMPLATE_SUBSTITUTIONS = {
     "{exif.camera_make}": "Camera make from original photo's EXIF information as imported by Photos, e.g. 'Apple'",
     "{exif.camera_model}": "Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'",
     "{exif.lens_model}": "Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
+    "{imported_by.name}": "Display name of the app that imported the photo, e.g. 'Photos', 'Camera', Messages'; may be null",
+    "{imported_by.id}": "Bundle ID of the app that imported the photo, e.g. 'com.apple.Photos', 'com.apple.camera', 'com.apple.MobileSMS'; may be null",
     "{moment}": "The moment title of the photo",
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
     "{shortuuid}": "A shorter representation of photo's internal universally unique identifier (UUID) for the photo, "
@@ -961,6 +963,10 @@ class PhotoTemplate:
             value = self.photo.exif_info.camera_model if self.photo.exif_info else None
         elif field == "exif.lens_model":
             value = self.photo.exif_info.lens_model if self.photo.exif_info else None
+        elif field == "imported_by.name":
+            value = self.photo.imported_by[0]
+        elif field == "imported_by.id":
+            value = self.photo.imported_by[1]
         elif field == "moment":
             value = self.photo.moment_info.title if self.photo.moment_info else None
         elif field == "uuid":

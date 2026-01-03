@@ -8,6 +8,7 @@ from osxphotos.cli.click_rich_echo import (
     set_rich_console,
     set_rich_theme,
 )
+from osxphotos.cli.template_utils import suggest_template_fields
 from osxphotos.iphoto import is_iphoto_library
 from osxphotos.photoquery import QueryOptions
 from osxphotos.phototemplate import RenderOptions
@@ -112,9 +113,11 @@ def dump(
                     options,
                 )
                 if unmatched:
-                    rich_click_echo(
-                        f"[warning]Unmatched template field: {unmatched}[/]"
-                    )
+                    suggested = suggest_template_fields(unmatched)
+                    error_str = f"[warning]Unmatched template field: {unmatched}"
+                    if suggested:
+                        error_str += f"; did you mean {suggested}?"
+                    rich_click_echo(error_str)
                 for rendered_template in rendered_templates:
                     if not rendered_template:
                         continue
