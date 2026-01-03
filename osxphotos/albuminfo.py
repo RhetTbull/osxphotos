@@ -11,6 +11,7 @@ PhotosDB.folders() returns a list of FolderInfo objects
 """
 
 from datetime import datetime, timedelta, timezone
+from functools import cached_property
 
 from ._constants import (
     _PHOTOS_4_ALBUM_KIND,
@@ -253,6 +254,28 @@ class AlbumInfo(AlbumInfoBaseClass):
         else:
             return AlbumSortOrder.UNKNOWN
 
+    @property
+    def library_list_order(self) -> tuple[int, ...]:
+        """Returns a tuple of ints indicating relative order that album or folder appears in the Photos sidebar.
+
+        Note: This can be used to sort the albums in the same order as they appear in Photos.
+            The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.
+            This can be used directly as the `sorted` key to sort albums.
+        """
+        try:
+            results = self._db.execute(
+                "SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?",
+                (self.uuid,),
+            ).fetchone()[0]
+            order = int(results)
+            # If album is in folders, use the last folder's full path tuple
+            if self.folder_list:
+                return (*self.folder_list[-1].library_list_order, order)
+            else:
+                return (order,)
+        except Exception:
+            return (9_999_999,)
+
     def photo_index(self, photo):
         """return index of photo in album (based on album sort order)"""
         for index, p in enumerate(self.photos):
@@ -464,6 +487,28 @@ class FolderInfo:
                 ]
             self._folders = folders
             return self._folders
+
+    @property
+    def library_list_order(self) -> tuple[int, ...]:
+        """Returns a tuple of ints indicating relative order that folder appears in the Photos sidebar.
+
+        Note: This can be used to sort the albums in the same order as they appear in Photos.
+            The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.
+            This can be used directly as the `sorted` key to sort albums.
+        """
+        try:
+            results = self._db.execute(
+                "SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?",
+                (self.uuid,),
+            ).fetchone()[0]
+            order = int(results)
+            # Build tuple from parent folder path if exists
+            if self.parent:
+                return (*self.parent.library_list_order, order)
+            else:
+                return (order,)
+        except Exception:
+            return (9_999_999,)
 
     def asdict(self):
         """Return folder info as a dict"""

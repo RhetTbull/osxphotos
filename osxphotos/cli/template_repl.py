@@ -28,6 +28,11 @@ from osxphotos.platform import is_macos
 from .cli_params import DB_OPTION
 from .click_rich_echo import rich_echo_via_pager
 from .common import get_data_dir
+from .template_utils import (
+    ALL_TEMPLATE_SUBSTITUTIONS,
+    TEMPLATE_LOOKUP,
+    suggest_template_fields,
+)
 
 if is_macos:
     import photoscript
@@ -60,15 +65,6 @@ COMMANDS = [":help", ":vi", ":emacs", ":q", ":quit", ":exit", ":fields", ":filte
 # Various constants used in REPL to lookup help, etc.
 TEMPLATE_FIELDS = get_field_names()
 ALL_FIELDS = TEMPLATE_FIELDS + get_filter_fields() + COMMANDS
-ALL_TEMPLATE_SUBSTITUTIONS = (
-    TEMPLATE_SUBSTITUTIONS
-    | TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
-    | TEMPLATE_SUBSTITUTIONS_PATHLIB
-)
-TEMPLATE_LOOKUP = {
-    k.lower().replace("{", "").replace("}", ""): v.lower()
-    for k, v in ALL_TEMPLATE_SUBSTITUTIONS.items()
-}
 HELP_DICT = (
     TEMPLATE_SUBSTITUTIONS
     | TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
@@ -298,24 +294,6 @@ def mtl_completion(text: str, state: int) -> str | None:
     """Completion function for readline"""
     options = [field for field in ALL_FIELDS if field.startswith(text)]
     return options[state] if state < len(options) else None
-
-
-def suggest_template_fields(unmatched: list[str]) -> list[str]:
-    """For fields that are not matched, suggest possible fields"""
-    # this is a very simple suggestion algorithm that just looks for
-    # fields that start with the unmatched text or contain the unmatched text
-    suggestions = []
-    for un in unmatched:
-        un = un.lower()
-        for field, description in TEMPLATE_LOOKUP.items():
-            if field.startswith(un):
-                suggestions.append(field)
-            elif un in field or un in description:
-                suggestions.append(field)
-            elif field.startswith(un[0]):
-                # if first letter matches, suggest
-                suggestions.append(field)
-    return suggestions
 
 
 def render_and_print_template(

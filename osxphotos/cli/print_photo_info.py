@@ -5,6 +5,7 @@ import json
 import sys
 from typing import Callable, List, Tuple
 
+from osxphotos.cli.template_utils import suggest_template_fields
 from osxphotos.photoinfo import PhotoInfo
 
 
@@ -130,8 +131,9 @@ def print_photo_fields(
         for field in fields:
             rendered_value, unmatched = p.render_template(field[1])
             if unmatched:
+                suggested = suggest_template_fields(unmatched)
                 raise ValueError(
-                    f"Unmatched template variables in field {field[0]}: {field[1]}"
+                    f"Unmatched template variables in field {field[0]}: {field[1]} (did you mean {suggested}?)"
                 )
             field_value = (
                 rendered_value[0]

@@ -1007,7 +1007,10 @@ def import_main(
     preserves the non-destructive edits. For this to work, there must be an associated .AAE file
     for the photo. The .AAE file stores non-destructive edits to the photo and can be exported with
     'osxphotos export ... --export-aae'. If the original file is named IMG_1234.jpg, the .AAE file
-    should be named IMG_1234.aae or IMG_1234.AAE.
+    should be named IMG_1234.aae or IMG_1234.AAE. Some photos such as certain Portrait images may
+    have an associated AAE for the original image even if the photo is not edited. These will be
+    named like IMG_O1234.AAE. They will be exported by osxphotos export --export-aae and will be
+    handled by osxphotos import.
 
     The edited version of the file must also be named following one of these two conventions:
 
@@ -1711,7 +1714,11 @@ def set_photo_metadata_from_metadata(
     set_timezone: bool,
 ) -> MetaData:
     """Set metadata from a MetaData object"""
-    if any([metadata.title, metadata.description, metadata.keywords]):
+    # sometimes metadata.keywords has an empty string
+    metadata.keywords = [kw for kw in metadata.keywords if kw]
+    if any(
+        [metadata.title, metadata.description, metadata.keywords, metadata.favorite]
+    ):
         metadata = set_photo_metadata(photo, metadata, merge_keywords, dry_run)
         verbose(f"Set metadata for [filename]{filepath.name}[/]:")
         empty_str = ""
@@ -2284,6 +2291,8 @@ class ReportRecord:
     title: str = ""
     uuid: str = ""
     datetime: datetime.datetime | None = None
+    skipped: bool = False
+    duplicate_of: str = ""  # UUID of duplicate photo in library when skipped
 
     @classmethod
     def serialize(cls, record: "ReportRecord") -> str:
@@ -3188,6 +3197,8 @@ def import_files(
                         verbose(f"Skipping duplicate [filename]{filepath.name}[/]")
                         skipped_count += 1
                         report_record.imported = False
+                        report_record.skipped = True
+                        report_record.duplicate_of = duplicates[0][0]  # UUID of first duplicate
 
                         if not dup_albums:
                             continue

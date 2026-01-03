@@ -14,6 +14,7 @@ import pytimeparse2
 from strpdatetime import strpdatetime
 
 import osxphotos.tempdir as tempdir
+from osxphotos.cli.template_utils import suggest_template_fields
 from osxphotos.export_db_utils import export_db_get_version
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
@@ -126,6 +127,14 @@ class DateTimeISO8601(click.ParamType):
     name = "DATETIME"
 
     def convert(self, value, param, ctx):
+        # Handle datetime objects that may come from TOML files
+        if isinstance(value, datetime.datetime):
+            return value
+        if isinstance(value, datetime.date):
+            # Convert date to datetime at midnight
+            return datetime.datetime(value.year, value.month, value.day)
+
+        # Handle string values from CLI
         try:
             return datetime.datetime.fromisoformat(value)
         except Exception:
@@ -229,7 +238,10 @@ class TemplateString(click.ParamType):
                 options=RenderOptions(export_dir=cwd, dest_path=cwd, filepath=cwd),
             )
             if unmatched:
-                self.fail(f"Template '{value}' contains unknown field(s): {unmatched}")
+                suggested = suggest_template_fields(unmatched)
+                self.fail(
+                    f"Template '{value}' contains unknown field(s): {unmatched}; did you mean {suggested}?"
+                )
             return value
         except ValueError as e:
             self.fail(e)

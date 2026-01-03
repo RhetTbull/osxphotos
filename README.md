@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-105-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-106-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
@@ -935,7 +935,8 @@ The following template field substitutions are availabe for use the templating s
 |{name}|Current filename of the photo|
 |{original_name}|Photo's original filename when imported to Photos|
 |{title}|Title of the photo|
-|{descr}|Description of the photo|
+|{descr}|Description (caption) of the photo; alias for {caption}|
+|{caption}|Description (caption) of the photo; alias for {descr}|
 |{media_type}|Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, screen_recording, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'|
 |{photo_or_video}|'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'|
 |{hdr}|Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
@@ -1002,6 +1003,8 @@ The following template field substitutions are availabe for use the templating s
 |{exif.camera_make}|Camera make from original photo's EXIF information as imported by Photos, e.g. 'Apple'|
 |{exif.camera_model}|Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'|
 |{exif.lens_model}|Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'|
+|{imported_by.name}|Display name of the app that imported the photo, e.g. 'Photos', 'Camera', Messages'; may be null|
+|{imported_by.id}|Bundle ID of the app that imported the photo, e.g. 'com.apple.Photos', 'com.apple.camera', 'com.apple.MobileSMS'; may be null|
 |{moment}|The moment title of the photo|
 |{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
 |{shortuuid}|A shorter representation of photo's internal universally unique identifier (UUID) for the photo, a 22-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'|
@@ -1026,7 +1029,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.75.0'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.75.1'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -1211,6 +1214,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/pkaila"><img src="https://avatars.githubusercontent.com/u/870219?v=4?s=75" width="75px;" alt="pkaila"/><br /><sub><b>pkaila</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=pkaila" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ZeliTheZealot"><img src="https://avatars.githubusercontent.com/u/19900255?v=4?s=75" width="75px;" alt="ZeliTheZealot"/><br /><sub><b>ZeliTheZealot</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3AZeliTheZealot" title="Bug reports">🐛</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=ZeliTheZealot" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/benw-git"><img src="https://avatars.githubusercontent.com/u/85592899?v=4?s=75" width="75px;" alt="benw-git"/><br /><sub><b>benw-git</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Abenw-git" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/lynxbat"><img src="https://avatars.githubusercontent.com/u/1278669?v=4?s=75" width="75px;" alt="Nicholas Weaver"/><br /><sub><b>Nicholas Weaver</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=lynxbat" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

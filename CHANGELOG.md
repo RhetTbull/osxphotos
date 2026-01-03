@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.75.1](https://github.com/RhetTbull/osxphotos/compare/v0.75.0...v0.75.1)
+
+Bug fixes, added `PhotoInfo.imported_by`, `{imported_by.name}`, `{imported_by.id}` templates, and `AlbumInfo.library_list_order`.
+
+### 2026-01-03
+
+#### Added
+
+- Added `imported_by` property to `PhotoInfo` which returns tuple of display name and bundle ID of the app that imported the photo, e.g. (Halide, `com.lux.camera`), #1980
+- Added `{imported_by.name}` and `{imported_by.id}` template fields for use in export templates, #1980
+- Added `library_list_order` property to `AlbumInfo` and `FolderInfo` which returns the sort order of albums as they appear in the Photos library sidebar, #2054
+
+#### Changed
+
+- `osxphotos export` and `osxphotos import` now now handle original adjustment files (AAE files) for portrait photos that have not been edited, #2043
+
+#### Removed
+
+#### Fixed
+
+- Fixed bug where `osxphotos import --exportdb` did not set favorite metadata if no other metadata (title, description, keywords) was present, #2059
+- Fixed bug where album `folder_id` could be None, causing errors for iPhoto libraries, #2065
+- Fixed `--added-after` and `--added-before` to accept dates without time when passed via TOML configuration files, #1925
+- Fixed logging issue where osxphotos set root logging level to INFO, overriding settings in calling scripts, #2055
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull)
+* lynxbat [@lynxbat](https://github.com/lynxbat)
+
 ## [v0.75.0](https://github.com/RhetTbull/osxphotos/compare/v0.74.2...v0.75.0)
 
 New exportdb commands, shell completions, better burst handling, multiple fixes.

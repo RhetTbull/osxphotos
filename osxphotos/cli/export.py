@@ -44,6 +44,7 @@ from osxphotos._constants import (
     SIDECAR_XMP,
 )
 from osxphotos._version import __version__
+from osxphotos.cli.template_utils import suggest_template_fields
 from osxphotos.configoptions import (
     ConfigOptions,
     ConfigOptionsInvalidError,
@@ -354,7 +355,8 @@ if TYPE_CHECKING:
     "--export-aae",
     is_flag=True,
     help="Also export an adjustments file detailing edits made to the original. "
-    "The resulting file is named photoname.AAE. "
+    "The resulting file is named photoname.AAE or IMG_O1234.AAE for AAE files associated with "
+    "certain images like Portrait photos. "
     "Note that to import these files back to Photos succesfully, you also need to "
     "export the edited photo and match the filename format Photos.app expects: "
     "--filename 'IMG_{edited_version?E,}{id:04d}' --edited-suffix ''",
@@ -2128,9 +2130,13 @@ def export_cli(
                             options,
                         )
                         if unmatched:
-                            rich_click_echo(
-                                f"[warning]Unmatched template field: {unmatched}[/]"
+                            suggested = suggest_template_fields(unmatched)
+                            error_str = (
+                                f"[warning]Unmatched template field: {unmatched}"
                             )
+                            if suggested:
+                                error_str += f"; did you mean {suggested}?"
+                            rich_click_echo(error_str)
                         for rendered_template in rendered_templates:
                             if not rendered_template:
                                 continue

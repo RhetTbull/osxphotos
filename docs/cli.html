@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Template System" href="template_help.html"><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.75.0 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.75.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -2117,7 +2117,7 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-export-aae">
 <span class="sig-name descname"><span class="pre">--export-aae</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-export-aae" title="Link to this definition">¶</a></dt>
-<dd><p>Also export an adjustments file detailing edits made to the original. The resulting file is named photoname.AAE. Note that to import these files back to Photos succesfully, you also need to export the edited photo and match the filename format Photos.app expects: --filename 'IMG_{edited_version?E,}{id:04d}' --edited-suffix ''</p>
+<dd><p>Also export an adjustments file detailing edits made to the original. The resulting file is named photoname.AAE or IMG_O1234.AAE for AAE files associated with certain images like Portrait photos. Note that to import these files back to Photos succesfully, you also need to export the edited photo and match the filename format Photos.app expects: --filename 'IMG_{edited_version?E,}{id:04d}' --edited-suffix ''</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2792,8 +2792,9 @@ below.  Invalid substitutions will result in a an error and the script will abor
 <p>{name}                          Current filename of the photo</p>
 <p>{original_name}                 Photo's original filename when imported to Photos</p>
 <p>{title}                         Title of the photo</p>
-<p>{descr}                         Description of the photo</p>
-<p>{media_type}                    Special media type resolved in this precedence: selfie, time_lapse,</p>
+<p>{descr}                         Description (caption) of the photo; alias for {caption}
+{caption}                       Description (caption) of the photo; alias for {descr}
+{media_type}                    Special media type resolved in this precedence: selfie, time_lapse,</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>panorama, slow_mo, screenshot, screen_recording, portrait, live_photo,
 burst, photo, video. Defaults to &#39;photo&#39; or &#39;video&#39; if no special type.
 Customize one or more media types using format:
@@ -2926,6 +2927,10 @@ for help on strftime templates.
 </dd>
 <dt>{exif.lens_model}               Lens model from original photo's EXIF information as imported by Photos,</dt><dd><p>e.g. 'iPhone 6s back camera 4.15mm f/2.2'</p>
 </dd>
+<dt>{imported_by.name}              Display name of the app that imported the photo, e.g. 'Photos', 'Camera',</dt><dd><p>Messages'; may be null</p>
+</dd>
+<dt>{imported_by.id}                Bundle ID of the app that imported the photo, e.g. 'com.apple.Photos',</dt><dd><p>'com.apple.camera', 'com.apple.MobileSMS'; may be null</p>
+</dd>
 </dl>
 <p>{moment}                        The moment title of the photo
 {uuid}                          Photo's internal universally unique identifier (UUID) for the photo, a</p>
@@ -3015,7 +3020,7 @@ name in the same folder; see also &#39;{album_seq}&#39;.
 <p>{cr}                            A carriage return: 'r'</p>
 <p>{crlf}                          A carriage return + line feed: 'rn'</p>
 <p>{tab}                           :A tab: 't'</p>
-<p>{osxphotos_version}             The osxphotos version, e.g. '0.75.0'</p>
+<p>{osxphotos_version}             The osxphotos version, e.g. '0.75.1'</p>
 <p>{osxphotos_cmd_line}            The full command line used to run osxphotos</p>
 <p>The following substitutions may result in multiple values. Thus if specified for --directory these could
 result in multiple copies of a photo being being exported, one to each directory.  For example: --directory
@@ -3443,7 +3448,10 @@ Automatic grouping of live photos and burst photos is not supported on macOS &lt
 preserves the non-destructive edits. For this to work, there must be an associated .AAE file
 for the photo. The .AAE file stores non-destructive edits to the photo and can be exported with
 'osxphotos export ... --export-aae'. If the original file is named IMG_1234.jpg, the .AAE file
-should be named IMG_1234.aae or IMG_1234.AAE.</p>
+should be named IMG_1234.aae or IMG_1234.AAE. Some photos such as certain Portrait images may
+have an associated AAE for the original image even if the photo is not edited. These will be
+named like IMG_O1234.AAE. They will be exported by osxphotos export --export-aae and will be
+handled by osxphotos import.</p>
 <p>The edited version of the file must also be named following one of these two conventions:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Original: IMG_1234.jpg, edited: IMG_E1234.jpg
 
@@ -7422,7 +7430,7 @@ pattern string is a superset of the python 'strftime/strptime' format with the f
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8103c863"></script>
+</div><script src="_static/documentation_options.js?v=257b4c7a"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

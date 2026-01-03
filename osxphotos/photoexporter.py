@@ -11,6 +11,7 @@ import pathlib
 import subprocess
 import typing as t
 from enum import Enum
+import re
 
 from ._version import __version__
 from .dictdiff import dictdiff
@@ -100,6 +101,7 @@ class StagedFiles:
         preview: t.Optional[str] = None,
         raw: t.Optional[str] = None,
         aae: t.Optional[str] = None,
+        original_aae: t.Optional[str] = None,
         error: t.Optional[t.List[str]] = None,
     ):
         self.original = original
@@ -109,6 +111,7 @@ class StagedFiles:
         self.preview = preview
         self.raw = raw
         self.aae = aae
+        self.original_aae = original_aae
         self.error = error or []
 
         # TODO: bursts?
@@ -120,6 +123,8 @@ class StagedFiles:
         self.edited_live = self.edited_live or other.edited_live
         self.preview = self.preview or other.preview
         self.raw = self.raw or other.raw
+        self.aae = self.aae or other.aae
+        self.original_aae = self.original_aae or other.original_aae
         self.error += other.error
         return self
 
@@ -137,6 +142,8 @@ class StagedFiles:
             "edited_live": self.edited_live,
             "preview": self.preview,
             "raw": self.raw,
+            "aae": self.aae,
+            "original_aae": self.original_aae,
             "error": self.error,
         }
 
@@ -398,6 +405,27 @@ class PhotoExporter:
                 )
                 all_results += ExportResults(missing=[aae_name])
 
+        if (
+            export_original
+            and options.export_aae
+            and self.photo.original_adjustments_path
+        ):
+            # export associated AAE adjustments file if requested but only for original images
+            # AAE applies changes to the original so is not meaningful for the edited image
+            aae_name = original_aae_name(dest)
+            if staged_files.original_aae:
+                aae_path = pathlib.Path(staged_files.original_aae)
+                all_results += self._export_aae(
+                    aae_path,
+                    aae_name,
+                    options=options,
+                )
+            else:
+                verbose(
+                    f"Skipping original adjustments for {self._filename(self.photo.original_filename)}: no AAE adjustments file"
+                )
+                all_results += ExportResults(missing=[aae_name])
+
         sidecar_writer = SidecarWriter(self.photo)
         all_results += sidecar_writer.write_sidecar_files(
             dest=dest, options=options, export_results=all_results
@@ -423,7 +451,9 @@ class PhotoExporter:
             return
 
         fileutil = options.fileutil or FileUtil
-        self._temp_dir = fileutil.tmpdir(prefix="osxphotos_export_", dirpath=options.tmpdir)
+        self._temp_dir = fileutil.tmpdir(
+            prefix="osxphotos_export_", dirpath=options.tmpdir
+        )
         self._temp_dir_path = pathlib.Path(self._temp_dir.name)
         return
 
@@ -632,6 +662,7 @@ class PhotoExporter:
                 staged.original_live = self.photo.path_live_photo
             if options.export_aae:
                 staged.aae = self.photo.adjustments_path
+                staged.original_aae = self.photo.original_adjustments_path
 
         if options.edited:
             # edited file
@@ -1075,7 +1106,9 @@ class PhotoExporter:
                 last_data = photoinfo_minify_dict(json.loads(rec.photoinfo))
                 # to avoid issues with datetime comparisons, list order
                 # need to deserialize from photo.json() instead of using photo.asdict()
-                current_data = photoinfo_minify_dict(json.loads(self.photo.json(shallow=False)))
+                current_data = photoinfo_minify_dict(
+                    json.loads(self.photo.json(shallow=False))
+                )
                 try:
                     diff = dictdiff(last_data, current_data)
                 except Exception as e:
@@ -1491,3 +1524,12 @@ def rename_jpeg_files(files, jpeg_ext, fileutil):
         else:
             new_files.append(file)
     return new_files
+
+
+def original_aae_name(dest: pathlib.Path):
+    """Return name for original AAE file (e.g. for Portrait images)"""
+    # if name matches IMG_1234.ext, name the AAE file IMG_O1234.AAE, otherwise, use IMG_NAME_O.AAE (append _O and use aae extension)
+    if re.match(r"^IMG_\d{4}\.", dest.name, re.IGNORECASE):
+        return normalize_fs_path(dest.parent / f"{dest.stem}_O.AAE")
+    else:
+        return normalize_fs_path(dest.parent / f"{dest.stem}_O.AAE")

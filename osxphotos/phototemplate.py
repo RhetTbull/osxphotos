@@ -2,6 +2,7 @@
 
 import datetime
 import locale
+import logging
 import os
 import pathlib
 import re
@@ -30,6 +31,8 @@ from .utils import (
 
 if TYPE_CHECKING:
     from .photoinfo import PhotoInfo
+
+logger = logging.getLogger("osxphotos")
 
 __all__ = [
     "RenderOptions",
@@ -70,7 +73,8 @@ TEMPLATE_SUBSTITUTIONS = {
     "{name}": "Current filename of the photo",
     "{original_name}": "Photo's original filename when imported to Photos",
     "{title}": "Title of the photo",
-    "{descr}": "Description of the photo",
+    "{descr}": "Description (caption) of the photo; alias for {caption}",
+    "{caption}": "Description (caption) of the photo; alias for {descr}",
     "{media_type}": (
         f"Special media type resolved in this precedence: {', '.join(t for t in MEDIA_TYPE_DEFAULTS)}. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{{media_type,video=vidéo;time_lapse=vidéo_accélérée}}'"
     ),
@@ -151,6 +155,8 @@ TEMPLATE_SUBSTITUTIONS = {
     "{exif.camera_make}": "Camera make from original photo's EXIF information as imported by Photos, e.g. 'Apple'",
     "{exif.camera_model}": "Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'",
     "{exif.lens_model}": "Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
+    "{imported_by.name}": "Display name of the app that imported the photo, e.g. 'Photos', 'Camera', Messages'; may be null",
+    "{imported_by.id}": "Bundle ID of the app that imported the photo, e.g. 'com.apple.Photos', 'com.apple.camera', 'com.apple.MobileSMS'; may be null",
     "{moment}": "The moment title of the photo",
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
     "{shortuuid}": "A shorter representation of photo's internal universally unique identifier (UUID) for the photo, "
@@ -926,7 +932,7 @@ class PhotoTemplate:
             value = pathlib.Path(self.photo.original_filename).stem
         elif field == "title":
             value = self.photo.title
-        elif field == "descr":
+        elif field in ("descr", "caption"):
             value = self.photo.description
         elif field == "media_type":
             value = self.get_media_type(default)
@@ -957,6 +963,10 @@ class PhotoTemplate:
             value = self.photo.exif_info.camera_model if self.photo.exif_info else None
         elif field == "exif.lens_model":
             value = self.photo.exif_info.lens_model if self.photo.exif_info else None
+        elif field == "imported_by.name":
+            value = self.photo.imported_by[0]
+        elif field == "imported_by.id":
+            value = self.photo.imported_by[1]
         elif field == "moment":
             value = self.photo.moment_info.title if self.photo.moment_info else None
         elif field == "uuid":
@@ -1337,7 +1347,7 @@ class PhotoTemplate:
             properties = field.split(".")
             if len(properties) <= 1:
                 raise ValueError(
-                    "Missing property in {photo} template.  Use in form {photo.property}."
+                    "Missing property in {photo} template. Use in form {photo.property}."
                 )
             obj = self.photo
             for i in range(1, len(properties)):
@@ -1357,11 +1367,18 @@ class PhotoTemplate:
                 values = [property_] if obj else []
             elif isinstance(obj, (str, int, float)):
                 values = [str(obj)]
+            elif isinstance(obj, (datetime.datetime, datetime.date, datetime.time)):
+                values = [obj.isoformat()]
             else:
                 try:
-                    values = [str(o) for o in obj]
+                    _ = iter(obj)
+                    values = [str(o) if o is not None else None for o in obj]
                 except TypeError:
-                    values = [str(obj)]
+                    try:
+                        values = [str(obj)]
+                    except TypeError as e:
+                        logger.warning(f"Error converting value {obj} to str: {e}")
+                        values = []
         elif field == "detected_text":
             values = _get_detected_text(self.photo, confidence=subfield)
         else:
@@ -1835,3 +1852,28 @@ def get_template_values_pathlib(filter: str, values: Iterable[Any]) -> list[Any]
             result.append(str(path_obj))
 
     return result
+
+
+# def get_template_values_strftime(args: List[str], values: Iterable[Any]) -> list[Any]:
+#     """Returns values after applying strftime to an ISO formatted datetime value
+
+#     Args:
+#         args: Arguments to the strftime filter
+#         values: Iterable of values to convert to pathlib.Path objects
+
+#     Returns:
+#         List of converted values
+
+#     Raises:
+#         SyntaxError: If value is not an ISO formatted datetime
+#     """
+#     results = []
+#     for value in values:
+#         try:
+#             dt = datetime.datetime.fromisoformat()
+#         except ValueError:
+#             raise SyntaxError(f"Invalid ISO formatted datetime: {value}")
+
+#         results.append(dt.strftime(*args))
+
+#     return results

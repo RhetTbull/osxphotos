@@ -7,10 +7,12 @@ from functools import cached_property
 from itertools import chain
 from re import match
 from typing import Callable, Iterable, TypeVar
+
 from osxphotos.platform import is_macos
 
 if is_macos:
     from osxphotos.image_file_utils import EDITED_RE, is_edited_version_of_file
+
 
 @dataclass
 class Groupable:
@@ -110,6 +112,30 @@ class GroupingNode:
             result = child.add(item, remaining[2:], maybe_e)
             if not result:
                 return None
+
+        # Handle _O pattern for original adjustment AAE files (e.g., IMG_O1234.AAE or Filename_O.AAE)
+        # These are adjustments to the original file used for Portrait images, etc.
+        if (
+            key == "_"
+            and len(remaining) > 1
+            and remaining[1] == "o"
+            and item.path.suffix.lower() == ".aae"
+        ):
+            # Only skip _o if:
+            # 1. At the end (remaining == "_o"), e.g., Filename_O.AAE
+            # 2. After IMG_ and before digits (e.g., IMG_O1234.AAE)
+            if len(remaining) == 2 or remaining[2:].isdigit():
+                if len(remaining) == 2:
+                    # Filename_O.AAE pattern - add to current node if there are existing files
+                    if self.files:
+                        self.files.append(item)
+                        return None
+                    # If no existing files, fall through to normal tree traversal (standalone file)
+                else:
+                    # IMG_O1234.AAE pattern - skip _o and traverse the digits
+                    result = child.add(item, remaining[2:], maybe_e)
+                    if not result:
+                        return None
 
         return child.add(item, remaining[1:], maybe_e)
 

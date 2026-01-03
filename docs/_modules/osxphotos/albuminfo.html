@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.albuminfo - osxphotos 0.75.0 documentation</title>
+        <title>osxphotos.albuminfo - osxphotos 0.75.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -244,6 +244,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_PHOTOS_4_ALBUM_KIND</span><span class="p">,</span>
@@ -488,6 +489,28 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">UNKNOWN</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">library_list_order</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a tuple of ints indicating relative order that album or folder appears in the Photos sidebar.</span>
+
+<span class="sd">        Note: This can be used to sort the albums in the same order as they appear in Photos.</span>
+<span class="sd">            The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.</span>
+<span class="sd">            This can be used directly as the `sorted` key to sort albums.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,),</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+            <span class="c1"># If album is in folders, use the last folder&#39;s full path tuple</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_list</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">folder_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">library_list_order</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">order</span><span class="p">,)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">9_999_999</span><span class="p">,)</span>
+
 <div class="viewcode-block" id="AlbumInfo.photo_index">
 <a class="viewcode-back" href="../../reference.html#osxphotos.AlbumInfo.photo_index">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">photo_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">):</span>
@@ -718,6 +741,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_folders</span> <span class="o">=</span> <span class="n">folders</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folders</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">library_list_order</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a tuple of ints indicating relative order that folder appears in the Photos sidebar.</span>
+
+<span class="sd">        Note: This can be used to sort the albums in the same order as they appear in Photos.</span>
+<span class="sd">            The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.</span>
+<span class="sd">            This can be used directly as the `sorted` key to sort albums.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,),</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+            <span class="c1"># Build tuple from parent folder path if exists</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">library_list_order</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">order</span><span class="p">,)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">9_999_999</span><span class="p">,)</span>
+
 <div class="viewcode-block" id="FolderInfo.asdict">
 <a class="viewcode-back" href="../../reference.html#osxphotos.FolderInfo.asdict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -767,7 +812,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8103c863"></script>
+</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
