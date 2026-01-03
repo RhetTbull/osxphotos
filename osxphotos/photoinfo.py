@@ -2220,6 +2220,7 @@ class PhotoInfo:
             dict_data["original_adjustments"] = (
                 self.original_adjustments.asdict() if self.original_adjustments else {}
             )
+            dict_data["imported_by"] = self.imported_by
 
         return dict_data
 
