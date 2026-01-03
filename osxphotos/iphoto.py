@@ -676,6 +676,8 @@ class iPhotoDB:
         # get album hierarchy
         for albums in self._db_albums.values():
             for album in albums:
+                if not album["name"] or album["folder_id"] is None:
+                    continue
                 album["path"] = [
                     *self._db_folders[album["folder_id"]]["folderlist"],
                     album["name"],
