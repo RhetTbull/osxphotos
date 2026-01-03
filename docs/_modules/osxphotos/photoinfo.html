@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.photoinfo - osxphotos 0.75.0 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.75.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -907,6 +907,23 @@
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
 
+<div class="viewcode-block" id="PhotoInfo.imported_by">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.imported_by">[docs]</a>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">imported_by</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns tuple of &#39;imported by&#39; display name and bundle ID; one or both may be None; Photos 7+ only, on earlier versions returns (None, None)</span>
+
+<span class="sd">        For example: (&#39;Photos&#39;, &#39;com.apple.Photos&#39;); (&#39;Camera&#39;, &#39;com.apple.camera&#39;); (&#39;Messages&#39;, &#39;com.apple.MobileSMS&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imported_by_display_name&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imported_by_bundle_id&quot;</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">project_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ProjectInfo</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;list of ProjectInfo objects representing projects for the photo or None if no projects&quot;&quot;&quot;</span>
@@ -977,6 +994,24 @@
         <span class="k">return</span> <span class="n">plist_file</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">original_adjustments_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns path to original adjustments file or None if file doesn&#39;t exist (for example, Portrait images contain an origial adjustments file)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># first char of uuid</span>
+        <span class="n">aae_file</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">library</span><span class="p">)</span>
+            <span class="o">/</span> <span class="s2">&quot;originals&quot;</span>
+            <span class="o">/</span> <span class="n">directory</span>
+            <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="si">}</span><span class="s2">_5.aae&quot;</span>  <span class="c1"># There may be other AAE files but the _5 variant is all I&#39;ve seen</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">aae_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">aae_file</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AdjustmentsInfo</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns AdjustmentsInfo class for adjustment data or None if no adjustments; Photos 5+ only&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -987,6 +1022,16 @@
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_adjustmentinfo</span> <span class="o">=</span> <span class="n">AdjustmentsInfo</span><span class="p">(</span><span class="n">plist_file</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjustmentinfo</span>
+
+<div class="viewcode-block" id="PhotoInfo.original_adjustments">
+<a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.original_adjustments">[docs]</a>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">original_adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AdjustmentsInfo</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns AdjustmentsInfo class for original adjustment data or None if no adjustments; Photos 5+ only&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_adjustments_path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">AdjustmentsInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_adjustments_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">adjustment_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -1533,7 +1578,7 @@
                     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                         <span class="c1"># sometimes the reverse geolocation data is corrupted</span>
                         <span class="c1"># and this can cause a UnsupportedArchiver error</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                             <span class="sa">f</span><span class="s2">&quot;Error creating PlaceInfo5 for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_place</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1616,7 +1661,7 @@
                     <span class="n">duplicates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">get_photo</span><span class="p">(</span><span class="n">uuid</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="c1"># don&#39;t expect this to happen as the signature should be in db</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Did not find signature for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> in _db_signatures&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Did not find signature for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> in _db_signatures&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">duplicates</span>
 
     <span class="nd">@property</span>
@@ -1931,7 +1976,7 @@
             <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
                 <span class="c1"># get_exiftool_path raises FileNotFoundError if exiftool not found</span>
                 <span class="n">exiftool</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="s2">&quot;exiftool not in path; download and install from https://exiftool.org/&quot;</span>
                 <span class="p">)</span>
 
@@ -2037,7 +2082,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">detected_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detected_text</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error detecting text in photo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error detecting text in photo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">detected_text</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_detected_text_cache</span><span class="p">[</span><span class="n">confidence_threshold</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -2478,6 +2523,10 @@
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;tzname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzname</span>
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;media_analysis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_analysis</span>
             <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;ai_caption&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ai_caption</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;original_adjustments&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">original_adjustments</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_adjustments</span> <span class="k">else</span> <span class="p">{}</span>
+            <span class="p">)</span>
+            <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;imported_by&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imported_by</span>
 
         <span class="k">return</span> <span class="n">dict_data</span></div>
 
@@ -2627,7 +2676,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">detected_text</span> <span class="o">=</span> <span class="n">frozen</span><span class="o">.</span><span class="n">_detected_text</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error detecting text in photo </span><span class="si">{</span><span class="n">frozen</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error detecting text in photo </span><span class="si">{</span><span class="n">frozen</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">detected_text</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="n">frozen</span><span class="o">.</span><span class="n">_detected_text_cache</span><span class="p">[</span><span class="n">confidence_threshold</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -2710,7 +2759,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8103c863"></script>
+</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

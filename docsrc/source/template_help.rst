@@ -190,7 +190,9 @@ Template Substitutions
    * - {title}
      - Title of the photo
    * - {descr}
-     - Description of the photo
+     - Description (caption) of the photo; alias for {caption}
+   * - {caption}
+     - Description (caption) of the photo; alias for {descr}
    * - {media_type}
      - Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, screen_recording, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'
    * - {photo_or_video}
@@ -323,6 +325,10 @@ Template Substitutions
      - Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'
    * - {exif.lens_model}
      - Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'
+   * - {imported_by.name}
+     - Display name of the app that imported the photo, e.g. 'Photos', 'Camera', Messages'; may be null
+   * - {imported_by.id}
+     - Bundle ID of the app that imported the photo, e.g. 'com.apple.Photos', 'com.apple.camera', 'com.apple.MobileSMS'; may be null
    * - {moment}
      - The moment title of the photo
    * - {uuid}
@@ -372,7 +378,7 @@ Template Substitutions
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.75.0'
+     - The osxphotos version, e.g. '0.75.1'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}

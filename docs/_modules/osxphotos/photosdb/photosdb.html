@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.75.0 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.75.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -647,7 +647,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_db_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="n">get_db_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Error getting database version from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="s2">&quot;6000&quot;</span>  <span class="c1"># assume Photos 5+ and hope for the best</span>
@@ -1810,7 +1810,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;placeIDs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">place_ids</span>
             <span class="n">country_code</span> <span class="o">=</span> <span class="p">[</span><span class="n">countries</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">place_ids</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">countries</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">country_code</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found more than one country code for uuid: </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found more than one country code for uuid: </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">country_code</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;countryCode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">country_code</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2243,56 +2243,72 @@
 
         <span class="c1"># get details about photos</span>
         <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Processing photo details.&quot;</span><span class="p">)</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">master_fingerprint</span><span class="si">}</span><span class="s2">,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZTITLE,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMODIFICATIONDATE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZDATECREATED,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZHIDDEN,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZFAVORITE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZDIRECTORY,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZFILENAME,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZLATITUDE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZLONGITUDE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">has_adjustments</span><span class="si">}</span><span class="s2">,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDBATCHPUBLISHDATE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZKIND,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUNIFORMTYPEIDENTIFIER,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZAVALANCHEUUID,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZAVALANCHEPICKTYPE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZKINDSUBTYPE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">hdr_type_column</span><span class="si">}</span><span class="s2">,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDASSETGUID,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMOMENT,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZTRASHEDSTATE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZHEIGHT,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZWIDTH,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZORIENTATION,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,</span>
-<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">depth_state</span><span class="si">}</span><span class="s2">,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZADJUSTMENTTIMESTAMP,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZVISIBILITYSTATE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZTRASHEDDATE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZSAVEDASSETTYPE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZADDEDDATE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDOWNERHASHEDPERSONID,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMOMENTSHARE</span>
-<span class="s2">                FROM </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span>
-<span class="s2">                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK</span>
-<span class="s2">                ORDER BY </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID  &quot;&quot;&quot;</span>
-        <span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">master_fingerprint</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZTITLE,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMODIFICATIONDATE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZDATECREATED,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZHIDDEN,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZFAVORITE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZDIRECTORY,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZFILENAME,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZLATITUDE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZLONGITUDE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">has_adjustments</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDBATCHPUBLISHDATE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZKIND,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUNIFORMTYPEIDENTIFIER,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZAVALANCHEUUID,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZAVALANCHEPICKTYPE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZKINDSUBTYPE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">hdr_type_column</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDASSETGUID,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMOMENT,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZTRASHEDSTATE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZHEIGHT,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZWIDTH,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZORIENTATION,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,</span>
+<span class="s2">            ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">depth_state</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZADJUSTMENTTIMESTAMP,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZVISIBILITYSTATE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZTRASHEDDATE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZSAVEDASSETTYPE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZADDEDDATE,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZCLOUDOWNERHASHEDPERSONID,</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMOMENTSHARE,</span>
+<span class="s2">         &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photos_version</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="c1"># ZIMPORTEDBY... only valid on Photos 7+</span>
+            <span class="n">sql</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYDISPLAYNAME,</span>
+<span class="s2">                ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYBUNDLEIDENTIFIER</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sql</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                null,</span>
+<span class="s2">                null</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+
+        <span class="n">sql</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span>
+<span class="s2">            JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK</span>
+<span class="s2">            ORDER BY </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+
+        <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
         <span class="c1"># Order of results</span>
         <span class="c1"># 0    SELECT ZGENERICASSET.ZUUID,</span>
         <span class="c1"># 1    ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT,</span>
@@ -2340,6 +2356,8 @@
         <span class="c1"># 42   ZGENERICASSET.Z_PK -- primary key</span>
         <span class="c1"># 43   ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID -- used to look up owner name (for shared photos)</span>
         <span class="c1"># 44   ZASSET.ZMOMENTSHARE -- FK for ZSHARE (shared moments, Photos 5+; in Photos 7+ these are in the scopes/momentshared folder)</span>
+        <span class="c1"># 45   ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYDISPLAYNAME</span>
+        <span class="c1"># 46   ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYBUNDLEIDENTIFIER</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
             <span class="n">uuid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2516,6 +2534,9 @@
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;cloudownerhashedpersonid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">43</span><span class="p">]</span>
 
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;moment_share&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">44</span><span class="p">]</span>
+
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;imported_by_display_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">45</span><span class="p">]</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;imported_by_bundle_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">46</span><span class="p">]</span>
 
             <span class="c1"># initialize import session info which will be filled in later</span>
             <span class="c1"># not every photo has an import session so initialize all records now</span>
@@ -3090,11 +3111,9 @@
 <span class="sd">        returns empty list of album is not in any folders&quot;&quot;&quot;</span>
         <span class="c1"># title = photosdb._dbalbum_details[album_uuid][&quot;title&quot;]</span>
         <span class="n">folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbalbum_folders</span><span class="p">[</span><span class="n">album_uuid</span><span class="p">]</span>
-        <span class="c1"># logging.warning(f&quot;uuid = {album_uuid}, folder = {folders}&quot;)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="p">[]):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively walk the folders dict to build list of folder hierarchy&quot;&quot;&quot;</span>
-            <span class="c1"># logging.warning(f&quot;folders={folders},hierarchy = {hierarchy}&quot;)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="p">:</span>
                 <span class="c1"># empty folder dict (album has no folder hierarchy)</span>
                 <span class="k">return</span> <span class="p">[]</span>
@@ -3115,7 +3134,6 @@
             <span class="k">return</span> <span class="n">hierarchy</span>
 
         <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">_recurse_folder_hierarchy</span><span class="p">(</span><span class="n">folders</span><span class="p">)</span>
-        <span class="c1"># logging.warning(f&quot;hierarchy = {hierarchy}&quot;)</span>
         <span class="k">return</span> <span class="n">hierarchy</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_album_folder_hierarchy_folderinfo_5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_uuid</span><span class="p">):</span>
@@ -3174,12 +3192,12 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">shared</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Shared albums not implemented for Photos library version </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># not implemented for _PHOTOS_4_VERSION</span>
             <span class="k">elif</span> <span class="n">import_session</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Import sessions not implemented for Photos library version </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># not implemented for _PHOTOS_4_VERSION</span>
@@ -3512,7 +3530,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=8103c863"></script>
+</div><script src="../../../_static/documentation_options.js?v=257b4c7a"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

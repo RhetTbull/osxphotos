@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.phototemplate - osxphotos 0.75.0 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.75.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -235,6 +235,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">locale</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
@@ -263,6 +264,8 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.photoinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotoInfo</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;RenderOptions&quot;</span><span class="p">,</span>
@@ -303,7 +306,8 @@
     <span class="s2">&quot;</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Current filename of the photo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{original_name}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Photo&#39;s original filename when imported to Photos&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{title}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Title of the photo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;</span><span class="si">{descr}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Description of the photo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{descr}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Description (caption) of the photo; alias for </span><span class="si">{caption}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{caption}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Description (caption) of the photo; alias for </span><span class="si">{descr}</span><span class="s2">&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{media_type}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;Special media type resolved in this precedence: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">MEDIA_TYPE_DEFAULTS</span><span class="p">)</span><span class="si">}</span><span class="s2">. Defaults to &#39;photo&#39; or &#39;video&#39; if no special type. Customize one or more media types using format: &#39;</span><span class="se">{{</span><span class="s2">media_type,video=vidéo;time_lapse=vidéo_accélérée</span><span class="se">}}</span><span class="s2">&#39;&quot;</span>
     <span class="p">),</span>
@@ -384,6 +388,8 @@
     <span class="s2">&quot;</span><span class="si">{exif.camera_make}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Camera make from original photo&#39;s EXIF information as imported by Photos, e.g. &#39;Apple&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{exif.camera_model}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Camera model from original photo&#39;s EXIF information as imported by Photos, e.g. &#39;iPhone 6s&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{exif.lens_model}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Lens model from original photo&#39;s EXIF information as imported by Photos, e.g. &#39;iPhone 6s back camera 4.15mm f/2.2&#39;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{imported_by.name}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Display name of the app that imported the photo, e.g. &#39;Photos&#39;, &#39;Camera&#39;, Messages&#39;; may be null&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;</span><span class="si">{imported_by.id}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Bundle ID of the app that imported the photo, e.g. &#39;com.apple.Photos&#39;, &#39;com.apple.camera&#39;, &#39;com.apple.MobileSMS&#39;; may be null&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{moment}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;The moment title of the photo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{uuid}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;Photo&#39;s internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. &#39;128FB4C6-0B16-4E7D-9108-FB2E90DA1546&#39;&quot;</span><span class="p">,</span>
     <span class="s2">&quot;</span><span class="si">{shortuuid}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;A shorter representation of photo&#39;s internal universally unique identifier (UUID) for the photo, &quot;</span>
@@ -1175,7 +1181,7 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">title</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;descr&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;descr&quot;</span><span class="p">,</span> <span class="s2">&quot;caption&quot;</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">description</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;media_type&quot;</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_media_type</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
@@ -1206,6 +1212,10 @@
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">exif_info</span><span class="o">.</span><span class="n">camera_model</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">exif_info</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;exif.lens_model&quot;</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">exif_info</span><span class="o">.</span><span class="n">lens_model</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">exif_info</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;imported_by.name&quot;</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">imported_by</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;imported_by.id&quot;</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">imported_by</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;moment&quot;</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">moment_info</span><span class="o">.</span><span class="n">title</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">moment_info</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;uuid&quot;</span><span class="p">:</span>
@@ -1598,7 +1608,7 @@
             <span class="n">properties</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">properties</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Missing property in </span><span class="si">{photo}</span><span class="s2"> template.  Use in form </span><span class="si">{photo.property}</span><span class="s2">.&quot;</span>
+                    <span class="s2">&quot;Missing property in </span><span class="si">{photo}</span><span class="s2"> template. Use in form </span><span class="si">{photo.property}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
             <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">properties</span><span class="p">)):</span>
@@ -1618,11 +1628,18 @@
                 <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">property_</span><span class="p">]</span> <span class="k">if</span> <span class="n">obj</span> <span class="k">else</span> <span class="p">[]</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">)):</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">if</span> <span class="n">o</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
                 <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-                    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span>
+                    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error converting value </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> to str: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;detected_text&quot;</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">_get_detected_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="n">subfield</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2119,6 +2136,31 @@
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path_obj</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="c1"># def get_template_values_strftime(args: List[str], values: Iterable[Any]) -&gt; list[Any]:</span>
+<span class="c1">#     &quot;&quot;&quot;Returns values after applying strftime to an ISO formatted datetime value</span>
+
+<span class="c1">#     Args:</span>
+<span class="c1">#         args: Arguments to the strftime filter</span>
+<span class="c1">#         values: Iterable of values to convert to pathlib.Path objects</span>
+
+<span class="c1">#     Returns:</span>
+<span class="c1">#         List of converted values</span>
+
+<span class="c1">#     Raises:</span>
+<span class="c1">#         SyntaxError: If value is not an ISO formatted datetime</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     results = []</span>
+<span class="c1">#     for value in values:</span>
+<span class="c1">#         try:</span>
+<span class="c1">#             dt = datetime.datetime.fromisoformat()</span>
+<span class="c1">#         except ValueError:</span>
+<span class="c1">#             raise SyntaxError(f&quot;Invalid ISO formatted datetime: {value}&quot;)</span>
+
+<span class="c1">#         results.append(dt.strftime(*args))</span>
+
+<span class="c1">#     return results</span>
 </pre></div>
         </article>
       </div>
@@ -2151,7 +2193,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8103c863"></script>
+</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
