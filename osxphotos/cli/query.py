@@ -11,6 +11,7 @@ from osxphotos.cli.click_rich_echo import (
     set_rich_console,
     set_rich_theme,
 )
+from osxphotos.cli.template_utils import suggest_template_fields
 from osxphotos.iphoto import is_iphoto_library
 from osxphotos.photoquery import query_options_from_kwargs
 from osxphotos.phototemplate import RenderOptions
@@ -29,7 +30,13 @@ from .cli_params import (
     make_click_option_decorator,
 )
 from .color_themes import get_default_theme
-from .common import CLI_COLOR_ERROR, CLI_COLOR_WARNING, OSXPHOTOS_HIDDEN, get_photos_db, require_macos
+from .common import (
+    CLI_COLOR_ERROR,
+    CLI_COLOR_WARNING,
+    OSXPHOTOS_HIDDEN,
+    get_photos_db,
+    require_macos,
+)
 from .list import _list_libraries
 from .print_photo_info import print_photo_fields, print_photo_info
 from .verbose import get_verbose_console
@@ -48,15 +55,12 @@ from .verbose import get_verbose_console
     metavar="ALBUM",
     hidden=not is_macos,
     callback=require_macos,
-    help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
-         "if it doesn't exist.  All photos in the query results will be added to this album. "
-         "This only works if the Photos library being queried is the last-opened (default) library in Photos. ",
+    help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created if it doesn't exist.  All photos in the query results will be added to this album. This only works if the Photos library being queried is the last-opened (default) library in Photos. ",
 )
 @click.option(
     "--quiet",
     is_flag=True,
-    help="Quiet output; doesn't actually print query results. "
-    "Useful with --print and --add-to-album if you don't want to see the actual query results.",
+    help="Quiet output; doesn't actually print query results. Useful with --print and --add-to-album if you don't want to see the actual query results.",
 )
 @FIELD_OPTION
 @click.option(
@@ -64,11 +68,7 @@ from .verbose import get_verbose_console
     "print_template",
     metavar="TEMPLATE",
     multiple=True,
-    help="Render TEMPLATE string for each photo queried and print to stdout. "
-    "TEMPLATE is an osxphotos template string. "
-    "This may be useful for creating custom reports, etc. "
-    "Most useful with --quiet. "
-    "May be repeated to print multiple template strings. ",
+    help="Render TEMPLATE string for each photo queried and print to stdout. TEMPLATE is an osxphotos template string. This may be useful for creating custom reports, etc. Most useful with --quiet. May be repeated to print multiple template strings. ",
 )
 @click.option(
     "--mute", is_flag=True, help="Mute status output while loading Photos library."
@@ -177,9 +177,11 @@ def query(
                     options,
                 )
                 if unmatched:
-                    rich_click_echo(
-                        f"[warning]Unmatched template field: {unmatched}[/]"
-                    )
+                    suggested = suggest_template_fields(unmatched)
+                    error_str = f"[warning]Unmatched template field: {unmatched}"
+                    if suggested:
+                        error_str += f"; did you mean {suggested}?"
+                    rich_click_echo(error_str)
                 for rendered_template in rendered_templates:
                     if not rendered_template:
                         continue
