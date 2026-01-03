@@ -173,6 +173,7 @@ TEMPLATE_VALUES = {
     "{title}": "Glen Ord",
     "{title[ ,]}": "GlenOrd",
     "{descr}": "Jack Rose Dining Saloon",
+    "{caption}": "Jack Rose Dining Saloon",
     "{created}": "2020-02-04",
     "{created.date}": "2020-02-04",
     "{created.year}": "2020",
@@ -1460,3 +1461,10 @@ def test_path_invalid_property(photosdb_places):
     photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
     with pytest.raises(SyntaxError):
         rendered, _ = photo.render_template("{photo.path|path.parent.foo}")
+
+
+def test_datetime(photosdb_places):
+    """Test datetime values for photo template"""
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    rendered, _ = photo.render_template("{photo.date_added}")
+    assert rendered == ["2020-03-21T00:56:11.612046-05:00"]
