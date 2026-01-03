@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.photoexporter - osxphotos 0.75.0 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.75.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -244,6 +244,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">t</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.dictdiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">dictdiff</span>
@@ -333,6 +334,7 @@
         <span class="n">preview</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">raw</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">aae</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">original_aae</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">error</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">original</span>
@@ -342,6 +344,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">preview</span> <span class="o">=</span> <span class="n">preview</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aae</span> <span class="o">=</span> <span class="n">aae</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_aae</span> <span class="o">=</span> <span class="n">original_aae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span> <span class="ow">or</span> <span class="p">[]</span>
 
         <span class="c1"># TODO: bursts?</span>
@@ -353,6 +356,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">edited_live</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edited_live</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">edited_live</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preview</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preview</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">preview</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">raw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aae</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aae</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">aae</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_aae</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_aae</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">original_aae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">error</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -370,6 +375,8 @@
             <span class="s2">&quot;edited_live&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">edited_live</span><span class="p">,</span>
             <span class="s2">&quot;preview&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">preview</span><span class="p">,</span>
             <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span>
+            <span class="s2">&quot;aae&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">aae</span><span class="p">,</span>
+            <span class="s2">&quot;original_aae&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_aae</span><span class="p">,</span>
             <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
         <span class="p">}</span>
 
@@ -635,6 +642,27 @@
                 <span class="p">)</span>
                 <span class="n">all_results</span> <span class="o">+=</span> <span class="n">ExportResults</span><span class="p">(</span><span class="n">missing</span><span class="o">=</span><span class="p">[</span><span class="n">aae_name</span><span class="p">])</span>
 
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">export_original</span>
+            <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">export_aae</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_adjustments_path</span>
+        <span class="p">):</span>
+            <span class="c1"># export associated AAE adjustments file if requested but only for original images</span>
+            <span class="c1"># AAE applies changes to the original so is not meaningful for the edited image</span>
+            <span class="n">aae_name</span> <span class="o">=</span> <span class="n">original_aae_name</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">original_aae</span><span class="p">:</span>
+                <span class="n">aae_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">staged_files</span><span class="o">.</span><span class="n">original_aae</span><span class="p">)</span>
+                <span class="n">all_results</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_aae</span><span class="p">(</span>
+                    <span class="n">aae_path</span><span class="p">,</span>
+                    <span class="n">aae_name</span><span class="p">,</span>
+                    <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">verbose</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Skipping original adjustments for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">: no AAE adjustments file&quot;</span>
+                <span class="p">)</span>
+                <span class="n">all_results</span> <span class="o">+=</span> <span class="n">ExportResults</span><span class="p">(</span><span class="n">missing</span><span class="o">=</span><span class="p">[</span><span class="n">aae_name</span><span class="p">])</span>
+
         <span class="n">sidecar_writer</span> <span class="o">=</span> <span class="n">SidecarWriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">)</span>
         <span class="n">all_results</span> <span class="o">+=</span> <span class="n">sidecar_writer</span><span class="o">.</span><span class="n">write_sidecar_files</span><span class="p">(</span>
             <span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">export_results</span><span class="o">=</span><span class="n">all_results</span>
@@ -661,7 +689,9 @@
             <span class="k">return</span>
 
         <span class="n">fileutil</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">fileutil</span> <span class="ow">or</span> <span class="n">FileUtil</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;osxphotos_export_&quot;</span><span class="p">,</span> <span class="n">dirpath</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">(</span>
+            <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;osxphotos_export_&quot;</span><span class="p">,</span> <span class="n">dirpath</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">tmpdir</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span>
 
@@ -870,6 +900,7 @@
                 <span class="n">staged</span><span class="o">.</span><span class="n">original_live</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path_live_photo</span>
             <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">export_aae</span><span class="p">:</span>
                 <span class="n">staged</span><span class="o">.</span><span class="n">aae</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">adjustments_path</span>
+                <span class="n">staged</span><span class="o">.</span><span class="n">original_aae</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_adjustments_path</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span><span class="p">:</span>
             <span class="c1"># edited file</span>
@@ -1313,7 +1344,9 @@
                 <span class="n">last_data</span> <span class="o">=</span> <span class="n">photoinfo_minify_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span><span class="p">))</span>
                 <span class="c1"># to avoid issues with datetime comparisons, list order</span>
                 <span class="c1"># need to deserialize from photo.json() instead of using photo.asdict()</span>
-                <span class="n">current_data</span> <span class="o">=</span> <span class="n">photoinfo_minify_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
+                <span class="n">current_data</span> <span class="o">=</span> <span class="n">photoinfo_minify_dict</span><span class="p">(</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+                <span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">diff</span> <span class="o">=</span> <span class="n">dictdiff</span><span class="p">(</span><span class="n">last_data</span><span class="p">,</span> <span class="n">current_data</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1733,6 +1766,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">new_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">new_files</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">original_aae_name</span><span class="p">(</span><span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return name for original AAE file (e.g. for Portrait images)&quot;&quot;&quot;</span>
+    <span class="c1"># if name matches IMG_1234.ext, name the AAE file IMG_O1234.AAE, otherwise, use IMG_NAME_O.AAE (append _O and use aae extension)</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^IMG_\d</span><span class="si">{4}</span><span class="s2">\.&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_O.AAE&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_O.AAE&quot;</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>
@@ -1765,7 +1807,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8103c863"></script>
+</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

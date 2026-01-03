@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="OSXPhotos Python API" href="API_README.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Python Reference - osxphotos 0.75.0 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.75.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.75.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -265,6 +265,17 @@ or empty list if album is not in any folders</p>
 the folder list is in form:
 [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;, ...]
 or empty list if album is not in any folders</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.AlbumInfo.library_list_order">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">library_list_order</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osxphotos.AlbumInfo.library_list_order" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a tuple of ints indicating relative order that album or folder appears in the Photos sidebar.</p>
+<dl class="simple">
+<dt>Note: This can be used to sort the albums in the same order as they appear in Photos.</dt><dd><p>The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.
+This can be used directly as the <cite>sorted</cite> key to sort albums.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -1674,6 +1685,17 @@ including folders, albums, etc</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.FolderInfo.library_list_order">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">library_list_order</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#osxphotos.FolderInfo.library_list_order" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a tuple of ints indicating relative order that folder appears in the Photos sidebar.</p>
+<dl class="simple">
+<dt>Note: This can be used to sort the albums in the same order as they appear in Photos.</dt><dd><p>The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.
+This can be used directly as the <cite>sorted</cite> key to sort albums.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.FolderInfo.parent">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parent</span></span><a class="headerlink" href="#osxphotos.FolderInfo.parent" title="Link to this definition">¶</a></dt>
 <dd><p>returns FolderInfo object for parent or None if no parent (e.g. top-level folder)</p>
@@ -2238,6 +2260,13 @@ useful for detecting changes in any property/metadata of the photo</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.imported_by">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">imported_by</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.imported_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.imported_by" title="Link to this definition">¶</a></dt>
+<dd><p>Returns tuple of 'imported by' display name and bundle ID; one or both may be None; Photos 7+ only, on earlier versions returns (None, None)</p>
+<p>For example: ('Photos', 'com.apple.Photos'); ('Camera', 'com.apple.camera'); ('Messages', 'com.apple.MobileSMS')</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.incloud">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">incloud</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.incloud" title="Link to this definition">¶</a></dt>
 <dd><p>Returns True if photo is cloud asset and is synched to cloud
@@ -2384,6 +2413,18 @@ only valid on Photos 5, on older libraries returns empty list</p>
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.orientation">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">orientation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.orientation" title="Link to this definition">¶</a></dt>
 <dd><p>returns EXIF orientation of the current photo version as int or 0 if current orientation cannot be determined</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.original_adjustments">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">original_adjustments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">AdjustmentsInfo</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo.original_adjustments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.original_adjustments" title="Link to this definition">¶</a></dt>
+<dd><p>Returns AdjustmentsInfo class for original adjustment data or None if no adjustments; Photos 5+ only</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.original_adjustments_path">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">original_adjustments_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.original_adjustments_path" title="Link to this definition">¶</a></dt>
+<dd><p>Returns path to original adjustments file or None if file doesn't exist (for example, Portrait images contain an origial adjustments file)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -5556,6 +5597,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.asdict"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.asdict()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.folder_list"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.folder_list</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.folder_names"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.folder_names</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.AlbumInfo.library_list_order"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.library_list_order</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.parent"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.parent</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.photo_index"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.photo_index()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.AlbumInfo.photos"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.photos</span></code></a></li>
@@ -5699,6 +5741,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.FolderInfo"><code class="docutils literal notranslate"><span class="pre">FolderInfo</span></code></a><ul>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.album_info"><code class="docutils literal notranslate"><span class="pre">FolderInfo.album_info</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.asdict"><code class="docutils literal notranslate"><span class="pre">FolderInfo.asdict()</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.FolderInfo.library_list_order"><code class="docutils literal notranslate"><span class="pre">FolderInfo.library_list_order</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.parent"><code class="docutils literal notranslate"><span class="pre">FolderInfo.parent</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.subfolders"><code class="docutils literal notranslate"><span class="pre">FolderInfo.subfolders</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.FolderInfo.title"><code class="docutils literal notranslate"><span class="pre">FolderInfo.title</span></code></a></li>
@@ -5784,6 +5827,7 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.hexdigest"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.hexdigest</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.hidden"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.hidden</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.import_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.import_info</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotoInfo.imported_by"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.imported_by</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.incloud"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.incloud</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.intrash"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.intrash</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.iscloudasset"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.iscloudasset</span></code></a></li>
@@ -5804,6 +5848,8 @@ useful for detecting changes in any property/metadata of the photo</p>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.media_analysis"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.media_analysis</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.moment_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.moment_info</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.orientation"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.orientation</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotoInfo.original_adjustments"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_adjustments</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotoInfo.original_adjustments_path"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_adjustments_path</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.original_filename"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_filename</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.original_filesize"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_filesize</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotoInfo.original_height"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_height</span></code></a></li>
@@ -6213,7 +6259,7 @@ useful for detecting changes in any property/metadata of the photo</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8103c863"></script>
+</div><script src="_static/documentation_options.js?v=257b4c7a"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
