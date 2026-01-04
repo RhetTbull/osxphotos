@@ -1340,7 +1340,7 @@ class iPhotoPhotoInfo:
     def fingerprint(self) -> str | None:
         """Returns fingerprint of original photo as a string; returns None if not available. On linux, returns None."""
         if not is_macos:
-            logger.warning("fingerprint only supported on macOS")
+            logger.debug("fingerprint only supported on macOS")
             return None
 
         if not self.path:
