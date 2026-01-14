@@ -1,6 +1,7 @@
 """Group files for import so that edited files, burst images, live photos are imported properly"""
 
 import pathlib
+import re
 from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import cached_property
@@ -12,6 +13,100 @@ from osxphotos.platform import is_macos
 
 if is_macos:
     from osxphotos.image_file_utils import EDITED_RE, is_edited_version_of_file
+
+# Regex to match increment suffix like " (1)", " (2)", etc. at the end of a string
+INCREMENT_SUFFIX_RE = re.compile(r"\s+\(\d+\)$")
+
+# Regex to extract increment suffix for repositioning
+EXTRACT_INCREMENT_RE = re.compile(r"^(.+?)(\s+\(\d+\))$")
+
+# Regex to match _edited suffix followed by increment suffix
+EDITED_WITH_INCREMENT_RE = re.compile(r"^(.+?)_edited(\s+\(\d+\))$", re.IGNORECASE)
+
+# Regex to match _edited suffix (with optional increment suffix before it)
+EDITED_WITH_MIDDLE_INCREMENT_RE = re.compile(
+    r"^(.+?)(\s+\(\d+\))?_edited$", re.IGNORECASE
+)
+
+
+def strip_increment_suffix(stem: str) -> str:
+    """Strip the increment suffix like ' (1)' from the end of a file stem.
+
+    When osxphotos exports files with duplicate names, it appends ' (1)', ' (2)', etc.
+    This function removes that suffix if present.
+
+    Args:
+        stem: The file stem (filename without extension)
+
+    Returns:
+        The stem with any increment suffix removed
+    """
+    return INCREMENT_SUFFIX_RE.sub("", stem)
+
+
+def normalize_edited_stem(stem: str) -> str:
+    """Normalize an edited file stem for comparison.
+
+    This handles cases where the increment suffix can be in different positions:
+    - 'img_0102 (1)_edited' (increment before _edited)
+    - 'img_0102_edited (1)' (increment after _edited)
+
+    Both forms are normalized to 'img_0102_edited' for comparison.
+
+    Args:
+        stem: The file stem (lowercase)
+
+    Returns:
+        Normalized stem with increment suffix removed regardless of position.
+    """
+    # First, try matching _edited at the end (possibly with increment before it)
+    # e.g., 'img_0102 (1)_edited' -> 'img_0102_edited'
+    if m := EDITED_WITH_MIDDLE_INCREMENT_RE.match(stem):
+        return m.group(1) + "_edited"
+
+    # Try matching _edited followed by increment
+    # e.g., 'img_0102_edited (1)' -> 'img_0102_edited'
+    if m := EDITED_WITH_INCREMENT_RE.match(stem):
+        return m.group(1) + "_edited"
+
+    # No increment suffix found, return as-is
+    return stem
+
+
+def get_original_stems_for_edited_with_increment(stem: str) -> list[str]:
+    """Get potential original stems for an edited file with increment suffix.
+
+    For files like 'img_0102_edited (1)', the original would be 'img_0102 (1)'.
+    For files like 'img_e1234_edited (1)', possible originals are:
+    - 'img_e1234 (1)' (direct original)
+    - 'img_1234 (1)' (if _e was stripped during grouping)
+
+    Args:
+        stem: The file stem to analyze (lowercase)
+
+    Returns:
+        List of potential original stems. Empty list if pattern doesn't match.
+        For 'img_0102_edited (1)', returns ['img_0102 (1)'].
+        For 'img_e1234_edited (1)', returns ['img_e1234 (1)', 'img_1234 (1)'].
+    """
+    if m := EDITED_WITH_INCREMENT_RE.match(stem):
+        # m.group(1) is the base (e.g., 'img_0102' or 'img_e1234')
+        # m.group(2) is the increment suffix (e.g., ' (1)')
+        base = m.group(1)
+        increment = m.group(2)
+        result = [base + increment]
+
+        # If the base looks like it has _e pattern (abc_e followed by digits),
+        # also try the stem without _e since _e files get grouped with their originals
+        if re.match(r"^[a-z]{3}_e\d+", base):
+            # Remove the 'e' after the underscore to get potential grouped location
+            # e.g., 'img_e1235' -> 'img_1235'
+            # base[:4] = 'img_', base[5:] = '1235' -> 'img_1235'
+            base_without_e = base[:4] + base[5:]
+            result.append(base_without_e + increment)
+
+        return result
+    return []
 
 
 @dataclass
@@ -89,14 +184,25 @@ class GroupingNode:
             if self.files[0].edited_stem == item.stem:
                 self.files.append(item)
                 return None
+            # Also check if stems match when normalized for increment suffix position.
+            # This handles the case where edited files have the increment suffix in a different position,
+            # e.g., "IMG_0102 (1).HEIC" has edited stem "img_0102 (1)_edited" but the actual
+            # edited file might be named "IMG_0102_edited (1).heic" with stem "img_0102_edited (1)".
+            # Both normalize to "img_0102_edited" which matches.
+            elif normalize_edited_stem(
+                self.files[0].edited_stem
+            ) == normalize_edited_stem(item.stem):
+                self.files.append(item)
+                return None
             elif match(EDITED_RE, str(item.path)):
                 # If the file we are handling is also an edited file (with _E), we need to match it
                 # to a potential _E file in the group. This does not place files in the group if
                 # there isn't an existing _E file.
                 for file in self.files:
-                    if (
-                        match(EDITED_RE, str(file.path))
-                        and file.edited_stem == item.stem
+                    if match(EDITED_RE, str(file.path)) and (
+                        file.edited_stem == item.stem
+                        or normalize_edited_stem(file.edited_stem)
+                        == normalize_edited_stem(item.stem)
                     ):
                         self.files.append(item)
                         return None
@@ -148,12 +254,49 @@ class GroupingNode:
 
         return groups
 
+    def find_files_at_path(self, path: str) -> list[Groupable] | None:
+        """Find files stored at a specific path in the tree.
+
+        Args:
+            path: The stem path to look up (lowercase)
+
+        Returns:
+            List of Groupable files at that path, or None if path doesn't exist or has no files.
+        """
+        if len(path) == 0:
+            return self.files if self.files else None
+
+        key = path[0]
+        child = self.children.get(key)
+        if not child:
+            return None
+        return child.find_files_at_path(path[1:])
+
 
 @dataclass
 class GroupingRoot:
     tree: "GroupingNode" = field(default_factory=GroupingNode)
 
     def add(self, item: Groupable):
+        # Check if this is an edited file with increment suffix that should be matched
+        # to an original with the increment suffix in a different position.
+        # E.g., 'img_0102_edited (1)' should match original 'img_0102 (1)'.
+        for original_stem in get_original_stems_for_edited_with_increment(item.stem):
+            if files_at_original := self.tree.find_files_at_path(original_stem):
+                # Verify that any file at the original path could be the original
+                # by checking that its edited_stem matches our stem (when normalized)
+                # This handles cases like:
+                # - edited_stem: 'img_0102 (1)_edited'
+                # - item.stem: 'img_0102_edited (1)'
+                # Both normalize to 'img_0102_edited'
+                # We check all files in the group because IMG_E files may be grouped
+                # with their originals, so IMG_E1235_edited needs to match IMG_E1235's edited_stem.
+                normalized_item_stem = normalize_edited_stem(item.stem)
+                for file in files_at_original:
+                    if normalize_edited_stem(file.edited_stem) == normalized_item_stem:
+                        files_at_original.append(item)
+                        return
+
         self.tree.add(item, item.stem)
 
     def collect(self) -> list[list[Groupable]]:
