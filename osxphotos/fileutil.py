@@ -806,6 +806,10 @@ class FileUtilNoOp(FileUtil):
 
     @classmethod
     def file_sig(cls, file1):
+        """return os.stat signature for file file1 as tuple of (mode, size, mtime)"""
+        if pathlib.Path(file1).exists():
+            file1 = normalize_fs_path(file1)
+            return cls._sig(os.stat(file1))
         return (42, 42, 42)
 
     @classmethod

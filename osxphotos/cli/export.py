@@ -209,6 +209,21 @@ if TYPE_CHECKING:
     help="Dry run (test) the export but don't actually export any files; most useful with --verbose.",
 )
 @click.option(
+    "--pre-load",
+    is_flag=True,
+    help="Dry run (test) the export and pre-load the export database with metadata about photos that already exist on disk. "
+    "This is an advanced feature that is only needed if you have imported photos into Photos then want to use the originally imported "
+    "files on disk to seed an export. Running osxphotos export with --pre-load will associate files on disk in the export directory with "
+    "assets in the Photos library so that when you subsequently export with --update, the previously exported files will not be re-exported. "
+    "For this to work, the export path used by osxphotos must match the path on disk. For example, if a file path is "
+    "'/Volumes/photos/2026/01/IMG_1234.heic' where 2026/01 is the creation year/month then you would want to run a command similar to: "
+    "'osxphotos export /Volumes/photos --directory '{created.year}/{created.mm} --pre-load'. "
+    "When you run an export with '--pre-load --verbose', you will see output similar to that produced by '--dry-run'. "
+    "Photos are not really being exported even though the message will state they are. "
+    "This option can also be used to re-build an export database if the original is lost or corrupted so that an existing "
+    "export can continue to be used.",
+)
+@click.option(
     "--export-as-hardlink",
     is_flag=True,
     help="Hardlink files instead of copying them. Cannot be used with --exiftool which creates copies of the files with embedded EXIF data. Note: on APFS volumes, files are cloned when exporting giving many of the same advantages as hardlinks without having to use --export-as-hardlink.",
@@ -1053,6 +1068,7 @@ def export(
     post_command: tuple[tuple[str, str], ...],
     post_command_error: Literal["continue", "break"] | None,
     post_function: tuple[tuple[Callable, str], ...],
+    pre_load: bool,
     preview: bool,
     preview_if_missing: bool,
     preview_suffix: str | None,
@@ -1263,6 +1279,7 @@ def export_cli(
     post_command: tuple[tuple[str, str], ...] = (),
     post_command_error: Literal["continue", "break"] | None = None,
     post_function: tuple[tuple[Callable, str], ...] = (),
+    pre_load: bool = False,
     preview: bool = False,
     preview_if_missing: bool = False,
     preview_suffix: str | None = None,
@@ -1517,6 +1534,7 @@ def export_cli(
         post_command = cfg.post_command
         post_command_error = cfg.post_command_error
         post_function = cfg.post_function
+        pre_load = cfg.pre_load
         preview = cfg.preview
         preview_if_missing = cfg.preview_if_missing
         preview_suffix = cfg.preview_suffix
@@ -1626,6 +1644,7 @@ def export_cli(
         ("shared_moment", "not_shared_moment"),
         ("no_exportdb", "update"),
         ("no_exportdb", "force_update"),
+        ("dry_run", "pre_load"),
     ]
     dependent_options = [
         ("append", ("report")),
@@ -1822,6 +1841,19 @@ def export_cli(
     ramdb = force_use_of_ramdb(ramdb, export_db_path, verbose)
     if dry_run:
         export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
+        fileutil = FileUtilNoOp
+    elif pre_load:
+        verbose(
+            f"Running in pre-load mode; export database will be created and populated at [filepath]{export_db_path}[/] but files will not be exported."
+        )
+        dry_run = True
+        # not used but gets added to kwargs for call to export_photo below
+        overwrite = True  # noqa: F841
+        export_db = (
+            ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
+            if ramdb
+            else ExportDB(dbfile=export_db_path, export_dir=dest)
+        )
         fileutil = FileUtilNoOp
     else:
         export_db = (
