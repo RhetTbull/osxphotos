@@ -7,11 +7,55 @@ from re import match
 import pytest
 
 from osxphotos.cli import import_grouper
-from osxphotos.cli.import_grouper import sort_paths
+from osxphotos.cli.import_grouper import (
+    normalize_edited_stem,
+    sort_paths,
+    strip_increment_suffix,
+)
 from osxphotos.platform import is_macos
 
 if not is_macos:
     pytest.skip("Only runs on macOS", allow_module_level=True)
+
+
+@pytest.mark.parametrize(
+    "input_stem,expected",
+    [
+        ("img_0102 (1)", "img_0102"),
+        ("img_0102_edited (1)", "img_0102_edited"),
+        ("img_0102 (2)", "img_0102"),
+        ("img_0102 (10)", "img_0102"),
+        ("img_0102 (123)", "img_0102"),
+        ("img_0102", "img_0102"),  # No suffix
+        ("img_0102_edited", "img_0102_edited"),  # No suffix
+        ("img (1) test", "img (1) test"),  # (1) not at end
+        ("img(1)", "img(1)"),  # No space before (1)
+        ("img_0102  (1)", "img_0102"),  # Double space
+    ],
+)
+def test_strip_increment_suffix(input_stem, expected):
+    """Test stripping increment suffix like ' (1)' from file stems."""
+    assert strip_increment_suffix(input_stem) == expected
+
+
+@pytest.mark.parametrize(
+    "input_stem,expected",
+    [
+        ("img_0102 (1)_edited", "img_0102_edited"),  # increment before _edited
+        ("img_0102_edited (1)", "img_0102_edited"),  # increment after _edited
+        ("img_0102_edited", "img_0102_edited"),  # no increment
+        (
+            "img_e1235 (1)_edited",
+            "img_e1235_edited",
+        ),  # _E pattern with increment before
+        ("img_e1235_edited (1)", "img_e1235_edited"),  # _E pattern with increment after
+        ("img_0102", "img_0102"),  # no _edited suffix
+        ("img_0102 (1)", "img_0102 (1)"),  # no _edited suffix with increment
+    ],
+)
+def test_normalize_edited_stem(input_stem, expected):
+    """Test normalizing edited stems with increment suffixes in different positions."""
+    assert normalize_edited_stem(input_stem) == expected
 
 
 def test_no_groups():
@@ -122,6 +166,81 @@ def test_group_original_adjustments():
             ("Photo.png", "Photo.aae", "Photo_O.AAE"),
             # Something_Other (base: 'something')
             ("Something_Other.AAE",),  # Should NOT match _O pattern
+        ),
+    )
+
+
+def test_group_edited_suffix_with_increment():
+    """Test grouping of edited files with increment suffix like (1), (2), etc.
+
+    When osxphotos exports duplicate files, it adds (1), (2), etc. to the stem.
+    For edited files, the increment is placed at the end of the stem:
+    - Original: IMG_0102 (1).HEIC
+    - AAE: IMG_0102 (1).AAE
+    - Edited: IMG_0102_edited (1).heic (NOT IMG_0102 (1)_edited.heic)
+
+    This test ensures these files are properly grouped together.
+    Note: Groups are sorted by stem length (shorter first) then alphabetically.
+    """
+    execute_grouping_test(
+        (
+            # Files without increment suffix (regular case) - shorter stems come first
+            ("IMG_0103.HEIC", "IMG_0103.AAE", "IMG_0103_edited.jpeg"),
+            # Standalone file without AAE or edited
+            ("IMG_0104.JPG",),
+            # Files with (1) suffix - edited file has _edited before (1)
+            ("IMG_0102 (1).HEIC", "IMG_0102 (1).AAE", "IMG_0102_edited (1).heic"),
+            # Files with (2) suffix
+            ("IMG_0102 (2).HEIC", "IMG_0102 (2).AAE", "IMG_0102_edited (2).jpeg"),
+            # File with increment but no edited version
+            ("IMG_0105 (1).HEIC", "IMG_0105 (1).AAE"),
+        ),
+    )
+
+
+def test_group_edited_E_with_increment():
+    """Test grouping of IMG_E style edited files with increment suffix.
+
+    For files using the IMG_E pattern (Apple's native edited format),
+    the increment suffix should also be handled correctly.
+    Note: Groups are sorted by stem length (shorter first) then alphabetically.
+    """
+    execute_grouping_test(
+        (
+            # Regular IMG_E without increment (shortest stem)
+            ("IMG_2000.JPG", "IMG_2000.aae", "IMG_E2000.JPG"),
+            # IMG_E pattern with increment suffix
+            ("IMG_1234 (1).JPG", "IMG_1234 (1).aae", "IMG_E1234 (1).JPG"),
+            # IMG_E with _edited suffix and increment
+            (
+                "IMG_1235 (1).JPG",
+                "IMG_1235 (1).aae",
+                "IMG_E1235 (1).JPG",
+                "IMG_E1235_edited (1).JPG",
+            ),
+        ),
+    )
+
+
+def test_group_mixed_increment_suffixes():
+    """Test grouping when directory contains both files with and without increment suffixes.
+
+    This tests the common case where the same image has been exported multiple times,
+    resulting in files like:
+    - IMG_1234.heic, IMG_1234.aae, IMG_1234_edited.heic (first export, no suffix)
+    - IMG_1234 (1).heic, IMG_1234 (1).aae, IMG_1234_edited (1).JPG (second export)
+    - IMG_1234 (2).heic, IMG_1234 (2).aae, IMG_1234_edited (2).JPG (third export)
+
+    Each set should be grouped separately based on their increment suffix.
+    """
+    execute_grouping_test(
+        (
+            # No increment suffix (shortest stems come first)
+            ("IMG_1234.heic", "IMG_1234.aae", "IMG_1234_edited.heic"),
+            # (1) suffix
+            ("IMG_1234 (1).heic", "IMG_1234 (1).aae", "IMG_1234_edited (1).JPG"),
+            # (2) suffix
+            ("IMG_1234 (2).heic", "IMG_1234 (2).aae", "IMG_1234_edited (2).JPG"),
         ),
     )
 

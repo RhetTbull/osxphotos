@@ -44,7 +44,7 @@ def check_photo_extensions(photos: list[osxphotos.PhotoInfo]):
             original_filename_uti = uti_for_suffix(original_suffix).lower()
         except Exception as e:
             original_filename_uti = None
-        original_uti = p.uti.lower()
+        original_uti = p.uti_original.lower()
 
         mismatch_data.original_uti = original_uti
         mismatch_data.original_suffix = original_suffix
