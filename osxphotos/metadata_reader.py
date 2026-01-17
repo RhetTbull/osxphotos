@@ -130,7 +130,7 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
         Tests for both JSON and XMP sidecar. If both exists, JSON is returned.
         Tests both with and without original suffix. If both exists, file with original suffix is returned.
         E.g. search order is: img_1234.jpg.json, img_1234.json, img_1234.jpg.xmp, img_1234.xmp
-        For Google Takeout, the sidecar may be named img_1234.jpg.json or img_1234.json;
+        For Google Takeout, the sidecar may be named img_1234.jpg.json, img_1234.json, or img_1234.jpg.supplemental-metadata.json;
         if the image is edited, it will be named img_1234-edited.jpg but the sidecar will still be
         named img_1234.jpg.json or img_1234.json so drop the -edited suffix when searching for the sidecar.
         If there is a duplicate file name, Google Takeout will append a number to the file name
@@ -146,6 +146,11 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
         sidecar = filepath.with_suffix(ext)
         if sidecar.is_file():
             return sidecar
+
+    # check for Google Takeout supplemental-metadata.json format
+    sidecar = pathlib.Path(f"{filepath}.supplemental-metadata.json")
+    if sidecar.is_file():
+        return sidecar
 
     # if here, no sidecar found, check for Google Takeout formats
     # Google Takeout may append -edited to the file name but not the sidecar
@@ -163,8 +168,18 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
     # strip off (1) suffix for Google takeout naming scheme
     if match := re.match(r"(.*)(\(\d+\))$", stem):
         stem = match.groups()[0]
+        number_suffix = match.groups()[1]
+        # check for img_1234.jpg(1).json format
         new_filepath = pathlib.Path(
-            str(filepath.with_stem(stem)) + match.groups()[1] + ".json"
+            str(filepath.with_stem(stem)) + number_suffix + ".json"
+        )
+        if new_filepath.is_file():
+            return new_filepath
+        # check for img_1234.jpg(1).supplemental-metadata.json format
+        new_filepath = pathlib.Path(
+            str(filepath.with_stem(stem))
+            + number_suffix
+            + ".supplemental-metadata.json"
         )
         if new_filepath.is_file():
             return new_filepath
