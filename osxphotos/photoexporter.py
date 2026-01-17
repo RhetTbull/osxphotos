@@ -8,10 +8,10 @@ import json
 import logging
 import os
 import pathlib
+import re
 import subprocess
 import typing as t
 from enum import Enum
-import re
 
 from ._version import __version__
 from .dictdiff import dictdiff
@@ -78,7 +78,7 @@ class ShouldUpdate(Enum):
     DEST_SIG_DIFFERENT = 4
     EXPORT_OPTIONS_DIFFERENT = 5
     EXIFTOOL_DIFFERENT = 6
-    EDITED_SIG_DIFFERENT = 7
+    DATE_MODIFIED_DIFFERENT = 7
     DIGEST_DIFFERENT = 8
     UPDATE_ERRORS = 9
 
@@ -621,11 +621,9 @@ class PhotoExporter:
             # as exiftool will be used to update edited file
             return ShouldUpdate.EXIFTOOL_DIFFERENT if rv else False
 
-        if options.edited and (
-            not src or not fileutil.cmp_file_sig(src, file_record.src_sig)
-        ):
-            # edited file in Photos doesn't match what was last exported
-            return ShouldUpdate.EDITED_SIG_DIFFERENT
+        if options.edited and self.photo.date_modified != file_record.date_modified:
+            # edited file date modified in Photos doesn't match what was last exported
+            return ShouldUpdate.DATE_MODIFIED_DIFFERENT
 
         if options.force_update:
             current_digest = self.photo.hexdigest
@@ -1137,6 +1135,7 @@ class PhotoExporter:
             if self.photo.hexdigest != rec.digest:
                 results.metadata_changed = [dest_str]
             rec.digest = self.photo.hexdigest
+            rec.date_modified = self.photo.date_modified
             # save errors to the export database (#872)
             if (
                 results.error
@@ -1205,8 +1204,7 @@ class PhotoExporter:
         # Check if we've hit the error threshold and need to restart Photos
         if _consecutive_export_errors >= APPLESCRIPT_ERROR_THRESHOLD:
             logger.warning(
-                f"AppleScript export has failed {_consecutive_export_errors} consecutive times, "
-                f"restarting Photos app"
+                f"AppleScript export has failed {_consecutive_export_errors} consecutive times, restarting Photos app"
             )
             self._kill_photos_process()
             _consecutive_export_errors = 0
