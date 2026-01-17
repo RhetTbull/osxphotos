@@ -4,8 +4,10 @@ import importlib
 import logging
 import sys
 
+import pytest
+
 import osxphotos
-from osxphotos.debug import is_debug, set_debug
+from osxphotos.debug import is_debug, relocate_debug_options, set_debug
 
 
 def test_debug_enable():
@@ -170,3 +172,138 @@ def test_warning_messages_always_visible(caplog):
     with caplog.at_level(logging.WARNING, logger="osxphotos"):
         logger.warning("test warning message 2")
         assert "test warning message 2" in caplog.text
+
+
+# Tests for relocate_debug_options
+
+
+def test_relocate_debug_options_flag_after_subcommand():
+    """Test that flags after subcommand are moved to beginning"""
+    argv = ["osxphotos", "export", "--profile", "/path"]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == ["osxphotos", "--profile", "export", "/path"]
+
+
+def test_relocate_debug_options_multiple_flags():
+    """Test that multiple flags are relocated"""
+    argv = ["osxphotos", "export", "--debug", "--profile", "/path"]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == ["osxphotos", "--debug", "--profile", "export", "/path"]
+
+
+def test_relocate_debug_options_option_with_value():
+    """Test that options with values are relocated together"""
+    argv = ["osxphotos", "export", "--watch", "module::func", "/path"]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == ["osxphotos", "--watch", "module::func", "export", "/path"]
+
+
+def test_relocate_debug_options_option_with_equals():
+    """Test that --option=value format is relocated"""
+    argv = ["osxphotos", "export", "--profile-sort=cumulative", "/path"]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == ["osxphotos", "--profile-sort=cumulative", "export", "/path"]
+
+
+def test_relocate_debug_options_already_at_beginning():
+    """Test that options already at beginning stay in place"""
+    argv = ["osxphotos", "--profile", "export", "/path"]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == ["osxphotos", "--profile", "export", "/path"]
+
+
+def test_relocate_debug_options_mixed_positions():
+    """Test with options at beginning and end"""
+    argv = ["osxphotos", "--debug", "export", "--profile", "/path"]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == ["osxphotos", "--debug", "--profile", "export", "/path"]
+
+
+def test_relocate_debug_options_no_debug_options():
+    """Test that argv without debug options is unchanged"""
+    argv = ["osxphotos", "export", "/path", "--verbose"]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == ["osxphotos", "export", "/path", "--verbose"]
+
+
+def test_relocate_debug_options_empty_argv():
+    """Test with only program name"""
+    argv = ["osxphotos"]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == ["osxphotos"]
+
+
+def test_relocate_debug_options_multiple_option_values():
+    """Test with multiple occurrences of option with values"""
+    argv = [
+        "osxphotos",
+        "export",
+        "--watch",
+        "module1::func1",
+        "--watch",
+        "module2::func2",
+        "/path",
+    ]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == [
+        "osxphotos",
+        "--watch",
+        "module1::func1",
+        "--watch",
+        "module2::func2",
+        "export",
+        "/path",
+    ]
+
+
+def test_relocate_debug_options_preserves_order_of_other_args():
+    """Test that non-debug options maintain their relative order"""
+    argv = [
+        "osxphotos",
+        "export",
+        "--verbose",
+        "--profile",
+        "/path",
+        "--library",
+        "lib.photoslibrary",
+    ]
+    result = relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert result == [
+        "osxphotos",
+        "--profile",
+        "export",
+        "--verbose",
+        "/path",
+        "--library",
+        "lib.photoslibrary",
+    ]
+
+
+def test_relocate_debug_options_does_not_modify_original():
+    """Test that the original argv is not modified"""
+    argv = ["osxphotos", "export", "--profile", "/path"]
+    original = argv.copy()
+    relocate_debug_options(
+        argv, flags=["--debug", "--profile"], options=["--watch", "--profile-sort"]
+    )
+    assert argv == original

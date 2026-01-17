@@ -17,6 +17,7 @@ __all__ = [
     "get_debug_flags",
     "get_debug_options",
     "is_debug",
+    "relocate_debug_options",
     "set_debug",
     "wrap_function",
 ]
@@ -119,3 +120,69 @@ def get_debug_flags(arg_names: List, argv: List) -> Dict:
         if arg_name in argv[1:]:
             args[arg_name] = True
     return args
+
+
+def relocate_debug_options(
+    argv: List,
+    flags: List[str] | None = None,
+    options: List[str] | None = None,
+) -> List:
+    """Relocate debug options from anywhere in argv to after the program name.
+
+    This allows debug options to be specified anywhere in the command line
+    (e.g., 'osxphotos export --profile' instead of 'osxphotos --profile export')
+    while still being processed correctly by Click.
+
+    Args:
+        argv: The command line arguments (typically sys.argv)
+        flags: List of flag option names (e.g., ['--debug', '--profile'])
+        options: List of option names that take values (e.g., ['--watch', '--profile-sort'])
+
+    Returns:
+        Modified argv with debug options relocated after the program name
+    """
+    flags = flags or []
+    options = options or []
+
+    if len(argv) <= 1:
+        return argv
+
+    # Work with a copy to avoid modifying the original
+    result = list(argv)
+    extracted = []
+    i = 1  # Start after program name
+
+    while i < len(result):
+        arg = result[i]
+
+        # Check for flags
+        if arg in flags:
+            extracted.append(result.pop(i))
+            continue
+
+        # Check for options with values
+        matched_option = False
+        for opt in options:
+            if arg == opt:
+                # --option value format
+                if i + 1 < len(result):
+                    extracted.append(result.pop(i))
+                    extracted.append(result.pop(i))
+                    matched_option = True
+                    break
+            elif arg.startswith(f"{opt}="):
+                # --option=value format
+                extracted.append(result.pop(i))
+                matched_option = True
+                break
+
+        if matched_option:
+            continue
+
+        i += 1
+
+    # Re-insert extracted options after program name (position 1)
+    for j, item in enumerate(extracted):
+        result.insert(1 + j, item)
+
+    return result
