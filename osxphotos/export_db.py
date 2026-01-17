@@ -1827,7 +1827,15 @@ class ExportRecord:
 
     def json(self, indent=None) -> str:
         """Return json string of self"""
-        return json.dumps(self.asdict(), indent=indent)
+
+        def datetime_handler(obj):
+            if isinstance(obj, (datetime.datetime, datetime.date, datetime.time)):
+                return obj.isoformat()
+            raise TypeError(
+                "Object of type %s is not JSON serializable" % type(obj).__name__
+            )
+
+        return json.dumps(self.asdict(), indent=indent, default=datetime_handler)
 
     def __enter__(self):
         self._context_manager = True

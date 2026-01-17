@@ -103,6 +103,7 @@ class StagedFiles:
         aae: t.Optional[str] = None,
         original_aae: t.Optional[str] = None,
         error: t.Optional[t.List[str]] = None,
+        update_skipped: bool = False,
     ):
         self.original = original
         self.original_live = original_live
@@ -113,6 +114,8 @@ class StagedFiles:
         self.aae = aae
         self.original_aae = original_aae
         self.error = error or []
+        # True if download was skipped because no update needed (#1086)
+        self.update_skipped = update_skipped
 
         # TODO: bursts?
 
@@ -126,6 +129,7 @@ class StagedFiles:
         self.aae = self.aae or other.aae
         self.original_aae = self.original_aae or other.original_aae
         self.error += other.error
+        self.update_skipped = self.update_skipped or other.update_skipped
         return self
 
     def __str__(self):
@@ -145,6 +149,7 @@ class StagedFiles:
             "aae": self.aae,
             "original_aae": self.original_aae,
             "error": self.error,
+            "update_skipped": self.update_skipped,
         }
 
 
@@ -268,17 +273,10 @@ class PhotoExporter:
         # Is there something to convert with convert_to_jpeg?
         dest, options = self._should_convert_to_jpeg(dest, options)
 
-        # stage files for export by finding path in local library or downloading from iCloud as appropriate
-        # for '--download-missing' and '--update' case, this may cause unnecessary downloads
-        # as it will download the file even if it's not needed (won't be checked until the _should_update_photo() call from _export_photo()
-        # fixing this will require major refactoring of the export code, see #1086
-        # leaving it for now as this should not be a common use case
-        # (if using '--update' it is much better to be using "Download originals to this Mac" in Photos)
-        staged_files = self._stage_photos_for_export(options)
-        src = staged_files.edited if options.edited else staged_files.original
-
-        # get the right destination path depending on options.update, etc.
         dest = self._get_dest_path(dest, options)
+
+        staged_files = self._stage_photos_for_export(options, dest=dest)
+        src = staged_files.edited if options.edited else staged_files.original
 
         self._render_options.filepath = str(dest)
         all_results = ExportResults()
@@ -290,6 +288,10 @@ class PhotoExporter:
                 dest,
                 options=options,
             )
+        elif staged_files.update_skipped and dest.exists():
+            all_results.skipped.append(str(dest))
+            options.export_db.set_history(str(dest), self.photo.uuid, "skip", None)
+            unlock_filename(dest)
         else:
             verbose(
                 f"Skipping missing {'edited' if options.edited else 'original'} photo {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
@@ -308,6 +310,11 @@ class PhotoExporter:
                     # don't try to convert the live photo
                     options=dataclasses.replace(options, convert_to_jpeg=False),
                 )
+            elif staged_files.update_skipped and live_name.exists():
+                all_results.skipped.append(str(live_name))
+                options.export_db.set_history(
+                    str(live_name), self.photo.uuid, "skip", None
+                )
             else:
                 verbose(
                     f"Skipping missing live photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
@@ -323,6 +330,11 @@ class PhotoExporter:
                     live_name,
                     # don't try to convert the live photo
                     options=dataclasses.replace(options, convert_to_jpeg=False),
+                )
+            elif staged_files.update_skipped and live_name.exists():
+                all_results.skipped.append(str(live_name))
+                options.export_db.set_history(
+                    str(live_name), self.photo.uuid, "skip", None
                 )
             else:
                 verbose(
@@ -350,10 +362,16 @@ class PhotoExporter:
                 )
                 raw_ext = raw_ext or "raw"
                 raw_name = dest.parent / f"{dest.stem}.{raw_ext}"
-                all_results.missing.append(raw_name)
-                verbose(
-                    f"Skipping missing raw photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
-                )
+                if staged_files.update_skipped and raw_name.exists():
+                    all_results.skipped.append(str(raw_name))
+                    options.export_db.set_history(
+                        str(raw_name), self.photo.uuid, "skip", None
+                    )
+                else:
+                    all_results.missing.append(raw_name)
+                    verbose(
+                        f"Skipping missing raw photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
+                    )
 
         # copy preview image if requested
         if options.preview:
@@ -634,11 +652,123 @@ class PhotoExporter:
         # photo should not be updated
         return False
 
-    def _stage_photos_for_export(self, options: ExportOptions) -> StagedFiles:
+    def _should_update_photo_for_missing(
+        self, dest: pathlib.Path, options: ExportOptions
+    ) -> bool | ShouldUpdate:
+        """Check if a missing photo needs to be updated (before downloading).
+
+        This performs checks that don't require the source file, allowing us to
+        skip unnecessary iCloud downloads when in update mode. This is called
+        BEFORE downloading from iCloud.
+
+        Args:
+            dest: destination path to check
+            options: export options
+
+        Returns:
+            False if no update needed, otherwise a ShouldUpdate value indicating
+            why update is needed.
+        """
+        export_db = options.export_db
+        fileutil = options.fileutil
+
+        file_record = export_db.get_file_record(dest)
+
+        if not file_record:
+            return ShouldUpdate.NOT_IN_DATABASE
+
+        if not options.ignore_signature and not fileutil.cmp_file_sig(
+            dest, file_record.dest_sig
+        ):
+            return ShouldUpdate.DEST_SIG_DIFFERENT
+
+        if file_record.export_options != options.bit_flags:
+            return ShouldUpdate.EXPORT_OPTIONS_DIFFERENT
+
+        if options.update_errors and file_record.error is not None:
+            return ShouldUpdate.UPDATE_ERRORS
+
+        if options.exiftool:
+            current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
+            if current_exifdata != file_record.exifdata:
+                return ShouldUpdate.EXIFTOOL_DIFFERENT
+
+        if options.edited and self.photo.date_modified != file_record.date_modified:
+            return ShouldUpdate.DATE_MODIFIED_DIFFERENT
+
+        if options.force_update:
+            if self.photo.hexdigest != file_record.digest:
+                return ShouldUpdate.DIGEST_DIFFERENT
+
+        return False
+
+    def _needs_download_for_update(
+        self, staged: "StagedFiles", dest: pathlib.Path, options: ExportOptions
+    ) -> bool:
+        """Check if any missing files need to be downloaded for update.
+
+        This checks the main photo, live photo, and raw photo to determine
+        if any of them need to be downloaded from iCloud for updating.
+
+        Args:
+            staged: currently staged files
+            dest: destination path for the main photo
+            options: export options
+
+        Returns:
+            True if at least one missing file needs updating, False if all can be skipped.
+        """
+        live_photo = staged.edited_live if options.edited else staged.original_live
+
+        # Check main photo
+        main_missing = (
+            self.photo.hasadjustments and options.edited and not staged.edited
+        ) or (not options.edited and not staged.original)
+        if main_missing:
+            if not dest.exists():
+                return True  # New file, need to download
+            if self._should_update_photo_for_missing(dest, options):
+                return True  # Needs updating
+
+        # Check live photo
+        live_missing = self.photo.live_photo and options.live_photo and not live_photo
+        if live_missing:
+            live_dest = dest.parent / f"{dest.stem}.mov"
+            if not live_dest.exists():
+                return True  # New file, need to download
+            if self._should_update_photo_for_missing(live_dest, options):
+                return True  # Needs updating
+
+        # Check raw photo
+        raw_missing = self.photo.has_raw and options.raw_photo and not staged.raw
+        if raw_missing:
+            raw_ext = (
+                get_preferred_uti_extension(self.photo.uti_raw)
+                if self.photo.uti_raw
+                else "raw"
+            )
+            raw_ext = raw_ext or "raw"
+            raw_dest = dest.parent / f"{dest.stem}.{raw_ext}"
+            if not raw_dest.exists():
+                return True  # New file, need to download
+            if self._should_update_photo_for_missing(raw_dest, options):
+                return True  # Needs updating
+
+        # Nothing needs updating
+        return False
+
+    def _stage_photos_for_export(
+        self, options: ExportOptions, dest: pathlib.Path | None = None
+    ) -> StagedFiles:
         """Stages photos for export
 
         If photo is present on disk in the library, uses path to the photo on disk.
         If photo is missing and download_missing is true, downloads the photo from iCloud to temporary location.
+
+        Args:
+            options: ExportOptions instance
+            dest: destination path for the main photo (used to check if update is needed
+                before downloading from iCloud)
         """
 
         staged = StagedFiles()
@@ -671,20 +801,29 @@ class PhotoExporter:
         # download any missing files
         if options.download_missing:
             staged |= self._stage_missing_photos_for_export(
-                staged=staged, options=options
+                staged=staged, options=options, dest=dest
             )
 
         return staged
 
     def _stage_missing_photos_for_export(
-        self, staged: StagedFiles, options: ExportOptions
+        self,
+        staged: StagedFiles,
+        options: ExportOptions,
+        dest: pathlib.Path | None = None,
     ) -> StagedFiles:
-        """Download and stage any missing files for export"""
+        """Download and stage any missing files for export
+
+        Args:
+            staged: currently staged files
+            options: export options
+            dest: destination path for the main photo (used to check if update is needed
+                before downloading from iCloud)
+        """
 
         # if live photo and requesting edited version need the edited live photo
         live_photo = staged.edited_live if options.edited else staged.original_live
 
-        # is there actually a missing file? (#1086)
         something_to_download = (
             (self.photo.hasadjustments and options.edited and not staged.edited)
             or (self.photo.live_photo and options.live_photo and not live_photo)
@@ -694,6 +833,14 @@ class PhotoExporter:
         )
         if not something_to_download:
             return staged
+
+        # In update mode, check if any missing files actually need updating
+        # before downloading from iCloud (#1086)
+        if dest and (options.update or options.force_update):
+            if not self._needs_download_for_update(staged, dest, options):
+                # No update needed, skip the download
+                staged.update_skipped = True
+                return staged
 
         missing_options = ExportOptions(
             edited=options.edited,
