@@ -875,7 +875,7 @@ def photo_query(
             seen_uuids[p.uuid] = p
         photos = list(seen_uuids.values())
 
-    return photos
+    return sorted(photos, key=lambda x: x.date)
 
 
 def filter_photos_by_folder_album_path(
