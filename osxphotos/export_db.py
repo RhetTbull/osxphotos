@@ -40,7 +40,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "10.1"
+OSXPHOTOS_EXPORTDB_VERSION = "11.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -744,6 +744,9 @@ class ExportDB:
         if current_version < float("10.1") and version >= float("10.1"):
             self._migrate_10_0_to_10_1(conn)
 
+        if current_version < float("11.0") and version >= float("11.0"):
+            self._migrate_10_1_to_11_0(conn)
+
         with self.lock:
             conn.execute("VACUUM;")
             conn.commit()
@@ -1121,6 +1124,19 @@ class ExportDB:
                     """
             )
 
+            conn.commit()
+
+    def _migrate_10_1_to_11_0(self, conn: sqlite3.Connection):
+        """Add modified date"""
+        with self.lock:
+            c = conn.cursor()
+            results = c.execute(
+                "SELECT COUNT(*) FROM pragma_table_info('export_data') WHERE name='date_modified';"
+            ).fetchone()
+            if results[0] == 0:
+                c.execute(
+                    """ALTER TABLE export_data ADD COLUMN date_modified DATETIME;"""
+                )
             conn.commit()
 
     def _perform_db_maintenance(self, conn: sqlite3.Connection):
@@ -1742,6 +1758,54 @@ class ExportRecord:
         if not self._context_manager:
             conn.commit()
 
+    @property
+    def date_modified(self) -> datetime.datetime | None:
+        """return asset date modified (date modified in Photos)"""
+        if self._context_manager:
+            return self._date_modified()
+        with self.lock:
+            return self._date_modified()
+
+    @date_modified.setter
+    def date_modified(self, value: datetime.datetime | None):
+        """set asset date modified (date modified in Photos)"""
+        if self._context_manager:
+            self._date_modified_setter(value)
+        else:
+            with self.lock:
+                self._date_modified_setter(value)
+
+    def _date_modified(self) -> datetime.datetime | None:
+        """return date modified"""
+        conn = self.connection
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT date_modified FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            try:
+                return datetime.datetime.fromisoformat(row[0]) if row[0] else None
+            except Exception as e:
+                return None
+
+        raise ValueError(
+            f"No date_modified found in database for {self._filepath_normalized}"
+        )
+
+    def _date_modified_setter(self, value: datetime.datetime | None):
+        """set date_modified"""
+        conn = self.connection
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET date_modified = ? WHERE filepath_normalized = ?;",
+            (
+                value.isoformat() if value else None,
+                self._filepath_normalized,
+            ),
+        )
+        if not self._context_manager:
+            conn.commit()
+
     def asdict(self) -> dict[str, Any]:
         """Return dict of self"""
         exifdata = json.loads(self.exifdata) if self.exifdata else None
@@ -1758,11 +1822,20 @@ class ExportRecord:
             "exifdata": exifdata,
             "error": self.error,
             "photoinfo": photoinfo,
+            "date_modified": self.date_modified,
         }
 
     def json(self, indent=None) -> str:
         """Return json string of self"""
-        return json.dumps(self.asdict(), indent=indent)
+
+        def datetime_handler(obj):
+            if isinstance(obj, (datetime.datetime, datetime.date, datetime.time)):
+                return obj.isoformat()
+            raise TypeError(
+                "Object of type %s is not JSON serializable" % type(obj).__name__
+            )
+
+        return json.dumps(self.asdict(), indent=indent, default=datetime_handler)
 
     def __enter__(self):
         self._context_manager = True
