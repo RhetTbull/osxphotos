@@ -601,8 +601,10 @@ class PhotoExporter:
             False if photo should not be updated otherwise a truthy ShouldUpdate value
         """
 
-        # NOTE: The order of certain checks is important
-        # read the comments below to understand why before changing
+        # NOTE: The order of checks is optimized for performance on network volumes.
+        # Database-only checks are done first to avoid filesystem operations when possible.
+        # If any database check indicates we need to update, we can skip expensive
+        # filesystem operations like stat() and samefile().
 
         export_db = options.export_db
         fileutil = options.fileutil
@@ -613,10 +615,32 @@ class PhotoExporter:
             # photo doesn't exist in database, should update
             return ShouldUpdate.NOT_IN_DATABASE
 
+        # --- Database-only checks first (fast, no filesystem access) ---
+        if file_record.export_options != options.bit_flags:
+            # exporting with different set of options (e.g. exiftool), should update
+            # need to check this before exiftool in case exiftool options are different
+            # and export database is missing; this will always be True if database is missing
+            # as it'll be None and bit_flags will be an int
+            return ShouldUpdate.EXPORT_OPTIONS_DIFFERENT
+
+        if options.update_errors and file_record.error is not None:
+            # files that were exported but generated an error
+            # won't be updated unless --update-errors is specified
+            # for example, an exiftool error due to bad metadata
+            # that the user subsequently fixed should be updated; see #872
+            # this must be checked before exiftool which will return False if exif data matches
+            return ShouldUpdate.UPDATE_ERRORS
+
+        if options.edited and self.photo.date_modified != file_record.date_modified:
+            # edited file date modified in Photos doesn't match what was last exported
+            # this is a database-only check so it goes before filesystem checks
+            return ShouldUpdate.DATE_MODIFIED_DIFFERENT
+
+        # --- Filesystem checks (use stat_cache for efficiency) ---
         # Hardlink checks: skip expensive samefile() calls when source and destination
         # are on different filesystems (hardlinks can't span filesystems)
         # same_filesystem is None if not yet determined, True if same, False if different
-        if options.same_filesystem is False:
+        if not options.same_filesystem:
             # Cross-volume export: hardlinks are impossible
             if options.export_as_hardlink:
                 # Can't verify hardlink on different filesystem, need to update
@@ -638,35 +662,15 @@ class PhotoExporter:
             # destination file doesn't match what was last exported
             return ShouldUpdate.DEST_SIG_DIFFERENT
 
-        if file_record.export_options != options.bit_flags:
-            # exporting with different set of options (e.g. exiftool), should update
-            # need to check this before exiftool in case exiftool options are different
-            # and export database is missing; this will always be True if database is missing
-            # as it'll be None and bit_flags will be an int
-            return ShouldUpdate.EXPORT_OPTIONS_DIFFERENT
-
-        if options.update_errors and file_record.error is not None:
-            # files that were exported but generated an error
-            # won't be updated unless --update-errors is specified
-            # for example, an exiftool error due to bad metadata
-            # that the user subsequently fixed should be updated; see #872
-            # this must be checked before exiftool which will return False if exif data matches
-            return ShouldUpdate.UPDATE_ERRORS
-
+        # --- Additional checks that may involve computation ---
         if options.exiftool:
             current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
-            rv = current_exifdata != file_record.exifdata
-            # if using exiftool, don't need to continue checking edited below
-            # as exiftool will be used to update edited file
-            return ShouldUpdate.EXIFTOOL_DIFFERENT if rv else False
-
-        if options.edited and self.photo.date_modified != file_record.date_modified:
-            # edited file date modified in Photos doesn't match what was last exported
-            return ShouldUpdate.DATE_MODIFIED_DIFFERENT
+            if current_exifdata != file_record.exifdata:
+                return ShouldUpdate.EXIFTOOL_DIFFERENT
+            return False
 
         if options.force_update:
-            current_digest = self.photo.hexdigest
-            if current_digest != file_record.digest:
+            if self.photo.hexdigest != file_record.digest:
                 # metadata in Photos changed, force update
                 return ShouldUpdate.DIGEST_DIFFERENT
 
@@ -698,24 +702,30 @@ class PhotoExporter:
         if not file_record:
             return ShouldUpdate.NOT_IN_DATABASE
 
-        if not options.ignore_signature and not fileutil.cmp_file_sig(
-            dest, file_record.dest_sig, stat_cache=options.stat_cache
-        ):
-            return ShouldUpdate.DEST_SIG_DIFFERENT
-
+        # --- Database-only checks first (fast, no filesystem access) ---
         if file_record.export_options != options.bit_flags:
             return ShouldUpdate.EXPORT_OPTIONS_DIFFERENT
 
         if options.update_errors and file_record.error is not None:
             return ShouldUpdate.UPDATE_ERRORS
 
+        if options.edited and self.photo.date_modified != file_record.date_modified:
+            # edited file date modified in Photos doesn't match what was last exported
+            # this is a database-only check so it goes before filesystem checks
+            return ShouldUpdate.DATE_MODIFIED_DIFFERENT
+
+        # --- Filesystem check (uses stat_cache for efficiency) ---
+        if not options.ignore_signature and not fileutil.cmp_file_sig(
+            dest, file_record.dest_sig, stat_cache=options.stat_cache
+        ):
+            return ShouldUpdate.DEST_SIG_DIFFERENT
+
+        # --- Additional checks that may involve computation ---
         if options.exiftool:
             current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
             if current_exifdata != file_record.exifdata:
                 return ShouldUpdate.EXIFTOOL_DIFFERENT
-
-        if options.edited and self.photo.date_modified != file_record.date_modified:
-            return ShouldUpdate.DATE_MODIFIED_DIFFERENT
+            return False
 
         if options.force_update:
             if self.photo.hexdigest != file_record.digest:
