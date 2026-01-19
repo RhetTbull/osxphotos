@@ -1170,6 +1170,9 @@ class PhotoExporter:
         fileutil = options.fileutil
         export_db = options.export_db
 
+        if options.update or options.force_update:
+            export_db.prefetch_directory_records(dest.parent)
+
         action = None
         if options.update or options.force_update:  # updating
             if dest_exists:

@@ -131,6 +131,10 @@ class ExportDB:
 
         self.lock = threading.Lock()
 
+        # Cache for batch-loaded ExportRecord data, keyed by directory path
+        # Each directory maps to a dict of filepath_normalized -> record data
+        self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
+
         self._conn = self._open_export_db(self._dbfile, version)
         self._perform_db_maintenance(self._conn)
         self._insert_run_info()
@@ -160,6 +164,18 @@ class ExportDB:
         filename = self._relative_filepath(filename)
         filename_normalized = self._normalize_filepath(filename)
 
+        # Check cache first
+        dir_path = str(pathlib.Path(filename).parent)
+        dir_normalized = self._normalize_filepath(dir_path)
+        if dir_normalized in self._record_cache:
+            cached_data = self._record_cache[dir_normalized].get(filename_normalized)
+            if cached_data is not None:
+                return ExportRecord(
+                    self.connection, self.lock, filename_normalized, cached_data
+                )
+            # Directory is cached but file not found
+            return None
+
         with self.lock:
             conn = self.connection
             c = conn.cursor()
@@ -168,6 +184,96 @@ class ExportDB:
                 (filename_normalized,),
             ).fetchone()
         return ExportRecord(conn, self.lock, filename_normalized) if result else None
+
+    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def prefetch_directory_records(self, directory: str | os.PathLike) -> int:
+        """Batch-load all ExportRecord data for files in a directory.
+
+        This loads all records with a single SQL query and caches them for
+        subsequent get_file_record() calls. This is significantly faster than
+        individual queries when processing many files in the same directory.
+
+        Args:
+            directory: Directory path to prefetch records for.
+
+        Returns:
+            Number of records loaded.
+        """
+        dir_relative = self._relative_filepath(directory)
+        dir_normalized = self._normalize_filepath(dir_relative)
+
+        # Already cached
+        if dir_normalized in self._record_cache:
+            return len(self._record_cache[dir_normalized])
+
+        with self.lock:
+            conn = self.connection
+            c = conn.cursor()
+            # Query all records in directory with LIKE prefix match
+            # The pattern matches files in the directory (not subdirectories)
+            # Special case for root directory (dir_normalized is ".")
+            if dir_normalized == ".":
+                # Root directory: match files without "/" (directly in root)
+                results = c.execute(
+                    """SELECT filepath_normalized, uuid, digest, exifdata, export_options,
+                              dest_mode, dest_size, dest_mtime, error, date_modified
+                       FROM export_data
+                       WHERE filepath_normalized NOT LIKE '%/%';""",
+                ).fetchall()
+            else:
+                results = c.execute(
+                    """SELECT filepath_normalized, uuid, digest, exifdata, export_options,
+                              dest_mode, dest_size, dest_mtime, error, date_modified
+                       FROM export_data
+                       WHERE filepath_normalized LIKE ? AND filepath_normalized NOT LIKE ?;""",
+                    (f"{dir_normalized}/%", f"{dir_normalized}/%/%"),
+                ).fetchall()
+
+        # Build cache for this directory
+        dir_cache: dict[str, dict[str, Any]] = {}
+        for row in results:
+            filepath_normalized = row[0]
+            # Parse error JSON
+            error_val = json.loads(row[8]) if row[8] else None
+            # Parse date_modified
+            date_modified_val = None
+            if row[9]:
+                try:
+                    date_modified_val = datetime.datetime.fromisoformat(row[9])
+                except Exception:
+                    pass
+            # Build dest_sig tuple
+            mtime = int(row[7]) if row[7] is not None else None
+            dest_sig = (row[5], row[6], mtime)
+
+            dir_cache[filepath_normalized] = {
+                "uuid": row[1],
+                "digest": row[2],
+                "exifdata": row[3],
+                "export_options": row[4],
+                "dest_sig": dest_sig,
+                "error": error_val,
+                "date_modified": date_modified_val,
+            }
+
+        self._record_cache[dir_normalized] = dir_cache
+        logger.debug(
+            f"Prefetched {len(dir_cache)} export records for directory {directory}"
+        )
+        return len(dir_cache)
+
+    def invalidate_record_cache(self, directory: str | os.PathLike | None = None):
+        """Invalidate the record cache for a directory or all directories.
+
+        Args:
+            directory: Directory to invalidate, or None to clear entire cache.
+        """
+        if directory is None:
+            self._record_cache.clear()
+        else:
+            dir_relative = self._relative_filepath(directory)
+            dir_normalized = self._normalize_filepath(dir_relative)
+            self._record_cache.pop(dir_normalized, None)
 
     @retry(
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),
@@ -206,6 +312,16 @@ class ExportDB:
         """
         filename = self._relative_filepath(filename)
         filename_normalized = self._normalize_filepath(filename)
+
+        # Check cache first - if record exists, skip the INSERT query
+        dir_path = str(pathlib.Path(filename).parent)
+        dir_normalized = self._normalize_filepath(dir_path)
+        if dir_normalized in self._record_cache:
+            cached_data = self._record_cache[dir_normalized].get(filename_normalized)
+            if cached_data is not None:
+                return ExportRecord(
+                    self.connection, self.lock, filename_normalized, cached_data
+                )
 
         with self.lock:
             conn = self.connection
@@ -1201,6 +1317,9 @@ class ExportDBInMemory(ExportDB):
 
         self.lock = threading.Lock()
 
+        # Cache for batch-loaded ExportRecord data
+        self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
+
         self._conn = self._open_export_db(self._dbfile, version=version)
         self._insert_run_info()
         self._insert_export_dir()
@@ -1330,6 +1449,9 @@ class ExportDBTemp(ExportDBInMemory):
 
         self.lock = threading.Lock()
 
+        # Cache for batch-loaded ExportRecord data
+        self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
+
         self.was_upgraded = ()
         self.was_created = False
 
@@ -1355,15 +1477,21 @@ class ExportRecord:
         "_conn",
         "_context_manager",
         "_filepath_normalized",
+        "_cached_data",
         "lock",
     ]
 
     def __init__(
-        self, conn: sqlite3.Connection, lock: threading.Lock, filepath_normalized: str
+        self,
+        conn: sqlite3.Connection,
+        lock: threading.Lock,
+        filepath_normalized: str,
+        cached_data: dict[str, Any] | None = None,
     ):
         self._conn = conn
         self.lock = lock
         self._filepath_normalized = filepath_normalized
+        self._cached_data = cached_data
         self._context_manager = False
 
     @property
@@ -1437,6 +1565,8 @@ class ExportRecord:
 
     def _digest(self) -> str:
         """returns the digest value"""
+        if self._cached_data is not None:
+            return self._cached_data.get("digest")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1477,6 +1607,8 @@ class ExportRecord:
 
     def _exifdata(self) -> str:
         """returns exifdata value for record"""
+        if self._cached_data is not None:
+            return self._cached_data.get("exifdata")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1570,6 +1702,8 @@ class ExportRecord:
 
     def _dest_sig(self) -> tuple[int, int, int | None]:
         """return destination file signature"""
+        if self._cached_data is not None:
+            return self._cached_data.get("dest_sig")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1674,6 +1808,8 @@ class ExportRecord:
 
     def _export_options(self) -> str:
         """Get export_options value"""
+        if self._cached_data is not None:
+            return self._cached_data.get("export_options")
         conn = self.connection
         c = conn.cursor()
         row = c.execute(
@@ -1734,6 +1870,8 @@ class ExportRecord:
 
     def _error(self) -> dict[str, Any] | None:
         """Return error value"""
+        if self._cached_data is not None:
+            return self._cached_data.get("error")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1777,6 +1915,8 @@ class ExportRecord:
 
     def _date_modified(self) -> datetime.datetime | None:
         """return date modified"""
+        if self._cached_data is not None:
+            return self._cached_data.get("date_modified")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
