@@ -77,6 +77,7 @@ from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.sidecars import UserSidecarError
+from osxphotos.stat_cache import DirectoryStatCache, are_same_filesystem
 from osxphotos.unicode import normalize_fs_path
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
@@ -2011,6 +2012,18 @@ def export_cli(
 
         atexit.register(cleanup_lock_files)
 
+        # Initialize stat cache for efficient network volume operations
+        # Only create cache for update exports where we'll be checking existing files
+        if update or force_update:
+            stat_cache = DirectoryStatCache(ttl_seconds=300.0)
+            same_filesystem = are_same_filesystem(photosdb.library_path, dest)
+            verbose(
+                f"Export destination {'is' if same_filesystem else 'is not'} on same filesystem as Photos library"
+            )
+        else:
+            stat_cache = None
+            same_filesystem = None
+
         photo_num = 0
         num_exported = 0
         limit_str = f" (limit = [num]{limit}[/num])" if limit else ""
@@ -2370,6 +2383,8 @@ def export_photo(
     tmpdir=None,
     update_errors=False,
     fix_orientation=False,
+    stat_cache=None,
+    same_filesystem=None,
 ) -> ExportResults:
     """Helper function for export that does the actual export
 
@@ -2422,6 +2437,8 @@ def export_photo(
         verbose: callable for verbose output
         tmpdir: optional str; temporary directory to use for export
         fix_orientation: bool; if True, auto-rotate images based on EXIF orientation
+        stat_cache: DirectoryStatCache to use
+        same_filesystem: bool, True if source and destination are on same file system, otherwise False
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2595,6 +2612,8 @@ def export_photo(
                 verbose=verbose,
                 tmpdir=tmpdir,
                 fix_orientation=fix_orientation,
+                stat_cache=stat_cache,
+                same_filesystem=same_filesystem,
             )
 
     if export_edited and photo.hasadjustments:
@@ -2717,6 +2736,8 @@ def export_photo(
                     verbose=verbose,
                     tmpdir=tmpdir,
                     fix_orientation=fix_orientation,
+                    stat_cache=stat_cache,
+                    same_filesystem=same_filesystem,
                 )
 
     return results
@@ -2808,6 +2829,8 @@ def export_photo_to_directory(
     verbose,
     tmpdir,
     fix_orientation,
+    stat_cache=None,
+    same_filesystem=None,
 ) -> ExportResults:
     """Export photo to directory dest_path"""
 
@@ -2879,6 +2902,8 @@ def export_photo_to_directory(
                 use_photos_export=use_photos_export,
                 verbose=verbose,
                 fix_orientation=fix_orientation,
+                stat_cache=stat_cache,
+                same_filesystem=same_filesystem,
             )
             exporter = PhotoExporter(photo)
             export_results = exporter.export(

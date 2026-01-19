@@ -504,23 +504,27 @@ class PhotoExporter:
         # lock files are used to minimize chance of name collision when in parallel mode
         # don't create lock files if in dry_run mode
         lock = not options.dry_run
+        stat_cache = options.stat_cache
 
         def _lock_filename(filename):
             """Lock filename if not in dry_run mode"""
             return lock_filename(filename) if lock else filename
 
+        def _dest_exists(path: pathlib.Path) -> bool:
+            """Check if destination exists, using stat cache if available."""
+            if stat_cache is not None:
+                return stat_cache.exists(path)
+            return path.exists()
+
         # if overwrite==False and #increment==False, export should fail if file exists
-        if (
-            not any(
-                [
-                    options.increment,
-                    options.update,
-                    options.force_update,
-                    options.overwrite,
-                ]
-            )
-            and dest.exists()
-        ):
+        if not any(
+            [
+                options.increment,
+                options.update,
+                options.force_update,
+                options.overwrite,
+            ]
+        ) and _dest_exists(dest):
             raise FileExistsError(
                 f"destination exists ({dest}); overwrite={options.overwrite}, increment={options.increment}"
             )
@@ -538,13 +542,15 @@ class PhotoExporter:
         if options.increment and not any(
             [options.update, options.force_update, options.overwrite]
         ):
-            return pathlib.Path(increment_filename(dest, lock=lock))
+            return pathlib.Path(
+                increment_filename(dest, lock=lock, stat_cache=stat_cache)
+            )
 
         # if update and file exists, need to check to see if it's the right file by checking export db
         if options.update or options.force_update:
             export_db = options.export_db
             dest_uuid = export_db.get_uuid_for_file(dest)
-            if dest_uuid is None and not dest.exists() and _lock_filename(dest):
+            if dest_uuid is None and not _dest_exists(dest) and _lock_filename(dest):
                 # destination doesn't exist in export db and doesn't exist on disk
                 # so we can just use it
                 return dest
@@ -567,10 +573,14 @@ class PhotoExporter:
             # no match so need to create a new name
             # increment the destination file until we find one that doesn't exist and doesn't match another uuid in the database
             count = 0
-            dest, count = increment_filename_with_count(dest, count, lock=lock)
+            dest, count = increment_filename_with_count(
+                dest, count, lock=lock, stat_cache=stat_cache
+            )
             count += 1
             while export_db.get_uuid_for_file(dest) is not None:
-                dest, count = increment_filename_with_count(dest, count, lock=lock)
+                dest, count = increment_filename_with_count(
+                    dest, count, lock=lock, stat_cache=stat_cache
+                )
             return pathlib.Path(dest)
 
         # fail safe...I can't think of a case that gets here
@@ -603,16 +613,27 @@ class PhotoExporter:
             # photo doesn't exist in database, should update
             return ShouldUpdate.NOT_IN_DATABASE
 
-        if options.export_as_hardlink and (not src or not dest.samefile(src)):
-            # different files, should update
-            return ShouldUpdate.HARDLINK_DIFFERENT_FILES
+        # Hardlink checks: skip expensive samefile() calls when source and destination
+        # are on different filesystems (hardlinks can't span filesystems)
+        # same_filesystem is None if not yet determined, True if same, False if different
+        if options.same_filesystem is False:
+            # Cross-volume export: hardlinks are impossible
+            if options.export_as_hardlink:
+                # Can't verify hardlink on different filesystem, need to update
+                return ShouldUpdate.HARDLINK_DIFFERENT_FILES
+            # If not exporting as hardlink, no need to check samefile - they can't be same
+        else:
+            # Same filesystem or unknown: do the full check
+            if options.export_as_hardlink and (not src or not dest.samefile(src)):
+                # different files, should update
+                return ShouldUpdate.HARDLINK_DIFFERENT_FILES
 
-        if not options.export_as_hardlink and (not src or dest.samefile(src)):
-            # same file but not exporting as hardlink, should update
-            return ShouldUpdate.NOT_HARDLINK_SAME_FILES
+            if not options.export_as_hardlink and (not src or dest.samefile(src)):
+                # same file but not exporting as hardlink, should update
+                return ShouldUpdate.NOT_HARDLINK_SAME_FILES
 
         if not options.ignore_signature and not fileutil.cmp_file_sig(
-            dest, file_record.dest_sig
+            dest, file_record.dest_sig, stat_cache=options.stat_cache
         ):
             # destination file doesn't match what was last exported
             return ShouldUpdate.DEST_SIG_DIFFERENT
@@ -678,7 +699,7 @@ class PhotoExporter:
             return ShouldUpdate.NOT_IN_DATABASE
 
         if not options.ignore_signature and not fileutil.cmp_file_sig(
-            dest, file_record.dest_sig
+            dest, file_record.dest_sig, stat_cache=options.stat_cache
         ):
             return ShouldUpdate.DEST_SIG_DIFFERENT
 
@@ -1130,7 +1151,11 @@ class PhotoExporter:
         exif_results = ExportResults()
 
         dest_str = str(dest)
-        dest_exists = dest.exists()
+        # Use stat cache for exists check if available
+        if options.stat_cache is not None:
+            dest_exists = options.stat_cache.exists(dest)
+        else:
+            dest_exists = dest.exists()
 
         fileutil = options.fileutil
         export_db = options.export_db
@@ -1166,6 +1191,9 @@ class PhotoExporter:
                 # need to remove the destination first
                 try:
                     fileutil.unlink(dest)
+                    # Update stat cache to reflect deleted file
+                    if options.stat_cache is not None:
+                        options.stat_cache.remove_file(dest)
                 except Exception as e:
                     raise ExportError(
                         f"Error removing file {dest}: {e} (({lineno(__file__)})"
@@ -1173,6 +1201,9 @@ class PhotoExporter:
             if options.export_as_hardlink:
                 try:
                     fileutil.hardlink(src, dest)
+                    # Update stat cache to reflect new file
+                    if options.stat_cache is not None:
+                        options.stat_cache.update_file(dest)
                 except Exception as e:
                     raise ExportError(
                         f"Error hardlinking {src} to {dest}: {e} ({lineno(__file__)})"
@@ -1214,6 +1245,9 @@ class PhotoExporter:
 
                 try:
                     fileutil.copy(src, dest_str)
+                    # Update stat cache to reflect new file
+                    if options.stat_cache is not None:
+                        options.stat_cache.update_file(dest_str)
                     verbose(
                         f"Exported {self._filename(self.photo.original_filename)} to {self._filepath(normalize_fs_path(dest_str))}"
                     )

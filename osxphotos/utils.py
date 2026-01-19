@@ -22,6 +22,9 @@ from plistlib import load as plistload
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
 
+if TYPE_CHECKING:
+    from .stat_cache import DirectoryStatCache
+
 import requests
 import shortuuid
 
@@ -348,7 +351,10 @@ def list_directory(
 
 
 def increment_filename_with_count(
-    filepath: Union[str, pathlib.Path], count: int = 0, lock: bool = False
+    filepath: Union[str, pathlib.Path],
+    count: int = 0,
+    lock: bool = False,
+    stat_cache: Optional["DirectoryStatCache"] = None,
 ) -> Tuple[str, int]:
     """Return filename (1).ext, etc if filename.ext exists
 
@@ -359,6 +365,7 @@ def increment_filename_with_count(
         filepath: str or pathlib.Path; full path, including file name
         count: int; starting increment value
         lock: bool, if True, creates lock file to reserve filename
+        stat_cache: Optional DirectoryStatCache for efficient directory listing on network volumes
 
     Returns:
         tuple of new filepath (or same if not incremented), count
@@ -366,8 +373,16 @@ def increment_filename_with_count(
     Note: This obviously is subject to race condition so using with caution.
     """
     dest = filepath if isinstance(filepath, pathlib.Path) else pathlib.Path(filepath)
-    dest_files = list_directory(dest.parent, startswith=dest.stem)
-    dest_files = [f.stem.lower() for f in dest_files]
+
+    # Use stat cache for directory listing if available, otherwise fall back to list_directory
+    if stat_cache is not None:
+        dest_files = stat_cache.list_directory(dest.parent, startswith=dest.stem)
+        # list_directory from stat_cache returns just filenames, need to extract stems
+        dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
+    else:
+        dest_files = list_directory(dest.parent, startswith=dest.stem)
+        dest_files = [f.stem.lower() for f in dest_files]
+
     dest_new = f"{dest.stem} ({count})" if count else dest.stem
     dest_new = normalize_fs_path(dest_new)
 
@@ -377,11 +392,17 @@ def increment_filename_with_count(
     dest = dest.parent / f"{dest_new}{dest.suffix}"
     if lock and not lock_filename(dest):
         # if lock fails, increment count and try again
-        return increment_filename_with_count(filepath, count + 1, lock=lock)
+        return increment_filename_with_count(
+            filepath, count + 1, lock=lock, stat_cache=stat_cache
+        )
     return normalize_fs_path(str(dest)), count
 
 
-def increment_filename(filepath: Union[str, pathlib.Path], lock: bool = False) -> str:
+def increment_filename(
+    filepath: Union[str, pathlib.Path],
+    lock: bool = False,
+    stat_cache: Optional["DirectoryStatCache"] = None,
+) -> str:
     """Return filename (1).ext, etc if filename.ext exists
 
         If file exists in filename's parent folder with same stem as filename,
@@ -391,13 +412,16 @@ def increment_filename(filepath: Union[str, pathlib.Path], lock: bool = False) -
         filepath: str or pathlib.Path; full path, including file name
         force: force the file count to increment by at least 1 even if filepath doesn't exist
         lock: bool, if True, creates lock file to reserve filename
+        stat_cache: Optional DirectoryStatCache for efficient directory listing on network volumes
 
     Returns:
         new filepath (or same if not incremented)
 
     Note: This obviously is subject to race condition so using with caution.
     """
-    new_filepath, _ = increment_filename_with_count(filepath, lock=lock)
+    new_filepath, _ = increment_filename_with_count(
+        filepath, lock=lock, stat_cache=stat_cache
+    )
     return new_filepath
 
 

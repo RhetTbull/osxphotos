@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import dataclasses
 from datetime import datetime
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from ._constants import DEFAULT_PREVIEW_SUFFIX
 from .export_db import ExportDB
 from .fileutil import FileUtil
 from .phototemplate import RenderOptions
+
+if TYPE_CHECKING:
+    from .stat_cache import DirectoryStatCache
 
 # These two classes are in a separate file as classes other than PhotoExporter need to use them
 
@@ -125,6 +128,8 @@ class ExportOptions:
     favorite_rating: bool = False
     fix_orientation: bool = False
     sidecar_template: Optional[tuple[tuple[str, str, tuple[str, ...]], ...]] = None
+    stat_cache: Optional["DirectoryStatCache"] = None
+    same_filesystem: Optional[bool] = None
 
     def asdict(self):
         return dataclasses.asdict(self)
