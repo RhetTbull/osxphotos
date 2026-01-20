@@ -36,12 +36,15 @@ SIDECARS = [
     ["IMG_1234.jpeg", "IMG_1234.xmp", []],
     ["IMG_1234.jpeg", "IMG_1234.json", ["IMG_1234.xmp"]],
     ["IMG_1234.jpeg", "IMG_1234.jpeg.json", []],
+    ["IMG_1234.jpeg", "IMG_1234.jpeg.supplemental-metadata.json", []],
     ["IMG_1234-edited.jpeg", "IMG_1234.json", []],
     ["IMG_1234-edited.jpeg", "IMG_1234.jpeg.json", []],
     ["IMG_1234-edited.jpeg", "IMG_1234-edited.jpeg.json", ["IMG_1234.jpeg.json"]],
     ["IMG_1234(1).jpeg", "IMG_1234.jpeg(1).json", []],
     ["IMG_1234(1).jpeg", "IMG_1234(1).jpeg.json", []],
     ["IMG_1234(1).jpeg", "IMG_1234(1).json", []],
+    ["IMG_1234(1).jpeg", "IMG_1234.jpeg(1).supplemental-metadata.json", []],
+    ["IMG_1234-edited.jpeg", "IMG_1234.jpeg.supplemental-metadata.json", []],
 ]
 
 SIDECAR_TYPES = {

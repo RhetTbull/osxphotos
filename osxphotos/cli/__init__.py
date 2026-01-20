@@ -10,10 +10,21 @@ from osxphotos.debug import (
     debug_watch,
     get_debug_flags,
     get_debug_options,
+    relocate_debug_options,
     set_debug,
     wrap_function,
 )
 from osxphotos.platform import is_macos
+
+# Relocate debug options to the beginning of argv so Click processes them correctly.
+# This allows users to pass debug options anywhere in the command line, e.g.:
+# 'osxphotos export --profile' instead of 'osxphotos --profile export'
+# Must be done early, before Click processes argv
+_DEBUG_FLAGS = ["--debug", "--profile"]
+_DEBUG_OPTIONS = ["--watch", "--breakpoint", "--profile-sort"]
+sys.argv[:] = relocate_debug_options(
+    sys.argv, flags=_DEBUG_FLAGS, options=_DEBUG_OPTIONS
+)
 
 # apply any debug functions
 # need to do this before importing anything else so that the debug functions
