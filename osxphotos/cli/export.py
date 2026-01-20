@@ -3163,8 +3163,6 @@ def collect_files_to_keep(
     # have some rules to apply
     matcher = osxphotos.gitignorefile.parse_pattern_list(KEEP_RULEs, export_dir)
 
-    # Use os.walk instead of rglob to avoid redundant stat calls
-    # os.walk provides file/directory distinction for free from directory entries
     files_to_keep = []
     dirs_to_keep = []
     for root, dirnames, filenames in os.walk(export_dir):
