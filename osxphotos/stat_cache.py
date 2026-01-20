@@ -213,7 +213,9 @@ class DirectoryStatCache:
 
         return files
 
-    def update_file(self, filepath: str | pathlib.Path) -> None:
+    def update_file(
+        self, filepath: str | pathlib.Path, mtime: int | None = None
+    ) -> None:
         """Update cache for a single file after it's been written.
 
         This is more efficient than invalidating the entire directory cache.
@@ -221,6 +223,9 @@ class DirectoryStatCache:
 
         Args:
             filepath: Path to the file that was written.
+            mtime: Optional mtime to set in cache. If provided and file is already
+                cached, updates only the mtime without calling stat(). This is useful
+                after utime() calls where we know the new mtime.
         """
         path = pathlib.Path(filepath)
         dir_path = self._normalize_dir(path.parent)
@@ -230,12 +235,32 @@ class DirectoryStatCache:
         with self._lock:
             # Only update if directory is already cached
             if dir_path in self._cache:
-                try:
-                    st = os.stat(filepath)
-                    self._cache[dir_path][filename] = st
-                except OSError:
-                    # File doesn't exist, remove from cache
-                    self._cache[dir_path].pop(filename, None)
+                # If mtime provided and file already cached, update mtime without stat
+                if mtime is not None and filename in self._cache[dir_path]:
+                    existing = self._cache[dir_path][filename]
+                    # Create a new stat_result with updated mtime
+                    # os.stat_result can be constructed from a sequence
+                    self._cache[dir_path][filename] = os.stat_result(
+                        (
+                            existing.st_mode,
+                            existing.st_ino,
+                            existing.st_dev,
+                            existing.st_nlink,
+                            existing.st_uid,
+                            existing.st_gid,
+                            existing.st_size,
+                            mtime,  # st_atime
+                            mtime,  # st_mtime
+                            existing.st_ctime,
+                        )
+                    )
+                else:
+                    try:
+                        st = os.stat(filepath)
+                        self._cache[dir_path][filename] = st
+                    except OSError:
+                        # File doesn't exist, remove from cache
+                        self._cache[dir_path].pop(filename, None)
 
     def remove_file(self, filepath: str | pathlib.Path) -> None:
         """Remove a file from the cache after it's been deleted.

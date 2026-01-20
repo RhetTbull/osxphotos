@@ -2015,7 +2015,7 @@ def export_cli(
         # Initialize stat cache for efficient network volume operations
         # Only create cache for update exports where we'll be checking existing files
         if update or force_update:
-            stat_cache = DirectoryStatCache(ttl_seconds=300.0)
+            stat_cache = DirectoryStatCache(ttl_seconds=60 * 60 * 10)
             same_filesystem = are_same_filesystem(photosdb.library_path, dest)
             verbose(
                 f"Export destination {'is' if same_filesystem else 'is not'} on same filesystem as Photos library"

@@ -48,9 +48,9 @@ def touch_files(
 
             if current_mtime != ts:
                 fileutil.utime(touch_file, (ts, ts))
-                # Update stat cache after modifying the file
+                # Update stat cache with new mtime (avoids extra stat call)
                 if stat_cache is not None:
-                    stat_cache.update_file(touch_file)
+                    stat_cache.update_file(touch_file, mtime=ts)
                 touch_results.append(touch_file)
         except FileNotFoundError as e:
             # ignore errors if in dry_run as file may not be present
