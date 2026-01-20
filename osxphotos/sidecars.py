@@ -223,8 +223,10 @@ class SidecarWriter(_ExifMixin):
                 files_written.append(str(sidecar_filename))
                 if not options.dry_run:
                     self._write_sidecar(sidecar_filename, sidecar_str)
-                    sidecar_record.digest = sidecar_digest
-                    sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
+                    # Use context manager to batch commits
+                    with sidecar_record:
+                        sidecar_record.digest = sidecar_digest
+                        sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
             else:
                 verbose(
                     f"Skipped up to date {sidecar_type} sidecar {_filepath(sidecar_filename)}"

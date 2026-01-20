@@ -3162,10 +3162,24 @@ def collect_files_to_keep(
 
     # have some rules to apply
     matcher = osxphotos.gitignorefile.parse_pattern_list(KEEP_RULEs, export_dir)
-    keepers = []
-    keepers = [path for path in export_dir.rglob("*") if matcher(path)]
-    files_to_keep = [str(k) for k in keepers if k.is_file()]
-    dirs_to_keep = [str(k) for k in keepers if k.is_dir()]
+
+    # Use os.walk instead of rglob to avoid redundant stat calls
+    # os.walk provides file/directory distinction for free from directory entries
+    files_to_keep = []
+    dirs_to_keep = []
+    for root, dirnames, filenames in os.walk(export_dir):
+        root_path = pathlib.Path(root)
+        # Check directories - pass is_dir=True to avoid isdir() call in matcher
+        for dirname in dirnames:
+            dir_path = root_path / dirname
+            if matcher(dir_path, is_dir=True):
+                dirs_to_keep.append(str(dir_path))
+        # Check files - pass is_dir=False to avoid isdir() call in matcher
+        for filename in filenames:
+            file_path = root_path / filename
+            if matcher(file_path, is_dir=False):
+                files_to_keep.append(str(file_path))
+
     return files_to_keep, dirs_to_keep
 
 

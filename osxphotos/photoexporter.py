@@ -281,6 +281,12 @@ class PhotoExporter:
         self._render_options.filepath = str(dest)
         all_results = ExportResults()
 
+        # Helper to check exists using stat_cache when available
+        def _dest_exists(path: pathlib.Path) -> bool:
+            if options.stat_cache is not None:
+                return options.stat_cache.exists(path)
+            return path.exists()
+
         if src:
             # export the dest file
             all_results += self._export_photo(
@@ -288,7 +294,7 @@ class PhotoExporter:
                 dest,
                 options=options,
             )
-        elif staged_files.update_skipped and dest.exists():
+        elif staged_files.update_skipped and _dest_exists(dest):
             all_results.skipped.append(str(dest))
             options.export_db.set_history(str(dest), self.photo.uuid, "skip", None)
             unlock_filename(dest)
@@ -310,7 +316,7 @@ class PhotoExporter:
                     # don't try to convert the live photo
                     options=dataclasses.replace(options, convert_to_jpeg=False),
                 )
-            elif staged_files.update_skipped and live_name.exists():
+            elif staged_files.update_skipped and _dest_exists(live_name):
                 all_results.skipped.append(str(live_name))
                 options.export_db.set_history(
                     str(live_name), self.photo.uuid, "skip", None
@@ -331,7 +337,7 @@ class PhotoExporter:
                     # don't try to convert the live photo
                     options=dataclasses.replace(options, convert_to_jpeg=False),
                 )
-            elif staged_files.update_skipped and live_name.exists():
+            elif staged_files.update_skipped and _dest_exists(live_name):
                 all_results.skipped.append(str(live_name))
                 options.export_db.set_history(
                     str(live_name), self.photo.uuid, "skip", None
@@ -362,7 +368,7 @@ class PhotoExporter:
                 )
                 raw_ext = raw_ext or "raw"
                 raw_name = dest.parent / f"{dest.stem}.{raw_ext}"
-                if staged_files.update_skipped and raw_name.exists():
+                if staged_files.update_skipped and _dest_exists(raw_name):
                     all_results.skipped.append(str(raw_name))
                     options.export_db.set_history(
                         str(raw_name), self.photo.uuid, "skip", None
@@ -751,12 +757,18 @@ class PhotoExporter:
         """
         live_photo = staged.edited_live if options.edited else staged.original_live
 
+        # Helper to check exists using stat_cache when available
+        def _dest_exists(path: pathlib.Path) -> bool:
+            if options.stat_cache is not None:
+                return options.stat_cache.exists(path)
+            return path.exists()
+
         # Check main photo
         main_missing = (
             self.photo.hasadjustments and options.edited and not staged.edited
         ) or (not options.edited and not staged.original)
         if main_missing:
-            if not dest.exists():
+            if not _dest_exists(dest):
                 return True  # New file, need to download
             if self._should_update_photo_for_missing(dest, options):
                 return True  # Needs updating
@@ -765,7 +777,7 @@ class PhotoExporter:
         live_missing = self.photo.live_photo and options.live_photo and not live_photo
         if live_missing:
             live_dest = dest.parent / f"{dest.stem}.mov"
-            if not live_dest.exists():
+            if not _dest_exists(live_dest):
                 return True  # New file, need to download
             if self._should_update_photo_for_missing(live_dest, options):
                 return True  # Needs updating
@@ -780,7 +792,7 @@ class PhotoExporter:
             )
             raw_ext = raw_ext or "raw"
             raw_dest = dest.parent / f"{dest.stem}.{raw_ext}"
-            if not raw_dest.exists():
+            if not _dest_exists(raw_dest):
                 return True  # New file, need to download
             if self._should_update_photo_for_missing(raw_dest, options):
                 return True  # Needs updating
@@ -1192,12 +1204,10 @@ class PhotoExporter:
             action = "export"
 
         export_files = update_new_files + update_updated_files + exported_files
+        # Compute src_sig before any modifications by convert_to_jpeg or exiftool
+        # but defer writing to database until the context manager block to batch commits
+        src_sig = fileutil.file_sig(src)
         for export_dest in export_files:
-            # set src_sig before any modifications by convert_to_jpeg or exiftool
-            export_record = export_db.create_or_get_file_record(
-                export_dest, self.photo.uuid
-            )
-            export_record.src_sig = fileutil.file_sig(src)
             if dest_exists and any(
                 [options.overwrite, options.update, options.force_update]
             ):
@@ -1321,7 +1331,7 @@ class PhotoExporter:
                 diff = None
             rec.photoinfo = self.photo.json(shallow=False)
             rec.export_options = options.bit_flags
-            # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
+            rec.src_sig = src_sig
             if not options.ignore_signature:
                 rec.dest_sig = fileutil.file_sig(dest)
             if options.exiftool:
