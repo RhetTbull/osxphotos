@@ -30,13 +30,27 @@ def touch_files(
         Does not touch files if options.dry_run is True
     """
     fileutil = options.fileutil
+    stat_cache = options.stat_cache
     touch_results = []
     for touch_file in set(touch_files):
         ts = int(photo.date.timestamp())
         try:
-            stat = os.stat(touch_file)
-            if stat.st_mtime != ts:
+            # Use stat_cache if available to avoid network stat() calls
+            if stat_cache is not None:
+                cached_stat = stat_cache.stat(touch_file)
+                if cached_stat is not None:
+                    current_mtime = int(cached_stat.st_mtime)
+                else:
+                    # Not in cache, fall back to direct stat
+                    current_mtime = int(os.stat(touch_file).st_mtime)
+            else:
+                current_mtime = int(os.stat(touch_file).st_mtime)
+
+            if current_mtime != ts:
                 fileutil.utime(touch_file, (ts, ts))
+                # Update stat cache after modifying the file
+                if stat_cache is not None:
+                    stat_cache.update_file(touch_file)
                 touch_results.append(touch_file)
         except FileNotFoundError as e:
             # ignore errors if in dry_run as file may not be present
