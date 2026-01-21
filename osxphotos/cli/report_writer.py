@@ -187,6 +187,17 @@ class ExportReportWriterJSON(ReportWriterABC):
 class ExportReportWriterSQLite(ReportWriterABC):
     """Write sqlite report file for export data"""
 
+    # Number of records to buffer before committing to reduce commit overhead
+    BATCH_SIZE = 100
+
+    # SQL for batch inserts
+    _INSERT_SQL = (
+        "INSERT INTO report "
+        "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user, sidecar_user_error, user_written, user_skipped, user_error, aae_written, aae_skipped) "  # noqa
+        "VALUES "
+        "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user, :sidecar_user_error, :user_written, :user_skipped, :user_error, :aae_written, :aae_skipped);"  # noqa
+    )
+
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
     ):
@@ -202,26 +213,37 @@ class ExportReportWriterSQLite(ReportWriterABC):
         )
         self._create_tables()
         self.report_id = self._generate_report_id()
+        self._write_buffer: list[dict[str, Any]] = []
 
     def write(self, export_results: ExportResults):
-        """Write results to the output file"""
+        """Write results to a buffer; commits in batches for better performance"""
 
         all_results = prepare_export_results_for_writing(export_results)
         for data in list(all_results.values()):
             data["report_id"] = self.report_id
-            cursor = self._conn.cursor()
-            cursor.execute(
-                "INSERT INTO report "
-                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user, sidecar_user_error, user_written, user_skipped, user_error, aae_written, aae_skipped) "  # noqa
-                "VALUES "
-                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user, :sidecar_user_error, :user_written, :user_skipped, :user_error, :aae_written, :aae_skipped);",  # noqa
-                data,
-            )
+            self._write_buffer.append(data)
+
+        if len(self._write_buffer) >= self.BATCH_SIZE:
+            self._flush()
+
+    def _flush(self):
+        """Flush buffered writes to database"""
+        if not self._write_buffer:
+            return
+        cursor = self._conn.cursor()
+        cursor.executemany(self._INSERT_SQL, self._write_buffer)
         self._conn.commit()
+        self._write_buffer.clear()
 
     def close(self):
-        """Close the output file"""
+        """Flush any remaining buffered writes and close the database connection"""
+        self._flush()
         self._conn.close()
+
+    def __del__(self):
+        with suppress(Exception):
+            self._flush()
+            self._conn.close()
 
     def _create_tables(self):
         c = self._conn.cursor()
