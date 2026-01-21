@@ -49,6 +49,9 @@ MAX_RETRY_ATTEMPTS = 3
 # maximum number of export results rows to save
 MAX_EXPORT_RESULTS_DATA_ROWS = 10
 
+# batch size for history writes to reduce commit overhead
+HISTORY_BATCH_SIZE = 100
+
 
 logger = logging.getLogger("osxphotos")
 
@@ -134,6 +137,10 @@ class ExportDB:
         # Cache for batch-loaded ExportRecord data, keyed by directory path
         # Each directory maps to a dict of filepath_normalized -> record data
         self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
+
+        # Buffer for batched history writes to reduce commit overhead
+        # Each entry is (filename_normalized, uuid, action, diff)
+        self._history_buffer: list[tuple[str, str, str, str | None]] = []
 
         self._conn = self._open_export_db(self._dbfile, version)
         self._perform_db_maintenance(self._conn)
@@ -543,7 +550,6 @@ class ExportDB:
             ).fetchall()
         return sum(self.delete_data_for_uuid(row[0]) for row in results)
 
-    # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def set_history(
         self,
         filename: str | os.PathLike,
@@ -557,27 +563,59 @@ class ExportDB:
             filename: path to file
             action: action taken on file, e.g. "exported", "skipped", "missing", "updated"
             diff: diff for file as a serialized JSON str
+
+        Note: Records are buffered and committed in batches for better performance.
+        Call flush_history() to force immediate commit of buffered records.
         """
         filename_normalized = self._normalize_filepath_relative(filename)
+        self._history_buffer.append((filename_normalized, uuid, action, diff))
+
+        if len(self._history_buffer) >= HISTORY_BATCH_SIZE:
+            self.flush_history()
+
+    def flush_history(self):
+        """Flush buffered history records to the database.
+
+        This is called automatically when the buffer reaches HISTORY_BATCH_SIZE,
+        and also called by close() to ensure all records are written.
+        """
+        if not self._history_buffer:
+            return
+
         with self.lock:
             conn = self.connection
             c = conn.cursor()
-            if filepath_id := c.execute(
-                "SELECT id FROM history_path WHERE filepath_normalized = ?;",
-                (filename_normalized,),
-            ).fetchone():
-                filepath_id = filepath_id[0]
-            else:
-                c.execute(
-                    "INSERT INTO history_path (filepath_normalized, uuid) VALUES (?, ?);",
-                    (filename_normalized, uuid),
-                )
-                filepath_id = c.lastrowid
-            c.execute(
-                "INSERT INTO history (filepath_id, action, diff) VALUES (?, ?, ?);",
-                (filepath_id, action, diff),
+
+            # First, ensure all paths exist in history_path table
+            # Use INSERT OR IGNORE to handle existing paths efficiently
+            unique_paths = {(fn, uuid) for fn, uuid, _, _ in self._history_buffer}
+            c.executemany(
+                "INSERT OR IGNORE INTO history_path (filepath_normalized, uuid) VALUES (?, ?);",
+                unique_paths,
             )
+
+            # Build a mapping of filepath_normalized -> id
+            # Query all paths we need in one go
+            path_list = [fn for fn, _, _, _ in self._history_buffer]
+            placeholders = ",".join("?" * len(path_list))
+            rows = c.execute(
+                f"SELECT filepath_normalized, id FROM history_path WHERE filepath_normalized IN ({placeholders});",
+                path_list,
+            ).fetchall()
+            path_to_id = {row[0]: row[1] for row in rows}
+
+            # Now batch insert all history records
+            history_records = [
+                (path_to_id[fn], action, diff)
+                for fn, _, action, diff in self._history_buffer
+            ]
+            c.executemany(
+                "INSERT INTO history (filepath_id, action, diff) VALUES (?, ?, ?);",
+                history_records,
+            )
+
             conn.commit()
+            self._history_buffer.clear()
 
     # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_history(
@@ -642,8 +680,9 @@ class ExportDB:
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def close(self):
-        """close the database connection"""
+        """Flush any buffered data and close the database connection"""
         if self._conn:
+            self.flush_history()
             self._conn.close()
             self._conn = None
 
@@ -1320,6 +1359,9 @@ class ExportDBInMemory(ExportDB):
         # Cache for batch-loaded ExportRecord data
         self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
 
+        # Buffer for batched history writes to reduce commit overhead
+        self._history_buffer: list[tuple[str, str, str, str | None]] = []
+
         self._conn = self._open_export_db(self._dbfile, version=version)
         self._insert_run_info()
         self._insert_export_dir()
@@ -1451,6 +1493,9 @@ class ExportDBTemp(ExportDBInMemory):
 
         # Cache for batch-loaded ExportRecord data
         self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
+
+        # Buffer for batched history writes to reduce commit overhead
+        self._history_buffer: list[tuple[str, str, str, str | None]] = []
 
         self.was_upgraded = ()
         self.was_created = False
