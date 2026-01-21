@@ -278,12 +278,13 @@ class SidecarWriter(_ExifMixin):
                 # Update stat cache after touch modified the file
                 if options.stat_cache is not None:
                     options.stat_cache.update_file(sidecar_filename)
-                sidecar_record = export_db.create_or_get_file_record(
+                # Use context manager to batch the update with a single commit
+                with export_db.create_or_get_file_record(
                     sidecar_filename, self.photo.uuid
-                )
-                sidecar_record.dest_sig = fileutil.file_sig(
-                    sidecar_filename, stat_cache=options.stat_cache
-                )
+                ) as sidecar_record:
+                    sidecar_record.dest_sig = fileutil.file_sig(
+                        sidecar_filename, stat_cache=options.stat_cache
+                    )
 
         return results
 

@@ -320,7 +320,7 @@ class ExportDB:
         filename = self._relative_filepath(filename)
         filename_normalized = self._normalize_filepath(filename)
 
-        # Check cache first - if record exists, skip the INSERT query
+        # Check cache first - if record exists, skip the database query entirely
         dir_path = str(pathlib.Path(filename).parent)
         dir_normalized = self._normalize_filepath(dir_path)
         if dir_normalized in self._record_cache:
@@ -333,6 +333,15 @@ class ExportDB:
         with self.lock:
             conn = self.connection
             c = conn.cursor()
+            # Check if record already exists in database to avoid unnecessary INSERT + commit
+            existing = c.execute(
+                "SELECT 1 FROM export_data WHERE filepath_normalized = ? LIMIT 1;",
+                (filename_normalized,),
+            ).fetchone()
+            if existing:
+                # Record exists, no need to INSERT or commit
+                return ExportRecord(conn, self.lock, filename_normalized)
+            # Record doesn't exist, INSERT and commit
             c.execute(
                 "INSERT OR IGNORE INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
                 (filename, filename_normalized, uuid),
