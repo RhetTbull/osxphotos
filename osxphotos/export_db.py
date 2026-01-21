@@ -35,6 +35,7 @@ from .sqlite_utils import (
 from .unicode import normalize_fs_path
 
 __all__ = [
+    "BatchContext",
     "ExportDB",
     "ExportDBInMemory",
     "ExportDBTemp",
@@ -90,6 +91,32 @@ def unzip_and_unpickle(data: bytes) -> Any:
     return pickle.loads(gzip.decompress(data))
 
 
+class BatchContext:
+    """Context manager for batching database operations in ExportDB.
+
+    When active, commits are deferred until the batch completes.
+    Supports nesting - only the outermost batch commits.
+    """
+
+    def __init__(self, export_db: "ExportDB"):
+        self._export_db = export_db
+
+    def __enter__(self):
+        self._export_db._batch_mode += 1
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._export_db._batch_mode -= 1
+        if self._export_db._batch_mode == 0:
+            # Outermost batch is complete, flush and commit
+            self._export_db.flush_history()
+            with self._export_db.lock:
+                if exc_type and self._export_db._conn.in_transaction:
+                    self._export_db._conn.rollback()
+                elif self._export_db._conn.in_transaction:
+                    self._export_db._conn.commit()
+
+
 class ExportDB:
     """Interface to sqlite3 database used to store state information for osxphotos export command
 
@@ -142,6 +169,9 @@ class ExportDB:
         # Each entry is (filename_normalized, uuid, action, diff)
         self._history_buffer: list[tuple[str, str, str, str | None]] = []
 
+        # Batch mode counter - when > 0, commits are deferred until batch completes
+        self._batch_mode: int = 0
+
         self._conn = self._open_export_db(self._dbfile, version)
         self._perform_db_maintenance(self._conn)
         self._insert_run_info()
@@ -178,7 +208,11 @@ class ExportDB:
             cached_data = self._record_cache[dir_normalized].get(filename_normalized)
             if cached_data is not None:
                 return ExportRecord(
-                    self.connection, self.lock, filename_normalized, cached_data
+                    self.connection,
+                    self.lock,
+                    filename_normalized,
+                    cached_data,
+                    export_db=self,
                 )
             # Directory is cached but file not found
             return None
@@ -190,7 +224,11 @@ class ExportDB:
                 "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
                 (filename_normalized,),
             ).fetchone()
-        return ExportRecord(conn, self.lock, filename_normalized) if result else None
+        return (
+            ExportRecord(conn, self.lock, filename_normalized, export_db=self)
+            if result
+            else None
+        )
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def prefetch_directory_records(self, directory: str | os.PathLike) -> int:
@@ -303,8 +341,9 @@ class ExportDB:
                 "INSERT INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
                 (filename, filename_normalized, uuid),
             )
-            conn.commit()
-        return ExportRecord(conn, self.lock, filename_normalized)
+            if not self.in_batch_mode:
+                conn.commit()
+        return ExportRecord(conn, self.lock, filename_normalized, export_db=self)
 
     @retry(
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),
@@ -327,7 +366,11 @@ class ExportDB:
             cached_data = self._record_cache[dir_normalized].get(filename_normalized)
             if cached_data is not None:
                 return ExportRecord(
-                    self.connection, self.lock, filename_normalized, cached_data
+                    self.connection,
+                    self.lock,
+                    filename_normalized,
+                    cached_data,
+                    export_db=self,
                 )
 
         with self.lock:
@@ -340,14 +383,17 @@ class ExportDB:
             ).fetchone()
             if existing:
                 # Record exists, no need to INSERT or commit
-                return ExportRecord(conn, self.lock, filename_normalized)
-            # Record doesn't exist, INSERT and commit
+                return ExportRecord(
+                    conn, self.lock, filename_normalized, export_db=self
+                )
+            # Record doesn't exist, INSERT and commit (unless in batch mode)
             c.execute(
                 "INSERT OR IGNORE INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
                 (filename, filename_normalized, uuid),
             )
-            conn.commit()
-        return ExportRecord(conn, self.lock, filename_normalized)
+            if not self.in_batch_mode:
+                conn.commit()
+        return ExportRecord(conn, self.lock, filename_normalized, export_db=self)
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_uuid_for_file(self, filename: str) -> str | None:
@@ -694,6 +740,29 @@ class ExportDB:
             self.flush_history()
             self._conn.close()
             self._conn = None
+
+    @property
+    def in_batch_mode(self) -> bool:
+        """Return True if database is in batch mode (commits are deferred)"""
+        return self._batch_mode > 0
+
+    def batch_operations(self) -> "BatchContext":
+        """Context manager for batching database operations.
+
+        When in batch mode, commits are deferred until the batch completes.
+        This significantly improves performance when performing many database
+        operations in sequence.
+
+        Example:
+            with export_db.batch_operations():
+                for photo in photos:
+                    record = export_db.create_or_get_file_record(...)
+                    with record:
+                        record.photoinfo = ...
+                        record.dest_sig = ...
+                # Single commit happens here when exiting batch_operations
+        """
+        return BatchContext(self)
 
     def _open_export_db(
         self, dbfile: str, version: str | None = None
@@ -1371,6 +1440,9 @@ class ExportDBInMemory(ExportDB):
         # Buffer for batched history writes to reduce commit overhead
         self._history_buffer: list[tuple[str, str, str, str | None]] = []
 
+        # Batch mode counter - when > 0, commits are deferred until batch completes
+        self._batch_mode: int = 0
+
         self._conn = self._open_export_db(self._dbfile, version=version)
         self._insert_run_info()
         self._insert_export_dir()
@@ -1506,6 +1578,9 @@ class ExportDBTemp(ExportDBInMemory):
         # Buffer for batched history writes to reduce commit overhead
         self._history_buffer: list[tuple[str, str, str, str | None]] = []
 
+        # Batch mode counter - when > 0, commits are deferred until batch completes
+        self._batch_mode: int = 0
+
         self.was_upgraded = ()
         self.was_created = False
 
@@ -1532,6 +1607,7 @@ class ExportRecord:
         "_context_manager",
         "_filepath_normalized",
         "_cached_data",
+        "_export_db",
         "lock",
     ]
 
@@ -1541,11 +1617,13 @@ class ExportRecord:
         lock: threading.Lock,
         filepath_normalized: str,
         cached_data: dict[str, Any] | None = None,
+        export_db: "ExportDB | None" = None,
     ):
         self._conn = conn
         self.lock = lock
         self._filepath_normalized = filepath_normalized
         self._cached_data = cached_data
+        self._export_db = export_db
         self._context_manager = False
 
     @property
@@ -2037,9 +2115,11 @@ class ExportRecord:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        # Check if we're in batch mode - if so, defer the commit
+        in_batch = self._export_db is not None and self._export_db.in_batch_mode
         if exc_type and self._conn.in_transaction:
             self._conn.rollback()
-        elif self._conn.in_transaction:
+        elif self._conn.in_transaction and not in_batch:
             self._conn.commit()
         self._context_manager = False
         self.lock.release()
