@@ -1207,9 +1207,12 @@ class PhotoInfo:
 
         # find all files that start with uuid in derivative path
         # skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
-        derivatives = find_files_by_prefix(
-            derivative_path, self.uuid, ignore_ext=".THM"
-        )
+        if derivative_path.is_dir():
+            derivatives = find_files_by_prefix(
+                derivative_path, self.uuid, ignore_ext=".THM"
+            )
+        else:
+            derivatives = []
 
         # previews may be missing from derivatives path
         # there are what appear to be low res thumbnails in the "masters" subfolder

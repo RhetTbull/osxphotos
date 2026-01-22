@@ -712,6 +712,9 @@ def find_files_by_prefix(
         start_str: Prefix to match (case sensitive)
         ignore_ext: Optional extension to ignore (must include leading "."), e.g. ".tmp"
 
+    Raises:
+        FileNotFoundError if filepath doesn't exist
+
     Note:
         This uses listdir vs scandir or glob as benchmarking shows this is the fastest way to find a small number
         of files in a large directory.
