@@ -2004,11 +2004,16 @@ def export_cli(
                 verbose("Cleaning up lock files")
             if dry_run:
                 return
-            for lock_file in pathlib.Path(dest).rglob("*.osxphotos.lock"):
-                try:
-                    lock_file.unlink()
-                except Exception as e:
-                    logger.debug(f"Error removing lock file {lock_file}: {e}")
+            # Use os.walk instead of rglob for better performance on SMB/network volumes
+            # os.walk uses scandir internally and provides filenames without extra stat calls
+            for dirpath, _, filenames in os.walk(dest):
+                for filename in filenames:
+                    if filename.endswith(".osxphotos.lock"):
+                        lock_file = pathlib.Path(dirpath) / filename
+                        try:
+                            lock_file.unlink()
+                        except Exception as e:
+                            logger.debug(f"Error removing lock file {lock_file}: {e}")
 
         atexit.register(cleanup_lock_files)
 
@@ -3205,20 +3210,22 @@ def cleanup_files(
         normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep
     }
 
+    # Use os.walk instead of rglob for better performance on SMB/network volumes
+    # os.walk uses scandir internally which gets file info without extra stat calls
     deleted_files = []
-    for p in pathlib.Path(dest_path).rglob("*"):
-        if (
-            p.is_file()
-            and normalize_fs_path(str(p).lower()) not in keepers
-            and not p.name.startswith(".")
-        ):
-            verbose(f"Deleting [filepath]{p}")
-            try:
-                fileutil.unlink(p)
-                deleted_files.append(str(p))
-            except OSError as e:
-                # ignore errors deleting files, #987
-                verbose(f"Error deleting file {p}: {e}")
+    for dirpath, _, filenames in os.walk(dest_path):
+        for filename in filenames:
+            if filename.startswith("."):
+                continue
+            filepath = os.path.join(dirpath, filename)
+            if normalize_fs_path(filepath.lower()) not in keepers:
+                verbose(f"Deleting [filepath]{filepath}")
+                try:
+                    fileutil.unlink(filepath)
+                    deleted_files.append(filepath)
+                except OSError as e:
+                    # ignore errors deleting files, #987
+                    verbose(f"Error deleting file {filepath}: {e}")
 
     # delete empty directories
     deleted_dirs = []
@@ -3226,8 +3233,13 @@ def cleanup_files(
     for dirpath, _, _ in os.walk(dest_path, topdown=False):
         if dirpath in dirs_to_keep:
             continue
-        if not list(pathlib.Path(dirpath).glob("*")):
-            # directory and directory is empty
+        # Use scandir to efficiently check if directory is empty
+        # This only reads one entry instead of listing the entire directory
+        try:
+            is_empty = next(os.scandir(dirpath), None) is None
+        except OSError:
+            is_empty = False
+        if is_empty:
             verbose(f"Deleting empty directory {dirpath}")
             try:
                 fileutil.rmdir(dirpath)
