@@ -12,6 +12,7 @@ import os
 import os.path
 import pathlib
 import re
+import stat
 import subprocess
 import sys
 import urllib.parse
@@ -708,25 +709,32 @@ def find_files_by_prefix(
 
     Args:
         filepath: Directory to search
-        start_str: Prefix to match
-        ignore_ext: Optional extension to ignore including leading ".", e.g. ".tmp"
-    """
-    matching_files = []
+        start_str: Prefix to match (case sensitive)
+        ignore_ext: Optional extension to ignore (must include leading "."), e.g. ".tmp"
 
+    Note:
+        This uses listdir vs scandir or glob as benchmarking shows this is the fastest way to find a small number
+        of files in a large directory.
+    """
     if ignore_ext is not None:
         ignore_ext = ignore_ext.lower()
 
-    with os.scandir(str(filepath)) as entries:
-        for entry in entries:
-            if entry.is_file(follow_symlinks=False) and entry.name.startswith(
-                start_str
-            ):
-                if ignore_ext is not None:
-                    _, ext = os.path.splitext(entry.name)
-                    if ext.lower() == ignore_ext:
-                        continue
+    matching_files = []
 
-                matching_files.append((entry.path, entry.stat().st_size))
+    for name in os.listdir(filepath):
+        if name.startswith(start_str):
+            if ignore_ext is not None:
+                _, ext = os.path.splitext(name)
+                if ext.lower() == ignore_ext:
+                    continue
+
+            full_path = os.path.join(filepath, name)
+            try:
+                st = os.stat(full_path)
+                if stat.S_ISREG(st.st_mode):  # is regular file
+                    matching_files.append((full_path, st.st_size))
+            except OSError:
+                continue
 
     matching_files.sort(key=lambda x: x[1], reverse=True)
-    return [f[0] for f in matching_files]
+    return [f for f, _ in matching_files]
