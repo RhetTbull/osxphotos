@@ -43,11 +43,12 @@ logger = logging.getLogger("osxphotos")
 __all__ = [
     "dd_to_dms_str",
     "expand_and_validate_filepath",
+    "find_files_by_prefix",
     "get_last_library_path",
     "get_system_library_path",
     "hexdigest",
-    "increment_filename_with_count",
     "increment_filename",
+    "increment_filename_with_count",
     "lineno",
     "list_directory",
     "list_photo_libraries",
@@ -56,6 +57,7 @@ __all__ = [
     "noop",
     "pluralize",
     "shortuuid_to_uuid",
+    "terminal",
     "uuid_to_shortuuid",
 ]
 
@@ -695,3 +697,36 @@ def terminal() -> str:
     Note: This only works on macOS
     """
     return os.environ.get("TERM_PROGRAM", "")
+
+
+def find_files_by_prefix(
+    filepath: str | os.PathLike, start_str: str, ignore_ext: str | None = None
+) -> list[str]:
+    """
+    Find all files starting with start_str in directory filepath,
+    sorted by size (largest first).
+
+    Args:
+        filepath: Directory to search
+        start_str: Prefix to match
+        ignore_ext: Optional extension to ignore including leading ".", e.g. ".tmp"
+    """
+    matching_files = []
+
+    if ignore_ext is not None:
+        ignore_ext = ignore_ext.lower()
+
+    with os.scandir(str(filepath)) as entries:
+        for entry in entries:
+            if entry.is_file(follow_symlinks=False) and entry.name.startswith(
+                start_str
+            ):
+                if ignore_ext is not None:
+                    _, ext = os.path.splitext(entry.name)
+                    if ext.lower() == ignore_ext:
+                        continue
+
+                matching_files.append((entry.path, entry.stat().st_size))
+
+    matching_files.sort(key=lambda x: x[1], reverse=True)
+    return [f[0] for f in matching_files]

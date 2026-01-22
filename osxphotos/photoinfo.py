@@ -72,7 +72,13 @@ from .searchinfo import SearchInfo
 from .shareinfo import ShareInfo, get_moment_share_info, get_share_info
 from .shareparticipant import ShareParticipant, get_share_participants
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _get_resource_loc, hexdigest, list_directory, path_exists
+from .utils import (
+    _get_resource_loc,
+    find_files_by_prefix,
+    hexdigest,
+    list_directory,
+    path_exists,
+)
 
 if is_macos:
     from osxmetadata import OSXMetaData
@@ -1200,20 +1206,22 @@ class PhotoInfo:
         thumb_path = pathlib.Path(self._db._library_path).joinpath(thumb_path)
 
         # find all files that start with uuid in derivative path
-        files = list(derivative_path.glob(f"{self.uuid}*.*"))
+        # skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
+        derivatives = find_files_by_prefix(
+            derivative_path, self.uuid, ignore_ext=".THM"
+        )
 
         # previews may be missing from derivatives path
         # there are what appear to be low res thumbnails in the "masters" subfolder
         if path_exists(thumb_path):
-            files.append(thumb_path)
+            derivatives.append(str(thumb_path))
 
-        # sort by file size, largest first
-        files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
-
-        # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
-        derivatives = [str(filename) for filename in files if filename.suffix != ".THM"]
-        if self.isphoto and len(derivatives) > 1 and derivatives[0].endswith(".mov"):
-            # ensure .mov is first in list as poster image could be larger than the movie preview
+        # ensure .mov is first in list as poster image could be larger than the movie preview
+        if (
+            self.isphoto
+            and len(derivatives) > 1
+            and (derivatives[0].endswith(".mov") or derivatives[0].endswith(".MOV"))
+        ):
             derivatives[1], derivatives[0] = derivatives[0], derivatives[1]
 
         return derivatives
