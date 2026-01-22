@@ -170,12 +170,6 @@ class PhotosDB:
         self._tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
         self._tempdir_name = self._tempdir.name
 
-        # Cache for derivative files: maps directory path to dict of {uuid: [(filepath, size), ...]}
-        # Lazily populated when path_derivatives is called
-        self._derivatives_cache: dict[
-            str, dict[str, list[tuple[pathlib.Path, int]]]
-        ] = {}
-
         # set up the data structures used to store all the Photo database info
 
         # TODO: I don't think these keywords flags are actually used
@@ -475,62 +469,6 @@ class PhotosDB:
         self._masters_path = str(self._masters_path)
 
         logger.debug(f"{self._library_path=},{self._masters_path=}")
-
-    def get_derivatives_for_uuid(
-        self, derivative_dir: pathlib.Path, uuid: str
-    ) -> list[tuple[pathlib.Path, int]]:
-        """Get derivative files for a UUID from a cached directory listing.
-
-        Args:
-            derivative_dir: Path to the derivatives directory to search
-            uuid: UUID of the photo to get derivatives for
-
-        Returns:
-            List of (filepath, size) tuples for files matching the UUID,
-            sorted by size (largest first)
-
-        Note:
-            This method lazily caches the entire directory listing on first access,
-            making subsequent lookups for other UUIDs in the same directory instant.
-        """
-        dir_key = str(derivative_dir)
-
-        # Check if directory is already cached
-        if dir_key not in self._derivatives_cache:
-            # Scan directory and cache all files with their sizes
-            uuid_files: dict[str, list[tuple[pathlib.Path, int]]] = {}
-            try:
-                # Use scandir for efficient directory iteration
-                with os.scandir(derivative_dir) as entries:
-                    for entry in entries:
-                        if entry.is_file():
-                            # Extract UUID from filename (format: UUID_*.ext or UUID.ext)
-                            name = entry.name
-                            # UUID is first 36 characters (standard UUID format)
-                            file_uuid = (
-                                name[:36]
-                                if len(name) >= 36
-                                else name.split("_")[0].split(".")[0]
-                            )
-                            try:
-                                size = entry.stat().st_size
-                                filepath = pathlib.Path(entry.path)
-                                if file_uuid not in uuid_files:
-                                    uuid_files[file_uuid] = []
-                                uuid_files[file_uuid].append((filepath, size))
-                            except OSError:
-                                # Skip files we can't stat
-                                continue
-            except (OSError, FileNotFoundError):
-                # Directory doesn't exist or can't be accessed
-                uuid_files = {}
-
-            self._derivatives_cache[dir_key] = uuid_files
-
-        # Look up files for the requested UUID
-        files = self._derivatives_cache[dir_key].get(uuid, [])
-        # Return sorted by size (largest first)
-        return sorted(files, key=lambda x: x[1], reverse=True)
 
     @property
     def keywords_as_dict(self):
