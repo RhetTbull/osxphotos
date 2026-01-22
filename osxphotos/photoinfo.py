@@ -1176,42 +1176,37 @@ class PhotoInfo:
         directory = self._uuid[0]  # first char of uuid
         if self.shared_moment and self._db.photos_version >= 7:
             # shared moments
-            derivative_path = "scopes/momentshared/resources/derivatives"
-            thumb_path = (
-                f"{derivative_path}/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
-            )
+            derivative_rel_path = "scopes/momentshared/resources/derivatives"
+            masters_rel_path = f"{derivative_rel_path}/masters"
         elif self.syndicated and not self.saved_to_library:
             # syndicated ("Shared with you") photos not yet saved to library
-            derivative_path = "scopes/syndication/resources/derivatives"
-            thumb_path = (
-                f"{derivative_path}/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
-            )
+            derivative_rel_path = "scopes/syndication/resources/derivatives"
+            masters_rel_path = f"{derivative_rel_path}/masters"
         else:
-            derivative_path = "resources/derivatives"
-            thumb_path = (
-                f"resources/derivatives/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
-            )
+            derivative_rel_path = "resources/derivatives"
+            masters_rel_path = "resources/derivatives/masters"
 
-        derivative_path = (
-            pathlib.Path(self._db._library_path)
-            .joinpath(derivative_path)
-            .joinpath(directory)
-        )
-        thumb_path = pathlib.Path(self._db._library_path).joinpath(thumb_path)
+        library_path = pathlib.Path(self._db._library_path)
+        derivative_dir = library_path / derivative_rel_path / directory
+        masters_dir = library_path / masters_rel_path / directory
 
-        # find all files that start with uuid in derivative path
-        files = list(derivative_path.glob(f"{self.uuid}*.*"))
+        # Get derivatives from cache (cache handles directory scanning and size sorting)
+        # Returns list of (filepath, size) tuples, already sorted by size (largest first)
+        cached_files = self._db.get_derivatives_for_uuid(derivative_dir, self.uuid)
 
-        # previews may be missing from derivatives path
-        # there are what appear to be low res thumbnails in the "masters" subfolder
-        if path_exists(thumb_path):
-            files.append(thumb_path)
+        # Also check masters directory for thumbnails
+        # The thumbnail has a specific name pattern: UUID_4_5005_c.jpeg
+        masters_files = self._db.get_derivatives_for_uuid(masters_dir, self.uuid)
 
-        # sort by file size, largest first
-        files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
+        # Combine and re-sort by size
+        all_files = cached_files + masters_files
+        all_files.sort(key=lambda x: x[1], reverse=True)
 
-        # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
-        derivatives = [str(filename) for filename in files if filename.suffix != ".THM"]
+        # Filter out .THM files and convert to string paths
+        derivatives = [
+            str(filepath) for filepath, _ in all_files if filepath.suffix != ".THM"
+        ]
+
         if self.isphoto and len(derivatives) > 1 and derivatives[0].endswith(".mov"):
             # ensure .mov is first in list as poster image could be larger than the movie preview
             derivatives[1], derivatives[0] = derivatives[0], derivatives[1]
@@ -1251,17 +1246,17 @@ class PhotoInfo:
         """Return paths to all derivative (preview) files for shared iCloud photos in Photos >= 5"""
         directory = self._uuid[0]  # first char of uuid
         # only 1 derivative for shared photos and it's called 'UUID_4_5005_c.jpeg'
-        derivative_path = (
+        derivative_rel_path = (
             _PHOTOS_8_SHARED_DERIVATIVE_PATH
             if self._db._photos_ver >= 8
             else _PHOTOS_5_SHARED_DERIVATIVE_PATH
         )
-        derivative_path = (
-            pathlib.Path(self._db._library_path)
-            / derivative_path
-            / f"{directory}/{self.uuid}_4_5005_c.jpeg"
+        derivative_dir = (
+            pathlib.Path(self._db._library_path) / derivative_rel_path / directory
         )
-        return [str(derivative_path)] if path_exists(derivative_path) else []
+        # Use cached directory listing
+        cached_files = self._db.get_derivatives_for_uuid(derivative_dir, self.uuid)
+        return [str(filepath) for filepath, _ in cached_files]
 
     @property
     def panorama(self) -> bool:
