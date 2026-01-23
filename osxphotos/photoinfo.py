@@ -71,6 +71,7 @@ from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 from .shareinfo import ShareInfo, get_moment_share_info, get_share_info
 from .shareparticipant import ShareParticipant, get_share_participants
+from .stat_cache import DirectoryStatCache
 from .uti import get_preferred_uti_extension, get_uti_for_extension
 from .utils import (
     _get_resource_loc,
@@ -79,6 +80,22 @@ from .utils import (
     list_directory,
     path_exists,
 )
+
+# Module-level cache for derivative directory lookups
+# Derivative directories are organized by first UUID character (0-9, A-F),
+# so there are at most 16 directories. Caching these avoids repeated listdir
+# calls when accessing path_derivatives for many photos.
+# TTL is long (10 hours) since derivative directories rarely change during export.
+_derivative_stat_cache: DirectoryStatCache | None = None
+
+
+def _get_derivative_stat_cache() -> DirectoryStatCache:
+    """Get or create the shared derivative directory cache."""
+    global _derivative_stat_cache
+    if _derivative_stat_cache is None:
+        _derivative_stat_cache = DirectoryStatCache(ttl_seconds=60 * 60 * 10)
+    return _derivative_stat_cache
+
 
 if is_macos:
     from osxmetadata import OSXMetaData
@@ -1207,9 +1224,13 @@ class PhotoInfo:
 
         # find all files that start with uuid in derivative path
         # skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
+        # Use shared cache since derivative directories are organized by first UUID char (only 16 dirs)
         if derivative_path.is_dir():
             derivatives = find_files_by_prefix(
-                derivative_path, self.uuid, ignore_ext=".THM"
+                derivative_path,
+                self.uuid,
+                ignore_ext=".THM",
+                stat_cache=_get_derivative_stat_cache(),
             )
         else:
             derivatives = []

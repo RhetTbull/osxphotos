@@ -701,7 +701,10 @@ def terminal() -> str:
 
 
 def find_files_by_prefix(
-    filepath: str | os.PathLike, start_str: str, ignore_ext: str | None = None
+    filepath: str | os.PathLike,
+    start_str: str,
+    ignore_ext: str | None = None,
+    stat_cache: DirectoryStatCache | None = None,
 ) -> list[str]:
     """
     Find all files starting with start_str in directory filepath,
@@ -711,14 +714,24 @@ def find_files_by_prefix(
         filepath: Directory to search
         start_str: Prefix to match (case sensitive)
         ignore_ext: Optional extension to ignore (must include leading "."), e.g. ".tmp"
+        stat_cache: Optional DirectoryStatCache for caching directory listings.
+            When provided, uses cached directory listings to avoid repeated
+            listdir calls when the same directory is searched multiple times.
 
     Raises:
         FileNotFoundError if filepath doesn't exist
 
     Note:
-        This uses listdir vs scandir or glob as benchmarking shows this is the fastest way to find a small number
-        of files in a large directory.
+        When stat_cache is provided, this uses the cache's find_files_by_prefix method
+        which caches directory listings across multiple calls. This is significantly
+        faster when searching the same directories repeatedly (e.g., derivative directories
+        which are organized by first UUID character, resulting in only 16 possible directories).
     """
+    # Use cached version if stat_cache is provided
+    if stat_cache is not None:
+        return stat_cache.find_files_by_prefix(filepath, start_str, ignore_ext)
+
+    # Original implementation for when no cache is provided
     if ignore_ext is not None:
         ignore_ext = ignore_ext.lower()
 
