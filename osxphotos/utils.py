@@ -701,7 +701,10 @@ def terminal() -> str:
 
 
 def find_files_by_prefix(
-    filepath: str | os.PathLike, start_str: str, ignore_ext: str | None = None
+    filepath: str | os.PathLike,
+    start_str: str,
+    ignore_ext: str | None = None,
+    cache_results=True,
 ) -> list[str]:
     """
     Find all files starting with start_str in directory filepath,
@@ -711,6 +714,7 @@ def find_files_by_prefix(
         filepath: Directory to search
         start_str: Prefix to match (case sensitive)
         ignore_ext: Optional extension to ignore (must include leading "."), e.g. ".tmp"
+        cache_results: Whether to cache the listdir results
 
     Raises:
         FileNotFoundError if filepath doesn't exist
@@ -724,7 +728,8 @@ def find_files_by_prefix(
 
     matching_files = []
 
-    for name in os.listdir(filepath):
+    contents = _listdir_cache(filepath) if cache_results else os.listdir(filepath)
+    for name in contents:
         if name.startswith(start_str):
             if ignore_ext is not None:
                 _, ext = os.path.splitext(name)
@@ -741,3 +746,9 @@ def find_files_by_prefix(
 
     matching_files.sort(key=lambda x: x[1], reverse=True)
     return [f for f, _ in matching_files]
+
+
+@cache
+def _listdir_cache(filepath: str | os.PathLike) -> list[str]:
+    """Cached listdir"""
+    return os.listdir(filepath)
