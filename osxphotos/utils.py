@@ -12,6 +12,7 @@ import os
 import os.path
 import pathlib
 import re
+import stat
 import subprocess
 import sys
 import urllib.parse
@@ -21,6 +22,9 @@ from functools import cache
 from plistlib import load as plistload
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, TypeVar, Union
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from .stat_cache import DirectoryStatCache
 
 import requests
 import shortuuid
@@ -40,11 +44,12 @@ logger = logging.getLogger("osxphotos")
 __all__ = [
     "dd_to_dms_str",
     "expand_and_validate_filepath",
+    "find_files_by_prefix",
     "get_last_library_path",
     "get_system_library_path",
     "hexdigest",
-    "increment_filename_with_count",
     "increment_filename",
+    "increment_filename_with_count",
     "lineno",
     "list_directory",
     "list_photo_libraries",
@@ -53,6 +58,7 @@ __all__ = [
     "noop",
     "pluralize",
     "shortuuid_to_uuid",
+    "terminal",
     "uuid_to_shortuuid",
 ]
 
@@ -348,7 +354,10 @@ def list_directory(
 
 
 def increment_filename_with_count(
-    filepath: Union[str, pathlib.Path], count: int = 0, lock: bool = False
+    filepath: Union[str, pathlib.Path],
+    count: int = 0,
+    lock: bool = False,
+    stat_cache: Optional["DirectoryStatCache"] = None,
 ) -> Tuple[str, int]:
     """Return filename (1).ext, etc if filename.ext exists
 
@@ -359,6 +368,7 @@ def increment_filename_with_count(
         filepath: str or pathlib.Path; full path, including file name
         count: int; starting increment value
         lock: bool, if True, creates lock file to reserve filename
+        stat_cache: Optional DirectoryStatCache for efficient directory listing on network volumes
 
     Returns:
         tuple of new filepath (or same if not incremented), count
@@ -366,8 +376,16 @@ def increment_filename_with_count(
     Note: This obviously is subject to race condition so using with caution.
     """
     dest = filepath if isinstance(filepath, pathlib.Path) else pathlib.Path(filepath)
-    dest_files = list_directory(dest.parent, startswith=dest.stem)
-    dest_files = [f.stem.lower() for f in dest_files]
+
+    # Use stat cache for directory listing if available, otherwise fall back to list_directory
+    if stat_cache is not None:
+        dest_files = stat_cache.list_directory(dest.parent, startswith=dest.stem)
+        # list_directory from stat_cache returns just filenames, need to extract stems
+        dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
+    else:
+        dest_files = list_directory(dest.parent, startswith=dest.stem)
+        dest_files = [f.stem.lower() for f in dest_files]
+
     dest_new = f"{dest.stem} ({count})" if count else dest.stem
     dest_new = normalize_fs_path(dest_new)
 
@@ -377,11 +395,17 @@ def increment_filename_with_count(
     dest = dest.parent / f"{dest_new}{dest.suffix}"
     if lock and not lock_filename(dest):
         # if lock fails, increment count and try again
-        return increment_filename_with_count(filepath, count + 1, lock=lock)
+        return increment_filename_with_count(
+            filepath, count + 1, lock=lock, stat_cache=stat_cache
+        )
     return normalize_fs_path(str(dest)), count
 
 
-def increment_filename(filepath: Union[str, pathlib.Path], lock: bool = False) -> str:
+def increment_filename(
+    filepath: Union[str, pathlib.Path],
+    lock: bool = False,
+    stat_cache: Optional["DirectoryStatCache"] = None,
+) -> str:
     """Return filename (1).ext, etc if filename.ext exists
 
         If file exists in filename's parent folder with same stem as filename,
@@ -391,13 +415,16 @@ def increment_filename(filepath: Union[str, pathlib.Path], lock: bool = False) -
         filepath: str or pathlib.Path; full path, including file name
         force: force the file count to increment by at least 1 even if filepath doesn't exist
         lock: bool, if True, creates lock file to reserve filename
+        stat_cache: Optional DirectoryStatCache for efficient directory listing on network volumes
 
     Returns:
         new filepath (or same if not incremented)
 
     Note: This obviously is subject to race condition so using with caution.
     """
-    new_filepath, _ = increment_filename_with_count(filepath, lock=lock)
+    new_filepath, _ = increment_filename_with_count(
+        filepath, lock=lock, stat_cache=stat_cache
+    )
     return new_filepath
 
 
@@ -671,3 +698,57 @@ def terminal() -> str:
     Note: This only works on macOS
     """
     return os.environ.get("TERM_PROGRAM", "")
+
+
+def find_files_by_prefix(
+    filepath: str | os.PathLike,
+    start_str: str,
+    ignore_ext: str | None = None,
+    cache_results=True,
+) -> list[str]:
+    """
+    Find all files starting with start_str in directory filepath,
+    sorted by size (largest first).
+
+    Args:
+        filepath: Directory to search
+        start_str: Prefix to match (case sensitive)
+        ignore_ext: Optional extension to ignore (must include leading "."), e.g. ".tmp"
+        cache_results: Whether to cache the listdir results
+
+    Raises:
+        FileNotFoundError if filepath doesn't exist
+
+    Note:
+        This uses listdir vs scandir or glob as benchmarking shows this is the fastest way to find a small number
+        of files in a large directory.
+    """
+    if ignore_ext is not None:
+        ignore_ext = ignore_ext.lower()
+
+    matching_files = []
+
+    contents = _listdir_cache(filepath) if cache_results else os.listdir(filepath)
+    for name in contents:
+        if name.startswith(start_str):
+            if ignore_ext is not None:
+                _, ext = os.path.splitext(name)
+                if ext.lower() == ignore_ext:
+                    continue
+
+            full_path = os.path.join(filepath, name)
+            try:
+                st = os.stat(full_path)
+                if stat.S_ISREG(st.st_mode):  # is regular file
+                    matching_files.append((full_path, st.st_size))
+            except OSError:
+                continue
+
+    matching_files.sort(key=lambda x: x[1], reverse=True)
+    return [f for f, _ in matching_files]
+
+
+@cache
+def _listdir_cache(filepath: str | os.PathLike) -> list[str]:
+    """Cached listdir"""
+    return os.listdir(filepath)

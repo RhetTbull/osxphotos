@@ -126,6 +126,12 @@ class SidecarWriter(_ExifMixin):
         # define functions for adding markup
         _filepath = add_rich_markup_tag("filepath", rich=options.rich)
 
+        # Helper to check exists using stat_cache when available
+        def _sidecar_exists(path: pathlib.Path) -> bool:
+            if options.stat_cache is not None:
+                return options.stat_cache.exists(path)
+            return path.exists()
+
         # export metadata
         sidecars = []
         sidecar_json_files_skipped = []
@@ -208,13 +214,15 @@ class SidecarWriter(_ExifMixin):
                 not (options.update or options.force_update)
                 or (
                     (options.update or options.force_update)
-                    and not sidecar_filename.exists()
+                    and not _sidecar_exists(sidecar_filename)
                 )
                 or (
                     (options.update or options.force_update)
                     and (sidecar_digest != sidecar_record.digest)
                     or not fileutil.cmp_file_sig(
-                        sidecar_filename, sidecar_record.dest_sig
+                        sidecar_filename,
+                        sidecar_record.dest_sig,
+                        stat_cache=options.stat_cache,
                     )
                 )
             )
@@ -223,8 +231,15 @@ class SidecarWriter(_ExifMixin):
                 files_written.append(str(sidecar_filename))
                 if not options.dry_run:
                     self._write_sidecar(sidecar_filename, sidecar_str)
-                    sidecar_record.digest = sidecar_digest
-                    sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
+                    # Update stat cache to reflect new file
+                    if options.stat_cache is not None:
+                        options.stat_cache.update_file(sidecar_filename)
+                    # Use context manager to batch commits
+                    with sidecar_record:
+                        sidecar_record.digest = sidecar_digest
+                        sidecar_record.dest_sig = fileutil.file_sig(
+                            sidecar_filename, stat_cache=options.stat_cache
+                        )
             else:
                 verbose(
                     f"Skipped up to date {sidecar_type} sidecar {_filepath(sidecar_filename)}"
@@ -260,10 +275,16 @@ class SidecarWriter(_ExifMixin):
 
             # update destination signatures in database
             for sidecar_filename in all_sidecars:
-                sidecar_record = export_db.create_or_get_file_record(
+                # Update stat cache after touch modified the file
+                if options.stat_cache is not None:
+                    options.stat_cache.update_file(sidecar_filename)
+                # Use context manager to batch the update with a single commit
+                with export_db.create_or_get_file_record(
                     sidecar_filename, self.photo.uuid
-                )
-                sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
+                ) as sidecar_record:
+                    sidecar_record.dest_sig = fileutil.file_sig(
+                        sidecar_filename, stat_cache=options.stat_cache
+                    )
 
         return results
 

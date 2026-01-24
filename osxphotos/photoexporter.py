@@ -281,6 +281,12 @@ class PhotoExporter:
         self._render_options.filepath = str(dest)
         all_results = ExportResults()
 
+        # Helper to check exists using stat_cache when available
+        def _dest_exists(path: pathlib.Path) -> bool:
+            if options.stat_cache is not None:
+                return options.stat_cache.exists(path)
+            return path.exists()
+
         if src:
             # export the dest file
             all_results += self._export_photo(
@@ -288,7 +294,7 @@ class PhotoExporter:
                 dest,
                 options=options,
             )
-        elif staged_files.update_skipped and dest.exists():
+        elif staged_files.update_skipped and _dest_exists(dest):
             all_results.skipped.append(str(dest))
             options.export_db.set_history(str(dest), self.photo.uuid, "skip", None)
             unlock_filename(dest)
@@ -310,7 +316,7 @@ class PhotoExporter:
                     # don't try to convert the live photo
                     options=dataclasses.replace(options, convert_to_jpeg=False),
                 )
-            elif staged_files.update_skipped and live_name.exists():
+            elif staged_files.update_skipped and _dest_exists(live_name):
                 all_results.skipped.append(str(live_name))
                 options.export_db.set_history(
                     str(live_name), self.photo.uuid, "skip", None
@@ -331,7 +337,7 @@ class PhotoExporter:
                     # don't try to convert the live photo
                     options=dataclasses.replace(options, convert_to_jpeg=False),
                 )
-            elif staged_files.update_skipped and live_name.exists():
+            elif staged_files.update_skipped and _dest_exists(live_name):
                 all_results.skipped.append(str(live_name))
                 options.export_db.set_history(
                     str(live_name), self.photo.uuid, "skip", None
@@ -362,7 +368,7 @@ class PhotoExporter:
                 )
                 raw_ext = raw_ext or "raw"
                 raw_name = dest.parent / f"{dest.stem}.{raw_ext}"
-                if staged_files.update_skipped and raw_name.exists():
+                if staged_files.update_skipped and _dest_exists(raw_name):
                     all_results.skipped.append(str(raw_name))
                     options.export_db.set_history(
                         str(raw_name), self.photo.uuid, "skip", None
@@ -504,23 +510,27 @@ class PhotoExporter:
         # lock files are used to minimize chance of name collision when in parallel mode
         # don't create lock files if in dry_run mode
         lock = not options.dry_run
+        stat_cache = options.stat_cache
 
         def _lock_filename(filename):
             """Lock filename if not in dry_run mode"""
             return lock_filename(filename) if lock else filename
 
+        def _dest_exists(path: pathlib.Path) -> bool:
+            """Check if destination exists, using stat cache if available."""
+            if stat_cache is not None:
+                return stat_cache.exists(path)
+            return path.exists()
+
         # if overwrite==False and #increment==False, export should fail if file exists
-        if (
-            not any(
-                [
-                    options.increment,
-                    options.update,
-                    options.force_update,
-                    options.overwrite,
-                ]
-            )
-            and dest.exists()
-        ):
+        if not any(
+            [
+                options.increment,
+                options.update,
+                options.force_update,
+                options.overwrite,
+            ]
+        ) and _dest_exists(dest):
             raise FileExistsError(
                 f"destination exists ({dest}); overwrite={options.overwrite}, increment={options.increment}"
             )
@@ -538,13 +548,15 @@ class PhotoExporter:
         if options.increment and not any(
             [options.update, options.force_update, options.overwrite]
         ):
-            return pathlib.Path(increment_filename(dest, lock=lock))
+            return pathlib.Path(
+                increment_filename(dest, lock=lock, stat_cache=stat_cache)
+            )
 
         # if update and file exists, need to check to see if it's the right file by checking export db
         if options.update or options.force_update:
             export_db = options.export_db
             dest_uuid = export_db.get_uuid_for_file(dest)
-            if dest_uuid is None and not dest.exists() and _lock_filename(dest):
+            if dest_uuid is None and not _dest_exists(dest) and _lock_filename(dest):
                 # destination doesn't exist in export db and doesn't exist on disk
                 # so we can just use it
                 return dest
@@ -567,10 +579,14 @@ class PhotoExporter:
             # no match so need to create a new name
             # increment the destination file until we find one that doesn't exist and doesn't match another uuid in the database
             count = 0
-            dest, count = increment_filename_with_count(dest, count, lock=lock)
+            dest, count = increment_filename_with_count(
+                dest, count, lock=lock, stat_cache=stat_cache
+            )
             count += 1
             while export_db.get_uuid_for_file(dest) is not None:
-                dest, count = increment_filename_with_count(dest, count, lock=lock)
+                dest, count = increment_filename_with_count(
+                    dest, count, lock=lock, stat_cache=stat_cache
+                )
             return pathlib.Path(dest)
 
         # fail safe...I can't think of a case that gets here
@@ -591,8 +607,10 @@ class PhotoExporter:
             False if photo should not be updated otherwise a truthy ShouldUpdate value
         """
 
-        # NOTE: The order of certain checks is important
-        # read the comments below to understand why before changing
+        # NOTE: The order of checks is optimized for performance on network volumes.
+        # Database-only checks are done first to avoid filesystem operations when possible.
+        # If any database check indicates we need to update, we can skip expensive
+        # filesystem operations like stat() and samefile().
 
         export_db = options.export_db
         fileutil = options.fileutil
@@ -603,20 +621,7 @@ class PhotoExporter:
             # photo doesn't exist in database, should update
             return ShouldUpdate.NOT_IN_DATABASE
 
-        if options.export_as_hardlink and (not src or not dest.samefile(src)):
-            # different files, should update
-            return ShouldUpdate.HARDLINK_DIFFERENT_FILES
-
-        if not options.export_as_hardlink and (not src or dest.samefile(src)):
-            # same file but not exporting as hardlink, should update
-            return ShouldUpdate.NOT_HARDLINK_SAME_FILES
-
-        if not options.ignore_signature and not fileutil.cmp_file_sig(
-            dest, file_record.dest_sig
-        ):
-            # destination file doesn't match what was last exported
-            return ShouldUpdate.DEST_SIG_DIFFERENT
-
+        # --- Database-only checks first (fast, no filesystem access) ---
         if file_record.export_options != options.bit_flags:
             # exporting with different set of options (e.g. exiftool), should update
             # need to check this before exiftool in case exiftool options are different
@@ -632,20 +637,46 @@ class PhotoExporter:
             # this must be checked before exiftool which will return False if exif data matches
             return ShouldUpdate.UPDATE_ERRORS
 
-        if options.exiftool:
-            current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
-            rv = current_exifdata != file_record.exifdata
-            # if using exiftool, don't need to continue checking edited below
-            # as exiftool will be used to update edited file
-            return ShouldUpdate.EXIFTOOL_DIFFERENT if rv else False
-
         if options.edited and self.photo.date_modified != file_record.date_modified:
             # edited file date modified in Photos doesn't match what was last exported
+            # this is a database-only check so it goes before filesystem checks
             return ShouldUpdate.DATE_MODIFIED_DIFFERENT
 
+        # --- Filesystem checks (use stat_cache for efficiency) ---
+        # Hardlink checks: skip expensive samefile() calls when source and destination
+        # are on different filesystems (hardlinks can't span filesystems)
+        # same_filesystem is None if not yet determined, True if same, False if different
+        if not options.same_filesystem:
+            # Cross-volume export: hardlinks are impossible
+            if options.export_as_hardlink:
+                # Can't verify hardlink on different filesystem, need to update
+                return ShouldUpdate.HARDLINK_DIFFERENT_FILES
+            # If not exporting as hardlink, no need to check samefile - they can't be same
+        else:
+            # Same filesystem or unknown: do the full check
+            if options.export_as_hardlink and (not src or not dest.samefile(src)):
+                # different files, should update
+                return ShouldUpdate.HARDLINK_DIFFERENT_FILES
+
+            if not options.export_as_hardlink and (not src or dest.samefile(src)):
+                # same file but not exporting as hardlink, should update
+                return ShouldUpdate.NOT_HARDLINK_SAME_FILES
+
+        if not options.ignore_signature and not fileutil.cmp_file_sig(
+            dest, file_record.dest_sig, stat_cache=options.stat_cache
+        ):
+            # destination file doesn't match what was last exported
+            return ShouldUpdate.DEST_SIG_DIFFERENT
+
+        # --- Additional checks that may involve computation ---
+        if options.exiftool:
+            current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
+            if current_exifdata != file_record.exifdata:
+                return ShouldUpdate.EXIFTOOL_DIFFERENT
+            return False
+
         if options.force_update:
-            current_digest = self.photo.hexdigest
-            if current_digest != file_record.digest:
+            if self.photo.hexdigest != file_record.digest:
                 # metadata in Photos changed, force update
                 return ShouldUpdate.DIGEST_DIFFERENT
 
@@ -677,24 +708,30 @@ class PhotoExporter:
         if not file_record:
             return ShouldUpdate.NOT_IN_DATABASE
 
-        if not options.ignore_signature and not fileutil.cmp_file_sig(
-            dest, file_record.dest_sig
-        ):
-            return ShouldUpdate.DEST_SIG_DIFFERENT
-
+        # --- Database-only checks first (fast, no filesystem access) ---
         if file_record.export_options != options.bit_flags:
             return ShouldUpdate.EXPORT_OPTIONS_DIFFERENT
 
         if options.update_errors and file_record.error is not None:
             return ShouldUpdate.UPDATE_ERRORS
 
+        if options.edited and self.photo.date_modified != file_record.date_modified:
+            # edited file date modified in Photos doesn't match what was last exported
+            # this is a database-only check so it goes before filesystem checks
+            return ShouldUpdate.DATE_MODIFIED_DIFFERENT
+
+        # --- Filesystem check (uses stat_cache for efficiency) ---
+        if not options.ignore_signature and not fileutil.cmp_file_sig(
+            dest, file_record.dest_sig, stat_cache=options.stat_cache
+        ):
+            return ShouldUpdate.DEST_SIG_DIFFERENT
+
+        # --- Additional checks that may involve computation ---
         if options.exiftool:
             current_exifdata = exiftool_json_sidecar(photo=self.photo, options=options)
             if current_exifdata != file_record.exifdata:
                 return ShouldUpdate.EXIFTOOL_DIFFERENT
-
-        if options.edited and self.photo.date_modified != file_record.date_modified:
-            return ShouldUpdate.DATE_MODIFIED_DIFFERENT
+            return False
 
         if options.force_update:
             if self.photo.hexdigest != file_record.digest:
@@ -720,12 +757,18 @@ class PhotoExporter:
         """
         live_photo = staged.edited_live if options.edited else staged.original_live
 
+        # Helper to check exists using stat_cache when available
+        def _dest_exists(path: pathlib.Path) -> bool:
+            if options.stat_cache is not None:
+                return options.stat_cache.exists(path)
+            return path.exists()
+
         # Check main photo
         main_missing = (
             self.photo.hasadjustments and options.edited and not staged.edited
         ) or (not options.edited and not staged.original)
         if main_missing:
-            if not dest.exists():
+            if not _dest_exists(dest):
                 return True  # New file, need to download
             if self._should_update_photo_for_missing(dest, options):
                 return True  # Needs updating
@@ -734,7 +777,7 @@ class PhotoExporter:
         live_missing = self.photo.live_photo and options.live_photo and not live_photo
         if live_missing:
             live_dest = dest.parent / f"{dest.stem}.mov"
-            if not live_dest.exists():
+            if not _dest_exists(live_dest):
                 return True  # New file, need to download
             if self._should_update_photo_for_missing(live_dest, options):
                 return True  # Needs updating
@@ -749,7 +792,7 @@ class PhotoExporter:
             )
             raw_ext = raw_ext or "raw"
             raw_dest = dest.parent / f"{dest.stem}.{raw_ext}"
-            if not raw_dest.exists():
+            if not _dest_exists(raw_dest):
                 return True  # New file, need to download
             if self._should_update_photo_for_missing(raw_dest, options):
                 return True  # Needs updating
@@ -1130,10 +1173,17 @@ class PhotoExporter:
         exif_results = ExportResults()
 
         dest_str = str(dest)
-        dest_exists = dest.exists()
+        # Use stat cache for exists check if available
+        if options.stat_cache is not None:
+            dest_exists = options.stat_cache.exists(dest)
+        else:
+            dest_exists = dest.exists()
 
         fileutil = options.fileutil
         export_db = options.export_db
+
+        if options.update or options.force_update:
+            export_db.prefetch_directory_records(dest.parent)
 
         action = None
         if options.update or options.force_update:  # updating
@@ -1154,18 +1204,19 @@ class PhotoExporter:
             action = "export"
 
         export_files = update_new_files + update_updated_files + exported_files
+        # Compute src_sig before any modifications by convert_to_jpeg or exiftool
+        # but defer writing to database until the context manager block to batch commits
+        src_sig = fileutil.file_sig(src)
         for export_dest in export_files:
-            # set src_sig before any modifications by convert_to_jpeg or exiftool
-            export_record = export_db.create_or_get_file_record(
-                export_dest, self.photo.uuid
-            )
-            export_record.src_sig = fileutil.file_sig(src)
             if dest_exists and any(
                 [options.overwrite, options.update, options.force_update]
             ):
                 # need to remove the destination first
                 try:
                     fileutil.unlink(dest)
+                    # Update stat cache to reflect deleted file
+                    if options.stat_cache is not None:
+                        options.stat_cache.remove_file(dest)
                 except Exception as e:
                     raise ExportError(
                         f"Error removing file {dest}: {e} (({lineno(__file__)})"
@@ -1173,6 +1224,9 @@ class PhotoExporter:
             if options.export_as_hardlink:
                 try:
                     fileutil.hardlink(src, dest)
+                    # Update stat cache to reflect new file
+                    if options.stat_cache is not None:
+                        options.stat_cache.update_file(dest)
                 except Exception as e:
                     raise ExportError(
                         f"Error hardlinking {src} to {dest}: {e} ({lineno(__file__)})"
@@ -1214,6 +1268,9 @@ class PhotoExporter:
 
                 try:
                     fileutil.copy(src, dest_str)
+                    # Update stat cache to reflect new file
+                    if options.stat_cache is not None:
+                        options.stat_cache.update_file(dest_str)
                     verbose(
                         f"Exported {self._filename(self.photo.original_filename)} to {self._filepath(normalize_fs_path(dest_str))}"
                     )
@@ -1274,7 +1331,7 @@ class PhotoExporter:
                 diff = None
             rec.photoinfo = self.photo.json(shallow=False)
             rec.export_options = options.bit_flags
-            # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
+            rec.src_sig = src_sig
             if not options.ignore_signature:
                 rec.dest_sig = fileutil.file_sig(dest)
             if options.exiftool:

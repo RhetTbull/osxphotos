@@ -1,5 +1,7 @@
 """FileUtil class with methods for copy, hardlink, unlink, etc."""
 
+from __future__ import annotations
+
 import datetime
 import enum
 import errno
@@ -16,6 +18,10 @@ import types
 import typing as t
 from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .stat_cache import DirectoryStatCache
 
 from tenacity import (
     RetryCallState,
@@ -621,12 +627,18 @@ class FileUtilMacOS(FileUtilABC):
         return sig1 == sig2
 
     @classmethod
-    def cmp_file_sig(cls, file1, sig2):
+    def cmp_file_sig(
+        cls,
+        file1,
+        sig2,
+        stat_cache: DirectoryStatCache | None = None,
+    ):
         """Compare file file1 to signature sig2.
 
         Args:
            file1 -- File name
            sig2  -- stats as returned by _sig
+           stat_cache -- Optional DirectoryStatCache to use for efficient stat operations
 
         Returns:
            True if the files are the same, False otherwise.
@@ -636,15 +648,38 @@ class FileUtilMacOS(FileUtilABC):
             return False
 
         file1 = normalize_fs_path(file1)
-        sig1 = cls._sig(os.stat(file1))
+
+        # Use cached stat if cache provided, otherwise direct stat
+        if stat_cache is not None:
+            sig1 = stat_cache.file_sig(file1)
+            if sig1 is None:
+                # File doesn't exist in cache
+                return False
+        else:
+            sig1 = cls._sig(os.stat(file1))
+
         if sig1[0] != stat.S_IFREG or sig2[0] != stat.S_IFREG:
             return False
         return sig1 == sig2
 
     @classmethod
-    def file_sig(cls, file1):
-        """return os.stat signature for file file1 as tuple of (mode, size, mtime)"""
+    def file_sig(cls, file1, stat_cache: DirectoryStatCache | None = None):
+        """return os.stat signature for file file1 as tuple of (mode, size, mtime)
+
+        Args:
+            file1 -- File name
+            stat_cache -- Optional DirectoryStatCache to use for efficient stat operations
+        """
         file1 = normalize_fs_path(file1)
+
+        # Use cached stat if cache provided, otherwise direct stat
+        if stat_cache is not None:
+            sig = stat_cache.file_sig(file1)
+            if sig is not None:
+                return sig
+            # Fall back to direct stat if not in cache
+            # (file may have been created after cache was populated)
+
         return cls._sig(os.stat(file1))
 
     @classmethod
@@ -805,7 +840,7 @@ class FileUtilNoOp(FileUtil):
         pass
 
     @classmethod
-    def file_sig(cls, file1):
+    def file_sig(cls, file1, stat_cache: DirectoryStatCache | None = None):
         """return os.stat signature for file file1 as tuple of (mode, size, mtime)"""
         if pathlib.Path(file1).exists():
             file1 = normalize_fs_path(file1)
