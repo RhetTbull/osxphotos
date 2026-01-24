@@ -146,6 +146,11 @@ if TYPE_CHECKING:
 
     from .cli import CLI_Obj
 
+# TTL for for DirectoryStatCache
+STAT_CACHE_TTL_SECONDS = os.environ.get(
+    "OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 * 60 * 10
+)
+
 
 @click.command(cls=ExportCommand)
 @DB_OPTION
@@ -2020,7 +2025,7 @@ def export_cli(
         # Initialize stat cache for efficient network volume operations
         # Only create cache for update exports where we'll be checking existing files
         if update or force_update:
-            stat_cache = DirectoryStatCache(ttl_seconds=60 * 60 * 10)
+            stat_cache = DirectoryStatCache(ttl_seconds=STAT_CACHE_TTL_SECONDS)
             same_filesystem = are_same_filesystem(photosdb.library_path, dest)
             verbose(
                 f"Export destination {'is' if same_filesystem else 'is not'} on same filesystem as Photos library"

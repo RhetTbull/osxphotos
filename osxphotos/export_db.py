@@ -45,13 +45,15 @@ OSXPHOTOS_EXPORTDB_VERSION = "11.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
-MAX_RETRY_ATTEMPTS = 3
+MAX_RETRY_ATTEMPTS = os.environ.get("OSXPHOTOS_MAX_RETRY_ATTEMPTS", 3)
 
 # maximum number of export results rows to save
-MAX_EXPORT_RESULTS_DATA_ROWS = 10
+MAX_EXPORT_RESULTS_DATA_ROWS = os.environ.get(
+    "OSXPHOTOS_MAX_EXPORT_RESULTS_DATA_ROWS", 10
+)
 
 # batch size for history writes to reduce commit overhead
-HISTORY_BATCH_SIZE = 100
+HISTORY_BATCH_SIZE = os.environ.get("OSXPHOTOS_HISTORY_BATCH_SIZE", 100)
 
 
 logger = logging.getLogger("osxphotos")

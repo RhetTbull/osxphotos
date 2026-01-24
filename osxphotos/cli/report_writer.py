@@ -22,6 +22,8 @@ from osxphotos.sqlite_utils import sqlite_columns
 from .push_results import PushResults
 from .sync_results import SyncResults
 
+EXPORT_REPORT_BATCH_SIZE = os.environ.get("OSXPHOTOS_EXPORT_REPORT_BATCH_SIZE", 100)
+
 __all__ = [
     "ExportReportWriterCSV",
     "ExportReportWriterJSON",
@@ -188,7 +190,7 @@ class ExportReportWriterSQLite(ReportWriterABC):
     """Write sqlite report file for export data"""
 
     # Number of records to buffer before committing to reduce commit overhead
-    BATCH_SIZE = 100
+    BATCH_SIZE = EXPORT_REPORT_BATCH_SIZE
 
     # SQL for batch inserts
     _INSERT_SQL = (
