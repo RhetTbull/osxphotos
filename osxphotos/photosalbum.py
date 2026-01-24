@@ -1,4 +1,4 @@
-""" PhotosAlbum class to create an album in default Photos library and add photos to it """
+"""PhotosAlbum class to create an album in default Photos library and add photos to it"""
 
 from __future__ import annotations
 
@@ -125,6 +125,9 @@ class PhotosAlbum:
         self.rich = rich
 
     def add(self, photo: PhotoInfo):
+        if photo.shared or (photo.syndicated and not photo.saved_to_library):
+            # shared / unsaved syndicated photos cannot be added to albums
+            return
         photo_ = photoscript.Photo(photo.uuid)
         self.album.add([photo_])
         self.verbose(
@@ -134,6 +137,9 @@ class PhotosAlbum:
     def update(self, photos: Iterable[PhotoInfo]):
         photoscript_photos = []
         for p in photos:
+            if p.shared or (p.syndicated and not p.saved_to_library):
+                # shared / unsaved syndicated photos cannot be added to albums
+                continue
             try:
                 photoscript_photos.append(photoscript.Photo(p.uuid))
             except Exception as e:
