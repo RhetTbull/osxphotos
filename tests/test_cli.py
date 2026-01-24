@@ -6103,6 +6103,82 @@ def test_export_update_only_new():
         assert "exported: 0" in result.output
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
+def test_export_update_only_new_cleanup():
+    """test --update --only-new --cleanup"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--to-date",
+                "2020-12-20T18:33:41.766684-08:00",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # --update with --only-new --dry-run
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--dry-run",
+                "--update",
+                "--only-new",
+                "--cleanup",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 7" in result.output
+
+        # --update with --only-new
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--only-new",
+                "--cleanup",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 7" in result.output
+        assert "Deleted: 0 files, 0 directories" in result.output
+
+        # --update with --only-new, should export nothing
+        # but add a file so --cleanup deletes something
+        pathlib.Path("foo.txt").touch()
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--only-new",
+                "--cleanup",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0" in result.output
+        assert "Deleted: 1 file, 0 directories" in result.output
+
+
 def test_export_update_no_db():
     """test export then update after db has been deleted"""
 

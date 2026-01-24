@@ -2282,6 +2282,11 @@ def export_cli(
         if report:
             all_files.append(report)
 
+        if only_new:
+            # keep all previously exported files
+            exported_files = [files[1] for files in export_db.get_exported_files()]
+            all_files.extend(exported_files)
+
         # gather any files that should be kept from both .osxphotos_keep and --keep
         dirs_to_keep = []
         files_to_keep, dirs_to_keep = collect_files_to_keep(keep, dest)
