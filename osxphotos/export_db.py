@@ -35,6 +35,7 @@ from .sqlite_utils import (
 from .unicode import normalize_fs_path
 
 __all__ = [
+    "BatchContext",
     "ExportDB",
     "ExportDBInMemory",
     "ExportDBTemp",
@@ -44,10 +45,15 @@ OSXPHOTOS_EXPORTDB_VERSION = "11.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
-MAX_RETRY_ATTEMPTS = 3
+MAX_RETRY_ATTEMPTS = os.environ.get("OSXPHOTOS_MAX_RETRY_ATTEMPTS", 3)
 
 # maximum number of export results rows to save
-MAX_EXPORT_RESULTS_DATA_ROWS = 10
+MAX_EXPORT_RESULTS_DATA_ROWS = os.environ.get(
+    "OSXPHOTOS_MAX_EXPORT_RESULTS_DATA_ROWS", 10
+)
+
+# batch size for history writes to reduce commit overhead
+HISTORY_BATCH_SIZE = os.environ.get("OSXPHOTOS_HISTORY_BATCH_SIZE", 100)
 
 
 logger = logging.getLogger("osxphotos")
@@ -85,6 +91,32 @@ def unzip_and_unpickle(data: bytes) -> Any:
         unpickled data
     """
     return pickle.loads(gzip.decompress(data))
+
+
+class BatchContext:
+    """Context manager for batching database operations in ExportDB.
+
+    When active, commits are deferred until the batch completes.
+    Supports nesting - only the outermost batch commits.
+    """
+
+    def __init__(self, export_db: "ExportDB"):
+        self._export_db = export_db
+
+    def __enter__(self):
+        self._export_db._batch_mode += 1
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._export_db._batch_mode -= 1
+        if self._export_db._batch_mode == 0:
+            # Outermost batch is complete, flush and commit
+            self._export_db.flush_history()
+            with self._export_db.lock:
+                if exc_type and self._export_db._conn.in_transaction:
+                    self._export_db._conn.rollback()
+                elif self._export_db._conn.in_transaction:
+                    self._export_db._conn.commit()
 
 
 class ExportDB:
@@ -131,6 +163,17 @@ class ExportDB:
 
         self.lock = threading.Lock()
 
+        # Cache for batch-loaded ExportRecord data, keyed by directory path
+        # Each directory maps to a dict of filepath_normalized -> record data
+        self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
+
+        # Buffer for batched history writes to reduce commit overhead
+        # Each entry is (filename_normalized, uuid, action, diff)
+        self._history_buffer: list[tuple[str, str, str, str | None]] = []
+
+        # Batch mode counter - when > 0, commits are deferred until batch completes
+        self._batch_mode: int = 0
+
         self._conn = self._open_export_db(self._dbfile, version)
         self._perform_db_maintenance(self._conn)
         self._insert_run_info()
@@ -160,6 +203,22 @@ class ExportDB:
         filename = self._relative_filepath(filename)
         filename_normalized = self._normalize_filepath(filename)
 
+        # Check cache first
+        dir_path = str(pathlib.Path(filename).parent)
+        dir_normalized = self._normalize_filepath(dir_path)
+        if dir_normalized in self._record_cache:
+            cached_data = self._record_cache[dir_normalized].get(filename_normalized)
+            if cached_data is not None:
+                return ExportRecord(
+                    self.connection,
+                    self.lock,
+                    filename_normalized,
+                    cached_data,
+                    export_db=self,
+                )
+            # Directory is cached but file not found
+            return None
+
         with self.lock:
             conn = self.connection
             c = conn.cursor()
@@ -167,7 +226,101 @@ class ExportDB:
                 "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
                 (filename_normalized,),
             ).fetchone()
-        return ExportRecord(conn, self.lock, filename_normalized) if result else None
+        return (
+            ExportRecord(conn, self.lock, filename_normalized, export_db=self)
+            if result
+            else None
+        )
+
+    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def prefetch_directory_records(self, directory: str | os.PathLike) -> int:
+        """Batch-load all ExportRecord data for files in a directory.
+
+        This loads all records with a single SQL query and caches them for
+        subsequent get_file_record() calls. This is significantly faster than
+        individual queries when processing many files in the same directory.
+
+        Args:
+            directory: Directory path to prefetch records for.
+
+        Returns:
+            Number of records loaded.
+        """
+        dir_relative = self._relative_filepath(directory)
+        dir_normalized = self._normalize_filepath(dir_relative)
+
+        # Already cached
+        if dir_normalized in self._record_cache:
+            return len(self._record_cache[dir_normalized])
+
+        with self.lock:
+            conn = self.connection
+            c = conn.cursor()
+            # Query all records in directory with LIKE prefix match
+            # The pattern matches files in the directory (not subdirectories)
+            # Special case for root directory (dir_normalized is ".")
+            if dir_normalized == ".":
+                # Root directory: match files without "/" (directly in root)
+                results = c.execute(
+                    """SELECT filepath_normalized, uuid, digest, exifdata, export_options,
+                              dest_mode, dest_size, dest_mtime, error, date_modified
+                       FROM export_data
+                       WHERE filepath_normalized NOT LIKE '%/%';""",
+                ).fetchall()
+            else:
+                results = c.execute(
+                    """SELECT filepath_normalized, uuid, digest, exifdata, export_options,
+                              dest_mode, dest_size, dest_mtime, error, date_modified
+                       FROM export_data
+                       WHERE filepath_normalized LIKE ? AND filepath_normalized NOT LIKE ?;""",
+                    (f"{dir_normalized}/%", f"{dir_normalized}/%/%"),
+                ).fetchall()
+
+        # Build cache for this directory
+        dir_cache: dict[str, dict[str, Any]] = {}
+        for row in results:
+            filepath_normalized = row[0]
+            # Parse error JSON
+            error_val = json.loads(row[8]) if row[8] else None
+            # Parse date_modified
+            date_modified_val = None
+            if row[9]:
+                try:
+                    date_modified_val = datetime.datetime.fromisoformat(row[9])
+                except Exception:
+                    pass
+            # Build dest_sig tuple
+            mtime = int(row[7]) if row[7] is not None else None
+            dest_sig = (row[5], row[6], mtime)
+
+            dir_cache[filepath_normalized] = {
+                "uuid": row[1],
+                "digest": row[2],
+                "exifdata": row[3],
+                "export_options": row[4],
+                "dest_sig": dest_sig,
+                "error": error_val,
+                "date_modified": date_modified_val,
+            }
+
+        self._record_cache[dir_normalized] = dir_cache
+        logger.debug(
+            f"Prefetched {len(dir_cache)} export records for directory {directory}"
+        )
+        return len(dir_cache)
+
+    def invalidate_record_cache(self, directory: str | os.PathLike | None = None):
+        """Invalidate the record cache for a directory or all directories.
+
+        Args:
+            directory: Directory to invalidate, or None to clear entire cache.
+        """
+        if directory is None:
+            self._record_cache.clear()
+        else:
+            dir_relative = self._relative_filepath(directory)
+            dir_normalized = self._normalize_filepath(dir_relative)
+            self._record_cache.pop(dir_normalized, None)
 
     @retry(
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),
@@ -190,8 +343,9 @@ class ExportDB:
                 "INSERT INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
                 (filename, filename_normalized, uuid),
             )
-            conn.commit()
-        return ExportRecord(conn, self.lock, filename_normalized)
+            if not self.in_batch_mode:
+                conn.commit()
+        return ExportRecord(conn, self.lock, filename_normalized, export_db=self)
 
     @retry(
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),
@@ -207,15 +361,41 @@ class ExportDB:
         filename = self._relative_filepath(filename)
         filename_normalized = self._normalize_filepath(filename)
 
+        # Check cache first - if record exists, skip the database query entirely
+        dir_path = str(pathlib.Path(filename).parent)
+        dir_normalized = self._normalize_filepath(dir_path)
+        if dir_normalized in self._record_cache:
+            cached_data = self._record_cache[dir_normalized].get(filename_normalized)
+            if cached_data is not None:
+                return ExportRecord(
+                    self.connection,
+                    self.lock,
+                    filename_normalized,
+                    cached_data,
+                    export_db=self,
+                )
+
         with self.lock:
             conn = self.connection
             c = conn.cursor()
+            # Check if record already exists in database to avoid unnecessary INSERT + commit
+            existing = c.execute(
+                "SELECT 1 FROM export_data WHERE filepath_normalized = ? LIMIT 1;",
+                (filename_normalized,),
+            ).fetchone()
+            if existing:
+                # Record exists, no need to INSERT or commit
+                return ExportRecord(
+                    conn, self.lock, filename_normalized, export_db=self
+                )
+            # Record doesn't exist, INSERT and commit (unless in batch mode)
             c.execute(
                 "INSERT OR IGNORE INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
                 (filename, filename_normalized, uuid),
             )
-            conn.commit()
-        return ExportRecord(conn, self.lock, filename_normalized)
+            if not self.in_batch_mode:
+                conn.commit()
+        return ExportRecord(conn, self.lock, filename_normalized, export_db=self)
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_uuid_for_file(self, filename: str) -> str | None:
@@ -427,7 +607,6 @@ class ExportDB:
             ).fetchall()
         return sum(self.delete_data_for_uuid(row[0]) for row in results)
 
-    # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def set_history(
         self,
         filename: str | os.PathLike,
@@ -441,27 +620,59 @@ class ExportDB:
             filename: path to file
             action: action taken on file, e.g. "exported", "skipped", "missing", "updated"
             diff: diff for file as a serialized JSON str
+
+        Note: Records are buffered and committed in batches for better performance.
+        Call flush_history() to force immediate commit of buffered records.
         """
         filename_normalized = self._normalize_filepath_relative(filename)
+        self._history_buffer.append((filename_normalized, uuid, action, diff))
+
+        if len(self._history_buffer) >= HISTORY_BATCH_SIZE:
+            self.flush_history()
+
+    def flush_history(self):
+        """Flush buffered history records to the database.
+
+        This is called automatically when the buffer reaches HISTORY_BATCH_SIZE,
+        and also called by close() to ensure all records are written.
+        """
+        if not self._history_buffer:
+            return
+
         with self.lock:
             conn = self.connection
             c = conn.cursor()
-            if filepath_id := c.execute(
-                "SELECT id FROM history_path WHERE filepath_normalized = ?;",
-                (filename_normalized,),
-            ).fetchone():
-                filepath_id = filepath_id[0]
-            else:
-                c.execute(
-                    "INSERT INTO history_path (filepath_normalized, uuid) VALUES (?, ?);",
-                    (filename_normalized, uuid),
-                )
-                filepath_id = c.lastrowid
-            c.execute(
-                "INSERT INTO history (filepath_id, action, diff) VALUES (?, ?, ?);",
-                (filepath_id, action, diff),
+
+            # First, ensure all paths exist in history_path table
+            # Use INSERT OR IGNORE to handle existing paths efficiently
+            unique_paths = {(fn, uuid) for fn, uuid, _, _ in self._history_buffer}
+            c.executemany(
+                "INSERT OR IGNORE INTO history_path (filepath_normalized, uuid) VALUES (?, ?);",
+                unique_paths,
             )
+
+            # Build a mapping of filepath_normalized -> id
+            # Query all paths we need in one go
+            path_list = [fn for fn, _, _, _ in self._history_buffer]
+            placeholders = ",".join("?" * len(path_list))
+            rows = c.execute(
+                f"SELECT filepath_normalized, id FROM history_path WHERE filepath_normalized IN ({placeholders});",
+                path_list,
+            ).fetchall()
+            path_to_id = {row[0]: row[1] for row in rows}
+
+            # Now batch insert all history records
+            history_records = [
+                (path_to_id[fn], action, diff)
+                for fn, _, action, diff in self._history_buffer
+            ]
+            c.executemany(
+                "INSERT INTO history (filepath_id, action, diff) VALUES (?, ?, ?);",
+                history_records,
+            )
+
             conn.commit()
+            self._history_buffer.clear()
 
     # @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_history(
@@ -526,10 +737,34 @@ class ExportDB:
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def close(self):
-        """close the database connection"""
+        """Flush any buffered data and close the database connection"""
         if self._conn:
+            self.flush_history()
             self._conn.close()
             self._conn = None
+
+    @property
+    def in_batch_mode(self) -> bool:
+        """Return True if database is in batch mode (commits are deferred)"""
+        return self._batch_mode > 0
+
+    def batch_operations(self) -> "BatchContext":
+        """Context manager for batching database operations.
+
+        When in batch mode, commits are deferred until the batch completes.
+        This significantly improves performance when performing many database
+        operations in sequence.
+
+        Example:
+            with export_db.batch_operations():
+                for photo in photos:
+                    record = export_db.create_or_get_file_record(...)
+                    with record:
+                        record.photoinfo = ...
+                        record.dest_sig = ...
+                # Single commit happens here when exiting batch_operations
+        """
+        return BatchContext(self)
 
     def _open_export_db(
         self, dbfile: str, version: str | None = None
@@ -1201,6 +1436,15 @@ class ExportDBInMemory(ExportDB):
 
         self.lock = threading.Lock()
 
+        # Cache for batch-loaded ExportRecord data
+        self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
+
+        # Buffer for batched history writes to reduce commit overhead
+        self._history_buffer: list[tuple[str, str, str, str | None]] = []
+
+        # Batch mode counter - when > 0, commits are deferred until batch completes
+        self._batch_mode: int = 0
+
         self._conn = self._open_export_db(self._dbfile, version=version)
         self._insert_run_info()
         self._insert_export_dir()
@@ -1330,6 +1574,15 @@ class ExportDBTemp(ExportDBInMemory):
 
         self.lock = threading.Lock()
 
+        # Cache for batch-loaded ExportRecord data
+        self._record_cache: dict[str, dict[str, dict[str, Any]]] = {}
+
+        # Buffer for batched history writes to reduce commit overhead
+        self._history_buffer: list[tuple[str, str, str, str | None]] = []
+
+        # Batch mode counter - when > 0, commits are deferred until batch completes
+        self._batch_mode: int = 0
+
         self.was_upgraded = ()
         self.was_created = False
 
@@ -1355,15 +1608,24 @@ class ExportRecord:
         "_conn",
         "_context_manager",
         "_filepath_normalized",
+        "_cached_data",
+        "_export_db",
         "lock",
     ]
 
     def __init__(
-        self, conn: sqlite3.Connection, lock: threading.Lock, filepath_normalized: str
+        self,
+        conn: sqlite3.Connection,
+        lock: threading.Lock,
+        filepath_normalized: str,
+        cached_data: dict[str, Any] | None = None,
+        export_db: "ExportDB | None" = None,
     ):
         self._conn = conn
         self.lock = lock
         self._filepath_normalized = filepath_normalized
+        self._cached_data = cached_data
+        self._export_db = export_db
         self._context_manager = False
 
     @property
@@ -1437,6 +1699,8 @@ class ExportRecord:
 
     def _digest(self) -> str:
         """returns the digest value"""
+        if self._cached_data is not None:
+            return self._cached_data.get("digest")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1477,6 +1741,8 @@ class ExportRecord:
 
     def _exifdata(self) -> str:
         """returns exifdata value for record"""
+        if self._cached_data is not None:
+            return self._cached_data.get("exifdata")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1570,6 +1836,8 @@ class ExportRecord:
 
     def _dest_sig(self) -> tuple[int, int, int | None]:
         """return destination file signature"""
+        if self._cached_data is not None:
+            return self._cached_data.get("dest_sig")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1674,6 +1942,8 @@ class ExportRecord:
 
     def _export_options(self) -> str:
         """Get export_options value"""
+        if self._cached_data is not None:
+            return self._cached_data.get("export_options")
         conn = self.connection
         c = conn.cursor()
         row = c.execute(
@@ -1734,6 +2004,8 @@ class ExportRecord:
 
     def _error(self) -> dict[str, Any] | None:
         """Return error value"""
+        if self._cached_data is not None:
+            return self._cached_data.get("error")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1777,6 +2049,8 @@ class ExportRecord:
 
     def _date_modified(self) -> datetime.datetime | None:
         """return date modified"""
+        if self._cached_data is not None:
+            return self._cached_data.get("date_modified")
         conn = self.connection
         c = conn.cursor()
         if row := c.execute(
@@ -1843,9 +2117,11 @@ class ExportRecord:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        # Check if we're in batch mode - if so, defer the commit
+        in_batch = self._export_db is not None and self._export_db.in_batch_mode
         if exc_type and self._conn.in_transaction:
             self._conn.rollback()
-        elif self._conn.in_transaction:
+        elif self._conn.in_transaction and not in_batch:
             self._conn.commit()
         self._context_manager = False
         self.lock.release()

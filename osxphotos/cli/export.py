@@ -77,6 +77,7 @@ from osxphotos.photoquery import load_uuid_from_file, query_options_from_kwargs
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.sidecars import UserSidecarError
+from osxphotos.stat_cache import DirectoryStatCache, are_same_filesystem
 from osxphotos.unicode import normalize_fs_path
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
@@ -144,6 +145,11 @@ if TYPE_CHECKING:
     import bitmath
 
     from .cli import CLI_Obj
+
+# TTL for for DirectoryStatCache
+STAT_CACHE_TTL_SECONDS = os.environ.get(
+    "OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 * 60 * 10
+)
 
 
 @click.command(cls=ExportCommand)
@@ -2003,13 +2009,30 @@ def export_cli(
                 verbose("Cleaning up lock files")
             if dry_run:
                 return
-            for lock_file in pathlib.Path(dest).rglob("*.osxphotos.lock"):
-                try:
-                    lock_file.unlink()
-                except Exception as e:
-                    logger.debug(f"Error removing lock file {lock_file}: {e}")
+            # Use os.walk instead of rglob for better performance on SMB/network volumes
+            # os.walk uses scandir internally and provides filenames without extra stat calls
+            for dirpath, _, filenames in os.walk(dest):
+                for filename in filenames:
+                    if filename.endswith(".osxphotos.lock"):
+                        lock_file = pathlib.Path(dirpath) / filename
+                        try:
+                            lock_file.unlink()
+                        except Exception as e:
+                            logger.debug(f"Error removing lock file {lock_file}: {e}")
 
         atexit.register(cleanup_lock_files)
+
+        # Initialize stat cache for efficient network volume operations
+        # Only create cache for update exports where we'll be checking existing files
+        if update or force_update:
+            stat_cache = DirectoryStatCache(ttl_seconds=STAT_CACHE_TTL_SECONDS)
+            same_filesystem = are_same_filesystem(photosdb.library_path, dest)
+            verbose(
+                f"Export destination {'is' if same_filesystem else 'is not'} on same filesystem as Photos library"
+            )
+        else:
+            stat_cache = None
+            same_filesystem = None
 
         photo_num = 0
         num_exported = 0
@@ -2259,6 +2282,11 @@ def export_cli(
         if report:
             all_files.append(report)
 
+        if only_new:
+            # keep all previously exported files
+            exported_files = [files[1] for files in export_db.get_exported_files()]
+            all_files.extend(exported_files)
+
         # gather any files that should be kept from both .osxphotos_keep and --keep
         dirs_to_keep = []
         files_to_keep, dirs_to_keep = collect_files_to_keep(keep, dest)
@@ -2370,6 +2398,8 @@ def export_photo(
     tmpdir=None,
     update_errors=False,
     fix_orientation=False,
+    stat_cache=None,
+    same_filesystem=None,
 ) -> ExportResults:
     """Helper function for export that does the actual export
 
@@ -2422,6 +2452,8 @@ def export_photo(
         verbose: callable for verbose output
         tmpdir: optional str; temporary directory to use for export
         fix_orientation: bool; if True, auto-rotate images based on EXIF orientation
+        stat_cache: DirectoryStatCache to use
+        same_filesystem: bool, True if source and destination are on same file system, otherwise False
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2595,6 +2627,8 @@ def export_photo(
                 verbose=verbose,
                 tmpdir=tmpdir,
                 fix_orientation=fix_orientation,
+                stat_cache=stat_cache,
+                same_filesystem=same_filesystem,
             )
 
     if export_edited and photo.hasadjustments:
@@ -2717,6 +2751,8 @@ def export_photo(
                     verbose=verbose,
                     tmpdir=tmpdir,
                     fix_orientation=fix_orientation,
+                    stat_cache=stat_cache,
+                    same_filesystem=same_filesystem,
                 )
 
     return results
@@ -2808,6 +2844,8 @@ def export_photo_to_directory(
     verbose,
     tmpdir,
     fix_orientation,
+    stat_cache=None,
+    same_filesystem=None,
 ) -> ExportResults:
     """Export photo to directory dest_path"""
 
@@ -2879,6 +2917,8 @@ def export_photo_to_directory(
                 use_photos_export=use_photos_export,
                 verbose=verbose,
                 fix_orientation=fix_orientation,
+                stat_cache=stat_cache,
+                same_filesystem=same_filesystem,
             )
             exporter = PhotoExporter(photo)
             export_results = exporter.export(
@@ -3137,10 +3177,22 @@ def collect_files_to_keep(
 
     # have some rules to apply
     matcher = osxphotos.gitignorefile.parse_pattern_list(KEEP_RULEs, export_dir)
-    keepers = []
-    keepers = [path for path in export_dir.rglob("*") if matcher(path)]
-    files_to_keep = [str(k) for k in keepers if k.is_file()]
-    dirs_to_keep = [str(k) for k in keepers if k.is_dir()]
+
+    files_to_keep = []
+    dirs_to_keep = []
+    for root, dirnames, filenames in os.walk(export_dir):
+        root_path = pathlib.Path(root)
+        # Check directories - pass is_dir=True to avoid isdir() call in matcher
+        for dirname in dirnames:
+            dir_path = root_path / dirname
+            if matcher(dir_path, is_dir=True):
+                dirs_to_keep.append(str(dir_path))
+        # Check files - pass is_dir=False to avoid isdir() call in matcher
+        for filename in filenames:
+            file_path = root_path / filename
+            if matcher(file_path, is_dir=False):
+                files_to_keep.append(str(file_path))
+
     return files_to_keep, dirs_to_keep
 
 
@@ -3168,20 +3220,22 @@ def cleanup_files(
         normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep
     }
 
+    # Use os.walk instead of rglob for better performance on SMB/network volumes
+    # os.walk uses scandir internally which gets file info without extra stat calls
     deleted_files = []
-    for p in pathlib.Path(dest_path).rglob("*"):
-        if (
-            p.is_file()
-            and normalize_fs_path(str(p).lower()) not in keepers
-            and not p.name.startswith(".")
-        ):
-            verbose(f"Deleting [filepath]{p}")
-            try:
-                fileutil.unlink(p)
-                deleted_files.append(str(p))
-            except OSError as e:
-                # ignore errors deleting files, #987
-                verbose(f"Error deleting file {p}: {e}")
+    for dirpath, _, filenames in os.walk(dest_path):
+        for filename in filenames:
+            if filename.startswith("."):
+                continue
+            filepath = os.path.join(dirpath, filename)
+            if normalize_fs_path(filepath.lower()) not in keepers:
+                verbose(f"Deleting [filepath]{filepath}")
+                try:
+                    fileutil.unlink(filepath)
+                    deleted_files.append(filepath)
+                except OSError as e:
+                    # ignore errors deleting files, #987
+                    verbose(f"Error deleting file {filepath}: {e}")
 
     # delete empty directories
     deleted_dirs = []
@@ -3189,8 +3243,13 @@ def cleanup_files(
     for dirpath, _, _ in os.walk(dest_path, topdown=False):
         if dirpath in dirs_to_keep:
             continue
-        if not list(pathlib.Path(dirpath).glob("*")):
-            # directory and directory is empty
+        # Use scandir to efficiently check if directory is empty
+        # This only reads one entry instead of listing the entire directory
+        try:
+            is_empty = next(os.scandir(dirpath), None) is None
+        except OSError:
+            is_empty = False
+        if is_empty:
             verbose(f"Deleting empty directory {dirpath}")
             try:
                 fileutil.rmdir(dirpath)
