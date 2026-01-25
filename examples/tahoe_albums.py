@@ -51,7 +51,8 @@ def process_shared_albums(photosdb: osxphotos.PhotosDB, verbose: Callable[[str],
         # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
         album_uuid = album[0]
         photo_uuid = album[1]
-        sort_order = album[2]
+        # sort_order = album[2] # TODO: figure out album sort order
+        sort_order = 0
         try:
             photosdb._dbalbums_uuid[photo_uuid].append(album_uuid)
         except KeyError:
