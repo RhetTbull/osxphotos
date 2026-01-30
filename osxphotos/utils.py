@@ -752,3 +752,9 @@ def find_files_by_prefix(
 def _listdir_cache(filepath: str | os.PathLike) -> list[str]:
     """Cached listdir"""
     return os.listdir(filepath)
+
+
+@cache
+def isdir_cache(path: str | os.PathLike) -> bool:
+    """Cached os.path.isdir"""
+    return os.path.isdir(str(path))
