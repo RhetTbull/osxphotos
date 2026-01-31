@@ -276,6 +276,18 @@ class PhotoExporter:
 
         dest = self._get_dest_path(dest, options)
 
+        # In dry_run mode without update, register the claimed path in stat_cache
+        # so that subsequent photos with the same filename get correctly
+        # incremented. Skip this for update/force_update exports where real stat
+        # data is needed for change detection.
+        if (
+            options.dry_run
+            and not options.update
+            and not options.force_update
+            and options.stat_cache is not None
+        ):
+            options.stat_cache.register_virtual_file(dest)
+
         staged_files = self._stage_photos_for_export(options, dest=dest)
         src = staged_files.edited if options.edited else staged_files.original
 
@@ -579,16 +591,29 @@ class PhotoExporter:
 
             # no match so need to create a new name
             # increment the destination file until we find one that doesn't exist and doesn't match another uuid in the database
-            count = 0
-            dest, count = increment_filename_with_count(
-                dest, count, lock=lock, stat_cache=stat_cache
-            )
-            count += 1
-            while export_db.get_uuid_for_file(dest) is not None:
+            if options.dry_run:
+                # In dry_run mode (e.g. pre-load), use db-only collision
+                # resolution so we can claim filenames that exist on disk
+                # but haven't been assigned to another photo yet.
+                count = 0
+                candidate = str(dest)
+                while export_db.get_uuid_for_file(candidate) is not None:
+                    count += 1
+                    candidate = normalize_fs_path(
+                        str(dest.parent / f"{dest.stem} ({count}){dest.suffix}")
+                    )
+                return pathlib.Path(candidate)
+            else:
+                count = 0
                 dest, count = increment_filename_with_count(
                     dest, count, lock=lock, stat_cache=stat_cache
                 )
-            return pathlib.Path(dest)
+                count += 1
+                while export_db.get_uuid_for_file(dest) is not None:
+                    dest, count = increment_filename_with_count(
+                        dest, count, lock=lock, stat_cache=stat_cache
+                    )
+                return pathlib.Path(dest)
 
         # fail safe...I can't think of a case that gets here
         _lock_filename(dest)

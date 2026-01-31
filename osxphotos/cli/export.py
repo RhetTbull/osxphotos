@@ -1852,9 +1852,9 @@ def export_cli(
         verbose(
             f"Running in pre-load mode; export database will be created and populated at [filepath]{export_db_path}[/] but files will not be exported."
         )
+        # pre_load uses dry_run with update code path to rebuild/pre-load the database
         dry_run = True
-        # not used but gets added to kwargs for call to export_photo below
-        overwrite = True  # noqa: F841
+        update = True
         export_db = (
             ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
             if ramdb
@@ -2024,7 +2024,7 @@ def export_cli(
 
         # Initialize stat cache for efficient network volume operations
         # Only create cache for update exports where we'll be checking existing files
-        if update or force_update:
+        if update or force_update or dry_run:
             stat_cache = DirectoryStatCache(ttl_seconds=STAT_CACHE_TTL_SECONDS)
             same_filesystem = are_same_filesystem(photosdb.library_path, dest)
             verbose(
