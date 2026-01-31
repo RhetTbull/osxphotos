@@ -592,7 +592,7 @@ class PhotoExporter:
             # no match so need to create a new name
             # increment the destination file until we find one that doesn't exist and doesn't match another uuid in the database
             if options.dry_run:
-                # In dry_run mode (e.g. pre-load), use db-only collision
+                # In dry_run mode (or pre-load), use db-only collision
                 # resolution so we can claim filenames that exist on disk
                 # but haven't been assigned to another photo yet.
                 count = 0
