@@ -147,14 +147,18 @@ if TYPE_CHECKING:
     from .cli import CLI_Obj
 
 # TTL for for DirectoryStatCache
-STAT_CACHE_TTL_SECONDS = os.environ.get("OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 * 60 * 10)
+STAT_CACHE_TTL_SECONDS = os.environ.get(
+    "OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 * 60 * 10
+)
 
 
 @click.command(cls=ExportCommand)
 @DB_OPTION
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
-@click.option("--no-progress", is_flag=True, help="Do not display progress bar during export.")
+@click.option(
+    "--no-progress", is_flag=True, help="Do not display progress bar during export."
+)
 @QUERY_OPTIONS
 @DELETED_OPTIONS
 @click.option(
@@ -252,7 +256,9 @@ STAT_CACHE_TTL_SECONDS = os.environ.get("OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 *
     default=None,
     multiple=False,
     help="Alias filename to the SMB export destination folder to be used with --retry to force macOs to re-mount the SMB export folder in case of loss of connection. Create the alias file manually on Finder and make sure it's within the Sandboxed environment of osxphotos. See also option --retry and --retry-wait.",
-    type=CatchSmartQuotesPath(exists=True, file_okay=True, dir_okay=False, readable=True),
+    type=CatchSmartQuotesPath(
+        exists=True, file_okay=True, dir_okay=False, readable=True
+    ),
 )
 @click.option(
     "--retry-wait",
@@ -289,6 +295,13 @@ STAT_CACHE_TTL_SECONDS = os.environ.get("OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 *
     "--skip-raw",
     is_flag=True,
     help="Do not export associated RAW image of a RAW+JPEG pair.  Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image (e.g. the RAW file was imported to Photos without a JPEG preview).",
+)
+@click.option(
+    "--skip-raw-jpeg",
+    is_flag=True,
+    help="Do not export associated JPEG image of a RAW+JPEG pair. "
+    "Note: this does not skip JPEG photos if the JPEG photo does not have "
+    "an associated RAW image.",
 )
 @click.option(
     "--skip-uuid",
@@ -770,7 +783,9 @@ STAT_CACHE_TTL_SECONDS = os.environ.get("OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 *
     "You can run more than one command by repeating the '--post-command' option with different arguments. "
     "See also --post-command-error and --post-function."
     "See Post Command below.",
-    type=click.Tuple([click.Choice(POST_COMMAND_CATEGORIES, case_sensitive=False), TemplateString()]),
+    type=click.Tuple(
+        [click.Choice(POST_COMMAND_CATEGORIES, case_sensitive=False), TemplateString()]
+    ),
 )
 @click.option(
     "--post-command-error",
@@ -799,7 +814,9 @@ STAT_CACHE_TTL_SECONDS = os.environ.get("OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 *
     "--exportdb",
     metavar="EXPORTDB_FILE",
     default=None,
-    help=(f"Specify alternate path for database file which stores state information for export and --update. If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' in the export directory.  If --exportdb is specified, it will be saved to the specified file. "),
+    help=(
+        f"Specify alternate path for database file which stores state information for export and --update. If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' in the export directory.  If --exportdb is specified, it will be saved to the specified file. "
+    ),
     type=ExportDBType(),
 )
 @click.option(
@@ -1095,6 +1112,7 @@ def export(
     skip_live: bool,
     skip_original_if_edited: bool,
     skip_raw: bool,
+    skip_raw_jpeg: bool,
     skip_uuid: bool,
     skip_uuid_from_file: bool,
     slow_mo: bool,
@@ -1306,6 +1324,7 @@ def export_cli(
     skip_live: bool = False,
     skip_original_if_edited: bool = False,
     skip_raw: bool = False,
+    skip_raw_jpeg: bool = False,
     skip_uuid: bool = False,
     skip_uuid_from_file: bool = False,
     slow_mo: bool = False,
@@ -1388,7 +1407,9 @@ def export_cli(
             #     ),
             #     err=True,
             # )
-            rich_click_echo(f"[error]Error parsing {load_config} config file: {e.message}", err=True)
+            rich_click_echo(
+                f"[error]Error parsing {load_config} config file: {e.message}", err=True
+            )
             return 1
 
         if cfg.library and cfg.db:
@@ -1425,7 +1446,9 @@ def export_cli(
         convert_to_jpeg = cfg.convert_to_jpeg
         crash_after = cfg.crash_after
         current_name = cfg.current_name
-        db = cfg.library or cfg.db  # if both db and library are specified, library takes precedence
+        db = (
+            cfg.library or cfg.db
+        )  # if both db and library are specified, library takes precedence
         deleted = cfg.deleted
         deleted_only = cfg.deleted_only
         description = cfg.description
@@ -1556,6 +1579,7 @@ def export_cli(
         skip_live = cfg.skip_live
         skip_original_if_edited = cfg.skip_original_if_edited
         skip_raw = cfg.skip_raw
+        skip_raw_jpeg = cfg.skip_raw_jpeg
         skip_uuid = cfg.skip_uuid
         skip_uuid_from_file = cfg.skip_uuid_from_file
         slow_mo = cfg.slow_mo
@@ -1576,7 +1600,9 @@ def export_cli(
         uti = cfg.uti
         uuid = cfg.uuid
         uuid_from_file = cfg.uuid_from_file
-        verbose_flag = cfg.verbose  # this is named differently in the config file than the variable passed by --verbose (verbose_flag)
+        verbose_flag = (
+            cfg.verbose
+        )  # this is named differently in the config file than the variable passed by --verbose (verbose_flag)
         xattr_template = cfg.xattr_template
         year = cfg.year
 
@@ -1635,6 +1661,7 @@ def export_cli(
         ("no_exportdb", "update"),
         ("no_exportdb", "force_update"),
         ("dry_run", "pre_load"),
+        ("skip_raw", "skip_raw_jpeg"),
     ]
     dependent_options = [
         ("append", ("report")),
@@ -1694,8 +1721,12 @@ def export_cli(
     # set defaults for options that need them
     jpeg_quality = DEFAULT_JPEG_QUALITY if jpeg_quality is None else jpeg_quality
     edited_suffix = DEFAULT_EDITED_SUFFIX if edited_suffix is None else edited_suffix
-    original_suffix = DEFAULT_ORIGINAL_SUFFIX if original_suffix is None else original_suffix
-    preview_suffix = DEFAULT_PREVIEW_SUFFIX if preview_suffix is None else preview_suffix
+    original_suffix = (
+        DEFAULT_ORIGINAL_SUFFIX if original_suffix is None else original_suffix
+    )
+    preview_suffix = (
+        DEFAULT_PREVIEW_SUFFIX if preview_suffix is None else preview_suffix
+    )
     retry = max(0, retry or 0)
 
     dest = str(pathlib.Path(dest).resolve())
@@ -1723,21 +1754,34 @@ def export_cli(
         report_writer = ReportWriterNoOp()
 
     if (use_photokit or use_photos_export) and not check_photokit_authorization():
-        click.echo("Requesting access to use your Photos library. Click 'Allow Access to All Photos' in the dialog box to grant access.")
+        click.echo(
+            "Requesting access to use your Photos library. Click 'Allow Access to All Photos' in the dialog box to grant access."
+        )
         if not wait_for_photokit_authorization():
             if term := terminal():
                 term = f"terminal app ({term})" if term else "terminal app"
-            rich_click_echo(f"[error]Error: could not get authorization to access Photos library\nPlease ensure that your {term} is granted access in 'System Settings > Privacy & Security > Photos'")
+            rich_click_echo(
+                f"[error]Error: could not get authorization to access Photos library\nPlease ensure that your {term} is granted access in 'System Settings > Privacy & Security > Photos'"
+            )
             return 1
 
     # initialize export flags
     # by default, will export all versions of photos unless skip flag is set
-    (export_edited, export_bursts, export_live, export_raw) = [not x for x in [skip_edited, skip_bursts, skip_live, skip_raw]]
+    (export_edited, export_bursts, export_live, export_raw) = [
+        not x for x in [skip_edited, skip_bursts, skip_live, skip_raw]
+    ]
+
+    # --skip-raw-jpeg implies export_raw=True (no sense skipping both JPEG and RAW)
+    if skip_raw_jpeg:
+        export_raw = True
 
     # verify exiftool installed and in path if path not provided and exiftool will be used
     # NOTE: this won't catch use of {exiftool:} in a template
     # but those will raise error during template eval if exiftool path not set
-    if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]) and not exiftool_path:
+    if (
+        any([exiftool, exiftool_merge_keywords, exiftool_merge_persons])
+        and not exiftool_path
+    ):
         try:
             exiftool_path = get_exiftool_path()
         except FileNotFoundError:
@@ -1752,11 +1796,15 @@ def export_cli(
 
     # get the Photos library path
     # db can also be an instance of PhotosDB which allows export_cli to be used in custom export code
-    cli_db = cli_obj.db if cli_obj is not None else None  # needed for to make CliRunner work for testing
+    cli_db = (
+        cli_obj.db if cli_obj is not None else None
+    )  # needed for to make CliRunner work for testing
     db = db if isinstance(db, osxphotos.PhotosDB) else get_photos_db(db, cli_db)
     if not db:
         rich_click_echo(get_help_msg(export), err=True)
-        rich_click_echo("\n\nLocated the following Photos library databases: ", err=True)
+        rich_click_echo(
+            "\n\nLocated the following Photos library databases: ", err=True
+        )
         _list_libraries()
         return 1
 
@@ -1775,23 +1823,35 @@ def export_cli(
             )
 
     # sanity check export into previous export dest without --update or --exportdb
-    if not update and not force_update and not exportdb and not no_exportdb and pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB).exists():
+    if (
+        not update
+        and not force_update
+        and not exportdb
+        and not no_exportdb
+        and pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB).exists()
+    ):
         rich_click_echo(
             f"[warning]Warning: found previous export database in '{dest}' but --update not specified; osxphotos will not consider state of previous export which may result in duplicate files. Please confirm that you want to continue without using --update",
             err=True,
         )
         if ignore_exportdb:
-            rich_click_echo("[warning]Warning: option --ignore-exportdb enabled: ignoring export database; osxphotos will not consider state of previous export which may result in duplicate files.")
+            rich_click_echo(
+                "[warning]Warning: option --ignore-exportdb enabled: ignoring export database; osxphotos will not consider state of previous export which may result in duplicate files."
+            )
         elif not click.confirm("Do you want to continue?"):
             return 1
 
     # check that export isn't in the parent or child of a previously exported library
-    if not (ignore_exportdb or exportdb or no_exportdb) and (other_db_file := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)):
+    if not (ignore_exportdb or exportdb or no_exportdb) and (
+        other_db_file := find_first_file_in_branch(dest, OSXPHOTOS_EXPORT_DB)
+    ):
         rich_click_echo(
             "[warning]WARNING: found other export database file in this destination directory branch. This likely means you are attempting to export files into a directory that is either the parent or a child directory of a previous export. Proceeding may cause your exported files to be overwritten.",
             err=True,
         )
-        rich_click_echo(f"You are exporting to {dest}, found {OSXPHOTOS_EXPORT_DB} file in: {other_db_file}")
+        rich_click_echo(
+            f"You are exporting to {dest}, found {OSXPHOTOS_EXPORT_DB} file in: {other_db_file}"
+        )
         if not click.confirm("Do you want to continue?"):
             return 1
 
@@ -1804,17 +1864,33 @@ def export_cli(
         export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
         fileutil = FileUtilNoOp
     elif pre_load:
-        verbose(f"Running in pre-load mode; export database will be created and populated at [filepath]{export_db_path}[/] but files will not be exported.")
+        verbose(
+            f"Running in pre-load mode; export database will be created and populated at [filepath]{export_db_path}[/] but files will not be exported."
+        )
         # pre_load uses dry_run with update code path to rebuild/pre-load the database
         dry_run = True
         update = True
-        export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest) if ramdb else ExportDB(dbfile=export_db_path, export_dir=dest)
+        export_db = (
+            ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
+            if ramdb
+            else ExportDB(dbfile=export_db_path, export_dir=dest)
+        )
         fileutil = FileUtilNoOp
     else:
-        export_db = ExportDBTemp() if no_exportdb else (ExportDBInMemory(dbfile=export_db_path, export_dir=dest) if ramdb else ExportDB(dbfile=export_db_path, export_dir=dest))
+        export_db = (
+            ExportDBTemp()
+            if no_exportdb
+            else (
+                ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
+                if ramdb
+                else ExportDB(dbfile=export_db_path, export_dir=dest)
+            )
+        )
         if ramdb:
             # if using ramdb, ensure database is written in case of crash
-            export_db_callback = register_crash_callback(export_db.write_to_disk, f"Writing export database to {export_db_path}")
+            export_db_callback = register_crash_callback(
+                export_db.write_to_disk, f"Writing export database to {export_db_path}"
+            )
 
             # install SIGINT handler to write database on Ctrl+C
             def sigint_handler(signal, frame):
@@ -1843,31 +1919,41 @@ def export_cli(
             fileutil = FileUtilMacOS
 
     if no_exportdb:
-        rich_click_echo("Using temporary export database, no state information will be saved.")
+        rich_click_echo(
+            "Using temporary export database, no state information will be saved."
+        )
     else:
         if export_db.was_created:
             rich_click_echo(f"Created export database [filepath]{export_db_path}")
         else:
             exportdbversion = export_db.version
-            rich_click_echo(f"Using osxphotos export database: version [num]{exportdbversion}[/] located at [filepath]{export_db_path}")
+            rich_click_echo(
+                f"Using osxphotos export database: version [num]{exportdbversion}[/] located at [filepath]{export_db_path}"
+            )
 
     upgraded = export_db.was_upgraded
     if upgraded:
-        rich_click_echo(f"Upgraded export database [filepath]{export_db_path}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]")
+        rich_click_echo(
+            f"Upgraded export database [filepath]{export_db_path}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
+        )
 
     # save config to export_db
     export_db.set_config(cfg.write_to_str())
 
     query_kwargs = locals()
     # skip missing bursts if using --download-missing by itself as AppleScript otherwise causes errors
-    query_kwargs["missing_bursts"] = ((download_missing and use_photokit) or not download_missing,)
+    query_kwargs["missing_bursts"] = (
+        (download_missing and use_photokit) or not download_missing,
+    )
     query_kwargs["burst_photos"] = export_bursts
     query_options = query_options_from_kwargs(**query_kwargs)
 
     # if not verbose, set photosdb verbose to print to stderr
     # so that user can still see progress as database is loaded
     db_verbose = verbose if verbose_flag else rich_echo_error
-    photosdb = open_photosdb(db=db, alt_db=alt_db, db_verbose=db_verbose, exiftool_path=exiftool_path)
+    photosdb = open_photosdb(
+        db=db, alt_db=alt_db, db_verbose=db_verbose, exiftool_path=exiftool_path
+    )
 
     photosdb._beta = beta  # enable beta features if requested
 
@@ -1876,7 +1962,9 @@ def export_cli(
     except ValueError as e:
         if "Invalid query_eval CRITERIA:" in str(e):
             msg = str(e).split(":")[1]
-            raise click.BadOptionUsage("query_eval", f"Invalid query-eval CRITERIA: {msg}")
+            raise click.BadOptionUsage(
+                "query_eval", f"Invalid query-eval CRITERIA: {msg}"
+            )
         else:
             raise ValueError(e)
 
@@ -1902,7 +1990,9 @@ def export_cli(
     if photos:
         num_photos = len(photos)
         photo_str = pluralize(num_photos, "photo", "photos")
-        rich_echo(f"Exporting [num]{num_photos}[/num] {photo_str} to [filepath]{dest}[/]...")
+        rich_echo(
+            f"Exporting [num]{num_photos}[/num] {photo_str} to [filepath]{dest}[/]..."
+        )
         start_time = time.perf_counter()
         # though the command line option is current_name, internally all processing
         # logic uses original_name which is the boolean inverse of current_name
@@ -1912,16 +2002,30 @@ def export_cli(
 
         # set up for --add-export-to-album if needed
         # and checking to see if not --dry-run
-        album_export = PhotosAlbum(add_exported_to_album, verbose=verbose) if add_exported_to_album and not dry_run else None
-        album_skipped = PhotosAlbum(add_skipped_to_album, verbose=verbose) if add_skipped_to_album and not dry_run else None
-        album_missing = PhotosAlbum(add_missing_to_album, verbose=verbose) if add_missing_to_album and not dry_run else None
+        album_export = (
+            PhotosAlbum(add_exported_to_album, verbose=verbose)
+            if add_exported_to_album and not dry_run
+            else None
+        )
+        album_skipped = (
+            PhotosAlbum(add_skipped_to_album, verbose=verbose)
+            if add_skipped_to_album and not dry_run
+            else None
+        )
+        album_missing = (
+            PhotosAlbum(add_missing_to_album, verbose=verbose)
+            if add_missing_to_album and not dry_run
+            else None
+        )
 
         # Initialize stat cache for efficient network volume operations
         # Only create cache for update exports where we'll be checking existing files
         if update or force_update or dry_run:
             stat_cache = DirectoryStatCache(ttl_seconds=STAT_CACHE_TTL_SECONDS)
             same_filesystem = are_same_filesystem(photosdb.library_path, dest)
-            verbose(f"Export destination {'is' if same_filesystem else 'is not'} on same filesystem as Photos library")
+            verbose(
+                f"Export destination {'is' if same_filesystem else 'is not'} on same filesystem as Photos library"
+            )
         else:
             stat_cache = None
             same_filesystem = None
@@ -1930,11 +2034,17 @@ def export_cli(
         num_exported = 0
         limit_str = f" (limit = [num]{limit}[/num])" if limit else ""
         # hack to avoid passing all the options to export_photo
-        kwargs = {k: v for k, v in locals().items() if k in inspect.getfullargspec(export_photo).args}
+        kwargs = {
+            k: v
+            for k, v in locals().items()
+            if k in inspect.getfullargspec(export_photo).args
+        }
         kwargs["export_dir"] = dest
         kwargs["export_preview"] = preview
         with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
-            task = progress.add_task(f"Exporting [num]{num_photos}[/] photos{limit_str}", total=num_photos)
+            task = progress.add_task(
+                f"Exporting [num]{num_photos}[/] photos{limit_str}", total=num_photos
+            )
             for p in photos:
                 photo_num += 1
                 kwargs["photo"] = p
@@ -1966,7 +2076,10 @@ def export_cli(
                 if album_export and export_results.exported:
                     try:
                         album_export.add(p)
-                        export_results.exported_album = [(filename, album_export.name) for filename in export_results.exported]
+                        export_results.exported_album = [
+                            (filename, album_export.name)
+                            for filename in export_results.exported
+                        ]
                     except Exception as e:
                         click.secho(
                             f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_export.name}: {e}",
@@ -1977,7 +2090,10 @@ def export_cli(
                 if album_skipped and export_results.skipped:
                     try:
                         album_skipped.add(p)
-                        export_results.skipped_album = [(filename, album_skipped.name) for filename in export_results.skipped]
+                        export_results.skipped_album = [
+                            (filename, album_skipped.name)
+                            for filename in export_results.skipped
+                        ]
                     except Exception as e:
                         click.secho(
                             f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_skipped.name}: {e}",
@@ -1988,7 +2104,10 @@ def export_cli(
                 if album_missing and export_results.missing:
                     try:
                         album_missing.add(p)
-                        export_results.missing_album = [(filename, album_missing.name) for filename in export_results.missing]
+                        export_results.missing_album = [
+                            (filename, album_missing.name)
+                            for filename in export_results.missing
+                        ]
                     except Exception as e:
                         click.secho(
                             f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_missing.name}: {e}",
@@ -2000,7 +2119,14 @@ def export_cli(
 
                 # all photo files (not including sidecars) that are part of this export set
                 # used below for applying Finder tags, etc.
-                photo_files = set(export_results.exported + export_results.new + export_results.updated + export_results.exif_updated + export_results.converted_to_jpeg + export_results.skipped)
+                photo_files = set(
+                    export_results.exported
+                    + export_results.new
+                    + export_results.updated
+                    + export_results.exif_updated
+                    + export_results.converted_to_jpeg
+                    + export_results.skipped
+                )
 
                 if finder_tag_keywords or finder_tag_template:
                     if dry_run:
@@ -2028,7 +2154,9 @@ def export_cli(
                 if xattr_template:
                     if dry_run:
                         for filepath in photo_files:
-                            verbose(f"Writing extended attributes to [filepath]{filepath}[/]")
+                            verbose(
+                                f"Writing extended attributes to [filepath]{filepath}[/]"
+                            )
                     else:
                         xattr_written, xattr_skipped = write_extended_attributes(
                             p,
@@ -2054,7 +2182,9 @@ def export_cli(
                         )
                         if unmatched:
                             suggested = suggest_template_fields(unmatched)
-                            error_str = f"[warning]Unmatched template field: {unmatched}"
+                            error_str = (
+                                f"[warning]Unmatched template field: {unmatched}"
+                            )
                             if suggested:
                                 error_str += f"; did you mean {suggested}?"
                             rich_click_echo(error_str)
@@ -2067,7 +2197,9 @@ def export_cli(
 
                 # handle checkpoint
                 if ramdb and checkpoint and not dry_run and photo_num % checkpoint == 0:
-                    verbose(f"Checkpoint: saving export database state to {export_db_path}")
+                    verbose(
+                        f"Checkpoint: saving export database state to {export_db_path}"
+                    )
                     export_db.write_to_disk()
 
                 # handle limit
@@ -2083,7 +2215,9 @@ def export_cli(
                 # handle crash_after
                 # this is used only for testing/debugging crash handling code
                 if crash_after and photo_num == crash_after:
-                    raise ValueError(f"Oh no! osxphotos has crashed after processing {photo_num} photos")
+                    raise ValueError(
+                        f"Oh no! osxphotos has crashed after processing {photo_num} photos"
+                    )
 
         # export completed, unregister the crash callback if needed
         if ramdb and not dry_run:
@@ -2169,13 +2303,21 @@ def export_cli(
 
         if cleanup:
             rich_echo(f"Cleaning up [filepath]{dest}")
-            cleaned_files, cleaned_dirs = cleanup_files(dest, all_files, dirs_to_keep, fileutil, verbose=verbose)
+            cleaned_files, cleaned_dirs = cleanup_files(
+                dest, all_files, dirs_to_keep, fileutil, verbose=verbose
+            )
             file_str = "files" if len(cleaned_files) != 1 else "file"
             dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
 
-            rich_echo(f"Deleted: [num]{len(cleaned_files)}[/num] {file_str}, [num]{len(cleaned_dirs)}[/num] {dir_str}")
+            rich_echo(
+                f"Deleted: [num]{len(cleaned_files)}[/num] {file_str}, [num]{len(cleaned_dirs)}[/num] {dir_str}"
+            )
 
-            report_writer.write(ExportResults(deleted_files=cleaned_files, deleted_directories=cleaned_dirs))
+            report_writer.write(
+                ExportResults(
+                    deleted_files=cleaned_files, deleted_directories=cleaned_dirs
+                )
+            )
 
             results.deleted_files = cleaned_files
             results.deleted_directories = cleaned_dirs
@@ -2223,6 +2365,7 @@ def export_photo(
     favorite_rating=False,
     filename_template=None,
     export_raw=None,
+    skip_raw_jpeg=False,
     album_keyword=None,
     person_keyword=None,
     keyword_template=None,
@@ -2329,15 +2472,26 @@ def export_photo(
             # requested edited version but it's missing, download original
             export_original = True
             export_edited = False
-            verbose(f"Edited file for [filename]{photo.original_filename}[/] is missing, exporting original")
+            verbose(
+                f"Edited file for [filename]{photo.original_filename}[/] is missing, exporting original"
+            )
 
     # check for missing photos before downloading
     missing_original = False
     missing_edited = False
     if download_missing:
-        if (photo.ismissing or photo.path is None) and not photo.iscloudasset and not photo.incloud:
+        if (
+            (photo.ismissing or photo.path is None)
+            and not photo.iscloudasset
+            and not photo.incloud
+        ):
             missing_original = True
-        if photo.hasadjustments and photo.path_edited is None and not photo.iscloudasset and not photo.incloud:
+        if (
+            photo.hasadjustments
+            and photo.path_edited is None
+            and not photo.iscloudasset
+            and not photo.incloud
+        ):
             missing_edited = True
     else:
         if photo.ismissing or photo.path is None:
@@ -2400,11 +2554,25 @@ def export_photo(
             file_ext = original_filename.suffix
             if photo.isphoto and (jpeg_ext or convert_to_jpeg):
                 # change the file extension to correct jpeg extension if needed
-                file_ext = "." + jpeg_ext if jpeg_ext and (photo.uti_original == "public.jpeg" or convert_to_jpeg) else (".jpeg" if convert_to_jpeg and photo.uti_original != "public.jpeg" else original_filename.suffix)
-            original_filename = original_filename.parent / f"{original_filename.stem}{rendered_suffix}{file_ext}"
+                file_ext = (
+                    "." + jpeg_ext
+                    if jpeg_ext
+                    and (photo.uti_original == "public.jpeg" or convert_to_jpeg)
+                    else (
+                        ".jpeg"
+                        if convert_to_jpeg and photo.uti_original != "public.jpeg"
+                        else original_filename.suffix
+                    )
+                )
+            original_filename = (
+                original_filename.parent
+                / f"{original_filename.stem}{rendered_suffix}{file_ext}"
+            )
             original_filename = str(original_filename)
 
-            verbose(f"Exporting [filename]{photo.original_filename}[/] ([filename]{photo.filename}[/]) ([count]{photo_num}/{num_photos}[/])")
+            verbose(
+                f"Exporting [filename]{photo.original_filename}[/] ([filename]{photo.filename}[/]) ([count]{photo_num}/{num_photos}[/])"
+            )
 
             results += export_photo_to_directory(
                 album_keyword=album_keyword,
@@ -2448,6 +2616,7 @@ def export_photo(
                 sidecar_drop_ext=sidecar_drop_ext,
                 sidecar_flags=sidecar_flags,
                 sidecar_template=sidecar_template,
+                skip_raw_jpeg=skip_raw_jpeg,
                 touch_file=touch_file,
                 update=update,
                 update_errors=update_errors,
@@ -2488,15 +2657,29 @@ def export_photo(
                 # verify the photo has adjustments and valid path to avoid raising an exception
                 edited_ext = (
                     # rare cases on Photos <= 4 that uti_edited is None
-                    "." + get_preferred_uti_extension(photo.uti_edited) if photo.uti_edited else (pathlib.Path(photo.path_edited).suffix if photo.path_edited else pathlib.Path(photo.filename).suffix)
+                    "." + get_preferred_uti_extension(photo.uti_edited)
+                    if photo.uti_edited
+                    else (
+                        pathlib.Path(photo.path_edited).suffix
+                        if photo.path_edited
+                        else pathlib.Path(photo.filename).suffix
+                    )
                 )
 
-                if photo.isphoto and jpeg_ext and edited_ext.lower() in [".jpg", ".jpeg"]:
+                if (
+                    photo.isphoto
+                    and jpeg_ext
+                    and edited_ext.lower() in [".jpg", ".jpeg"]
+                ):
                     edited_ext = "." + jpeg_ext
 
                 # Big Sur uses .heic for some edited photos so need to check
                 # if extension isn't jpeg/jpg and using --convert-to-jpeg
-                if photo.isphoto and convert_to_jpeg and edited_ext.lower() not in [".jpg", ".jpeg"]:
+                if (
+                    photo.isphoto
+                    and convert_to_jpeg
+                    and edited_ext.lower() not in [".jpg", ".jpeg"]
+                ):
                     edited_ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
 
                 rendered_edited_suffix = _render_suffix_template(
@@ -2508,9 +2691,13 @@ def export_photo(
                     photo,
                     export_db,
                 )
-                edited_filename = f"{edited_filename.stem}{rendered_edited_suffix}{edited_ext}"
+                edited_filename = (
+                    f"{edited_filename.stem}{rendered_edited_suffix}{edited_ext}"
+                )
 
-                verbose(f"Exporting edited version of [filename]{photo.original_filename}[/filename] ([filename]{photo.filename}[/filename])")
+                verbose(
+                    f"Exporting edited version of [filename]{photo.original_filename}[/filename] ([filename]{photo.filename}[/filename])"
+                )
 
                 results += export_photo_to_directory(
                     album_keyword=album_keyword,
@@ -2554,6 +2741,7 @@ def export_photo(
                     sidecar_drop_ext=sidecar_drop_ext,
                     sidecar_flags=sidecar_flags,
                     sidecar_template=sidecar_template,
+                    skip_raw_jpeg=False,
                     touch_file=touch_file,
                     update=update,
                     update_errors=update_errors,
@@ -2569,7 +2757,9 @@ def export_photo(
     return results
 
 
-def _render_suffix_template(suffix_template, var_name, option_name, strip, dest, photo, export_db):
+def _render_suffix_template(
+    suffix_template, var_name, option_name, strip, dest, photo, export_db
+):
     """render suffix template
 
     Returns:
@@ -2645,6 +2835,7 @@ def export_photo_to_directory(
     sidecar_drop_ext,
     sidecar_flags,
     sidecar_template,
+    skip_raw_jpeg,
     touch_file,
     update,
     update_errors,
@@ -2665,7 +2856,9 @@ def export_photo_to_directory(
     if photo.intrash and not photo_path and not preview_if_missing:
         # skip deleted files if they're missing
         # as AppleScript/PhotoKit cannot export deleted photos
-        verbose(f"Skipping missing deleted photo {photo.original_filename} ({photo.uuid})")
+        verbose(
+            f"Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+        )
         results.missing.append(str(pathlib.Path(dest_path) / filename))
         return results
 
@@ -2707,6 +2900,7 @@ def export_photo_to_directory(
                 preview=export_preview or (missing and preview_if_missing),
                 preview_suffix=preview_suffix,
                 raw_photo=export_raw,
+                skip_raw_jpeg=skip_raw_jpeg,
                 render_options=render_options,
                 replace_keywords=replace_keywords,
                 rich=True,
@@ -2728,19 +2922,29 @@ def export_photo_to_directory(
                 same_filesystem=same_filesystem,
             )
             exporter = PhotoExporter(photo)
-            export_results = exporter.export(dest=dest_path, filename=filename, options=export_options)
+            export_results = exporter.export(
+                dest=dest_path, filename=filename, options=export_options
+            )
             for warning_ in export_results.exiftool_warning:
-                verbose(f"[warning]exiftool warning for file {warning_[0]}: {warning_[1]}")
+                verbose(
+                    f"[warning]exiftool warning for file {warning_[0]}: {warning_[1]}"
+                )
             for error_ in export_results.exiftool_error:
-                rich_echo_error(f"[error]exiftool error for file {error_[0]}: {error_[1]}")
+                rich_echo_error(
+                    f"[error]exiftool error for file {error_[0]}: {error_[1]}"
+                )
             for error_ in export_results.error:
-                rich_echo_error(f"[error]Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}")
+                rich_echo_error(
+                    f"[error]Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}"
+                )
                 error += 1
             if not error or tries > retry:
                 results += export_results
                 break
             else:
-                rich_echo(f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])")
+                rich_echo(
+                    f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])"
+                )
         except Exception as e:
             if is_debug() or isinstance(e, UserSidecarError):
                 # if debug mode or user didn't specify catch_errors, don't swallow the exceptions
@@ -2753,7 +2957,9 @@ def export_photo_to_directory(
                 results.error.append((str(pathlib.Path(dest) / filename), str(e)))
                 break
             else:
-                rich_echo(f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])")
+                rich_echo(
+                    f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])"
+                )
 
     if verbose:
         if update or force_update:
@@ -2810,7 +3016,9 @@ def get_filenames_from_template(
             )
             filenames, unmatched = photo.render_template(filename_template, options)
         except ValueError as e:
-            raise click.BadOptionUsage("filename_template", f"Invalid template '{filename_template}': {e}")
+            raise click.BadOptionUsage(
+                "filename_template", f"Invalid template '{filename_template}': {e}"
+            )
         if not filenames or unmatched:
             raise click.BadOptionUsage(
                 "filename_template",
@@ -2818,7 +3026,11 @@ def get_filenames_from_template(
             )
         filenames = [f"{file_}{photo_ext}" for file_ in filenames]
     else:
-        filenames = [photo.original_filename] if (original_name and (photo.original_filename is not None)) else [photo.filename]
+        filenames = (
+            [photo.original_filename]
+            if (original_name and (photo.original_filename is not None))
+            else [photo.filename]
+        )
 
     if strip:
         filenames = [filename.strip() for filename in filenames]
@@ -2857,7 +3069,9 @@ def get_dirnames_from_template(
 
     if export_by_date:
         date_created = DateTimeFormatter(photo.date)
-        dest_path = os.path.join(dest, date_created.year, date_created.mm, date_created.dd)
+        dest_path = os.path.join(
+            dest, date_created.year, date_created.mm, date_created.dd
+        )
         if not (dry_run or os.path.isdir(dest_path)):
             FileUtilShUtil.makedirs(dest_path, exist_ok=True)
         dest_paths = [dest_path]
@@ -2867,7 +3081,9 @@ def get_dirnames_from_template(
             options = RenderOptions(dirname=True, edited_version=edited)
             dirnames, unmatched = photo.render_template(directory, options)
         except ValueError as e:
-            raise click.BadOptionUsage("directory", f"Invalid template '{directory}': {e}")
+            raise click.BadOptionUsage(
+                "directory", f"Invalid template '{directory}': {e}"
+            )
         if not dirnames or unmatched:
             raise click.BadOptionUsage(
                 "directory",
@@ -2924,7 +3140,9 @@ def find_first_file_in_branch(pathname, filename):
     return None
 
 
-def collect_files_to_keep(keep: Iterable[str], export_dir: str) -> Tuple[List[str], List[str]]:
+def collect_files_to_keep(
+    keep: Iterable[str], export_dir: str
+) -> Tuple[List[str], List[str]]:
     """Collect all files to keep for --keep/--cleanup.
 
     Args:
@@ -2999,7 +3217,9 @@ def cleanup_files(
     Returns:
         tuple of (list of files deleted, list of directories deleted)
     """
-    keepers = {normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep}
+    keepers = {
+        normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep
+    }
 
     # Use os.walk instead of rglob for better performance on SMB/network volumes
     # os.walk uses scandir internally which gets file info without extra stat calls
@@ -3089,7 +3309,9 @@ def write_finder_tags(
         # use photo.path as the source for EXIF if merge is used
         # this means that if file is not present (e.g. export done with photokit)
         # then the tags won't be available for merging
-        exif = ExifWriter(photo).exiftool_dict(options=exif_options_from_options(export_options))
+        exif = ExifWriter(photo).exiftool_dict(
+            options=exif_options_from_options(export_options)
+        )
         try:
             if exif["IPTC:Keywords"]:
                 tags.extend(exif["IPTC:Keywords"])
@@ -3113,14 +3335,18 @@ def write_finder_tags(
                 )
 
             if unmatched:
-                rich_echo(f"[warning]Warning: unknown field for template: {template_str} unknown field = {unmatched}")
+                rich_echo(
+                    f"[warning]Warning: unknown field for template: {template_str} unknown field = {unmatched}"
+                )
             rendered_tags.extend(rendered)
 
         # filter out any template values that didn't match by looking for sentinel
         if strip:
             rendered_tags = [value.strip() for value in rendered_tags]
 
-        rendered_tags = [value.replace(_OSXPHOTOS_NONE_SENTINEL, "") for value in rendered_tags]
+        rendered_tags = [
+            value.replace(_OSXPHOTOS_NONE_SENTINEL, "") for value in rendered_tags
+        ]
         tags.extend(rendered_tags)
 
     tags = [Tag(tag, 0) for tag in set(tags)]
@@ -3162,7 +3388,9 @@ def write_extended_attributes(
     attributes = {}
     for xattr, template_str in xattr_template:
         try:
-            options = RenderOptions(none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/", export_dir=export_dir)
+            options = RenderOptions(
+                none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/", export_dir=export_dir
+            )
             rendered, unmatched = photo.render_template(template_str, options)
         except ValueError as e:
             raise click.BadOptionUsage(
@@ -3170,7 +3398,9 @@ def write_extended_attributes(
                 f"Invalid template for --xattr-template '{template_str}': {e}",
             )
         if unmatched:
-            rich_echo(f"[warning]Warning: unmatched template substitution for template: {template_str} unknown field={unmatched}")
+            rich_echo(
+                f"[warning]Warning: unmatched template substitution for template: {template_str} unknown field={unmatched}"
+            )
 
         # filter out any template values that didn't match by looking for sentinel
         if strip:
@@ -3199,10 +3429,14 @@ def write_extended_attributes(
             if (not file_value and not value) or file_value == value:
                 # if both not set or both equal, nothing to do
                 # get returns None if not set and value will be [] if not set so can't directly compare
-                verbose(f"Skipping extended attribute [bold]{attr}[/] for [filepath]{f}[/]: nothing to do")
+                verbose(
+                    f"Skipping extended attribute [bold]{attr}[/] for [filepath]{f}[/]: nothing to do"
+                )
                 skipped.add(f)
             else:
-                verbose(f"Writing extended attribute [bold]{attr}[/] to [filepath]{f}[/]")
+                verbose(
+                    f"Writing extended attribute [bold]{attr}[/] to [filepath]{f}[/]"
+                )
                 md.set(attr, value)
                 written.add(f)
 
@@ -3235,7 +3469,9 @@ def run_post_function(
                 if results := function[0](photo, export_results, verbose):
                     returned_results += results
             except Exception as e:
-                rich_echo_error(f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}")
+                rich_echo_error(
+                    f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
+                )
                 raise e
     return returned_results
 
@@ -3320,23 +3556,33 @@ def run_cleanup_command(
         tuple of (list of files deleted, list of directories deleted)
     """
     # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
-    keepers = {normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep}
+    keepers = {
+        normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep
+    }
 
     for f in pathlib.Path(dest_path).rglob("*"):
-        if f.is_file() and normalize_fs_path(str(f).lower()) not in keepers and not f.name.startswith("."):
+        if (
+            f.is_file()
+            and normalize_fs_path(str(f).lower()) not in keepers
+            and not f.name.startswith(".")
+        ):
             should_return = False
             photo = PhotoInfoNone()
             # try to reconstitute the PhotoInfo class for this file
             if uuid := exportdb.get_uuid_for_file(f):
                 if photo_info := exportdb.get_photoinfo_for_uuid(uuid):
                     try:
-                        photo = photoinfo_from_dict(json.loads(photo_info), exiftool=exiftool_path)
+                        photo = photoinfo_from_dict(
+                            json.loads(photo_info), exiftool=exiftool_path
+                        )
                     except Exception as e:
                         pass
             for command_template in cleanup_command:
                 if should_return:
                     break
-                render_options = RenderOptions(export_dir=dest_path, filepath=str(f.absolute()))
+                render_options = RenderOptions(
+                    export_dir=dest_path, filepath=str(f.absolute())
+                )
                 template = PhotoTemplate(photo, exiftool_path=exiftool_path)
                 command, _ = template.render(command_template, options=render_options)
                 command = command[0] if command else None
@@ -3405,10 +3651,20 @@ def get_metadata_attribute_type(attr: str) -> Optional[str]:
     """
     if attr in MDITEM_ATTRIBUTE_SHORT_NAMES:
         attr = MDITEM_ATTRIBUTE_SHORT_NAMES[attr]
-    return "list" if attr in _TAGS_NAMES else (MDITEM_ATTRIBUTE_DATA[attr]["python_type"] if attr in MDITEM_ATTRIBUTE_DATA else None)
+    return (
+        "list"
+        if attr in _TAGS_NAMES
+        else (
+            MDITEM_ATTRIBUTE_DATA[attr]["python_type"]
+            if attr in MDITEM_ATTRIBUTE_DATA
+            else None
+        )
+    )
 
 
-def force_use_of_ramdb(ramdb: bool, export_db_path: str, verbose: Callable[[Any], None]) -> bool:
+def force_use_of_ramdb(
+    ramdb: bool, export_db_path: str, verbose: Callable[[Any], None]
+) -> bool:
     """Detect if export volume is a network share and if so, return
 
     Args:
@@ -3427,7 +3683,9 @@ def force_use_of_ramdb(ramdb: bool, export_db_path: str, verbose: Callable[[Any]
     if ramdb:
         return True
     if is_path_on_network_volume(export_db_path):
-        verbose(f"Using --ramdb option because export database is on network volume: {export_db_path}")
+        verbose(
+            f"Using --ramdb option because export database is on network volume: {export_db_path}"
+        )
         return True
     return False
 
@@ -3459,7 +3717,9 @@ def open_photosdb(
         if alt_db:
             click.echo("--alt-db is not supported for iPhoto libraries", err=True)
             raise click.Abort()
-        photosdb = osxphotos.iPhotoDB(dbfile=db, verbose=db_verbose, exiftool=exiftool_path, rich=False)
+        photosdb = osxphotos.iPhotoDB(
+            dbfile=db, verbose=db_verbose, exiftool=exiftool_path, rich=False
+        )
     else:
         library_path = pathlib.Path(db)
         if library_path.is_file():
