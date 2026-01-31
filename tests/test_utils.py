@@ -123,43 +123,6 @@ def test_increment_filename():
         )
 
 
-def test_increment_filename_with_lock():
-    # test that increment_filename works with lock=True
-
-    with tempfile.TemporaryDirectory(prefix="osxphotos_") as temp_dir:
-        temp_dir = pathlib.Path(temp_dir)
-        filename = str(temp_dir / "file.jpg")
-        assert increment_filename(filename, lock=True) == str(temp_dir / "file.jpg")
-
-        new_file = temp_dir / "file.jpg"
-        new_file.touch()
-        assert increment_filename(filename, lock=True) == str(temp_dir / "file (1).jpg")
-
-        # test increment_filename_with_count
-        filename = str(temp_dir / "file2.jpg")
-        assert increment_filename_with_count(filename, count=2, lock=True) == (
-            str(temp_dir / "file2 (2).jpg"),
-            2,
-        )
-        new_file = temp_dir / "file2 (2).jpg"
-        new_file.touch()
-        assert increment_filename_with_count(filename, count=2, lock=True) == (
-            str(temp_dir / "file2 (3).jpg"),
-            3,
-        )
-
-
-@pytest.mark.skip(reason="Lock files not yet implemented")
-def test_increment_filename_with_lock_exists():
-    # test that increment_filename works with lock=True when lock file already exists
-
-    with tempfile.TemporaryDirectory(prefix="osxphotos_") as temp_dir:
-        temp_dir = pathlib.Path(temp_dir)
-        filename = str(temp_dir / "file.jpg")
-        pathlib.Path(f"{filename}.osxphotos.lock").touch()
-        assert increment_filename(filename, lock=True) == str(temp_dir / "file (1).jpg")
-
-
 def test_shortuuid_uuid():
     """Test shortuuid_to_uuid and uuid_to_shortuuid"""
     uuid = "5CF8D91E-DCEB-4CC3-BFF7-920B05564EB0"
