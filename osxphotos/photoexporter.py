@@ -289,6 +289,10 @@ class PhotoExporter:
         staged_files = self._stage_photos_for_export(options, dest=dest)
         src = staged_files.edited if options.edited else staged_files.original
 
+        # skip the JPEG component of a RAW+JPEG pair if requested
+        if options.skip_raw_jpeg and self.photo.has_raw and not options.edited:
+            src = None
+
         self._render_options.filepath = str(dest)
         all_results = ExportResults()
 
@@ -404,9 +408,7 @@ class PhotoExporter:
                 preview_name = (
                     preview_name
                     if any([options.overwrite, options.update, options.force_update])
-                    else pathlib.Path(
-                        increment_filename(preview_name)
-                    )
+                    else pathlib.Path(increment_filename(preview_name))
                 )
                 all_results += self._export_photo(
                     preview_path,
@@ -550,9 +552,7 @@ class PhotoExporter:
         if options.increment and not any(
             [options.update, options.force_update, options.overwrite]
         ):
-            return pathlib.Path(
-                increment_filename(dest, stat_cache=stat_cache)
-            )
+            return pathlib.Path(increment_filename(dest, stat_cache=stat_cache))
 
         # if update and file exists, need to check to see if it's the right file by checking export db
         if options.update or options.force_update:

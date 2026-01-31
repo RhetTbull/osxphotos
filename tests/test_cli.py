@@ -399,6 +399,42 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = _normalize_fs_paths(
     ]
 )
 
+CLI_EXPORT_FILENAMES_SKIP_RAW_JPEG = _normalize_fs_paths(
+    [
+        "[2020-08-29] AAF035 (1).jpg",
+        "[2020-08-29] AAF035 (2).jpg",
+        "[2020-08-29] AAF035 (3).jpg",
+        "[2020-08-29] AAF035.jpg",
+        "DSC03584.dng",
+        "Frítest (1).jpg",
+        "Frítest (2).jpg",
+        "Frítest (3).jpg",
+        "Frítest_edited (1).jpeg",
+        "Frítest_edited.jpeg",
+        "Frítest.jpg",
+        "IMG_1693.tif",
+        "IMG_1994.cr2",
+        "IMG_1997.cr2",
+        "IMG_3092_edited.jpeg",
+        "IMG_3092.heic",
+        "IMG_4547.jpg",
+        "Jellyfish.MOV",
+        "Jellyfish1.mp4",
+        "Pumkins1.jpg",
+        "Pumkins2.jpg",
+        "Pumpkins3.jpg",
+        "screenshot-really-a-png.jpeg",
+        "St James Park_edited.jpeg",
+        "St James Park.jpg",
+        "Tulips_edited.jpeg",
+        "Tulips.jpg",
+        "wedding_edited.jpeg",
+        "wedding.jpg",
+        "winebottle (1).jpeg",
+        "winebottle.jpeg",
+    ]
+)
+
 CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = _normalize_fs_paths(
     [
         "[2020-08-29] AAF035 (1).jpg",
@@ -3164,6 +3200,49 @@ def test_export_convert_to_jpeg_skip_raw():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW)
+
+
+def test_export_skip_raw_jpeg():
+    """test --skip-raw-jpeg"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--skip-raw-jpeg",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_SKIP_RAW_JPEG)
+
+
+def test_export_skip_raw_jpeg_mutually_exclusive_with_skip_raw():
+    """test --skip-raw-jpeg and --skip-raw are mutually exclusive"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--skip-raw",
+                "--skip-raw-jpeg",
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Incompatible export options" in result.output
 
 
 def test_export_duplicate():
