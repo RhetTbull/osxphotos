@@ -54,7 +54,6 @@ __all__ = [
     "list_directory",
     "list_photo_libraries",
     "load_function",
-    "lock_filename",
     "noop",
     "pluralize",
     "shortuuid_to_uuid",
@@ -356,7 +355,6 @@ def list_directory(
 def increment_filename_with_count(
     filepath: Union[str, pathlib.Path],
     count: int = 0,
-    lock: bool = False,
     stat_cache: Optional["DirectoryStatCache"] = None,
 ) -> Tuple[str, int]:
     """Return filename (1).ext, etc if filename.ext exists
@@ -367,7 +365,6 @@ def increment_filename_with_count(
     Args:
         filepath: str or pathlib.Path; full path, including file name
         count: int; starting increment value
-        lock: bool, if True, creates lock file to reserve filename
         stat_cache: Optional DirectoryStatCache for efficient directory listing on network volumes
 
     Returns:
@@ -393,17 +390,11 @@ def increment_filename_with_count(
         count += 1
         dest_new = normalize_fs_path(f"{dest.stem} ({count})")
     dest = dest.parent / f"{dest_new}{dest.suffix}"
-    if lock and not lock_filename(dest):
-        # if lock fails, increment count and try again
-        return increment_filename_with_count(
-            filepath, count + 1, lock=lock, stat_cache=stat_cache
-        )
     return normalize_fs_path(str(dest)), count
 
 
 def increment_filename(
     filepath: Union[str, pathlib.Path],
-    lock: bool = False,
     stat_cache: Optional["DirectoryStatCache"] = None,
 ) -> str:
     """Return filename (1).ext, etc if filename.ext exists
@@ -414,7 +405,6 @@ def increment_filename(
     Args:
         filepath: str or pathlib.Path; full path, including file name
         force: force the file count to increment by at least 1 even if filepath doesn't exist
-        lock: bool, if True, creates lock file to reserve filename
         stat_cache: Optional DirectoryStatCache for efficient directory listing on network volumes
 
     Returns:
@@ -423,44 +413,9 @@ def increment_filename(
     Note: This obviously is subject to race condition so using with caution.
     """
     new_filepath, _ = increment_filename_with_count(
-        filepath, lock=lock, stat_cache=stat_cache
+        filepath, stat_cache=stat_cache
     )
     return new_filepath
-
-
-def lock_filename(filepath: Union[str, pathlib.Path]) -> bool:
-    """Create empty lock file to reserve file.
-        Lock file will have name of filepath with .osxphotos.lock extension.
-
-    Args:
-        filepath: str or pathlib.Path; full path, including file name
-
-    Returns:
-        filepath if lock file created, False if lock file already exists
-    """
-    return filepath
-
-    # TODO: for future implementation
-    lockfile = pathlib.Path(f"{filepath}.osxphotos.lock")
-    if lockfile.exists():
-        return False
-    lockfile.touch()
-    return filepath
-
-
-def unlock_filename(filepath: Union[str, pathlib.Path]):
-    """Remove lock file created by lock_filename()
-
-    Args:
-        filepath: str or pathlib.Path; full path, including file name
-    """
-
-    return
-
-    # TODO: for future implementation
-    lockfile = pathlib.Path(f"{filepath}.osxphotos.lock")
-    if lockfile.exists():
-        lockfile.unlink()
 
 
 def extract_increment_count_from_filename(filepath: Union[str, pathlib.Path]) -> int:
