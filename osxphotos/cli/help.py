@@ -572,6 +572,12 @@ def filter_help_text_for_sphinx(text):
     if not text:
         return text
 
+    # Strip leading whitespace from all lines to prevent
+    # sphinx_click_custom's _format_help() from treating indented
+    # help text as ASCII art (it triggers on 4+ spaces of indentation)
+    lines = text.split("\n")
+    text = "\n".join(line.lstrip() for line in lines)
+
     # Remove ANSI escape sequences (from rich formatting)
     text = re.sub(r"\x1b\[[0-9;]*m", "", text)
 
@@ -595,6 +601,13 @@ def filter_help_text_for_sphinx(text):
     # Escape backticks (which have special meaning in RST)
     text = text.replace("`", r"\`")
 
+    # Escape pipe characters (RST line blocks and substitution references)
+    text = text.replace("|", r"\|")
+
+    # Escape square brackets (RST footnote/citation references)
+    text = text.replace("[", r"\[")
+    text = text.replace("]", r"\]")
+
     # Escape asterisks at word boundaries (RST emphasis markers)
     text = re.sub(r"\*(\w)", r"\\\*\1", text)
     text = re.sub(r"(\w)\*", r"\1\\\*", text)
@@ -604,6 +617,6 @@ def filter_help_text_for_sphinx(text):
     text = re.sub(r"(\w)_(?!\w)", r"\1\\_", text)
 
     # Clean up any double escapes
-    text = re.sub(r"\\\\([`*_])", r"\\\1", text)
+    text = re.sub(r"\\\\([`*_|[\]])", r"\\\1", text)
 
     return text
