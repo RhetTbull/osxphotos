@@ -1940,6 +1940,12 @@ class PhotosDB:
             # in Photos >= 5, folders are special albums
             self._dbalbums_pk[album[8]] = album[0]
 
+        if self.photos_version > 11:
+            try:
+                self._process_shared_albums()
+            except Exception as e:
+                logging.debug(f"Error processing shared albums: {e}")
+
         # get pk of root folder
         root_uuid = [
             album
@@ -2756,6 +2762,84 @@ class PhotosDB:
             )
 
             self._db_moment_pk[moment_info["pk"]] = moment_info
+
+    def _process_shared_albums(self):
+        """Process shared album info on macOS Tahoe and later"""
+        # get details about albums
+        _, c = self.get_db_connection()
+
+        asset_table = _DB_TABLE_NAMES[self.photos_version]["ASSET"]
+        album_share_table = "ZSHARE"
+        c.execute(
+            f""" SELECT
+                {album_share_table}.ZUUID,
+                {asset_table}.ZUUID
+                FROM {asset_table}
+                JOIN {album_share_table} ON {album_share_table}.Z_PK = {asset_table}.ZCOLLECTIONSHARE
+            """
+        )
+
+        # 0     ZGENERICALBUM.ZUUID,
+        # 1     ZGENERICASSET.ZUUID,
+        # 2     Z_26ASSETS.Z_FOK_34ASSETS
+
+        for album in c:
+            # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
+            album_uuid = album[0]
+            photo_uuid = album[1]
+            # sort_order = album[2] # TODO: figure out album sort order
+            sort_order = 0
+            try:
+                self._dbalbums_uuid[photo_uuid].append(album_uuid)
+            except KeyError:
+                self._dbalbums_uuid[photo_uuid] = [album_uuid]
+
+            try:
+                self._dbalbums_album[album_uuid].append((photo_uuid, sort_order))
+            except KeyError:
+                self._dbalbums_album[album_uuid] = [(photo_uuid, sort_order)]
+
+        # now get additional details about albums
+        c.execute(
+            "SELECT "
+            "ZUUID, "  # 0
+            "ZTITLE, "  # 1
+            "ZCLOUDLOCALSTATE, "  # 2
+            "Z_PK, "  # 3
+            "ZTRASHEDSTATE, "  # 4
+            "ZCREATIONDATE, "  # 5
+            "ZSTARTDATE, "  # 6
+            "ZENDDATE, "  # 7
+            "ZCUSTOMSORTASCENDING, "  # 8
+            "ZCUSTOMSORTKEY "  # 9
+            "FROM ZSHARE "
+        )
+        for album in c:
+            self._dbalbum_details[album[0]] = {
+                "_uuid": album[0],
+                "title": normalize_unicode(album[1]),
+                "cloudlocalstate": album[2],
+                "cloudlibrarystate": None,  # Photos 4
+                "cloudidentifier": None,  # Photos 4
+                "cloudownerfirstname": None,
+                "cloudownderlastname": None,
+                "parentfolder": None,
+                "cloudownerhashedpersonid": "XXXUNKNOWNXXX",
+                "kind": _PHOTOS_5_SHARED_ALBUM_KIND,
+                "pk": album[3],
+                "intrash": False if album[4] == 0 else True,
+                "creation_date": album[5]
+                or 0,  # iPhone Photos.sqlite can have null value
+                "start_date": album[6] or 0,
+                "end_date": album[7] or 0,
+                "customsortascending": album[8],
+                "customsortkey": album[9],
+            }
+
+            # add cross-reference by pk to uuid
+            # needed to extract folder hierarchy
+            # in Photos >= 5, folders are special albums
+            self._dbalbums_pk[album[8]] = album[0]
 
     def _build_album_folder_hierarchy_5(self, uuid, folders=None):
         """Recursively build folder/album hierarchy

@@ -46,6 +46,7 @@ class DirectoryStatCache:
         self._cache: dict[str, dict[str, os.stat_result]] = {}
         self._timestamps: dict[str, float] = {}
         self._lock = threading.Lock()
+        self._virtual_files: dict[str, dict[str, os.stat_result]] = {}
 
     def _normalize_dir(self, directory: str | pathlib.Path) -> str:
         """Normalize directory path for use as cache key."""
@@ -91,6 +92,10 @@ class DirectoryStatCache:
                         # Skip files we can't stat (permissions, etc.)
                         pass
 
+            # Merge any virtual files back so they survive cache refresh
+            if dir_path in self._virtual_files:
+                entries.update(self._virtual_files[dir_path])
+
             self._cache[dir_path] = entries
             self._timestamps[dir_path] = time.monotonic()
             logger.debug(f"Cached stat info for {len(entries)} files in {dir_path}")
@@ -98,7 +103,10 @@ class DirectoryStatCache:
         except OSError as e:
             # Directory doesn't exist or can't be read
             logger.debug(f"Could not scan directory {dir_path}: {e}")
-            self._cache[dir_path] = {}
+            entries = {}
+            if dir_path in self._virtual_files:
+                entries.update(self._virtual_files[dir_path])
+            self._cache[dir_path] = entries
             self._timestamps[dir_path] = time.monotonic()
 
     def _ensure_directory_cached(self, dir_path: str) -> None:
@@ -259,8 +267,55 @@ class DirectoryStatCache:
                         st = os.stat(filepath)
                         self._cache[dir_path][filename] = st
                     except OSError:
-                        # File doesn't exist, remove from cache
-                        self._cache[dir_path].pop(filename, None)
+                        # File doesn't exist; remove from cache unless it's
+                        # a virtual file (registered for dry_run tracking)
+                        if (
+                            dir_path in self._virtual_files
+                            and filename in self._virtual_files[dir_path]
+                        ):
+                            pass
+                        else:
+                            self._cache[dir_path].pop(filename, None)
+
+    def register_virtual_file(self, filepath: str | pathlib.Path) -> None:
+        """Register a file that doesn't exist on disk in the cache.
+
+        This is used during dry_run/pre-load mode to track filenames that
+        have been claimed but not written to disk, so that collision detection
+        in increment_filename() works correctly.
+
+        Args:
+            filepath: Path to the virtual file to register.
+        """
+        path = pathlib.Path(filepath)
+        dir_path = self._normalize_dir(path.parent)
+        filename = self._normalize_filename(path.name)
+
+        # Create a synthetic stat_result for the virtual file
+        synthetic_stat = os.stat_result(
+            (
+                0o100644,  # st_mode: regular file
+                0,  # st_ino
+                0,  # st_dev
+                1,  # st_nlink
+                0,  # st_uid
+                0,  # st_gid
+                0,  # st_size
+                0,  # st_atime
+                0,  # st_mtime
+                0,  # st_ctime
+            )
+        )
+
+        with self._lock:
+            # Track in virtual files so it survives cache refresh
+            if dir_path not in self._virtual_files:
+                self._virtual_files[dir_path] = {}
+            self._virtual_files[dir_path][filename] = synthetic_stat
+
+            # Also add to the live cache
+            self._ensure_directory_cached(dir_path)
+            self._cache[dir_path][filename] = synthetic_stat
 
     def remove_file(self, filepath: str | pathlib.Path) -> None:
         """Remove a file from the cache after it's been deleted.
@@ -307,6 +362,7 @@ class DirectoryStatCache:
         with self._lock:
             self._cache.clear()
             self._timestamps.clear()
+            self._virtual_files.clear()
 
     def prefetch_directories(self, directories: list[str | pathlib.Path]) -> None:
         """Pre-populate cache for multiple directories.

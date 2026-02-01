@@ -157,7 +157,7 @@ def get_photos_version_from_model(db_file: str) -> int:
     logger.warning(
         f"Unknown db / model version for {db_file}: model_ver={model_ver}; assuming latest version"
     )
-    return 11.1
+    return LATEST_PHOTOS_VERSION
 
 
 def get_photos_library_version(library_path: str | pathlib.Path) -> int:

@@ -297,6 +297,13 @@ STAT_CACHE_TTL_SECONDS = os.environ.get(
     help="Do not export associated RAW image of a RAW+JPEG pair.  Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image (e.g. the RAW file was imported to Photos without a JPEG preview).",
 )
 @click.option(
+    "--skip-raw-jpeg",
+    is_flag=True,
+    help="Do not export associated JPEG image of a RAW+JPEG pair. "
+    "Note: this does not skip JPEG photos if the JPEG photo does not have "
+    "an associated RAW image.",
+)
+@click.option(
     "--skip-uuid",
     metavar="UUID",
     default=None,
@@ -1105,6 +1112,7 @@ def export(
     skip_live: bool,
     skip_original_if_edited: bool,
     skip_raw: bool,
+    skip_raw_jpeg: bool,
     skip_uuid: bool,
     skip_uuid_from_file: bool,
     slow_mo: bool,
@@ -1316,6 +1324,7 @@ def export_cli(
     skip_live: bool = False,
     skip_original_if_edited: bool = False,
     skip_raw: bool = False,
+    skip_raw_jpeg: bool = False,
     skip_uuid: bool = False,
     skip_uuid_from_file: bool = False,
     slow_mo: bool = False,
@@ -1570,6 +1579,7 @@ def export_cli(
         skip_live = cfg.skip_live
         skip_original_if_edited = cfg.skip_original_if_edited
         skip_raw = cfg.skip_raw
+        skip_raw_jpeg = cfg.skip_raw_jpeg
         skip_uuid = cfg.skip_uuid
         skip_uuid_from_file = cfg.skip_uuid_from_file
         slow_mo = cfg.slow_mo
@@ -1651,6 +1661,7 @@ def export_cli(
         ("no_exportdb", "update"),
         ("no_exportdb", "force_update"),
         ("dry_run", "pre_load"),
+        ("skip_raw", "skip_raw_jpeg"),
     ]
     dependent_options = [
         ("append", ("report")),
@@ -1760,6 +1771,10 @@ def export_cli(
         not x for x in [skip_edited, skip_bursts, skip_live, skip_raw]
     ]
 
+    # --skip-raw-jpeg implies export_raw=True (no sense skipping both JPEG and RAW)
+    if skip_raw_jpeg:
+        export_raw = True
+
     # verify exiftool installed and in path if path not provided and exiftool will be used
     # NOTE: this won't catch use of {exiftool:} in a template
     # but those will raise error during template eval if exiftool path not set
@@ -1852,9 +1867,9 @@ def export_cli(
         verbose(
             f"Running in pre-load mode; export database will be created and populated at [filepath]{export_db_path}[/] but files will not be exported."
         )
+        # pre_load uses dry_run with update code path to rebuild/pre-load the database
         dry_run = True
-        # not used but gets added to kwargs for call to export_photo below
-        overwrite = True  # noqa: F841
+        update = True
         export_db = (
             ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
             if ramdb
@@ -2003,28 +2018,9 @@ def export_cli(
             else None
         )
 
-        def cleanup_lock_files():
-            """Cleanup lock files"""
-            if not under_test():
-                verbose("Cleaning up lock files")
-            if dry_run:
-                return
-            # Use os.walk instead of rglob for better performance on SMB/network volumes
-            # os.walk uses scandir internally and provides filenames without extra stat calls
-            for dirpath, _, filenames in os.walk(dest):
-                for filename in filenames:
-                    if filename.endswith(".osxphotos.lock"):
-                        lock_file = pathlib.Path(dirpath) / filename
-                        try:
-                            lock_file.unlink()
-                        except Exception as e:
-                            logger.debug(f"Error removing lock file {lock_file}: {e}")
-
-        atexit.register(cleanup_lock_files)
-
         # Initialize stat cache for efficient network volume operations
         # Only create cache for update exports where we'll be checking existing files
-        if update or force_update:
+        if update or force_update or dry_run:
             stat_cache = DirectoryStatCache(ttl_seconds=STAT_CACHE_TTL_SECONDS)
             same_filesystem = are_same_filesystem(photosdb.library_path, dest)
             verbose(
@@ -2369,6 +2365,7 @@ def export_photo(
     favorite_rating=False,
     filename_template=None,
     export_raw=None,
+    skip_raw_jpeg=False,
     album_keyword=None,
     person_keyword=None,
     keyword_template=None,
@@ -2619,6 +2616,7 @@ def export_photo(
                 sidecar_drop_ext=sidecar_drop_ext,
                 sidecar_flags=sidecar_flags,
                 sidecar_template=sidecar_template,
+                skip_raw_jpeg=skip_raw_jpeg,
                 touch_file=touch_file,
                 update=update,
                 update_errors=update_errors,
@@ -2743,6 +2741,7 @@ def export_photo(
                     sidecar_drop_ext=sidecar_drop_ext,
                     sidecar_flags=sidecar_flags,
                     sidecar_template=sidecar_template,
+                    skip_raw_jpeg=False,
                     touch_file=touch_file,
                     update=update,
                     update_errors=update_errors,
@@ -2836,6 +2835,7 @@ def export_photo_to_directory(
     sidecar_drop_ext,
     sidecar_flags,
     sidecar_template,
+    skip_raw_jpeg,
     touch_file,
     update,
     update_errors,
@@ -2900,6 +2900,7 @@ def export_photo_to_directory(
                 preview=export_preview or (missing and preview_if_missing),
                 preview_suffix=preview_suffix,
                 raw_photo=export_raw,
+                skip_raw_jpeg=skip_raw_jpeg,
                 render_options=render_options,
                 replace_keywords=replace_keywords,
                 rich=True,
