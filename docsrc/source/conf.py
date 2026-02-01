@@ -12,6 +12,7 @@
 #
 import os
 import pathlib
+import re
 import sys
 
 import sphinx_rtd_theme
@@ -77,3 +78,30 @@ html_theme = "furo"
 html_static_path = ["_static"]
 
 smartquotes = False
+
+
+# -- Event handlers for sphinx_click_custom ----------------------------------
+
+
+def _escape_rst_in_option_lines(app, ctx, lines):
+    """Escape RST special characters in option help text.
+
+    Option help text from Click passes through sphinx_click_custom's
+    _format_option without RST escaping, so characters like * (used in
+    glob patterns or emphasis) get misinterpreted by the RST parser.
+
+    This handler modifies the lines list in-place.
+    """
+    for i, line in enumerate(lines):
+        # Only escape content lines (indented), not RST directives or field lists
+        if line.startswith("    ") and not line.strip().startswith(":"):
+            escaped = line
+            # Escape unescaped asterisks
+            escaped = re.sub(r"(?<!\\)\*", r"\\*", escaped)
+            # Escape underscores at word boundaries (RST reference markers)
+            escaped = re.sub(r"(\w)_(?!\w)", r"\1\\_", escaped)
+            lines[i] = escaped
+
+
+def setup(app):
+    app.connect("sphinx-click-process-options", _escape_rst_in_option_lines)

@@ -608,9 +608,11 @@ def filter_help_text_for_sphinx(text):
     text = text.replace("[", r"\[")
     text = text.replace("]", r"\]")
 
-    # Escape asterisks at word boundaries (RST emphasis markers)
-    text = re.sub(r"\*(\w)", r"\\\*\1", text)
-    text = re.sub(r"(\w)\*", r"\1\\\*", text)
+    # Escape all asterisks (RST emphasis markers)
+    text = text.replace("*", r"\*")
+
+    # Escape colons at start of lines that form RST field list patterns (:word:)
+    text = re.sub(r"^(:\w+:)", r"\\\1", text, flags=re.MULTILINE)
 
     # Escape underscores that could be interpreted as RST markup
     text = re.sub(r"(?<!\w)_(\w)", r"\\_\1", text)
