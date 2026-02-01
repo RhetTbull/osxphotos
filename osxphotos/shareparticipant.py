@@ -15,17 +15,20 @@ from .unicode import normalize_unicode
 if TYPE_CHECKING:
     from .photosdb import PhotosDB
 
+from ._constants import _DB_TABLE_NAMES
+
 
 def get_share_participants(db: PhotosDB, uuid: str) -> list[ShareParticipant]:
     """Return list of ShareParticipant objects for the given database"""
-    sql = """   SELECT
+    z_share = _DB_TABLE_NAMES[db.photos_version]["ZSHAREPARTICIPANT_ZXX_SHARE"]
+    sql = f"""  SELECT
                 ZSHAREPARTICIPANT.Z_PK,
                 ZSHAREPARTICIPANT.ZACCEPTANCESTATUS,
                 ZSHAREPARTICIPANT.ZISCURRENTUSER,
                 ZSHAREPARTICIPANT.ZEXITSTATE,
                 ZSHAREPARTICIPANT.ZPERMISSION,
                 ZSHAREPARTICIPANT.ZPERSON,
-                ZSHAREPARTICIPANT.Z54_SHARE,
+                ZSHAREPARTICIPANT.{z_share},
                 ZSHAREPARTICIPANT.ZSHARE,
                 ZSHAREPARTICIPANT.ZEMAILADDRESS,
                 ZSHAREPARTICIPANT.ZPARTICIPANTID,
@@ -37,12 +40,13 @@ def get_share_participants(db: PhotosDB, uuid: str) -> list[ShareParticipant]:
                 JOIN ZASSETCONTRIBUTOR ON ZSHAREPARTICIPANT.Z_PK = ZASSETCONTRIBUTOR.ZPARTICIPANT
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.Z_PK = ZASSETCONTRIBUTOR.Z3LIBRARYSCOPEASSETCONTRIBUTORS
                 JOIN ZASSET ON ZASSET.Z_PK = ZADDITIONALASSETATTRIBUTES.ZASSET
-                WHERE ZASSET.ZUUID = '{}';""".format(
-        uuid
-    )
+                WHERE ZASSET.ZUUID = '{uuid}';"""
 
-    rows = db.execute(sql)
-    return [ShareParticipant(*row) for row in rows]
+    try:
+        rows = db.execute(sql)
+        return [ShareParticipant(*row) for row in rows]
+    except Exception:
+        return []
 
 
 @dataclass
