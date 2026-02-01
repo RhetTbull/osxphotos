@@ -613,7 +613,7 @@ class ImportCommand(click.Command):
     "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
     "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
     "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
-    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name. "
+    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with names starting with 'IMG' followed by a number. "
     "If the pattern matches only date or only time, the missing information will be set to the "
     "default date/time used by Photos when importing the photo. This is either the EXIF date/time "
     "if it exists or the file modification date/time. "
