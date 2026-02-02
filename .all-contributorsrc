@@ -1023,6 +1023,15 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "peedub",
+      "name": "peedub",
+      "avatar_url": "https://avatars.githubusercontent.com/u/969908?v=4",
+      "profile": "https://github.com/peedub",
+      "contributions": [
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
