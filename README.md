@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-109-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-110-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS and Linux. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos. OSXPhotos also works with iPhoto libraries though some features are available only for Photos.
@@ -1221,6 +1221,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mybizgeek"><img src="https://avatars.githubusercontent.com/u/156713335?v=4?s=75" width="75px;" alt="mybizgeek"/><br /><sub><b>mybizgeek</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=mybizgeek" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/peedub"><img src="https://avatars.githubusercontent.com/u/969908?v=4?s=75" width="75px;" alt="peedub"/><br /><sub><b>peedub</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=peedub" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Ben-Voris"><img src="https://avatars.githubusercontent.com/u/31499002?v=4?s=75" width="75px;" alt="Ben Voris"/><br /><sub><b>Ben Voris</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=Ben-Voris" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/steverice"><img src="https://avatars.githubusercontent.com/u/1423851?v=4?s=75" width="75px;" alt="Steve Rice"/><br /><sub><b>Steve Rice</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=steverice" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
 </table>
