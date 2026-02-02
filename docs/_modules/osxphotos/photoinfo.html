@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.photoinfo - osxphotos 0.75.1 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.75.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -305,7 +305,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.shareinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShareInfo</span><span class="p">,</span> <span class="n">get_moment_share_info</span><span class="p">,</span> <span class="n">get_share_info</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.shareparticipant</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShareParticipant</span><span class="p">,</span> <span class="n">get_share_participants</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.uti</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_preferred_uti_extension</span><span class="p">,</span> <span class="n">get_uti_for_extension</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_resource_loc</span><span class="p">,</span> <span class="n">hexdigest</span><span class="p">,</span> <span class="n">list_directory</span><span class="p">,</span> <span class="n">path_exists</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_get_resource_loc</span><span class="p">,</span>
+    <span class="n">find_files_by_prefix</span><span class="p">,</span>
+    <span class="n">hexdigest</span><span class="p">,</span>
+    <span class="n">list_directory</span><span class="p">,</span>
+    <span class="n">path_exists</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">osxmetadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSXMetaData</span>
@@ -1446,20 +1452,25 @@
         <span class="n">thumb_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">thumb_path</span><span class="p">)</span>
 
         <span class="c1"># find all files that start with uuid in derivative path</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">derivative_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">*.*&quot;</span><span class="p">))</span>
+        <span class="c1"># skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)</span>
+        <span class="k">if</span> <span class="n">derivative_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">derivatives</span> <span class="o">=</span> <span class="n">find_files_by_prefix</span><span class="p">(</span>
+                <span class="n">derivative_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">ignore_ext</span><span class="o">=</span><span class="s2">&quot;.THM&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># previews may be missing from derivatives path</span>
         <span class="c1"># there are what appear to be low res thumbnails in the &quot;masters&quot; subfolder</span>
         <span class="k">if</span> <span class="n">path_exists</span><span class="p">(</span><span class="n">thumb_path</span><span class="p">):</span>
-            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thumb_path</span><span class="p">)</span>
+            <span class="n">derivatives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">thumb_path</span><span class="p">))</span>
 
-        <span class="c1"># sort by file size, largest first</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
-
-        <span class="c1"># return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)</span>
-        <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">&quot;.THM&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">derivatives</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.mov&quot;</span><span class="p">):</span>
-            <span class="c1"># ensure .mov is first in list as poster image could be larger than the movie preview</span>
+        <span class="c1"># ensure .mov is first in list as poster image could be larger than the movie preview</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">derivatives</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.mov&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.MOV&quot;</span><span class="p">))</span>
+        <span class="p">):</span>
             <span class="n">derivatives</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">derivatives</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">derivatives</span></div>
@@ -2759,7 +2770,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
+</div><script src="../../_static/documentation_options.js?v=1283c610"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

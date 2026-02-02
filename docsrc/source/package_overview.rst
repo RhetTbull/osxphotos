@@ -43,6 +43,7 @@ Example uses of the OSXPhotos python package
        main()
 
 .. code-block:: python
+
     """Export all photos to specified directory using album names as folders
     If file has been edited, also export the edited version,
     otherwise, export the original version

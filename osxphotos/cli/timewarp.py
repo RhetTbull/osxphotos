@@ -324,7 +324,7 @@ https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-
     "If DATE_PATTERN matches time zone information, the photo's timezone will be set to match. "
     "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
     "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
-    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name.",
+    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with names starting with 'IMG' followed by a number.",
 )
 @click.option(
     "--function",

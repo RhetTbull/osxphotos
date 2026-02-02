@@ -1,5 +1,7 @@
 """Utilities for markdown formatting"""
 
+import re
+
 import markdown2
 from bs4 import BeautifulSoup
 from rich.console import Console
@@ -38,6 +40,9 @@ def markdown_to_plaintext(markdown_text: str) -> str:
         elif elem.name == "li":
             add_line(f"- {elem.get_text()}")
 
+        elif elem.name in ["ul", "ol"]:
+            pass  # children handled by li; blank line added in post-processing
+
         elif elem.name == "blockquote":
             for sub in elem.stripped_strings:
                 add_line(sub, indent=4)
@@ -49,7 +54,13 @@ def markdown_to_plaintext(markdown_text: str) -> str:
                 add_line(line, indent=4)
             lines.append("")  # blank line after code block
 
-    return "\n".join(lines).strip()
+    result = "\n".join(lines).strip()
+
+    # Ensure blank line after bullet list sequences so RST parsers
+    # don't complain about "Bullet list ends without a blank line"
+    result = re.sub(r"(^- .+\n)(?=(?!- |\n)\S)", r"\1\n", result, flags=re.MULTILINE)
+
+    return result
 
 
 def format_markdown_for_console(markdown_text: str, width: int = 80) -> str:

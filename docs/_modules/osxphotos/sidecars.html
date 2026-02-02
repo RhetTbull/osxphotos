@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.sidecars - osxphotos 0.75.1 documentation</title>
+        <title>osxphotos.sidecars - osxphotos 0.75.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -363,6 +363,12 @@
         <span class="c1"># define functions for adding markup</span>
         <span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">rich</span><span class="p">)</span>
 
+        <span class="c1"># Helper to check exists using stat_cache when available</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_sidecar_exists</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
         <span class="c1"># export metadata</span>
         <span class="n">sidecars</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">sidecar_json_files_skipped</span> <span class="o">=</span> <span class="p">[]</span>
@@ -445,13 +451,15 @@
                 <span class="ow">not</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
                 <span class="ow">or</span> <span class="p">(</span>
                     <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
-                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">sidecar_filename</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">_sidecar_exists</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="ow">or</span> <span class="p">(</span>
                     <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
                     <span class="ow">and</span> <span class="p">(</span><span class="n">sidecar_digest</span> <span class="o">!=</span> <span class="n">sidecar_record</span><span class="o">.</span><span class="n">digest</span><span class="p">)</span>
                     <span class="ow">or</span> <span class="ow">not</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp_file_sig</span><span class="p">(</span>
-                        <span class="n">sidecar_filename</span><span class="p">,</span> <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span>
+                        <span class="n">sidecar_filename</span><span class="p">,</span>
+                        <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span><span class="p">,</span>
+                        <span class="n">stat_cache</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">)</span>
@@ -460,8 +468,15 @@
                 <span class="n">files_written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">))</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_write_sidecar</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">,</span> <span class="n">sidecar_str</span><span class="p">)</span>
-                    <span class="n">sidecar_record</span><span class="o">.</span><span class="n">digest</span> <span class="o">=</span> <span class="n">sidecar_digest</span>
-                    <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span>
+                    <span class="c1"># Update stat cache to reflect new file</span>
+                    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">update_file</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span>
+                    <span class="c1"># Use context manager to batch commits</span>
+                    <span class="k">with</span> <span class="n">sidecar_record</span><span class="p">:</span>
+                        <span class="n">sidecar_record</span><span class="o">.</span><span class="n">digest</span> <span class="o">=</span> <span class="n">sidecar_digest</span>
+                        <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span>
+                            <span class="n">sidecar_filename</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span>
+                        <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">verbose</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Skipped up to date </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -497,10 +512,16 @@
 
             <span class="c1"># update destination signatures in database</span>
             <span class="k">for</span> <span class="n">sidecar_filename</span> <span class="ow">in</span> <span class="n">all_sidecars</span><span class="p">:</span>
-                <span class="n">sidecar_record</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">create_or_get_file_record</span><span class="p">(</span>
+                <span class="c1"># Update stat cache after touch modified the file</span>
+                <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">update_file</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span>
+                <span class="c1"># Use context manager to batch the update with a single commit</span>
+                <span class="k">with</span> <span class="n">export_db</span><span class="o">.</span><span class="n">create_or_get_file_record</span><span class="p">(</span>
                     <span class="n">sidecar_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span>
-                <span class="p">)</span>
-                <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">sidecar_record</span><span class="p">:</span>
+                    <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span>
+                        <span class="n">sidecar_filename</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span>
+                    <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">results</span></div>
 
@@ -978,7 +999,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
+</div><script src="../../_static/documentation_options.js?v=1283c610"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

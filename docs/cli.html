@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Template System" href="template_help.html"><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.75.1 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.75.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.75.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -729,7 +729,7 @@ See 'osxphotos help timewarp' for more information.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-duplicate">
 <span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-duplicate" title="Link to this definition">¶</a></dt>
-<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find *possible* duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1138,6 +1138,27 @@ and add the keywords &quot;Family&quot; and &quot;Travel&quot;.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-compare-arg-LIBRARY_B">
 <span class="sig-name descname"><span class="pre">LIBRARY_B</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-compare-arg-LIBRARY_B" title="Link to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-dbversion">
+<h3>dbversion<a class="headerlink" href="#osxphotos-dbversion" title="Link to this heading">¶</a></h3>
+<p>Print version info for a Photos library</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>dbversion<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>LIBRARY_PATH
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dbversion-schema">
+<span class="sig-name descname"><span class="pre">--schema</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dbversion-schema" title="Link to this definition">¶</a></dt>
+<dd><p>Print SQL schema for the database instead of printing version info.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dbversion-arg-LIBRARY_PATH">
+<span class="sig-name descname"><span class="pre">LIBRARY_PATH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dbversion-arg-LIBRARY_PATH" title="Link to this definition">¶</a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 
@@ -1799,7 +1820,7 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-duplicate">
 <span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-duplicate" title="Link to this definition">¶</a></dt>
-<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find *possible* duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1983,6 +2004,12 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-pre-load">
+<span class="sig-name descname"><span class="pre">--pre-load</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-pre-load" title="Link to this definition">¶</a></dt>
+<dd><p>Dry run (test) the export and pre-load the export database with metadata about photos that already exist on disk. This is an advanced feature that is only needed if you have imported photos into Photos then want to use the originally imported files on disk to seed an export. Running osxphotos export with --pre-load will associate files on disk in the export directory with assets in the Photos library so that when you subsequently export with --update, the previously exported files will not be re-exported. For this to work, the export path used by osxphotos must match the path on disk. For example, if a file path is '/Volumes/photos/2026/01/IMG_1234.heic' where 2026/01 is the creation year/month then you would want to run a command similar to: 'osxphotos export /Volumes/photos --directory '{created.year}/{created.mm} --pre-load'. When you run an export with '--pre-load --verbose', you will see output similar to that produced by '--dry-run'. Photos are not really being exported even though the message will state they are. This option can also be used to re-build an export database if the original is lost or corrupted so that an existing export can continue to be used.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-export-as-hardlink">
 <span class="sig-name descname"><span class="pre">--export-as-hardlink</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-export-as-hardlink" title="Link to this definition">¶</a></dt>
 <dd><p>Hardlink files instead of copying them. Cannot be used with --exiftool which creates copies of the files with embedded EXIF data. Note: on APFS volumes, files are cloned when exporting giving many of the same advantages as hardlinks without having to use --export-as-hardlink.</p>
@@ -2052,6 +2079,12 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-raw">
 <span class="sig-name descname"><span class="pre">--skip-raw</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-raw" title="Link to this definition">¶</a></dt>
 <dd><p>Do not export associated RAW image of a RAW+JPEG pair.  Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image (e.g. the RAW file was imported to Photos without a JPEG preview).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-raw-jpeg">
+<span class="sig-name descname"><span class="pre">--skip-raw-jpeg</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-raw-jpeg" title="Link to this definition">¶</a></dt>
+<dd><p>Do not export associated JPEG image of a RAW+JPEG pair. Note: this does not skip JPEG photos if the JPEG photo does not have an associated RAW image.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2303,13 +2336,13 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-cleanup">
 <span class="sig-name descname"><span class="pre">--cleanup</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-cleanup" title="Link to this definition">¶</a></dt>
-<dd><p>Cleanup export directory by deleting any files which were not included in this export set. For example, photos which had previously been exported and were subsequently deleted in Photos. WARNING: --cleanup will delete <em>any</em> files in the export directory that were not exported by osxphotos, for example, your own scripts or other files.  Be sure this is what you intend before using --cleanup.  Use --dry-run with --cleanup first if you're not certain. To prevent files not generated by osxphotos from being deleted, you may specify one or more rules in a file named '.osxphotos_keep' in the export directory. This file uses the same format as a .gitignore file and should contain one rule per line; lines starting with a '#' will be ignored. Reference <a class="reference external" href="https://git-scm.com/docs/gitignore#_pattern_format">https://git-scm.com/docs/gitignore#_pattern_format</a> for details. In addition to the standard .gitignore rules, the rules may also be the absolute path to a file or directory. For example if export destination is '/Volumes/Photos' and you want to keep all '.txt' files, in the top level of the export directory, you can specify '/<em>.txt' in the .osxphotos_keep file. If you want to keep all '.txt' files in the export directory and all subdirectories, you can specify '*</em>/<a href="#id1"><span class="problematic" id="id2">*</span></a>.txt'. If present, the .osxphotos_keep file will be read after the export is completed and any rules found in the file will be added to the list of rules to keep. Files whose name starts with '.' (dot-files) will not be deleted. See also --keep.</p>
+<dd><p>Cleanup export directory by deleting any files which were not included in this export set. For example, photos which had previously been exported and were subsequently deleted in Photos. WARNING: --cleanup will delete *any* files in the export directory that were not exported by osxphotos, for example, your own scripts or other files.  Be sure this is what you intend before using --cleanup.  Use --dry-run with --cleanup first if you're not certain. To prevent files not generated by osxphotos from being deleted, you may specify one or more rules in a file named '.osxphotos_keep' in the export directory. This file uses the same format as a .gitignore file and should contain one rule per line; lines starting with a '#' will be ignored. Reference <a class="reference external" href="https://git-scm.com/docs/gitignore#_pattern_format">https://git-scm.com/docs/gitignore#_pattern_format</a> for details. In addition to the standard .gitignore rules, the rules may also be the absolute path to a file or directory. For example if export destination is '/Volumes/Photos' and you want to keep all '.txt' files, in the top level of the export directory, you can specify '/*.txt' in the .osxphotos_keep file. If you want to keep all '.txt' files in the export directory and all subdirectories, you can specify '**/*.txt'. If present, the .osxphotos_keep file will be read after the export is completed and any rules found in the file will be added to the list of rules to keep. Files whose name starts with '.' (dot-files) will not be deleted. See also --keep.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-keep">
 <span class="sig-name descname"><span class="pre">--keep</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;KEEP_RULE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-keep" title="Link to this definition">¶</a></dt>
-<dd><p>When used with --cleanup, prevents file or directory matching KEEP_RULE from being deleted when cleanup is run. Use this if there are files in the export directory that you don't want to be deleted when --cleanup is run. KEEP_RULE follows the same format rules a .gitignore file. Reference <a class="reference external" href="https://git-scm.com/docs/gitignore#_pattern_format">https://git-scm.com/docs/gitignore#_pattern_format</a> for details. In addition to the standard .gitignore rules, KEEP_RULE may also be the absolute path to a file or directory. For example if export destination is '/Volumes/Photos' and you want to keep all '.txt' files, in the top level of the export directory, you can specify '--keep &quot;<em>.txt&quot;. If you want to keep all '.txt' files in the export directory and all subdirectories, you can specify '--keep &quot;*</em>/<a href="#id3"><span class="problematic" id="id4">*</span></a>.txt&quot;'. If wild card is used, KEEP_RULE must be enclosed in quotes to prevent the shell from expanding the wildcard. --keep may be repeated to keep additional files/directories. Rules may also be included in a file named '.osxphotos_keep' in the export directory. If present, this file will be read after the export is completed and any rules found in the file will be added to the list of rules to keep. This file uses the same format as a .gitignore file and should contain one rule per line; lines starting with a '#' will be ignored.</p>
+<dd><p>When used with --cleanup, prevents file or directory matching KEEP_RULE from being deleted when cleanup is run. Use this if there are files in the export directory that you don't want to be deleted when --cleanup is run. KEEP_RULE follows the same format rules a .gitignore file. Reference <a class="reference external" href="https://git-scm.com/docs/gitignore#_pattern_format">https://git-scm.com/docs/gitignore#_pattern_format</a> for details. In addition to the standard .gitignore rules, KEEP_RULE may also be the absolute path to a file or directory. For example if export destination is '/Volumes/Photos' and you want to keep all '.txt' files, in the top level of the export directory, you can specify '--keep &quot;*.txt&quot;. If you want to keep all '.txt' files in the export directory and all subdirectories, you can specify '--keep &quot;**/*.txt&quot;'. If wild card is used, KEEP_RULE must be enclosed in quotes to prevent the shell from expanding the wildcard. --keep may be repeated to keep additional files/directories. Rules may also be included in a file named '.osxphotos_keep' in the export directory. If present, this file will be read after the export is completed and any rules found in the file will be added to the list of rules to keep. This file uses the same format as a .gitignore file and should contain one rule per line; lines starting with a '#' will be ignored.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -2474,69 +2507,49 @@ order to minimize run time, --update does not do a full comparison (diff) of the
 hashes of the files.  In normal usage, this is sufficient for updating the library. You can always run export
 without the --update option to re-export the entire library thus rebuilding the '.osxphotos_export.db'
 database.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>                                         Extended Attributes
-
-Some options (currently &#39;--finder-tag-template&#39;, &#39;--finder-tag-keywords&#39;, &#39;-xattr-template&#39;) write
+<p>Extended Attributes</p>
+<p>Some options (currently '--finder-tag-template', '--finder-tag-keywords', '-xattr-template') write
 additional metadata accessible by Spotlight to facilitate searching.      For example, --finder-tag-
-keyword writes all keywords (including any specified by &#39;--keyword-template&#39;     or other options) to
-Finder tags that are searchable in Spotlight using the syntax: &#39;tag:tagname&#39;.     For example, if you have
-images with keyword &quot;Travel&quot; then using &#39;--finder-tag-keywords&#39; you could quickly     find those images in
-the Finder by typing &#39;tag:Travel&#39; in the Spotlight search bar.     Finder tags are written to the
-&#39;com.apple.metadata:\_kMDItemUserTags&#39; extended attribute.     Unlike EXIF metadata, extended attributes do
+keyword writes all keywords (including any specified by '--keyword-template'     or other options) to
+Finder tags that are searchable in Spotlight using the syntax: '<a class="reference external" href="tag:tagname">tag:tagname</a>'.     For example, if you have
+images with keyword &quot;Travel&quot; then using '--finder-tag-keywords' you could quickly     find those images in
+the Finder by typing '<a class="reference external" href="tag:Travel">tag:Travel</a>' in the Spotlight search bar.     Finder tags are written to the
+'com.apple.metadata:_kMDItemUserTags' extended attribute.     Unlike EXIF metadata, extended attributes do
 not modify the actual file;     the metadata is written to extended attributes associated with the file
 and the Spotlight metadata database.      Most cloud storage services do not synch extended attributes.
-Dropbox does sync them and any changes to a file&#39;s extended attributes     will cause Dropbox to re-sync
-the files.
-
-The following attributes may be used with &#39;--xattr-template&#39;:
-</pre></div>
-</div>
+Dropbox does sync them and any changes to a file's extended attributes     will cause Dropbox to re-sync
+the files.</p>
+<p>The following attributes may be used with '--xattr-template':</p>
 <p>Attribute      Description
 authors        kMDItemAuthors; com.apple.metadata:kMDItemAuthors; The author, or authors, of the contents of</p>
-<blockquote>
-<div><p>the file.; list of strings</p>
-</div></blockquote>
-<dl class="simple">
-<dt>comment        kMDItemComment; com.apple.metadata:kMDItemComment; A comment related to the file. This</dt><dd><p>differs from the Finder comment, kMDItemFinderComment.; string</p>
-</dd>
-<dt>copyright      kMDItemCopyright; com.apple.metadata:kMDItemCopyright; The copyright owner of the file</dt><dd><p>contents.; string</p>
-</dd>
-<dt>creator        kMDItemCreator; com.apple.metadata:kMDItemCreator; Application used to create the document</dt><dd><p>content (for example &quot;Word&quot;, &quot;Pages&quot;, and so on).; string</p>
-</dd>
-</dl>
-<p>description    kMDItemDescription; com.apple.metadata:kMDItemDescription; A description of the content of</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>the resource. The description may include an abstract, table of contents, reference to a
+<p>the file.; list of strings</p>
+<p>comment        kMDItemComment; com.apple.metadata:kMDItemComment; A comment related to the file. This
+differs from the Finder comment, kMDItemFinderComment.; string
+copyright      kMDItemCopyright; com.apple.metadata:kMDItemCopyright; The copyright owner of the file</p>
+<p>contents.; string</p>
+<p>creator        kMDItemCreator; com.apple.metadata:kMDItemCreator; Application used to create the document
+content (for example &quot;Word&quot;, &quot;Pages&quot;, and so on).; string
+description    kMDItemDescription; com.apple.metadata:kMDItemDescription; A description of the content of
+the resource. The description may include an abstract, table of contents, reference to a
 graphical representation of content or a free-text account of the content.; string
-</pre></div>
-</div>
-<dl class="simple">
-<dt>findercomment  kMDItemFinderComment; com.apple.metadata:kMDItemFinderComment; Finder comments for this</dt><dd><p>file.; string</p>
-</dd>
-<dt>headline       kMDItemHeadline; com.apple.metadata:kMDItemHeadline; A publishable entry providing a synopsis</dt><dd><p>of the contents of the file. For example, &quot;Apple Introduces the iPod Photo&quot;.; string</p>
-</dd>
-<dt>participants   kMDItemParticipants; com.apple.metadata:kMDItemParticipants; The list of people who are</dt><dd><p>visible in an image or movie or written about in a document.; list of strings</p>
-</dd>
-</dl>
-<p>projects       kMDItemProjects; com.apple.metadata:kMDItemProjects; The list of projects that this file is</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>part of. For example, if you were working on a movie all of the files could be marked as
+findercomment  kMDItemFinderComment; com.apple.metadata:kMDItemFinderComment; Finder comments for this</p>
+<p>file.; string</p>
+<p>headline       kMDItemHeadline; com.apple.metadata:kMDItemHeadline; A publishable entry providing a synopsis
+of the contents of the file. For example, &quot;Apple Introduces the iPod Photo&quot;.; string
+participants   kMDItemParticipants; com.apple.metadata:kMDItemParticipants; The list of people who are
+visible in an image or movie or written about in a document.; list of strings
+projects       kMDItemProjects; com.apple.metadata:kMDItemProjects; The list of projects that this file is
+part of. For example, if you were working on a movie all of the files could be marked as
 belonging to the project &quot;My Movie&quot;.; list of strings
-</pre></div>
-</div>
-<dl class="simple">
-<dt>starrating     kMDItemStarRating; com.apple.metadata:kMDItemStarRating; User rating of this item. For</dt><dd><p>example, the stars rating of an iTunes track.; number</p>
-</dd>
-</dl>
-<p>subject        kMDItemSubject; com.apple.metadata:kMDItemSubject; Subject of the this item.; string
-title          kMDItemTitle; com.apple.metadata:kMDItemTitle; The title of the file. For example, this could</p>
-<blockquote>
-<div><p>be the title of a document, the name of a song, or the subject of an email message.; string</p>
-</div></blockquote>
-<p>version        kMDItemVersion; com.apple.metadata:kMDItemVersion; The version number of this file.; string</p>
+starrating     kMDItemStarRating; com.apple.metadata:kMDItemStarRating; User rating of this item. For
+example, the stars rating of an iTunes track.; number
+subject        kMDItemSubject; com.apple.metadata:kMDItemSubject; Subject of the this item.; string
+title          kMDItemTitle; com.apple.metadata:kMDItemTitle; The title of the file. For example, this could
+be the title of a document, the name of a song, or the subject of an email message.; string
+version        kMDItemVersion; com.apple.metadata:kMDItemVersion; The version number of this file.; string</p>
 <p>For additional information on extended attributes see:
 <a class="reference external" href="https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys">https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys</a></p>
-<blockquote>
-<div><p>Templating System</p>
-</div></blockquote>
+<p>Templating System</p>
 <p>The templating system converts one or template statements, written in osxphotos metadata templating language,
 to one or more rendered values using information from the photo being processed.</p>
 <p>In its simplest form, a template statement has the form: &quot;{template_field}&quot;, for example &quot;{title}&quot; which would
@@ -2562,17 +2575,13 @@ with no delimiter.</p>
 </ul>
 </div></blockquote>
 <p>template_field: The template field to resolve.  See Template Substitutions for full list of template fields.</p>
-<dl class="field-list simple">
-<dt class="field-odd">subfield<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Some templates have sub-fields, For example, {exiftool:IPTC:Make}; the template_field is exiftool</p>
-</dd>
-</dl>
-<p>and the sub-field is IPTC:Make.</p>
+<p>:subfield: Some templates have sub-fields, For example, {exiftool:IPTC:Make}; the template_field is exiftool
+and the sub-field is IPTC:Make.</p>
 <p>(field_arg): optional arguments to pass to the field; for example, with {folder_album} this is used to pass
 the path separator used for joining folders and albums when rendering the field (default is &quot;/&quot; for
 {folder_album}).</p>
-<p><a href="#id31"><span class="problematic" id="id32">|filter: You may optionally append one or more filter commands to the end of the template field using the
-vertical pipe ('|</span></a>') symbol.  Filters may be combined, separated by '|' as in: {keyword|capitalize|parens}.</p>
+<p>|filter: You may optionally append one or more filter commands to the end of the template field using the
+vertical pipe ('|') symbol.  Filters may be combined, separated by '|' as in: {keyword|capitalize|parens}.</p>
 <p>Valid filters are:</p>
 <blockquote>
 <div><ul>
@@ -2657,8 +2666,8 @@ float, remove value from list. ['1', 'x'] =&gt; ['1.0']. See also int.</p></li>
 </div></blockquote>
 <p>[find,replace]: optional text replacement to perform on rendered template value.  For example, to replace &quot;/&quot;
 in an album name, you could use the template &quot;{album[/,-]}&quot;.  Multiple replacements can be made by appending
-&quot;|&quot; and adding another find|replace pair.  e.g. to replace both &quot;/&quot; and &quot;:&quot; in album name: &quot;{album[/,-<a href="#id33"><span class="problematic" id="id34">|:,-]}&quot;.
-find/replace pairs are not limited to single characters.  The &quot;|</span></a>&quot; character cannot be used in a find/replace
+&quot;|&quot; and adding another find|replace pair.  e.g. to replace both &quot;/&quot; and &quot;:&quot; in album name: &quot;{album[/,-|:,-]}&quot;.
+find/replace pairs are not limited to single characters.  The &quot;|&quot; character cannot be used in a find/replace
 pair.</p>
 <p>conditional: optional conditional expression that is evaluated as boolean (True/False) for use with the
 ?bool_value modifier.  Conditional expressions take the form 'not operator value' where not is an optional
@@ -2785,9 +2794,7 @@ folder/album structure, you can use --keyword-template &quot;{folder_album}&quot
 format used in Lightroom Classic, --keyword-template &quot;{folder_album(&gt;)}&quot;.</p>
 <p>In the template, valid template substitutions will be replaced by the corresponding value from the table
 below.  Invalid substitutions will result in a an error and the script will abort.</p>
-<blockquote>
-<div><p>Template Substitutions</p>
-</div></blockquote>
+<p>Template Substitutions</p>
 <p>Substitution                    Description</p>
 <p>{name}                          Current filename of the photo</p>
 <p>{original_name}                 Photo's original filename when imported to Photos</p>
@@ -2795,27 +2802,23 @@ below.  Invalid substitutions will result in a an error and the script will abor
 <p>{descr}                         Description (caption) of the photo; alias for {caption}
 {caption}                       Description (caption) of the photo; alias for {descr}
 {media_type}                    Special media type resolved in this precedence: selfie, time_lapse,</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>panorama, slow_mo, screenshot, screen_recording, portrait, live_photo,
-burst, photo, video. Defaults to &#39;photo&#39; or &#39;video&#39; if no special type.
+<p>panorama, slow_mo, screenshot, screen_recording, portrait, live_photo,</p>
+<p>burst, photo, video. Defaults to 'photo' or 'video' if no special type.
 Customize one or more media types using format:
-&#39;{media_type,video=vidéo;time_lapse=vidéo_accélérée}&#39;
-</pre></div>
-</div>
-<dl class="simple">
-<dt>{photo_or_video}                'photo' or 'video' depending on what type the image is. To customize, use</dt><dd><p>default value as in '{photo_or_video,photo=fotos;video=videos}'</p>
-</dd>
-<dt>{hdr}                           Photo is HDR?; True/False value, use in format</dt><dd><p>'{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'</p>
-</dd>
-<dt>{edited}                        True if photo has been edited (has adjustments), otherwise False; use in</dt><dd><p>format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'</p>
-</dd>
-<dt>{edited_version}                True if template is being rendered for the edited version of a photo,</dt><dd><p>otherwise False.</p>
-</dd>
-<dt>{favorite}                      Photo has been marked as favorite?; True/False value, use in format</dt><dd><p>'{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'</p>
-</dd>
-<dt>{burst}                         If photo is a burst photo, returns the stem of the burst's key photo, e.g.</dt><dd><p>'IMG_1234', otherwise returns no value.</p>
-</dd>
-</dl>
-<p>{created}                       Photo's creation date in ISO format, e.g. '2020-03-22'
+'{media_type,video=vidéo;time_lapse=vidéo_accélérée}'
+{photo_or_video}                'photo' or 'video' depending on what type the image is. To customize, use</p>
+<p>default value as in '{photo_or_video,photo=fotos;video=videos}'</p>
+<p>{hdr}                           Photo is HDR?; True/False value, use in format</p>
+<p>'{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'</p>
+<p>{edited}                        True if photo has been edited (has adjustments), otherwise False; use in</p>
+<p>format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'</p>
+<p>{edited_version}                True if template is being rendered for the edited version of a photo,
+otherwise False.
+{favorite}                      Photo has been marked as favorite?; True/False value, use in format</p>
+<p>'{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'</p>
+<p>{burst}                         If photo is a burst photo, returns the stem of the burst's key photo, e.g.
+'IMG_1234', otherwise returns no value.
+{created}                       Photo's creation date in ISO format, e.g. '2020-03-22'
 {created.date}                  Photo's creation date in ISO format, e.g. '2020-03-22'
 {created.year}                  4-digit year of photo creation time
 {created.yy}                    2-digit year of photo creation time
@@ -2825,56 +2828,48 @@ Customize one or more media types using format:
 {created.dd}                    2-digit day of the month (zero padded) of photo creation time
 {created.dow}                   Day of week in user's locale of the photo creation time
 {created.doy}                   3-digit day of year (e.g Julian day) of photo creation time, starting from 1</p>
-<blockquote>
-<div><p>(zero padded)</p>
-</div></blockquote>
+<p>(zero padded)</p>
 <p>{created.hour}                  2-digit hour of the photo creation time
 {created.min}                   2-digit minute of the photo creation time
 {created.sec}                   2-digit second of the photo creation time
-{created.strftime}              Apply strftime template to file creation date/time. Should be used in form</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template,
+{created.strftime}              Apply strftime template to file creation date/time. Should be used in form
+{created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template,
 e.g. {created.strftime,%Y-%U} would result in year-week number of year:
-&#39;2020-23&#39;. If used with no template will return null value. See
-https://strftime.org/ for help on strftime templates.
-</pre></div>
-</div>
-<dl class="simple">
-<dt>{modified}                      Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation</dt><dd><p>date if photo is not modified</p>
-</dd>
-<dt>{modified.date}                 Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation</dt><dd><p>date if photo is not modified</p>
-</dd>
-<dt>{modified.year}                 4-digit year of photo modification time; uses creation date if photo is not</dt><dd><p>modified</p>
-</dd>
-<dt>{modified.yy}                   2-digit year of photo modification time; uses creation date if photo is not</dt><dd><p>modified</p>
-</dd>
-<dt>{modified.mm}                   2-digit month of the photo modification time (zero padded); uses creation</dt><dd><p>date if photo is not modified</p>
-</dd>
-<dt>{modified.month}                Month name in user's locale of the photo modification time; uses creation</dt><dd><p>date if photo is not modified</p>
-</dd>
-<dt>{modified.mon}                  Month abbreviation in the user's locale of the photo modification time; uses</dt><dd><p>creation date if photo is not modified</p>
-</dd>
-<dt>{modified.dd}                   2-digit day of the month (zero padded) of the photo modification time; uses</dt><dd><p>creation date if photo is not modified</p>
-</dd>
-<dt>{modified.dow}                  Day of week in user's locale of the photo modification time; uses creation</dt><dd><p>date if photo is not modified</p>
-</dd>
-<dt>{modified.doy}                  3-digit day of year (e.g Julian day) of photo modification time, starting</dt><dd><p>from 1 (zero padded); uses creation date if photo is not modified</p>
-</dd>
-<dt>{modified.hour}                 2-digit hour of the photo modification time; uses creation date if photo is</dt><dd><p>not modified</p>
-</dd>
-<dt>{modified.min}                  2-digit minute of the photo modification time; uses creation date if photo</dt><dd><p>is not modified</p>
-</dd>
-<dt>{modified.sec}                  2-digit second of the photo modification time; uses creation date if photo</dt><dd><p>is not modified</p>
-</dd>
-</dl>
-<p>{modified.strftime}             Apply strftime template to file modification date/time. Should be used in</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>form {modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime
+'2020-23'. If used with no template will return null value. See
+<a class="reference external" href="https://strftime.org/">https://strftime.org/</a> for help on strftime templates.
+{modified}                      Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation</p>
+<p>date if photo is not modified</p>
+<p>{modified.date}                 Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation</p>
+<p>date if photo is not modified</p>
+<p>{modified.year}                 4-digit year of photo modification time; uses creation date if photo is not</p>
+<p>modified</p>
+<p>{modified.yy}                   2-digit year of photo modification time; uses creation date if photo is not</p>
+<p>modified</p>
+<p>{modified.mm}                   2-digit month of the photo modification time (zero padded); uses creation</p>
+<p>date if photo is not modified</p>
+<p>{modified.month}                Month name in user's locale of the photo modification time; uses creation</p>
+<p>date if photo is not modified</p>
+<p>{modified.mon}                  Month abbreviation in the user's locale of the photo modification time; uses
+creation date if photo is not modified
+{modified.dd}                   2-digit day of the month (zero padded) of the photo modification time; uses
+creation date if photo is not modified
+{modified.dow}                  Day of week in user's locale of the photo modification time; uses creation</p>
+<p>date if photo is not modified</p>
+<p>{modified.doy}                  3-digit day of year (e.g Julian day) of photo modification time, starting
+from 1 (zero padded); uses creation date if photo is not modified
+{modified.hour}                 2-digit hour of the photo modification time; uses creation date if photo is</p>
+<p>not modified</p>
+<p>{modified.min}                  2-digit minute of the photo modification time; uses creation date if photo</p>
+<p>is not modified</p>
+<p>{modified.sec}                  2-digit second of the photo modification time; uses creation date if photo</p>
+<p>is not modified</p>
+<p>{modified.strftime}             Apply strftime template to file modification date/time. Should be used in
+form {modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime
 template, e.g. {modified.strftime,%Y-%U} would result in year-week number of
-year: &#39;2020-23&#39;. If used with no template will return null value. Uses
-creation date if photo is not modified. See https://strftime.org/ for help
+year: '2020-23'. If used with no template will return null value. Uses
+creation date if photo is not modified. See <a class="reference external" href="https://strftime.org/">https://strftime.org/</a> for help
 on strftime templates.
-</pre></div>
-</div>
-<p>{today}                         Current date in iso format, e.g. '2020-03-22'
+{today}                         Current date in iso format, e.g. '2020-03-22'
 {today.date}                    Current date in iso format, e.g. '2020-03-22'</p>
 <p>{today.year}                    4-digit year of current date</p>
 <p>{today.yy}                      2-digit year of current date</p>
@@ -2884,125 +2879,101 @@ on strftime templates.
 {today.dd}                      2-digit day of the month (zero padded) of current date
 {today.dow}                     Day of week in user's locale of the current date
 {today.doy}                     3-digit day of year (e.g Julian day) of current date, starting from 1 (zero</p>
-<blockquote>
-<div><p>padded)</p>
-</div></blockquote>
+<p>padded)</p>
 <p>{today.hour}                    2-digit hour of the current date
 {today.min}                     2-digit minute of the current date
 {today.sec}                     2-digit second of the current date
-{today.strftime}                Apply strftime template to current date/time. Should be used in form</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{today.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g.
-{today.strftime,%Y-%U} would result in year-week number of year: &#39;2020-23&#39;.
-If used with no template will return null value. See https://strftime.org/
+{today.strftime}                Apply strftime template to current date/time. Should be used in form
+{today.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g.
+{today.strftime,%Y-%U} would result in year-week number of year: '2020-23'.
+If used with no template will return null value. See <a class="reference external" href="https://strftime.org/">https://strftime.org/</a>
 for help on strftime templates.
-</pre></div>
-</div>
-<p>{place.name}                    Place name from the photo's reverse geolocation data, as displayed in Photos
+{place.name}                    Place name from the photo's reverse geolocation data, as displayed in Photos
 {place.country_code}            The ISO country code from the photo's reverse geolocation data
 {place.name.country}            Country name from the photo's reverse geolocation data
 {place.name.state_province}     State or province name from the photo's reverse geolocation data
 {place.name.city}               City or locality name from the photo's reverse geolocation data
 {place.name.area_of_interest}   Area of interest name (e.g. landmark or public place) from the photo's</p>
-<blockquote>
-<div><p>reverse geolocation data</p>
-</div></blockquote>
-<dl class="simple">
-<dt>{place.address}                 Postal address from the photo's reverse geolocation data, e.g. '2007 18th St</dt><dd><p>NW, Washington, DC 20009, United States'</p>
-</dd>
-</dl>
+<p>reverse geolocation data</p>
+<p>{place.address}                 Postal address from the photo's reverse geolocation data, e.g. '2007 18th St</p>
+<p>NW, Washington, DC 20009, United States'</p>
 <p>{place.address.street}          Street part of the postal address, e.g. '2007 18th St NW'
 {place.address.city}            City part of the postal address, e.g. 'Washington'
 {place.address.state_province}  State/province part of the postal address, e.g. 'DC'
 {place.address.postal_code}     Postal code part of the postal address, e.g. '20009'
 {place.address.country}         Country name of the postal address, e.g. 'United States'
 {place.address.country_code}    ISO country code of the postal address, e.g. 'US'
-{searchinfo.season}             Season of the year associated with a photo, e.g. 'Summer'; (Photos 5+ only,</p>
-<blockquote>
-<div><p>applied automatically by Photos' image categorization algorithms).</p>
-</div></blockquote>
-<dl class="simple">
-<dt>{exif.camera_make}              Camera make from original photo's EXIF information as imported by Photos,</dt><dd><p>e.g. 'Apple'</p>
-</dd>
-<dt>{exif.camera_model}             Camera model from original photo's EXIF information as imported by Photos,</dt><dd><p>e.g. 'iPhone 6s'</p>
-</dd>
-<dt>{exif.lens_model}               Lens model from original photo's EXIF information as imported by Photos,</dt><dd><p>e.g. 'iPhone 6s back camera 4.15mm f/2.2'</p>
-</dd>
-<dt>{imported_by.name}              Display name of the app that imported the photo, e.g. 'Photos', 'Camera',</dt><dd><p>Messages'; may be null</p>
-</dd>
-<dt>{imported_by.id}                Bundle ID of the app that imported the photo, e.g. 'com.apple.Photos',</dt><dd><p>'com.apple.camera', 'com.apple.MobileSMS'; may be null</p>
-</dd>
-</dl>
+{searchinfo.season}             Season of the year associated with a photo, e.g. 'Summer'; (Photos 5+ only,
+applied automatically by Photos' image categorization algorithms).
+{exif.camera_make}              Camera make from original photo's EXIF information as imported by Photos,</p>
+<p>e.g. 'Apple'</p>
+<p>{exif.camera_model}             Camera model from original photo's EXIF information as imported by Photos,</p>
+<p>e.g. 'iPhone 6s'</p>
+<p>{exif.lens_model}               Lens model from original photo's EXIF information as imported by Photos,
+e.g. 'iPhone 6s back camera 4.15mm f/2.2'
+{imported_by.name}              Display name of the app that imported the photo, e.g. 'Photos', 'Camera',</p>
+<p>Messages'; may be null</p>
+<p>{imported_by.id}                Bundle ID of the app that imported the photo, e.g. 'com.apple.Photos',</p>
+<p>'com.apple.camera', 'com.apple.MobileSMS'; may be null</p>
 <p>{moment}                        The moment title of the photo
-{uuid}                          Photo's internal universally unique identifier (UUID) for the photo, a</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>36-character string unique to the photo, e.g.
-&#39;128FB4C6-0B16-4E7D-9108-FB2E90DA1546&#39;
-</pre></div>
-</div>
-<p>{shortuuid}                     A shorter representation of photo's internal universally unique identifier</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(UUID) for the photo, a 22-character string unique to the photo, e.g.
-&#39;JYsxugP9UjetmCbBCHXcmu&#39;
-</pre></div>
-</div>
-<p>{id}                            A unique number for the photo based on its primary key in the Photos</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>database. A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated
+{uuid}                          Photo's internal universally unique identifier (UUID) for the photo, a
+36-character string unique to the photo, e.g.</p>
+<p>'128FB4C6-0B16-4E7D-9108-FB2E90DA1546'</p>
+<p>{shortuuid}                     A shorter representation of photo's internal universally unique identifier
+(UUID) for the photo, a 22-character string unique to the photo, e.g.</p>
+<p>'JYsxugP9UjetmCbBCHXcmu'</p>
+<p>{id}                            A unique number for the photo based on its primary key in the Photos
+database. A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated
 with a photo (e.g. an image and Live Photo preview) will share the same id.
 May be formatted using a python string format code. For example, to format
-as a 5-digit integer and pad with zeros, use &#39;{id:05d}&#39; which results in
+as a 5-digit integer and pad with zeros, use '{id:05d}' which results in
 00001, 00002, 00003...etc.
-</pre></div>
-</div>
-<p>{counter}                       A sequential counter, starting at 0, that increments each time it is</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>evaluated.To start counting at a value other than 0, append append
-&#39;(starting_value)&#39; to the field name.For example, to start counting at 1
-instead of 0: &#39;{counter(1)}&#39;.May be formatted using a python string format
+{counter}                       A sequential counter, starting at 0, that increments each time it is
+evaluated.To start counting at a value other than 0, append append
+'(starting_value)' to the field name.For example, to start counting at 1
+instead of 0: '{counter(1)}'.May be formatted using a python string format
 code.For example, to format as a 5-digit integer and pad with zeros, use
-&#39;{counter:05d(1)}&#39;which results in 00001, 00002, 00003...etc.You may also
+'{counter:05d(1)}'which results in 00001, 00002, 00003...etc.You may also
 specify a stop value which causes the counter to reset to the starting
 valuewhen the stop value is reached and a step size which causes the counter
 to increment bythe specified value instead of 1. Use the format
-&#39;{counter(start,stop,step)}&#39; where start,stop, and step are integers. For
-example, to count from 1 to 10 by 2, use &#39;{counter(1,11,2)}&#39;.Note that the
+'{counter(start,stop,step)}' where start,stop, and step are integers. For
+example, to count from 1 to 10 by 2, use '{counter(1,11,2)}'.Note that the
 counter stops counting when the stop value is reached and does not return
 thestop value. Start, stop, and step are optional and may be omitted. For
-example, to countfrom 0 by 2s, use &#39;{counter(,,2)}&#39;.You may create an
+example, to countfrom 0 by 2s, use '{counter(,,2)}'.You may create an
 arbitrary number of counters by appending a unique name to the field
-namepreceded by a period: &#39;{counter.a}&#39;, &#39;{counter.b}&#39;, etc. Each counter
+namepreceded by a period: '{counter.a}', '{counter.b}', etc. Each counter
 will have its own stateand will start at 0 and increment by 1 unless
-otherwise specified. Note: {counter} is not suitable for use with &#39;export&#39;
-and &#39;--update&#39; as the counter associated with a photo may change between
+otherwise specified. Note: {counter} is not suitable for use with 'export'
+and '--update' as the counter associated with a photo may change between
 export sessions. See also {id}.
-</pre></div>
-</div>
-<p>{album_seq}                     An integer, starting at 0, indicating the photo's index (sequence) in the</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>containing album. Only valid when used in a &#39;--filename&#39; template and only
-when &#39;{album}&#39; or &#39;{folder_album}&#39; is used in the &#39;--directory&#39; template.
-For example &#39;--directory &quot;{folder_album}&quot; --filename
-&quot;{album_seq}_{original_name}&quot;&#39;. To start counting at a value other than 0,
-append append &#39;(starting_value)&#39; to the field name.  For example, to start
-counting at 1 instead of 0: &#39;{album_seq(1)}&#39;. May be formatted using a
+{album_seq}                     An integer, starting at 0, indicating the photo's index (sequence) in the
+containing album. Only valid when used in a '--filename' template and only
+when '{album}' or '{folder_album}' is used in the '--directory' template.</p>
+<p>For example '--directory &quot;{folder_album}&quot; --filename</p>
+<p>&quot;{album_seq}_{original_name}&quot;'. To start counting at a value other than 0,
+append append '(starting_value)' to the field name.  For example, to start
+counting at 1 instead of 0: '{album_seq(1)}'. May be formatted using a
 python string format code. For example, to format as a 5-digit integer and
-pad with zeros, use &#39;{album_seq:05d}&#39; which results in 00000, 00001,
+pad with zeros, use '{album_seq:05d}' which results in 00000, 00001,
 00002...etc. To format while also using a starting value:
-&#39;{album_seq:05d(1)}&#39; which results in 0001, 00002...etc.This may result in
+'{album_seq:05d(1)}' which results in 0001, 00002...etc.This may result in
 incorrect sequences if you have duplicate albums with the same name; see
-also &#39;{folder_album_seq}&#39;.
-</pre></div>
-</div>
-<p>{folder_album_seq}              An integer, starting at 0, indicating the photo's index (sequence) in the</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>containing album and folder path. Only valid when used in a &#39;--filename&#39;
-template and only when &#39;{folder_album}&#39; is used in the &#39;--directory&#39;
-template. For example &#39;--directory &quot;{folder_album}&quot; --filename
-&quot;{folder_album_seq}_{original_name}&quot;&#39;. To start counting at a value other
-than 0, append &#39;(starting_value)&#39; to the field name. For example, to start
-counting at 1 instead of 0: &#39;{folder_album_seq(1)}&#39; May be formatted using a
+also '{folder_album_seq}'.
+{folder_album_seq}              An integer, starting at 0, indicating the photo's index (sequence) in the
+containing album and folder path. Only valid when used in a '--filename'
+template and only when '{folder_album}' is used in the '--directory'</p>
+<p>template. For example '--directory &quot;{folder_album}&quot; --filename</p>
+<p>&quot;{folder_album_seq}_{original_name}&quot;'. To start counting at a value other
+than 0, append '(starting_value)' to the field name. For example, to start
+counting at 1 instead of 0: '{folder_album_seq(1)}' May be formatted using a
 python string format code. For example, to format as a 5-digit integer and
-pad with zeros, use &#39;{folder_album_seq:05d}&#39; which results in 00000, 00001,
+pad with zeros, use '{folder_album_seq:05d}' which results in 00000, 00001,
 00002...etc. To format while also using a starting value:
-&#39;{folder_album_seq:05d(1)}&#39; which results in 0001, 00002...etc.This may
+'{folder_album_seq:05d(1)}' which results in 0001, 00002...etc.This may
 result in incorrect sequences if you have duplicate albums with the same
-name in the same folder; see also &#39;{album_seq}&#39;.
-</pre></div>
-</div>
+name in the same folder; see also '{album_seq}'.</p>
 <p>{comma}                         A comma: ','</p>
 <p>{semicolon}                     A semicolon: ';'</p>
 <p>{questionmark}                  A question mark: '?'</p>
@@ -3020,7 +2991,7 @@ name in the same folder; see also &#39;{album_seq}&#39;.
 <p>{cr}                            A carriage return: 'r'</p>
 <p>{crlf}                          A carriage return + line feed: 'rn'</p>
 <p>{tab}                           :A tab: 't'</p>
-<p>{osxphotos_version}             The osxphotos version, e.g. '0.75.1'</p>
+<p>{osxphotos_version}             The osxphotos version, e.g. '0.75.2'</p>
 <p>{osxphotos_cmd_line}            The full command line used to run osxphotos</p>
 <p>The following substitutions may result in multiple values. Thus if specified for --directory these could
 result in multiple copies of a photo being being exported, one to each directory.  For example: --directory
@@ -3028,90 +2999,68 @@ result in multiple copies of a photo being being exported, one to each directory
 the photos were created in 2019 and were in albums 'Vacation' and 'Family': 2019/Vacation, 2019/Family</p>
 <p>Substitution             Description</p>
 <p>{album}                  Album(s) photo is contained in</p>
-<dl class="simple">
-<dt>{folder_album}           Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just</dt><dd><p>'Album' if no enclosing folder</p>
-</dd>
-</dl>
+<p>{folder_album}           Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just</p>
+<p>'Album' if no enclosing folder</p>
 <p>{project}                Project(s) photo is contained in (such as greeting cards, calendars, slideshows)
 {album_project}          Album(s) and project(s) photo is contained in; treats projects as regular albums
-{folder_album_project}   Folder path + album (includes projects as albums) photo is contained in. e.g.</p>
-<blockquote>
-<div><p>'Folder/Subfolder/Album' or just 'Album' if no enclosing folder</p>
-</div></blockquote>
+{folder_album_project}   Folder path + album (includes projects as albums) photo is contained in. e.g.
+'Folder/Subfolder/Album' or just 'Album' if no enclosing folder</p>
 <p>{keyword}                Keyword(s) assigned to photo</p>
 <p>{person}                 Person(s) / face(s) in a photo
-{label}                  Image categorization label associated with a photo (Photos 5+ only). Labels are</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>added automatically by Photos using machine learning algorithms to categorize
+{label}                  Image categorization label associated with a photo (Photos 5+ only). Labels are
+added automatically by Photos using machine learning algorithms to categorize
 images. These are not the same as {keyword} which refers to the user-defined
 keywords/tags applied in Photos.
-</pre></div>
-</div>
-<p>{label_normalized}       All lower case version of 'label' (Photos 5+ only)
+{label_normalized}       All lower case version of 'label' (Photos 5+ only)
 {comment}                Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5+ only)
-{exiftool}               Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>metadata, in form GROUP:TAGNAME, from image.  E.g. &#39;{exiftool:EXIF:Make}&#39; to get
+{exiftool}               Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract
+metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get
 camera make, or {exiftool:IPTC:Keywords} to extract keywords. See
 https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group
-(e.g. EXIF, IPTC, etc) as used in &#39;exiftool -G&#39;. exiftool must be installed in the
+(e.g. EXIF, IPTC, etc) as used in 'exiftool -G'. exiftool must be installed in the
 path to use this template.
-</pre></div>
-</div>
-<dl class="simple">
-<dt>{searchinfo.holiday}     Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only,</dt><dd><p>applied automatically by Photos' image categorization algorithms).</p>
-</dd>
-<dt>{searchinfo.activity}    Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied</dt><dd><p>automatically by Photos' image categorization algorithms).</p>
-</dd>
-<dt>{searchinfo.venue}       Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied</dt><dd><p>automatically by Photos' image categorization algorithms).</p>
-</dd>
-<dt>{searchinfo.venue_type}  Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied</dt><dd><p>automatically by Photos' image categorization algorithms).</p>
-</dd>
-</dl>
-<p>{photo}                  Provides direct access to the PhotoInfo object for the photo. Must be used in</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>format &#39;{photo.property}&#39; where &#39;property&#39; represents a PhotoInfo property. For
-example: &#39;{photo.favorite}&#39; is the same as &#39;{favorite}&#39; and &#39;{photo.place.name}&#39; is
-the same as &#39;{place.name}&#39;. &#39;{photo}&#39; provides access to properties that are not
-available as separate template fields but it assumes some knowledge of the
-underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for
-additional documentation on the PhotoInfo class.
-</pre></div>
-</div>
-<p>{detected_text}          List of text strings found in the image after performing text detection. Using</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&#39;{detected_text}&#39; will cause osxphotos to perform text detection on your photos
+{searchinfo.holiday}     Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only,
+applied automatically by Photos' image categorization algorithms).
+{searchinfo.activity}    Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied
+automatically by Photos' image categorization algorithms).
+{searchinfo.venue}       Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied
+automatically by Photos' image categorization algorithms).
+{searchinfo.venue_type}  Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied
+automatically by Photos' image categorization algorithms).
+{photo}                  Provides direct access to the PhotoInfo object for the photo. Must be used in
+format '{photo.property}' where 'property' represents a PhotoInfo property. For
+example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is
+the same as '{place.name}'. '{photo}' provides access to properties that are not
+available as separate template fields but it assumes some knowledge of the</p>
+<p>underlying PhotoInfo class.  See <a class="reference external" href="https://rhettbull.github.io/osxphotos/">https://rhettbull.github.io/osxphotos/</a> for</p>
+<p>additional documentation on the PhotoInfo class.
+{detected_text}          List of text strings found in the image after performing text detection. Using
+'{detected_text}' will cause osxphotos to perform text detection on your photos
 using the built-in macOS text detection algorithms which will slow down your
 export. The results for each photo will be cached in the export database so that
-future exports with &#39;--update&#39; do not need to reprocess each photo. You may pass a
+future exports with '--update' do not need to reprocess each photo. You may pass a
 confidence threshold value between 0.0 and 1.0 after a colon as in
-&#39;{detected_text:0.5}&#39;; The default confidence threshold is 0.75. &#39;{detected_text}&#39;
+'{detected_text:0.5}'; The default confidence threshold is 0.75. '{detected_text}'
 works only on macOS Catalina (10.15) or later. Note: this feature is not the same
 thing as Live Text in macOS Monterey, which osxphotos does not yet support.
-</pre></div>
-</div>
-<p>{shell_quote}            Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>safe usage in the shell, e.g. My file.jpeg =&gt; &#39;My file.jpeg&#39;; only adds quotes if
+{shell_quote}            Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for
+safe usage in the shell, e.g. My file.jpeg =&gt; 'My file.jpeg'; only adds quotes if
 needed.
-</pre></div>
-</div>
-<dl class="simple">
-<dt>{strip}                  Use in form '{strip,TEMPLATE}'; strips whitespace from begining and end of rendered</dt><dd><p>TEMPLATE value(s).</p>
-</dd>
-</dl>
-<p>{format}                 Use in form '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>formats the value using Python string formatting codes specified by FORMAT; TYPE is
-one of: &#39;int&#39;, &#39;float&#39;, or &#39;str&#39;. For example,
-&#39;{format:float:.1f,{exiftool:EXIF:FocalLength}}&#39; will format focal length to 1
-decimal place (e.g. &#39;100.0&#39;).
-</pre></div>
-</div>
-<p>{function}               Execute a python function from an external file and use return value as template</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>substitution. Use in format: {function:file.py::function_name} where &#39;file.py&#39; is
-the path/name of the python file and &#39;function_name&#39; is the name of the function to
-call. The file name may also be url to a python file, e.g. &#39;{function:https://raw.g
-ithubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::exampl
-e}&#39;. The function will be passed the PhotoInfo object for the photo. See
-https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py
-for an example of how to implement a template function.
-</pre></div>
-</div>
+{strip}                  Use in form '{strip,TEMPLATE}'; strips whitespace from begining and end of rendered
+TEMPLATE value(s).
+{format}                 Use in form '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then
+formats the value using Python string formatting codes specified by FORMAT; TYPE is
+one of: 'int', 'float', or 'str'. For example,
+'{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1
+decimal place (e.g. '100.0').
+{function}               Execute a python function from an external file and use return value as template
+substitution. Use in format: {function:file.py::function_name} where 'file.py' is
+the path/name of the python file and 'function_name' is the name of the function to
+call. The file name may also be url to a python file, e.g. '{function:https://raw.g</p>
+<p>ithubusercontent.com/RhetTbull/osxphotos/main/examples/template_function.py::exampl</p>
+<p>e}'. The function will be passed the PhotoInfo object for the photo. See</p>
+<p><a class="reference external" href="https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py">https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py</a></p>
+<p>for an example of how to implement a template function.</p>
 <p>The following substitutions are file or directory paths. You can access various parts of the path using the
 following modifiers:</p>
 <p>{path.parent}: the parent directory
@@ -3128,9 +3077,7 @@ following modifiers:</p>
 <p>Substitution  Description
 {export_dir}  The full path to the export directory
 {filepath}    The full path to the exported file</p>
-<blockquote>
-<div><p>Post Command</p>
-</div></blockquote>
+<p>Post Command</p>
 <p>You can run commands on the exported photos for post-processing using the '--post-command' option. '--post-
 command' is passed a CATEGORY and a COMMAND. COMMAND is an osxphotos template string which will be rendered
 and passed to the shell for execution. CATEGORY is the category of file to pass to COMMAND. The following
@@ -3139,40 +3086,30 @@ categories are available:</p>
 <p>exported                  All exported files</p>
 <p>new                       When used with '--update', all newly exported files
 updated                   When used with '--update', all files which were previously exported but updated</p>
-<blockquote>
-<div><p>this time</p>
-</div></blockquote>
-<dl class="simple">
-<dt>skipped                   When used with '--update', all files which were skipped (because they were</dt><dd><p>previously exported and didn't change)</p>
-</dd>
-<dt>missing                   All files which were not exported because they were missing from the Photos</dt><dd><p>library</p>
-</dd>
-</dl>
+<p>this time</p>
+<p>skipped                   When used with '--update', all files which were skipped (because they were</p>
+<p>previously exported and didn't change)</p>
+<p>missing                   All files which were not exported because they were missing from the Photos</p>
+<p>library</p>
 <p>exif_updated              When used with '--exiftool', all files on which exiftool updated the metadata
 touched                   When used with '--touch-file', all files where the date was touched
 converted_to_jpeg         When used with '--convert-to-jpeg', all files which were converted to jpeg
 sidecar_json_written      When used with '--sidecar json', all JSON sidecar files which were written
 sidecar_json_skipped      When used with '--sidecar json' and '--update', all JSON sidecar files which were</p>
-<blockquote>
-<div><p>skipped</p>
-</div></blockquote>
+<p>skipped</p>
 <p>sidecar_exiftool_written  When used with '--sidecar exiftool', all exiftool sidecar files which were written
 sidecar_exiftool_skipped  When used with '--sidecar exiftool' and '--update, all exiftool sidecar files</p>
-<blockquote>
-<div><p>which were skipped</p>
-</div></blockquote>
+<p>which were skipped</p>
 <p>sidecar_xmp_written       When used with '--sidecar xmp', all XMP sidecar files which were written
 sidecar_xmp_skipped       When used with '--sidecar xmp' and '--update', all XMP sidecar files which were</p>
-<blockquote>
-<div><p>skipped</p>
-</div></blockquote>
+<p>skipped</p>
 <p>error                     All files which produced an error during export</p>
 <p>In addition to all normal template fields, the template fields '{filepath}' and '{export_dir}' will be
 available to your command template. Both of these are path-type templates which means their various parts can
 be accessed using the available properties, e.g. '{filepath.name}' provides just the file name without path
 and '{filepath.suffix}' is the file extension (suffix) of the file. When using paths in your command template,
 it is important to properly quote the paths as they will be passed to the shell and path names may contain
-spaces. Both the '{shell_quote}' template and the '<a href="#id5"><span class="problematic" id="id6">|</span></a>shell_quote' template filter are available for this
+spaces. Both the '{shell_quote}' template and the '|shell_quote' template filter are available for this
 purpose.  For example, the following command outputs the full path of newly exported files to file 'new.txt':</p>
 <p>--post-command new &quot;echo {filepath|shell_quote} &gt;&gt; {shell_quote,{export_dir}/exported.txt}&quot;</p>
 <p>In the above command, the 'shell_quote' filter is used to ensure '{filepath}' is properly quoted and the
@@ -3182,9 +3119,7 @@ purpose.  For example, the following command outputs the full path of newly expo
 <p>It is highly recommended that you run osxphotos with '--dry-run --verbose' first to ensure your commands are
 as expected. This will not actually run the commands but will print out the exact command string which would
 be executed.</p>
-<blockquote>
-<div><p>Post Function</p>
-</div></blockquote>
+<p>Post Function</p>
 <p>You can run your own python functions on the exported photos for post-processing using the '--post-function'
 option. '--post-function' is passed the name a python file and the name of the function in the file to call
 using format 'filename.py::function_name'. See the example function at
@@ -3514,13 +3449,13 @@ they will be imported as separate assets.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-E">
 <span id="cmdoption-osxphotos-import-auto-live"></span><span class="sig-name descname"><span class="pre">-E</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--auto-live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-E" title="Link to this definition">¶</a></dt>
-<dd><p>Automatically convert photo+video pairs into live images. Live Photos (photo+video pair) exported from Photos contain a metadata content identifier that Photos uses to associate the pair as a single Live Photo asset when re-imported. Photo+video pairs taken on non-Apple devices will lack the content identifier and thus will be imported as separate assets. Use --auto-live to automatically convert these pairs to Live Photos upon import. When --auto-live is used, a photo and a video with same base name, for example 'IMG_1234.JPG' and 'IMG_1234.mov', in the same directory will be converted to Live Photos. <em>NOTE</em>: Using this feature will modify the metadata in the files prior to import. Ensure you have a backup of the original files if you want to preserve unmodified versions. <em>NOTE</em>: this option does not work on macOS &lt; 11.0.</p>
+<dd><p>Automatically convert photo+video pairs into live images. Live Photos (photo+video pair) exported from Photos contain a metadata content identifier that Photos uses to associate the pair as a single Live Photo asset when re-imported. Photo+video pairs taken on non-Apple devices will lack the content identifier and thus will be imported as separate assets. Use --auto-live to automatically convert these pairs to Live Photos upon import. When --auto-live is used, a photo and a video with same base name, for example 'IMG_1234.JPG' and 'IMG_1234.mov', in the same directory will be converted to Live Photos. *NOTE*: Using this feature will modify the metadata in the files prior to import. Ensure you have a backup of the original files if you want to preserve unmodified versions. *NOTE*: this option does not work on macOS &lt; 11.0.</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-P">
 <span id="cmdoption-osxphotos-import-parse-date"></span><span class="sig-name descname"><span class="pre">-P</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--parse-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE_PATTERN&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-P" title="Link to this definition">¶</a></dt>
-<dd><p>Parse date from filename using DATE_PATTERN. If file does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is '2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or 'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with '<a href="#id35"><span class="problematic" id="id36">IMG_xxxx_</span></a>' in the name. If the pattern matches only date or only time, the missing information will be set to the default date/time used by Photos when importing the photo. This is either the EXIF date/time if it exists or the file modification date/time. For example, if photos are named 'IMG_1234_2022_11_23.jpg' where the date is '2022-11-23', you could use the pattern '%Y_%m_%d' to set the date but the time would be set from the EXIF or the file's modification time. If the DATE_PATTERN matches time zone information, you must also use --set-timezone to allow osxphotos to set the timezone in the Photos database. See also --parse-folder-date, --check-templates, --set-timezone.</p>
+<dd><p>Parse date from filename using DATE_PATTERN. If file does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is '2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or 'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with names starting with 'IMG' followed by a number. If the pattern matches only date or only time, the missing information will be set to the default date/time used by Photos when importing the photo. This is either the EXIF date/time if it exists or the file modification date/time. For example, if photos are named 'IMG_1234_2022_11_23.jpg' where the date is '2022-11-23', you could use the pattern '%Y_%m_%d' to set the date but the time would be set from the EXIF or the file's modification time. If the DATE_PATTERN matches time zone information, you must also use --set-timezone to allow osxphotos to set the timezone in the Photos database. See also --parse-folder-date, --check-templates, --set-timezone.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -3562,7 +3497,7 @@ they will be imported as separate assets.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-s">
 <span id="cmdoption-osxphotos-import-sidecar"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--sidecar</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-s" title="Link to this definition">¶</a></dt>
-<dd><p>Use sidecar files to import metadata (title, description, keywords, location). Sidecar files must be in the same directory as the imported file and have the same name. For example, if image is named img_1234.jpg, sidecar must be named one of: img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json. Supported sidecar formats are XMP and JSON (as generated by exiftool). If both JSON and XMP sidecars are found, the JSON sidecar will be used. If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. See also --sidecar-filename if you need control over the sidecar name. See also --sidecar-ignore-date, --exiftool, --exportdb. Note: --sidecar and --sidecar-filename are mutually exclusive.</p>
+<dd><p>Use sidecar files to import metadata (title, description, keywords, location). Sidecar files must be in the same directory as the imported file and have the same name. For example, if image is named img_1234.jpg, sidecar must be named one of: img_1234.xmp, img_1234.json, img_1234.jpg.xmp, img_1234.jpg.json, or img_1234.jpg.supplemental-metadata.json (Google Takeout format). Supported sidecar formats are XMP and JSON (as generated by exiftool) and Google Takeout JSON. If both JSON and XMP sidecars are found, the JSON sidecar will be used. If sidecar format is XMP, exiftool must be installed as it is used to read the XMP files. See also --sidecar-filename if you need control over the sidecar name. See also --sidecar-ignore-date, --exiftool, --exportdb. Note: --sidecar and --sidecar-filename are mutually exclusive.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -3622,7 +3557,7 @@ they will be imported as separate assets.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-U">
 <span id="cmdoption-osxphotos-import-signature"></span><span class="sig-name descname"><span class="pre">-U</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--signature</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;signature&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-U" title="Link to this definition">¶</a></dt>
-<dd><p>Custom template for signature when using --skip-dups, --dup-check, and --dup-albums. The signature is used to match photos in the library to those being imported. If you do not use --signature, the fingerprint will be used for photos and lowercase filename + size will be used for videos (a fingerprint is not always stored for videos in the Photos library). <em>Note</em>: When using --signature, the Photos library will be scanned before import which may take some time. If there are duplicates files in the list of files to be imported, these will not be detected as each imported file will only be compared to the state of the Photos library at the start of the import.</p>
+<dd><p>Custom template for signature when using --skip-dups, --dup-check, and --dup-albums. The signature is used to match photos in the library to those being imported. If you do not use --signature, the fingerprint will be used for photos and lowercase filename + size will be used for videos (a fingerprint is not always stored for videos in the Photos library). *Note*: When using --signature, the Photos library will be scanned before import which may take some time. If there are duplicates files in the list of files to be imported, these will not be detected as each imported file will only be compared to the state of the Photos library at the start of the import.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -3748,22 +3683,22 @@ they will be imported as separate assets.</p>
 <p>Import a file into Photos:</p>
 <p>osxphotos import /Volumes/photos/img_1234.jpg</p>
 <p>Import multiple jpg files into Photos:</p>
-<p>osxphotos import /Volumes/photos/<a href="#id7"><span class="problematic" id="id8">*</span></a>.jpg</p>
+<p>osxphotos import /Volumes/photos/*.jpg</p>
 <p>Import files into Photos and add to album:</p>
-<p>osxphotos import /Volumes/photos/<a href="#id9"><span class="problematic" id="id10">*</span></a>.jpg --album &quot;My Album&quot;</p>
+<p>osxphotos import /Volumes/photos/*.jpg --album &quot;My Album&quot;</p>
 <p>Import files into Photos and add to album named for 4-digit year of file creation date:</p>
-<p>osxphotos import /Volumes/photos/<a href="#id11"><span class="problematic" id="id12">*</span></a>.jpg --album &quot;{created.year}&quot;</p>
+<p>osxphotos import /Volumes/photos/*.jpg --album &quot;{created.year}&quot;</p>
 <p>Import files into Photos and add to album named for month of the year in folder named
 for the 4-digit year of the file creation date:</p>
-<p>osxphotos import /Volumes/photos/<a href="#id13"><span class="problematic" id="id14">*</span></a>.jpg --album &quot;{created.year}/{created.month}&quot; --split-folder &quot;/&quot;</p>
+<p>osxphotos import /Volumes/photos/*.jpg --album &quot;{created.year}/{created.month}&quot; --split-folder &quot;/&quot;</p>
 <p>Albums</p>
 <p>The imported files may be added to one or more albums using the '--album' option.
 The value passed to '--album' may be a literal string or an osxphotos template
 (see Template System below).  For example:</p>
-<p>osxphotos import /Volumes/photos/<a href="#id15"><span class="problematic" id="id16">*</span></a>.jpg --album &quot;Vacation&quot;</p>
+<p>osxphotos import /Volumes/photos/*.jpg --album &quot;Vacation&quot;</p>
 <p>adds all photos to the album &quot;Vacation&quot;.  The album will be created if it does not
 already exist.</p>
-<p>osxphotos import /Volumes/photos/Madrid/<a href="#id17"><span class="problematic" id="id18">*</span></a>.jpg --album &quot;{filepath.parent.name}&quot;</p>
+<p>osxphotos import /Volumes/photos/Madrid/*.jpg --album &quot;{filepath.parent.name}&quot;</p>
 <p>adds all photos to the album &quot;Madrid&quot; (the name of the file's parent folder).</p>
 <p>Folders</p>
 <p>If you want to organize the imported photos into both folders and albums, you can
@@ -3821,7 +3756,7 @@ exiftool to extract metadata from the imported file and use this to update
 the metadata in Photos.</p>
 <p>The '--exiftool' option will automatically attempt to update title,
 description, keywords, and location from the file's metadata:</p>
-<p>osxphotos import <a href="#id19"><span class="problematic" id="id20">*</span></a>.jpg --exiftool</p>
+<p>osxphotos import *.jpg --exiftool</p>
 <p>The following metadata fields are read (in priority order) and used to set
 the metadata of the imported photo:</p>
 <ul class="simple">
@@ -3942,7 +3877,7 @@ folder containing the file being imported.</p>
 from the filename. The pattern string is a superset of the python 'strftime/strptime'
 format with the following additions:</p>
 <ul class="simple">
-<li><p><a href="#id21"><span class="problematic" id="id22">*</span></a>: Match any number of characters</p></li>
+<li><p>*: Match any number of characters</p></li>
 <li><p>^: Match the beginning of the string</p></li>
 <li><p>$: Match the end of the string</p></li>
 <li><p>{n}: Match exactly n characters</p></li>
@@ -3951,11 +3886,11 @@ format with the following additions:</p>
 <li><p>In addition to '%%' for a literal '%', the following format codes are supported:</p></li>
 </ul>
 <p>'%^', '%$', '%', '%|', '%{', '%}' for '^', '$', '', '|', '{', '}' respectively
-- <a href="#id23"><span class="problematic" id="id24">|</span></a>: join multiple format codes; each code is tried in order until one matches
-- Unlike the standard library, the leading zero is not optional for
-%d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
-- For optional leading zero, use %-d, %-m, %-H, %-I, %-M, %-S, %-j, %-U, %-W, and %-V
-For more information on strptime format codes, see:
+- |: join multiple format codes; each code is tried in order until one matches
+- Unlike the standard library, the leading zero is not optional for</p>
+<p>%d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
+- For optional leading zero, use %-d, %-m, %-H, %-I, %-M, %-S, %-j, %-U, %-W, and %-V</p>
+<p>For more information on strptime format codes, see:
 <a class="reference external" href="https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes">https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes</a></p>
 <p>Examples</p>
 <p>If you have photos with embedded names in filenames like 'IMG123420200322123456.jpg'
@@ -3975,7 +3910,7 @@ the pattern.</p>
 The format is 'osxphotos import /file/to/import --post-function postfunction.py::postfunction'
 where 'postfunction.py' is the name of the python file containing the function and 'postfunction'
 is the name of the function. The function will be called with the following arguments:
-'post_function(photo: photoscript.Photo, filepath: pathlib.Path, verbose: t.Callable, <a href="#id25"><span class="problematic" id="id26">*</span></a>*kwargs)'</p>
+'post_function(photo: photoscript.Photo, filepath: pathlib.Path, verbose: t.Callable, **kwargs)'</p>
 <ul class="simple">
 <li><p>photo: photoscript.Photo instance for the photo that's just been imported</p></li>
 <li><p>filepath: pathlib.Path to the file that was imported (this is the path to the source file, not the path inside the Photos library)</p></li>
@@ -4821,7 +4756,7 @@ be automatically skipped.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-push-exif-duplicate">
 <span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-push-exif-duplicate" title="Link to this definition">¶</a></dt>
-<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find *possible* duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -5389,7 +5324,7 @@ If the same query option is provided multiple times, they are treated as
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-query-duplicate">
 <span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-duplicate" title="Link to this definition">¶</a></dt>
-<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find *possible* duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -5985,7 +5920,7 @@ If the same query option is provided multiple times, they are treated as
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-repl-duplicate">
 <span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-duplicate" title="Link to this definition">¶</a></dt>
-<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find *possible* duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -6698,7 +6633,7 @@ two different computers, you can export the metadata to a shared folder.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-sync-duplicate">
 <span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-duplicate" title="Link to this definition">¶</a></dt>
-<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find *possible* duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -7014,7 +6949,7 @@ specify one or more query options.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-p">
 <span id="cmdoption-osxphotos-timewarp-push-exif"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--push-exif</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-p" title="Link to this definition">¶</a></dt>
-<dd><p>Push date/time and timezone for selected photos from Photos to the EXIF metadata in the original file in the Photos library. Requires the third-party exiftool utility be installed (see <a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>). Using this option modifies the <em>original</em> file of the image in your Photos library. --push-exif will be executed after any other updates are performed on the photo. Note that if the Photos library is synced to iCloud, the updated EXIF data will not besynced to iCloud and thus exporting the photo on any other device will not show the updated EXIF data. This option is most useful for libraries that are not synced to iCloud. See also --pull-exif.</p>
+<dd><p>Push date/time and timezone for selected photos from Photos to the EXIF metadata in the original file in the Photos library. Requires the third-party exiftool utility be installed (see <a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>). Using this option modifies the *original* file of the image in your Photos library. --push-exif will be executed after any other updates are performed on the photo. Note that if the Photos library is synced to iCloud, the updated EXIF data will not besynced to iCloud and thus exporting the photo on any other device will not show the updated EXIF data. This option is most useful for libraries that are not synced to iCloud. See also --pull-exif.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -7026,7 +6961,7 @@ specify one or more query options.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-M">
 <span id="cmdoption-osxphotos-timewarp-parse-date"></span><span class="sig-name descname"><span class="pre">-M</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--parse-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE_PATTERN&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-M" title="Link to this definition">¶</a></dt>
-<dd><p>Parse date from filename using DATE_PATTERN and set photo's date to match. If file does not match DATE_PATTERN, the date will not be changed. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. If DATE_PATTERN matches time zone information, the photo's timezone will be set to match. For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is '2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or 'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with '<a href="#id37"><span class="problematic" id="id38">IMG_xxxx_</span></a>' in the name.</p>
+<dd><p>Parse date from filename using DATE_PATTERN and set photo's date to match. If file does not match DATE_PATTERN, the date will not be changed. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. If DATE_PATTERN matches time zone information, the photo's timezone will be set to match. For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is '2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or 'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with names starting with 'IMG' followed by a number.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -7181,9 +7116,7 @@ photo, and sets the timezone of each photo to 'GMT -07:00' (Pacific Daylight Tim
 <p>Caution: This app directly modifies your Photos library database using undocumented features.  It may corrupt,
 damage, or destroy your Photos library.  Use at your own caution.  I strongly recommend you make a backup of
 your Photos library before using this script (e.g. use Time Machine).</p>
-<blockquote>
-<div><p>Examples</p>
-</div></blockquote>
+<p>Examples</p>
 <p>Add 1 day to the date of each photo</p>
 <p>'osxphotos timewarp --date-delta 1'</p>
 <p>or</p>
@@ -7223,16 +7156,14 @@ metadata</p>
 <p>Read the date/time/timezone from the photos' original EXIF metadata to update the photos' date/time/timezone;
 if the EXIF data is missing, use the file modification date/time; show verbose output</p>
 <p>'osxphotos timewarp --pull-exif --use-file-time --verbose'</p>
-<blockquote>
-<div><p>Parsing Dates/Times from Filenames</p>
-</div></blockquote>
+<p>Parsing Dates/Times from Filenames</p>
 <p>The --parse-date option allows you to parse dates/times from the original filename of the photo. This is
 useful if you files with dates/times embedded in the filename but not in the metadata.</p>
 <p>The argument to '--parse-date' is a pattern string that is used to parse the date/time from the filename. The
 pattern string is a superset of the python 'strftime/strptime' format with the following additions:</p>
 <blockquote>
 <div><ul>
-<li><p><a href="#id27"><span class="problematic" id="id28">*</span></a>: Match any number of characters</p></li>
+<li><p>*: Match any number of characters</p></li>
 <li><p>^: Match the beginning of the string</p></li>
 <li><p>$: Match the end of the string</p></li>
 <li><p>{n}: Match exactly n characters</p></li>
@@ -7240,7 +7171,7 @@ pattern string is a superset of the python 'strftime/strptime' format with the f
 <li><p>{n,m}: Match at least n characters and at most m characters</p></li>
 <li><p>In addition to '%%' for a literal '%', the following format codes are supported: '%^', '%$', '%', '%|',
 '%{', '%}' for '^', '$', '', '|', '{', '}' respectively</p></li>
-<li><p><a href="#id29"><span class="problematic" id="id30">|</span></a>: join multiple format codes; each code is tried in order until one matches</p></li>
+<li><p>|: join multiple format codes; each code is tried in order until one matches</p></li>
 <li><p>Unlike the standard library, the leading zero is not optional for %d, %m, %H, %I, %M, %S, %j, %U, %W, and</p>
 <p>%V</p>
 </li>
@@ -7386,6 +7317,7 @@ pattern string is a superset of the python 'strftime/strptime' format with the f
 <li><a class="reference internal" href="#osxphotos-albums">albums</a></li>
 <li><a class="reference internal" href="#osxphotos-batch-edit">batch-edit</a></li>
 <li><a class="reference internal" href="#osxphotos-compare">compare</a></li>
+<li><a class="reference internal" href="#osxphotos-dbversion">dbversion</a></li>
 <li><a class="reference internal" href="#osxphotos-docs">docs</a></li>
 <li><a class="reference internal" href="#osxphotos-dump">dump</a></li>
 <li><a class="reference internal" href="#osxphotos-exiftool">exiftool</a></li>
@@ -7430,7 +7362,7 @@ pattern string is a superset of the python 'strftime/strptime' format with the f
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=257b4c7a"></script>
+</div><script src="_static/documentation_options.js?v=1283c610"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

@@ -1014,6 +1014,42 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "mybizgeek",
+      "name": "mybizgeek",
+      "avatar_url": "https://avatars.githubusercontent.com/u/156713335?v=4",
+      "profile": "https://github.com/mybizgeek",
+      "contributions": [
+        "test"
+      ]
+    },
+    {
+      "login": "peedub",
+      "name": "peedub",
+      "avatar_url": "https://avatars.githubusercontent.com/u/969908?v=4",
+      "profile": "https://github.com/peedub",
+      "contributions": [
+        "test"
+      ]
+    },
+    {
+      "login": "Ben-Voris",
+      "name": "Ben Voris",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31499002?v=4",
+      "profile": "https://github.com/Ben-Voris",
+      "contributions": [
+        "test"
+      ]
+    },
+    {
+      "login": "steverice",
+      "name": "Steve Rice",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1423851?v=4",
+      "profile": "https://github.com/steverice",
+      "contributions": [
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,

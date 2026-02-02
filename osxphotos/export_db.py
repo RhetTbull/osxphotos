@@ -755,7 +755,8 @@ class ExportDB:
         This significantly improves performance when performing many database
         operations in sequence.
 
-        Example:
+        Example::
+
             with export_db.batch_operations():
                 for photo in photos:
                     record = export_db.create_or_get_file_record(...)
