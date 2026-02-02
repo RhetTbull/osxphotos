@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Python API" href="API_README.html"><link rel="prev" title="OSXPhotos Template System" href="template_help.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Python Package Overview - osxphotos 0.75.1 documentation</title>
+        <title>OSXPhotos Python Package Overview - osxphotos 0.75.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.75.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -278,13 +278,15 @@
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot; Export all photos to specified directory using album names as folders</span>
-<span class="sd">    If file has been edited, also export the edited version,</span>
-<span class="sd">    otherwise, export the original version</span>
-<span class="sd">    This will result in duplicate photos if photo is in more than album &quot;&quot;&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export all photos to specified directory using album names as folders</span>
+<span class="sd">If file has been edited, also export the edited version,</span>
+<span class="sd">otherwise, export the original version</span>
+<span class="sd">This will result in duplicate photos if photo is in more than album</span>
+
+<span class="sd">This is not a complete export utility but is meant to show how to use the OSXPhotos API</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
@@ -317,38 +319,52 @@
     <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">ismissing</span><span class="p">:</span>
-            <span class="n">albums</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">albums</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">albums</span><span class="p">:</span>
-                <span class="n">albums</span> <span class="o">=</span> <span class="p">[</span><span class="n">default_album</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">albums</span><span class="p">:</span>
-                <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> in album </span><span class="si">{</span><span class="n">album</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">albums</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">albums</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">albums</span><span class="p">:</span>
+            <span class="n">albums</span> <span class="o">=</span> <span class="p">[</span><span class="n">default_album</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">albums</span><span class="p">:</span>
+            <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> in album </span><span class="si">{</span><span class="n">album</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-                <span class="c1"># make sure no invalid characters in destination path (could be in album name)</span>
-                <span class="n">album_name</span> <span class="o">=</span> <span class="n">sanitize_filepath</span><span class="p">(</span><span class="n">album</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+            <span class="c1"># make sure no invalid characters in destination path (could be in album name)</span>
+            <span class="n">album_name</span> <span class="o">=</span> <span class="n">sanitize_filepath</span><span class="p">(</span><span class="n">album</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
 
-                <span class="c1"># create destination folder, if necessary, based on album name</span>
-                <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="n">album_name</span><span class="p">)</span>
+            <span class="c1"># create destination folder, if necessary, based on album name</span>
+            <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="n">album_name</span><span class="p">)</span>
 
-                <span class="c1"># verify path is a valid path</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_filepath</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">):</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid filepath </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># verify path is a valid path</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_filepath</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">):</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid filepath </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-                <span class="c1"># create destination dir if needed</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">):</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
+            <span class="c1"># create destination dir if needed</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
 
-                <span class="c1"># export the photo</span>
-                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">:</span>
-                    <span class="c1"># export edited version</span>
-                    <span class="n">exported</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">edited</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="n">edited_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">path_edited</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-                    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="n">edited_name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="c1"># export unedited version</span>
-                <span class="n">exported</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
-                <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping missing photo: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># export the photo</span>
+            <span class="c1"># export unedited version</span>
+            <span class="n">exported</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+                <span class="n">dest_dir</span><span class="p">,</span> <span class="n">use_photos_export</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">ismissing</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">path</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">exported</span><span class="p">:</span>
+                <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">, no files exported&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">:</span>
+                <span class="c1"># export edited version</span>
+                <span class="n">exported</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+                    <span class="n">dest_dir</span><span class="p">,</span>
+                    <span class="n">edited</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">use_photos_export</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">ismissing</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">path_edited</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">exported</span><span class="p">:</span>
+                    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Exported edited version of </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Error exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">, no files exported&quot;</span>
+                    <span class="p">)</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -493,7 +509,7 @@ as well as <code class="docutils literal notranslate"><span class="pre">{functio
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=257b4c7a"></script>
+</div><script src="_static/documentation_options.js?v=1283c610"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

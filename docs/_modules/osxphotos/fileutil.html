@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.fileutil - osxphotos 0.75.1 documentation</title>
+        <title>osxphotos.fileutil - osxphotos 0.75.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -233,6 +233,8 @@
           <h1>Source code for osxphotos.fileutil</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;FileUtil class with methods for copy, hardlink, unlink, etc.&quot;&quot;&quot;</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">errno</span>
@@ -249,6 +251,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">t</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.stat_cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectoryStatCache</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">RetryCallState</span><span class="p">,</span>
@@ -854,12 +860,18 @@
         <span class="k">return</span> <span class="n">sig1</span> <span class="o">==</span> <span class="n">sig2</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">cmp_file_sig</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file1</span><span class="p">,</span> <span class="n">sig2</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cmp_file_sig</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">file1</span><span class="p">,</span>
+        <span class="n">sig2</span><span class="p">,</span>
+        <span class="n">stat_cache</span><span class="p">:</span> <span class="n">DirectoryStatCache</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare file file1 to signature sig2.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">           file1 -- File name</span>
 <span class="sd">           sig2  -- stats as returned by _sig</span>
+<span class="sd">           stat_cache -- Optional DirectoryStatCache to use for efficient stat operations</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">           True if the files are the same, False otherwise.</span>
@@ -869,15 +881,38 @@
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="n">file1</span> <span class="o">=</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">file1</span><span class="p">)</span>
-        <span class="n">sig1</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_sig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">file1</span><span class="p">))</span>
+
+        <span class="c1"># Use cached stat if cache provided, otherwise direct stat</span>
+        <span class="k">if</span> <span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sig1</span> <span class="o">=</span> <span class="n">stat_cache</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">file1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sig1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># File doesn&#39;t exist in cache</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sig1</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_sig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">file1</span><span class="p">))</span>
+
         <span class="k">if</span> <span class="n">sig1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IFREG</span> <span class="ow">or</span> <span class="n">sig2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IFREG</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">sig1</span> <span class="o">==</span> <span class="n">sig2</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">file_sig</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file1</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return os.stat signature for file file1 as tuple of (mode, size, mtime)&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">file_sig</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file1</span><span class="p">,</span> <span class="n">stat_cache</span><span class="p">:</span> <span class="n">DirectoryStatCache</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return os.stat signature for file file1 as tuple of (mode, size, mtime)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file1 -- File name</span>
+<span class="sd">            stat_cache -- Optional DirectoryStatCache to use for efficient stat operations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">file1</span> <span class="o">=</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">file1</span><span class="p">)</span>
+
+        <span class="c1"># Use cached stat if cache provided, otherwise direct stat</span>
+        <span class="k">if</span> <span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sig</span> <span class="o">=</span> <span class="n">stat_cache</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">file1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">sig</span>
+            <span class="c1"># Fall back to direct stat if not in cache</span>
+            <span class="c1"># (file may have been created after cache was populated)</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_sig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">file1</span><span class="p">))</span>
 
     <span class="nd">@classmethod</span>
@@ -1063,7 +1098,11 @@
 <div class="viewcode-block" id="FileUtilNoOp.file_sig">
 <a class="viewcode-back" href="../../reference.html#osxphotos.FileUtilNoOp.file_sig">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">file_sig</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">file_sig</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file1</span><span class="p">,</span> <span class="n">stat_cache</span><span class="p">:</span> <span class="n">DirectoryStatCache</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return os.stat signature for file file1 as tuple of (mode, size, mtime)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file1</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">file1</span> <span class="o">=</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">file1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_sig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">file1</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span></div>
 
 
@@ -1127,7 +1166,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
+</div><script src="../../_static/documentation_options.js?v=1283c610"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.export_db - osxphotos 0.75.1 documentation</title>
+        <title>osxphotos.export_db - osxphotos 0.75.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -268,19 +268,25 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.unicode</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_fs_path</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;BatchContext&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ExportDB&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ExportDBInMemory&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ExportDBTemp&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">OSXPHOTOS_EXPORTDB_VERSION</span> <span class="o">=</span> <span class="s2">&quot;10.1&quot;</span>
+<span class="n">OSXPHOTOS_EXPORTDB_VERSION</span> <span class="o">=</span> <span class="s2">&quot;11.0&quot;</span>
 <span class="n">OSXPHOTOS_ABOUT_STRING</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Created by osxphotos version </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2"> (https://github.com/RhetTbull/osxphotos) on </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
 
 <span class="c1"># max retry attempts for methods which use tenacity.retry</span>
-<span class="n">MAX_RETRY_ATTEMPTS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">MAX_RETRY_ATTEMPTS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OSXPHOTOS_MAX_RETRY_ATTEMPTS&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 
 <span class="c1"># maximum number of export results rows to save</span>
-<span class="n">MAX_EXPORT_RESULTS_DATA_ROWS</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">MAX_EXPORT_RESULTS_DATA_ROWS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+    <span class="s2">&quot;OSXPHOTOS_MAX_EXPORT_RESULTS_DATA_ROWS&quot;</span><span class="p">,</span> <span class="mi">10</span>
+<span class="p">)</span>
+
+<span class="c1"># batch size for history writes to reduce commit overhead</span>
+<span class="n">HISTORY_BATCH_SIZE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OSXPHOTOS_HISTORY_BATCH_SIZE&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
@@ -318,6 +324,32 @@
 <span class="sd">        unpickled data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BatchContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for batching database operations in ExportDB.</span>
+
+<span class="sd">    When active, commits are deferred until the batch completes.</span>
+<span class="sd">    Supports nesting - only the outermost batch commits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_db</span><span class="p">:</span> <span class="s2">&quot;ExportDB&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span> <span class="o">=</span> <span class="n">export_db</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">_batch_mode</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">_batch_mode</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">_batch_mode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Outermost batch is complete, flush and commit</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">flush_history</span><span class="p">()</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">exc_type</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">in_transaction</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">in_transaction</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="ExportDB">
@@ -366,6 +398,17 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
+        <span class="c1"># Cache for batch-loaded ExportRecord data, keyed by directory path</span>
+        <span class="c1"># Each directory maps to a dict of filepath_normalized -&gt; record data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Buffer for batched history writes to reduce commit overhead</span>
+        <span class="c1"># Each entry is (filename_normalized, uuid, action, diff)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Batch mode counter - when &gt; 0, commits are deferred until batch completes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_batch_mode</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_export_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_perform_db_maintenance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_insert_run_info</span><span class="p">()</span>
@@ -397,6 +440,22 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_filepath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="n">filename_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filepath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
+        <span class="c1"># Check cache first</span>
+        <span class="n">dir_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">dir_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filepath</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dir_normalized</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">:</span>
+            <span class="n">cached_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">[</span><span class="n">dir_normalized</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename_normalized</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cached_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span>
+                    <span class="n">filename_normalized</span><span class="p">,</span>
+                    <span class="n">cached_data</span><span class="p">,</span>
+                    <span class="n">export_db</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="c1"># Directory is cached but file not found</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -404,7 +463,107 @@
                 <span class="s2">&quot;SELECT uuid FROM export_data WHERE filepath_normalized = ?;&quot;</span><span class="p">,</span>
                 <span class="p">(</span><span class="n">filename_normalized</span><span class="p">,),</span>
             <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">,</span> <span class="n">export_db</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ExportDB.prefetch_directory_records">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.prefetch_directory_records">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prefetch_directory_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Batch-load all ExportRecord data for files in a directory.</span>
+
+<span class="sd">        This loads all records with a single SQL query and caches them for</span>
+<span class="sd">        subsequent get_file_record() calls. This is significantly faster than</span>
+<span class="sd">        individual queries when processing many files in the same directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            directory: Directory path to prefetch records for.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Number of records loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dir_relative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_filepath</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+        <span class="n">dir_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filepath</span><span class="p">(</span><span class="n">dir_relative</span><span class="p">)</span>
+
+        <span class="c1"># Already cached</span>
+        <span class="k">if</span> <span class="n">dir_normalized</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">[</span><span class="n">dir_normalized</span><span class="p">])</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="c1"># Query all records in directory with LIKE prefix match</span>
+            <span class="c1"># The pattern matches files in the directory (not subdirectories)</span>
+            <span class="c1"># Special case for root directory (dir_normalized is &quot;.&quot;)</span>
+            <span class="k">if</span> <span class="n">dir_normalized</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+                <span class="c1"># Root directory: match files without &quot;/&quot; (directly in root)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<span class="w">                    </span><span class="sd">&quot;&quot;&quot;SELECT filepath_normalized, uuid, digest, exifdata, export_options,</span>
+<span class="sd">                              dest_mode, dest_size, dest_mtime, error, date_modified</span>
+<span class="sd">                       FROM export_data</span>
+<span class="sd">                       WHERE filepath_normalized NOT LIKE &#39;%/%&#39;;&quot;&quot;&quot;</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<span class="w">                    </span><span class="sd">&quot;&quot;&quot;SELECT filepath_normalized, uuid, digest, exifdata, export_options,</span>
+<span class="sd">                              dest_mode, dest_size, dest_mtime, error, date_modified</span>
+<span class="sd">                       FROM export_data</span>
+<span class="sd">                       WHERE filepath_normalized LIKE ? AND filepath_normalized NOT LIKE ?;&quot;&quot;&quot;</span><span class="p">,</span>
+                    <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dir_normalized</span><span class="si">}</span><span class="s2">/%&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dir_normalized</span><span class="si">}</span><span class="s2">/%/%&quot;</span><span class="p">),</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+        <span class="c1"># Build cache for this directory</span>
+        <span class="n">dir_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">filepath_normalized</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Parse error JSON</span>
+            <span class="n">error_val</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="c1"># Parse date_modified</span>
+            <span class="n">date_modified_val</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">]:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">date_modified_val</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="c1"># Build dest_sig tuple</span>
+            <span class="n">mtime</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">dest_sig</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">mtime</span><span class="p">)</span>
+
+            <span class="n">dir_cache</span><span class="p">[</span><span class="n">filepath_normalized</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">&quot;digest&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="s2">&quot;exifdata&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                <span class="s2">&quot;export_options&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+                <span class="s2">&quot;dest_sig&quot;</span><span class="p">:</span> <span class="n">dest_sig</span><span class="p">,</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">error_val</span><span class="p">,</span>
+                <span class="s2">&quot;date_modified&quot;</span><span class="p">:</span> <span class="n">date_modified_val</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">[</span><span class="n">dir_normalized</span><span class="p">]</span> <span class="o">=</span> <span class="n">dir_cache</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Prefetched </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dir_cache</span><span class="p">)</span><span class="si">}</span><span class="s2"> export records for directory </span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">dir_cache</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ExportDB.invalidate_record_cache">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.invalidate_record_cache">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invalidate_record_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Invalidate the record cache for a directory or all directories.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            directory: Directory to invalidate, or None to clear entire cache.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">directory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dir_relative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_filepath</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+            <span class="n">dir_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filepath</span><span class="p">(</span><span class="n">dir_relative</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">dir_normalized</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExportDB.create_file_record">
@@ -430,8 +589,9 @@
                 <span class="s2">&quot;INSERT INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);&quot;</span><span class="p">,</span>
                 <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">,</span> <span class="n">uuid</span><span class="p">),</span>
             <span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">:</span>
+                <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">,</span> <span class="n">export_db</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExportDB.create_or_get_file_record">
@@ -450,15 +610,41 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relative_filepath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="n">filename_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filepath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
+        <span class="c1"># Check cache first - if record exists, skip the database query entirely</span>
+        <span class="n">dir_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">dir_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filepath</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dir_normalized</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">:</span>
+            <span class="n">cached_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">[</span><span class="n">dir_normalized</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename_normalized</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cached_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span>
+                    <span class="n">filename_normalized</span><span class="p">,</span>
+                    <span class="n">cached_data</span><span class="p">,</span>
+                    <span class="n">export_db</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="p">)</span>
+
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="c1"># Check if record already exists in database to avoid unnecessary INSERT + commit</span>
+            <span class="n">existing</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;SELECT 1 FROM export_data WHERE filepath_normalized = ? LIMIT 1;&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">filename_normalized</span><span class="p">,),</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
+                <span class="c1"># Record exists, no need to INSERT or commit</span>
+                <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span>
+                    <span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">,</span> <span class="n">export_db</span><span class="o">=</span><span class="bp">self</span>
+                <span class="p">)</span>
+            <span class="c1"># Record doesn&#39;t exist, INSERT and commit (unless in batch mode)</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="s2">&quot;INSERT OR IGNORE INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);&quot;</span><span class="p">,</span>
                 <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">,</span> <span class="n">uuid</span><span class="p">),</span>
             <span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">:</span>
+                <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ExportRecord</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">,</span> <span class="n">filename_normalized</span><span class="p">,</span> <span class="n">export_db</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExportDB.get_uuid_for_file">
@@ -707,7 +893,6 @@
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delete_data_for_uuid</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">)</span></div>
 
 
-    <span class="c1"># @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))</span>
 <div class="viewcode-block" id="ExportDB.set_history">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.set_history">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_history</span><span class="p">(</span>
@@ -723,27 +908,62 @@
 <span class="sd">            filename: path to file</span>
 <span class="sd">            action: action taken on file, e.g. &quot;exported&quot;, &quot;skipped&quot;, &quot;missing&quot;, &quot;updated&quot;</span>
 <span class="sd">            diff: diff for file as a serialized JSON str</span>
+
+<span class="sd">        Note: Records are buffered and committed in batches for better performance.</span>
+<span class="sd">        Call flush_history() to force immediate commit of buffered records.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filename_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filepath_relative</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">filename_normalized</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">diff</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">HISTORY_BATCH_SIZE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flush_history</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ExportDB.flush_history">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.flush_history">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flush_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Flush buffered history records to the database.</span>
+
+<span class="sd">        This is called automatically when the buffer reaches HISTORY_BATCH_SIZE,</span>
+<span class="sd">        and also called by close() to ensure all records are written.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="p">:</span>
+            <span class="k">return</span>
+
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">filepath_id</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;SELECT id FROM history_path WHERE filepath_normalized = ?;&quot;</span><span class="p">,</span>
-                <span class="p">(</span><span class="n">filename_normalized</span><span class="p">,),</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
-                <span class="n">filepath_id</span> <span class="o">=</span> <span class="n">filepath_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="s2">&quot;INSERT INTO history_path (filepath_normalized, uuid) VALUES (?, ?);&quot;</span><span class="p">,</span>
-                    <span class="p">(</span><span class="n">filename_normalized</span><span class="p">,</span> <span class="n">uuid</span><span class="p">),</span>
-                <span class="p">)</span>
-                <span class="n">filepath_id</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">lastrowid</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;INSERT INTO history (filepath_id, action, diff) VALUES (?, ?, ?);&quot;</span><span class="p">,</span>
-                <span class="p">(</span><span class="n">filepath_id</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">diff</span><span class="p">),</span>
+
+            <span class="c1"># First, ensure all paths exist in history_path table</span>
+            <span class="c1"># Use INSERT OR IGNORE to handle existing paths efficiently</span>
+            <span class="n">unique_paths</span> <span class="o">=</span> <span class="p">{(</span><span class="n">fn</span><span class="p">,</span> <span class="n">uuid</span><span class="p">)</span> <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="p">}</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+                <span class="s2">&quot;INSERT OR IGNORE INTO history_path (filepath_normalized, uuid) VALUES (?, ?);&quot;</span><span class="p">,</span>
+                <span class="n">unique_paths</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+            <span class="c1"># Build a mapping of filepath_normalized -&gt; id</span>
+            <span class="c1"># Query all paths we need in one go</span>
+            <span class="n">path_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">fn</span> <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="p">]</span>
+            <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;?&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">path_list</span><span class="p">))</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;SELECT filepath_normalized, id FROM history_path WHERE filepath_normalized IN (</span><span class="si">{</span><span class="n">placeholders</span><span class="si">}</span><span class="s2">);&quot;</span><span class="p">,</span>
+                <span class="n">path_list</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="n">path_to_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">}</span>
+
+            <span class="c1"># Now batch insert all history records</span>
+            <span class="n">history_records</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">path_to_id</span><span class="p">[</span><span class="n">fn</span><span class="p">],</span> <span class="n">action</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">diff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span>
+            <span class="p">]</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+                <span class="s2">&quot;INSERT INTO history (filepath_id, action, diff) VALUES (?, ?, ?);&quot;</span><span class="p">,</span>
+                <span class="n">history_records</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
 
     <span class="c1"># @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))</span>
@@ -817,10 +1037,38 @@
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.close">[docs]</a>
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;close the database connection&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Flush any buffered data and close the database connection&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flush_history</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">in_batch_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if database is in batch mode (commits are deferred)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_mode</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="ExportDB.batch_operations">
+<a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.batch_operations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">batch_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BatchContext&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Context manager for batching database operations.</span>
+
+<span class="sd">        When in batch mode, commits are deferred until the batch completes.</span>
+<span class="sd">        This significantly improves performance when performing many database</span>
+<span class="sd">        operations in sequence.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            with export_db.batch_operations():</span>
+<span class="sd">                for photo in photos:</span>
+<span class="sd">                    record = export_db.create_or_get_file_record(...)</span>
+<span class="sd">                    with record:</span>
+<span class="sd">                        record.photoinfo = ...</span>
+<span class="sd">                        record.dest_sig = ...</span>
+<span class="sd">                # Single commit happens here when exiting batch_operations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">BatchContext</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_open_export_db</span><span class="p">(</span>
@@ -1035,6 +1283,9 @@
 
         <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;10.1&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;10.1&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_10_0_to_10_1</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">current_version</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;11.0&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;11.0&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_10_1_to_11_0</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;VACUUM;&quot;</span><span class="p">)</span>
@@ -1415,6 +1666,19 @@
 
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_migrate_10_1_to_11_0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add modified date&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;SELECT COUNT(*) FROM pragma_table_info(&#39;export_data&#39;) WHERE name=&#39;date_modified&#39;;&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<span class="w">                    </span><span class="sd">&quot;&quot;&quot;ALTER TABLE export_data ADD COLUMN date_modified DATETIME;&quot;&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_perform_db_maintenance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform database maintenance&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;6.0&quot;</span><span class="p">):</span>
@@ -1477,6 +1741,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">was_created</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+        <span class="c1"># Cache for batch-loaded ExportRecord data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Buffer for batched history writes to reduce commit overhead</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Batch mode counter - when &gt; 0, commits are deferred until batch completes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_batch_mode</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_export_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_insert_run_info</span><span class="p">()</span>
@@ -1609,6 +1882,15 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
+        <span class="c1"># Cache for batch-loaded ExportRecord data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Buffer for batched history writes to reduce commit overhead</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_history_buffer</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Batch mode counter - when &gt; 0, commits are deferred until batch completes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_batch_mode</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">was_upgraded</span> <span class="o">=</span> <span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">was_created</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -1635,15 +1917,24 @@
         <span class="s2">&quot;_conn&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_context_manager&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_filepath_normalized&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_cached_data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_export_db&quot;</span><span class="p">,</span>
         <span class="s2">&quot;lock&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">lock</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">,</span> <span class="n">filepath_normalized</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">conn</span><span class="p">:</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span>
+        <span class="n">lock</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">,</span>
+        <span class="n">filepath_normalized</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">cached_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">export_db</span><span class="p">:</span> <span class="s2">&quot;ExportDB | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="n">conn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">lock</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span> <span class="o">=</span> <span class="n">filepath_normalized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span> <span class="o">=</span> <span class="n">cached_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span> <span class="o">=</span> <span class="n">export_db</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
@@ -1717,6 +2008,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_digest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns the digest value&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;digest&quot;</span><span class="p">)</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1757,6 +2050,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_exifdata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;returns exifdata value for record&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exifdata&quot;</span><span class="p">)</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1850,6 +2145,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_dest_sig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;return destination file signature&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dest_sig&quot;</span><span class="p">)</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -1954,6 +2251,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_export_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get export_options value&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_options&quot;</span><span class="p">)</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -2014,6 +2313,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return error value&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
@@ -2038,6 +2339,56 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">date_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return asset date modified (date modified in Photos)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_modified</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_modified</span><span class="p">()</span>
+
+    <span class="nd">@date_modified</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">date_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set asset date modified (date modified in Photos)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_date_modified_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_date_modified_setter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_date_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;return date modified&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;date_modified&quot;</span><span class="p">)</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;SELECT date_modified FROM export_data WHERE filepath_normalized = ?;&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span><span class="p">,),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No date_modified found in database for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_date_modified_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set date_modified&quot;&quot;&quot;</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;UPDATE export_data SET date_modified = ? WHERE filepath_normalized = ?;&quot;</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return dict of self&quot;&quot;&quot;</span>
         <span class="n">exifdata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exifdata</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exifdata</span> <span class="k">else</span> <span class="kc">None</span>
@@ -2054,11 +2405,20 @@
             <span class="s2">&quot;exifdata&quot;</span><span class="p">:</span> <span class="n">exifdata</span><span class="p">,</span>
             <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
             <span class="s2">&quot;photoinfo&quot;</span><span class="p">:</span> <span class="n">photoinfo</span><span class="p">,</span>
+            <span class="s2">&quot;date_modified&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_modified</span><span class="p">,</span>
         <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return json string of self&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">datetime_handler</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Object of type </span><span class="si">%s</span><span class="s2"> is not JSON serializable&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">datetime_handler</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span> <span class="o">=</span> <span class="kc">True</span>
@@ -2066,9 +2426,11 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="c1"># Check if we&#39;re in batch mode - if so, defer the commit</span>
+        <span class="n">in_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span><span class="o">.</span><span class="n">in_batch_mode</span>
         <span class="k">if</span> <span class="n">exc_type</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">in_transaction</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">in_transaction</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">in_transaction</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">in_batch</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -2104,7 +2466,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
+</div><script src="../../_static/documentation_options.js?v=1283c610"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

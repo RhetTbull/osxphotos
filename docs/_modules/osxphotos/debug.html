@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.debug - osxphotos 0.75.1 documentation</title>
+        <title>osxphotos.debug - osxphotos 0.75.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -250,6 +250,7 @@
     <span class="s2">&quot;get_debug_flags&quot;</span><span class="p">,</span>
     <span class="s2">&quot;get_debug_options&quot;</span><span class="p">,</span>
     <span class="s2">&quot;is_debug&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;relocate_debug_options&quot;</span><span class="p">,</span>
     <span class="s2">&quot;set_debug&quot;</span><span class="p">,</span>
     <span class="s2">&quot;wrap_function&quot;</span><span class="p">,</span>
 <span class="p">]</span>
@@ -358,6 +359,72 @@
         <span class="k">if</span> <span class="n">arg_name</span> <span class="ow">in</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="n">args</span><span class="p">[</span><span class="n">arg_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="n">args</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">relocate_debug_options</span><span class="p">(</span>
+    <span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+    <span class="n">flags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Relocate debug options from anywhere in argv to after the program name.</span>
+
+<span class="sd">    This allows debug options to be specified anywhere in the command line</span>
+<span class="sd">    (e.g., &#39;osxphotos export --profile&#39; instead of &#39;osxphotos --profile export&#39;)</span>
+<span class="sd">    while still being processed correctly by Click.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        argv: The command line arguments (typically sys.argv)</span>
+<span class="sd">        flags: List of flag option names (e.g., [&#39;--debug&#39;, &#39;--profile&#39;])</span>
+<span class="sd">        options: List of option names that take values (e.g., [&#39;--watch&#39;, &#39;--profile-sort&#39;])</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Modified argv with debug options relocated after the program name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">argv</span>
+
+    <span class="c1"># Work with a copy to avoid modifying the original</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">extracted</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Start after program name</span>
+
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="c1"># Check for flags</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+            <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Check for options with values</span>
+        <span class="n">matched_option</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span> <span class="o">==</span> <span class="n">opt</span><span class="p">:</span>
+                <span class="c1"># --option value format</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+                    <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                    <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                    <span class="n">matched_option</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">=&quot;</span><span class="p">):</span>
+                <span class="c1"># --option=value format</span>
+                <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                <span class="n">matched_option</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">matched_option</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Re-insert extracted options after program name (position 1)</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">extracted</span><span class="p">):</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">j</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
 </pre></div>
         </article>
       </div>
@@ -390,7 +457,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
+</div><script src="../../_static/documentation_options.js?v=1283c610"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

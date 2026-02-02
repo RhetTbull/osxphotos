@@ -65,14 +65,14 @@ Print filename, date created, title, and keywords for all photos in a library
        for photo in photosdb.photos():
            print(photo.original_filename, photo.date, photo.title, photo.keywords)
 
-The primary interface to the Photos library is the `PhotosDB <#photosdb>`_ object.  The `PhotosDB <#photosdb>`_ object provides access to the photos in the library via the `photos <#photosdbphotos>`_ method and the `query <#photosdbquery>`_.  These methods returns a list of `PhotoInfo <#photoinfo>`_ objects, one for each photo in the library.  The `PhotoInfo <#photoinfo>`_ object provides access to the metadata for each photo.
+The primary interface to the Photos library is the `PhotosDB <#photosdb>`__ object.  The `PhotosDB <#photosdb>`__ object provides access to the photos in the library via the `photos <#photosdbphotos>`__ method and the `query <#photosdbquery>`__.  These methods returns a list of `PhotoInfo <#photoinfo>`__ objects, one for each photo in the library.  The `PhotoInfo <#photoinfo>`__ object provides access to the metadata for each photo.
 
 :raw-html-m2r:`<a name="building-simple-command-line-tools">Building simple command line tools</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 osxphotos provides several useful helper functions to make it easy to build simple command line tools.  For example, the following code will print information about all photos in a library or a subset of photos filtered by one or more query options.  This mirrors the ``osxphotos query`` command line tool. Tools built using these helper functions can be easily distributed as a single file and run via ``osxphotos run script.py`` so the user doesn't need to install python, any dependencies, or create a virtual environment.
 
-Here's a simple example showing how to use the ``query_command`` decorator to implement a simple command line tool. The ``query_command`` decorator turns your function into a full-fledged `Click <https://palletsprojects.com/p/click/>`_ command line app that can be run via ``osxphotos run example.py`` or ``python example.py`` if you have pip installed osxphotos.  Your command will include all the query options available in ``osxphotos query`` as command line options as well as ``--verbose`` and other convenient options.
+Here's a simple example showing how to use the ``query_command`` decorator to implement a simple command line tool. The ``query_command`` decorator turns your function into a full-fledged `Click <https://palletsprojects.com/p/click/>`__ command line app that can be run via ``osxphotos run example.py`` or ``python example.py`` if you have pip installed osxphotos.  Your command will include all the query options available in ``osxphotos query`` as command line options as well as ``--verbose`` and other convenient options.
 
 
 .. raw:: html
@@ -433,14 +433,14 @@ In addition to the ``query_command`` decorator, you can also use the ``selection
 
 OSXPhotos is not currently compatible with multiprocessing as the ``PhotosDB`` class cannot be pickled which required
 when sharing data between processes. Photos can be exported concurrently using separate threads, however, this is
-only compatible with Python 3.11 and later.  See `issue #999 <https://github.com/RhetTbull/osxphotos/issues/999>`_.
+only compatible with Python 3.11 and later.  See `issue #999 <https://github.com/RhetTbull/osxphotos/issues/999>`__.
 The reason for this is that internally, ``PhotoExporter`` uses a sqlite ``ExportDB`` database for managing the export,
 even if you don't specify an export database. (In the case where you don't specify an export database, a temporary
 in-memory database is created and then discard.) The python implementation of sqlite3 is not fully thread safe on
 Python < 3.11.
 
 For example, the following code will work on Python >= 3.11. This code is available in the ``examples`` directory as
-`concurrent_export.py <https://github.com/RhetTbull/osxphotos/blob/main/examples/concurrent_export.py>`_.
+`concurrent_export.py <https://github.com/RhetTbull/osxphotos/blob/main/examples/concurrent_export.py>`__.
 
 .. code-block:: python
 
@@ -505,7 +505,7 @@ The ``osxphotos.cli`` module contains the code for the ``osxphotos`` command lin
    >>> from osxphotos.cli.export import export_cli
    >>> export_cli(dest="/private/tmp", update=True)
 
-The ``export_cli()`` function takes the same arguments as the ``osxphotos export`` command. See ``osxphotos help export`` for more information. You can also reference the implementation `here <https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292>`_.
+The ``export_cli()`` function takes the same arguments as the ``osxphotos export`` command. See ``osxphotos help export`` for more information. You can also reference the implementation `here <https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292>`__.
 
 :raw-html-m2r:`<a name="package-interface">Package Interface</a>`
 ---------------------------------------------------------------------
@@ -524,11 +524,11 @@ Read a Photos library database
 
 Reads the Photos library database and returns a PhotosDB object.
 
-Pass the path to a Photos library or to a specific database file (e.g. "/Users/smith/Pictures/Photos Library.photoslibrary" or "/Users/smith/Pictures/Photos Library.photoslibrary/database/photos.db").  Normally, it's recommended you pass the path the .photoslibrary folder, not the actual database path.  **Note**\ : In Photos, users may specify a different library to open by holding down the *option* key while opening Photos.app. See also `get_last_library_path <#get-last-library-path>`_ and `get_system_library_path <#get-system-library-path>`_
+Pass the path to a Photos library or to a specific database file (e.g. "/Users/smith/Pictures/Photos Library.photoslibrary" or "/Users/smith/Pictures/Photos Library.photoslibrary/database/photos.db").  Normally, it's recommended you pass the path the .photoslibrary folder, not the actual database path.  **Note**\ : In Photos, users may specify a different library to open by holding down the *option* key while opening Photos.app. See also `get_last_library_path <#get-last-library-path>`__ and `get_system_library_path <#get-system-library-path>`_
 
 If an invalid path is passed, PhotosDB will raise ``FileNotFoundError`` exception.
 
-**Note**\ : If neither path or dbfile is passed, PhotosDB will use `get_last_library_path <#get-last-library-path>`_ to open the last opened Photos library.  This usually works but is not 100% reliable.  It can also lead to loading a different library than expected if the user has held down *option* key when opening Photos to switch libraries.  You may therefore want to explicitely pass the path to ``PhotosDB()``.
+**Note**\ : If neither path or dbfile is passed, PhotosDB will use `get_last_library_path <#get-last-library-path>`__ to open the last opened Photos library.  This usually works but is not 100% reliable.  It can also lead to loading a different library than expected if the user has held down *option* key when opening Photos to switch libraries.  You may therefore want to explicitely pass the path to ``PhotosDB()``.
 
 Open the default (last opened) Photos library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -543,7 +543,7 @@ The default library is the library that would open if the user opened Photos.app
 Open System Photos library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In Photos 5 (Catalina / MacOS 10.15), you can use `\ ``get_system_library_path()`` <#get-system-library-path>`_ to get the path to the System photo library if you want to ensure PhotosDB opens the system library.  This does not work on older versions of MacOS. E.g.
+In Photos 5 (Catalina / MacOS 10.15), you can use `\ ``get_system_library_path()`` <#get-system-library-path>`__ to get the path to the System photo library if you want to ensure PhotosDB opens the system library.  This does not work on older versions of MacOS. E.g.
 
 .. code-block:: python
 
@@ -582,7 +582,7 @@ Pass the fully qualified path to the Photos library or the actual database file 
 
 Returns a PhotosDB object.
 
-**Note**\ : If you have a large library (e.g. many thousdands of photos), creating the PhotosDB object can take a long time (10s of seconds).  See `Implementation Notes <#implementation-notes>`_ for additional details.
+**Note**\ : If you have a large library (e.g. many thousdands of photos), creating the PhotosDB object can take a long time (10s of seconds).  See `Implementation Notes <#implementation-notes>`__ for additional details.
 
 :raw-html-m2r:`<a name="photosdbphotos">photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -592,7 +592,7 @@ Returns a PhotosDB object.
    # assumes photosdb is a PhotosDB object (see above)
    photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]],[from_date=datetime.datetime],[to_date=datetime.datetime])
 
-Returns a list of `PhotoInfo <#photoinfo>`_ objects.  Each PhotoInfo object represents a photo in the Photos Libary.
+Returns a list of `PhotoInfo <#photoinfo>`__ objects.  Each PhotoInfo object represents a photo in the Photos Libary.
 
 If called with no parameters, returns a list of every photo in the Photos library.
 
@@ -623,7 +623,7 @@ May be called with one or more of the following parameters to filter the list of
 * ``to_date``\ : datetime.datetime; if provided, finds photos where creation date <= to_date; default is None
 * ``intrash``\ : if True, finds only photos in the "Recently Deleted" or trash folder, if False does not find any photos in the trash; default is False
 
-See also `get_photo() <#getphoto>`_ which is much faster for retrieving a single photo and `query <#photosdbquery>`_ which provides much more flexibility in querying the database.
+See also `get_photo() <#getphoto>`__ which is much faster for retrieving a single photo and `query <#photosdbquery>`__ which provides much more flexibility in querying the database.
 
 If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as "and" criteria. E.g.
 
@@ -676,9 +676,9 @@ To get only movies:
 
    movies = photosdb.photos(images=False, movies=True)
 
-**Note** `PhotosDB.photos() <#photosdbphotos>`_ may return a different number of photos than Photos.app reports in the GUI. This is because `photos() <#photosdbphotos>`_ returns `hidden <#hidden>`_ photos, `shared <#shared>`_ photos, and for `burst <#burst>`_ photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you "finalize" the burst by selecting key photos and deleting the others using the "Make a selection" option.
+**Note** `PhotosDB.photos() <#photosdbphotos>`__ may return a different number of photos than Photos.app reports in the GUI. This is because `photos() <#photosdbphotos>`__ returns `hidden <#hidden>`__ photos, `shared <#shared>`__ photos, and for `burst <#burst>`__ photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you "finalize" the burst by selecting key photos and deleting the others using the "Make a selection" option.
 
-For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, `PhotosDB.photos() <#photosdbphotos>`_ reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (\ *Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.
+For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, `PhotosDB.photos() <#photosdbphotos>`__ reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (\ *Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.
 
 .. code-block:: pycon
 
@@ -707,12 +707,12 @@ For example, in my library, Photos says I have 19,386 photos and 474 movies.  Ho
 :raw-html-m2r:`<a name="getphoto">get_photo(uuid)</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a single PhotoInfo instance for photo with UUID matching ``uuid`` or None if no photo is found matching ``uuid``.  If you know the UUID of a photo, `\ ``get_photo()`` <#getphoto>`_ is much faster than `\ ``photos`` <#photosdbphotos>`_.  See also `photos() <#photosdbphotos>`_.
+Returns a single PhotoInfo instance for photo with UUID matching ``uuid`` or None if no photo is found matching ``uuid``.  If you know the UUID of a photo, `\ ``get_photo()`` <#getphoto>`__ is much faster than `\ ``photos`` <#photosdbphotos>`__.  See also `photos() <#photosdbphotos>`__.
 
 :raw-html-m2r:`<a name="photosdb-query">query(options: QueryOptions) -> List[PhotoInfo]:</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `PhotoInfo <#photoinfo>`_ objects matching the query options. This is preferred method of querying the photos database. See `QueryOptions <#queryoptions>`_ for details on the options available.
+Returns a list of `PhotoInfo <#photoinfo>`__ objects matching the query options. This is preferred method of querying the photos database. See `QueryOptions <#queryoptions>`__ for details on the options available.
 
 :raw-html-m2r:`<a name="photosdb-keywords">keywords</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -723,7 +723,7 @@ Returns a list of `PhotoInfo <#photoinfo>`_ objects matching the query options. 
    keywords = photosdb.keywords
 
 Returns a list of the keywords found in the Photos library that are associated with at least one photo.
-See also `keywords_as_dict <#keywords-as-dict>`_.
+See also `keywords_as_dict <#keywords-as-dict>`__.
 
 :raw-html-m2r:`<a name="photosdb-albuminfo">album_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -733,7 +733,7 @@ See also `keywords_as_dict <#keywords-as-dict>`_.
    # assumes photosdb is a PhotosDB object (see above)
    albums = photosdb.album_info
 
-Returns a list of `AlbumInfo <#albuminfo>`_ objects representing albums in the database or empty list if there are no albums.  See also `albums <#photosdb-albums>`_ and `burst_album_info <#photoinfo-burst-album-info>`_.
+Returns a list of `AlbumInfo <#albuminfo>`__ objects representing albums in the database or empty list if there are no albums.  See also `albums <#photosdb-albums>`__ and `burst_album_info <#photoinfo-burst-album-info>`__.
 
 :raw-html-m2r:`<a name="photosdb-albums">albums</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -743,11 +743,11 @@ Returns a list of `AlbumInfo <#albuminfo>`_ objects representing albums in the d
    # assumes photosdb is a PhotosDB object (see above)
    album_names = photosdb.albums
 
-Returns a list of the album names found in the Photos library. See also `burst_albums <#photoinfo-burst-albums>`_.
+Returns a list of the album names found in the Photos library. See also `burst_albums <#photoinfo-burst-albums>`__.
 
 **Note**\ : In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-See also `album_info <#photosdb-albuminfo>`_.
+See also `album_info <#photosdb-albuminfo>`__.
 
 :raw-html-m2r:`<a name="albums-shared">albums_shared</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -759,17 +759,17 @@ Returns list of shared album names found in photos database (e.g. albums shared 
 :raw-html-m2r:`<a name="photosdb-import-info">import_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `ImportInfo <#importinfo>`_ objects representing the import sessions for the database.
+Returns a list of `ImportInfo <#importinfo>`__ objects representing the import sessions for the database.
 
 :raw-html-m2r:`<a name="photosdb-project-info">project_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `ProjectInfo <#projectinfo>`_ objects representing the projects/creations (cards, calendars, etc.) in the database.
+Returns a list of `ProjectInfo <#projectinfo>`__ objects representing the projects/creations (cards, calendars, etc.) in the database.
 
 :raw-html-m2r:`<a name="photosdb-moment-info">moment_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns the  `MomentInfo <#momentinfo>`_ object for the photo or ``None`` if the photo does not have an associated moment.
+Returns the  `MomentInfo <#momentinfo>`__ object for the photo or ``None`` if the photo does not have an associated moment.
 
 :raw-html-m2r:`<a name="photosdb-folder-info">folder_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -779,7 +779,7 @@ Returns the  `MomentInfo <#momentinfo>`_ object for the photo or ``None`` if the
    # assumes photosdb is a PhotosDB object (see above)
    folders = photosdb.folder_info
 
-Returns a list of `FolderInfo <#folderinfo>`_ objects representing top level folders in the database or empty list if there are no folders.  See also `folders <#photosdb-folders>`_.
+Returns a list of `FolderInfo <#folderinfo>`__ objects representing top level folders in the database or empty list if there are no folders.  See also `folders <#photosdb-folders>`__.
 
 **Note**\ : Currently folder_info is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.
 
@@ -803,7 +803,7 @@ Returns a list names of top level folder names in the database.
    # assumes photosdb is a PhotosDB object (see above)
    persons = photosdb.persons
 
-Returns a list of the person names (faces) found in the Photos library.  **Note**\ : It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  ``persons`` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see `person_info <#photosdb-person_info>`_.
+Returns a list of the person names (faces) found in the Photos library.  **Note**\ : It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  ``persons`` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see `person_info <#photosdb-person_info>`__.
 
 :raw-html-m2r:`<a name="photosdb-person-info">person_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -813,7 +813,7 @@ Returns a list of the person names (faces) found in the Photos library.  **Note*
    # assumes photosdb is a PhotosDB object (see above)
    person_info = photosdb.person_info
 
-Returns a list of `PersonInfo <#personinfo>`_ objects representing persons who appear in photos in the database.
+Returns a list of `PersonInfo <#personinfo>`__ objects representing persons who appear in photos in the database.
 
 :raw-html-m2r:`<a name="keywords-as-dict">keywords_as_dict</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -838,7 +838,7 @@ Returns a list of keywords that are not associated with any photos in the librar
    # assumes photosdb is a PhotosDB object (see above)
    persons_dict = photosdb.persons_as_dict
 
-Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first). **Note**\ : It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  ``persons_as_dict`` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see `person_info <#photosdb-person-info>`_.
+Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first). **Note**\ : It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  ``persons_as_dict`` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see `person_info <#photosdb-person-info>`__.
 
 :raw-html-m2r:`<a name="albums-as-dict">albums_as_dict</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -869,28 +869,28 @@ Returns a dictionary of shared albums (e.g. shared via iCloud photo sharing) fou
 
 Returns image categorization labels associated with photos in the library as list of str.
 
-**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_normalized <#photosdb-labels-normalized>`_.
+**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_normalized <#photosdb-labels-normalized>`__.
 
 :raw-html-m2r:`<a name="photosdb-labels-normalized">labels_normalized</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns image categorization labels associated with photos in the library as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label.
 
-**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels <#photosdb-labels>`_.
+**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels <#photosdb-labels>`__.
 
 :raw-html-m2r:`<a name="labels-as-dict">labels_as_dict</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns dictionary image categorization labels associated with photos in the library where key is label and value is number of photos in the library with the label.
 
-**Note**\ : Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_normalized_as_dict <#labels-normalized-as-dict>`_.
+**Note**\ : Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_normalized_as_dict <#labels-normalized-as-dict>`__.
 
 :raw-html-m2r:`<a name="labels-normalized-as-dict">labels_normalized_as_dict</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns dictionary of image categorization labels associated with photos in the library where key is normalized label and value is number of photos in the library with that label. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label.
 
-**Note**\ : Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_as_dict <#labels-as-dict>`_.
+**Note**\ : Only valid on Photos 5; on earlier versions, logs warning and returns empty dict. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_as_dict <#labels-as-dict>`__.
 
 :raw-html-m2r:`<a name="library-path">library_path</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -965,7 +965,7 @@ QueryOptions class for `PhotosDB.query() <#photosdbquery>`_
 :raw-html-m2r:`<a name="Attributes">Attributes</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See `queryoptions.py <https://github.com/RhetTbull/osxphotos/blob/master/osxphotos/queryoptions.py>`_ for typing information.
+See `queryoptions.py <https://github.com/RhetTbull/osxphotos/blob/master/osxphotos/queryoptions.py>`__ for typing information.
 
 
 * ``added_after``\ : search for photos added after a given date
@@ -1063,7 +1063,7 @@ See `queryoptions.py <https://github.com/RhetTbull/osxphotos/blob/master/osxphot
 :raw-html-m2r:`<a name="photoinfo">PhotoInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotosDB.photos() <#photosdbphotos>`_ returns a list of `PhotoInfo <#photoinfo>`_ objects.  Each PhotoInfo object represents a single photo in the Photos library.
+`PhotosDB.photos() <#photosdbphotos>`__ returns a list of `PhotoInfo <#photoinfo>`__ objects.  Each PhotoInfo object represents a single photo in the Photos library.
 
 :raw-html-m2r:`<a name="photoinfo-uuid">uuid</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1135,22 +1135,22 @@ Returns a list of keywords (e.g. tags) applied to the photo
 :raw-html-m2r:`<a name="photoinfo-albums">albums</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of albums the photo is contained in. See also `album_info <#photoinfo-album-info>`_.
+Returns a list of albums the photo is contained in. See also `album_info <#photoinfo-album-info>`__.
 
 :raw-html-m2r:`<a name="photoinfo-album-info">album_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `AlbumInfo <#albuminfo>`_ objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also `albums <#photoinfo-albums>`_.
+Returns a list of `AlbumInfo <#albuminfo>`__ objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also `albums <#photoinfo-albums>`__.
 
 :raw-html-m2r:`<a name="import-info">import_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns an `ImportInfo <#importinfo>`_ object representing the import session associated with the photo or ``None`` if there is no associated import session.
+Returns an `ImportInfo <#importinfo>`__ object representing the import session associated with the photo or ``None`` if there is no associated import session.
 
 :raw-html-m2r:`<a name="project-info">project_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `ProjectInfo <#projectinfo>`_ objects representing projects/creations (cards, calendars, etc.) the photo is contained in or empty list if there are no projects associated with the photo.
+Returns a list of `ProjectInfo <#projectinfo>`__ objects representing projects/creations (cards, calendars, etc.) the photo is contained in or empty list if there are no projects associated with the photo.
 
 :raw-html-m2r:`<a name="persons">persons</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1160,22 +1160,22 @@ Returns a list of the names of the persons in the photo
 :raw-html-m2r:`<a name="photoinfo-personinfo">person_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `PersonInfo <#personinfo>`_ objects representing persons in the photo.  Each PersonInfo object is associated with one or more FaceInfo objects.
+Returns a list of `PersonInfo <#personinfo>`__ objects representing persons in the photo.  Each PersonInfo object is associated with one or more FaceInfo objects.
 
 :raw-html-m2r:`<a name="photoinfo-face-info">face_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `FaceInfo <#faceinfo>`_ objects representing faces in the photo.  Each face is associated with the a PersonInfo object.
+Returns a list of `FaceInfo <#faceinfo>`__ objects representing faces in the photo.  Each face is associated with the a PersonInfo object.
 
 :raw-html-m2r:`<a name="path">path</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns the absolute path to the photo on disk as a string.  **Note**\ : this returns the path to the *original* unedited file (see `hasadjustments <#hasadjustments>`_\ ).  If the file is missing on disk, path=\ ``None`` (see `ismissing <#ismissing>`_\ ).
+Returns the absolute path to the photo on disk as a string.  **Note**\ : this returns the path to the *original* unedited file (see `hasadjustments <#hasadjustments>`__\ ).  If the file is missing on disk, path=\ ``None`` (see `ismissing <#ismissing>`__\ ).
 
 :raw-html-m2r:`<a name="path-edited">path_edited</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns ``None``.  See also `path <#path>`_ and `hasadjustments <#hasadjustments>`_.
+Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns ``None``.  See also `path <#path>`__ and `hasadjustments <#hasadjustments>`__.
 
 **Note**\ : will also return None if the edited photo is missing on disk.
 
@@ -1203,52 +1203,52 @@ Returns empty list if no deri images are found.
 :raw-html-m2r:`<a name="path-raw">path_raw</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns the absolute path to the associated raw photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.  See `notes on Raw Photos <#raw-photos>`_.
+Returns the absolute path to the associated raw photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.  See `notes on Raw Photos <#raw-photos>`__.
 
 :raw-html-m2r:`<a name="has-raw">has_raw</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns True if photo has an associated raw image, otherwise False. (e.g. Photo is a RAW+JPEG pair). See also `is_raw <#israw>`_ and `notes on Raw Photos <#raw-photos>`_.
+Returns True if photo has an associated raw image, otherwise False. (e.g. Photo is a RAW+JPEG pair). See also `is_raw <#israw>`__ and `notes on Raw Photos <#raw-photos>`__.
 
 :raw-html-m2r:`<a name="israw">israw</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns True if photo is a raw image. E.g. it was imported as a single raw image, not part of a RAW+JPEG pair.  See also `has_raw <#has-raw>`_ and .
+Returns True if photo is a raw image. E.g. it was imported as a single raw image, not part of a RAW+JPEG pair.  See also `has_raw <#has-raw>`__ and .
 
 :raw-html-m2r:`<a name="raw-original">raw_original</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns True if associated raw image and the raw image is selected in Photos via "Use RAW as Original", otherwise returns False.  See `notes on Raw Photos <#raw-photos>`_.
+Returns True if associated raw image and the raw image is selected in Photos via "Use RAW as Original", otherwise returns False.  See `notes on Raw Photos <#raw-photos>`__.
 
 :raw-html-m2r:`<a name="height">height</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns height of the photo in pixels.  If image has been edited, returns height of the edited image, otherwise returns height of the original image.  See also `original_height <#original-height>`_.
+Returns height of the photo in pixels.  If image has been edited, returns height of the edited image, otherwise returns height of the original image.  See also `original_height <#original-height>`__.
 
 :raw-html-m2r:`<a name="width">width</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns width of the photo in pixels.  If image has been edited, returns width of the edited image, otherwise returns width of the original image.  See also `original_width <#original-width>`_.
+Returns width of the photo in pixels.  If image has been edited, returns width of the edited image, otherwise returns width of the original image.  See also `original_width <#original-width>`__.
 
 :raw-html-m2r:`<a name="orientation">orientation</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns EXIF orientation value of the photo as integer.  If image has been edited, returns orientation of the edited image, otherwise returns orientation of the original image. See also `original_orientation <#original-orientation>`_.  If orientation cannot be determined, returns 0 (this happens if osxphotos cannot decode the adjustment info for an edited image).
+Returns EXIF orientation value of the photo as integer.  If image has been edited, returns orientation of the edited image, otherwise returns orientation of the original image. See also `original_orientation <#original-orientation>`__.  If orientation cannot be determined, returns 0 (this happens if osxphotos cannot decode the adjustment info for an edited image).
 
 :raw-html-m2r:`<a name="original-height">original_height</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns height of the original photo in pixels. See also `height <#height>`_.
+Returns height of the original photo in pixels. See also `height <#height>`__.
 
 :raw-html-m2r:`<a name="original-width">original_width</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns width of the original photo in pixels. See also `width <#width>`_.
+Returns width of the original photo in pixels. See also `width <#width>`__.
 
 :raw-html-m2r:`<a name="original-orientation">original_orientation</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns EXIF orientation value of the original photo as integer. See also `orientation <#orientation>`_.
+Returns EXIF orientation value of the original photo as integer. See also `orientation <#orientation>`__.
 
 :raw-html-m2r:`<a name="original-filesize">original_filesize</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1258,7 +1258,7 @@ Returns size of the original photo in bytes as integer.
 :raw-html-m2r:`<a name="ismissing">ismissing</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns ``True`` if the original image file is missing on disk, otherwise ``False``.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted and user hasn't enabled "Copy items to the Photos library" in Photos preferences. **Note**\ : this status is computed based on data in the Photos library and ``ismissing`` does not verify if the photo is actually missing. See also `path <#path>`_.
+Returns ``True`` if the original image file is missing on disk, otherwise ``False``.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted and user hasn't enabled "Copy items to the Photos library" in Photos preferences. **Note**\ : this status is computed based on data in the Photos library and ``ismissing`` does not verify if the photo is actually missing. See also `path <#path>`__.
 
 :raw-html-m2r:`<a name="hasadjustments">hasadjustments</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1268,12 +1268,12 @@ Returns ``True`` if the picture has been edited, otherwise ``False``
 :raw-html-m2r:`<a name="adjustments">adjustments</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-On Photos 5+, returns an `AdjustmentsInfo <#adjustmentsinfo>`_ object representing the adjustments (edits) to the photo or None if there are no adjustments.  On earlier versions of Photos, always returns None.
+On Photos 5+, returns an `AdjustmentsInfo <#adjustmentsinfo>`__ object representing the adjustments (edits) to the photo or None if there are no adjustments.  On earlier versions of Photos, always returns None.
 
 :raw-html-m2r:`<a name="adjustment_type">adjustment_type</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns the adjustment type as an int or None. See also `adjustments <#adjustments>`_. For photos without and adjustment this is usually 0; for photos with adjustments made by the user, this is usually 1 or 2. For photos where the phone camera made an automatic adjustment (for example, user is shooting in 16:9 aspect), this is usually 3. The value also appears to be 3 for slow-motion videos and some other media types, even if no adjustments have been made. See also `adjustments <#adjustments>`_.
+Returns the adjustment type as an int or None. See also `adjustments <#adjustments>`__. For photos without and adjustment this is usually 0; for photos with adjustments made by the user, this is usually 1 or 2. For photos where the phone camera made an automatic adjustment (for example, user is shooting in 16:9 aspect), this is usually 3. The value also appears to be 3 for slow-motion videos and some other media types, even if no adjustments have been made. See also `adjustments <#adjustments>`__.
 
 :raw-html-m2r:`<a name="external-edit">external_edit</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1333,7 +1333,7 @@ Returns longitude as a float or ``None``.
 :raw-html-m2r:`<a name="place">place</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a `PlaceInfo <#placeinfo>`_ object with reverse geolocation data or None if there is the photo has no reverse geolocation information.
+Returns a `PlaceInfo <#placeinfo>`__ object with reverse geolocation data or None if there is the photo has no reverse geolocation information.
 
 :raw-html-m2r:`<a name="shared">shared</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1352,14 +1352,14 @@ Returns full name of the photo owner (person who shared the photo) for shared ph
 :raw-html-m2r:`<a name="comments">comments</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns list of `CommentInfo <#commentinfo>`_ objects for comments on shared photos or empty list if no comments.
+Returns list of `CommentInfo <#commentinfo>`__ objects for comments on shared photos or empty list if no comments.
 
 **Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.*
 
 :raw-html-m2r:`<a name="likes">likes</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns list of `LikeInfo <#likeinfo>`_ objects for likes on shared photos or empty list if no likes.
+Returns list of `LikeInfo <#likeinfo>`__ objects for likes on shared photos or empty list if no likes.
 
 **Note**\ : *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.*
 
@@ -1386,9 +1386,9 @@ Returns True if photo is a cloud asset, that is, it is in a library synched to i
 :raw-html-m2r:`<a name="incloud">incloud</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns True if photo is a `cloud asset <#iscloudasset>`_ and is synched to iCloud otherwise False if photo is a cloud asset and not yet synched to iCloud. Returns None if photo is not a cloud asset.
+Returns True if photo is a `cloud asset <#iscloudasset>`__ and is synched to iCloud otherwise False if photo is a cloud asset and not yet synched to iCloud. Returns None if photo is not a cloud asset.
 
-**Note**\ : Applies to master (original) photo only.  It's possible for the master to be in iCloud but a local edited version is not yet synched to iCloud. ``incloud`` provides status of only the master photo.  osxphotos does not yet provide a means to determine if the edited version is in iCloud.  If you need this feature, please open an `issue <https://github.com/RhetTbull/osxphotos/issues>`_.
+**Note**\ : Applies to master (original) photo only.  It's possible for the master to be in iCloud but a local edited version is not yet synched to iCloud. ``incloud`` provides status of only the master photo.  osxphotos does not yet provide a means to determine if the edited version is in iCloud.  If you need this feature, please open an `issue <https://github.com/RhetTbull/osxphotos/issues>`__.
 
 :raw-html-m2r:`<a name="syndicated">syndicated</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1439,7 +1439,7 @@ Returns Uniform Type Identifier (UTI) for the edited image, for example: 'public
 :raw-html-m2r:`<a name="uti-raw">uti_raw</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns Uniform Type Identifier (UTI) for the associated raw image, if there is one; for example, 'com.canon.cr2-raw-image'.  If the image is raw but not part of a RAW+JPEG pair, ``uti_raw`` returns None.  In this case, use ``uti``\ , or ``uti_original``.  See also `has_raw <#has-raw>`_ and `notes on Raw Photos <#raw-photos>`_.
+Returns Uniform Type Identifier (UTI) for the associated raw image, if there is one; for example, 'com.canon.cr2-raw-image'.  If the image is raw but not part of a RAW+JPEG pair, ``uti_raw`` returns None.  In this case, use ``uti``\ , or ``uti_original``.  See also `has_raw <#has-raw>`__ and `notes on Raw Photos <#raw-photos>`__.
 
 :raw-html-m2r:`<a name="burst">burst</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1465,9 +1465,9 @@ Returns True if photo is a burst image and is the photo that Photos selected as 
 :raw-html-m2r:`<a name="burst-photos">burst_photos</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If photo is a burst image (see `burst <#burst>`_\ ), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.
+If photo is a burst image (see `burst <#burst>`__\ ), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.
 
-Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  `PhotosDB.photos() <#photosdbphotos>`_ will only return the photos in the burst set that the user `selected <https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac>`_ using "Make a Selection..." in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using ``burst_photos`` you can access the other images in the burst set to export them, etc.
+Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  `PhotosDB.photos() <#photosdbphotos>`__ will only return the photos in the burst set that the user `selected <https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac>`__ using "Make a Selection..." in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using ``burst_photos`` you can access the other images in the burst set to export them, etc.
 
 .. code-block:: pycon
 
@@ -1492,29 +1492,29 @@ Example below gets list of all photos that are bursts, selects one of of them an
 
 If photo is burst photo, returns list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns ``PhotoInfo.albums``.
 
-If a burst photo which has unselected burst images (e.g. the burst images are in the library but haven't been selected by the user using the "Make a selection" feature) is placed in a an album, Photos treats only the selected "key" photo as in the album.  The unselected burst images, while associated with the photo in the album, are not technically in the album.  If you are handling one of these unselected burst photos and want to know which album it would be in based on which albums it's selected key images are in, use ``burst_albums``. See also `burst_album_info <#photoinfo-burst-album-info>`_ and `albums <#photoinfo-albums>`_.
+If a burst photo which has unselected burst images (e.g. the burst images are in the library but haven't been selected by the user using the "Make a selection" feature) is placed in a an album, Photos treats only the selected "key" photo as in the album.  The unselected burst images, while associated with the photo in the album, are not technically in the album.  If you are handling one of these unselected burst photos and want to know which album it would be in based on which albums it's selected key images are in, use ``burst_albums``. See also `burst_album_info <#photoinfo-burst-album-info>`__ and `albums <#photoinfo-albums>`__.
 
 :raw-html-m2r:`<a name="photoinfo-burst-album-info">burst_album_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If photo is non-selected burst photo, teturns a list of `AlbumInfo <#albuminfo>`_ objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns ``PhotoInfo.album_info``. See also `burst_albums <#photoinfo-burst-albums>`_ and `album_info <#photoinfo-album-info>`_.
+If photo is non-selected burst photo, teturns a list of `AlbumInfo <#albuminfo>`__ objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns ``PhotoInfo.album_info``. See also `burst_albums <#photoinfo-burst-albums>`__ and `album_info <#photoinfo-album-info>`__.
 
 :raw-html-m2r:`<a name="live-photo">live_photo</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns True if photo is an Apple live photo (ie. it has an associated "live" video component), otherwise returns False.  See `path_live_photo <#path-live-photo>`_.
+Returns True if photo is an Apple live photo (ie. it has an associated "live" video component), otherwise returns False.  See `path_live_photo <#path-live-photo>`__.
 
 :raw-html-m2r:`<a name="path-live-photo">path_live_photo</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns the path to the live video component of a `live photo <#live-photo>`_. If photo is not a live photo, returns None.
+Returns the path to the live video component of a `live photo <#live-photo>`__. If photo is not a live photo, returns None.
 
-**Note**\ : will also return None if the live video component is missing on disk. It's possible that the original photo may be on disk (\ `ismissing <#ismissing>`_\ ==False) but the video component is missing, likely because it has not been downloaded from iCloud.
+**Note**\ : will also return None if the live video component is missing on disk. It's possible that the original photo may be on disk (\ `ismissing <#ismissing>`__\ ==False) but the video component is missing, likely because it has not been downloaded from iCloud.
 
 :raw-html-m2r:`<a name="path-edited-live-photo">path_edited_live_photo</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns the path to the edited live video component of an edited `live photo <#live-photo>`_. If photo is not a live photo or not edited, returns None.
+Returns the path to the edited live video component of an edited `live photo <#live-photo>`__. If photo is not a live photo or not edited, returns None.
 
 :raw-html-m2r:`<a name="portrait">portrait</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1555,7 +1555,7 @@ Returns True if photo is a slow motion video, otherwise False
 
 Returns image categorization labels associated with the photo as list of str.
 
-**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_normalized <#photoinfo-labels-normalized>`_.
+**Note**\ : Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels_normalized <#photoinfo-labels-normalized>`__.
 
 :raw-html-m2r:`<a name="photoinfo-labels-normalized">labels_normalized</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1571,26 +1571,26 @@ Returns image categorization labels associated with the photo as list of str. La
        if "statue" in photo.labels_normalized:
            print(f"I found a statue! {photo.original_filename}")
 
-**Note**\ : Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels <#labels>`_.
+**Note**\ : Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also `labels <#labels>`__.
 
 :raw-html-m2r:`<a name="photoinfo-searchinfo">search_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns `SearchInfo <#searchinfo>`_ object that represents search metadata for the photo.
+Returns `SearchInfo <#searchinfo>`__ object that represents search metadata for the photo.
 
 **Note**\ : Only valid on Photos 5+; on ealier versions, returns None.
 
 :raw-html-m2r:`<a name="photoinfo-search-info-normalized">search_info_normalized</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns `SearchInfo <#searchinfo>`_ object that represents normalized search metadata for the photo.  This returns a SearchInfo object just as ``search_info`` but all the properties of the object return normalized text (converted to lowercase).
+Returns `SearchInfo <#searchinfo>`__ object that represents normalized search metadata for the photo.  This returns a SearchInfo object just as ``search_info`` but all the properties of the object return normalized text (converted to lowercase).
 
 **Note**\ : Only valid on Photos 5+; on ealier versions, returns None.
 
 :raw-html-m2r:`<a name="photoinfo-exif-info">exif_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns an `ExifInfo <#exifinfo>`_ object with EXIF details from the Photos database.  See `ExifInfo <#exifinfo>`_ for additional details.
+Returns an `ExifInfo <#exifinfo>`__ object with EXIF details from the Photos database.  See `ExifInfo <#exifinfo>`__ for additional details.
 
 **Note**\ : Only valid on Photos 5+; on earlier versions, returns ``None``.  The EXIF details returned are a subset of the actual EXIF data in a typical image.  At import Photos stores this subset in the database and it's this stored data that ``exif_info`` returns.
 
@@ -1599,7 +1599,7 @@ See also ``exiftool``.
 :raw-html-m2r:`<a name="photoinfo-exiftool">exiftool</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns an `ExifToolCaching <#exiftool>`_ object for the photo which provides an interface to `exiftool <https://exiftool.org/>`_ allowing you to read the actual EXIF data in the image file inside the Photos library.  If `exif_info <#exifinfo>`_ doesn't give you all the data you need, you can use ``exiftool`` to read the entire EXIF contents of the image.
+Returns an `ExifToolCaching <#exiftool>`__ object for the photo which provides an interface to `exiftool <https://exiftool.org/>`__ allowing you to read the actual EXIF data in the image file inside the Photos library.  If `exif_info <#exifinfo>`__ doesn't give you all the data you need, you can use ``exiftool`` to read the entire EXIF contents of the image.
 
 If the file is missing from the library (e.g. not downloaded from iCloud), returns None.
 
@@ -1615,7 +1615,7 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 ``ExifToolCaching`` provides the following methods:
 
 
-* `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See `exiftool <https://exiftool.org/>`_ documentation to understand which metadata keys are available. If ``tag_groups`` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If ``tag_groups`` is False, dict keys do not have group names, e.g. "Keywords".
+* `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See `exiftool <https://exiftool.org/>`__ documentation to understand which metadata keys are available. If ``tag_groups`` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If ``tag_groups`` is False, dict keys do not have group names, e.g. "Keywords".
 
 .. code-block:: python
 
@@ -1634,12 +1634,12 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 
 The ``ExifToolCaching`` class caches values read from the photo via ``exiftool`` and is read-only.  This speeds access to the underlying EXIF data but any changes made to the EXIF data in the image will not be reflected in subsequent calls to ``exiftool``.  In practice, the images in the Photos Library should not be modified after import so this is unlikely to cause any issues.
 
-**Caution**\ : I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  ``exiftool.asdict()`` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  `PhotoInfo.export() <#photoinfo-export>`_ does this if called with ``exiftool=True``.
+**Caution**\ : I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  ``exiftool.asdict()`` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  `PhotoInfo.export() <#photoinfo-export>`__ does this if called with ``exiftool=True``.
 
 :raw-html-m2r:`<a name="score">score</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a `ScoreInfo <#scoreinfo>`_ data class object which provides access to the computed aesthetic scores for each photo.
+Returns a `ScoreInfo <#scoreinfo>`__ data class object which provides access to the computed aesthetic scores for each photo.
 
 **Note**\ : Valid only for Photos 5; returns None for earlier Photos versions.
 
@@ -1682,7 +1682,7 @@ Returns a str of the AI generated caption if one exists, otherwise empty str. Th
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns a PhotoTables object which provides access to the underlying SQLite database tables for the photo.
-See `PhotoTables <#phototables>`_ for more details. This is useful for debugging or developing new features but
+See `PhotoTables <#phototables>`__ for more details. This is useful for debugging or developing new features but
 is not intended for general use.
 
 :raw-html-m2r:`<a name="json">json()</a>`
@@ -1704,7 +1704,7 @@ Export photo from the Photos library to another destination on disk.
 
 
 * dest: must be valid destination path as str (or exception raised).
-* filename (optional): name of picture as str; if not provided, will use current filename.  **NOTE**\ : if provided, user must ensure file extension (suffix) is correct. For example, if photo is .CR2 file, edited image may be .jpeg.  If you provide an extension different than what the actual file is, export will print a warning but will happily export the photo using the incorrect file extension.  e.g. to get the extension of the edited photo, look at `PhotoInfo.path_edited <#path-edited>`_.
+* filename (optional): name of picture as str; if not provided, will use current filename.  **NOTE**\ : if provided, user must ensure file extension (suffix) is correct. For example, if photo is .CR2 file, edited image may be .jpeg.  If you provide an extension different than what the actual file is, export will print a warning but will happily export the photo using the incorrect file extension.  e.g. to get the extension of the edited photo, look at `PhotoInfo.path_edited <#path-edited>`__.
 * edited: bool; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
 * export_as_hardlink: bool; if True (default=False), will hardlink files instead of copying them
 * overwrite: bool; if True (default=False), will overwrite files if they alreay exist
@@ -1717,7 +1717,7 @@ Export photo from the Photos library to another destination on disk.
 * use_photos_export: (bool, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos
 * use_photokit: (bool, default=True); if True will attempt to export photo via photokit instead of AppleScript when used with use_photos_export
 * timeout: (int, default=120) timeout in seconds used with use_photos_export
-* exiftool: (bool, default = False) if True, will use `exiftool <https://exiftool.org/>`_ to write metadata directly to the exported photo; exiftool must be installed and in the system path
+* exiftool: (bool, default = False) if True, will use `exiftool <https://exiftool.org/>`__ to write metadata directly to the exported photo; exiftool must be installed and in the system path
 * use_albums_as_keywords: (bool, default = False); if True, will use album names as keywords when exporting metadata with exiftool or sidecar
 * use_persons_as_keywords: (bool, default = False); if True, will use person names as keywords when exporting metadata with exiftool or sidecar
 
@@ -1745,7 +1745,7 @@ If overwrite=False and increment=False, export will fail if destination file alr
 Render template string for photo.  none_str is used if template substitution results in None value and no default specified.
 
 
-* ``template_str``\ : str in metadata template language (MTL) format. See also `Template System <#template-system>`_ table. See notes below regarding specific details of the syntax.
+* ``template_str``\ : str in metadata template language (MTL) format. See also `Template System <#template-system>`__ table. See notes below regarding specific details of the syntax.
 * ``options``\ : an optional osxphotos.phototemplate.RenderOptions object specifying the options to pass to the rendering engine.
 
 ``RenderOptions`` has the following properties:
@@ -1770,7 +1770,7 @@ e.g. ``photo.render_template("{created.year}/{foo}")`` would return ``([],["foo"
 
 Some substitutions, notably ``album``\ , ``keyword``\ , and ``person`` could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: 'Vacation' and 'Family' would result in the following rendered values if template was "{created.year}/{album}" and created.year == 2020: ``["2020/Vacation","2020/Family"]``
 
-See `Template System <#template-system>`_ for additional details.
+See `Template System <#template-system>`__ for additional details.
 
 :raw-html-m2r:`<a name="photoinfo-detected-text">detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1784,14 +1784,14 @@ If photo is edited, uses the edited photo, otherwise the original; falls back to
 
 Returns: list of (detected text, confidence) tuples.
 
-Note: This is *not* the same as Live Text in macOS Monterey.  When using ``detected_text()``\ , osxphotos will use Apple's `Vision framework <https://developer.apple.com/documentation/vision/recognizing_text_in_images?language=objc>`_ to perform text detection on the image.  On my circa 2013 MacBook Pro, this takes about 2 seconds per image.  ``detected_text()`` does memoize the results for a given ``confidence_threshold`` so repeated calls will not re-process the photo.  This works only on macOS Catalina (10.15) or later.
+Note: This is *not* the same as Live Text in macOS Monterey.  When using ``detected_text()``\ , osxphotos will use Apple's `Vision framework <https://developer.apple.com/documentation/vision/recognizing_text_in_images?language=objc>`__ to perform text detection on the image.  On my circa 2013 MacBook Pro, this takes about 2 seconds per image.  ``detected_text()`` does memoize the results for a given ``confidence_threshold`` so repeated calls will not re-process the photo.  This works only on macOS Catalina (10.15) or later.
 
-See also `Text Detection <#textdetection>`_.
+See also `Text Detection <#textdetection>`__.
 
 :raw-html-m2r:`<a name="exifinfo">ExifInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotosInfo.exif_info <#photoinfo-exif-info>`_ returns an ``ExifInfo`` object with some EXIF data about the photo (Photos 5 only).  ``ExifInfo`` contains the following properties:
+`PhotosInfo.exif_info <#photoinfo-exif-info>`__ returns an ``ExifInfo`` object with some EXIF data about the photo (Photos 5 only).  ``ExifInfo`` contains the following properties:
 
 .. code-block:: python
 
@@ -1833,7 +1833,7 @@ For example:
 :raw-html-m2r:`<a name="albuminfo">AlbumInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotosDB.album_info <#photosdb-albuminfo>`_ and `PhotoInfo.album_info <#photoinfo-album-info>`_ return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
+`PhotosDB.album_info <#photosdb-albuminfo>`__ and `PhotoInfo.album_info <#photoinfo-album-info>`__ return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
 
 :raw-html-m2r:`<a name="albuminfo-uuid">uuid</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1848,7 +1848,7 @@ Returns the title or name of the album.
 :raw-html-m2r:`<a name="albumphotos">photos</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `PhotoInfo <#photoinfo>`_ objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by ``photos`` will be in same order as they appear in the Photos album)
+Returns a list of `PhotoInfo <#photoinfo>`__ objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by ``photos`` will be in same order as they appear in the Photos album)
 
 :raw-html-m2r:`<a name="creation-date">creation_date</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1868,7 +1868,7 @@ Returns the date of latest photo in the album as a timezone aware datetime.datet
 :raw-html-m2r:`<a name="folder-list">folder_list</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a hierarchical list of `FolderInfo <#folderinfo>`_ objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of ``FolderInfo`` objects representing ["Folder1", "SubFolder2"]
+Returns a hierarchical list of `FolderInfo <#folderinfo>`__ objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of ``FolderInfo`` objects representing ["Folder1", "SubFolder2"]
 
 .. code-block:: text
 
@@ -1894,7 +1894,7 @@ Returns a hierarchical list of names of the folders the album is contained in.  
 :raw-html-m2r:`<a name="parent">parent</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a `FolderInfo <#folderinfo>`_ object representing the albums parent folder or ``None`` if album is not a in a folder.
+Returns a `FolderInfo <#folderinfo>`__ object representing the albums parent folder or ``None`` if album is not a in a folder.
 
 :raw-html-m2r:`<a name="owner">owner</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1926,7 +1926,7 @@ Returns the universally unique identifier (uuid) of the import session.  This is
 :raw-html-m2r:`<a name="importphotos">photos</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `PhotoInfo <#photoinfo>`_ objects representing each photo contained in the import session.
+Returns a list of `PhotoInfo <#photoinfo>`__ objects representing each photo contained in the import session.
 
 :raw-html-m2r:`<a name="creation-date">creation_date</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1970,7 +1970,7 @@ Returns the title or name of the project.
 :raw-html-m2r:`<a name="projectphotos">photos</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `PhotoInfo <#photoinfo>`_ objects representing each photo contained in the project.
+Returns a list of `PhotoInfo <#photoinfo>`__ objects representing each photo contained in the project.
 
 :raw-html-m2r:`<a name="creation-date">creation_date</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2055,24 +2055,24 @@ Returns the title or name of the folder.
 :raw-html-m2r:`<a name="folderinfo-album-info">album_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `AlbumInfo <#albuminfo>`_ objects representing each album contained in the folder.
+Returns a list of `AlbumInfo <#albuminfo>`__ objects representing each album contained in the folder.
 
 :raw-html-m2r:`<a name="folderinfo-album-info-shared">album_info_shared</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `AlbumInfo <#albuminfo>`_ objects for each shared album in the photos database.
+Returns a list of `AlbumInfo <#albuminfo>`__ objects for each shared album in the photos database.
 
 **Note**\ : Only valid for Photos 5+; on Photos <= 4, prints warning and returns empty list.
 
 :raw-html-m2r:`<a name="subfolders">subfolders</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `FolderInfo <#folderinfo>`_ objects representing the sub-folders of the folder.
+Returns a list of `FolderInfo <#folderinfo>`__ objects representing the sub-folders of the folder.
 
 :raw-html-m2r:`<a name="parent">parent</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a `FolderInfo <#folderinfo>`_ object representing the folder's parent folder or ``None`` if album is not a in a folder.
+Returns a `FolderInfo <#folderinfo>`__ object representing the folder's parent folder or ``None`` if album is not a in a folder.
 
 :raw-html-m2r:`<a name="sort-order">sort_order</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2125,7 +2125,7 @@ Returns a dictionary representation of the FolderInfo object.
 :raw-html-m2r:`<a name="placeinfo">PlaceInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.place <#place>`_ returns a PlaceInfo object if the photo contains valid reverse geolocation information.  PlaceInfo has the following properties.
+`PhotoInfo.place <#place>`__ returns a PlaceInfo object if the photo contains valid reverse geolocation information.  PlaceInfo has the following properties.
 
 **Note** For Photos versions <= 4, only ``name``\ , ``names``\ , and ``country_code`` properties are defined.  All others return ``None``.  This is because older versions of Photos do not store the more detailed reverse geolocation information.
 
@@ -2146,7 +2146,7 @@ Returns ``None`` if photo does not contain a name.
 :raw-html-m2r:`<a name="names">names</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a ``PlaceNames`` namedtuple with the following fields.  Each field is a list with zero or more values, sorted by area in ascending order.  E.g. ``names.area_of_interest`` could be ['Gulf Islands National Seashore', 'Santa Rosa Island'], ["Knott's Berry Farm"], or [] if ``area_of_interest`` not defined.  The value shown in Photos is the first value in the list. With the exception of ``body_of_water`` each of these field corresponds to an attribute of a `CLPlacemark <https://developer.apple.com/documentation/corelocation/clplacemark>`_ object.  **Note** The ``PlaceNames`` namedtuple contains reserved fields not listed below (see implementation for details), thus it should be referenced only by name (e.g. ``names.city``\ ) and not by index.
+Returns a ``PlaceNames`` namedtuple with the following fields.  Each field is a list with zero or more values, sorted by area in ascending order.  E.g. ``names.area_of_interest`` could be ['Gulf Islands National Seashore', 'Santa Rosa Island'], ["Knott's Berry Farm"], or [] if ``area_of_interest`` not defined.  The value shown in Photos is the first value in the list. With the exception of ``body_of_water`` each of these field corresponds to an attribute of a `CLPlacemark <https://developer.apple.com/documentation/corelocation/clplacemark>`__ object.  **Note** The ``PlaceNames`` namedtuple contains reserved fields not listed below (see implementation for details), thus it should be referenced only by name (e.g. ``names.city``\ ) and not by index.
 
 
 * ``country``\ ; the name of the country associated with the placemark.
@@ -2213,7 +2213,7 @@ For example:
 :raw-html-m2r:`<a name="scoreinfo">ScoreInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.score <#score>`_ returns a ScoreInfo object that exposes the computed aesthetic scores for each photo (\ **Photos 5+ only**\ ).  I have not yet reverse engineered the meaning of each score.  The ``overall`` score seems to the most useful and appears to be a composite of the other scores.  The following score properties are currently available:
+`PhotoInfo.score <#score>`__ returns a ScoreInfo object that exposes the computed aesthetic scores for each photo (\ **Photos 5+ only**\ ).  I have not yet reverse engineered the meaning of each score.  The ``overall`` score seems to the most useful and appears to be a composite of the other scores.  The following score properties are currently available:
 
 .. code-block:: python
 
@@ -2256,7 +2256,7 @@ Example: find your "best" photo of food
 :raw-html-m2r:`<a name="searchinfo">SearchInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.search_info <#photosearchinfo>`_ and `PhotoInfo.search_info_normalized <#photosearchinfo-normalized>`_ return a SearchInfo object that exposes various metadata that Photos uses when searching for photos such as labels, associated holiday, etc. (\ **Photos 5+ only**\ ).
+`PhotoInfo.search_info <#photosearchinfo>`__ and `PhotoInfo.search_info_normalized <#photosearchinfo-normalized>`__ return a SearchInfo object that exposes various metadata that Photos uses when searching for photos such as labels, associated holiday, etc. (\ **Photos 5+ only**\ ).
 
 The following properties are available:
 
@@ -2363,7 +2363,7 @@ Returns all associated search_info metadata as a dict.
 :raw-html-m2r:`<a name="personinfo">PersonInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotosDB.person_info <#photosdb-person-info>`_ and `PhotoInfo.person_info <#photoinfo-person-info>`_ return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.
+`PhotosDB.person_info <#photosdb-person-info>`__ and `PhotoInfo.person_info <#photoinfo-person-info>`__ return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.
 
 :raw-html-m2r:`<a name="name">name</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2398,7 +2398,7 @@ Returns a list of PhotoInfo objects representing all photos the person appears i
 :raw-html-m2r:`<a name="person-face-info">face_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a list of `FaceInfo <#faceinfo>`_ objects associated with this person sorted by quality score. Highest quality face is result[0] and lowest quality face is result[n].
+Returns a list of `FaceInfo <#faceinfo>`__ objects associated with this person sorted by quality score. Highest quality face is result[0] and lowest quality face is result[n].
 
 :raw-html-m2r:`<a name="personfavorite">favorite</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2423,7 +2423,7 @@ Returns a dictionary representation of the PersonInfo instance.
 :raw-html-m2r:`<a name="faceinfo">FaceInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.face_info <#photoinfo-face-info>`_ return a list of FaceInfo objects representing detected faces in a photo.  The FaceInfo class has the following properties and methods.
+`PhotoInfo.face_info <#photoinfo-face-info>`__ return a list of FaceInfo objects representing detected faces in a photo.  The FaceInfo class has the following properties and methods.
 
 :raw-html-m2r:`<a name="faceinfo-uuid">uuid</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2443,12 +2443,12 @@ UUID of the photo this face is associated with.
 :raw-html-m2r:`<a name="faceinfo-person-info">person_info</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`PersonInfo <#personinfo>`_ object associated with this face.
+`PersonInfo <#personinfo>`__ object associated with this face.
 
 :raw-html-m2r:`<a name="faceinfo-photo">photo</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`PhotoInfo <#photoinfo>`_ object representing the photo that contains this face.
+`PhotoInfo <#photoinfo>`__ object representing the photo that contains this face.
 
 :raw-html-m2r:`<a name="mwg-rs-area">mwg_rs_area</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2475,7 +2475,7 @@ Returnes named tuple with following coordinates as used in Microsoft Photo Regio
 :raw-html-m2r:`<a name="face-rect">face_rect()</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns list of x, y coordinates as tuples ``[(x0, y0), (x1, y1)]`` representing the corners of rectangular region that contains the face.  Coordinates are in same format and `reference frame <https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system>`_ as used by `Pillow <https://pypi.org/project/Pillow/>`_ imaging library.  **Note**\ : face_rect() and all other properties/methods that return coordinates refer to the *current version* of the image. E.g. if the image has been edited (\ `PhotoInfo.hasadjustments <#hasadjustments>`_\ ), these refer to `PhotoInfo.path_edited <#path-edited>`_.  If the image has no adjustments, these coordinates refer to the original photo (\ `PhotoInfo.path <#path>`_\ ).
+Returns list of x, y coordinates as tuples ``[(x0, y0), (x1, y1)]`` representing the corners of rectangular region that contains the face.  Coordinates are in same format and `reference frame <https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system>`__ as used by `Pillow <https://pypi.org/project/Pillow/>`__ imaging library.  **Note**\ : face_rect() and all other properties/methods that return coordinates refer to the *current version* of the image. E.g. if the image has been edited (\ `PhotoInfo.hasadjustments <#hasadjustments>`__\ ), these refer to `PhotoInfo.path_edited <#path-edited>`__.  If the image has no adjustments, these coordinates refer to the original photo (\ `PhotoInfo.path <#path>`__\ ).
 
 :raw-html-m2r:`<a name="center">center</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2549,7 +2549,7 @@ Returns a JSON representation of the FaceInfo instance.
 :raw-html-m2r:`<a name="commentinfo">CommentInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.comments <#comments>`_ returns a list of CommentInfo objects for comments on shared photos. (Photos 5/MacOS 10.15+ only).  The list of CommentInfo objects will be sorted in ascending order by date comment was made.  CommentInfo contains the following fields:
+`PhotoInfo.comments <#comments>`__ returns a list of CommentInfo objects for comments on shared photos. (Photos 5/MacOS 10.15+ only).  The list of CommentInfo objects will be sorted in ascending order by date comment was made.  CommentInfo contains the following fields:
 
 
 * ``datetime``\ : ``datetime.datetime``\ , date/time comment was made
@@ -2560,7 +2560,7 @@ Returns a JSON representation of the FaceInfo instance.
 :raw-html-m2r:`<a name="likeinfo">LikeInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.likes <#likes>`_ returns a list of LikeInfo objects for "likes" on shared photos. (Photos 5/MacOS 10.15+ only).  The list of LikeInfo objects will be sorted in ascending order by date like was made.  LikeInfo contains the following fields:
+`PhotoInfo.likes <#likes>`__ returns a list of LikeInfo objects for "likes" on shared photos. (Photos 5/MacOS 10.15+ only).  The list of LikeInfo objects will be sorted in ascending order by date like was made.  LikeInfo contains the following fields:
 
 
 * ``datetime``\ : ``datetime.datetime``\ , date/time like was made
@@ -2570,7 +2570,7 @@ Returns a JSON representation of the FaceInfo instance.
 :raw-html-m2r:`<a name="adjustmentsinfo">AdjustmentsInfo</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.adjustments <#adjustments>`_ returns an AdjustmentsInfo object, if the photo has adjustments, or ``None`` if the photo does not have adjusments.   AdjustmentsInfo has the following properties and methods:
+`PhotoInfo.adjustments <#adjustments>`__ returns an AdjustmentsInfo object, if the photo has adjustments, or ``None`` if the photo does not have adjusments.   AdjustmentsInfo has the following properties and methods:
 
 
 * ``plist``\ : The adjustments plist file maintained by Photos as a dict.
@@ -2590,7 +2590,7 @@ Returns a JSON representation of the FaceInfo instance.
 :raw-html-m2r:`<a name="phototables">PhotoTables</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.tables <#tables>`_ returns a PhotoTables object that contains information about the tables in the Photos database that contain information about the photo.
+`PhotoInfo.tables <#tables>`__ returns a PhotoTables object that contains information about the tables in the Photos database that contain information about the photo.
 The following properties are available:
 
 
@@ -2627,7 +2627,7 @@ Handling raw photos in ``osxphotos`` requires a bit of extra work.  Raw photos i
 
 The latter are treated by Photos as a single image.  By default, Photos will treat these as a JPEG image.  They are denoted in the Photos interface with a "J" icon superimposed on the image.  In Photos, the user can select "Use RAW as original" in which case the "J" icon changes to an "R" icon and all subsequent edits will use the raw image as the original. To further complicate this, different versions of Photos handle these differently in their internal logic.
 
-``osxphotos`` attempts to simplify the handling of these raw+JPEG pairs by providing a set of attributes for accessing both the JPEG and the raw version.  For example, `PhotoInfo.has_raw <#has-raw>`_ will be True if the photo has an associated raw image but False otherwise and `PhotoInfo.path_raw <#path-raw>`_ provides the path to the associated raw image.  Reference the following table for the various attributes useful for dealing with raw images.  Given the different ways Photos deals with raw images I've struggled with how to represent these in a logical and consistent manner.  If you have suggestions for a better interface, please open an `issue <https://github.com/RhetTbull/osxphotos/issues>`_\ !
+``osxphotos`` attempts to simplify the handling of these raw+JPEG pairs by providing a set of attributes for accessing both the JPEG and the raw version.  For example, `PhotoInfo.has_raw <#has-raw>`__ will be True if the photo has an associated raw image but False otherwise and `PhotoInfo.path_raw <#path-raw>`__ provides the path to the associated raw image.  Reference the following table for the various attributes useful for dealing with raw images.  Given the different ways Photos deals with raw images I've struggled with how to represent these in a logical and consistent manner.  If you have suggestions for a better interface, please open an `issue <https://github.com/RhetTbull/osxphotos/issues>`__\ !
 
 Raw-Related Attributes
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -2728,7 +2728,7 @@ e.g. if Photo keywords are ``["foo","bar"]``\ :
 * ``"{; +keyword}"`` renders to: ``"foo; bar"``
 * ``"{+keyword}"`` renders to ``"foobar"``
 
-``template_field``\ : The template field to resolve.  See `Template Substitutions <#template-substitutions>`_ for full list of template fields.
+``template_field``\ : The template field to resolve.  See `Template Substitutions <#template-substitutions>`__ for full list of template fields.
 
 `:subfield`: Some templates have sub-fields, For example, `{exiftool:IPTC:Make}\ ``; the template_field is``\ exiftool\ ``and the sub-field is``\ IPTC:Make`.
 
@@ -3090,7 +3090,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.75.1'
+     - The osxphotos version, e.g. '0.75.2'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
@@ -3176,7 +3176,7 @@ ExifTool methods
 ~~~~~~~~~~~~~~~~
 
 
-* `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See `exiftool <https://exiftool.org/>`_ documentation to understand which metadata keys are available. If ``tag_groups`` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If ``tag_groups`` is False, dict keys do not have group names, e.g. "Keywords".
+* `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See `exiftool <https://exiftool.org/>`__ documentation to understand which metadata keys are available. If ``tag_groups`` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If ``tag_groups`` is False, dict keys do not have group names, e.g. "Keywords".
 
 .. code-block:: python
 
@@ -3210,7 +3210,7 @@ ExifTool methods
 
 osxphotos.exiftool also provides an ``ExifToolCaching`` class which caches all metadata after the first call to ``exiftool``. This can significantly speed up repeated access to the metadata but should only be used if you do not intend to modify the file's metadata.
 
-`\ ``PhotoInfo.exiftool`` <#photoinfo-exiftool>`_ returns an ``ExifToolCaching`` instance for the original image in the Photos library.
+`\ ``PhotoInfo.exiftool`` <#photoinfo-exiftool>`__ returns an ``ExifToolCaching`` instance for the original image in the Photos library.
 
 Implementation Note
 ~~~~~~~~~~~~~~~~~~~
@@ -3220,7 +3220,7 @@ Implementation Note
 :raw-html-m2r:`<a name="photoexporter">PhotoExporter</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`PhotoInfo.export() <#photoinfo-export>`_ provides a simple method to export a photo.  This method actually calls ``PhotoExporter.export()`` to do the export.  ``PhotoExporter`` provides many more options to configure the export and report results and this is what the osxphotos command line export tools uses.
+`PhotoInfo.export() <#photoinfo-export>`__ provides a simple method to export a photo.  This method actually calls ``PhotoExporter.export()`` to do the export.  ``PhotoExporter`` provides many more options to configure the export and report results and this is what the osxphotos command line export tools uses.
 
 :raw-html-m2r:`<a name="photoexporter-export">export(dest, filename=None, options: Optional[ExportOptions]=None) -> ExportResults</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3330,7 +3330,7 @@ Attributes:
 :raw-html-m2r:`<a name="exifwriter">ExifWriter</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``osxphotos.exifwriter.ExifWriter`` provides a way to write EXIF metadata (using `exiftool <https://exiftool.org/>`_\ ) to files. It is used by ``PhotoExporter`` to write metadata to exported files.  It can also be used independently of ``PhotoExporter`` to write metadata to files.  ``ExifWriter`` uses an ``ExifOptions`` options class to configure the output metadata. For example, ``ExifOptions.description_template`` allows you to specify a template to use for writing the ``XMP:Description`` field.
+``osxphotos.exifwriter.ExifWriter`` provides a way to write EXIF metadata (using `exiftool <https://exiftool.org/>`__\ ) to files. It is used by ``PhotoExporter`` to write metadata to exported files.  It can also be used independently of ``PhotoExporter`` to write metadata to files.  ``ExifWriter`` uses an ``ExifOptions`` options class to configure the output metadata. For example, ``ExifOptions.description_template`` allows you to specify a template to use for writing the ``XMP:Description`` field.
 
 ``ExifWriter`` usage:
 
@@ -3368,7 +3368,7 @@ You can also retrieve the dictionary that will be used to write the metadata wit
 :raw-html-m2r:`<a name="sidecarwriter">SidecarWriter</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``osxphotos.sidecars.SidecarWriter`` is a utility class used by `PhotoExporter <#photoexporter>`_ to write the sidecars (XMP, JSON, exiftool) for exported images. You can use this yourself to write sidecars if needed.
+``osxphotos.sidecars.SidecarWriter`` is a utility class used by `PhotoExporter <#photoexporter>`__ to write the sidecars (XMP, JSON, exiftool) for exported images. You can use this yourself to write sidecars if needed.
 
 .. code-block:: python
 
@@ -3431,7 +3431,7 @@ See source code for full details.
 :raw-html-m2r:`<a name="photosalbum">PhotosAlbum</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``osxphotos.photosalbum.PhotosAlbum`` is a class that represents a Photos album. It is useful for creating albums and adding ``PhotoInfo`` assets to albums in Photos. It uses `PhotoScript <https://github.com/RhetTbull/PhotoScript>`_\ , a Python wrapper around AppleScript, to interact with Photos. An album is created or retrieved using ``__init__()``\ : ``album = PhotosAlbum(name)`` will create the album if it doesn't exist or retrieve it if it does. You can add photos to the album using ``append()`` and ``extend()`` as in Python lists or ``add()`` and ``update()`` as in Python sets (\ ``append()`` and ``add()`` call the same function as do ``extend()`` and ``update()``\ ). Albums behave as sets as adding a asset that is already in the album has no effect. Assets cannot be removed from an album using this class due to limitations in the Photos AppleScript interface.
+``osxphotos.photosalbum.PhotosAlbum`` is a class that represents a Photos album. It is useful for creating albums and adding ``PhotoInfo`` assets to albums in Photos. It uses `PhotoScript <https://github.com/RhetTbull/PhotoScript>`__\ , a Python wrapper around AppleScript, to interact with Photos. An album is created or retrieved using ``__init__()``\ : ``album = PhotosAlbum(name)`` will create the album if it doesn't exist or retrieve it if it does. You can add photos to the album using ``append()`` and ``extend()`` as in Python lists or ``add()`` and ``update()`` as in Python sets (\ ``append()`` and ``add()`` call the same function as do ``extend()`` and ``update()``\ ). Albums behave as sets as adding a asset that is already in the album has no effect. Assets cannot be removed from an album using this class due to limitations in the Photos AppleScript interface.
 
 .. code-block:: python
 
@@ -3453,7 +3453,7 @@ See source code for full details.
 :raw-html-m2r:`<a name="textdetection">Text Detection</a>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `PhotoInfo.detected_text() <#photoinfo-detected_text>`_ and the ``{detected_text}`` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named ``osxphotos.metadata:detected_text`` and can be viewed using the built-in `xattr <https://ss64.com/osx/xattr.html>`_ command or my `osxmetadata <https://github.com/RhetTbull/osxmetadata>`_ tool.  If you want to remove the cached attribute, you can do so with ``xattr`` as follows:
+The `PhotoInfo.detected_text() <#photoinfo-detected_text>`__ and the ``{detected_text}`` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named ``osxphotos.metadata:detected_text`` and can be viewed using the built-in `xattr <https://ss64.com/osx/xattr.html>`__ command or my `osxmetadata <https://github.com/RhetTbull/osxmetadata>`__ tool.  If you want to remove the cached attribute, you can do so with ``xattr`` as follows:
 
 ``find ~/Pictures/Photos\ Library.photoslibrary | xargs -I{} xattr -c osxphotos.metadata:detected_text '{}'``
 
