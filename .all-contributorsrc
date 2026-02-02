@@ -1032,6 +1032,15 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "Ben-Voris",
+      "name": "Ben Voris",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31499002?v=4",
+      "profile": "https://github.com/Ben-Voris",
+      "contributions": [
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
