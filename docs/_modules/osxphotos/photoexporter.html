@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.photoexporter - osxphotos 0.75.1 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.75.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -241,10 +241,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">t</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.dictdiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">dictdiff</span>
@@ -265,9 +265,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">increment_filename</span><span class="p">,</span>
     <span class="n">increment_filename_with_count</span><span class="p">,</span>
+    <span class="n">isdir_cache</span><span class="p">,</span>
     <span class="n">lineno</span><span class="p">,</span>
-    <span class="n">lock_filename</span><span class="p">,</span>
-    <span class="n">unlock_filename</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
@@ -311,7 +310,7 @@
     <span class="n">DEST_SIG_DIFFERENT</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="n">EXPORT_OPTIONS_DIFFERENT</span> <span class="o">=</span> <span class="mi">5</span>
     <span class="n">EXIFTOOL_DIFFERENT</span> <span class="o">=</span> <span class="mi">6</span>
-    <span class="n">EDITED_SIG_DIFFERENT</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">DATE_MODIFIED_DIFFERENT</span> <span class="o">=</span> <span class="mi">7</span>
     <span class="n">DIGEST_DIFFERENT</span> <span class="o">=</span> <span class="mi">8</span>
     <span class="n">UPDATE_ERRORS</span> <span class="o">=</span> <span class="mi">9</span>
 
@@ -336,6 +335,7 @@
         <span class="n">aae</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">original_aae</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">error</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">update_skipped</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">original</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_live</span> <span class="o">=</span> <span class="n">original_live</span>
@@ -346,6 +346,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">aae</span> <span class="o">=</span> <span class="n">aae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_aae</span> <span class="o">=</span> <span class="n">original_aae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="c1"># True if download was skipped because no update needed (#1086)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_skipped</span> <span class="o">=</span> <span class="n">update_skipped</span>
 
         <span class="c1"># TODO: bursts?</span>
 
@@ -359,6 +361,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">aae</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aae</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">aae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_aae</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_aae</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">original_aae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">error</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_skipped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_skipped</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">update_skipped</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -378,6 +381,7 @@
             <span class="s2">&quot;aae&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">aae</span><span class="p">,</span>
             <span class="s2">&quot;original_aae&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_aae</span><span class="p">,</span>
             <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
+            <span class="s2">&quot;update_skipped&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_skipped</span><span class="p">,</span>
         <span class="p">}</span>
 
 
@@ -491,7 +495,7 @@
         <span class="c1"># verify destination is a valid path</span>
         <span class="k">if</span> <span class="n">dest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dest must not be None&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isdir_cache</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Invalid path passed to export&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">export_edited</span><span class="p">:</span>
@@ -505,20 +509,35 @@
         <span class="c1"># Is there something to convert with convert_to_jpeg?</span>
         <span class="n">dest</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_convert_to_jpeg</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
 
-        <span class="c1"># stage files for export by finding path in local library or downloading from iCloud as appropriate</span>
-        <span class="c1"># for &#39;--download-missing&#39; and &#39;--update&#39; case, this may cause unnecessary downloads</span>
-        <span class="c1"># as it will download the file even if it&#39;s not needed (won&#39;t be checked until the _should_update_photo() call from _export_photo()</span>
-        <span class="c1"># fixing this will require major refactoring of the export code, see #1086</span>
-        <span class="c1"># leaving it for now as this should not be a common use case</span>
-        <span class="c1"># (if using &#39;--update&#39; it is much better to be using &quot;Download originals to this Mac&quot; in Photos)</span>
-        <span class="n">staged_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_photos_for_export</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dest_path</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+
+        <span class="c1"># In dry_run mode without update, register the claimed path in stat_cache</span>
+        <span class="c1"># so that subsequent photos with the same filename get correctly</span>
+        <span class="c1"># incremented. Skip this for update/force_update exports where real stat</span>
+        <span class="c1"># data is needed for change detection.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span>
+            <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">register_virtual_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+        <span class="n">staged_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_photos_for_export</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="p">)</span>
         <span class="n">src</span> <span class="o">=</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">edited</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="k">else</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">original</span>
 
-        <span class="c1"># get the right destination path depending on options.update, etc.</span>
-        <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dest_path</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="c1"># skip the JPEG component of a RAW+JPEG pair if requested</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">skip_raw_jpeg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">has_raw</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span><span class="p">:</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="n">all_results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">()</span>
+
+        <span class="c1"># Helper to check exists using stat_cache when available</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_dest_exists</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">src</span><span class="p">:</span>
             <span class="c1"># export the dest file</span>
@@ -527,12 +546,14 @@
                 <span class="n">dest</span><span class="p">,</span>
                 <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">update_skipped</span> <span class="ow">and</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
+            <span class="n">all_results</span><span class="o">.</span><span class="n">skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">export_db</span><span class="o">.</span><span class="n">set_history</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">verbose</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Skipping missing </span><span class="si">{</span><span class="s1">&#39;edited&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">options</span><span class="o">.</span><span class="n">edited</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;original&#39;</span><span class="si">}</span><span class="s2"> photo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="p">)</span>
             <span class="n">all_results</span><span class="o">.</span><span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-            <span class="n">unlock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
 
         <span class="c1"># copy live photo associated .mov if requested</span>
         <span class="k">if</span> <span class="n">export_original</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">live_photo</span><span class="p">:</span>
@@ -544,6 +565,11 @@
                     <span class="n">live_name</span><span class="p">,</span>
                     <span class="c1"># don&#39;t try to convert the live photo</span>
                     <span class="n">options</span><span class="o">=</span><span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">convert_to_jpeg</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">update_skipped</span> <span class="ow">and</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">live_name</span><span class="p">):</span>
+                <span class="n">all_results</span><span class="o">.</span><span class="n">skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">live_name</span><span class="p">))</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">export_db</span><span class="o">.</span><span class="n">set_history</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">live_name</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="kc">None</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">verbose</span><span class="p">(</span>
@@ -560,6 +586,11 @@
                     <span class="n">live_name</span><span class="p">,</span>
                     <span class="c1"># don&#39;t try to convert the live photo</span>
                     <span class="n">options</span><span class="o">=</span><span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">convert_to_jpeg</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">update_skipped</span> <span class="ow">and</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">live_name</span><span class="p">):</span>
+                <span class="n">all_results</span><span class="o">.</span><span class="n">skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">live_name</span><span class="p">))</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">export_db</span><span class="o">.</span><span class="n">set_history</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">live_name</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="kc">None</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">verbose</span><span class="p">(</span>
@@ -587,10 +618,16 @@
                 <span class="p">)</span>
                 <span class="n">raw_ext</span> <span class="o">=</span> <span class="n">raw_ext</span> <span class="ow">or</span> <span class="s2">&quot;raw&quot;</span>
                 <span class="n">raw_name</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">raw_ext</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">all_results</span><span class="o">.</span><span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_name</span><span class="p">)</span>
-                <span class="n">verbose</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Skipping missing raw photo for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">update_skipped</span> <span class="ow">and</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">raw_name</span><span class="p">):</span>
+                    <span class="n">all_results</span><span class="o">.</span><span class="n">skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">raw_name</span><span class="p">))</span>
+                    <span class="n">options</span><span class="o">.</span><span class="n">export_db</span><span class="o">.</span><span class="n">set_history</span><span class="p">(</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">raw_name</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">all_results</span><span class="o">.</span><span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_name</span><span class="p">)</span>
+                    <span class="n">verbose</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Skipping missing raw photo for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="p">)</span>
 
         <span class="c1"># copy preview image if requested</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">preview</span><span class="p">:</span>
@@ -608,9 +645,7 @@
                 <span class="n">preview_name</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">preview_name</span>
                     <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">])</span>
-                    <span class="k">else</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
-                        <span class="n">increment_filename</span><span class="p">(</span><span class="n">preview_name</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">)</span>
-                    <span class="p">)</span>
+                    <span class="k">else</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">preview_name</span><span class="p">))</span>
                 <span class="p">)</span>
                 <span class="n">all_results</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
                     <span class="n">preview_path</span><span class="p">,</span>
@@ -721,32 +756,29 @@
 <span class="sd">            new dest path (pathlib.Path)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># lock files are used to minimize chance of name collision when in parallel mode</span>
-        <span class="c1"># don&#39;t create lock files if in dry_run mode</span>
-        <span class="n">lock</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span>
+        <span class="n">stat_cache</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">_lock_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Lock filename if not in dry_run mode&quot;&quot;&quot;</span>
-            <span class="k">return</span> <span class="n">lock_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">if</span> <span class="n">lock</span> <span class="k">else</span> <span class="n">filename</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_dest_exists</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Check if destination exists, using stat cache if available.&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">stat_cache</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
         <span class="c1"># if overwrite==False and #increment==False, export should fail if file exists</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">options</span><span class="o">.</span><span class="n">increment</span><span class="p">,</span>
-                    <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span>
-                    <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">,</span>
-                    <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">,</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-            <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
-        <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">increment</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span> <span class="ow">and</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;destination exists (</span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">); overwrite=</span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="si">}</span><span class="s2">, increment=</span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">increment</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
         <span class="c1"># if overwrite, we don&#39;t care if the file exists or not</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span> <span class="ow">and</span> <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">dest</span>
 
         <span class="c1"># if not update or overwrite, check to see if file exists and if so, add (1), (2), etc</span>
@@ -758,21 +790,19 @@
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
             <span class="p">[</span><span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="n">lock</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span><span class="p">))</span>
 
         <span class="c1"># if update and file exists, need to check to see if it&#39;s the right file by checking export db</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>
             <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
             <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
                 <span class="c1"># destination doesn&#39;t exist in export db and doesn&#39;t exist on disk</span>
                 <span class="c1"># so we can just use it</span>
                 <span class="k">return</span> <span class="n">dest</span>
 
             <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
                 <span class="c1"># destination is the right file</span>
-                <span class="c1"># will use it even if locked so don&#39;t check return value of _lock_filename</span>
-                <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">dest</span>
 
             <span class="c1"># either dest_uuid is wrong or file exists and there&#39;s no associated UUID, so find a name that matches</span>
@@ -781,20 +811,35 @@
             <span class="c1"># first, find all matching files in export db and see if there&#39;s a match</span>
             <span class="k">if</span> <span class="n">dest_target</span> <span class="o">:=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_target_for_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
                 <span class="c1"># there&#39;s a match so use that</span>
-                <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest_target</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest_target</span><span class="p">)</span>
 
             <span class="c1"># no match so need to create a new name</span>
             <span class="c1"># increment the destination file until we find one that doesn&#39;t exist and doesn&#39;t match another uuid in the database</span>
-            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="n">lock</span><span class="p">)</span>
-            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">while</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="n">lock</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+                <span class="c1"># In dry_run mode (or pre-load), use db-only collision</span>
+                <span class="c1"># resolution so we can claim filenames that exist on disk</span>
+                <span class="c1"># but haven&#39;t been assigned to another photo yet.</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">candidate</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+                <span class="k">while</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">candidate</span> <span class="o">=</span> <span class="n">normalize_fs_path</span><span class="p">(</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span>
+                    <span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span>
+                <span class="p">)</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">while</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span>
+                        <span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
 
         <span class="c1"># fail safe...I can&#39;t think of a case that gets here</span>
-        <span class="n">_lock_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dest</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_should_update_photo</span><span class="p">(</span>
@@ -811,8 +856,10 @@
 <span class="sd">            False if photo should not be updated otherwise a truthy ShouldUpdate value</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># NOTE: The order of certain checks is important</span>
-        <span class="c1"># read the comments below to understand why before changing</span>
+        <span class="c1"># NOTE: The order of checks is optimized for performance on network volumes.</span>
+        <span class="c1"># Database-only checks are done first to avoid filesystem operations when possible.</span>
+        <span class="c1"># If any database check indicates we need to update, we can skip expensive</span>
+        <span class="c1"># filesystem operations like stat() and samefile().</span>
 
         <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
         <span class="n">fileutil</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">fileutil</span>
@@ -823,20 +870,7 @@
             <span class="c1"># photo doesn&#39;t exist in database, should update</span>
             <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">NOT_IN_DATABASE</span>
 
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">export_as_hardlink</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">src</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">samefile</span><span class="p">(</span><span class="n">src</span><span class="p">)):</span>
-            <span class="c1"># different files, should update</span>
-            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">HARDLINK_DIFFERENT_FILES</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">export_as_hardlink</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">src</span> <span class="ow">or</span> <span class="n">dest</span><span class="o">.</span><span class="n">samefile</span><span class="p">(</span><span class="n">src</span><span class="p">)):</span>
-            <span class="c1"># same file but not exporting as hardlink, should update</span>
-            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">NOT_HARDLINK_SAME_FILES</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_signature</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp_file_sig</span><span class="p">(</span>
-            <span class="n">dest</span><span class="p">,</span> <span class="n">file_record</span><span class="o">.</span><span class="n">dest_sig</span>
-        <span class="p">):</span>
-            <span class="c1"># destination file doesn&#39;t match what was last exported</span>
-            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">DEST_SIG_DIFFERENT</span>
-
+        <span class="c1"># --- Database-only checks first (fast, no filesystem access) ---</span>
         <span class="k">if</span> <span class="n">file_record</span><span class="o">.</span><span class="n">export_options</span> <span class="o">!=</span> <span class="n">options</span><span class="o">.</span><span class="n">bit_flags</span><span class="p">:</span>
             <span class="c1"># exporting with different set of options (e.g. exiftool), should update</span>
             <span class="c1"># need to check this before exiftool in case exiftool options are different</span>
@@ -852,33 +886,181 @@
             <span class="c1"># this must be checked before exiftool which will return False if exif data matches</span>
             <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">UPDATE_ERRORS</span>
 
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">date_modified</span><span class="p">:</span>
+            <span class="c1"># edited file date modified in Photos doesn&#39;t match what was last exported</span>
+            <span class="c1"># this is a database-only check so it goes before filesystem checks</span>
+            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">DATE_MODIFIED_DIFFERENT</span>
+
+        <span class="c1"># --- Filesystem checks (use stat_cache for efficiency) ---</span>
+        <span class="c1"># Hardlink checks: skip expensive samefile() calls when source and destination</span>
+        <span class="c1"># are on different filesystems (hardlinks can&#39;t span filesystems)</span>
+        <span class="c1"># same_filesystem is None if not yet determined, True if same, False if different</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">same_filesystem</span><span class="p">:</span>
+            <span class="c1"># Cross-volume export: hardlinks are impossible</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">export_as_hardlink</span><span class="p">:</span>
+                <span class="c1"># Can&#39;t verify hardlink on different filesystem, need to update</span>
+                <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">HARDLINK_DIFFERENT_FILES</span>
+            <span class="c1"># If not exporting as hardlink, no need to check samefile - they can&#39;t be same</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Same filesystem or unknown: do the full check</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">export_as_hardlink</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">src</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">samefile</span><span class="p">(</span><span class="n">src</span><span class="p">)):</span>
+                <span class="c1"># different files, should update</span>
+                <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">HARDLINK_DIFFERENT_FILES</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">export_as_hardlink</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">src</span> <span class="ow">or</span> <span class="n">dest</span><span class="o">.</span><span class="n">samefile</span><span class="p">(</span><span class="n">src</span><span class="p">)):</span>
+                <span class="c1"># same file but not exporting as hardlink, should update</span>
+                <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">NOT_HARDLINK_SAME_FILES</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_signature</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp_file_sig</span><span class="p">(</span>
+            <span class="n">dest</span><span class="p">,</span> <span class="n">file_record</span><span class="o">.</span><span class="n">dest_sig</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span>
+        <span class="p">):</span>
+            <span class="c1"># destination file doesn&#39;t match what was last exported</span>
+            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">DEST_SIG_DIFFERENT</span>
+
+        <span class="c1"># --- Additional checks that may involve computation ---</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exiftool</span><span class="p">:</span>
             <span class="n">current_exifdata</span> <span class="o">=</span> <span class="n">exiftool_json_sidecar</span><span class="p">(</span><span class="n">photo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
-            <span class="n">rv</span> <span class="o">=</span> <span class="n">current_exifdata</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">exifdata</span>
-            <span class="c1"># if using exiftool, don&#39;t need to continue checking edited below</span>
-            <span class="c1"># as exiftool will be used to update edited file</span>
-            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">EXIFTOOL_DIFFERENT</span> <span class="k">if</span> <span class="n">rv</span> <span class="k">else</span> <span class="kc">False</span>
-
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="ow">not</span> <span class="n">src</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp_file_sig</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">file_record</span><span class="o">.</span><span class="n">src_sig</span><span class="p">)</span>
-        <span class="p">):</span>
-            <span class="c1"># edited file in Photos doesn&#39;t match what was last exported</span>
-            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">EDITED_SIG_DIFFERENT</span>
+            <span class="k">if</span> <span class="n">current_exifdata</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">exifdata</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">EXIFTOOL_DIFFERENT</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>
-            <span class="n">current_digest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span>
-            <span class="k">if</span> <span class="n">current_digest</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">digest</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">digest</span><span class="p">:</span>
                 <span class="c1"># metadata in Photos changed, force update</span>
                 <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">DIGEST_DIFFERENT</span>
 
         <span class="c1"># photo should not be updated</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_stage_photos_for_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_should_update_photo_for_missing</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">ShouldUpdate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a missing photo needs to be updated (before downloading).</span>
+
+<span class="sd">        This performs checks that don&#39;t require the source file, allowing us to</span>
+<span class="sd">        skip unnecessary iCloud downloads when in update mode. This is called</span>
+<span class="sd">        BEFORE downloading from iCloud.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dest: destination path to check</span>
+<span class="sd">            options: export options</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            False if no update needed, otherwise a ShouldUpdate value indicating</span>
+<span class="sd">            why update is needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
+        <span class="n">fileutil</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">fileutil</span>
+
+        <span class="n">file_record</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_file_record</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_record</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">NOT_IN_DATABASE</span>
+
+        <span class="c1"># --- Database-only checks first (fast, no filesystem access) ---</span>
+        <span class="k">if</span> <span class="n">file_record</span><span class="o">.</span><span class="n">export_options</span> <span class="o">!=</span> <span class="n">options</span><span class="o">.</span><span class="n">bit_flags</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">EXPORT_OPTIONS_DIFFERENT</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update_errors</span> <span class="ow">and</span> <span class="n">file_record</span><span class="o">.</span><span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">UPDATE_ERRORS</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">date_modified</span><span class="p">:</span>
+            <span class="c1"># edited file date modified in Photos doesn&#39;t match what was last exported</span>
+            <span class="c1"># this is a database-only check so it goes before filesystem checks</span>
+            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">DATE_MODIFIED_DIFFERENT</span>
+
+        <span class="c1"># --- Filesystem check (uses stat_cache for efficiency) ---</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_signature</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp_file_sig</span><span class="p">(</span>
+            <span class="n">dest</span><span class="p">,</span> <span class="n">file_record</span><span class="o">.</span><span class="n">dest_sig</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">DEST_SIG_DIFFERENT</span>
+
+        <span class="c1"># --- Additional checks that may involve computation ---</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exiftool</span><span class="p">:</span>
+            <span class="n">current_exifdata</span> <span class="o">=</span> <span class="n">exiftool_json_sidecar</span><span class="p">(</span><span class="n">photo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">current_exifdata</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">exifdata</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">EXIFTOOL_DIFFERENT</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">digest</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">DIGEST_DIFFERENT</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_needs_download_for_update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">staged</span><span class="p">:</span> <span class="s2">&quot;StagedFiles&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if any missing files need to be downloaded for update.</span>
+
+<span class="sd">        This checks the main photo, live photo, and raw photo to determine</span>
+<span class="sd">        if any of them need to be downloaded from iCloud for updating.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            staged: currently staged files</span>
+<span class="sd">            dest: destination path for the main photo</span>
+<span class="sd">            options: export options</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if at least one missing file needs updating, False if all can be skipped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">live_photo</span> <span class="o">=</span> <span class="n">staged</span><span class="o">.</span><span class="n">edited_live</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="k">else</span> <span class="n">staged</span><span class="o">.</span><span class="n">original_live</span>
+
+        <span class="c1"># Helper to check exists using stat_cache when available</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_dest_exists</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+        <span class="c1"># Check main photo</span>
+        <span class="n">main_missing</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hasadjustments</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">staged</span><span class="o">.</span><span class="n">edited</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">staged</span><span class="o">.</span><span class="n">original</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">main_missing</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># New file, need to download</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_update_photo_for_missing</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Needs updating</span>
+
+        <span class="c1"># Check live photo</span>
+        <span class="n">live_missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">live_photo</span>
+        <span class="k">if</span> <span class="n">live_missing</span><span class="p">:</span>
+            <span class="n">live_dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.mov&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">live_dest</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># New file, need to download</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_update_photo_for_missing</span><span class="p">(</span><span class="n">live_dest</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Needs updating</span>
+
+        <span class="c1"># Check raw photo</span>
+        <span class="n">raw_missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">has_raw</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">raw_photo</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">staged</span><span class="o">.</span><span class="n">raw</span>
+        <span class="k">if</span> <span class="n">raw_missing</span><span class="p">:</span>
+            <span class="n">raw_ext</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti_raw</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti_raw</span>
+                <span class="k">else</span> <span class="s2">&quot;raw&quot;</span>
+            <span class="p">)</span>
+            <span class="n">raw_ext</span> <span class="o">=</span> <span class="n">raw_ext</span> <span class="ow">or</span> <span class="s2">&quot;raw&quot;</span>
+            <span class="n">raw_dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">raw_ext</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_dest_exists</span><span class="p">(</span><span class="n">raw_dest</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># New file, need to download</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_update_photo_for_missing</span><span class="p">(</span><span class="n">raw_dest</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Needs updating</span>
+
+        <span class="c1"># Nothing needs updating</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stage_photos_for_export</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Stages photos for export</span>
 
 <span class="sd">        If photo is present on disk in the library, uses path to the photo on disk.</span>
 <span class="sd">        If photo is missing and download_missing is true, downloads the photo from iCloud to temporary location.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            options: ExportOptions instance</span>
+<span class="sd">            dest: destination path for the main photo (used to check if update is needed</span>
+<span class="sd">                before downloading from iCloud)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">staged</span> <span class="o">=</span> <span class="n">StagedFiles</span><span class="p">()</span>
@@ -911,20 +1093,29 @@
         <span class="c1"># download any missing files</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">download_missing</span><span class="p">:</span>
             <span class="n">staged</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_missing_photos_for_export</span><span class="p">(</span>
-                <span class="n">staged</span><span class="o">=</span><span class="n">staged</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span>
+                <span class="n">staged</span><span class="o">=</span><span class="n">staged</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">dest</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">staged</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_stage_missing_photos_for_export</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">staged</span><span class="p">:</span> <span class="n">StagedFiles</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">staged</span><span class="p">:</span> <span class="n">StagedFiles</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
+        <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StagedFiles</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and stage any missing files for export&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and stage any missing files for export</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            staged: currently staged files</span>
+<span class="sd">            options: export options</span>
+<span class="sd">            dest: destination path for the main photo (used to check if update is needed</span>
+<span class="sd">                before downloading from iCloud)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># if live photo and requesting edited version need the edited live photo</span>
         <span class="n">live_photo</span> <span class="o">=</span> <span class="n">staged</span><span class="o">.</span><span class="n">edited_live</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="k">else</span> <span class="n">staged</span><span class="o">.</span><span class="n">original_live</span>
 
-        <span class="c1"># is there actually a missing file? (#1086)</span>
         <span class="n">something_to_download</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hasadjustments</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">staged</span><span class="o">.</span><span class="n">edited</span><span class="p">)</span>
             <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">live_photo</span><span class="p">)</span>
@@ -935,12 +1126,22 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">something_to_download</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">staged</span>
 
+        <span class="c1"># In update mode, check if any missing files actually need updating</span>
+        <span class="c1"># before downloading from iCloud (#1086)</span>
+        <span class="c1"># Skip this check in dry_run mode since we want to return predicted filenames</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span> <span class="ow">and</span> <span class="n">dest</span> <span class="ow">and</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_download_for_update</span><span class="p">(</span><span class="n">staged</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+                <span class="c1"># No update needed, skip the download</span>
+                <span class="n">staged</span><span class="o">.</span><span class="n">update_skipped</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">return</span> <span class="n">staged</span>
+
         <span class="n">missing_options</span> <span class="o">=</span> <span class="n">ExportOptions</span><span class="p">(</span>
             <span class="n">edited</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edited</span><span class="p">,</span>
             <span class="n">preview</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">preview</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">staged</span><span class="o">.</span><span class="n">preview</span><span class="p">,</span>
             <span class="n">raw_photo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">has_raw</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">raw_photo</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">staged</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span>
             <span class="n">live_photo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">live_photo</span><span class="p">,</span>
             <span class="n">use_photokit</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">use_photokit</span><span class="p">,</span>
+            <span class="n">dry_run</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">missing_staged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_missing_photos_for_export_helper</span><span class="p">(</span>
             <span class="n">options</span><span class="o">=</span><span class="n">missing_options</span>
@@ -956,6 +1157,61 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_photo_for_export_with_photokit</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_photo_for_export_with_applescript</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_predict_export_filenames</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">filestem</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">edited</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">live_photo</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict the filenames that would be exported.</span>
+
+<span class="sd">        This helper is used for dry_run mode to return expected filenames without</span>
+<span class="sd">        actually calling AppleScript or PhotoKit.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dest: destination directory</span>
+<span class="sd">            filestem: stem to use for filename, or None to use photo&#39;s filename</span>
+<span class="sd">            edited: True if exporting edited version</span>
+<span class="sd">            live_photo: True if exporting live photo video</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of predicted file paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine the extension based on UTI</span>
+        <span class="k">if</span> <span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti_edited</span><span class="p">:</span>
+            <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti_edited</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">uti</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;jpeg&quot;</span>
+
+        <span class="c1"># Determine the base filename</span>
+        <span class="k">if</span> <span class="n">filestem</span><span class="p">:</span>
+            <span class="n">stem</span> <span class="o">=</span> <span class="n">filestem</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stem</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+
+        <span class="n">predicted_files</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Main photo file</span>
+        <span class="n">main_file</span> <span class="o">=</span> <span class="n">dest</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">predicted_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">main_file</span><span class="p">))</span>
+
+        <span class="c1"># Live photo .mov file - only for original, not edited (AppleScript limitation)</span>
+        <span class="k">if</span> <span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">edited</span><span class="p">:</span>
+            <span class="n">mov_file</span> <span class="o">=</span> <span class="n">dest</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">.mov&quot;</span>
+            <span class="n">predicted_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">mov_file</span><span class="p">))</span>
+
+        <span class="c1"># RAW+JPEG pair - AppleScript exports both when exporting original (not edited)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">has_raw</span><span class="p">:</span>
+            <span class="n">raw_uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uti_raw</span>
+            <span class="n">raw_ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">raw_uti</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw_uti</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">raw_ext</span> <span class="ow">and</span> <span class="n">raw_ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">raw_file</span> <span class="o">=</span> <span class="n">dest</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">raw_ext</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">predicted_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">raw_file</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">predicted_files</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_stage_photo_for_export_with_photokit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -992,6 +1248,30 @@
         <span class="p">)</span>
         <span class="n">ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">uti</span><span class="p">)</span>
         <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># In dry_run mode, return predicted filenames without calling PhotoKit</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+            <span class="n">predicted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_export_filenames</span><span class="p">(</span>
+                <span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+                <span class="n">filestem</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span>
+                <span class="n">edited</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edited</span><span class="p">,</span>
+                <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">StagedFiles</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">predicted</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.mov&quot;</span><span class="p">):</span>
+                    <span class="n">results_attr</span> <span class="o">=</span> <span class="s2">&quot;edited_live&quot;</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="k">else</span> <span class="s2">&quot;original_live&quot;</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">has_raw</span> <span class="ow">and</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
+                    <span class="n">filepath</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.heic&quot;</span><span class="p">]:</span>
+                    <span class="n">results_attr</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">raw_photo</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">results_attr</span> <span class="o">=</span> <span class="s2">&quot;edited&quot;</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="k">else</span> <span class="s2">&quot;original&quot;</span>
+                <span class="k">if</span> <span class="n">results_attr</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">results_attr</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">preview</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">:</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">preview</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">results</span>
 
         <span class="n">photolib</span> <span class="o">=</span> <span class="n">PhotoLibrary</span><span class="p">()</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">StagedFiles</span><span class="p">()</span>
@@ -1105,6 +1385,7 @@
                 <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
                 <span class="n">timeout</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
                 <span class="n">burst</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
+                <span class="n">dry_run</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">,</span>
                 <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">ExportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1223,10 +1504,17 @@
         <span class="n">exif_results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">()</span>
 
         <span class="n">dest_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-        <span class="n">dest_exists</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="c1"># Use stat cache for exists check if available</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dest_exists</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dest_exists</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
         <span class="n">fileutil</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">fileutil</span>
         <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>
+            <span class="n">export_db</span><span class="o">.</span><span class="n">prefetch_directory_records</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
 
         <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>  <span class="c1"># updating</span>
@@ -1247,18 +1535,19 @@
             <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;export&quot;</span>
 
         <span class="n">export_files</span> <span class="o">=</span> <span class="n">update_new_files</span> <span class="o">+</span> <span class="n">update_updated_files</span> <span class="o">+</span> <span class="n">exported_files</span>
+        <span class="c1"># Compute src_sig before any modifications by convert_to_jpeg or exiftool</span>
+        <span class="c1"># but defer writing to database until the context manager block to batch commits</span>
+        <span class="n">src_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">export_dest</span> <span class="ow">in</span> <span class="n">export_files</span><span class="p">:</span>
-            <span class="c1"># set src_sig before any modifications by convert_to_jpeg or exiftool</span>
-            <span class="n">export_record</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">create_or_get_file_record</span><span class="p">(</span>
-                <span class="n">export_dest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span>
-            <span class="p">)</span>
-            <span class="n">export_record</span><span class="o">.</span><span class="n">src_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">dest_exists</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">]</span>
             <span class="p">):</span>
                 <span class="c1"># need to remove the destination first</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">fileutil</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+                    <span class="c1"># Update stat cache to reflect deleted file</span>
+                    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">remove_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Error removing file </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> ((</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -1266,6 +1555,9 @@
             <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">export_as_hardlink</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">fileutil</span><span class="o">.</span><span class="n">hardlink</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+                    <span class="c1"># Update stat cache to reflect new file</span>
+                    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">update_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Error hardlinking </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -1307,6 +1599,9 @@
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">fileutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest_str</span><span class="p">)</span>
+                    <span class="c1"># Update stat cache to reflect new file</span>
+                    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">update_file</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
                     <span class="n">verbose</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">dest_str</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
@@ -1367,7 +1662,7 @@
                 <span class="n">diff</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">rec</span><span class="o">.</span><span class="n">photoinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">shallow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">rec</span><span class="o">.</span><span class="n">export_options</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">bit_flags</span>
-            <span class="c1"># don&#39;t set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool</span>
+            <span class="n">rec</span><span class="o">.</span><span class="n">src_sig</span> <span class="o">=</span> <span class="n">src_sig</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_signature</span><span class="p">:</span>
                 <span class="n">rec</span><span class="o">.</span><span class="n">dest_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exiftool</span><span class="p">:</span>
@@ -1375,6 +1670,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">!=</span> <span class="n">rec</span><span class="o">.</span><span class="n">digest</span><span class="p">:</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">metadata_changed</span> <span class="o">=</span> <span class="p">[</span><span class="n">dest_str</span><span class="p">]</span>
             <span class="n">rec</span><span class="o">.</span><span class="n">digest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span>
+            <span class="n">rec</span><span class="o">.</span><span class="n">date_modified</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
             <span class="c1"># save errors to the export database (#872)</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">error</span>
@@ -1390,9 +1686,6 @@
         <span class="n">export_db</span><span class="o">.</span><span class="n">set_history</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">dest_str</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">diff</span><span class="o">=</span><span class="n">diff</span>
         <span class="p">)</span>
-
-        <span class="c1"># clean up lock file</span>
-        <span class="n">unlock_filename</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">results</span>
 
@@ -1428,9 +1721,10 @@
 <span class="sd">            live_photo: (boolean) if True, export associated .mov live photo; default = False</span>
 <span class="sd">            timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout</span>
 <span class="sd">            burst: (boolean) set to True if file is a burst image to avoid Photos export error</span>
-<span class="sd">            dry_run: (boolean) set to True to run in &quot;dry run&quot; mode which will download file but not actually copy to destination</span>
+<span class="sd">            dry_run: (boolean) set to True to run in &quot;dry run&quot; mode which returns predicted</span>
+<span class="sd">                    filenames without calling AppleScript or downloading files</span>
 
-<span class="sd">        Returns: list of paths to exported file(s) or None if export failed</span>
+<span class="sd">        Returns: list of paths to exported file(s), or predicted paths if dry_run is True</span>
 
 <span class="sd">        Raises: ExportError if error during export</span>
 
@@ -1438,23 +1732,32 @@
 <span class="sd">            has not been edited. This is due to how Photos Applescript interface works.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">original</span> <span class="o">^</span> <span class="n">edited</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;edited or original must be True but not both&quot;</span><span class="p">)</span>
+
+        <span class="c1"># In dry_run mode, return predicted filenames without calling AppleScript</span>
+        <span class="k">if</span> <span class="n">dry_run</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_export_filenames</span><span class="p">(</span>
+                <span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span>
+                <span class="n">filestem</span><span class="o">=</span><span class="n">filestem</span><span class="p">,</span>
+                <span class="n">edited</span><span class="o">=</span><span class="n">edited</span><span class="p">,</span>
+                <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
+            <span class="p">)</span>
+
         <span class="k">global</span> <span class="n">_consecutive_export_errors</span>
 
         <span class="c1"># Check if we&#39;ve hit the error threshold and need to restart Photos</span>
         <span class="k">if</span> <span class="n">_consecutive_export_errors</span> <span class="o">&gt;=</span> <span class="n">APPLESCRIPT_ERROR_THRESHOLD</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;AppleScript export has failed </span><span class="si">{</span><span class="n">_consecutive_export_errors</span><span class="si">}</span><span class="s2"> consecutive times, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;restarting Photos app&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;AppleScript export has failed </span><span class="si">{</span><span class="n">_consecutive_export_errors</span><span class="si">}</span><span class="s2"> consecutive times, restarting Photos app&quot;</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_kill_photos_process</span><span class="p">()</span>
             <span class="n">_consecutive_export_errors</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dest </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2"> must be a directory&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">original</span> <span class="o">^</span> <span class="n">edited</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;edited or original must be True but not both&quot;</span><span class="p">)</span>
 
         <span class="c1"># export to a subdirectory of tmpdir</span>
         <span class="n">tmpdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileutil</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">(</span>
@@ -1807,7 +2110,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=257b4c7a"></script>
+</div><script src="../../_static/documentation_options.js?v=1283c610"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
