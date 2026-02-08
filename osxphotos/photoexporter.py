@@ -311,12 +311,14 @@ class PhotoExporter:
             )
         elif staged_files.update_skipped and _dest_exists(dest):
             all_results.skipped.append(str(dest))
+            all_results.uuids[str(dest)] = self.photo.uuid
             options.export_db.set_history(str(dest), self.photo.uuid, "skip", None)
         else:
             verbose(
                 f"Skipping missing {'edited' if options.edited else 'original'} photo {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
             )
             all_results.missing.append(dest)
+            all_results.uuids[str(dest)] = self.photo.uuid
 
         # copy live photo associated .mov if requested
         if export_original and options.live_photo and self.photo.live_photo:
@@ -558,10 +560,6 @@ class PhotoExporter:
         if options.update or options.force_update:
             export_db = options.export_db
             dest_uuid = export_db.get_uuid_for_file(dest)
-            if dest_uuid is None and not _dest_exists(dest):
-                # destination doesn't exist in export db and doesn't exist on disk
-                # so we can just use it
-                return dest
 
             if dest_uuid == self.photo.uuid:
                 # destination is the right file
@@ -1383,6 +1381,14 @@ class PhotoExporter:
             skipped=update_skipped_files,
             updated=update_updated_files,
         )
+
+        for f in (
+            exported_files
+            + update_new_files
+            + update_updated_files
+            + update_skipped_files
+        ):
+            results.uuids[f] = self.photo.uuid
 
         # touch files if needed
         if options.touch_file:

@@ -1,7 +1,10 @@
 """pytest test configuration"""
 
+from __future__ import annotations
+
 import os
 import pathlib
+import re
 import shutil
 import tempfile
 import time
@@ -516,3 +519,182 @@ def set_tz_jerusalem():
     timezone = "Asia/Jerusalem"
     with set_timezone(timezone):
         yield
+
+
+_UUID_PATTERN = re.compile(
+    r"[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}"
+)
+
+# Header: "Exporting FILENAME (UUID_INFO) (N/M)" or
+#          "Exporting edited version of FILENAME (UUID_INFO)"
+_HEADER_RE = re.compile(
+    r"Exporting (?:edited version of )?(.+?) \((.+?)\)(?:\s+\(\d+/\d+\))?\s*$"
+)
+
+# "Skipping missing ... photo [for] FILENAME (UUID)"
+_MISSING_RE = re.compile(r"Skipping missing .+? \(([^)]+)\)\s*$")
+
+
+def parse_export_output(output: str) -> dict[str, dict]:
+    """Parse verbose export output into a dict keyed on photo UUID.
+
+    Returns a dict where each key is a UUID string and the value is::
+
+        {
+            "filename": str,      # original filename from the Exporting header
+            "action": str,        # "exported" | "updated" | "skipped" | "missing"
+            "files": list[str],   # absolute paths of exported/skipped files
+        }
+
+    Action priority when an asset has mixed per-file outcomes:
+    exported > updated > missing > skipped
+    """
+    lines = output.splitlines()
+
+    # Split output into per-asset blocks delimited by "Exporting ..." headers.
+    # Each block is (uuid | None, original_filename, [lines]).
+    blocks: list[tuple[str | None, str, list[str]]] = []
+    cur_uuid: str | None = None
+    cur_filename: str = ""
+    cur_lines: list[str] = []
+
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        m = _HEADER_RE.match(line)
+        if m:
+            filename = m.group(1)
+            uuid_info = m.group(2)
+            uuid_match = _UUID_PATTERN.search(uuid_info)
+            uuid = uuid_match.group(0) if uuid_match else None
+
+            # "Exporting edited version of ..." is a continuation of the same
+            # asset; keep appending to the current block.
+            if "edited version of" in line and uuid and uuid == cur_uuid:
+                continue
+
+            # Save previous block and start a new one.
+            if cur_lines:
+                blocks.append((cur_uuid, cur_filename, cur_lines))
+            cur_uuid = uuid
+            cur_filename = filename
+            cur_lines = []
+            continue
+
+        # If the header didn't contain a UUID (e.g. "Pumpkins4.jpg"),
+        # try to pick it up from a "Skipping missing" line.
+        if cur_uuid is None:
+            mm = _MISSING_RE.match(line)
+            if mm:
+                uuid_match = _UUID_PATTERN.search(mm.group(1))
+                if uuid_match:
+                    cur_uuid = uuid_match.group(0)
+
+        cur_lines.append(line)
+
+    # Save final block.
+    if cur_lines:
+        blocks.append((cur_uuid, cur_filename, cur_lines))
+
+    # Process each block: extract actions and file paths.
+    result: dict[str, dict] = {}
+
+    for uuid, filename, block_lines in blocks:
+        if not uuid:
+            continue
+
+        actions: set[str] = set()
+        files: list[str] = []
+
+        for line in block_lines:
+            # --- action + optional path patterns (most specific first) ---
+
+            if line.startswith("Exported new file"):
+                actions.add("exported")
+                rest = line[len("Exported new file") :].strip()
+                if rest.startswith("/"):
+                    files.append(rest)
+                continue
+
+            if line.startswith("Exported updated file"):
+                actions.add("updated")
+                rest = line[len("Exported updated file") :].strip()
+                if rest.startswith("/"):
+                    files.append(rest)
+                continue
+
+            if line.startswith("Skipped up to date file"):
+                actions.add("skipped")
+                rest = line[len("Skipped up to date file") :].strip()
+                if rest.startswith("/"):
+                    files.append(rest)
+                continue
+
+            if line.startswith("Skipping missing"):
+                actions.add("missing")
+                continue
+
+            # "Exported /path" — non-update mode result from CLI
+            if line.startswith("Exported /"):
+                actions.add("exported")
+                files.append(line[len("Exported ") :])
+                continue
+
+            # "Exported FILENAME to /path" — verbose message from _export_photo
+            if line.startswith("Exported "):
+                to_match = re.search(r" to (/.+)$", line)
+                if to_match:
+                    files.append(to_match.group(1))
+                continue
+
+            # Bare path line (continuation from line-wrapped output)
+            if line.startswith("/"):
+                files.append(line)
+                continue
+
+        # Determine primary action by priority.
+        if "exported" in actions:
+            action = "exported"
+        elif "updated" in actions:
+            action = "updated"
+        elif "missing" in actions:
+            action = "missing"
+        elif "skipped" in actions:
+            action = "skipped"
+        else:
+            action = "exported"
+
+        # Deduplicate paths preserving order.
+        seen: set[str] = set()
+        unique_files: list[str] = []
+        for f in files:
+            if f not in seen:
+                seen.add(f)
+                unique_files.append(f)
+
+        # Merge with existing entry for the same UUID
+        # (e.g. original + edited version of the same photo).
+        if uuid in result:
+            existing = result[uuid]
+            existing_set = set(existing["files"])
+            for f in unique_files:
+                if f not in existing_set:
+                    existing_set.add(f)
+                    existing["files"].append(f)
+            both = {existing["action"], action}
+            if "exported" in both:
+                existing["action"] = "exported"
+            elif "updated" in both:
+                existing["action"] = "updated"
+            elif "missing" in both:
+                existing["action"] = "missing"
+        else:
+            result[uuid] = {
+                "filename": filename,
+                "action": action,
+                "files": unique_files,
+            }
+
+    return result

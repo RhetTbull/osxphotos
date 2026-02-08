@@ -227,6 +227,7 @@ class ExportResults:
         "user_written",
         "user_skipped",
         "user_error",
+        "uuids",
     ]
 
     def __init__(
@@ -265,6 +266,7 @@ class ExportResults:
         user_written: list[str] | None = None,
         user_skipped: list[str] | None = None,
         user_error: list[tuple[str, str]] | None = None,
+        uuids: dict[str, str] | None = None,
     ):
         """ExportResults data class to hold results of export.
 
@@ -273,7 +275,9 @@ class ExportResults:
         local_vars = locals()
         self._datetime = datetime.now().isoformat()
         for attr in self.attributes:
-            setattr(self, attr, local_vars.get(attr) or [])
+            setattr(
+                self, attr, local_vars.get(attr) or (dict() if attr == "uuids" else [])
+            )
 
     @property
     def attributes(self) -> list[str]:
@@ -320,11 +324,16 @@ class ExportResults:
     def __iadd__(self, other) -> "ExportResults":
         if type(other) != ExportResults:
             raise TypeError("Can only add ExportResults to ExportResults")
-
         for attribute in self.attributes:
-            setattr(
-                self, attribute, getattr(self, attribute) + getattr(other, attribute)
-            )
+            if attribute == "uuids":
+                # union of dicts
+                self.uuids.update(other.uuids)
+            else:
+                setattr(
+                    self,
+                    attribute,
+                    getattr(self, attribute) + getattr(other, attribute),
+                )
         return self
 
     def __str__(self) -> str:

@@ -1,0 +1,160 @@
+"""Test export of photos with same basename (see #2045, #2110)"""
+
+import glob
+import json
+import os
+import pathlib
+from typing import Any
+
+import pytest
+from click.testing import CliRunner
+
+from osxphotos.cli import export
+
+TEST_LIBRARY = "tests/Test-Live-15.7.2.photoslibrary"
+
+EXPORT_RESULTS = {
+    "ACF2FC98-C2AA-429E-A3CF-257230F29188": ["IMG_1994.cr2"],
+    "B52DB84A-888E-4704-9249-1B042D99D8E9": ["IMG_1994 (1).JPG", "IMG_1994 (1).cr2"],
+    "DE34ADE0-2795-4402-9A2C-32016EB868E1": ["IMG_1994 (2).JPG"],
+    "A0002D0F-7D4E-40F5-BA53-8A11096B1E6B": ["IMG_4062.mov"],
+    "C3090F66-942C-41D3-BEC7-4F2B4876A109": ["IMG_4062 (1).HEIC", "IMG_4062 (1).mov"],
+}
+
+
+def get_results_for_uuid(results: list[dict[str, Any]], uuid: str) -> list[str]:
+    """Get results for a given UUID from a export results dictionary"""
+    values = []
+    for result in results:
+        if result.get("uuid") == uuid:
+            values.append(result)
+    return sorted([pathlib.Path(x.get("filename")).name for x in values])
+
+
+def test_export_same_basename():
+    """test export with photos with same basename (e.g. Live pair and a video with same basename) #2045, #2110"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, TEST_LIBRARY),
+                "-V",
+                "--report",
+                "export.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("export.json", "rb") as fd:
+            results = json.load(fd)
+
+        for uuid in EXPORT_RESULTS:
+            files = get_results_for_uuid(results, uuid)
+            assert files == EXPORT_RESULTS[uuid]
+
+        assert "exported: 7, missing: 0" in result.output
+
+
+def test_export_same_basename_then_update():
+    """test export with photos with same basename followed by --update (e.g. Live pair and a video with same basename) #2045, #2110"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, TEST_LIBRARY),
+                "-V",
+                "--report",
+                "export.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("export.json", "rb") as fd:
+            results = json.load(fd)
+
+        for uuid in EXPORT_RESULTS:
+            files = get_results_for_uuid(results, uuid)
+            assert files == EXPORT_RESULTS[uuid]
+
+        assert "exported: 7, missing: 0" in result.output
+
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, TEST_LIBRARY),
+                "-V",
+                "--update",
+                "--report",
+                "export.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("export.json", "rb") as fd:
+            results = json.load(fd)
+
+        for uuid in EXPORT_RESULTS:
+            files = get_results_for_uuid(results, uuid)
+            assert files == EXPORT_RESULTS[uuid]
+
+        assert "exported: 0, updated: 0, skipped: 7" in result.output
+
+
+def test_export_same_basename_update():
+    """test export with photos with same basename and --update (e.g. Live pair and a video with same basename) #2045, #2110"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, TEST_LIBRARY),
+                "-V",
+                "--update",
+                "--report",
+                "export.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("export.json", "rb") as fd:
+            results = json.load(fd)
+
+        for uuid in EXPORT_RESULTS:
+            files = get_results_for_uuid(results, uuid)
+            assert files == EXPORT_RESULTS[uuid]
+
+        assert "exported: 7, updated: 0, skipped: 0" in result.output
+
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, TEST_LIBRARY),
+                "-V",
+                "--update",
+                "--report",
+                "export.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("export.json", "rb") as fd:
+            results = json.load(fd)
+
+        for uuid in EXPORT_RESULTS:
+            files = get_results_for_uuid(results, uuid)
+            assert files == EXPORT_RESULTS[uuid]
+
+        assert "exported: 0, updated: 0, skipped: 7" in result.output
