@@ -884,7 +884,15 @@ def photo_query(
 def sort_photos(photos: list[PhotoInfo], options: QueryOptions) -> list[PhotoInfo]:
     """Sort photo list results from photo_query"""
     # Current implementation ignores QueryOptions, in the future, may use options to control sorting
-    return sorted(photos, key=lambda x: (x.date, x.uuid), reverse=options.newest_first)
+    return sorted(
+        photos,
+        key=lambda x: (
+            x.date
+            or datetime.datetime(1970, 1, 1, 0, 0, 0, timezone=datetime.timezone.utc),
+            x.uuid or "",
+        ),
+        reverse=True if options.newest_first else False,
+    )
 
 
 def filter_photos_by_folder_album_path(
