@@ -321,3 +321,78 @@ def test_export_same_basename_newest_then_oldest():
             assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
 
         assert "exported: 0, updated: 0, skipped: 7" in result.output
+
+
+def test_export_same_basename_newest_then_oldest_then_newest():
+    """test export with photos with same basename with different order (e.g. Live pair and a video with same basename) #2045, #2110"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, TEST_LIBRARY),
+                "-V",
+                "--newest-first",
+                "--update",
+                "--report",
+                "export.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("export.json", "rb") as fd:
+            results = json.load(fd)
+
+        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+            files = get_results_for_uuid(results, uuid)
+            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+
+        assert "exported: 7, updated: 0, skipped: 0" in result.output
+
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, TEST_LIBRARY),
+                "-V",
+                "--update",
+                "--report",
+                "export.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("export.json", "rb") as fd:
+            results = json.load(fd)
+
+        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+            files = get_results_for_uuid(results, uuid)
+            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+
+        assert "exported: 0, updated: 0, skipped: 7" in result.output
+
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, TEST_LIBRARY),
+                "-V",
+                "--update",
+                "--newest-first",
+                "--report",
+                "export.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("export.json", "rb") as fd:
+            results = json.load(fd)
+
+        for uuid in EXPORT_RESULTS_NEWEST_FIRST:
+            files = get_results_for_uuid(results, uuid)
+            assert files == EXPORT_RESULTS_NEWEST_FIRST[uuid]
+
+        assert "exported: 0, updated: 0, skipped: 7" in result.output
