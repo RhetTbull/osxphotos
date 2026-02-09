@@ -883,7 +883,6 @@ def photo_query(
 
 def sort_photos(photos: list[PhotoInfo], options: QueryOptions) -> list[PhotoInfo]:
     """Sort photo list results from photo_query"""
-    # Current implementation ignores QueryOptions, in the future, may use options to control sorting
     return sorted(
         photos,
         key=lambda x: (
