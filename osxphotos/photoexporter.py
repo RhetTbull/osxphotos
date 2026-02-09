@@ -393,6 +393,7 @@ class PhotoExporter:
                     verbose(
                         f"Skipping missing raw photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                     )
+                all_results.uuids[str(raw_name)] = self.photo.uuid
 
         # copy preview image if requested
         if options.preview:
@@ -421,6 +422,7 @@ class PhotoExporter:
                 # don't know what actual preview suffix would be but most likely jpeg
                 preview_name = dest.parent / f"{dest.stem}{options.preview_suffix}.jpeg"
                 all_results.missing.append(preview_name)
+                all_results.uuids[preview_name] = self.photo.uuid
                 verbose(
                     f"Skipping missing preview photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                 )
@@ -1094,6 +1096,7 @@ class PhotoExporter:
                 )
                 if exported:
                     results.raw = exported[0]
+                    results.uuids[exported[0]] = self.photo.uuid
             except Exception as e:
                 results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
 
@@ -1694,6 +1697,7 @@ class PhotoExporter:
             new=new,
             updated=updated,
             error=errors,
+            uuids={str(dest): self.photo.uuid},
         )
 
     def write_exiftool_metadata_to_file(
