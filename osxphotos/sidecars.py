@@ -254,6 +254,17 @@ class SidecarWriter(_ExifMixin):
             sidecar_xmp_written=sidecar_xmp_files_written,
             sidecar_xmp_skipped=sidecar_xmp_files_skipped,
         )
+
+        for f in (
+            sidecar_json_files_written
+            + sidecar_json_files_skipped
+            + sidecar_exiftool_files_written
+            + sidecar_exiftool_files_skipped
+            + sidecar_xmp_files_written
+            + sidecar_xmp_files_skipped
+        ):
+            results.uuids[f] = self.photo.uuid
+
         # write user sidecar files if specified
         if options.sidecar_template:
             results += self.write_user_sidecar_files(
@@ -381,6 +392,10 @@ class SidecarWriter(_ExifMixin):
             sidecar_user_skipped=sidecar_user_skipped,
             sidecar_user_error=sidecar_user_error,
         )
+
+        for f in sidecar_user_written + sidecar_user_skipped + sidecar_user_error:
+            results.uuids[f] = self.photo.uuid
+
         return results
 
     def _render_sidecar_filename(

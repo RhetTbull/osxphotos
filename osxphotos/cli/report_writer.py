@@ -128,6 +128,8 @@ class ExportReportWriterCSV(ReportWriterABC):
         """Write results to the output file"""
         all_results = prepare_export_results_for_writing(export_results)
         for data in list(all_results.values()):
+            # uuid not yet supported in CSV report
+            data.pop("uuid", None)
             self._csv_writer.writerow(data)
         self._output_fh.flush()
 
@@ -389,7 +391,7 @@ class ExportReportWriterSQLite(ReportWriterABC):
 
 def prepare_export_results_for_writing(
     export_results: ExportResults, bool_values: bool = False
-) -> Dict:
+) -> dict[str, dict[str, Any]]:
     """Return all results for writing to report
 
     Args:
@@ -397,7 +399,7 @@ def prepare_export_results_for_writing(
         bool_values: Return a boolean value instead of a integer (e.g. for use with JSON)
 
     Returns:
-        Dict: All results
+        dict: All results
     """
     false = False if bool_values else 0
     true = True if bool_values else 1
@@ -439,6 +441,7 @@ def prepare_export_results_for_writing(
                 "user_error": "",
                 "aae_written": false,
                 "aae_skipped": false,
+                "uuid": export_results.uuids.get(str(result), ""),
             }
 
     for result in export_results.exported:

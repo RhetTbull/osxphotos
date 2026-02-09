@@ -1,4 +1,4 @@
-""" test ExportResults class """
+"""test ExportResults class"""
 
 import pytest
 
@@ -10,19 +10,29 @@ EXPORT_RESULT_ATTRIBUTES = ExportResults().attributes
 def test_exportresults_init():
     results = ExportResults()
     for x in EXPORT_RESULT_ATTRIBUTES:
-        assert getattr(results, x) == []
+        if x == "uuids":
+            assert getattr(results, x) == {}
+        else:
+            assert getattr(results, x) == []
 
 
 def test_exportresults_iadd():
     results1 = ExportResults()
     results2 = ExportResults()
     for x in EXPORT_RESULT_ATTRIBUTES:
-        setattr(results1, x, [f"{x}1"])
-        setattr(results2, x, [f"{x}2"])
+        if x == "uuids":
+            setattr(results1, x, {"key1": "val1"})
+            setattr(results2, x, {"key2": "val2"})
+        else:
+            setattr(results1, x, [f"{x}1"])
+            setattr(results2, x, [f"{x}2"])
 
     results1 += results2
     for x in EXPORT_RESULT_ATTRIBUTES:
-        assert getattr(results1, x) == [f"{x}1", f"{x}2"]
+        if x == "uuids":
+            assert getattr(results1, x) == {"key1": "val1", "key2": "val2"}
+        else:
+            assert getattr(results1, x) == [f"{x}1", f"{x}2"]
 
     # exiftool_warning and exiftool_error are lists of tuples
     results1 = ExportResults()
@@ -32,11 +42,11 @@ def test_exportresults_iadd():
     results1.exiftool_error = [("exiftool_error1", "foo")]
     results2.exiftool_error = [("exiftool_error2", "bar")]
 
-    results1.deleted_files = [("foo1")]
-    results2.deleted_files = [("foo2")]
+    results1.deleted_files = ["foo1"]
+    results2.deleted_files = ["foo2"]
 
-    results1.deleted_directories = [("bar1")]
-    results2.deleted_directories = [("bar2")]
+    results1.deleted_directories = ["bar1"]
+    results2.deleted_directories = ["bar2"]
 
     results1 += results2
 
