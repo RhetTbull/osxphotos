@@ -2,6 +2,62 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.75.3](https://github.com/RhetTbull/osxphotos/compare/v0.75.2...v0.75.3)
+
+Bug fixes for files with the same name
+
+### 2026-02-09
+
+#### Added
+
+- Added `--newest-first` query option to `osxphotos query` and `osxphotos export` which processes files in newest first (most recently created photos to oldest photos). The default behavior is to process assets in oldest first order.
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fixed export name collision of Live photos and RAW+JPEG pairs when a file with the same name is also exported to the same directory. (#2110 and #2045)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull)
+
+## [v0.75.2](https://github.com/RhetTbull/osxphotos/compare/v0.75.1...v0.75.2)
+
+Bug Fixes and Performance Improvements
+
+### 2026-02-01
+
+#### Added
+
+- Added `osxphotos dbversion` command to print version info for a given Photos library. This does not parse the database, only prints version info, so it should be useful on unknown database versions. (#2066)
+- Added `--skip-raw-jpeg` to `osxphotos export`; this option causes only the RAW image of a RAW+JPEG pair to be exported. Complement to `--skip-raw` which skips the RAW and exports the JPEG. (#1549)
+- Added `--pre-load` option to `osxphotos export`. This can be used to rebuild or pre-load a new osxphotos export database from an existing folder structure. See `osxphotos help export pre-load` for more info.
+
+#### Changed
+
+- `osxphotos export --only-new` can now be used with `--cleanup`. Any file previously exported by osxphotos will not be deleted when exporting with both options.
+- Debug options such as `--debug`, `--profile`, `--watch`, `--breakpoint` can now be added at the end of the command line instead of the beginning
+- When using `osxphotos query` and `osxphotos export`, photos are now always processed in order of oldest first to newest last. (#2078)
+
+#### Removed
+
+#### Fixed
+
+- Fixed docs formatting (#2029)
+- Partial fix for shared albums in macOS Tahoe (#2003) (Still needs testing by Tahoe users)
+- Fix for `osxphotos export --dry-run` with `--download-missing` or `--pre-load` to avoid downloading images from iCloud. (#2095)
+- Fix `PhotosAlbum` to ignore shared photos (#2067)
+- Improved export speed on SMB volumes (#2087)
+- Avoid downloading edited images unnecessarily when using `--download-missing` (#1086)
+- Fixed `osxphotos import` grouping with edited files in format `IMG_1234_edited (1).heic` (#2075)
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/rhettbull)
+
 ## [v0.75.1](https://github.com/RhetTbull/osxphotos/compare/v0.75.0...v0.75.1)
 
 Bug fixes, added `PhotoInfo.imported_by`, `{imported_by.name}`, `{imported_by.id}` templates, and `AlbumInfo.library_list_order`.
