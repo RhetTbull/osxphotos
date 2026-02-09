@@ -464,7 +464,7 @@ class ExportDB:
             conn = self.connection
             c = conn.cursor()
             filepath_normalized = self._normalize_filepath_relative(filename)
-            filepath_stem = os.path.splitext(filepath_normalized)[0]
+            filepath_stem, filepath_ext = os.path.splitext(filepath_normalized)
             c.execute(
                 "SELECT uuid, filepath, filepath_normalized FROM export_data WHERE uuid = ? AND filepath_normalized LIKE ?",
                 (
@@ -475,10 +475,10 @@ class ExportDB:
             results = c.fetchall()
 
             for result in results:
-                filepath_normalized = os.path.splitext(result[2])[0]
-                if re.match(
-                    re.escape(filepath_stem) + r"(\s\(\d+\))?$", filepath_normalized
-                ):
+                result_stem, result_ext = os.path.splitext(result[2])
+                if result_ext != filepath_ext:
+                    continue
+                if re.match(re.escape(filepath_stem) + r"(\s\(\d+\))?$", result_stem):
                     return os.path.join(self.export_dir, result[1])
 
             return None

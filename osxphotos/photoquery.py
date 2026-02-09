@@ -140,6 +140,7 @@ class QueryOptions:
         not_shared_moment: search for photos that have not been shared via a shared moment
         shared_library: search for photos that are part of a shared iCloud library
         not_shared_library: search for photos that are not part of a shared iCloud library
+        newest_first: return results in newest first order instead of default oldest first
     """
 
     added_after: Optional[datetime.datetime] = None
@@ -234,6 +235,7 @@ class QueryOptions:
     not_shared_moment: Optional[bool] = None
     shared_library: Optional[bool] = None
     not_shared_library: Optional[bool] = None
+    newest_first: Optional[bool] = None
 
     def asdict(self):
         return asdict(self)
@@ -275,6 +277,7 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         "uuid",
         "uuid_from_file",
         "year",
+        "newest_first",
     ]
     exclusive = [
         ("burst", "not_burst"),
@@ -875,7 +878,20 @@ def photo_query(
             seen_uuids[p.uuid] = p
         photos = list(seen_uuids.values())
 
-    return sorted(photos, key=lambda x: x.date)
+    return sort_photos(photos, options)
+
+
+def sort_photos(photos: list[PhotoInfo], options: QueryOptions) -> list[PhotoInfo]:
+    """Sort photo list results from photo_query"""
+    return sorted(
+        photos,
+        key=lambda x: (
+            x.date
+            or datetime.datetime(1970, 1, 1, 0, 0, 0, timezone=datetime.timezone.utc),
+            x.uuid or "",
+        ),
+        reverse=True if options.newest_first else False,
+    )
 
 
 def filter_photos_by_folder_album_path(

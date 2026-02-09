@@ -49,7 +49,7 @@ jobs:
           ${{ runner.os }}-venv-${{ matrix.python-version }}-
     - name: Install dependencies (uv)
       run: |
-        uv venv
+        uv venv --clear
         uv pip install -r requirements.txt
         uv pip install -r dev_requirements.txt
     - name: Install exiftool
