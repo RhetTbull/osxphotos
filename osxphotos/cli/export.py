@@ -82,6 +82,7 @@ from osxphotos.unicode import normalize_fs_path
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
     format_sec_to_hhmmss,
+    increment_filename_with_count,
     is_mounted_volume,
     is_photoslibrary_path,
     pluralize,
@@ -2376,7 +2377,7 @@ def export_photo(
     fileutil=FileUtilShUtil,
     dry_run=None,
     touch_file=None,
-    edited_suffix="_edited",
+    edited_suffix=DEFAULT_EDITED_SUFFIX,
     original_suffix="",
     use_photos_export=False,
     convert_to_jpeg=False,
@@ -2634,17 +2635,29 @@ def export_photo(
             results += orig_export
 
             # Extract filename increment for edited filename derivation
-            original_stem_with_suffix = (
-                f"{pathlib.Path(filename).stem}{rendered_suffix}"
-            )
-            for p_str in orig_export.exported + orig_export.skipped:
-                p = pathlib.Path(p_str)
-                if p.suffix.lower() == file_ext.lower():
-                    resolved_full_stem = p.stem
-                    if len(resolved_full_stem) > len(original_stem_with_suffix):
-                        increment = resolved_full_stem[len(original_stem_with_suffix) :]
-                        resolved_stems[pathlib.Path(filename).stem] = increment
-                    break
+            if not export_original:
+                # Original was skipped (--skip-original-if-edited);
+                # check filesystem for stem collisions on the base filename
+                base_path = pathlib.Path(dest_path) / original_filename
+                _, count = increment_filename_with_count(
+                    base_path, stat_cache=stat_cache
+                )
+                if count > 0:
+                    resolved_stems[pathlib.Path(filename).stem] = f" ({count})"
+            else:
+                original_stem_with_suffix = normalize_fs_path(
+                    f"{pathlib.Path(filename).stem}{rendered_suffix}"
+                )
+                for p_str in orig_export.exported + orig_export.skipped:
+                    p = pathlib.Path(p_str)
+                    if p.suffix.lower() == file_ext.lower():
+                        resolved_full_stem = normalize_fs_path(p.stem)
+                        if len(resolved_full_stem) > len(original_stem_with_suffix):
+                            increment = resolved_full_stem[
+                                len(original_stem_with_suffix) :
+                            ]
+                            resolved_stems[pathlib.Path(filename).stem] = increment
+                        break
 
     if export_edited and photo.hasadjustments:
         dest_paths = get_dirnames_from_template(
