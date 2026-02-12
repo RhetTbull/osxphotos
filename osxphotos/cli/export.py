@@ -2530,6 +2530,7 @@ def export_photo(
     )
 
     results = ExportResults()
+    resolved_stems = {}  # base_stem -> resolved base stem (with increment)
     dest_paths = get_dirnames_from_template(
         photo,
         directory,
@@ -2576,7 +2577,7 @@ def export_photo(
                 f"Exporting [filename]{photo.original_filename}[/] ([filename]{photo.filename}[/]) ([count]{photo_num}/{num_photos}[/])"
             )
 
-            results += export_photo_to_directory(
+            orig_export = export_photo_to_directory(
                 album_keyword=album_keyword,
                 convert_to_jpeg=convert_to_jpeg,
                 description_template=description_template,
@@ -2630,6 +2631,20 @@ def export_photo(
                 stat_cache=stat_cache,
                 same_filesystem=same_filesystem,
             )
+            results += orig_export
+
+            # Extract filename increment for edited filename derivation
+            original_stem_with_suffix = (
+                f"{pathlib.Path(filename).stem}{rendered_suffix}"
+            )
+            for p_str in orig_export.exported + orig_export.skipped:
+                p = pathlib.Path(p_str)
+                if p.suffix.lower() == file_ext.lower():
+                    resolved_full_stem = p.stem
+                    if len(resolved_full_stem) > len(original_stem_with_suffix):
+                        increment = resolved_full_stem[len(original_stem_with_suffix) :]
+                        resolved_stems[pathlib.Path(filename).stem] = increment
+                    break
 
     if export_edited and photo.hasadjustments:
         dest_paths = get_dirnames_from_template(
@@ -2693,9 +2708,8 @@ def export_photo(
                     photo,
                     export_db,
                 )
-                edited_filename = (
-                    f"{edited_filename.stem}{rendered_edited_suffix}{edited_ext}"
-                )
+                increment = resolved_stems.get(edited_filename.stem, "")
+                edited_filename = f"{edited_filename.stem}{rendered_edited_suffix}{increment}{edited_ext}"
 
                 verbose(
                     f"Exporting edited version of [filename]{photo.original_filename}[/filename] ([filename]{photo.filename}[/filename])"
