@@ -132,6 +132,7 @@ class ExportOptions:
     sidecar_template: Optional[tuple[tuple[str, str, tuple[str, ...]], ...]] = None
     stat_cache: Optional["DirectoryStatCache"] = None
     same_filesystem: Optional[bool] = None
+    claim_only: bool = False
 
     def asdict(self):
         return dataclasses.asdict(self)

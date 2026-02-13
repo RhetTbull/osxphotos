@@ -286,6 +286,19 @@ class PhotoExporter:
         ):
             options.stat_cache.register_virtual_file(dest)
 
+        # claim_only: resolve the filename and register it without exporting;
+        # used when --skip-original-if-edited skips the original so the
+        # filename is still reserved for collision detection
+        if options.claim_only:
+            all_results = ExportResults()
+            if options.stat_cache is not None:
+                options.stat_cache.register_virtual_file(dest)
+            if options.export_db is not None:
+                options.export_db.create_or_get_file_record(str(dest), self.photo.uuid)
+            all_results.skipped.append(str(dest))
+            all_results.uuids[str(dest)] = self.photo.uuid
+            return all_results
+
         staged_files = self._stage_photos_for_export(options, dest=dest)
         src = staged_files.edited if options.edited else staged_files.original
 
