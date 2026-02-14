@@ -1,4 +1,4 @@
-""" Tests which require user interaction to run for osxphotos import command; run with pytest --test-import """
+"""Tests which require user interaction to run for osxphotos import command; run with pytest --test-import"""
 
 import os
 import os.path
@@ -133,26 +133,29 @@ def test_import_google_takeout(tmp_path):
 
         # test a photo that was imported
         row = c.execute(
-            "SELECT * FROM report WHERE filepath LIKE '%/Pumpkin Farm/Pumpkins3.jpg'"
-        ).fetchone()
-        assert row["imported"] == 1
-        assert row["description"] == "3 kids at Pumpkin Farm"
-        assert row["title"] == "Pumpkins3.jpg"
-        assert row["albums"] == "Pumpkin Farm"
-        assert sorted(row["keywords"].split(",")) == ["Katie", "Suzy"]
-        assert row["datetime"] == "2018-09-28T16:09:33"
-        lat, lon = [float(x) for x in row["location"].split(",")]
-        assert lat == pytest.approx(41.2565369)
-        assert lon == pytest.approx(-95.9345034)
+            "SELECT * FROM report WHERE filepath LIKE '%Pumpkins3.jpg'"
+        ).fetchall()
+        assert len(row) == 2
+        # check --skip-dups
+        assert sorted([row[0]["imported"], row[1]["imported"]]) == [0, 1]
+        assert sorted([row[0]["albums"], row[1]["albums"]]) == [
+            "Photos from 2018",
+            "Pumpkin Farm",
+        ]
 
-        # test a photo that was not imported but had albums applied due to --dup-albums
         row = c.execute(
-            "SELECT * FROM report WHERE filepath LIKE '%/Photos from 2018/Pumpkins3.jpg'"
+            "SELECT * FROM report WHERE filepath LIKE '%wedding.jpg'"
         ).fetchone()
-        assert row["imported"] == 0
-        assert not row["description"]
-        assert not row["title"]
-        assert row["albums"] == "Photos from 2018"
-        assert not row["keywords"]
-        assert not row["datetime"]
-        assert not row["location"]
+
+        assert row["description"] == "Bride Wedding day"
+        assert row["title"] == "wedding.jpg"
+        assert row["albums"] == "Photos from 2019"
+        assert sorted(row["keywords"].split(",")) == ["Maria"]
+        assert row["datetime"] == "2019-04-15T14:40:24"
+
+        row = c.execute(
+            "SELECT * FROM report WHERE filepath LIKE '%IMG_1760.jpg'"
+        ).fetchone()
+        lat, lon = [float(x) for x in row["location"].split(",")]
+        assert lat == pytest.approx(18.9555889)
+        assert lon == pytest.approx(-72.7274778)
