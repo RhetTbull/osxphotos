@@ -82,6 +82,7 @@ from osxphotos.unicode import normalize_fs_path
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import (
     format_sec_to_hhmmss,
+    increment_filename_with_count,
     is_mounted_volume,
     is_photoslibrary_path,
     pluralize,
@@ -2021,15 +2022,13 @@ def export_cli(
         )
 
         # Initialize stat cache for efficient network volume operations
-        # Only create cache for update exports where we'll be checking existing files
+        stat_cache = DirectoryStatCache(ttl_seconds=STAT_CACHE_TTL_SECONDS)
         if update or force_update or dry_run:
-            stat_cache = DirectoryStatCache(ttl_seconds=STAT_CACHE_TTL_SECONDS)
             same_filesystem = are_same_filesystem(photosdb.library_path, dest)
             verbose(
                 f"Export destination {'is' if same_filesystem else 'is not'} on same filesystem as Photos library"
             )
         else:
-            stat_cache = None
             same_filesystem = None
 
         photo_num = 0
@@ -2376,7 +2375,7 @@ def export_photo(
     fileutil=FileUtilShUtil,
     dry_run=None,
     touch_file=None,
-    edited_suffix="_edited",
+    edited_suffix=DEFAULT_EDITED_SUFFIX,
     original_suffix="",
     use_photos_export=False,
     convert_to_jpeg=False,
@@ -2530,6 +2529,7 @@ def export_photo(
     )
 
     results = ExportResults()
+    resolved_stems = {}  # base_stem -> resolved base stem (with increment)
     dest_paths = get_dirnames_from_template(
         photo,
         directory,
@@ -2566,17 +2566,37 @@ def export_photo(
                         else original_filename.suffix
                     )
                 )
-            original_filename = (
-                original_filename.parent
-                / f"{original_filename.stem}{rendered_suffix}{file_ext}"
-            )
+            base_stem = original_filename.stem
+
+            # When original_suffix is used in non-update mode, compute
+            # increment based on the base stem so all variants (original,
+            # edited) share the same increment number and don't collide
+            # with other photos' increments.
+            # In update mode, _get_dest_path handles it via the export DB,
+            # so we extract the increment from the resolved path instead.
+            if rendered_suffix and export_original and not update and not force_update:
+                base_path = pathlib.Path(dest_path) / f"{base_stem}{file_ext}"
+                _, count = increment_filename_with_count(
+                    base_path, stat_cache=stat_cache
+                )
+                if count > 0:
+                    resolved_stems[base_stem] = f" ({count})"
+                increment_str = f" ({count})" if count > 0 else ""
+                original_filename = (
+                    original_filename.parent
+                    / f"{base_stem}{rendered_suffix}{increment_str}{file_ext}"
+                )
+            else:
+                original_filename = (
+                    original_filename.parent / f"{base_stem}{rendered_suffix}{file_ext}"
+                )
             original_filename = str(original_filename)
 
             verbose(
                 f"Exporting [filename]{photo.original_filename}[/] ([filename]{photo.filename}[/]) ([count]{photo_num}/{num_photos}[/])"
             )
 
-            results += export_photo_to_directory(
+            orig_export = export_photo_to_directory(
                 album_keyword=album_keyword,
                 convert_to_jpeg=convert_to_jpeg,
                 description_template=description_template,
@@ -2630,6 +2650,22 @@ def export_photo(
                 stat_cache=stat_cache,
                 same_filesystem=same_filesystem,
             )
+            results += orig_export
+
+            # Extract filename increment for edited filename derivation
+            # The orig_export results contain the resolved path (with any increment)
+            # whether the original was actually exported or just claimed (claim_only)
+            original_stem_with_suffix = normalize_fs_path(
+                f"{base_stem}{rendered_suffix}"
+            )
+            for p_str in orig_export.exported + orig_export.skipped:
+                p = pathlib.Path(p_str)
+                if p.suffix.lower() == file_ext.lower():
+                    resolved_full_stem = normalize_fs_path(p.stem)
+                    if len(resolved_full_stem) > len(original_stem_with_suffix):
+                        increment = resolved_full_stem[len(original_stem_with_suffix) :]
+                        resolved_stems[base_stem] = increment
+                    break
 
     if export_edited and photo.hasadjustments:
         dest_paths = get_dirnames_from_template(
@@ -2693,9 +2729,8 @@ def export_photo(
                     photo,
                     export_db,
                 )
-                edited_filename = (
-                    f"{edited_filename.stem}{rendered_edited_suffix}{edited_ext}"
-                )
+                increment = resolved_stems.get(edited_filename.stem, "")
+                edited_filename = f"{edited_filename.stem}{rendered_edited_suffix}{increment}{edited_ext}"
 
                 verbose(
                     f"Exporting edited version of [filename]{photo.original_filename}[/filename] ([filename]{photo.filename}[/filename])"
@@ -2866,9 +2901,9 @@ def export_photo_to_directory(
 
     render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
 
-    if not export_original and not edited:
+    claim_only = not export_original and not edited
+    if claim_only:
         verbose(f"Skipping original version of [filename]{photo.original_filename}")
-        return results
 
     # TODO Use this retry logic or use fileutil retry options (#2004)?
     tries = 0
@@ -2877,6 +2912,7 @@ def export_photo_to_directory(
         error = 0
         try:
             export_options = ExportOptions(
+                claim_only=claim_only,
                 convert_to_jpeg=convert_to_jpeg,
                 description_template=description_template,
                 download_missing=download_missing,

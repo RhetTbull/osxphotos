@@ -6,6 +6,7 @@ import datetime
 import json
 import os
 import pathlib
+import time
 from typing import Any, Callable, Literal
 
 import click
@@ -59,6 +60,8 @@ SYNC_IMPORT_TYPES = [
     "location",
 ]
 SYNC_IMPORT_TYPES_ALL = ["all"] + SYNC_IMPORT_TYPES
+
+OSXPHOTOS_SYNC_RETRY_ATTEMPTS = os.getenv("OSXPHOTOS_SYNC_RETRY_ATTEMPTS", 10)
 
 
 class SyncImportPath(click.ParamType):
@@ -152,6 +155,8 @@ def get_photo_metadata(photos: list[PhotoInfo]) -> str:
 
     # more than one photo with same fingerprint; merge metadata
     merge_fields = ["keywords", "persons", "albums", "title", "description", "uuid"]
+    # if any bool_fields field is True, value should be True
+    bool_fields = ["favorite"]
     photos_dict = {}
     for photo in photos:
         data = photo.asdict()
@@ -169,6 +174,8 @@ def get_photo_metadata(photos: list[PhotoInfo]) -> str:
                                 photos_dict[k] = v
                             elif photos_dict[k] and v != photos_dict[k]:
                                 photos_dict[k] = f"{photos_dict[k]} {v}"
+                elif k in bool_fields and v:
+                    photos_dict[k] = v
 
     # convert photos_dict to JSON string
     # wouldn't it be nice if json encoder handled datetimes...
@@ -672,14 +679,23 @@ def set_photo_property(photo: photoscript.Photo, property: str, value: Any):
         value = (value[0], value[1])
     elif property not in {"title", "description", "favorite", "keywords"}:
         raise ValueError(f"Unknown property: {property}")
-    setattr(photo, property, value)
+
+    # sometimes AppleScript fails to set the value so try until it does our OSXPHOTOS_SYNC_RETRY_ATTEMPTS
+    attempts = 0
+    while (
+        getattr(photo, property) != value and attempts < OSXPHOTOS_SYNC_RETRY_ATTEMPTS
+    ):
+        if attempts > 0:
+            time.sleep(0.25)
+        setattr(photo, property, value)
+        attempts += 1
 
 
 def print_import_summary(results: SyncResults):
     """Print summary of import results"""
     summary = results.results_summary()
     property_summary = ", ".join(
-        f"updated {property}: [num]{summary.get(property,0)}[/]"
+        f"updated {property}: [num]{summary.get(property, 0)}[/]"
         for property in SYNC_PROPERTIES
     )
     echo(
@@ -693,9 +709,7 @@ def print_import_summary(results: SyncResults):
     "-e",
     "export_path",
     metavar="EXPORT_FILE",
-    help="Export metadata to file EXPORT_FILE for later use with --import. "
-    "The export file will be a SQLite database; it is recommended to use the "
-    ".db extension though this is not required.",
+    help="Export metadata to file EXPORT_FILE for later use with --import. The export file will be a SQLite database; it is recommended to use the .db extension though this is not required.",
     type=click.Path(dir_okay=False, writable=True),
 )
 @click.option(
@@ -703,9 +717,7 @@ def print_import_summary(results: SyncResults):
     "-I",
     "import_path",
     metavar="IMPORT_PATH",
-    help="Import metadata from file IMPORT_PATH. "
-    "IMPORT_PATH can a Photos library, a Photos database, or a metadata export file "
-    "created with --export.",
+    help="Import metadata from file IMPORT_PATH. IMPORT_PATH can a Photos library, a Photos database, or a metadata export file created with --export.",
     type=SyncImportPath(),
 )
 @click.option(
@@ -753,9 +765,7 @@ def print_import_summary(results: SyncResults):
     "--unmatched",
     "-U",
     is_flag=True,
-    help="When used with --import, print out a list of photos in the import source that "
-    "were not matched against the local library. Also prints out a list of photos "
-    "in the local library that were not matched against the import source. ",
+    help="When used with --import, print out a list of photos in the import source that were not matched against the local library. Also prints out a list of photos in the local library that were not matched against the import source. ",
 )
 @click.option(
     "--report",
@@ -774,13 +784,12 @@ def print_import_summary(results: SyncResults):
     "--append",
     "-A",
     is_flag=True,
-    help="If used with --report, add data to existing report file instead of overwriting it. "
-    "See also --report.",
+    help="If used with --report, add data to existing report file instead of overwriting it. See also --report.",
 )
 @click.option(
     "--dry-run",
     is_flag=True,
-    help="Dry run; " "when used with --import, don't actually update metadata.",
+    help="Dry run; when used with --import, don't actually update metadata.",
 )
 @VERBOSE_OPTION
 @TIMESTAMP_OPTION
@@ -856,6 +865,14 @@ def sync(
 
     osxphotos sync --export /path/to/export/folder/computer2.db --merge all --import /path/to/export/folder/computer1.db
 
+    Note: The sync command uses a heuristic to attempt to match photos and videos
+    between the two databases being synced but this has some limitations.
+    If there are duplicate photos in the library (exact copies), metadata will be merged
+    as the sync process will not be able to distinguish between the two copies upon import.
+    Additionally, if you have duplicated a photo then edited one of the duplicates, these
+    will appear to be the same asset and metadata will be merged. This is a limitation of
+    the current design. When merging metadata, keywords, title, captions/description, and albums
+    are merged and if one of the duplicates is marked as favorite, favorite status is set.
     """
 
     verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
@@ -881,8 +898,7 @@ def sync(
         merge = set(merge)
         if set_ & merge:
             echo_error(
-                "--set and --merge cannot be used with the same fields: "
-                f"set: {set_}, merge: {merge}"
+                f"--set and --merge cannot be used with the same fields: set: {set_}, merge: {merge}"
             )
             ctx.exit(1)
 

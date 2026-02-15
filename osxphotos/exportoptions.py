@@ -78,7 +78,7 @@ class ExportOptions:
         favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
         fix_orientation (bool): if True, will adjust image orientation based on exif data if necessary
         sidecar_template (tuple of tuples): tuple of (template_file, filename_template, options) for user sidecar templates; multiple templates may be specified
-
+        claim_only (bool): if True, will only claim filename but doesn't export the photo
     """
 
     convert_to_jpeg: bool = False
@@ -132,6 +132,7 @@ class ExportOptions:
     sidecar_template: Optional[tuple[tuple[str, str, tuple[str, ...]], ...]] = None
     stat_cache: Optional["DirectoryStatCache"] = None
     same_filesystem: Optional[bool] = None
+    claim_only: bool = False
 
     def asdict(self):
         return dataclasses.asdict(self)
