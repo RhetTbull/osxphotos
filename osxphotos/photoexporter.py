@@ -30,6 +30,7 @@ from .touch_files import touch_files
 from .unicode import normalize_fs_path
 from .uti import get_preferred_uti_extension
 from .utils import (
+    extract_increment_count_from_filename,
     increment_filename,
     increment_filename_with_count,
     isdir_cache,
@@ -569,6 +570,7 @@ class PhotoExporter:
         if options.increment and not any(
             [options.update, options.force_update, options.overwrite]
         ):
+            original_dest = dest
             dest = pathlib.Path(increment_filename(dest, stat_cache=stat_cache))
             # Also check the export DB for names claimed by other UUIDs
             # (e.g. from claim_only when --skip-original-if-edited is used).
@@ -576,14 +578,21 @@ class PhotoExporter:
             # ensures we don't reuse a name reserved by a different photo.
             if options.export_db:
                 export_db = options.export_db
-                count = 0
+                # Only extract count from the incremented name if it was
+                # actually changed; otherwise a filename that naturally
+                # contains e.g. "(1)" would cause us to skip counts.
+                count = (
+                    extract_increment_count_from_filename(dest)
+                    if dest != original_dest
+                    else 0
+                )
                 while True:
                     claimed_uuid = export_db.get_uuid_for_file(dest)
                     if claimed_uuid is None or claimed_uuid == self.photo.uuid:
                         break
                     count += 1
                     dest, count = increment_filename_with_count(
-                        dest, count, stat_cache=stat_cache
+                        original_dest, count, stat_cache=stat_cache
                     )
                     dest = pathlib.Path(dest)
             return dest
@@ -620,14 +629,15 @@ class PhotoExporter:
                     )
                 return pathlib.Path(candidate)
             else:
+                original_dest = dest
                 count = 0
                 dest, count = increment_filename_with_count(
-                    dest, count, stat_cache=stat_cache
+                    original_dest, count, stat_cache=stat_cache
                 )
-                count += 1
                 while export_db.get_uuid_for_file(dest) is not None:
+                    count += 1
                     dest, count = increment_filename_with_count(
-                        dest, count, stat_cache=stat_cache
+                        original_dest, count, stat_cache=stat_cache
                     )
                 return pathlib.Path(dest)
 
