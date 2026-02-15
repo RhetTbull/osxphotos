@@ -45,8 +45,7 @@ Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.i7.2). Tested on both
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
-| 26.0              | Tahoe      | 11.0 (not yet tested) ❌|
-| 26.0 (beta)       | Tahoe      | 11.0 (alpha support)|
+| 26.0              | Tahoe      | 11.0 (limited testing) ✅|
 | 15.0 - 15.6       | Sequoia    | 10.0 ✅             |
 | 14.0 - 14.6       | Sonoma     | 9.0 ✅              |
 | 13.0 - 13.6       | Ventura    | 8.0 ✅              |
@@ -63,7 +62,7 @@ This package will read Photos databases for any supported version on any support
 
 Requires python >= `3.10`, <= `3.14`.
 
-For macOS 26.0 / Tahoe developer preview, alpha support is provided (very preliminary, not guaranteed to work). Not all features of osxphotos have been tested and some features may not work. If you encounter issues, please open an issue on GitHub.
+For macOS 26.0 / Tahoe, limited testing has been done to ensure basic functionality works. Not all features of osxphotos have been tested and some features may not work. If you encounter issues, please open an issue on GitHub.
 
 ## Installation
 
