@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.photoexporter - osxphotos 0.75.3 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.75.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -263,6 +263,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.unicode</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_fs_path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.uti</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_preferred_uti_extension</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">extract_increment_count_from_filename</span><span class="p">,</span>
     <span class="n">increment_filename</span><span class="p">,</span>
     <span class="n">increment_filename_with_count</span><span class="p">,</span>
     <span class="n">isdir_cache</span><span class="p">,</span>
@@ -522,6 +523,19 @@
             <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">):</span>
             <span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="o">.</span><span class="n">register_virtual_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+        <span class="c1"># claim_only: resolve the filename and register it without exporting;</span>
+        <span class="c1"># used when --skip-original-if-edited skips the original so the</span>
+        <span class="c1"># filename is still reserved for collision detection.</span>
+        <span class="c1"># Only registers in the export DB (not stat_cache) so that the same</span>
+        <span class="c1"># photo&#39;s edited version can still use this path via UUID matching</span>
+        <span class="c1"># in _get_dest_path, while other photos are blocked by the DB claim.</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">claim_only</span><span class="p">:</span>
+            <span class="n">all_results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">export_db</span><span class="o">.</span><span class="n">create_or_get_file_record</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="n">all_results</span><span class="o">.</span><span class="n">uuids</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span>
+            <span class="k">return</span> <span class="n">all_results</span>
 
         <span class="n">staged_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stage_photos_for_export</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="p">)</span>
         <span class="n">src</span> <span class="o">=</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">edited</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="k">else</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">original</span>
@@ -794,7 +808,32 @@
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
             <span class="p">[</span><span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span><span class="p">))</span>
+            <span class="n">original_dest</span> <span class="o">=</span> <span class="n">dest</span>
+            <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span><span class="p">))</span>
+            <span class="c1"># Also check the export DB for names claimed by other UUIDs</span>
+            <span class="c1"># (e.g. from claim_only when --skip-original-if-edited is used).</span>
+            <span class="c1"># increment_filename only checks the filesystem; the DB check</span>
+            <span class="c1"># ensures we don&#39;t reuse a name reserved by a different photo.</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span><span class="p">:</span>
+                <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
+                <span class="c1"># Only extract count from the incremented name if it was</span>
+                <span class="c1"># actually changed; otherwise a filename that naturally</span>
+                <span class="c1"># contains e.g. &quot;(1)&quot; would cause us to skip counts.</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">extract_increment_count_from_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">dest</span> <span class="o">!=</span> <span class="n">original_dest</span>
+                    <span class="k">else</span> <span class="mi">0</span>
+                <span class="p">)</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">claimed_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">claimed_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">claimed_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span>
+                        <span class="n">original_dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span>
+                    <span class="p">)</span>
+                    <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dest</span>
 
         <span class="c1"># if update and file exists, need to check to see if it&#39;s the right file by checking export db</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>
@@ -828,14 +867,15 @@
                     <span class="p">)</span>
                 <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="n">original_dest</span> <span class="o">=</span> <span class="n">dest</span>
                 <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span>
-                    <span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span>
+                    <span class="n">original_dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span>
                 <span class="p">)</span>
-                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">while</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span>
-                        <span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span>
+                        <span class="n">original_dest</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">stat_cache</span>
                     <span class="p">)</span>
                 <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
 
@@ -2120,7 +2160,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b6fb4209"></script>
+</div><script src="../../_static/documentation_options.js?v=7d72d2c4"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

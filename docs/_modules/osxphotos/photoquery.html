@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.photoquery - osxphotos 0.75.3 documentation</title>
+        <title>osxphotos.photoquery - osxphotos 0.75.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -236,6 +236,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
@@ -243,7 +244,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">bitmath</span>
@@ -261,6 +261,9 @@
 
 <span class="k">if</span> <span class="n">is_macos</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">photoscript</span>
+
+<span class="c1"># default date for sorting</span>
+<span class="n">DEFAULT_DATE</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;IncompatibleQueryOptions&quot;</span><span class="p">,</span>
@@ -979,19 +982,14 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid query_eval CRITERIA: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">duplicate</span><span class="p">:</span>
-        <span class="n">no_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">tz</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-        <span class="n">no_date</span> <span class="o">=</span> <span class="n">no_date</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">tz</span><span class="p">)</span>
-        <span class="n">photos</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">duplicates</span><span class="p">],</span>
-            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">date_added</span> <span class="ow">or</span> <span class="n">no_date</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">sort_options</span> <span class="o">=</span> <span class="n">QueryOptions</span><span class="p">()</span>
+        <span class="n">photos</span> <span class="o">=</span> <span class="n">sort_photos</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">duplicates</span><span class="p">],</span> <span class="n">sort_options</span><span class="p">)</span>
         <span class="c1"># gather all duplicates but ensure each uuid is only represented once</span>
         <span class="n">photodict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photodict</span><span class="p">:</span>
                 <span class="n">photodict</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
-                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">duplicates</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">date_added</span> <span class="ow">or</span> <span class="n">no_date</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">sort_photos</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">duplicates</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photodict</span><span class="p">:</span>
                         <span class="n">photodict</span><span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
         <span class="n">photos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">photodict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
@@ -1064,7 +1062,7 @@
         <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">date_added</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">date_added</span> <span class="o">&lt;</span> <span class="n">added_before</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">added_in_last</span><span class="p">:</span>
-        <span class="n">added_after</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">options</span><span class="o">.</span><span class="n">added_in_last</span>
+        <span class="n">added_after</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">options</span><span class="o">.</span><span class="n">added_in_last</span>
         <span class="n">added_after</span> <span class="o">=</span> <span class="n">datetime_naive_to_local</span><span class="p">(</span><span class="n">added_after</span><span class="p">)</span>
         <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">date_added</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">date_added</span> <span class="o">&gt;</span> <span class="n">added_after</span><span class="p">]</span>
 
@@ -1122,8 +1120,8 @@
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">photos</span><span class="p">,</span>
         <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
-            <span class="n">x</span><span class="o">.</span><span class="n">date</span>
-            <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">timezone</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">date</span> <span class="ow">or</span> <span class="n">DEFAULT_DATE</span><span class="p">,</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">date_added</span> <span class="ow">or</span> <span class="n">DEFAULT_DATE</span><span class="p">,</span>
             <span class="n">x</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">newest_first</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
@@ -1283,7 +1281,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b6fb4209"></script>
+</div><script src="../../_static/documentation_options.js?v=7d72d2c4"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
