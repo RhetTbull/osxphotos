@@ -3,11 +3,13 @@
 import csv
 import json
 import os
+import sqlite3
 import time
 
 import pytest
 from click.testing import CliRunner
 
+import osxphotos
 from osxphotos.platform import is_macos
 
 if is_macos:
@@ -25,6 +27,8 @@ TEST_ALBUM_NAME = "SyncTestAlbum"
 UUID_TEST_PHOTO_3 = "D1D4040D-D141-44E8-93EA-E403D9F63E07"  # Frítest.jpg, No Location
 UUID_TEST_PHOTO_4 = "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3"  # Jellyfish1.mp4, Location
 UUID_TEST_PHOTO_5 = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic, Location
+
+TEST_PHOTO_3_SIGNATURE = "frítest.jpg:AUxIqfurFEEy1m1SphGJRmxID+1g"
 
 TEST_ALBUM_NAME_LOCATION = "SyncTestAlbumLocation"
 
@@ -225,6 +229,14 @@ def test_sync_export_import_location():
         )
         assert result.exit_code == 0
 
+        # verify data written correctly
+        conn = sqlite3.Connection("test_location.db")
+        result = conn.execute(
+            "SELECT value FROM data WHERE key == ?", (TEST_PHOTO_3_SIGNATURE,)
+        ).fetchone()
+        data = json.loads(result[0])
+        assert data["favorite"]
+
         # preserve metadata for comparison and clear/set metadata
         metadata_before = {}
         for uuid in [UUID_TEST_PHOTO_3]:
@@ -239,7 +251,9 @@ def test_sync_export_import_location():
             photo.title = ""
             photo.description = ""
             photo.keywords = ["NewKeyword"]
-            photo.favorite = False
+            while photo.favorite:
+                photo.favorite = False
+                time.sleep(0.25)
             photo.location = (24.681666439037876, 32.88630618597232)
 
         # delete the test album
