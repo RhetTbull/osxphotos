@@ -746,19 +746,14 @@ def photo_query(
                 raise ValueError(f"Invalid query_eval CRITERIA: {e}")
 
     if options.duplicate:
-        no_date = datetime.datetime(1970, 1, 1)
-        tz = datetime.timezone(datetime.timedelta(0))
-        no_date = no_date.astimezone(tz=tz)
-        photos = sorted(
-            [p for p in photos if p.duplicates],
-            key=lambda x: x.date_added or no_date,
-        )
+        sort_options = QueryOptions()
+        photos = sort_photos([p for p in photos if p.duplicates], sort_options)
         # gather all duplicates but ensure each uuid is only represented once
         photodict = OrderedDict()
         for p in photos:
             if p.uuid not in photodict:
                 photodict[p.uuid] = p
-                for d in sorted(p.duplicates, key=lambda x: x.date_added or no_date):
+                for d in sort_photos(p.duplicates, sort_options):
                     if d.uuid not in photodict:
                         photodict[d.uuid] = d
         photos = list(photodict.values())
@@ -890,6 +885,7 @@ def sort_photos(photos: list[PhotoInfo], options: QueryOptions) -> list[PhotoInf
         photos,
         key=lambda x: (
             x.date or DEFAULT_DATE,
+            x.date_added or DEFAULT_DATE,
             x.uuid or "",
         ),
         reverse=True if options.newest_first else False,
