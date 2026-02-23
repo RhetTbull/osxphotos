@@ -1050,6 +1050,15 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "j3r3miah",
+      "name": "Jeremiah Boyle",
+      "avatar_url": "https://avatars.githubusercontent.com/u/89774?v=4",
+      "profile": "https://github.com/j3r3miah",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
