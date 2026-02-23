@@ -3294,7 +3294,8 @@ class PhotosDB:
 
     def execute(self, sql: str, params: Any | None = None) -> sqlite3.Cursor:
         """Execute sql statement and return cursor"""
-        self._db_connection, _ = self.get_db_connection()
+        if not getattr(self, "_db_connection", None):
+            self._db_connection, _ = self.get_db_connection()
         params = params or ()
         return self._db_connection.cursor().execute(sql, params)
 
