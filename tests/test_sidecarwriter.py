@@ -1,5 +1,6 @@
 """Test SidecarWriter"""
 
+import dataclasses
 import json
 import os
 import pathlib
@@ -149,6 +150,43 @@ def test_sidecarwriter_xmp_json(photosdb: PhotosDB, tmp_path: pathlib.Path):
     assert len(results.sidecar_xmp_written) == 1
     assert pathlib.Path(results.sidecar_json_written[0]).name == "test.json"
     assert pathlib.Path(results.sidecar_xmp_written[0]).name == "test.xmp"
+
+
+def test_sidecarwriter_update_skips_render_when_sidecar_inputs_unchanged(
+    photosdb: PhotosDB, tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+):
+    """Built-in sidecars should skip rendering when digest, signature, and file sig match."""
+    photo = photosdb.get_photo(UUID_ALL_METADATA)
+    sidecar_writer = SidecarWriter(photo)
+    from osxphotos.export_db import ExportDBTemp
+
+    export_db = ExportDBTemp()
+    dest = tmp_path / "test.jpg"
+    dest.write_text("image")
+
+    options = ExportOptions(
+        sidecar=SIDECAR_JSON | SIDECAR_XMP,
+        export_db=export_db,
+    )
+    sidecar_writer.write_sidecar_files(dest, options, ExportResults())
+    with export_db.create_or_get_file_record(dest, photo.uuid) as record:
+        record.digest = photo.hexdigest
+
+    update_options = dataclasses.replace(options, update=True)
+
+    def _unexpected_render(*args, **kwargs):
+        raise AssertionError("sidecar content should not have been rendered")
+
+    monkeypatch.setattr(
+        "osxphotos.sidecars.exiftool_json_sidecar",
+        _unexpected_render,
+    )
+    monkeypatch.setattr(sidecar_writer, "xmp_sidecar", _unexpected_render)
+
+    results = sidecar_writer.write_sidecar_files(dest, update_options, ExportResults())
+
+    assert len(results.sidecar_json_skipped) == 1
+    assert len(results.sidecar_xmp_skipped) == 1
 
 
 def test_exiftool_json_sidecar(photosdb: PhotosDB):

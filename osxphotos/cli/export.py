@@ -3006,7 +3006,7 @@ def export_photo_to_directory(
             for updated in results.updated:
                 verbose(f"Exported updated file [filepath]{updated}")
             for skipped in results.skipped:
-                verbose(f"Skipped up to date file [filepath]{skipped}")
+                verbose(f"Skipped up to date file [filepath]{skipped}", level=2)
         else:
             for exported in results.exported:
                 verbose(f"Exported [filepath]{exported}")

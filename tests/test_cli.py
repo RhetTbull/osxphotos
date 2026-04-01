@@ -4134,9 +4134,7 @@ def test_export_aae_update():
         )
         assert result.exit_code == 0
         assert "Error" not in result.output
-        assert re.findall(
-            r"Skipped up to date file (.*\.AAE)", result.output, re.MULTILINE
-        )
+        assert "Skipped up to date file" not in result.output
 
 
 def test_export_sidecar():
@@ -4444,8 +4442,9 @@ def test_export_sidecar_update():
             ],
         )
         assert result.exit_code == 0
-        assert "Skipped up to date XMP sidecar" in result.output
         assert "Writing JSON sidecar" in result.output
+        assert "Writing XMP sidecar" not in result.output
+        assert "Skipped up to date XMP sidecar" not in result.output
 
         # run update again, no sidecar files should update
         result = runner.invoke(
@@ -4463,8 +4462,10 @@ def test_export_sidecar_update():
             ],
         )
         assert result.exit_code == 0
-        assert "Skipped up to date XMP sidecar" in result.output
-        assert "Skipped up to date JSON sidecar" in result.output
+        assert "Writing XMP sidecar" not in result.output
+        assert "Writing JSON sidecar" not in result.output
+        assert "Skipped up to date XMP sidecar" not in result.output
+        assert "Skipped up to date JSON sidecar" not in result.output
 
         # touch a file and export again
         ts = datetime.datetime.now().timestamp() + 1000
@@ -4486,7 +4487,8 @@ def test_export_sidecar_update():
         )
         assert result.exit_code == 0
         assert "Writing XMP sidecar" in result.output
-        assert "Skipped up to date JSON sidecar" in result.output
+        assert "Writing JSON sidecar" not in result.output
+        assert "Skipped up to date JSON sidecar" not in result.output
 
         # run update again, no sidecar files should update
         result = runner.invoke(
@@ -4504,8 +4506,10 @@ def test_export_sidecar_update():
             ],
         )
         assert result.exit_code == 0
-        assert "Skipped up to date XMP sidecar" in result.output
-        assert "Skipped up to date JSON sidecar" in result.output
+        assert "Writing XMP sidecar" not in result.output
+        assert "Writing JSON sidecar" not in result.output
+        assert "Skipped up to date XMP sidecar" not in result.output
+        assert "Skipped up to date JSON sidecar" not in result.output
 
         # run update again with updated metadata, forcing update
         result = runner.invoke(
@@ -8416,7 +8420,8 @@ def test_save_load_config():
         )
         assert result.exit_code == 0
         assert "Loaded options from file" in result.output
-        assert "Skipped up to date XMP sidecar" in result.output
+        assert "Writing XMP sidecar" not in result.output
+        assert "Skipped up to date XMP sidecar" not in result.output
 
         # test overwrite existing config file
         result = runner.invoke(

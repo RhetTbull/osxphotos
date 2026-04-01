@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import json
 import logging
 import os
 import pathlib
@@ -91,6 +92,7 @@ class SidecarWriter(_ExifMixin):
     def __init__(self, photo: PhotoInfo):
         super().__init__(photo)
         self._verbose = photo._verbose
+        self._sidecar_content_cache: dict[tuple[str, str], str] = {}
 
     def write_sidecar_files(
         self,
@@ -143,19 +145,23 @@ class SidecarWriter(_ExifMixin):
 
         dest_suffix = "" if options.sidecar_drop_ext else dest.suffix
         exif_options = exif_options_from_options(options)
+        photo_record = export_db.get_file_record(dest)
+        photo_digest_matches = (
+            photo_record is not None and photo_record.digest == self.photo.hexdigest
+        )
         if options.sidecar & SIDECAR_JSON:
             sidecar_filename = dest.parent / pathlib.Path(
                 f"{dest.stem}{dest_suffix}.json"
             )
-            sidecar_str = exiftool_json_sidecar(
-                photo=self.photo,
-                filename=dest.name,
-                options=exif_options,
-            )
             sidecars.append(
                 (
                     sidecar_filename,
-                    sidecar_str,
+                    lambda: self._get_exiftool_sidecar(
+                        sidecar_type="json",
+                        filename=dest.name,
+                        options=exif_options,
+                        tag_groups=True,
+                    ),
                     sidecar_json_files_written,
                     sidecar_json_files_skipped,
                     "JSON",
@@ -166,16 +172,15 @@ class SidecarWriter(_ExifMixin):
             sidecar_filename = dest.parent / pathlib.Path(
                 f"{dest.stem}{dest_suffix}.json"
             )
-            sidecar_str = exiftool_json_sidecar(
-                photo=self.photo,
-                tag_groups=False,
-                filename=dest.name,
-                options=exif_options,
-            )
             sidecars.append(
                 (
                     sidecar_filename,
-                    sidecar_str,
+                    lambda: self._get_exiftool_sidecar(
+                        sidecar_type="exiftool",
+                        filename=dest.name,
+                        options=exif_options,
+                        tag_groups=False,
+                    ),
                     sidecar_exiftool_files_written,
                     sidecar_exiftool_files_skipped,
                     "exiftool",
@@ -186,13 +191,13 @@ class SidecarWriter(_ExifMixin):
             sidecar_filename = dest.parent / pathlib.Path(
                 f"{dest.stem}{dest_suffix}.xmp"
             )
-            sidecar_str = self.xmp_sidecar(
-                extension=dest.suffix[1:] if dest.suffix else None, options=options
-            )
             sidecars.append(
                 (
                     sidecar_filename,
-                    sidecar_str,
+                    lambda: self._get_xmp_sidecar(
+                        extension=dest.suffix[1:] if dest.suffix else None,
+                        options=options,
+                    ),
                     sidecar_xmp_files_written,
                     sidecar_xmp_files_skipped,
                     "XMP",
@@ -201,29 +206,56 @@ class SidecarWriter(_ExifMixin):
 
         for data in sidecars:
             sidecar_filename = data[0]
-            sidecar_str = data[1]
+            render_sidecar = data[1]
             files_written = data[2]
             files_skipped = data[3]
             sidecar_type = data[4]
 
-            sidecar_digest = hexdigest(sidecar_str)
             sidecar_record = export_db.create_or_get_file_record(
                 sidecar_filename, self.photo.uuid
             )
-            write_sidecar = (
-                not (options.update or options.force_update)
-                or (
-                    (options.update or options.force_update)
-                    and not _sidecar_exists(sidecar_filename)
-                )
-                or (
-                    (options.update or options.force_update)
-                    and (sidecar_digest != sidecar_record.digest)
-                    or not fileutil.cmp_file_sig(
+            sidecar_options = self._sidecar_options_signature(
+                sidecar_type=sidecar_type,
+                sidecar_filename=sidecar_filename,
+                dest=dest,
+                options=options,
+                exif_options=exif_options,
+            )
+            sidecar_exists = _sidecar_exists(sidecar_filename)
+            sidecar_sig_matches = False
+            if sidecar_exists:
+                try:
+                    sidecar_sig_matches = fileutil.cmp_file_sig(
                         sidecar_filename,
                         sidecar_record.dest_sig,
                         stat_cache=options.stat_cache,
                     )
+                except ValueError:
+                    sidecar_sig_matches = False
+
+            if (
+                (options.update or options.force_update)
+                and sidecar_exists
+                and sidecar_sig_matches
+                and sidecar_record.export_options == sidecar_options
+                and photo_digest_matches
+            ):
+                verbose(
+                    f"Skipped up to date {sidecar_type} sidecar {_filepath(sidecar_filename)}",
+                    level=2,
+                )
+                files_skipped.append(str(sidecar_filename))
+                continue
+
+            sidecar_str = render_sidecar()
+            sidecar_digest = hexdigest(sidecar_str)
+            write_sidecar = (
+                not (options.update or options.force_update)
+                or ((options.update or options.force_update) and not sidecar_exists)
+                or (
+                    (options.update or options.force_update)
+                    and (sidecar_digest != sidecar_record.digest)
+                    or not sidecar_sig_matches
                 )
             )
             if write_sidecar:
@@ -240,11 +272,15 @@ class SidecarWriter(_ExifMixin):
                         sidecar_record.dest_sig = fileutil.file_sig(
                             sidecar_filename, stat_cache=options.stat_cache
                         )
+                        sidecar_record.export_options = sidecar_options
             else:
                 verbose(
-                    f"Skipped up to date {sidecar_type} sidecar {_filepath(sidecar_filename)}"
+                    f"Skipped up to date {sidecar_type} sidecar {_filepath(sidecar_filename)}",
+                    level=2,
                 )
                 files_skipped.append(str(sidecar_filename))
+                with sidecar_record:
+                    sidecar_record.export_options = sidecar_options
 
         results = ExportResults(
             sidecar_json_written=sidecar_json_files_written,
@@ -298,6 +334,62 @@ class SidecarWriter(_ExifMixin):
                     )
 
         return results
+
+    def _get_exiftool_sidecar(
+        self,
+        sidecar_type: str,
+        filename: str,
+        options: ExifOptions,
+        tag_groups: bool,
+    ) -> str:
+        """Render and cache exiftool-style sidecar content for this photo."""
+        cache_key = (sidecar_type, filename)
+        if cache_key not in self._sidecar_content_cache:
+            self._sidecar_content_cache[cache_key] = exiftool_json_sidecar(
+                photo=self.photo,
+                tag_groups=tag_groups,
+                filename=filename,
+                options=options,
+            )
+        return self._sidecar_content_cache[cache_key]
+
+    def _get_xmp_sidecar(self, extension: str | None, options: ExportOptions) -> str:
+        """Render and cache XMP sidecar content for this photo."""
+        cache_key = ("xmp", extension or "")
+        if cache_key not in self._sidecar_content_cache:
+            self._sidecar_content_cache[cache_key] = self.xmp_sidecar(
+                extension=extension,
+                options=options,
+            )
+        return self._sidecar_content_cache[cache_key]
+
+    def _sidecar_options_signature(
+        self,
+        sidecar_type: str,
+        sidecar_filename: pathlib.Path,
+        dest: pathlib.Path,
+        options: ExportOptions,
+        exif_options: ExifOptions,
+    ) -> str:
+        """Return a stable signature for sidecar inputs that affect sidecar output."""
+        render_options = exif_options.render_options
+        return json.dumps(
+            {
+                "dest_name": dest.name,
+                "extension": (
+                    dest.suffix[1:] if sidecar_type == "XMP" and dest.suffix else None
+                ),
+                "exif_options": exif_options.asdict(),
+                "render_options": (
+                    dataclasses.asdict(render_options) if render_options else None
+                ),
+                "sidecar_drop_ext": options.sidecar_drop_ext,
+                "sidecar_filename": str(sidecar_filename.name),
+                "sidecar_type": sidecar_type,
+            },
+            default=str,
+            sort_keys=True,
+        )
 
     def write_user_sidecar_files(
         self,
