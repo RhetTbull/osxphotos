@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.sidecars - osxphotos 0.75.6 documentation</title>
+        <title>osxphotos.sidecars - osxphotos 0.75.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.75.6 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.75.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.6 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.75.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -236,6 +236,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
@@ -326,6 +327,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">_verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="SidecarWriter.write_sidecar_files">
 <a class="viewcode-back" href="../../reference.html#osxphotos.SidecarWriter.write_sidecar_files">[docs]</a>
@@ -380,19 +382,23 @@
 
         <span class="n">dest_suffix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar_drop_ext</span> <span class="k">else</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span>
         <span class="n">exif_options</span> <span class="o">=</span> <span class="n">exif_options_from_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">photo_record</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_file_record</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="n">photo_digest_matches</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">photo_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">photo_record</span><span class="o">.</span><span class="n">digest</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar</span> <span class="o">&amp;</span> <span class="n">SIDECAR_JSON</span><span class="p">:</span>
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json&quot;</span>
             <span class="p">)</span>
-            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="n">exiftool_json_sidecar</span><span class="p">(</span>
-                <span class="n">photo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span>
-                <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">options</span><span class="o">=</span><span class="n">exif_options</span><span class="p">,</span>
-            <span class="p">)</span>
             <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span>
                     <span class="n">sidecar_filename</span><span class="p">,</span>
-                    <span class="n">sidecar_str</span><span class="p">,</span>
+                    <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_exiftool_sidecar</span><span class="p">(</span>
+                        <span class="n">sidecar_type</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">options</span><span class="o">=</span><span class="n">exif_options</span><span class="p">,</span>
+                        <span class="n">tag_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">),</span>
                     <span class="n">sidecar_json_files_written</span><span class="p">,</span>
                     <span class="n">sidecar_json_files_skipped</span><span class="p">,</span>
                     <span class="s2">&quot;JSON&quot;</span><span class="p">,</span>
@@ -403,16 +409,15 @@
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json&quot;</span>
             <span class="p">)</span>
-            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="n">exiftool_json_sidecar</span><span class="p">(</span>
-                <span class="n">photo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span>
-                <span class="n">tag_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">options</span><span class="o">=</span><span class="n">exif_options</span><span class="p">,</span>
-            <span class="p">)</span>
             <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span>
                     <span class="n">sidecar_filename</span><span class="p">,</span>
-                    <span class="n">sidecar_str</span><span class="p">,</span>
+                    <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_exiftool_sidecar</span><span class="p">(</span>
+                        <span class="n">sidecar_type</span><span class="o">=</span><span class="s2">&quot;exiftool&quot;</span><span class="p">,</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">options</span><span class="o">=</span><span class="n">exif_options</span><span class="p">,</span>
+                        <span class="n">tag_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">),</span>
                     <span class="n">sidecar_exiftool_files_written</span><span class="p">,</span>
                     <span class="n">sidecar_exiftool_files_skipped</span><span class="p">,</span>
                     <span class="s2">&quot;exiftool&quot;</span><span class="p">,</span>
@@ -423,13 +428,13 @@
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.xmp&quot;</span>
             <span class="p">)</span>
-            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmp_sidecar</span><span class="p">(</span>
-                <span class="n">extension</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span>
-            <span class="p">)</span>
             <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span>
                     <span class="n">sidecar_filename</span><span class="p">,</span>
-                    <span class="n">sidecar_str</span><span class="p">,</span>
+                    <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_xmp_sidecar</span><span class="p">(</span>
+                        <span class="n">extension</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+                    <span class="p">),</span>
                     <span class="n">sidecar_xmp_files_written</span><span class="p">,</span>
                     <span class="n">sidecar_xmp_files_skipped</span><span class="p">,</span>
                     <span class="s2">&quot;XMP&quot;</span><span class="p">,</span>
@@ -438,29 +443,56 @@
 
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">sidecars</span><span class="p">:</span>
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">render_sidecar</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">files_written</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">files_skipped</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
             <span class="n">sidecar_type</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
 
-            <span class="n">sidecar_digest</span> <span class="o">=</span> <span class="n">hexdigest</span><span class="p">(</span><span class="n">sidecar_str</span><span class="p">)</span>
             <span class="n">sidecar_record</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">create_or_get_file_record</span><span class="p">(</span>
                 <span class="n">sidecar_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span>
             <span class="p">)</span>
-            <span class="n">write_sidecar</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="ow">not</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
-                <span class="ow">or</span> <span class="p">(</span>
-                    <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
-                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">_sidecar_exists</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span>
-                <span class="p">)</span>
-                <span class="ow">or</span> <span class="p">(</span>
-                    <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
-                    <span class="ow">and</span> <span class="p">(</span><span class="n">sidecar_digest</span> <span class="o">!=</span> <span class="n">sidecar_record</span><span class="o">.</span><span class="n">digest</span><span class="p">)</span>
-                    <span class="ow">or</span> <span class="ow">not</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp_file_sig</span><span class="p">(</span>
+            <span class="n">sidecar_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_options_signature</span><span class="p">(</span>
+                <span class="n">sidecar_type</span><span class="o">=</span><span class="n">sidecar_type</span><span class="p">,</span>
+                <span class="n">sidecar_filename</span><span class="o">=</span><span class="n">sidecar_filename</span><span class="p">,</span>
+                <span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+                <span class="n">exif_options</span><span class="o">=</span><span class="n">exif_options</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">sidecar_exists</span> <span class="o">=</span> <span class="n">_sidecar_exists</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span>
+            <span class="n">sidecar_sig_matches</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">sidecar_exists</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">sidecar_sig_matches</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp_file_sig</span><span class="p">(</span>
                         <span class="n">sidecar_filename</span><span class="p">,</span>
                         <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span><span class="p">,</span>
                         <span class="n">stat_cache</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span><span class="p">,</span>
                     <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">sidecar_sig_matches</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">sidecar_exists</span>
+                <span class="ow">and</span> <span class="n">sidecar_sig_matches</span>
+                <span class="ow">and</span> <span class="n">sidecar_record</span><span class="o">.</span><span class="n">export_options</span> <span class="o">==</span> <span class="n">sidecar_options</span>
+                <span class="ow">and</span> <span class="n">photo_digest_matches</span>
+            <span class="p">):</span>
+                <span class="n">verbose</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Skipped up to date </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">files_skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">))</span>
+                <span class="k">continue</span>
+
+            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="n">render_sidecar</span><span class="p">()</span>
+            <span class="n">sidecar_digest</span> <span class="o">=</span> <span class="n">hexdigest</span><span class="p">(</span><span class="n">sidecar_str</span><span class="p">)</span>
+            <span class="n">write_sidecar</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">((</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sidecar_exists</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="p">(</span><span class="n">sidecar_digest</span> <span class="o">!=</span> <span class="n">sidecar_record</span><span class="o">.</span><span class="n">digest</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="ow">not</span> <span class="n">sidecar_sig_matches</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">write_sidecar</span><span class="p">:</span>
@@ -477,11 +509,15 @@
                         <span class="n">sidecar_record</span><span class="o">.</span><span class="n">dest_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span>
                             <span class="n">sidecar_filename</span><span class="p">,</span> <span class="n">stat_cache</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">stat_cache</span>
                         <span class="p">)</span>
+                        <span class="n">sidecar_record</span><span class="o">.</span><span class="n">export_options</span> <span class="o">=</span> <span class="n">sidecar_options</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">verbose</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Skipped up to date </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Skipped up to date </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">files_skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">))</span>
+                <span class="k">with</span> <span class="n">sidecar_record</span><span class="p">:</span>
+                    <span class="n">sidecar_record</span><span class="o">.</span><span class="n">export_options</span> <span class="o">=</span> <span class="n">sidecar_options</span>
 
         <span class="n">results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">(</span>
             <span class="n">sidecar_json_written</span><span class="o">=</span><span class="n">sidecar_json_files_written</span><span class="p">,</span>
@@ -536,6 +572,62 @@
 
         <span class="k">return</span> <span class="n">results</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_exiftool_sidecar</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sidecar_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">ExifOptions</span><span class="p">,</span>
+        <span class="n">tag_groups</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render and cache exiftool-style sidecar content for this photo.&quot;&quot;&quot;</span>
+        <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">sidecar_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">exiftool_json_sidecar</span><span class="p">(</span>
+                <span class="n">photo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span>
+                <span class="n">tag_groups</span><span class="o">=</span><span class="n">tag_groups</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_xmp_sidecar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render and cache XMP sidecar content for this photo.&quot;&quot;&quot;</span>
+        <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;xmp&quot;</span><span class="p">,</span> <span class="n">extension</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmp_sidecar</span><span class="p">(</span>
+                <span class="n">extension</span><span class="o">=</span><span class="n">extension</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sidecar_options_signature</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sidecar_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">sidecar_filename</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
+        <span class="n">exif_options</span><span class="p">:</span> <span class="n">ExifOptions</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a stable signature for sidecar inputs that affect sidecar output.&quot;&quot;&quot;</span>
+        <span class="n">render_options</span> <span class="o">=</span> <span class="n">exif_options</span><span class="o">.</span><span class="n">render_options</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;dest_name&quot;</span><span class="p">:</span> <span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;extension&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">sidecar_type</span> <span class="o">==</span> <span class="s2">&quot;XMP&quot;</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;exif_options&quot;</span><span class="p">:</span> <span class="n">exif_options</span><span class="o">.</span><span class="n">asdict</span><span class="p">(),</span>
+                <span class="s2">&quot;render_options&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">render_options</span><span class="p">)</span> <span class="k">if</span> <span class="n">render_options</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;sidecar_drop_ext&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar_drop_ext</span><span class="p">,</span>
+                <span class="s2">&quot;sidecar_filename&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="s2">&quot;sidecar_type&quot;</span><span class="p">:</span> <span class="n">sidecar_type</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="SidecarWriter.write_user_sidecar_files">
 <a class="viewcode-back" href="../../reference.html#osxphotos.SidecarWriter.write_user_sidecar_files">[docs]</a>
@@ -1014,7 +1106,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=eef2dcb7"></script>
+</div><script src="../../_static/documentation_options.js?v=4a8a58ae"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
