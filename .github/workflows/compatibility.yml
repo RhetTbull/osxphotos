@@ -59,16 +59,23 @@ jobs:
           print(f"Machine : {machine or platform.machine()}")
           EOF
 
-      # ── fresh resolve ───────────────────────────────────────────────────────
-      - name: Clean lock and sync
+      # ── Isntall dependencies with -r requireements ──────────────────────────
+      - name: Install dependencies
         run: |
-          rm -f uv.lock
-          uv sync
+          uv venv
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> $GITHUB_PATH
+          uv pip install -r requirements.txt
+
+      # ── fresh resolve ───────────────────────────────────────────────────────
+    #   - name: Clean lock and sync
+    #     run: |
+    #       rm -f uv.lock
+    #       uv sync
 
       # ── assert correct pyobjc branch was selected ──────────────────────────
       - name: Assert pyobjc >= 10.0
         run: |
-            uv run python - <<'EOF'
+            python - <<'EOF'
             from importlib.metadata import version, PackageNotFoundError
 
             def v(s):
@@ -103,7 +110,7 @@ jobs:
       # ── import smoke test ───────────────────────────────────────────────────
       - name: Framework import smoke test
         run: |
-          uv run python - <<'EOF'
+          python - <<'EOF'
           import objc
           import Foundation
           import AVFoundation
@@ -114,7 +121,7 @@ jobs:
 
       # ── osxphotos smoke test ────────────────────────────────────────────────
       - name: osxphotos import
-        run: uv run python -c "import osxphotos; print('osxphotos', osxphotos.__version__, 'OK')"
+        run: python -c "import osxphotos; print('osxphotos', osxphotos.__version__, 'OK')"
 
   # ── summary job so branch protection only needs one required check ─────────
   ci:
