@@ -3,7 +3,7 @@ name: Compatibility matrix
 
 on:
   push:
-    branches: [pyobj-compatibility]
+    branches: [pyobjc-compatibility]
   pull_request:
   workflow_dispatch:
 
