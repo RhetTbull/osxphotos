@@ -68,36 +68,37 @@ jobs:
       # ── assert correct pyobjc branch was selected ──────────────────────────
       - name: Assert pyobjc >= 10.0
         run: |
-          uv run python - <<'EOF'
-          from importlib.metadata import version, PackageNotFoundError
-          from packaging.version import Version
+            uv run python - <<'EOF'
+            from importlib.metadata import version, PackageNotFoundError
 
-          PACKAGES = [
-              "pyobjc-core",
-              "pyobjc-framework-avfoundation",
-              "pyobjc-framework-cocoa",
-              "pyobjc-framework-photos",
-              "pyobjc-framework-quartz",
-              "pyobjc-framework-vision",
-          ]
-          MIN = Version("10.0")
-          failures = []
+            def v(s):
+                return tuple(int(x) for x in s.split(".")[:2])
 
-          for pkg in PACKAGES:
-              try:
-                  v = Version(version(pkg))
-                  ok = v >= MIN
-                  print(f"  {'OK  ' if ok else 'FAIL'} {pkg}=={v}")
-                  if not ok:
-                      failures.append(f"{pkg}=={v}")
-              except PackageNotFoundError:
-                  print(f"  SKIP {pkg} (not installed on this platform)")
+            PACKAGES = [
+                "pyobjc-core",
+                "pyobjc-framework-avfoundation",
+                "pyobjc-framework-cocoa",
+                "pyobjc-framework-photos",
+                "pyobjc-framework-quartz",
+                "pyobjc-framework-vision",
+            ]
 
-          if failures:
-              raise SystemExit(f"\nFAIL: pyobjc < 10 resolved for:\n  " + "\n  ".join(failures))
+            failures = []
+            for pkg in PACKAGES:
+                try:
+                    ver = version(pkg)
+                    ok = v(ver) >= (10, 0)
+                    print(f"  {'OK  ' if ok else 'FAIL'} {pkg}=={ver}")
+                    if not ok:
+                        failures.append(f"{pkg}=={ver}")
+                except PackageNotFoundError:
+                    print(f"  SKIP {pkg} (not installed)")
 
-          print("\nAll resolved pyobjc packages >= 10.0")
-          EOF
+            if failures:
+                raise SystemExit("\nFAIL: pyobjc < 10 resolved:\n  " + "\n  ".join(failures))
+
+            print("\nAll pyobjc packages >= 10.0")
+            EOF
 
       # ── import smoke test ───────────────────────────────────────────────────
       - name: Framework import smoke test
