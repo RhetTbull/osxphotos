@@ -70,8 +70,6 @@ def detect_text(img_path: str, orientation: Optional[int] = None) -> List:
             Vision.VNRecognizeTextRequest.alloc().initWithCompletionHandler_(handler)
         )
         error = vision_handler.performRequests_error_([vision_request], None)
-        vision_request.dealloc()
-        vision_handler.dealloc()
 
         for result in results:
             result[0] = str(result[0])
