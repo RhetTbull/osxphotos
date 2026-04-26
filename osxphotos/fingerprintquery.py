@@ -5,7 +5,9 @@ from __future__ import annotations
 import datetime
 import os
 import pathlib
+import shutil
 import sqlite3
+import tempfile
 
 from ._constants import _DB_TABLE_NAMES
 from .fingerprint import fingerprint
@@ -31,8 +33,29 @@ class FingerprintQuery:
             # assume path to root of Photos library
             # if not, assume it's the path to the Photos.sqlite file
             self.photos_library = self.photos_library / "database" / "Photos.sqlite"
-        self.conn = sqlite3.connect(str(self.photos_library))
+        # Photos.app's photolibraryd holds an exclusive lock on Photos.sqlite
+        # even after Photos.app quits, so copy the db (and its -wal/-shm
+        # companions) to a temp dir before opening. This mirrors the pattern
+        # used by PhotosDB._copy_db_file.
+        self._tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_fpq_")
+        tmp_db = os.path.join(self._tmpdir.name, self.photos_library.name)
+        shutil.copyfile(str(self.photos_library), tmp_db)
+        for suffix in ("-wal", "-shm"):
+            src = str(self.photos_library) + suffix
+            if os.path.exists(src):
+                shutil.copyfile(src, tmp_db + suffix)
+        self.conn = sqlite3.connect(tmp_db)
         self.photos_version = get_photos_version_from_model(str(self.photos_library))
+
+    def __del__(self):
+        try:
+            self.conn.close()
+        except Exception:
+            pass
+        try:
+            self._tmpdir.cleanup()
+        except Exception:
+            pass
 
     def photos_by_fingerprint(
         self, fingerprint: str, in_trash: bool = False
