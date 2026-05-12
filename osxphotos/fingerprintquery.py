@@ -1,18 +1,16 @@
-"""Query Photos database for photos matching fingerprint """
+"""Query Photos database for photos matching fingerprint"""
 
 from __future__ import annotations
 
 import datetime
 import os
 import pathlib
-import shutil
-import sqlite3
-import tempfile
 
 from ._constants import _DB_TABLE_NAMES
 from .fingerprint import fingerprint
 from .photos_datetime import photos_datetime
 from .photosdb.photosdb_utils import get_photos_version_from_model
+from .sqlite_utils import sqlite_open_ro_with_temp_copy
 
 
 class FingerprintQuery:
@@ -33,27 +31,13 @@ class FingerprintQuery:
             # assume path to root of Photos library
             # if not, assume it's the path to the Photos.sqlite file
             self.photos_library = self.photos_library / "database" / "Photos.sqlite"
-        # Photos.app's photolibraryd holds an exclusive lock on Photos.sqlite
-        # even after Photos.app quits, so copy the db (and its -wal/-shm
-        # companions) to a temp dir before opening. This mirrors the pattern
-        # used by PhotosDB._copy_db_file.
-        self._tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_fpq_")
-        tmp_db = os.path.join(self._tmpdir.name, self.photos_library.name)
-        shutil.copyfile(str(self.photos_library), tmp_db)
-        for suffix in ("-wal", "-shm"):
-            src = str(self.photos_library) + suffix
-            if os.path.exists(src):
-                shutil.copyfile(src, tmp_db + suffix)
-        self.conn = sqlite3.connect(tmp_db)
-        self.photos_version = get_photos_version_from_model(str(self.photos_library))
+        self.conn, _ = sqlite_open_ro_with_temp_copy(self.photos_library)
+        db_path = self.conn.execute("PRAGMA database_list").fetchone()[2]
+        self.photos_version = get_photos_version_from_model(db_path)
 
     def __del__(self):
         try:
             self.conn.close()
-        except Exception:
-            pass
-        try:
-            self._tmpdir.cleanup()
         except Exception:
             pass
 
