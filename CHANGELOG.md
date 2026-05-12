@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.75.9](https://github.com/RhetTbull/osxphotos/compare/v0.75.8...v0.75.9)
+
+Fix crash when using text detection.
+
+### 2026-04-24
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fix crash when using text detection (remove manual .dealloc() calls causing SIGSEGV) (#2143)
+
+#### Contributors
+
+* @dannigee[@dannigee](https://github.com/dannigee)
+
+## [v0.75.8](https://github.com/RhetTbull/osxphotos/compare/v0.75.7...v0.75.8)
+
+Fix "too many open files" error on Python 3.14
+
+### 2026-04-16
+
+#### Added
+
+#### Changed
+
+#### Removed
+
+#### Fixed
+
+- Fix for "too many open files" error on Python 3.14
+- Fix dependencies for older python versions (thanks to @oPromessa)
+
+#### Contributors
+
+* @RhetTbull[@RhetTbull](https://github.com/RhetTbull)
+* @oPromessa [@oPromessa](https://github.com/oPromessa)
+
 ## [v0.75.7](https://github.com/RhetTbull/osxphotos/compare/v0.75.6...v0.75.7)
 
 Fix performance on some APFS file systems
