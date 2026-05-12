@@ -5,6 +5,7 @@ PhotosDB.photos() returns a list of PhotoInfo objects
 from __future__ import annotations
 
 import contextlib
+import copy
 import dataclasses
 import datetime
 import json
@@ -102,6 +103,8 @@ class PhotoInfo:
         self._info: dict[str, Any] = info
         self._db: "osxphotos.PhotosDB" = db
         self._verbose = self._db._verbose
+        self._asdict_cache: dict[bool, dict[str, Any]] = {}
+        self._json_cache: dict[tuple[int | None, bool], str] = {}
 
     @property
     def _exiftool_path(self) -> str | None:
@@ -2102,6 +2105,12 @@ class PhotoInfo:
         Note:
             The shallow representation is used internally by export as it contains only the subset of data needed for export.
         """
+        if shallow not in self._asdict_cache:
+            self._asdict_cache[shallow] = self._asdict_uncached(shallow=shallow)
+        return copy.deepcopy(self._asdict_cache[shallow])
+
+    def _asdict_uncached(self, shallow: bool = True) -> dict[str, Any]:
+        """Return uncached dict representation of PhotoInfo object."""
 
         comments = [comment.asdict() for comment in self.comments]
         exif_info = dataclasses.asdict(self.exif_info) if self.exif_info else {}
@@ -2253,6 +2262,10 @@ class PhotoInfo:
             if isinstance(o, (datetime.date, datetime.datetime)):
                 return o.isoformat()
 
+        cache_key = (indent, shallow)
+        if cache_key in self._json_cache:
+            return self._json_cache[cache_key]
+
         dict_data = self.asdict(shallow=True) if shallow else self.asdict(shallow=False)
 
         for k, v in dict_data.items():
@@ -2262,7 +2275,11 @@ class PhotoInfo:
                 continue
             if v and isinstance(v, (list, tuple)) and not isinstance(v[0], dict):
                 dict_data[k] = sorted(v, key=lambda v: v if v is not None else "")
-        return json.dumps(dict_data, sort_keys=True, default=default, indent=indent)
+        json_data = json.dumps(
+            dict_data, sort_keys=True, default=default, indent=indent
+        )
+        self._json_cache[cache_key] = json_data
+        return json_data
 
     def tables(self) -> PhotoTables | None:
         """Return PhotoTables object to provide access database tables associated with this photo (Photos 5+)"""
