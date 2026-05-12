@@ -198,6 +198,8 @@ def retry_all_methods():
             def make_retry(func):
                 @functools.wraps(func)
                 def wrapper(*args, **kwargs):
+                    if not RETRY_FILEUTIL_CONFIG["retry_enabled"]:
+                        return func(*args, **kwargs)
                     retryer = retry(
                         stop=stop_after_attempt(RETRY_FILEUTIL_CONFIG["retries"]),
                         wait=wait_fixed(RETRY_FILEUTIL_CONFIG["wait_seconds"]),
@@ -795,7 +797,6 @@ class FileUtil(FileUtilShUtil):
     """Various file utilities"""
 
 
-@retry_all_methods()
 class FileUtilNoOp(FileUtil):
     """No-Op implementation of FileUtil for testing / dry-run mode
     all methods with exception of tmpdir, cmp, cmp_file_sig and file_cmp are no-op
