@@ -268,6 +268,18 @@ STAT_CACHE_TTL_SECONDS = os.environ.get(
     help="Seconds to wait in between --retry file operations attempts during export. Must be used with --retry and --retry-nas-alias. This is useful with network drives that experience intermittent errors. If not specified, default is 15s. See also option --retry and --retry-nas-alias.",
 )
 @click.option(
+    "--applescript-timeout",
+    metavar="SECS",
+    type=click.INT,
+    default=120,
+    show_default=True,
+    help="Per-photo AppleScript timeout in seconds for export operations that "
+    "drive Photos.app (i.e., when --download-missing is set and the original "
+    "is not yet local). Increase for libraries that contain large iCloud-only "
+    "files which need longer than the default to download from iCloud. Closes "
+    "#616.",
+)
+@click.option(
     "--export-by-date",
     is_flag=True,
     help="Automatically create output folders to organize photos by date created (e.g. DEST/2019/12/20/photoname.jpg).",
@@ -973,6 +985,7 @@ def export(
     alt_db: str | None,
     alt_copy: bool,
     append: bool,
+    applescript_timeout: int,
     fix_orientation: bool,
     beta: bool,
     burst: bool,
@@ -1187,6 +1200,7 @@ def export_cli(
     alt_db: str | None = None,
     alt_copy: bool = False,
     append: bool = False,
+    applescript_timeout: int = 120,
     fix_orientation: bool = False,
     beta: bool = False,
     burst: bool = False,
@@ -1438,6 +1452,7 @@ def export_cli(
         alt_db = cfg.alt_db
         alt_copy = cfg.alt_copy
         append = cfg.append
+        applescript_timeout = cfg.applescript_timeout
         fix_orientation = cfg.fix_orientation
         beta = cfg.beta
         burst = cfg.burst
@@ -2946,6 +2961,7 @@ def export_photo_to_directory(
                 sidecar=sidecar_flags,
                 sidecar_drop_ext=sidecar_drop_ext,
                 sidecar_template=sidecar_template,
+                timeout=applescript_timeout,
                 tmpdir=tmpdir,
                 touch_file=touch_file,
                 update=update,

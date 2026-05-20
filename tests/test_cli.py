@@ -1752,6 +1752,35 @@ def test_export_alt_copy():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
+def test_export_applescript_timeout():
+    """test export with --applescript-timeout (closes #616)
+
+    Verifies the new CLI flag is accepted and doesn't break a basic export.
+    The timeout only takes effect when the AppleScript export path runs
+    (i.e., --download-missing with files not local), which can't be reliably
+    exercised against the test library; this test just confirms the flag
+    parses and plumbs through without regressing the normal export path.
+    """
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--library",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                "--applescript-timeout",
+                "600",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+
 def test_export_alt_db():
     """test export with --alt-db"""
     runner = CliRunner()
