@@ -18,6 +18,7 @@
 # make burst/live methods get uuid from self instead of passing as arg
 
 import copy
+import os
 import pathlib
 import sys
 import threading
@@ -186,10 +187,47 @@ class PhotoKitExportError(PhotoKitError):
     pass
 
 
+class PhotoKitTimeoutError(PhotoKitError):
+    """Raised when an asynchronous PhotoKit request exceeds PHOTOKIT_REQUEST_TIMEOUT.
+
+    PhotoKit image/resource/video requests are asynchronous and set
+    networkAccessAllowed=True, so they may try to download originals from iCloud.
+    If iCloud stalls, the completion/result handler never fires and the request
+    would otherwise block the calling thread forever. This bounds that wait.
+    """
+
+    pass
+
+
 class PhotoKitMediaTypeError(PhotoKitError):
     """Exception raised if an unknown mediaType() is encountered"""
 
     pass
+
+
+# Maximum seconds to wait for an asynchronous PhotoKit request (image / resource / video
+# data) before raising PhotoKitTimeoutError. These requests set networkAccessAllowed=True,
+# so a stalled iCloud download can otherwise block the calling thread INDEFINITELY -- the
+# result/completion handler simply never fires. A per-request bound prevents that hang.
+# The default (300s) is generous for a real iCloud download, even a large video, while still
+# catching a true stall. Override with the OSXPHOTOS_PHOTOKIT_TIMEOUT environment variable;
+# set it to 0 to restore the legacy "wait forever" behavior.
+PHOTOKIT_REQUEST_TIMEOUT = float(os.environ.get("OSXPHOTOS_PHOTOKIT_TIMEOUT") or 300)
+
+
+def _wait_for_event_or_timeout(event, asset_id):
+    """Block on a PhotoKit completion event, bounded by PHOTOKIT_REQUEST_TIMEOUT.
+
+    PhotoKit image/resource/video requests are asynchronous; the result/completion handler
+    sets ``event``. If iCloud stalls and the handler never fires, an unbounded wait would
+    block the calling thread forever, so the wait is bounded and PhotoKitTimeoutError is
+    raised. A PHOTOKIT_REQUEST_TIMEOUT of 0 restores the legacy "wait forever" behavior.
+    """
+    if not event.wait(PHOTOKIT_REQUEST_TIMEOUT or None):
+        raise PhotoKitTimeoutError(
+            f"PhotoKit request timed out after {PHOTOKIT_REQUEST_TIMEOUT}s for asset "
+            f"{asset_id} (the iCloud download may have stalled)"
+        )
 
 
 ### helper classes
@@ -659,7 +697,7 @@ class PhotoAsset:
             self._manager.requestImageDataAndOrientationForAsset_options_resultHandler_(
                 self.phasset, options_request, handler
             )
-            event.wait()
+            _wait_for_event_or_timeout(event, self.phasset.localIdentifier())
             # options_request.dealloc()
 
             # not sure why this is needed -- some weird ref count thing maybe
@@ -705,7 +743,7 @@ class PhotoAsset:
                 resource, options, handler, completion_handler
             )
 
-            event.wait()
+            _wait_for_event_or_timeout(event, self.phasset.localIdentifier())
 
             # not sure why this is needed -- some weird ref count thing maybe
             # if I don't do this, memory leaks
@@ -985,7 +1023,7 @@ class VideoAsset(PhotoAsset):
             self._manager.requestAVAssetForVideo_options_resultHandler_(
                 self.phasset, options_request, handler
             )
-            event.wait()
+            _wait_for_event_or_timeout(event, self.phasset.localIdentifier())
 
             # not sure why this is needed -- some weird ref count thing maybe
             # if I don't do this, memory leaks
