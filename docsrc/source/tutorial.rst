@@ -194,9 +194,7 @@ If you encounter missing photos you can tell osxphotos to download the missing p
 Exporting to external disks
 ---------------------------
 
-.. note::
-
-   osxphotos expects the target export volume to be case-insensitive (the default for macOS and for Photos libraries). Options such as ``--cleanup`` normalize filenames before comparing them, so exporting to a case-sensitive volume (for example, certain external drives or NAS shares) can lead to unexpected duplicate or missing files. If you must export to a case-sensitive volume, review the exported file names carefully.
+**Note**\ : osxphotos expects the target export volume to be case-insensitive (the default for macOS and for Photos libraries). Options such as ``--cleanup`` normalize filenames before comparing them, so exporting to a case-sensitive volume (for example, certain external drives or NAS shares) can lead to unexpected duplicate or missing files. If you must export to a case-sensitive volume, review the exported file names carefully.
 
 If you are exporting to an external network attached storage (NAS) device, you may encounter errors if the network connection is unreliable.  In this case, you can use the ``--retry`` option so that osxphotos will automatically retry the export.  Use ``--retry`` with a number that specifies the number of times to retry the export:
 
@@ -247,7 +245,7 @@ If some of your photos contain a keyword you do not want to be added to the expo
 
 In this example, ``|remove(MyKeyword)`` is a filter which removes ``MyKeyword`` from the keyword list of every photo being processed.  The ``--replace-keywords`` option instructs osxphotos to replace the keywords in the exported file with the filtered keywords from ``--keyword-template``.
 
-**Note**\ : When evaluating templates for ``--directory`` and ``--filename``\ , osxphotos inserts the automatic default value "_" for any template field which is null (empty or blank).  This is to ensure that there's never a null directory or filename created.  For metadata templates such as ``--keyword-template``\ , osxphotos does not provide an automatic default value thus if the template field is null, no keyword would be created.  Of course, you can provide a default value if desired and osxphotos will use this.  For example, to add "nolabel" as a keyword for any photo that doesn't have labels:
+hen evaluating templates for ``--directory`` and ``--filename``\ , osxphotos inserts the automatic default value "_" for any template field which is null (empty or blank).  This is to ensure that there's never a null directory or filename created.  For metadata templates such as ``--keyword-template``\ , osxphotos does not provide an automatic default value thus if the template field is null, no keyword would be created.  Of course, you can provide a default value if desired and osxphotos will use this.  For example, to add "nolabel" as a keyword for any photo that doesn't have labels:
 
 ``osxphotos export /path/to/export --exiftool --keyword-template "{label,nolabel}"``
 
