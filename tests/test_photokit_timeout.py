@@ -11,9 +11,14 @@ import time
 
 import pytest
 
-from osxphotos import photokit
-from osxphotos.photokit import PhotoKitTimeoutError, _wait_for_event_or_timeout
+from osxphotos.platform import is_macos
 
+if is_macos:
+    from osxphotos import photokit
+    from osxphotos.photokit import PhotoKitTimeoutError, _wait_for_event_or_timeout
+else:
+    pytest.skip(allow_module_level=True, reason="Tests only run on macOS")
+    
 
 def test_timeout_raises_when_handler_never_fires(monkeypatch):
     """Stalled handler (event never set) -> PhotoKitTimeoutError, bounded by the timeout."""
