@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BlacklistedMeaningsByMeaning</key>
+	<dict/>
+	<key>SceneWhitelist</key>
+	<array>
+		<string>Art</string>
+		<string>Flower</string>
+		<string>Food</string>
+		<string>Jewelry</string>
+		<string>Lake</string>
+		<string>Shore</string>
+		<string>Sport</string>
+		<string>Vehicle</string>
+	</array>
+</dict>
+</plist>
