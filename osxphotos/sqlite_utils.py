@@ -25,6 +25,7 @@ __all__ = [
     "sqlite_delete_backup_files",
     "sqlite_delete_dbfiles",
     "sqlite_open_ro",
+    "sqlite_open_ro_with_temp_copy",
     "sqlite_recover_db",
     "sqlite_repair_db",
     "sqlite_tables",
@@ -37,7 +38,25 @@ def get_sqlite_cli() -> str:
     return shutil.which("sqlite3")
 
 
-def sqlite_open_ro(dbname: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
+class _SQLiteTempCopyConnection(sqlite3.Connection):
+    """sqlite3 connection that cleans up an associated temporary directory."""
+
+    _tempdir: tempfile.TemporaryDirectory | None = None
+
+    def close(self) -> None:
+        """Close connection and clean up temporary database copy."""
+        try:
+            super().close()
+        finally:
+            if self._tempdir is not None:
+                self._tempdir.cleanup()
+                self._tempdir = None
+
+
+def _sqlite_open_ro(
+    dbname: str | pathlib.Path,
+    factory: type[sqlite3.Connection] = sqlite3.Connection,
+) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
     """opens sqlite file dbname in read-only mode
     returns tuple of (connection, cursor)"""
     try:
@@ -47,6 +66,7 @@ def sqlite_open_ro(dbname: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
             timeout=1,
             uri=True,
             check_same_thread=SQLITE_CHECK_SAME_THREAD,
+            factory=factory,
         )
         c = conn.cursor()
     except sqlite3.Error as e:
@@ -54,6 +74,53 @@ def sqlite_open_ro(dbname: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
             f"An error occurred opening sqlite file: {e} {dbname}"
         ) from e
     return (conn, c)
+
+
+def sqlite_open_ro(
+    dbname: str | pathlib.Path,
+) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
+    """opens sqlite file dbname in read-only mode
+    returns tuple of (connection, cursor)"""
+    return _sqlite_open_ro(dbname)
+
+
+def _sqlite_temp_copy_dbfiles(
+    dbpath: str | pathlib.Path, tempdir: tempfile.TemporaryDirectory
+) -> pathlib.Path:
+    """Copy sqlite database files to tempdir and return copied database path."""
+    dbpath = pathlib.Path(dbpath)
+    fileutil = FileUtilMacOS if is_macos else FileUtil
+    temp_dbpath = pathlib.Path(tempdir.name) / dbpath.name
+    for suffix in ["", "-wal", "-shm"]:
+        src = pathlib.Path(f"{dbpath}{suffix}")
+        if not src.exists():
+            continue
+        dst = pathlib.Path(f"{temp_dbpath}{suffix}")
+        fileutil.copy(src, dst)
+    return temp_dbpath
+
+
+def sqlite_open_ro_with_temp_copy(
+    dbname: str | pathlib.Path,
+) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
+    """Open sqlite file dbname in read-only mode, copying to temp if locked.
+
+    If dbname is locked, copies dbname and any associated -wal/-shm files to a
+    temporary directory before opening the copied database read-only. The
+    temporary directory is cleaned up when the returned connection is closed.
+    """
+    if not sqlite_db_is_locked(dbname):
+        return sqlite_open_ro(dbname)
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_sqlite_")
+    temp_dbpath = _sqlite_temp_copy_dbfiles(dbname, tempdir)
+    try:
+        conn, cursor = _sqlite_open_ro(temp_dbpath, factory=_SQLiteTempCopyConnection)
+    except Exception:
+        tempdir.cleanup()
+        raise
+    conn._tempdir = tempdir
+    return conn, cursor
 
 
 def sqlite_db_is_locked(dbname: str | pathlib.Path) -> bool:
