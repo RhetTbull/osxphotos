@@ -37,6 +37,7 @@ _TEST_MODEL_VERSIONS = [
     "17120",
     "18402",
     "18508",
+    "270008501",
 ]
 
 _IPHOTO_VERSION = "0000"
@@ -61,6 +62,9 @@ _PHOTOS_10B1_MODEL_VERSION = [18000, 18200]  # Sequoia dev preview 1: 18164
 _PHOTOS_10_MODEL_VERSION = [18201, 18999]
 _PHOTOS_11_MODEL_VERSION = [19063, 19319]
 _PHOTOS_11_1_MODEL_VERSION = [19320, 19999]  # macOS 26.1
+# macOS 27.0 changed the model version numbering scheme to a much larger value
+# (e.g. 270008501 on the 27.0 developer beta)
+_PHOTOS_12_MODEL_VERSION = [270000000, 270999999]  # macOS 27.0
 
 # the preview versions of 12.0.0 had a difference schema for syndication info so need to check model version before processing
 _PHOTOS_SYNDICATION_MODEL_VERSION = 15323  # 12.0.1
@@ -240,6 +244,23 @@ _DB_TABLE_NAMES = {
         "HAS_ADJUSTMENTS": "ZASSET.ZADJUSTMENTSSTATE",
         "ZSHAREPARTICIPANT_ZXX_SHARE": "Z66_SHARE",
     },
+    12: {  # macOS 27.0 Tahoe (developer beta)
+        "ASSET": "ZASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_53KEYWORDS",
+        "ALBUM_JOIN": "Z_34ASSETS.Z_3ASSETS",
+        "ALBUM_SORT_ORDER": "Z_34ASSETS.Z_FOK_3ASSETS",
+        "IMPORT_FOK": "null",
+        "DEPTH_STATE": "ZASSET.ZDEPTHTYPE",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZCOMPACTUTI",
+        "ASSET_ALBUM_JOIN": "Z_34ASSETS.Z_34ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_34ASSETS",
+        "HDR_TYPE": "ZHDRTYPE",
+        "DETECTED_FACE_PERSON_FK": "ZDETECTEDFACE.ZPERSONFORFACE",
+        "DETECTED_FACE_ASSET_FK": "ZDETECTEDFACE.ZASSETFORFACE",
+        "MASTER_FINGERPRINT": "ZADDITIONALASSETATTRIBUTES.ZORIGINALSTABLEHASH",
+        "HAS_ADJUSTMENTS": "ZASSET.ZADJUSTMENTSSTATE",
+        "ZSHAREPARTICIPANT_ZXX_SHARE": "Z71_SHARE",
+    },
 }
 
 # Which version operating systems have been tested
@@ -300,6 +321,8 @@ _TESTED_OS_VERSIONS = [
     ("26", None),
     ("26", "0"),
     ("26", "1"),
+    ("27", None),
+    ("27", "0"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face

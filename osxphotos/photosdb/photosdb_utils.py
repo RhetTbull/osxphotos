@@ -24,6 +24,7 @@ from .._constants import (
     _PHOTOS_10B1_MODEL_VERSION,
     _PHOTOS_11_1_MODEL_VERSION,
     _PHOTOS_11_MODEL_VERSION,
+    _PHOTOS_12_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
 )
 from ..sqlite_utils import sqlite_open_ro
@@ -154,6 +155,8 @@ def get_photos_version_from_model(db_file: str) -> int:
         return 11
     if _PHOTOS_11_1_MODEL_VERSION[0] <= model_ver <= _PHOTOS_11_1_MODEL_VERSION[1]:
         return 11.1
+    if _PHOTOS_12_MODEL_VERSION[0] <= model_ver <= _PHOTOS_12_MODEL_VERSION[1]:
+        return 12
     logger.warning(
         f"Unknown db / model version for {db_file}: model_ver={model_ver}; assuming latest version"
     )

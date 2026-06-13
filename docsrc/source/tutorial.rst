@@ -194,6 +194,10 @@ If you encounter missing photos you can tell osxphotos to download the missing p
 Exporting to external disks
 ---------------------------
 
+.. note::
+
+   osxphotos expects the target export volume to be case-insensitive (the default for macOS and for Photos libraries). Options such as ``--cleanup`` normalize filenames before comparing them, so exporting to a case-sensitive volume (for example, certain external drives or NAS shares) can lead to unexpected duplicate or missing files. If you must export to a case-sensitive volume, review the exported file names carefully.
+
 If you are exporting to an external network attached storage (NAS) device, you may encounter errors if the network connection is unreliable.  In this case, you can use the ``--retry`` option so that osxphotos will automatically retry the export.  Use ``--retry`` with a number that specifies the number of times to retry the export:
 
 ``osxphotos export /path/to/export --retry 3``
