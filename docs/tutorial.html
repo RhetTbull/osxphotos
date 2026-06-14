@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Command Line Interface (CLI)" href="cli.html"><link rel="prev" title="OSXPhotos" href="overview.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Tutorial - osxphotos 0.75.9 documentation</title>
+        <title>OSXPhotos Tutorial - osxphotos 0.76.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.75.9 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.76.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.75.9 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.76.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -355,6 +355,7 @@
 </section>
 <section id="exporting-to-external-disks">
 <h2>Exporting to external disks<a class="headerlink" href="#exporting-to-external-disks" title="Link to this heading">¶</a></h2>
+<p><strong>Note</strong>: osxphotos expects the target export volume to be case-insensitive (the default for macOS and for Photos libraries). Options such as <code class="docutils literal notranslate"><span class="pre">--cleanup</span></code> normalize filenames before comparing them, so exporting to a case-sensitive volume (for example, certain external drives or NAS shares) can lead to unexpected duplicate or missing files. If you must export to a case-sensitive volume, review the exported file names carefully.</p>
 <p>If you are exporting to an external network attached storage (NAS) device, you may encounter errors if the network connection is unreliable.  In this case, you can use the <code class="docutils literal notranslate"><span class="pre">--retry</span></code> option so that osxphotos will automatically retry the export.  Use <code class="docutils literal notranslate"><span class="pre">--retry</span></code> with a number that specifies the number of times to retry the export:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--retry</span> <span class="pre">3</span></code></p>
 <p>In this example, osxphotos will attempt to export a photo up to 3 times if it encounters an error.</p>
@@ -388,7 +389,7 @@
 <p>If some of your photos contain a keyword you do not want to be added to the exported file with <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code>, you can use the template system to remove the keyword from the exported file. For example, if you want to remove the keyword &quot;MyKeyword&quot; from all your photos:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--exiftool</span> <span class="pre">--keyword-template</span> <span class="pre">&quot;{keyword|remove(MyKeyword)}&quot;</span> <span class="pre">--replace-keywords</span></code></p>
 <p>In this example, <code class="docutils literal notranslate"><span class="pre">|remove(MyKeyword)</span></code> is a filter which removes <code class="docutils literal notranslate"><span class="pre">MyKeyword</span></code> from the keyword list of every photo being processed.  The <code class="docutils literal notranslate"><span class="pre">--replace-keywords</span></code> option instructs osxphotos to replace the keywords in the exported file with the filtered keywords from <code class="docutils literal notranslate"><span class="pre">--keyword-template</span></code>.</p>
-<p><strong>Note</strong>: When evaluating templates for <code class="docutils literal notranslate"><span class="pre">--directory</span></code> and <code class="docutils literal notranslate"><span class="pre">--filename</span></code>, osxphotos inserts the automatic default value &quot;_&quot; for any template field which is null (empty or blank).  This is to ensure that there's never a null directory or filename created.  For metadata templates such as <code class="docutils literal notranslate"><span class="pre">--keyword-template</span></code>, osxphotos does not provide an automatic default value thus if the template field is null, no keyword would be created.  Of course, you can provide a default value if desired and osxphotos will use this.  For example, to add &quot;nolabel&quot; as a keyword for any photo that doesn't have labels:</p>
+<p>hen evaluating templates for <code class="docutils literal notranslate"><span class="pre">--directory</span></code> and <code class="docutils literal notranslate"><span class="pre">--filename</span></code>, osxphotos inserts the automatic default value &quot;_&quot; for any template field which is null (empty or blank).  This is to ensure that there's never a null directory or filename created.  For metadata templates such as <code class="docutils literal notranslate"><span class="pre">--keyword-template</span></code>, osxphotos does not provide an automatic default value thus if the template field is null, no keyword would be created.  Of course, you can provide a default value if desired and osxphotos will use this.  For example, to add &quot;nolabel&quot; as a keyword for any photo that doesn't have labels:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--exiftool</span> <span class="pre">--keyword-template</span> <span class="pre">&quot;{label,nolabel}&quot;</span></code></p>
 </section>
 <section id="sidecar-files">
@@ -651,7 +652,7 @@ template fields.
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=06e87f75"></script>
+</div><script src="_static/documentation_options.js?v=137c1688"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
