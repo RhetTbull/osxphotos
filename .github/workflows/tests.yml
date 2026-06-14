@@ -10,99 +10,109 @@ jobs:
       max-parallel: 4
       matrix:
         os: [ubuntu-latest, macos-15]
-        # os: [macos-14]
         python-version: ['3.11', '3.12', '3.13', '3.14']
+
     steps:
-    - name: Checkout (sparse)
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
-        # Fetch only what's needed for tests to speed up checkout
-        sparse-checkout: |
-          osxphotos
-          tests
-          examples
-          pyproject.toml
-          requirements.txt
-          dev_requirements.txt
-          pytest.ini
-          setup.py
-          MANIFEST.in
-          README.md
-    - name: Setup uv with Python ${{ matrix.python-version }}
-      uses: astral-sh/setup-uv@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Cache uv download cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/uv
-        key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'dev_requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-uv-${{ matrix.python-version }}-
-    - name: Cache virtualenv
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: ${{ runner.os }}-venv-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'dev_requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-venv-${{ matrix.python-version }}-
-    - name: Install dependencies (uv)
-      run: |
-        uv venv --clear
-        uv pip install -r requirements.txt
-        uv pip install -r dev_requirements.txt
-    - name: Install exiftool
-      run: |
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bash_profile
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          export PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          echo "macOS: brew should already be on path"
-        else
-          echo "$RUNNER_OS not supported"
-          exit 1
-        fi
-        brew install exiftool
-    - name: Test with pytest
-      run: |
-        MAX_ATTEMPTS=3
-        ATTEMPT=1
+      - name: Checkout (sparse)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          # Fetch only what's needed for tests to keep checkout fast.
+          # setup.py / requirements.txt / dev_requirements.txt are gone;
+          # pyproject.toml is now the single source of truth.
+          sparse-checkout: |
+            osxphotos
+            tests
+            examples
+            pyproject.toml
+            pytest.ini
 
-        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-          echo "Test attempt $ATTEMPT of $MAX_ATTEMPTS"
+      - name: Setup uv with Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-          if ./.venv/bin/python -m pytest -v tests/; then
-            echo "Tests passed on attempt $ATTEMPT"
-            exit 0
+      # Cache the uv download cache keyed on pyproject.toml so it
+      # invalidates whenever dependencies change.
+      - name: Cache uv download cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-${{ matrix.python-version }}-
+
+      # Cache the virtualenv itself.
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-venv-${{ matrix.python-version }}-
+
+      # Install the package *and* all dev extras in a single step.
+      # Equivalent to the old:
+      #   uv pip install -r requirements.txt
+      #   uv pip install -r dev_requirements.txt
+      - name: Install dependencies (uv)
+        run: |
+          uv venv --clear
+          uv pip install -e ".[dev]"
+
+      - name: Install exiftool
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bash_profile
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            export PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            echo "macOS: brew should already be on path"
           else
-            EXIT_CODE=$?
-            echo "Tests failed on attempt $ATTEMPT with exit code $EXIT_CODE"
+            echo "$RUNNER_OS not supported"
+            exit 1
+          fi
+          brew install exiftool
 
-            # Check if this is a segmentation fault (exit code 139) on macOS
-            if [ "$RUNNER_OS" == "macOS" ] && [ $EXIT_CODE -eq 139 ]; then
-              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
-                echo "Segmentation fault detected on macOS (exit code 139). Retrying..."
-                ATTEMPT=$((ATTEMPT + 1))
-                sleep 5  # Brief pause before retry
-                continue
+      - name: Test with pytest
+        run: |
+          MAX_ATTEMPTS=3
+          ATTEMPT=1
+
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "Test attempt $ATTEMPT of $MAX_ATTEMPTS"
+
+            if ./.venv/bin/python -m pytest -v tests/; then
+              echo "Tests passed on attempt $ATTEMPT"
+              exit 0
+            else
+              EXIT_CODE=$?
+              echo "Tests failed on attempt $ATTEMPT with exit code $EXIT_CODE"
+
+              # Retry on segfault (exit code 139) on macOS only
+              if [ "$RUNNER_OS" == "macOS" ] && [ $EXIT_CODE -eq 139 ]; then
+                if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+                  echo "Segmentation fault detected on macOS (exit code 139). Retrying..."
+                  ATTEMPT=$((ATTEMPT + 1))
+                  sleep 5
+                  continue
+                else
+                  echo "Max retry attempts reached. Segmentation fault persists."
+                  exit $EXIT_CODE
+                fi
               else
-                echo "Max retry attempts reached. Segmentation fault persists."
+                echo "Non-segfault failure or not on macOS. Not retrying."
                 exit $EXIT_CODE
               fi
-            else
-              echo "Non-segfault failure or not on macOS. Not retrying."
-              exit $EXIT_CODE
             fi
-          fi
-        done
-    - name: Send failure notification
-      # Only send if failure and repository is RhetTbull/osxphotos
-      if: ${{ failure() && github.repository == 'RhetTbull/osxphotos' }}
-      run: |
-        curl \
-          -H "Click: https://github.com/RhetTbull/osxphotos/actions/" \
-          -d "osxphotos test failed" \
-           ntfy.sh/rhettbull_github_actions
+          done
+
+      - name: Send failure notification
+        # Only send on failure in the upstream repo
+        if: ${{ failure() && github.repository == 'RhetTbull/osxphotos' }}
+        run: |
+          curl \
+            -H "Click: https://github.com/RhetTbull/osxphotos/actions/" \
+            -d "osxphotos test failed" \
+             ntfy.sh/rhettbull_github_actions
