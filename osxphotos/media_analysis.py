@@ -11,8 +11,7 @@ import plistlib
 import re
 import sqlite3
 from functools import cache
-from typing import Any, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Any
 
 from .photos_datetime import photos_datetime_local
 
@@ -75,6 +74,65 @@ def _get_media_analysis_db_path(photo: PhotoInfo) -> pathlib.Path | None:
 def _local_identifier_for_photo(photo: PhotoInfo) -> str:
     """Return local identifier from photo's UUID"""
     return f"{photo.uuid}/L0/001"
+
+
+def _sqlite_table_names(conn: sqlite3.Connection) -> set[str]:
+    """Return table names in sqlite database."""
+    rows = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type = 'table'"
+    ).fetchall()
+    return {row[0] for row in rows}
+
+
+def _caption_result(
+    caption: str, confidence: float | None, text_key: str, confidence_key: str
+) -> dict[str, dict[str, Any]]:
+    """Build a media analysis caption result dict matching legacy blob payloads."""
+    attributes: dict[str, Any] = {text_key: caption}
+    if confidence is not None:
+        attributes[confidence_key] = confidence
+    return {"attributes": attributes}
+
+
+def _get_typed_caption_results(
+    conn: sqlite3.Connection, local_identifier: str
+) -> list[list[dict[str, Any]]]:
+    """Get macOS 27 typed caption results for a local identifier."""
+    tables = _sqlite_table_names(conn)
+    if "ZASSET" not in tables or "ZIMAGECAPTIONRESULT" not in tables:
+        return []
+
+    def get_captions(table: str, text_key: str, confidence_key: str) -> list[dict]:
+        if table not in tables:
+            return []
+        sql = f"""
+        SELECT src.ZCAPTION, src.ZCONFIDENCE
+        FROM {table} AS src
+        JOIN ZASSET ON src.ZASSET = ZASSET.Z_PK
+        WHERE ZASSET.ZLOCALIDENTIFIER = ?
+          AND src.ZCAPTION IS NOT NULL
+          AND src.ZCAPTION <> ''
+        """
+        rows = conn.execute(sql, (local_identifier,)).fetchall()
+        return [
+            _caption_result(row[0], row[1], text_key, confidence_key) for row in rows
+        ]
+
+    results = []
+    image_captions = get_captions(
+        "ZIMAGECAPTIONRESULT", "imageCaptionText", "imageCaptionConfidence"
+    )
+    video_captions = get_captions(
+        "ZVIDEOCAPTIONRESULT", "videoCaptionText", "videoCaptionConfidence"
+    )
+    video_captions += get_captions(
+        "ZVIDEOSEGMENTCAPTIONRESULT", "videoCaptionText", "videoCaptionConfidence"
+    )
+    if image_captions:
+        results.append(image_captions)
+    if video_captions:
+        results.append(video_captions)
+    return results
 
 
 def get_media_analysis_date(photo: PhotoInfo) -> datetime.datetime | None:
@@ -159,9 +217,13 @@ def _get_media_analysis_data(
         WHERE ZASSET.ZLOCALIDENTIFIER = ?;
         """
 
+    local_identifier = _local_identifier_for_photo(photo)
+    typed_results = []
     try:
         cursor = conn.cursor()
-        cursor.execute(sql, (_local_identifier_for_photo(photo),))
+        if photo._db.photos_version >= 11:
+            typed_results = _get_typed_caption_results(conn, local_identifier)
+        cursor.execute(sql, (local_identifier,))
         data = cursor.fetchall()
     except Exception as e:
         logger.warning(
@@ -171,7 +233,7 @@ def _get_media_analysis_data(
     finally:
         conn.close()
 
-    if not data:
+    if not data and not typed_results:
         return None, []
 
     analysis_date = get_media_analysis_date(photo)
@@ -186,6 +248,7 @@ def _get_media_analysis_data(
             )
             plist_data = None
         results.append(plist_data)
+    results.extend(typed_results)
     return analysis_date, results
 
 
