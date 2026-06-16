@@ -10,11 +10,11 @@
 		<string>Unknown</string>
 	</dict>
 	<key>cpa_cache_lastCacheTime</key>
-	<date>2026-06-11T01:41:38Z</date>
+	<date>2026-06-16T01:45:14Z</date>
 	<key>cpa_cache_librarySummary</key>
 	<dict>
 		<key>cpa_common_collectionCount</key>
-		<integer>16</integer>
+		<integer>13</integer>
 		<key>cpa_common_faceAnalysisProgress</key>
 		<real>1</real>
 		<key>cpa_common_fullAnalysisProgress</key>
@@ -32,11 +32,11 @@
 		<key>cpa_common_mediaAnalysisImageProgress</key>
 		<real>0.0</real>
 		<key>cpa_common_momentCount</key>
-		<integer>10</integer>
+		<integer>11</integer>
 		<key>cpa_common_personCount</key>
-		<integer>3</integer>
+		<integer>0</integer>
 		<key>cpa_common_photoCount</key>
-		<integer>16</integer>
+		<integer>13</integer>
 		<key>cpa_common_sceneAnalysisProgress</key>
 		<real>1</real>
 		<key>cpa_common_sharedLibraryEnabled</key>

@@ -3,14 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>coalesceDate</key>
-	<date>2022-11-12T21:34:07Z</date>
+	<date>2025-06-12T03:46:19Z</date>
 	<key>coalescePayloadVersion</key>
-	<integer>103</integer>
+	<integer>300</integer>
 	<key>currentPayloadVersion</key>
 	<integer>300</integer>
+	<key>snapshotChecksum</key>
+	<string></string>
 	<key>snapshotDate</key>
-	<date>2019-11-11T04:16:28Z</date>
+	<date>2025-06-12T03:46:04Z</date>
 	<key>snapshotPayloadVersion</key>
-	<integer>10</integer>
+	<integer>300</integer>
 </dict>
 </plist>
