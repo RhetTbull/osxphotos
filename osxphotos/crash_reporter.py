@@ -10,6 +10,7 @@ import time
 import traceback
 from typing import Any, Callable
 
+import click
 from rich import print
 
 from ._version import __version__
@@ -77,6 +78,8 @@ def crash_reporter(
         def wrapped(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
+            except (click.ClickException, click.Abort, click.exceptions.Exit):
+                raise
             except Exception as e:
                 print(message, file=sys.stderr)
                 print(f"[red]{e}[/red]", file=sys.stderr)
@@ -105,6 +108,7 @@ def crash_reporter(
                 print(f"{postamble}", file=sys.stderr)
                 sys.exit(1)
 
+        wrapped.__osxphotos_crash_reporter__ = True
         return wrapped
 
     return decorated
