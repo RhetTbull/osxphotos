@@ -209,6 +209,7 @@ class QueryOptions:
     not_selfie: Optional[bool] = None
     not_shared: Optional[bool] = None
     not_slow_mo: Optional[bool] = None
+    not_spatial: Optional[bool] = None
     not_time_lapse: Optional[bool] = None
     panorama: Optional[bool] = None
     person: Optional[Iterable[str]] = None
@@ -223,6 +224,7 @@ class QueryOptions:
     selfie: Optional[bool] = None
     shared: Optional[bool] = None
     slow_mo: Optional[bool] = None
+    spatial: Optional[bool] = None
     time_lapse: Optional[bool] = None
     title: Optional[Iterable[str]] = None
     to_date: Optional[datetime.datetime] = None
@@ -306,6 +308,7 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         ("selfie", "not_selfie"),
         ("shared", "not_shared"),
         ("slow_mo", "not_slow_mo"),
+        ("spatial", "not_spatial"),
         ("time_lapse", "not_time_lapse"),
         ("deleted", "not_deleted"),
         ("deleted", "deleted_only"),
@@ -598,6 +601,11 @@ def photo_query(
         photos = [p for p in photos if p.portrait]
     elif options.not_portrait:
         photos = [p for p in photos if not p.portrait]
+
+    if options.spatial:
+        photos = [p for p in photos if p.spatial]
+    elif options.not_spatial:
+        photos = [p for p in photos if not p.spatial]
 
     if options.screenshot:
         photos = [p for p in photos if p.screenshot]

@@ -55,7 +55,7 @@ from ..photoquery import QueryOptions, photo_query
 from ..photos_datetime import photos_datetime, photos_datetime_local
 from ..platform import is_macos
 from ..rich_utils import add_rich_markup_tag
-from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
+from ..sqlite_utils import sqlite_columns, sqlite_db_is_locked, sqlite_open_ro
 from ..unicode import normalize_unicode
 from ..utils import _check_file_exists, get_last_library_path, noop
 from .photosdb_utils import (
@@ -1248,6 +1248,9 @@ class PhotosDB:
             self._dbphotos[uuid]["screen_recording"] = None
             self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
 
+            # spatial (Apple Vision Pro) photos not available <= _PHOTOS_4_VERSION
+            self._dbphotos[uuid]["spatial"] = 0
+
             # selfies (front facing camera, RKVersion.selfPortrait == 1)
             if row[27] is not None:
                 self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False
@@ -1751,6 +1754,16 @@ class PhotosDB:
         master_fingerprint = _DB_TABLE_NAMES[photos_ver]["MASTER_FINGERPRINT"]
         has_adjustments = _DB_TABLE_NAMES[photos_ver]["HAS_ADJUSTMENTS"]
 
+        # ZASSET.ZSPATIALTYPE identifies Apple spatial media (Apple Vision Pro).
+        # The column only exists in newer Photos versions (Photos 9+ / macOS 14+)
+        # and is not present in every library at the same schema version, so
+        # check for it directly rather than relying on the version alone.
+        spatial_type = (
+            f"{asset_table}.ZSPATIALTYPE"
+            if "ZSPATIALTYPE" in sqlite_columns(conn, asset_table)
+            else "null"
+        )
+
         # Look for all combinations of persons and pictures
         logger.debug(f"Getting information about persons")
 
@@ -2070,6 +2083,10 @@ class PhotosDB:
                 null
             """
 
+        sql += f""",
+            {spatial_type}
+        """
+
         sql += f"""
             FROM {asset_table}
             JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
@@ -2126,6 +2143,7 @@ class PhotosDB:
         # 44   ZASSET.ZMOMENTSHARE -- FK for ZSHARE (shared moments, Photos 5+; in Photos 7+ these are in the scopes/momentshared folder)
         # 45   ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYDISPLAYNAME
         # 46   ZADDITIONALASSETATTRIBUTES.ZIMPORTEDBYBUNDLEIDENTIFIER
+        # 47   ZASSET.ZSPATIALTYPE (or null if column not present) -- 0 = 2D, 1 = native spatial, 2 = converted spatial
 
         for row in c:
             uuid = row[0]
@@ -2235,6 +2253,10 @@ class PhotosDB:
             info["hdr"] = True if row[22] == 3 else False
             info["depth_state"] = row[36]
             info["portrait"] = True if row[36] != 0 else False
+
+            # spatial media type (Apple Vision Pro); 0 if not spatial or column not present
+            # 1 == native spatial capture, 2 == 2D photo converted to spatial
+            info["spatial"] = row[47] or 0
 
             # Set panorama from either KindSubType or RenderedValue
             info["panorama"] = True if row[21] == 1 or row[22] == 6 else False

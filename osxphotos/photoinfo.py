@@ -1313,6 +1313,17 @@ class PhotoInfo:
         return self._info["portrait"]
 
     @property
+    def spatial(self) -> int:
+        """Returns the Apple spatial media type of the photo as an int.
+
+        Returns 0 if the photo is not spatial (a conventional 2D photo) or if
+        the library does not record spatial media type; otherwise returns the
+        raw ZASSET.ZSPATIALTYPE value (1 == native spatial capture,
+        2 == 2D photo converted to spatial via visionOS).
+        """
+        return self._info.get("spatial", 0) or 0
+
+    @property
     def selfie(self) -> bool:
         """Returns True if photo is a selfie (front facing camera), otherwise False"""
         return self._info["selfie"]
@@ -2233,6 +2244,7 @@ class PhotoInfo:
             dict_data["shared_library"] = self.shared_library
             dict_data["rating"] = self.rating
             dict_data["screen_recording"] = self.screen_recording
+            dict_data["spatial"] = self.spatial
             dict_data["date_original"] = self.date_original
             dict_data["tzname"] = self.tzname
             dict_data["media_analysis"] = self.media_analysis
