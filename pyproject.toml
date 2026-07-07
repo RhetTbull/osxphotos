@@ -1,0 +1,36 @@
+# [project]
+# name="osxphotos"
+# version="0.72.1"
+# requires-python = ">= 3.10"
+
+[tool.ruff]
+# Docs: https://beta.ruff.rs/docs/
+# Rules: https://beta.ruff.rs/docs/rules/
+target-version = "py310"
+line-length = 320
+# TODO: most of these can probasbly be removed but will require code cleanup
+# These were added to make ruff pass with code in current state
+lint.ignore = [
+    "E402",
+    "E721",
+    "E722",
+    "E741",
+    "F401",
+    "F403",
+    "F405",
+    "F541",
+    "F822",
+    "F841",
+]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pre-commit-cache",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    "venv",
+    "docs",
+    "__pycache",
+]
