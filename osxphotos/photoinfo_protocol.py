@@ -210,6 +210,9 @@ class PhotoInfoProtocol(Protocol):
     def portrait(self) -> bool: ...
 
     @property
+    def spatial(self) -> int: ...
+
+    @property
     def selfie(self) -> bool: ...
 
     @property
@@ -416,6 +419,8 @@ class PhotoInfoMixin:
         elif name == "keywords":
             return []
         elif name == "rating":
+            return 0
+        elif name == "spatial":
             return 0
         elif name == "visible":
             return True

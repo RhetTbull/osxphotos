@@ -14,8 +14,8 @@
 			bnRIaXN0b3J5VG9rZW5XVmVyc2lvblYkY2xhc3OAAhABgAjSDxQV
 			Fl8QIk5TUGVyc2lzdGVudEhpc3RvcnlUb2tlbkRpY3Rpb25hcnmA
 			B4AD0xgZDxocHldOUy5rZXlzWk5TLm9iamVjdHOhG4AEoR2ABYAG
-			XxAkRkU5NDFDQ0UtM0FGNC00MjQzLTkwN0MtQzIyMzNDMDkwMDhE
-			EQIG0iIjJCVaJGNsYXNzbmFtZVgkY2xhc3Nlc1xOU0RpY3Rpb25h
+			XxAkRTE3MzgzNEQtQTlGRC00REY5LUJDMUItRDkwNTNCNzRGN0E2
+			EQEp0iIjJCVaJGNsYXNzbmFtZVgkY2xhc3Nlc1xOU0RpY3Rpb25h
 			cnmiJCZYTlNPYmplY3TSIiMoKV8QGV9OU1BlcnNpc3RlbnRIaXN0
 			b3J5VG9rZW6jKismXxAZX05TUGVyc2lzdGVudEhpc3RvcnlUb2tl
 			bl8QGE5TUGVyc2lzdGVudEhpc3RvcnlUb2tlbtIiIy0uXxAXUEhQ
@@ -36,8 +36,8 @@
 			bnRIaXN0b3J5VG9rZW5XVmVyc2lvblYkY2xhc3OAAhABgAjSDxQV
 			Fl8QIk5TUGVyc2lzdGVudEhpc3RvcnlUb2tlbkRpY3Rpb25hcnmA
 			B4AD0xgZDxocHldOUy5rZXlzWk5TLm9iamVjdHOhG4AEoR2ABYAG
-			XxAkRkU5NDFDQ0UtM0FGNC00MjQzLTkwN0MtQzIyMzNDMDkwMDhE
-			EQIF0iIjJCVaJGNsYXNzbmFtZVgkY2xhc3Nlc1xOU0RpY3Rpb25h
+			XxAkRTE3MzgzNEQtQTlGRC00REY5LUJDMUItRDkwNTNCNzRGN0E2
+			EQEp0iIjJCVaJGNsYXNzbmFtZVgkY2xhc3Nlc1xOU0RpY3Rpb25h
 			cnmiJCZYTlNPYmplY3TSIiMoKV8QGV9OU1BlcnNpc3RlbnRIaXN0
 			b3J5VG9rZW6jKismXxAZX05TUGVyc2lzdGVudEhpc3RvcnlUb2tl
 			bl8QGE5TUGVyc2lzdGVudEhpc3RvcnlUb2tlbtIiIy0uXxAXUEhQ
@@ -58,8 +58,8 @@
 			bnRIaXN0b3J5VG9rZW5XVmVyc2lvblYkY2xhc3OAAhABgAjSDxQV
 			Fl8QIk5TUGVyc2lzdGVudEhpc3RvcnlUb2tlbkRpY3Rpb25hcnmA
 			B4AD0xgZDxocHldOUy5rZXlzWk5TLm9iamVjdHOhG4AEoR2ABYAG
-			XxAkRkU5NDFDQ0UtM0FGNC00MjQzLTkwN0MtQzIyMzNDMDkwMDhE
-			EQII0iIjJCVaJGNsYXNzbmFtZVgkY2xhc3Nlc1xOU0RpY3Rpb25h
+			XxAkRTE3MzgzNEQtQTlGRC00REY5LUJDMUItRDkwNTNCNzRGN0E2
+			EQEp0iIjJCVaJGNsYXNzbmFtZVgkY2xhc3Nlc1xOU0RpY3Rpb25h
 			cnmiJCZYTlNPYmplY3TSIiMoKV8QGV9OU1BlcnNpc3RlbnRIaXN0
 			b3J5VG9rZW6jKismXxAZX05TUGVyc2lzdGVudEhpc3RvcnlUb2tl
 			bl8QGE5TUGVyc2lzdGVudEhpc3RvcnlUb2tlbtIiIy0uXxAXUEhQ
@@ -74,7 +74,7 @@
 	<key>metadata</key>
 	<dict>
 		<key>upgradeDate</key>
-		<date>2025-11-04T13:01:21Z</date>
+		<date>2025-07-23T20:09:06Z</date>
 		<key>version</key>
 		<integer>3</integer>
 	</dict>
@@ -83,7 +83,7 @@
 		<key>PHAGraphRebuildTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:13:41Z</date>
+			<date>2026-06-14T20:17:16Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>featureCheckpoint</key>
@@ -91,29 +91,29 @@
 			<key>featureCode</key>
 			<integer>400</integer>
 			<key>featureCompleteInterval</key>
-			<real>418</real>
+			<real>1630507</real>
 			<key>version</key>
-			<integer>701</integer>
+			<integer>801</integer>
 		</dict>
 		<key>PHAMemoriesEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2025-11-10T15:41:59Z</date>
+			<date>2025-08-11T18:55:22Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>528038</real>
+			<real>1637176</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHASearchEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:14:08Z</date>
+			<date>2026-06-14T20:17:36Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>422</real>
+			<real>1636528</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
@@ -123,73 +123,117 @@
 		<key>FeaturedCollectionElectionTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:23:08Z</date>
+			<date>2026-06-14T20:09:22Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>365</real>
+			<real>1628933</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>GraphSearchEntityRankingDonationTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:14:08Z</date>
+			<date>2026-06-14T20:17:36Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>422</real>
+			<real>1636528</real>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<key>MemoryCreationFeatureAvailabilityTask</key>
+		<dict>
+			<key>completionDate</key>
+			<date>2026-06-14T20:04:37Z</date>
+			<key>didRunIncrementally</key>
+			<false/>
+			<key>featureCode</key>
+			<integer>800</integer>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<key>MessagesBackdropGenerationTask</key>
+		<dict>
+			<key>completionDate</key>
+			<date>2026-06-14T20:08:49Z</date>
+			<key>didRunIncrementally</key>
+			<false/>
+			<key>featureCode</key>
+			<integer>117</integer>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<key>MessagesContextualBackdropGenerationTask</key>
+		<dict>
+			<key>completionDate</key>
+			<date>2026-06-14T20:09:05Z</date>
+			<key>didRunIncrementally</key>
+			<false/>
+			<key>featureCode</key>
+			<integer>118</integer>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHAAssetRevGeocodeEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:41:22Z</date>
+			<date>2026-06-16T09:45:59Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>419</real>
+			<real>35444</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHACachingCPAnalyticsPropertiesTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:41:38Z</date>
+			<date>2026-06-14T20:04:37Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>527661</real>
+			<real>35461</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHAContactUpdateTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:13:36Z</date>
+			<date>2026-06-16T05:39:59Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>419</real>
+			<real>1630507</real>
 			<key>version</key>
-			<integer>701</integer>
+			<integer>801</integer>
+		</dict>
+		<key>PHAExternalAssetsTask</key>
+		<dict>
+			<key>completionDate</key>
+			<date>2026-06-14T21:50:26Z</date>
+			<key>didRunIncrementally</key>
+			<false/>
+			<key>fteInterval</key>
+			<real>28172481</real>
+			<key>version</key>
+			<integer>0</integer>
 		</dict>
 		<key>PHAFeaturesUsageReportingTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:41:38Z</date>
+			<date>2026-06-14T20:04:36Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>527661</real>
+			<real>35461</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHAForcedHighlightEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:13:51Z</date>
+			<date>2026-06-16T05:40:16Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>featureCode</key>
@@ -200,33 +244,33 @@
 		<key>PHAGraphRebuildTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:13:41Z</date>
+			<date>2026-06-16T05:39:59Z</date>
 			<key>didRunIncrementally</key>
-			<false/>
+			<true/>
 			<key>featureCheckpoint</key>
 			<integer>50</integer>
 			<key>featureCode</key>
 			<integer>400</integer>
 			<key>featureCompleteInterval</key>
-			<real>418</real>
+			<real>1630507</real>
 			<key>version</key>
-			<integer>701</integer>
+			<integer>801</integer>
 		</dict>
 		<key>PHAHighlightCollectionEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:13:51Z</date>
+			<date>2026-06-16T05:40:16Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>420</real>
+			<real>1636513</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHAHighlightEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:13:51Z</date>
+			<date>2026-06-16T05:40:16Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>featureCheckpoint</key>
@@ -234,38 +278,38 @@
 			<key>featureCode</key>
 			<integer>102</integer>
 			<key>featureCompleteInterval</key>
-			<real>528060</real>
+			<real>1662093</real>
 			<key>fteInterval</key>
-			<real>528060</real>
+			<real>1662093</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHAMediaSampleReportingTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:41:38Z</date>
+			<date>2026-06-14T20:04:37Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>527661</real>
+			<real>35461</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHAMemoriesEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:23:08Z</date>
+			<date>2026-06-14T21:51:07Z</date>
 			<key>didRunIncrementally</key>
 			<true/>
 			<key>fteInterval</key>
-			<real>528038</real>
+			<real>1637176</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHAMemoryElectionTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:23:05Z</date>
+			<date>2026-06-14T21:51:03Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>featureCode</key>
@@ -276,40 +320,51 @@
 		<key>PHAPeopleSuggestionEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:22:42Z</date>
+			<date>2026-06-14T21:50:26Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>528019</real>
+			<real>1630684</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHAPortraitDonationEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:41:22Z</date>
+			<date>2026-06-16T01:44:57Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>527965</real>
+			<real>1638362</real>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<key>PHARevGeocodeSyndicationTask</key>
+		<dict>
+			<key>completionDate</key>
+			<date>2026-06-16T01:44:57Z</date>
+			<key>didRunIncrementally</key>
+			<false/>
+			<key>fteInterval</key>
+			<real>28172242</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHASearchEnrichmentTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:14:08Z</date>
+			<date>2026-06-16T05:40:32Z</date>
 			<key>didRunIncrementally</key>
-			<false/>
+			<true/>
 			<key>fteInterval</key>
-			<real>422</real>
+			<real>1636528</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PHASuggestionGenerationTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T01:23:08Z</date>
+			<date>2026-06-14T20:09:22Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>featureCheckpoint</key>
@@ -317,11 +372,33 @@
 			<key>featureCode</key>
 			<integer>100</integer>
 			<key>featureCompleteInterval</key>
-			<real>365</real>
+			<real>2099532</real>
 			<key>fteInterval</key>
-			<real>365</real>
+			<real>1628933</real>
 			<key>version</key>
 			<integer>0</integer>
+		</dict>
+		<key>PHASyndicationTask</key>
+		<dict>
+			<key>completionDate</key>
+			<date>2026-06-14T21:50:26Z</date>
+			<key>didRunIncrementally</key>
+			<false/>
+			<key>fteInterval</key>
+			<real>28172481</real>
+			<key>version</key>
+			<integer>25</integer>
+		</dict>
+		<key>PHAWallpaperWeeklyTask[Ambient]</key>
+		<dict>
+			<key>completionDate</key>
+			<date>2026-06-14T20:08:49Z</date>
+			<key>didRunIncrementally</key>
+			<false/>
+			<key>fteInterval</key>
+			<real>28166383</real>
+			<key>version</key>
+			<integer>2</integer>
 		</dict>
 		<key>PublicEventCacheInvalidationTask</key>
 		<dict>
@@ -330,18 +407,29 @@
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>415</real>
+			<real>1630504</real>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<key>PublicEventCacheRefreshTask</key>
+		<dict>
+			<key>completionDate</key>
+			<date>2026-06-14T20:17:13Z</date>
+			<key>didRunIncrementally</key>
+			<false/>
+			<key>fteInterval</key>
+			<real>28166887</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
 		<key>PublicEventCachingTask</key>
 		<dict>
 			<key>completionDate</key>
-			<date>2026-06-11T02:13:36Z</date>
+			<date>2026-06-16T05:39:59Z</date>
 			<key>didRunIncrementally</key>
 			<false/>
 			<key>fteInterval</key>
-			<real>415</real>
+			<real>1630504</real>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>

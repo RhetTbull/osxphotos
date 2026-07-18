@@ -10,6 +10,7 @@ import time
 import traceback
 from typing import Any, Callable
 
+import click
 from rich import print
 
 from ._version import __version__
@@ -77,15 +78,36 @@ def crash_reporter(
         def wrapped(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
+            except (click.ClickException, click.Abort, click.exceptions.Exit):
+                raise
             except Exception as e:
                 print(message, file=sys.stderr)
                 print(f"[red]{e}[/red]", file=sys.stderr)
 
-                # handle any callbacks
-                for f, msg in _global_callbacks.values():
+                # Run any registered crash callbacks. These are one-shot crash
+                # handlers, so unregister each after running it; otherwise a
+                # callback lingers in the global registry after the crash is
+                # handled and fires again on a later, unrelated crash in the same
+                # process. For example, an interrupted `export --ramdb` registers
+                # a "write database" callback (osxphotos/cli/export.py) that is
+                # only unregistered on the success path, so a crashed export would
+                # leak it and break crash handling in a reused interpreter such as
+                # the test suite. Iterate over a snapshot since we mutate the
+                # registry, and don't let a failing callback prevent the crash log
+                # from being written.
+                for callback_id, (callback_func, msg) in list(
+                    _global_callbacks.items()
+                ):
+                    _global_callbacks.pop(callback_id, None)
                     if msg:
                         print(msg)
-                    f()
+                    try:
+                        callback_func()
+                    except Exception as callback_error:  # noqa: BLE001
+                        print(
+                            f"[red]Error running crash callback: {callback_error}[/red]",
+                            file=sys.stderr,
+                        )
 
                 with open(filename, "w") as f:
                     f.write(f"{title}\n")
@@ -105,6 +127,7 @@ def crash_reporter(
                 print(f"{postamble}", file=sys.stderr)
                 sys.exit(1)
 
+        wrapped.__osxphotos_crash_reporter__ = True
         return wrapped
 
     return decorated

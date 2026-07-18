@@ -5,6 +5,7 @@ ref: https://github.com/dogsheep/photos-to-sqlite/issues/16
 
 import logging
 import pathlib
+import struct
 import uuid as uuidlib
 from functools import lru_cache
 
@@ -35,6 +36,37 @@ from ..unicode import normalize_unicode
 
 logger = logging.getLogger("osxphotos")
 
+LEO_CATEGORY_TO_PHOTOS8 = {
+    1010: 1100,  # MONTH
+    1020: 1101,  # YEAR
+    1030: 1103,  # HOLIDAY
+    1040: 1104,  # SEASON
+    1050: 1106,  # TIME_OF_DAY
+    1060: 1107,  # WEEKPART
+    2030: 1701,  # VENUE_TYPE
+    2050: 2,  # STREET
+    2060: 1,  # PLACE_NAME
+    2070: 3,  # NEIGHBORHOOD
+    2090: 5,  # CITY
+    2110: 7,  # NAMED_AREA
+    2140: 10,  # STATE
+    2150: 11,  # STATE_ABBREVIATION
+    2160: 12,  # COUNTRY
+    3001: 1300,  # PERSON
+    4000: 1500,  # LABEL
+    4010: 1510,  # RICH_LABEL
+    4120: 1203,  # DETECTED_TEXT
+    5000: 1900,  # PHOTO_TYPE_PHOTO
+    5020: 1902,  # PHOTO_TYPE_RAW
+    6000: 2300,  # CAMERA
+    7000: 1201,  # TITLE
+    7010: 1400,  # ALBUM
+    8000: 2000,  # PHOTO_TYPE_FAVORITES
+    8050: 2100,  # PHOTO_NAME
+    8070: 1200,  # KEYWORDS
+    8080: 1202,  # DESCRIPTION / caption
+}
+
 
 def _process_searchinfo(self):
     """load machine learning/search term label info from a Photos library
@@ -64,13 +96,48 @@ def _process_searchinfo(self):
             "search info not implemented for this database version"
         )
 
-    search_db_path = pathlib.Path(self._dbfile).parent / "search" / "psi.sqlite"
-    if not search_db_path.exists():
-        logger.warning(f"could not find search db: {search_db_path}")
+    search_dir = pathlib.Path(self._dbfile).parent / "search"
+    psi_db_path = search_dir / "psi.sqlite"
+    leo_db_path = search_dir / "leo.sqlite"
+
+    if psi_db_path.exists() and psi_db_path.stat().st_size:
+        _process_psi_searchinfo(
+            self,
+            psi_db_path,
+            _db_searchinfo_uuid,
+            _db_searchinfo_categories,
+            _db_searchinfo_labels,
+            _db_searchinfo_labels_normalized,
+        )
         return None
 
+    if leo_db_path.exists() and leo_db_path.stat().st_size:
+        _process_leo_searchinfo(
+            self,
+            leo_db_path,
+            _db_searchinfo_uuid,
+            _db_searchinfo_categories,
+            _db_searchinfo_labels,
+            _db_searchinfo_labels_normalized,
+        )
+        return None
+
+    logger.warning(f"could not find search db: {psi_db_path} or {leo_db_path}")
+    return None
+
+
+def _process_psi_searchinfo(
+    photosdb,
+    search_db_path,
+    db_searchinfo_uuid,
+    db_searchinfo_categories,
+    db_searchinfo_labels,
+    db_searchinfo_labels_normalized,
+):
+    """Process Photos search data from psi.sqlite."""
+
     if sqlite_db_is_locked(search_db_path):
-        search_db = self._copy_db_file(search_db_path)
+        search_db = photosdb._copy_db_file(search_db_path)
     else:
         search_db = search_db_path
 
@@ -125,26 +192,111 @@ def _process_searchinfo(self):
         record["lookup_identifier"] = normalize_unicode(row[8].replace("\x00", ""))
 
         try:
-            _db_searchinfo_uuid[uuid].append(record)
+            db_searchinfo_uuid[uuid].append(record)
         except KeyError:
-            _db_searchinfo_uuid[uuid] = [record]
+            db_searchinfo_uuid[uuid] = [record]
 
         category = record["category"]
         try:
-            _db_searchinfo_categories[category].append(record["normalized_string"])
+            db_searchinfo_categories[category].append(record["normalized_string"])
         except KeyError:
-            _db_searchinfo_categories[category] = [record["normalized_string"]]
+            db_searchinfo_categories[category] = [record["normalized_string"]]
 
-        categories = search_category_factory(self._photos_ver)
+        categories = search_category_factory(photosdb._photos_ver)
         if category == categories.LABEL:
             label = record["content_string"]
             label_norm = record["normalized_string"]
             try:
-                _db_searchinfo_labels[label].append(uuid)
-                _db_searchinfo_labels_normalized[label_norm].append(uuid)
+                db_searchinfo_labels[label].append(uuid)
+                db_searchinfo_labels_normalized[label_norm].append(uuid)
             except KeyError:
-                _db_searchinfo_labels[label] = [uuid]
-                _db_searchinfo_labels_normalized[label_norm] = [uuid]
+                db_searchinfo_labels[label] = [uuid]
+                db_searchinfo_labels_normalized[label_norm] = [uuid]
+
+    conn.close()
+
+
+def _process_leo_searchinfo(
+    photosdb,
+    search_db_path,
+    db_searchinfo_uuid,
+    db_searchinfo_categories,
+    db_searchinfo_labels,
+    db_searchinfo_labels_normalized,
+):
+    """Process macOS 27 Photos search data from leo.sqlite."""
+
+    if sqlite_db_is_locked(search_db_path):
+        search_db = photosdb._copy_db_file(search_db_path)
+    else:
+        search_db = search_db_path
+
+    (conn, c) = sqlite_open_ro(search_db)
+    categories = search_category_factory(photosdb._photos_ver)
+
+    lexeme_category = {}
+    lexeme_content = {}
+    result = c.execute("SELECT lexeme_id, type, category, content FROM lexicon")
+    for lexeme_id, lexeme_type, leo_category, content in result:
+        mapped_category = LEO_CATEGORY_TO_PHOTOS8.get(leo_category)
+        if mapped_category is None:
+            continue
+        lexeme_category[lexeme_id] = mapped_category
+        if lexeme_type == 1 and content:
+            lexeme_content[lexeme_id] = normalize_unicode(content.replace("\x00", ""))
+
+    result = c.execute(
+        """
+        SELECT identifier, lexeme_ids
+        FROM items
+        WHERE type = 1
+        ORDER BY rowid
+        """
+    )
+
+    rowid = 0
+    for identifier, lexeme_ids_blob in result:
+        if not identifier:
+            continue
+        uuid = identifier.upper()
+        records = []
+        for lexeme_id in decode_leo_lexeme_ids(lexeme_ids_blob):
+            category = lexeme_category.get(lexeme_id)
+            content_string = lexeme_content.get(lexeme_id)
+            if category is None or not content_string:
+                continue
+
+            rowid += 1
+            normalized_string = normalize_unicode(content_string.lower())
+            record = {
+                "uuid": uuid,
+                "rowid": rowid,
+                "uuid_0": 0,
+                "uuid_1": 0,
+                "groupid": lexeme_id,
+                "category": category,
+                "owning_groupid": None,
+                "content_string": content_string,
+                "normalized_string": normalized_string,
+                "lookup_identifier": "",
+            }
+            records.append(record)
+
+            try:
+                db_searchinfo_categories[category].append(normalized_string)
+            except KeyError:
+                db_searchinfo_categories[category] = [normalized_string]
+
+            if category == categories.LABEL:
+                try:
+                    db_searchinfo_labels[content_string].append(uuid)
+                    db_searchinfo_labels_normalized[normalized_string].append(uuid)
+                except KeyError:
+                    db_searchinfo_labels[content_string] = [uuid]
+                    db_searchinfo_labels_normalized[normalized_string] = [uuid]
+
+        if records:
+            db_searchinfo_uuid[uuid] = sorted(records, key=lambda rec: rec["rowid"])
 
     conn.close()
 
@@ -206,3 +358,11 @@ def ints_to_uuid(uuid_0, uuid_1):
         8, "little", signed=True
     )
     return str(uuidlib.UUID(bytes=bytes_)).upper()
+
+
+def decode_leo_lexeme_ids(data):
+    """Decode leo.sqlite little-endian UInt32 lexeme IDs."""
+    if not data:
+        return []
+    count = len(data) // 4
+    return list(struct.unpack(f"<{count}I", data[: count * 4]))

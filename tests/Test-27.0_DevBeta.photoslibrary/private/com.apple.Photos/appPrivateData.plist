@@ -2,42 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>AvailableShelvesOrder</key>
-	<array>
-		<string>memories-shelf</string>
-		<string>bookmark-shelf</string>
-		<string>albums-shelf</string>
-		<string>people-shelf</string>
-		<string>featured-photos-shelf</string>
-		<string>shared-albums-shelf</string>
-		<string>events-shelf</string>
-		<string>trips-shelf</string>
-		<string>media-types-shelf</string>
-		<string>utilities-shelf</string>
-	</array>
-	<key>CollapsedSidebarSectionIdentifiers</key>
-	<array/>
 	<key>ExpandedSidebarItemIdentifiers</key>
 	<array>
-		<string>92D68107-B6C7-453B-96D2-97B0F26D5B8B/L0/020</string>
-		<string>88A5F8B8-5B9A-43C7-BB85-3952B81580EB/L0/020</string>
-		<string>29EF7A97-7E76-4D5F-A5E0-CC0A93E8524C/L0/020</string>
-		<string>2C2AF115-BD1D-4434-A747-D1C8BD8E2045/L0/020</string>
-		<string>CB051A4C-2CB7-4B90-B59B-08CC4D0C2823/L0/020</string>
+		<string>PXMediaTypesVirtualCollection</string>
+		<string>5B4ADC99-FEAA-4FF7-B535-B9CF3F38BC27/L0/020</string>
+		<string>46B6AB50-EE3D-4260-95C5-A54333D5E310/L0/020</string>
+		<string>PXTransientCollectionIdentifierUtilities</string>
+		<string>A28132FF-360C-46F0-9EEF-54A43B49E654/L0/020</string>
+		<string>B7199A00-9070-468D-BBFE-F55746D94C69/L0/020</string>
 	</array>
-	<key>HasSignificantRegularAlbumCount</key>
-	<false/>
-	<key>HasSignificantSharedAlbumActivities</key>
-	<false/>
 	<key>IPXWorkspaceControllerZoomLevelsKey</key>
 	<dict>
 		<key>kZoomLevelIdentifierPhotosGrid</key>
 		<integer>1</integer>
 	</dict>
 	<key>LastAddToDestination</key>
-	<string>AD0D0BEC-7056-4180-9D9F-B1F0CFE7587F/L0/040</string>
+	<string>6BCCC2FE-FB38-4B68-AD8B-4C7A4E002256/L0/040</string>
 	<key>LastAddToDestinationDate</key>
-	<date>2025-11-04T13:25:20Z</date>
+	<date>2025-06-12T03:46:25Z</date>
 	<key>LemonadeBookmarks</key>
 	<data>
 	PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBs
@@ -48,144 +30,53 @@
 	CgkJCQk8a2V5PnBob3RvS2l0U21hcnRBbGJ1bTwva2V5PgoJCQkJPGRpY3Q+CgkJCQkJ
 	PGtleT5fMDwva2V5PgoJCQkJCTxkaWN0PgoJCQkJCQk8a2V5Pl92YWx1ZTwva2V5PgoJ
 	CQkJCQk8aW50ZWdlcj4yMDM8L2ludGVnZXI+CgkJCQkJPC9kaWN0PgoJCQkJPC9kaWN0
-	PgoJCQk8L2RpY3Q+CgkJCTxrZXk+aWQ8L2tleT4KCQkJPHN0cmluZz5FNkE1ODQzNS00
-	NDgzLTQxMTctOUIxOC0zMTlDODgyN0Y5QTc8L3N0cmluZz4KCQkJPGtleT5raW5kPC9r
+	PgoJCQk8L2RpY3Q+CgkJCTxrZXk+aWQ8L2tleT4KCQkJPHN0cmluZz41REU3QjMyMC1G
+	NEU5LTQ4MTEtQTZDNy0wNUEyNDlEQjNCNUQ8L3N0cmluZz4KCQkJPGtleT5raW5kPC9r
 	ZXk+CgkJCTxzdHJpbmc+YWxidW08L3N0cmluZz4KCQk8L2RpY3Q+CgkJPGRpY3Q+CgkJ
 	CTxrZXk+Y29sbGVjdGlvbklkZW50aWZpZXI8L2tleT4KCQkJPGRpY3Q+CgkJCQk8a2V5
 	PnBob3RvS2l0U21hcnRBbGJ1bTwva2V5PgoJCQkJPGRpY3Q+CgkJCQkJPGtleT5fMDwv
 	a2V5PgoJCQkJCTxkaWN0PgoJCQkJCQk8a2V5Pl92YWx1ZTwva2V5PgoJCQkJCQk8aW50
 	ZWdlcj4xMDAwMDAwMjE4PC9pbnRlZ2VyPgoJCQkJCTwvZGljdD4KCQkJCTwvZGljdD4K
-	CQkJPC9kaWN0PgoJCQk8a2V5PmlkPC9rZXk+CgkJCTxzdHJpbmc+N0QxOUIzODgtRDgz
-	MC00MzczLUE0N0UtQTBERjk4NzEyOUNGPC9zdHJpbmc+CgkJCTxrZXk+a2luZDwva2V5
+	CQkJPC9kaWN0PgoJCQk8a2V5PmlkPC9rZXk+CgkJCTxzdHJpbmc+QzI0Mzg0RTgtM0ZC
+	QS00QzlDLUEwNUUtMjdFMEU1NTAxQTcyPC9zdHJpbmc+CgkJCTxrZXk+a2luZDwva2V5
 	PgoJCQk8c3RyaW5nPnV0aWxpdGllczwvc3RyaW5nPgoJCTwvZGljdD4KCQk8ZGljdD4K
 	CQkJPGtleT5jb2xsZWN0aW9uSWRlbnRpZmllcjwva2V5PgoJCQk8ZGljdD4KCQkJCTxr
 	ZXk+bWFwPC9rZXk+CgkJCQk8ZGljdC8+CgkJCTwvZGljdD4KCQkJPGtleT5pZDwva2V5
-	PgoJCQk8c3RyaW5nPjNFOTAxRTA4LTE3QTYtNEI3NS1BOTdBLUI4MTdFOTgyRjU5Mzwv
+	PgoJCQk8c3RyaW5nPjk2QUMyREY3LUUwOUEtNDIzMi1CMDBBLThDOUU2ODZGMDNGMjwv
 	c3RyaW5nPgoJCQk8a2V5PmtpbmQ8L2tleT4KCQkJPHN0cmluZz5tYXA8L3N0cmluZz4K
 	CQk8L2RpY3Q+CgkJPGRpY3Q+CgkJCTxrZXk+Y29sbGVjdGlvbklkZW50aWZpZXI8L2tl
 	eT4KCQkJPGRpY3Q+CgkJCQk8a2V5PnBob3RvS2l0U21hcnRBbGJ1bTwva2V5PgoJCQkJ
 	PGRpY3Q+CgkJCQkJPGtleT5fMDwva2V5PgoJCQkJCTxkaWN0PgoJCQkJCQk8a2V5Pl92
 	YWx1ZTwva2V5PgoJCQkJCQk8aW50ZWdlcj4yMDI8L2ludGVnZXI+CgkJCQkJPC9kaWN0
 	PgoJCQkJPC9kaWN0PgoJCQk8L2RpY3Q+CgkJCTxrZXk+aWQ8L2tleT4KCQkJPHN0cmlu
-	Zz5DMDZGMjc0NS0yMkJBLTQzNkMtOUQyQS02NDYxMTFCREI5MjM8L3N0cmluZz4KCQkJ
+	Zz5GMjJCMzkxMS1DRjFBLTQ2RjAtQkFGNS05QkVFNDY0MDc3QkU8L3N0cmluZz4KCQkJ
 	PGtleT5raW5kPC9rZXk+CgkJCTxzdHJpbmc+bWVkaWFUeXBlPC9zdHJpbmc+CgkJPC9k
 	aWN0PgoJCTxkaWN0PgoJCQk8a2V5PmNvbGxlY3Rpb25JZGVudGlmaWVyPC9rZXk+CgkJ
 	CTxkaWN0PgoJCQkJPGtleT5waG90b0tpdFNtYXJ0QWxidW08L2tleT4KCQkJCTxkaWN0
 	PgoJCQkJCTxrZXk+XzA8L2tleT4KCQkJCQk8ZGljdD4KCQkJCQkJPGtleT5fdmFsdWU8
 	L2tleT4KCQkJCQkJPGludGVnZXI+MjExPC9pbnRlZ2VyPgoJCQkJCTwvZGljdD4KCQkJ
-	CTwvZGljdD4KCQkJPC9kaWN0PgoJCQk8a2V5PmlkPC9rZXk+CgkJCTxzdHJpbmc+MDAz
-	NTBFRTQtRTRERC00NzMzLTlDQjMtMTI1M0VFREEyRTAyPC9zdHJpbmc+CgkJCTxrZXk+
+	CTwvZGljdD4KCQkJPC9kaWN0PgoJCQk8a2V5PmlkPC9rZXk+CgkJCTxzdHJpbmc+OEJE
+	NTMxQjEtMTQ1MS00MTcwLTg5NDEtRTE1NEVCN0E2OTg5PC9zdHJpbmc+CgkJCTxrZXk+
 	a2luZDwva2V5PgoJCQk8c3RyaW5nPm1lZGlhVHlwZTwvc3RyaW5nPgoJCTwvZGljdD4K
 	CQk8ZGljdD4KCQkJPGtleT5jb2xsZWN0aW9uSWRlbnRpZmllcjwva2V5PgoJCQk8ZGlj
 	dD4KCQkJCTxrZXk+YWxsSXRlbXM8L2tleT4KCQkJCTxkaWN0Lz4KCQkJPC9kaWN0PgoJ
-	CQk8a2V5PmlkPC9rZXk+CgkJCTxzdHJpbmc+OUJDNTM0NzktRkZEMS00QUI0LUI2M0Qt
-	ODRGREZCQzk3ODZFPC9zdHJpbmc+CgkJCTxrZXk+a2luZDwva2V5PgoJCQk8c3RyaW5n
+	CQk8a2V5PmlkPC9rZXk+CgkJCTxzdHJpbmc+MjFBRTEyRUQtNTkxMy00OTgxLUFGODYt
+	QUFERTE1QzQ1MTQ5PC9zdHJpbmc+CgkJCTxrZXk+a2luZDwva2V5PgoJCQk8c3RyaW5n
 	PnBlb3BsZTwvc3RyaW5nPgoJCTwvZGljdD4KCQk8ZGljdD4KCQkJPGtleT5jb2xsZWN0
 	aW9uSWRlbnRpZmllcjwva2V5PgoJCQk8ZGljdD4KCQkJCTxrZXk+cGhvdG9LaXRTbWFy
 	dEFsYnVtPC9rZXk+CgkJCQk8ZGljdD4KCQkJCQk8a2V5Pl8wPC9rZXk+CgkJCQkJPGRp
 	Y3Q+CgkJCQkJCTxrZXk+X3ZhbHVlPC9rZXk+CgkJCQkJCTxpbnRlZ2VyPjEwMDAwMDAy
 	MDE8L2ludGVnZXI+CgkJCQkJPC9kaWN0PgoJCQkJPC9kaWN0PgoJCQk8L2RpY3Q+CgkJ
-	CTxrZXk+aWQ8L2tleT4KCQkJPHN0cmluZz42MDZCMzZGMC1BMjk0LTQxODUtOUZDOS1F
-	NzA3NUMzNjcxQjI8L3N0cmluZz4KCQkJPGtleT5raW5kPC9rZXk+CgkJCTxzdHJpbmc+
+	CTxrZXk+aWQ8L2tleT4KCQkJPHN0cmluZz5DNkFBMzYyNy04NDZCLTRGNEMtODBCMS05
+	QkU1MTQyRDNGMDI8L3N0cmluZz4KCQkJPGtleT5raW5kPC9rZXk+CgkJCTxzdHJpbmc+
 	dXRpbGl0aWVzPC9zdHJpbmc+CgkJPC9kaWN0PgoJPC9hcnJheT4KCTxrZXk+dmVyc2lv
 	bjwva2V5PgoJPGludGVnZXI+MTE8L2ludGVnZXI+CjwvZGljdD4KPC9wbGlzdD4K
 	</data>
 	<key>LemonadeBookmarksMigrationCheck</key>
 	<integer>2</integer>
-	<key>PXPeopleCandidateWidgetKey</key>
-	<dict>
-		<key>PXPeopleCandidateWidgetKey2023.01.22</key>
-		<array>
-			<string>3DDC8F83-FDAB-4943-AE53-19428BEEED9D/L0/070</string>
-		</array>
-	</dict>
-	<key>PXPeopleHomeSortingType</key>
-	<integer>0</integer>
 	<key>PeoplePetsHomeVisibilitySourceLastKnownHasHumans</key>
-	<true/>
+	<false/>
 	<key>PeoplePetsHomeVisibilitySourceLastKnownHasPets</key>
 	<false/>
-	<key>Photos</key>
-	<dict>
-		<key>CollapsedSidebarSectionIdentifiers</key>
-		<array/>
-		<key>ExpandedSidebarItemIdentifiers</key>
-		<array>
-			<string>TopLevelAlbums</string>
-			<string>TopLevelSlideshows</string>
-		</array>
-		<key>IPXWorkspaceControllerZoomLevelsKey</key>
-		<dict>
-			<key>kZoomLevelIdentifierAlbums</key>
-			<integer>7</integer>
-			<key>kZoomLevelIdentifierVersions</key>
-			<integer>7</integer>
-		</dict>
-		<key>lastAddToDestination</key>
-		<dict>
-			<key>key</key>
-			<integer>1</integer>
-			<key>lastKnownDisplayName</key>
-			<string>September 28, 2018</string>
-			<key>type</key>
-			<string>album</string>
-			<key>uuid</key>
-			<string>DFFKmHt3Tk+AGzZLe2Xq+g</string>
-		</dict>
-		<key>lastKnownItemCounts</key>
-		<dict>
-			<key>other</key>
-			<integer>0</integer>
-			<key>photos</key>
-			<integer>7</integer>
-			<key>videos</key>
-			<integer>0</integer>
-		</dict>
-	</dict>
-	<key>SavedDefaultHiddenShelves</key>
-	<array/>
-	<key>SavedDefaultShelvesOrder</key>
-	<array>
-		<string>memories-shelf</string>
-		<string>bookmark-shelf</string>
-		<string>albums-shelf</string>
-		<string>people-shelf</string>
-		<string>featured-photos-shelf</string>
-		<string>shared-albums-shelf</string>
-		<string>events-shelf</string>
-		<string>trips-shelf</string>
-		<string>media-types-shelf</string>
-		<string>utilities-shelf</string>
-	</array>
-	<key>SavedDefaultShelvesPreferBeingDisplayedInWholeRow</key>
-	<array>
-		<string>featured-photos-shelf</string>
-		<string>events-shelf</string>
-	</array>
-	<key>SavedDefaultShelvesPreferBeingDisplayedOnLeadingSide</key>
-	<array>
-		<string>media-types-shelf</string>
-		<string>people-shelf</string>
-		<string>trips-shelf</string>
-		<string>memories-shelf</string>
-	</array>
-	<key>ShelvesIsHiddenID</key>
-	<array/>
-	<key>ShelvesLayoutStyle</key>
-	<string>firstRowEmphasized</string>
-	<key>ShelvesPreferBeingDisplayedInWholeRow</key>
-	<array>
-		<string>featured-photos-shelf</string>
-		<string>events-shelf</string>
-	</array>
-	<key>ShelvesPreferBeingDisplayedOnLeadingSide</key>
-	<array>
-		<string>media-types-shelf</string>
-		<string>people-shelf</string>
-		<string>trips-shelf</string>
-		<string>memories-shelf</string>
-	</array>
-	<key>ShelvesVersionNumber</key>
-	<integer>0</integer>
 </dict>
 </plist>
