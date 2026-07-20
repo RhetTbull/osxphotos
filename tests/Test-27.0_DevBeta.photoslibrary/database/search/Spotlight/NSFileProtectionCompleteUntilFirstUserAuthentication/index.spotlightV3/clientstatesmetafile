@@ -8,22 +8,27 @@
 		<dict>
 			<key>_kMDItemStateInfo_com.apple.Photos.search</key>
 			<data>
-			YnBsaXN0MDDTAQIDBAUGUXZRdFFpEAEjQcdhH7itwLpfECQ0RDUy
-			MTIwMS05MkFDLTQzRTUtOEY3Qy01OUJDNDFDMzdBOTYIDxETFRcg
+			YnBsaXN0MDDTAQIDBAUGUXZRdFFpEAEjQcftLQs8NPRfECQwMkJB
+			MUY2OC0yRDBGLTQ1ODgtQUU3MC1GRDZGQ0EzNUE2RTIIDxETFRcg
 			AAAAAAAAAQEAAAAAAAAABwAAAAAAAAAAAAAAAAAAAEc=
 			</data>
 		</dict>
 	</dict>
 	<key>cookie</key>
-	<string>6C4F391A-1274-4C52-A6E9-6DD7CFE4FE67</string>
+	<string>29120DD4-4983-4AA6-A717-96C62591DCC8</string>
 	<key>deferSyncCount</key>
 	<integer>1</integer>
 	<key>journalSerialNumber</key>
-	<integer>14</integer>
-	<key>menuItemsSyncCount</key>
-	<integer>1</integer>
+	<integer>47</integer>
+	<key>linkedTimestamps</key>
+	<dict>
+		<key>com.apple.Photos</key>
+		<data>
+		7S2P+QjakIA=
+		</data>
+	</dict>
 	<key>syncCount</key>
-	<integer>8</integer>
+	<integer>22</integer>
 	<key>version</key>
 	<integer>1</integer>
 </dict>

@@ -485,6 +485,16 @@ _QUERY_PARAMETERS_DICT = {
         is_flag=True,
         help="Search for photos that are not Apple portrait mode photos.",
     ),
+    "--spatial": click.Option(
+        ["--spatial"],
+        is_flag=True,
+        help="Search for Apple spatial media (e.g. spatial photos as captured or displayed by Apple Vision Pro).",
+    ),
+    "--not-spatial": click.Option(
+        ["--not-spatial"],
+        is_flag=True,
+        help="Search for photos that are not Apple spatial media.",
+    ),
     "--screenshot": click.Option(
         ["--screenshot"], is_flag=True, help="Search for screenshot photos."
     ),

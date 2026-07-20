@@ -7,7 +7,23 @@
 	<key>GlobalValue</key>
 	<dict>
 		<key>isReadyForAnalysisDate</key>
-		<date>2025-11-04T13:01:22Z</date>
+		<date>2025-11-04T12:56:01Z</date>
+	</dict>
+	<key>Library</key>
+	<dict>
+		<key>Identifier</key>
+		<dict>
+			<key>ContainerIdentifier</key>
+			<string>com.apple.photos</string>
+			<key>Name</key>
+			<string>Photos Library</string>
+			<key>Path</key>
+			<string>/Users/osxphotos/Pictures/Photos Library.photoslibrary</string>
+			<key>UUID</key>
+			<string>A4FF09C8-A1F8-4C59-A510-AB7B90B166F6</string>
+			<key>UserDescription</key>
+			<string></string>
+		</dict>
 	</dict>
 	<key>MigrationAction</key>
 	<dict>
@@ -16,352 +32,386 @@
 			<key>PLModelMigrationAction_AddDuplicateBackgroundJobItems</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingAdjustedMediaMetadata</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>3</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingExtendedAttributeDateTimezone</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingExtendedAttributeDateTimezoneFromCloudMaster</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingExtendedAttributeDigitalZoomRatio</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingExtendedAttributeFocalLengthIn35mm</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingExtendedAttributeLocation</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingExtendedAttributeOrientation</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingExtendedAttributes_2024</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_AddMissingExtendedAttributes_2025</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_CinematicVideoPopulateDepthType</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_DrawAssetPersonEdges</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>3</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 			</dict>
 			<key>PLModelMigrationAction_FixDuplicateMergeCrashRecoveryAssets</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>3</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 			</dict>
 			<key>PLModelMigrationAction_FixExtendedAttributeDateCreated</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_PopulateExtendedAttributes</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 			</dict>
 			<key>PLModelMigrationAction_PrepareSharedAssetContainerUpdateWorker</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_RebuildHighlights</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_ReevaluatePanoramaImageAssets</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>3</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 			</dict>
 			<key>PLModelMigrationAction_RemoveAllPurgeableClones</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_RemoveOrphanGeneratedAssetDescriptionNodes</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>3</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:50Z</date>
 			</dict>
 			<key>PLModelMigrationAction_RemoveOrphanedMediaAnalysisAttributes</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_RemoveOrphanedSceneprint</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_RemoveUnusedBackgroundJobWorkItems</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
+			</dict>
+			<key>PLModelMigrationAction_RepairDuplicateDetectorPerceptualProcessingState</key>
+			<dict>
+				<key>PLBackgroundMigrationStartDate</key>
+				<date>2026-06-11T02:38:40Z</date>
+				<key>PLBackgroundMigrationStatus</key>
+				<integer>2</integer>
+				<key>PLBackgroundMigrationStatusAttempts</key>
+				<integer>1</integer>
+				<key>PLBackgroundMigrationStatusDate</key>
+				<date>2026-06-11T02:38:40Z</date>
+			</dict>
+			<key>PLModelMigrationAction_RepairFinderSyncAlbumFilePersistence</key>
+			<dict>
+				<key>PLBackgroundMigrationStartDate</key>
+				<date>2026-06-11T02:38:40Z</date>
+				<key>PLBackgroundMigrationStatus</key>
+				<integer>3</integer>
+				<key>PLBackgroundMigrationStatusDate</key>
+				<date>2026-06-11T02:38:40Z</date>
 			</dict>
 			<key>PLModelMigrationAction_ResetTripHighlightEnrichmentVersion</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_RevalidateFaceAreaPoints</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_UpdateAssetAdjustmentsState</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_UpdateDayHighlightDateTitles</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_dedupeResourcesWithSimilarCompactUTI</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_setInitialIsDetectedScreenshotValue</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-12T01:21:34Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-12T01:21:34Z</date>
 			</dict>
 			<key>PLModelMigrationAction_setInitialIsRecentlySavedValue</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
+			</dict>
+			<key>PLModelMigrationAction_setInitialRecencyTypeValue</key>
+			<dict>
+				<key>PLBackgroundMigrationStartDate</key>
+				<date>2026-06-11T02:38:40Z</date>
+				<key>PLBackgroundMigrationStatus</key>
+				<integer>2</integer>
+				<key>PLBackgroundMigrationStatusAttempts</key>
+				<integer>1</integer>
+				<key>PLBackgroundMigrationStatusDate</key>
+				<date>2026-06-11T02:38:40Z</date>
 			</dict>
 			<key>PLModelMigrationAction_setInitialhasPeopleSceneMidOrGreaterConfidenceValue</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2025-11-04T13:08:34Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 			<key>PLModelMigrationAction_updateACVideos</key>
 			<dict>
 				<key>PLBackgroundMigrationStartDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 				<key>PLBackgroundMigrationStatus</key>
 				<integer>2</integer>
 				<key>PLBackgroundMigrationStatusAttempts</key>
 				<integer>1</integer>
 				<key>PLBackgroundMigrationStatusDate</key>
-				<date>2022-11-12T21:33:04Z</date>
+				<date>2025-08-11T18:44:51Z</date>
 			</dict>
 		</dict>
 		<key>ResumeMarker</key>
 		<dict/>
 	</dict>
 	<key>PLDeferredCriticalMaintenanceTask</key>
-	<date>2025-12-04T03:13:09Z</date>
-	<key>PLLibraryServicesManager.LocaleIdentifier</key>
-	<string>en_US</string>
+	<date>2026-06-16T04:04:59Z</date>
+	<key>PLModelMigrator.CreateOptions</key>
+	<dict>
+		<key>PLPhotoLibraryCreateOptions</key>
+		<integer>32</integer>
+	</dict>
 </dict>
 </plist>
