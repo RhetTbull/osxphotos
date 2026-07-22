@@ -179,8 +179,12 @@ def get_system_library_path() -> str | None:
         + "/Library/Containers/com.apple.photolibraryd/Data/Library/Preferences/com.apple.photolibraryd.plist"
     )
     if plist_file.is_file():
-        with open(plist_file, "rb") as fp:
-            pl = plistload(fp)
+        try:
+            with open(plist_file, "rb") as fp:
+                pl = plistload(fp)
+        except PermissionError as e:
+            logger.debug(f"could not read plist file: {str(plist_file)}: {e}")
+            return None
     else:
         logger.debug(f"could not find plist file: {str(plist_file)}")
         return None
@@ -196,8 +200,12 @@ def get_last_library_path() -> str | None:
         + "/Library/Containers/com.apple.Photos/Data/Library/Preferences/com.apple.Photos.plist"
     )
     if plist_file.is_file():
-        with open(plist_file, "rb") as fp:
-            pl = plistload(fp)
+        try:
+            with open(plist_file, "rb") as fp:
+                pl = plistload(fp)
+        except PermissionError as e:
+            logger.debug(f"could not read plist file: {str(plist_file)}: {e}")
+            return None
     else:
         logger.debug(f"could not find plist file: {str(plist_file)}")
         return None
