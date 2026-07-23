@@ -10,12 +10,12 @@ jobs:
 
     steps:
       - name: Checkout main repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Extract version from tag
         id: get_version
         run: |
-          # Strip leading 'v' from tag name
+          # Strip leading 'v' from tag name (e.g. v0.75.9 → 0.75.9)
           RAW_TAG="${GITHUB_REF#refs/tags/}"
           VERSION="${RAW_TAG#v}"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
@@ -37,7 +37,7 @@ jobs:
           rm Formula/osxphotos.rb.bak
 
       - name: Checkout Homebrew tap repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: RhetTbull/homebrew-osxphotos
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
