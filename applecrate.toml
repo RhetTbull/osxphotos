@@ -2,7 +2,7 @@
 # The version in this file will be updated by bump2version
 
 app = "osxphotos"
-version = "0.76.2"
+version = "0.76.1"
 identifier = "org.rhettbull.osxphotos"
 license = "LICENSE"
 install = [
