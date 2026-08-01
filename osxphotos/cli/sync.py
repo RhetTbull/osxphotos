@@ -304,14 +304,11 @@ def import_metadata(
     key_to_photo = {}
     for photo in photos:
         key = photo_signature(photo)
+        match_key = None
         if key in import_db:
             match_key = key
         elif not photo.shared:
             match_key = normalize_photo_signature_filename(key, photo.original_filename)
-            if match_key not in import_db:
-                match_key = None
-        else:
-            match_key = None
 
         if match_key is None:
             if unmatched:
