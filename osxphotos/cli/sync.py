@@ -25,6 +25,7 @@ from osxphotos.photosdb.photosdb_utils import get_db_version
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import assert_macos
 from osxphotos.sqlitekvstore import SQLiteKVStore
+from osxphotos.signature_utils import normalize_photo_signature_filename
 from osxphotos.utils import pluralize
 
 assert_macos()
@@ -280,15 +281,6 @@ def import_metadata(
         f"Importing metadata for [num]{len(photos)}[/] {photo_word} from [filepath]{import_path}[/]"
     )
 
-    # build mapping of key to photo
-    key_to_photo = {}
-    for photo in photos:
-        key = photo_signature(photo)
-        if key in key_to_photo:
-            key_to_photo[key].append(photo)
-        else:
-            key_to_photo[key] = [photo]
-
     # find keys in import_path that match keys in photos
     if import_type == "library":
         # create an in memory database of the import library
@@ -308,24 +300,42 @@ def import_metadata(
         )
         raise click.Abort()
 
-    results = SyncResults()
-    for key, key_photos in key_to_photo.items():
+    # build mapping of import key to photos, allowing a fallback for collision-suffixed names
+    key_to_photo = {}
+    for photo in photos:
+        key = photo_signature(photo)
         if key in import_db:
-            # import metadata from import_db
-            for photo in key_photos:
-                verbose(
-                    f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
-                )
-                metadata = import_db[key]
-                results += import_metadata_for_photo(
-                    photo, metadata, set_, merge, dry_run, verbose
-                )
-        elif unmatched:
-            # unable to find metadata for photo in import_db
-            for photo in key_photos:
+            match_key = key
+        elif not photo.shared:
+            match_key = normalize_photo_signature_filename(key, photo.original_filename)
+            if match_key not in import_db:
+                match_key = None
+        else:
+            match_key = None
+
+        if match_key is None:
+            if unmatched:
                 echo(
                     f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
                 )
+            continue
+
+        if match_key in key_to_photo:
+            key_to_photo[match_key].append(photo)
+        else:
+            key_to_photo[match_key] = [photo]
+
+    results = SyncResults()
+    for key, key_photos in key_to_photo.items():
+        # import metadata from import_db
+        for photo in key_photos:
+            verbose(
+                f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
+            )
+            metadata = import_db[key]
+            results += import_metadata_for_photo(
+                photo, metadata, set_, merge, dry_run, verbose
+            )
 
     if unmatched:
         # find any keys in import_db that don't match keys in photos
