@@ -1,3 +1,5 @@
+"""Test signature utils"""
+
 from osxphotos.signature_utils import (
     normalize_collision_filename,
     normalize_photo_signature_filename,
