@@ -24,8 +24,8 @@ from osxphotos.photosalbum import PhotosAlbum, PhotosAlbumPhotoScriptByPath
 from osxphotos.photosdb.photosdb_utils import get_db_version
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import assert_macos
-from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.signature_utils import normalize_photo_signature_filename
+from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
 assert_macos()
