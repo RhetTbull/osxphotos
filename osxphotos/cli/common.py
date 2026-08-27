@@ -92,20 +92,14 @@ def get_photos_db(*db_options):
                 return db
 
     # if get here, no valid database paths passed, so try to figure out which to use
-    try:
-        db = osxphotos.utils.get_last_library_path()
-    except PermissionError as e:
-        click.echo(f"Could not read last opened Photos library preference: {e}", err=True)
-        db = None
+    # get_last_library_path()/get_system_library_path() return None rather than
+    # raising if the preference file can't be read (e.g. blocked by macOS TCC)
+    db = osxphotos.utils.get_last_library_path()
     if db is not None:
         click.echo(f"Using last opened Photos library: {db}", err=True)
         return db
 
-    try:
-        db = osxphotos.utils.get_system_library_path()
-    except PermissionError as e:
-        click.echo(f"Could not read system Photos library preference: {e}", err=True)
-        db = None
+    db = osxphotos.utils.get_system_library_path()
     if db is not None:
         click.echo(f"Using system Photos library: {db}", err=True)
         return db
