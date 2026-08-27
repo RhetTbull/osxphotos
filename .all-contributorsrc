@@ -1105,6 +1105,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "kurt-wink",
+      "name": "Kurt",
+      "avatar_url": "https://avatars.githubusercontent.com/u/38019652?v=4",
+      "profile": "https://kurtw.ink",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
