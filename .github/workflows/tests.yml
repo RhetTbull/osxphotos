@@ -19,14 +19,16 @@ jobs:
         with:
           fetch-depth: 1
           # Fetch only what's needed for tests to keep checkout fast.
-          # setup.py / requirements.txt / dev_requirements.txt are gone;
-          # pyproject.toml is now the single source of truth.
+          # setup.py / requirements.txt / dev_requirements.txt / pytest.ini are
+          # gone; pyproject.toml is now the single source of truth.
+          # README.rst is required: [project].readme points at it, and without
+          # it the build silently produces metadata with no description.
           sparse-checkout: |
             osxphotos
             tests
             examples
             pyproject.toml
-            pytest.ini
+            README.rst
 
       - name: Setup uv with Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v5

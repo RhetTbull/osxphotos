@@ -161,9 +161,7 @@ If you want to work on osxphotos code or contribute to the project, you can inst
 Next, install the required dependencies, and `osxphotos` itself. I recommend you create a
 [virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing osxphotos.
 
-    python3 -m pip install -r dev_requirements.txt
-    python3 -m pip install -r requirements.txt
-    python3 -m pip install -e .
+    python3 -m pip install -e ".[dev]"
 
 Once you've installed osxphotos via the git repository, to upgrade to the latest version:
 

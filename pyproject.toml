@@ -14,7 +14,9 @@
 # Build system
 # ---------------------------------------------------------------------------
 [build-system]
-requires = ["setuptools>=65.5.1", "wheel"]
+# setuptools>=77 is required for PEP 639 support: the SPDX `license`
+# expression and `license-files` in [project] below.
+requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 # ---------------------------------------------------------------------------
@@ -25,7 +27,12 @@ name = "osxphotos"
 dynamic = ["version"]   # read from osxphotos/_version.py via [tool.setuptools.dynamic]
 description = "Export photos from Apple's macOS Photos app and query the Photos library database to access metadata about images."
 readme = {file = "README.rst", content-type = "text/x-rst"}
-license = {text = "MIT"}
+# PEP 639: SPDX expression + explicit license files. This emits
+# License-Expression/License-File metadata instead of the legacy License
+# field, so the "License :: OSI Approved :: MIT License" classifier is
+# deliberately omitted below (setuptools>=77 rejects using both).
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     {name = "Rhet Turnbull", email = "rturnbull+git@gmail.com"},
 ]
@@ -34,7 +41,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: MacOS X",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: MacOS :: MacOS X",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -132,7 +138,7 @@ dev = [
     "pytest-mock",
     "rstcheck>=6.2.4",
     "ruff==0.11.8",
-    "setuptools>=65.5.1",       # pinned by Snyk to avoid a vulnerability
+    "setuptools>=77.0.0",       # >=65.5.1 pinned by Snyk; >=77 for PEP 639
     "Sphinx",
     "sphinx_click",
     "sphinx_click_custom>=0.3.0",
@@ -173,6 +179,11 @@ version = {attr = "osxphotos._version.__version__"}
 [tool.setuptools.packages.find]
 # Automatically discover all Python packages (directories with __init__.py).
 # This is equivalent to find_packages(exclude=[...]) in setup.py.
+#
+# namespaces = false is REQUIRED: setuptools defaults it to true here, which
+# turns discovery into find_namespace_packages() and sweeps up every directory
+# in the repo (docsrc, scripts, Formula, dist, ...) as a top-level package.
+namespaces = false
 exclude = ["tests*", "examples*", "utils*"]
 
 # ---------------------------------------------------------------------------
@@ -209,8 +220,10 @@ osxphotos = [
 current_version = "0.76.1"
 parse  = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
-commit = true
-tag    = true
+# Match the previous .bumpversion.cfg behavior: bump the files only and leave
+# committing/tagging to the release steps in README_DEV.md.
+commit = false
+tag    = false
 tag_name = "v{new_version}"
 
 # Update version string in _version.py
@@ -219,11 +232,13 @@ filename = "osxphotos/_version.py"
 search   = "__version__ = \"{current_version}\""
 replace  = "__version__ = \"{new_version}\""
 
-# Update version in applecrate.toml (used for macOS installer builds)
+# Update version in applecrate.toml (used for macOS installer builds).
+# No search/replace: applecrate.toml holds the version twice — once as
+# `version = "..."` and once inside the `build/osxphotos-...-{{ machine }}`
+# install path — and both must be updated, so fall back to the default
+# behavior of replacing every occurrence of the bare version string.
 [[tool.bumpversion.files]]
 filename = "applecrate.toml"
-search   = "version = \"{current_version}\""
-replace  = "version = \"{new_version}\""
 
 # ---------------------------------------------------------------------------
 # pytest  (replaces pytest.ini)
@@ -278,5 +293,7 @@ exclude = [
 # black
 # ---------------------------------------------------------------------------
 [tool.black]
-line-length    = 120
+# 88 is black's default and the width the codebase is already formatted to.
+# Do not raise this without reformatting the tree in a separate commit.
+line-length    = 88
 target-version = ["py310", "py311", "py312", "py313"]

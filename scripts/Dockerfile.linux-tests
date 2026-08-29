@@ -18,12 +18,14 @@ ENV PATH="/root/.local/bin:${PATH}"
 # Set working directory
 WORKDIR /workspace
 
-# Copy dependency files
-COPY requirements.txt dev_requirements.txt ./
+# Copy dependency metadata
+COPY pyproject.toml ./
 
-# Install Python dependencies
-RUN uv pip install --system -r requirements.txt && \
-    uv pip install --system -r dev_requirements.txt
+# Install Python dependencies (runtime + dev extras).
+# `-r pyproject.toml` installs only the declared dependencies, not osxphotos
+# itself; run_linux_tests.sh mounts the source at /workspace and runs pytest
+# from there, so the working tree provides the package.
+RUN uv pip install --system -r pyproject.toml --extra dev
 
 # Default command
 CMD ["/bin/bash"]
