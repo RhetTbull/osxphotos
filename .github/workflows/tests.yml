@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout (sparse)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
           # Fetch only what's needed for tests to keep checkout fast.

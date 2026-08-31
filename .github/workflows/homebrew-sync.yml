@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout main repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Extract version from tag
         id: get_version
@@ -37,7 +37,7 @@ jobs:
           rm Formula/osxphotos.rb.bak
 
       - name: Checkout Homebrew tap repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: RhetTbull/homebrew-osxphotos
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
