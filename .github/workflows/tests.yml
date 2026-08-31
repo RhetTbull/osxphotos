@@ -38,7 +38,7 @@ jobs:
       # Cache the uv download cache keyed on pyproject.toml so it
       # invalidates whenever dependencies change.
       - name: Cache uv download cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/uv
           key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
@@ -47,7 +47,7 @@ jobs:
 
       # Cache the virtualenv itself.
       - name: Cache virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .venv
           key: ${{ runner.os }}-venv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
