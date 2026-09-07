@@ -1114,6 +1114,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "b-spine",
+      "name": "b-spine",
+      "avatar_url": "https://avatars.githubusercontent.com/u/285604947?v=4",
+      "profile": "https://github.com/b-spine",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
