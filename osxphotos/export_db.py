@@ -41,7 +41,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "11.0"
+OSXPHOTOS_EXPORTDB_VERSION = "11.1"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -800,15 +800,6 @@ class ExportDB:
             c.execute("PRAGMA synchronous=NORMAL;")
             c.execute("PRAGMA cache_size=-100000;")
             c.execute("PRAGMA temp_store=MEMORY;")
-            # export_data has no index on uuid (only on filepath_normalized).
-            # get_target_for_file() queries by uuid to resolve filename
-            # collisions (e.g. "(1)", "(2)" suffixes), which without this
-            # index forces a full table scan on every call — measured at
-            # >0.6s per call on a ~150k-row table. This index cuts that same
-            # query to sub-millisecond. Safe/idempotent on every open.
-            c.execute(
-                "CREATE INDEX IF NOT EXISTS idx_export_data_uuid ON export_data(uuid);"
-            )
 
         return conn
 
@@ -991,6 +982,10 @@ class ExportDB:
 
         if current_version < float("11.0") and version >= float("11.0"):
             self._migrate_10_1_to_11_0(conn)
+
+        if current_version < float("11.1") and version >= float("11.1"):
+            # add index on export_data.uuid
+            self._migrate_11_0_to_11_1(conn)
 
         with self.lock:
             conn.execute("VACUUM;")
@@ -1384,6 +1379,23 @@ class ExportDB:
                 )
             conn.commit()
 
+    def _migrate_11_0_to_11_1(self, conn: sqlite3.Connection):
+        """Add index on export_data.uuid
+
+        export_data was indexed only on filepath_normalized but
+        get_target_for_file(), which resolves filename collisions (e.g. the
+        "(1)", "(2)" suffixes), queries by uuid; without this index every call
+        forces a full table scan of export_data (#2197).
+        """
+        with self.lock:
+            c = conn.cursor()
+            c.execute(
+                """ CREATE INDEX IF NOT EXISTS idx_export_data_uuid
+                    ON export_data (uuid);
+                    """
+            )
+            conn.commit()
+
     def _perform_db_maintenance(self, conn: sqlite3.Connection):
         """Perform database maintenance"""
         if float(self.version) < float("6.0"):
@@ -1525,9 +1537,6 @@ class ExportDBInMemory(ExportDB):
             self.was_created = True
             self.was_upgraded = ()
             self.version = OSXPHOTOS_EXPORTDB_VERSION
-            src.execute(
-                "CREATE INDEX IF NOT EXISTS idx_export_data_uuid ON export_data(uuid);"
-            )
             return src
 
         if version:
@@ -1550,13 +1559,6 @@ class ExportDBInMemory(ExportDB):
         else:
             self.was_upgraded = ()
         self.version = OSXPHOTOS_EXPORTDB_VERSION
-
-        # See ExportDB._open_export_db for why: export_data has no index on
-        # uuid, and get_target_for_file() (filename-collision resolution)
-        # queries by uuid, forcing a full table scan without it.
-        dst.execute(
-            "CREATE INDEX IF NOT EXISTS idx_export_data_uuid ON export_data(uuid);"
-        )
 
         return dst
 
