@@ -137,7 +137,7 @@ dev = [
     "pytest-cov==4.0.0",
     "pytest-mock",
     "rstcheck>=6.2.4",
-    "ruff==0.11.8",
+    "ruff==0.16.5",
     "setuptools>=77.0.0",       # >=65.5.1 pinned by Snyk; >=77 for PEP 639
     "Sphinx",
     "sphinx_click",
