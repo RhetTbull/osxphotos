@@ -181,7 +181,7 @@ def update_photo_date_time(
 
     new_photo_date_tz = cast(ZonedDateTime, new_photo_date_with_tz)
     new_photo_date_system = new_photo_date_tz.to_system_tz()
-    new_photo_date = new_photo_date_system.to_plain().py_datetime()
+    new_photo_date = new_photo_date_system.to_plain().to_stdlib()
 
     filename = photo.filename
     uuid = photo.uuid
@@ -262,7 +262,7 @@ def zoned_datetime_from_naive_zoneinfo(
         raise ValueError("Input datetime must be naive")
     # ZonedDateTime.from_py_datetime doesn't work right for some timezones "tz must be a str" error
     tzname = zinfo.key
-    return PlainDateTime.from_py_datetime(naive).assume_tz(tzname)
+    return PlainDateTime(naive).assume_tz(tzname)
     # return ZonedDateTime(
     #     year=naive.year,
     #     month=naive.month,
@@ -304,10 +304,10 @@ def update_datetime_for_new_timezone(
     fixed-offset regions.
     """
     system_tz = Timezone(get_local_tz(original_naive).tzname(original_naive)).name
-    target_wall = PlainDateTime.from_py_datetime(original_naive)
+    target_wall = PlainDateTime(original_naive)
     desired_zdt = target_wall.assume_tz(new_zone.key)
     shifted_zdt = desired_zdt.to_tz(system_tz)
-    new_datetime = shifted_zdt.py_datetime().replace(tzinfo=None)
+    new_datetime = shifted_zdt.to_stdlib().replace(tzinfo=None)
     return new_datetime
 
 
