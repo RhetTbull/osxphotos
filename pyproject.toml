@@ -130,7 +130,7 @@ dev = [
     "cogapp>=3.3.0,<4.0.0",
     "furo",
     "isort",
-    "m2r2==0.3.3.post2",
+    "m2r2==0.3.4",
     "pdbpp",
     "pyinstaller>=6.11.1",
     "pytest>=7.4.0,<10.0.0",
