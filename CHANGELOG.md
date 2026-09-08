@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased](https://github.com/RhetTbull/osxphotos/compare/v0.76.1...HEAD)
+
+#### Added
+
+#### Changed
+
+- Updated `whenever` dependency to `>=0.10.0,<0.11.0`. The previous `<0.9.0` pin dated from #1937 (whenever 0.9.0 removed `SystemDateTime`); the code was migrated off `SystemDateTime` in #1939, so the pin was no longer needed.
+- Migrated off `whenever`'s deprecated `from_py_datetime()` and `py_datetime()` in favor of the datetime constructor and `to_stdlib()`.
+
+#### Removed
+
+#### Fixed
+
+- Fixed `timewarp --time` silently doing nothing when the requested time falls in a daylight saving time gap (e.g. setting a photo to 02:30 on a US spring-forward date). The time is now shifted forward past the gap, as expected.
+
+#### Contributors
+
+* @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code
+
 ## [v0.76.0](https://github.com/RhetTbull/osxphotos/compare/v0.75.9...v0.76.0)
 
 Bug fixes, alpha support for macOS 27 dev beta
