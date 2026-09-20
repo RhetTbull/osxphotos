@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 #### Fixed
 
 - Fixed `timewarp --time` silently doing nothing when the requested time falls in a daylight saving time gap (e.g. setting a photo to 02:30 on a US spring-forward date). The time is now shifted forward past the gap, as expected.
+- Fixed crash (`configparser.NoSectionError: No section: 'styles'`) when running multiple osxphotos commands in parallel. Every invocation rewrote the color theme files in place, so one process could read a theme file another process had just truncated. Theme files are now written atomically and only when missing, corrupt, or out of date; a theme file left truncated by a previous run is repaired automatically (#2201).
 
 #### Contributors
 
