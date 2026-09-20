@@ -245,6 +245,9 @@ filename = "applecrate.toml"
 # ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
 addopts = "-p tests.plugins.env_vars"
+# The bare `pytest` console script does not put the rootdir on sys.path (unlike
+# `python -m pytest`), so the -p plugin above fails to import. Add it explicitly.
+pythonpath = ["."]
 
 # ---------------------------------------------------------------------------
 # isort  (replaces .isort.cfg)
