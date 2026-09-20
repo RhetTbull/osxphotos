@@ -134,7 +134,7 @@ dev = [
     "pdbpp",
     "pyinstaller>=6.11.1",
     "pytest>=7.4.0,<10.0.0",
-    "pytest-cov==4.0.0",
+    "pytest-cov==7.1.0",
     "pytest-mock",
     "rstcheck>=6.2.4",
     "ruff==0.16.5",
