@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.debug - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>osxphotos.debug - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,7 +231,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.debug</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Utilities for debugging&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Utilities for debugging"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -245,14 +245,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">rich</span><span class="w"> </span><span class="kn">import</span> <span class="nb">print</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;debug_breakpoint&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;debug_watch&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_debug_flags&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_debug_options&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;is_debug&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;relocate_debug_options&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;set_debug&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wrap_function&quot;</span><span class="p">,</span>
+    <span class="s2">"debug_breakpoint"</span><span class="p">,</span>
+    <span class="s2">"debug_watch"</span><span class="p">,</span>
+    <span class="s2">"get_debug_flags"</span><span class="p">,</span>
+    <span class="s2">"get_debug_options"</span><span class="p">,</span>
+    <span class="s2">"is_debug"</span><span class="p">,</span>
+    <span class="s2">"relocate_debug_options"</span><span class="p">,</span>
+    <span class="s2">"set_debug"</span><span class="p">,</span>
+    <span class="s2">"wrap_function"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -264,10 +264,10 @@
 <div class="viewcode-block" id="set_debug">
 <a class="viewcode-back" href="../../reference.html#osxphotos.set_debug">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_debug</span><span class="p">(</span><span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;set debug flag&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""set debug flag"""</span>
     <span class="k">global</span> <span class="n">__osxphotos_debug</span>
     <span class="n">__osxphotos_debug</span> <span class="o">=</span> <span class="n">debug</span>
-    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"osxphotos"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -278,58 +278,58 @@
 <div class="viewcode-block" id="is_debug">
 <a class="viewcode-back" href="../../reference.html#osxphotos.is_debug">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_debug</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;return debug flag&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""return debug flag"""</span>
     <span class="k">global</span> <span class="n">__osxphotos_debug</span>
     <span class="k">return</span> <span class="n">__osxphotos_debug</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">debug_watch</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;For use with wrapt.wrap_function_wrapper to watch calls to a function&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""For use with wrapt.wrap_function_wrapper to watch calls to a function"""</span>
     <span class="n">caller</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">wrapped</span><span class="o">.</span><span class="vm">__name__</span>
     <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> called from </span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2"> with args: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2"> and kwargs: </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> called from </span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2"> with args: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2"> and kwargs: </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="n">start_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
     <span class="n">rv</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">stop_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> returned: </span><span class="si">{</span><span class="n">rv</span><span class="si">}</span><span class="s2">, elapsed time: </span><span class="si">{</span><span class="n">stop_t</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_t</span><span class="si">}</span><span class="s2"> sec&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> returned: </span><span class="si">{</span><span class="n">rv</span><span class="si">}</span><span class="s2">, elapsed time: </span><span class="si">{</span><span class="n">stop_t</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_t</span><span class="si">}</span><span class="s2"> sec"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rv</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">debug_breakpoint</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;For use with wrapt.wrap_function_wrapper to set breakpoint on a function&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""For use with wrapt.wrap_function_wrapper to set breakpoint on a function"""</span>
     <span class="nb">breakpoint</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">wrap_function</span><span class="p">(</span><span class="n">function_path</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap a function with wrapper function&quot;&quot;&quot;</span>
-    <span class="n">module</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">function_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Wrap a function with wrapper function"""</span>
+    <span class="n">module</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">function_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"::"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">wrapt</span><span class="o">.</span><span class="n">wrap_function_wrapper</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not exist"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_debug_options</span><span class="p">(</span><span class="n">arg_names</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the options for the debug options;</span>
+<span class="w">    </span><span class="sd">"""Get the options for the debug options;</span>
 <span class="sd">    Some of the debug options like --watch and --breakpoint need to be processed before any other packages are loaded</span>
-<span class="sd">    so they can&#39;t be handled in the normal click argument processing, thus this function is called</span>
+<span class="sd">    so they can't be handled in the normal click argument processing, thus this function is called</span>
 <span class="sd">    from osxphotos/cli/__init__.py</span>
 
 <span class="sd">    Assumes multi-valued options are OK and that all options take form of --option VALUE or --option=VALUE</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># argv[0] is the program name</span>
     <span class="c1"># argv[1] is the command</span>
     <span class="c1"># argv[2:] are the arguments</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">arg_name</span> <span class="ow">in</span> <span class="n">arg_names</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
-            <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg_name</span><span class="si">}</span><span class="s2">=&quot;</span><span class="p">):</span>
-                <span class="n">arg_value</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">arg_name</span><span class="si">}</span><span class="s2">="</span><span class="p">):</span>
+                <span class="n">arg_value</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"="</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">args</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg_value</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -341,16 +341,16 @@
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">args</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">argv</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]]</span>
                     <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing value for </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Missing value for </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
                 <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing value for </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Missing value for </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
     <span class="k">return</span> <span class="n">args</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_debug_flags</span><span class="p">(</span><span class="n">arg_names</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the flags for the debug options;</span>
+<span class="w">    </span><span class="sd">"""Get the flags for the debug options;</span>
 <span class="sd">    Processes flags like --debug that resolve to True or False</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># argv[0] is the program name</span>
     <span class="c1"># argv[1] is the command</span>
     <span class="c1"># argv[2:] are the arguments</span>
@@ -366,20 +366,20 @@
     <span class="n">flags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">options</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Relocate debug options from anywhere in argv to after the program name.</span>
+<span class="w">    </span><span class="sd">"""Relocate debug options from anywhere in argv to after the program name.</span>
 
 <span class="sd">    This allows debug options to be specified anywhere in the command line</span>
-<span class="sd">    (e.g., &#39;osxphotos export --profile&#39; instead of &#39;osxphotos --profile export&#39;)</span>
+<span class="sd">    (e.g., 'osxphotos export --profile' instead of 'osxphotos --profile export')</span>
 <span class="sd">    while still being processed correctly by Click.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        argv: The command line arguments (typically sys.argv)</span>
-<span class="sd">        flags: List of flag option names (e.g., [&#39;--debug&#39;, &#39;--profile&#39;])</span>
-<span class="sd">        options: List of option names that take values (e.g., [&#39;--watch&#39;, &#39;--profile-sort&#39;])</span>
+<span class="sd">        flags: List of flag option names (e.g., ['--debug', '--profile'])</span>
+<span class="sd">        options: List of option names that take values (e.g., ['--watch', '--profile-sort'])</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Modified argv with debug options relocated after the program name</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="ow">or</span> <span class="p">[]</span>
     <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">[]</span>
 
@@ -409,7 +409,7 @@
                     <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
                     <span class="n">matched_option</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">break</span>
-            <span class="k">elif</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">=&quot;</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">opt</span><span class="si">}</span><span class="s2">="</span><span class="p">):</span>
                 <span class="c1"># --option=value format</span>
                 <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
                 <span class="n">matched_option</span> <span class="o">=</span> <span class="kc">True</span>
@@ -457,9 +457,9 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7049291"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

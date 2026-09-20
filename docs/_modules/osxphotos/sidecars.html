@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.sidecars - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>osxphotos.sidecars - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,7 +231,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.sidecars</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Write sidecars for PhotoInfo objects&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Write sidecars for PhotoInfo objects"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -275,18 +275,18 @@
 <span class="c1"># This is expensive to compile so we only want to do it once</span>
 <span class="n">_global_xmp_template</span><span class="p">:</span> <span class="n">Template</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;osxphotos&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"osxphotos"</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;SidecarWriter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;exiftool_json_sidecar&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;xmp_sidecar&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_sidecar_file_with_template&quot;</span><span class="p">,</span>
+    <span class="s2">"SidecarWriter"</span><span class="p">,</span>
+    <span class="s2">"exiftool_json_sidecar"</span><span class="p">,</span>
+    <span class="s2">"xmp_sidecar"</span><span class="p">,</span>
+    <span class="s2">"get_sidecar_file_with_template"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">UserSidecarError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generated if there&#39;s an error in user sidecar template so it can be handled by export CLI&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Generated if there's an error in user sidecar template so it can be handled by export CLI"""</span>
 
     <span class="k">pass</span>
 
@@ -306,14 +306,14 @@
 
 <span class="nd">@cache</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_template</span><span class="p">(</span><span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Template</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get template from cache or load from file&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get template from cache or load from file"""</span>
     <span class="k">return</span> <span class="n">Template</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">template</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SidecarWriter">
 <a class="viewcode-back" href="../../reference.html#osxphotos.SidecarWriter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SidecarWriter</span><span class="p">(</span><span class="n">_ExifMixin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write sidecars for PhotoInfo objects</span>
+<span class="w">    </span><span class="sd">"""Write sidecars for PhotoInfo objects</span>
 
 <span class="sd">    Can write XMP, JSON, and exiftool sidecars</span>
 
@@ -322,7 +322,7 @@
 
 <span class="sd">    Note:</span>
 <span class="sd">        Sidecars are written by calling write_sidecar_files() which returns an ExportResults object</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">:</span> <span class="n">PhotoInfo</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
@@ -337,7 +337,7 @@
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
         <span class="n">export_results</span><span class="p">:</span> <span class="n">ExportResults</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExportResults</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write sidecar files for the photo.</span>
+<span class="w">        </span><span class="sd">"""Write sidecar files for the photo.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dest: destination path for photo that sidecars are being written for</span>
@@ -349,21 +349,21 @@
 <span class="sd">        Note:</span>
 <span class="sd">            dest is the path to the the sidecar belongs to. THe sidecar filename will be</span>
 <span class="sd">            dest.ext where ext is the extension for sidecar (e.g. xmp or json)</span>
-<span class="sd">            If dest is &quot;img_1234.jpg&quot;, XMP sidecar would be &quot;img_1234.jpg.xmp&quot;</span>
+<span class="sd">            If dest is "img_1234.jpg", XMP sidecar would be "img_1234.jpg.xmp"</span>
 <span class="sd">            Use ExportOptions(sidecar_drop_ext) to drop the image extension from the sidecar filename</span>
-<span class="sd">            (e.g. &quot;img_1234.xmp&quot;)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            (e.g. "img_1234.xmp")</span>
+<span class="sd">        """</span>
 
-        <span class="c1"># if ExportDB isn&#39;t provided, use a temporary in-memory database</span>
+        <span class="c1"># if ExportDB isn't provided, use a temporary in-memory database</span>
         <span class="c1"># this allows SidecarWriter to be used independently of PhotoExporter</span>
         <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span> <span class="ow">or</span> <span class="n">ExportDBTemp</span><span class="p">()</span>
 
-        <span class="c1"># likewise, if FileUtil isn&#39;t provided, use default</span>
+        <span class="c1"># likewise, if FileUtil isn't provided, use default</span>
         <span class="n">fileutil</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">fileutil</span> <span class="ow">or</span> <span class="n">FileUtilMacOS</span><span class="p">()</span> <span class="k">if</span> <span class="n">is_macos</span> <span class="k">else</span> <span class="n">FileUtilShUtil</span><span class="p">()</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
 
         <span class="c1"># define functions for adding markup</span>
-        <span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">rich</span><span class="p">)</span>
+        <span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">"filepath"</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">rich</span><span class="p">)</span>
 
         <span class="c1"># Helper to check exists using stat_cache when available</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">_sidecar_exists</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -380,7 +380,7 @@
         <span class="n">sidecar_xmp_files_skipped</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">sidecar_xmp_files_written</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">dest_suffix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar_drop_ext</span> <span class="k">else</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span>
+        <span class="n">dest_suffix</span> <span class="o">=</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar_drop_ext</span> <span class="k">else</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span>
         <span class="n">exif_options</span> <span class="o">=</span> <span class="n">exif_options_from_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
         <span class="n">photo_record</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_file_record</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="n">photo_digest_matches</span> <span class="o">=</span> <span class="p">(</span>
@@ -388,45 +388,45 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar</span> <span class="o">&amp;</span> <span class="n">SIDECAR_JSON</span><span class="p">:</span>
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json"</span>
             <span class="p">)</span>
             <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span>
                     <span class="n">sidecar_filename</span><span class="p">,</span>
                     <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_exiftool_sidecar</span><span class="p">(</span>
-                        <span class="n">sidecar_type</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                        <span class="n">sidecar_type</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span>
                         <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                         <span class="n">options</span><span class="o">=</span><span class="n">exif_options</span><span class="p">,</span>
                         <span class="n">tag_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="p">),</span>
                     <span class="n">sidecar_json_files_written</span><span class="p">,</span>
                     <span class="n">sidecar_json_files_skipped</span><span class="p">,</span>
-                    <span class="s2">&quot;JSON&quot;</span><span class="p">,</span>
+                    <span class="s2">"JSON"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar</span> <span class="o">&amp;</span> <span class="n">SIDECAR_EXIFTOOL</span><span class="p">:</span>
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json"</span>
             <span class="p">)</span>
             <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span>
                     <span class="n">sidecar_filename</span><span class="p">,</span>
                     <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_exiftool_sidecar</span><span class="p">(</span>
-                        <span class="n">sidecar_type</span><span class="o">=</span><span class="s2">&quot;exiftool&quot;</span><span class="p">,</span>
+                        <span class="n">sidecar_type</span><span class="o">=</span><span class="s2">"exiftool"</span><span class="p">,</span>
                         <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                         <span class="n">options</span><span class="o">=</span><span class="n">exif_options</span><span class="p">,</span>
                         <span class="n">tag_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="p">),</span>
                     <span class="n">sidecar_exiftool_files_written</span><span class="p">,</span>
                     <span class="n">sidecar_exiftool_files_skipped</span><span class="p">,</span>
-                    <span class="s2">&quot;exiftool&quot;</span><span class="p">,</span>
+                    <span class="s2">"exiftool"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar</span> <span class="o">&amp;</span> <span class="n">SIDECAR_XMP</span><span class="p">:</span>
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.xmp&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.xmp"</span>
             <span class="p">)</span>
             <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span>
@@ -437,7 +437,7 @@
                     <span class="p">),</span>
                     <span class="n">sidecar_xmp_files_written</span><span class="p">,</span>
                     <span class="n">sidecar_xmp_files_skipped</span><span class="p">,</span>
-                    <span class="s2">&quot;XMP&quot;</span><span class="p">,</span>
+                    <span class="s2">"XMP"</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
@@ -478,7 +478,7 @@
                 <span class="ow">and</span> <span class="n">photo_digest_matches</span>
             <span class="p">):</span>
                 <span class="n">verbose</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Skipped up to date </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"Skipped up to date </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">files_skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">))</span>
@@ -496,7 +496,7 @@
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">write_sidecar</span><span class="p">:</span>
-                <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="n">files_written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">))</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_write_sidecar</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">,</span> <span class="n">sidecar_str</span><span class="p">)</span>
@@ -512,7 +512,7 @@
                         <span class="n">sidecar_record</span><span class="o">.</span><span class="n">export_options</span> <span class="o">=</span> <span class="n">sidecar_options</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">verbose</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Skipped up to date </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">"Skipped up to date </span><span class="si">{</span><span class="n">sidecar_type</span><span class="si">}</span><span class="s2"> sidecar </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">files_skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="p">))</span>
@@ -580,7 +580,7 @@
         <span class="n">options</span><span class="p">:</span> <span class="n">ExifOptions</span><span class="p">,</span>
         <span class="n">tag_groups</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render and cache exiftool-style sidecar content for this photo.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Render and cache exiftool-style sidecar content for this photo."""</span>
         <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">sidecar_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">exiftool_json_sidecar</span><span class="p">(</span>
@@ -592,8 +592,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_xmp_sidecar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render and cache XMP sidecar content for this photo.&quot;&quot;&quot;</span>
-        <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;xmp&quot;</span><span class="p">,</span> <span class="n">extension</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Render and cache XMP sidecar content for this photo."""</span>
+        <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"xmp"</span><span class="p">,</span> <span class="n">extension</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_content_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmp_sidecar</span><span class="p">(</span>
                 <span class="n">extension</span><span class="o">=</span><span class="n">extension</span><span class="p">,</span>
@@ -609,21 +609,21 @@
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
         <span class="n">exif_options</span><span class="p">:</span> <span class="n">ExifOptions</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a stable signature for sidecar inputs that affect sidecar output.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a stable signature for sidecar inputs that affect sidecar output."""</span>
         <span class="n">render_options</span> <span class="o">=</span> <span class="n">exif_options</span><span class="o">.</span><span class="n">render_options</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;dest_name&quot;</span><span class="p">:</span> <span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="s2">&quot;extension&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">sidecar_type</span> <span class="o">==</span> <span class="s2">&quot;XMP&quot;</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="s2">"dest_name"</span><span class="p">:</span> <span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">"extension"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">sidecar_type</span> <span class="o">==</span> <span class="s2">"XMP"</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="p">),</span>
-                <span class="s2">&quot;exif_options&quot;</span><span class="p">:</span> <span class="n">exif_options</span><span class="o">.</span><span class="n">asdict</span><span class="p">(),</span>
-                <span class="s2">&quot;render_options&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"exif_options"</span><span class="p">:</span> <span class="n">exif_options</span><span class="o">.</span><span class="n">asdict</span><span class="p">(),</span>
+                <span class="s2">"render_options"</span><span class="p">:</span> <span class="p">(</span>
                     <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">render_options</span><span class="p">)</span> <span class="k">if</span> <span class="n">render_options</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="p">),</span>
-                <span class="s2">&quot;sidecar_drop_ext&quot;</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar_drop_ext</span><span class="p">,</span>
-                <span class="s2">&quot;sidecar_filename&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-                <span class="s2">&quot;sidecar_type&quot;</span><span class="p">:</span> <span class="n">sidecar_type</span><span class="p">,</span>
+                <span class="s2">"sidecar_drop_ext"</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar_drop_ext</span><span class="p">,</span>
+                <span class="s2">"sidecar_filename"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sidecar_filename</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="s2">"sidecar_type"</span><span class="p">:</span> <span class="n">sidecar_type</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
             <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -637,7 +637,7 @@
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
         <span class="n">export_results</span><span class="p">:</span> <span class="n">ExportResults</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExportResults</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write user sidecar files for the photo.</span>
+<span class="w">        </span><span class="sd">"""Write user sidecar files for the photo.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dest: destination path for photo that sidecars are being written for</span>
@@ -645,11 +645,11 @@
 <span class="sd">            export_results: ExportResults object with information about the exorted photos</span>
 
 <span class="sd">        Returns: An ExportResults object containing information about the exported sidecar files</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
 
         <span class="c1"># define functions for adding markup</span>
-        <span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">rich</span><span class="p">)</span>
+        <span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">"filepath"</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">rich</span><span class="p">)</span>
 
         <span class="n">sidecar_user_written</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">sidecar_user_skipped</span> <span class="o">=</span> <span class="p">[]</span>
@@ -662,11 +662,11 @@
             <span class="n">filename_template</span><span class="p">,</span>
             <span class="n">template_options</span><span class="p">,</span>
         <span class="p">)</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">sidecar_template</span><span class="p">:</span>
-            <span class="n">strip_whitespace</span> <span class="o">=</span> <span class="s2">&quot;strip_whitespace&quot;</span> <span class="ow">in</span> <span class="n">template_options</span>
-            <span class="n">strip_lines</span> <span class="o">=</span> <span class="s2">&quot;strip_lines&quot;</span> <span class="ow">in</span> <span class="n">template_options</span>
-            <span class="n">write_skipped</span> <span class="o">=</span> <span class="s2">&quot;write_skipped&quot;</span> <span class="ow">in</span> <span class="n">template_options</span>
-            <span class="n">skip_zero</span> <span class="o">=</span> <span class="s2">&quot;skip_zero&quot;</span> <span class="ow">in</span> <span class="n">template_options</span>
-            <span class="n">catch_errors</span> <span class="o">=</span> <span class="s2">&quot;catch_errors&quot;</span> <span class="ow">in</span> <span class="n">template_options</span>
+            <span class="n">strip_whitespace</span> <span class="o">=</span> <span class="s2">"strip_whitespace"</span> <span class="ow">in</span> <span class="n">template_options</span>
+            <span class="n">strip_lines</span> <span class="o">=</span> <span class="s2">"strip_lines"</span> <span class="ow">in</span> <span class="n">template_options</span>
+            <span class="n">write_skipped</span> <span class="o">=</span> <span class="s2">"write_skipped"</span> <span class="ow">in</span> <span class="n">template_options</span>
+            <span class="n">skip_zero</span> <span class="o">=</span> <span class="s2">"skip_zero"</span> <span class="ow">in</span> <span class="n">template_options</span>
+            <span class="n">catch_errors</span> <span class="o">=</span> <span class="s2">"catch_errors"</span> <span class="ow">in</span> <span class="n">template_options</span>
             <span class="c1"># Render the sidecar filename</span>
             <span class="n">template_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_sidecar_filename</span><span class="p">(</span>
                 <span class="n">filepath</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
@@ -677,7 +677,7 @@
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">template_filename</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid SIDECAR_FILENAME_TEMPLATE for --sidecar-template &#39;</span><span class="si">{</span><span class="n">filename_template</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Invalid SIDECAR_FILENAME_TEMPLATE for --sidecar-template '</span><span class="si">{</span><span class="n">filename_template</span><span class="si">}</span><span class="s2">'"</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
@@ -685,7 +685,7 @@
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">write_skipped</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">in</span> <span class="n">export_results</span><span class="o">.</span><span class="n">skipped</span><span class="p">:</span>
                 <span class="n">sidecar_user_skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">))</span>
-                <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping existing sidecar file [filepath]</span><span class="si">{</span><span class="n">sidecar_path</span><span class="si">}</span><span class="s2">[/]&quot;</span><span class="p">)</span>
+                <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skipping existing sidecar file [filepath]</span><span class="si">{</span><span class="n">sidecar_path</span><span class="si">}</span><span class="s2">[/]"</span><span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="k">try</span><span class="p">:</span>
@@ -701,7 +701,7 @@
                     <span class="n">exif_options</span><span class="o">=</span><span class="n">exif_options</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error writing sidecar </span><span class="si">{</span><span class="n">sidecar_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error writing sidecar </span><span class="si">{</span><span class="n">sidecar_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="n">sidecar_user_error</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
                 <span class="k">continue</span>
 
@@ -710,11 +710,11 @@
                 <span class="k">continue</span>
 
             <span class="n">sidecar_str</span> <span class="o">=</span> <span class="n">result</span>
-            <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing sidecar file </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing sidecar file </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">sidecar_user_written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">))</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sidecar_str</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">sidecar_user_error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
@@ -738,7 +738,7 @@
         <span class="n">export_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">exiftool_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render sidecar filename template&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Render sidecar filename template"""</span>
         <span class="n">render_options</span> <span class="o">=</span> <span class="n">RenderOptions</span><span class="p">(</span><span class="n">export_dir</span><span class="o">=</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
         <span class="n">photo_template</span> <span class="o">=</span> <span class="n">PhotoTemplate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">exiftool_path</span><span class="o">=</span><span class="n">exiftool_path</span><span class="p">)</span>
         <span class="n">template_filename</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">photo_template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
@@ -759,7 +759,7 @@
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
         <span class="n">exif_options</span><span class="p">:</span> <span class="n">ExifOptions</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render user sidecar template and return data</span>
+<span class="w">        </span><span class="sd">"""Render user sidecar template and return data</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: rendered sidecar data</span>
@@ -768,7 +768,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            Raises ValueError if error and catch_errors is False</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sidecar_variables</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
@@ -790,22 +790,22 @@
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">catch_errors</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error rendering sidecar template: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error rendering sidecar template: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
             <span class="k">raise</span> <span class="n">UserSidecarError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="k">if</span> <span class="n">strip_whitespace</span><span class="p">:</span>
             <span class="c1"># strip whitespace</span>
-            <span class="n">sidecar_data</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sidecar_data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+            <span class="n">sidecar_data</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sidecar_data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">strip_lines</span><span class="p">:</span>
             <span class="c1"># strip blank lines</span>
-            <span class="n">sidecar_data</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sidecar_data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">sidecar_data</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sidecar_data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">skip_zero</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sidecar_data</span><span class="p">:</span>
             <span class="n">verbose</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
-            <span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">rich</span><span class="p">)</span>
-            <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping empty sidecar file </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">"filepath"</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">rich</span><span class="p">)</span>
+            <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skipping empty sidecar file </span><span class="si">{</span><span class="n">_filepath</span><span class="p">(</span><span class="n">sidecar_path</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">return</span> <span class="n">sidecar_data</span>
@@ -817,12 +817,12 @@
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns string for XMP sidecar</span>
+<span class="w">        </span><span class="sd">"""returns string for XMP sidecar</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            options (ExportOptions): options for export</span>
 <span class="sd">            extension (Optional[str]): which extension to use for SidecarForExtension property</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="n">ExportOptions</span><span class="p">()</span>
         <span class="n">xmp_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xmp_template</span><span class="p">()</span>
@@ -840,12 +840,12 @@
         <span class="p">)</span>
 
         <span class="c1"># remove extra lines that mako inserts from template</span>
-        <span class="n">xmp_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">xmp_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">xmp_str</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">xmp_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">xmp_str</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_xmp_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the mako template for XMP sidecar, creating it if necessary&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the mako template for XMP sidecar, creating it if necessary"""</span>
         <span class="k">global</span> <span class="n">_global_xmp_template</span>
         <span class="k">if</span> <span class="n">_global_xmp_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_global_xmp_template</span>
@@ -863,7 +863,7 @@
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SidecarVars</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render sidecar variables&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Render sidecar variables"""</span>
 
         <span class="n">render_options</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">render_options</span> <span class="ow">or</span> <span class="n">RenderOptions</span><span class="p">()</span>
 
@@ -873,17 +873,17 @@
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">description_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">render_options_description</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="n">render_options</span><span class="p">,</span> <span class="n">expand_inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace_sep</span><span class="o">=</span><span class="s2">&quot;, &quot;</span>
+                <span class="n">render_options</span><span class="p">,</span> <span class="n">expand_inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace_sep</span><span class="o">=</span><span class="s2">", "</span>
             <span class="p">)</span>
             <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span>
                 <span class="n">options</span><span class="o">.</span><span class="n">description_template</span><span class="p">,</span> <span class="n">render_options_description</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span> <span class="k">if</span> <span class="n">rendered</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span> <span class="k">if</span> <span class="n">rendered</span> <span class="k">else</span> <span class="s2">""</span>
             <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">strip</span><span class="p">:</span>
                 <span class="n">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">description</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">description</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">description</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">""</span>
             <span class="p">)</span>
 
         <span class="n">keyword_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -913,7 +913,7 @@
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">keyword_template</span><span class="p">:</span>
             <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">render_options_keywords</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="n">render_options</span><span class="p">,</span> <span class="n">none_str</span><span class="o">=</span><span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="s2">&quot;/&quot;</span>
+                <span class="n">render_options</span><span class="p">,</span> <span class="n">none_str</span><span class="o">=</span><span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="s2">"/"</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">template_str</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">keyword_template</span><span class="p">:</span>
                 <span class="n">rendered</span><span class="p">,</span> <span class="n">unmatched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span>
@@ -921,14 +921,14 @@
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">unmatched</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Unmatched template substitution for template: </span><span class="si">{</span><span class="n">template_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unmatched</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Unmatched template substitution for template: </span><span class="si">{</span><span class="n">template_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unmatched</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
                 <span class="n">rendered_keywords</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">strip</span><span class="p">:</span>
                 <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[</span><span class="n">keyword</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rendered_keywords</span><span class="p">]</span>
 
-            <span class="c1"># filter out any template values that didn&#39;t match by looking for sentinel</span>
+            <span class="c1"># filter out any template values that didn't match by looking for sentinel</span>
             <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">keyword</span>
                 <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rendered_keywords</span>
@@ -950,7 +950,7 @@
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">favorite_rating</span><span class="p">:</span>
             <span class="n">rating</span> <span class="o">=</span> <span class="mi">5</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">favorite</span> <span class="k">else</span> <span class="mi">0</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_source</span> <span class="o">==</span> <span class="s2">&quot;iPhoto&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_source</span> <span class="o">==</span> <span class="s2">"iPhoto"</span><span class="p">:</span>
             <span class="n">rating</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">rating</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">rating</span> <span class="o">=</span> <span class="kc">None</span>
@@ -966,16 +966,16 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_sidecar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sidecar_str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;write sidecar_str to filename</span>
-<span class="sd">        used for exporting sidecar info&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""write sidecar_str to filename</span>
+<span class="sd">        used for exporting sidecar info"""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">filename</span> <span class="ow">or</span> <span class="n">sidecar_str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;filename </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> and sidecar_str </span><span class="si">{</span><span class="n">sidecar_str</span><span class="si">}</span><span class="s2"> must not be None&quot;</span>
+                    <span class="sa">f</span><span class="s2">"filename </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> and sidecar_str </span><span class="si">{</span><span class="n">sidecar_str</span><span class="si">}</span><span class="s2"> must not be None"</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sidecar_str</span><span class="p">)</span></div>
 
 
@@ -985,7 +985,7 @@
     <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns string for XMP sidecar</span>
+<span class="w">    </span><span class="sd">"""Returns string for XMP sidecar</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        photo: PhotoInfo object to generate sidecar for</span>
@@ -994,7 +994,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: string containing XMP sidecar</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">writer</span> <span class="o">=</span> <span class="n">SidecarWriter</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">writer</span><span class="o">.</span><span class="n">xmp_sidecar</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="n">extension</span><span class="p">)</span>
@@ -1006,7 +1006,7 @@
     <span class="n">tag_groups</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return JSON string for EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</span>
+<span class="w">    </span><span class="sd">"""Return JSON string for EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</span>
 <span class="sd">        Does not include all the EXIF fields as those are likely already in the image.</span>
 
 <span class="sd">    Args:</span>
@@ -1015,7 +1015,7 @@
 <span class="sd">        filename (str): name of target image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included</span>
 
 <span class="sd">    Returns: JSON str for dict of exiftool tags / values</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">exif_options</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">exif_options_from_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">ExportOptions</span><span class="p">)</span>
@@ -1035,7 +1035,7 @@
     <span class="n">edited_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">exiftool_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find sidecar file for photo with optional template for the sidecar and/or edited suffix&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Find sidecar file for photo with optional template for the sidecar and/or edited suffix"""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">sidecar</span> <span class="ow">or</span> <span class="n">sidecar_filename_template</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">sidecar_file</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1057,7 +1057,7 @@
                     <span class="n">sidecar_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Could not render sidecar template &#39;</span><span class="si">{</span><span class="n">sidecar_filename_template</span><span class="si">}</span><span class="s2">&#39; for &#39;</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="sa">f</span><span class="s2">"Could not render sidecar template '</span><span class="si">{</span><span class="n">sidecar_filename_template</span><span class="si">}</span><span class="s2">' for '</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">'"</span>
             <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sidecar_file</span> <span class="o">=</span> <span class="n">get_sidecar_for_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
@@ -1106,9 +1106,9 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7049291"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

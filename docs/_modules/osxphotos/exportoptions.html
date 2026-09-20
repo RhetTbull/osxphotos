@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.exportoptions - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>osxphotos.exportoptions - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,7 +231,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.exportoptions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Options class and results class for PhotoExporter&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Options class and results class for PhotoExporter"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -249,22 +249,22 @@
 
 <span class="c1"># These two classes are in a separate file as classes other than PhotoExporter need to use them</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ExportOptions&quot;</span><span class="p">,</span> <span class="s2">&quot;ExportResults&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ExportOptions"</span><span class="p">,</span> <span class="s2">"ExportResults"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ExportOptions">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportOptions">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExportOptions</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Options class for exporting photos with export</span>
+<span class="w">    </span><span class="sd">"""Options class for exporting photos with export</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg</span>
 <span class="sd">        description_template (str): Optional template string that will be rendered for use as photo description</span>
 <span class="sd">        download_missing: (bool, default=False): if True will attempt to export photo via applescript interaction with Photos if missing (see also use_photokit, use_photos_export)</span>
-<span class="sd">        dry_run: (bool, default=False): set to True to run in &quot;dry run&quot; mode</span>
+<span class="sd">        dry_run: (bool, default=False): set to True to run in "dry run" mode</span>
 <span class="sd">        edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version</span>
-<span class="sd">        exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g [&quot;-m&quot;, &quot;-F&quot;]</span>
+<span class="sd">        exiftool_flags (list of str): Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]</span>
 <span class="sd">        exiftool_path (str): path to exiftool executable</span>
 <span class="sd">        exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file</span>
 <span class="sd">        export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them</span>
@@ -275,13 +275,13 @@
 <span class="sd">        ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set</span>
 <span class="sd">        ignore_signature (bool, default=False): ignore file signature when used with update (look only at filename)</span>
 <span class="sd">        increment (bool, default=True): if True, will increment file name until a non-existant name is found if overwrite=False and increment=False, export will fail if destination file already exists</span>
-<span class="sd">        jpeg_ext (str): if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading &quot;.&quot;</span>
+<span class="sd">        jpeg_ext (str): if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."</span>
 <span class="sd">        jpeg_quality (float in range 0.0 &lt;= jpeg_quality &lt;= 1.0): a value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.</span>
 <span class="sd">        keyword_template (list of str): list of template strings that will be rendered as used as keywords</span>
 <span class="sd">        live_photo (bool, default=False): if True, will also export the associated .mov for live photos</span>
 <span class="sd">        location (bool): if True, include location in exported metadata</span>
-<span class="sd">        merge_exif_keywords (bool): if True, merged keywords found in file&#39;s exif data (requires exiftool)</span>
-<span class="sd">        merge_exif_persons (bool): if True, merged persons found in file&#39;s exif data (requires exiftool)</span>
+<span class="sd">        merge_exif_keywords (bool): if True, merged keywords found in file's exif data (requires exiftool)</span>
+<span class="sd">        merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)</span>
 <span class="sd">        overwrite (bool, default=False): if True will overwrite files if they already exist</span>
 <span class="sd">        persons (bool): if True, include persons in exported metadata</span>
 <span class="sd">        preview_suffix (str): Optional string to append to end of filename for preview images</span>
@@ -289,19 +289,19 @@
 <span class="sd">        raw_photo (bool, default=False): if True, will also export the associated RAW photo</span>
 <span class="sd">        skip_raw_jpeg (bool, default=False): if True, will skip the JPEG component of a RAW+JPEG pair; only the RAW photo will be exported</span>
 <span class="sd">        render_options (RenderOptions): Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates</span>
-<span class="sd">        replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
+<span class="sd">        replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive</span>
 <span class="sd">        rich (bool): if True, will use rich markup with verbose output</span>
 <span class="sd">        export_aae (bool): if True, also exports adjustments as .AAE file</span>
-<span class="sd">        sidecar_drop_ext (bool, default=False): if True, drops the photo&#39;s extension from sidecar filename (e.g. &#39;IMG_1234.json&#39; instead of &#39;IMG_1234.JPG.json&#39;)</span>
-<span class="sd">        sidecar: bit field (int): set to one or more of &#39;SIDECAR_XMP&#39;, &#39;SIDECAR_JSON&#39;, &#39;SIDECAR_EXIFTOOL&#39;</span>
+<span class="sd">        sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')</span>
+<span class="sd">        sidecar: bit field (int): set to one or more of 'SIDECAR_XMP', 'SIDECAR_JSON', 'SIDECAR_EXIFTOOL'</span>
 <span class="sd">          - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;</span>
-<span class="sd">          includes exiftool tag group names (e.g. &#39;exiftool -G -j&#39;)</span>
+<span class="sd">          includes exiftool tag group names (e.g. 'exiftool -G -j')</span>
 <span class="sd">          - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;</span>
-<span class="sd">          does not include exiftool tag group names (e.g. &#39;exiftool -j&#39;)</span>
+<span class="sd">          does not include exiftool tag group names (e.g. 'exiftool -j')</span>
 <span class="sd">          - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp</span>
 <span class="sd">        strip (bool): if True, strip whitespace from rendered templates</span>
 <span class="sd">        timeout (int, default=120): timeout in seconds used with use_photos_export</span>
-<span class="sd">        touch_file (bool, default=False): if True, sets file&#39;s modification time upon photo date</span>
+<span class="sd">        touch_file (bool, default=False): if True, sets file's modification time upon photo date</span>
 <span class="sd">        update (bool, default=False): if True export will run in update mode, that is, it will not export the photo if the current version already exists in the destination</span>
 <span class="sd">        update_errors (bool, default=False): if True photos that previously produced a warning or error will be re-exported; otherwise they will note be</span>
 <span class="sd">        use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar</span>
@@ -313,8 +313,8 @@
 <span class="sd">        favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites</span>
 <span class="sd">        fix_orientation (bool): if True, will adjust image orientation based on exif data if necessary</span>
 <span class="sd">        sidecar_template (tuple of tuples): tuple of (template_file, filename_template, options) for user sidecar templates; multiple templates may be specified</span>
-<span class="sd">        claim_only (bool): if True, will only claim filename but doesn&#39;t export the photo</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        claim_only (bool): if True, will only claim filename but doesn't export the photo</span>
+<span class="sd">    """</span>
 
     <span class="n">convert_to_jpeg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">description_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -365,7 +365,7 @@
     <span class="n">favorite_rating</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">fix_orientation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">sidecar_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">stat_cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;DirectoryStatCache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">stat_cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"DirectoryStatCache"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">same_filesystem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">claim_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -374,7 +374,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bit_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return bit flags representing options that affect export&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return bit flags representing options that affect export"""</span>
         <span class="c1"># currently only exiftool makes a difference</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span></div>
 
@@ -383,7 +383,7 @@
 <div class="viewcode-block" id="ExportResults">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportResults">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExportResults</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Results class which holds export results for export</span>
+<span class="w">    </span><span class="sd">"""Results class which holds export results for export</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        converted_to_jpeg: list of files converted to jpeg</span>
@@ -426,47 +426,47 @@
 <span class="sd">        Error and warning attributes are a list of tuples of (filename, error) where filename is the file that caused the error and error is the error message.</span>
 <span class="sd">        Album attributes are a list of tuples of (file, album) where file is the file exported and album is the album it was exported to.</span>
 <span class="sd">        ExportResults can be added together with the += operator to combine results as the export progresses.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Note: __init__ docs above added in the class docstring so they are picked up by sphinx</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;_datetime&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;converted_to_jpeg&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;deleted_directories&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;deleted_files&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exif_updated&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exiftool_error&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exiftool_warning&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exported&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exported_album&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;metadata_changed&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;missing&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;missing_album&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;new&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;aae_written&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;aae_skipped&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_exiftool_skipped&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_exiftool_written&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_json_skipped&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_json_written&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_xmp_skipped&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_xmp_written&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_user_written&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_user_skipped&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sidecar_user_error&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;skipped&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;skipped_album&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;to_touch&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;touched&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;updated&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;xattr_skipped&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;xattr_written&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;user_written&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;user_skipped&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;user_error&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;uuids&quot;</span><span class="p">,</span>
+        <span class="s2">"_datetime"</span><span class="p">,</span>
+        <span class="s2">"converted_to_jpeg"</span><span class="p">,</span>
+        <span class="s2">"deleted_directories"</span><span class="p">,</span>
+        <span class="s2">"deleted_files"</span><span class="p">,</span>
+        <span class="s2">"error"</span><span class="p">,</span>
+        <span class="s2">"exif_updated"</span><span class="p">,</span>
+        <span class="s2">"exiftool_error"</span><span class="p">,</span>
+        <span class="s2">"exiftool_warning"</span><span class="p">,</span>
+        <span class="s2">"exported"</span><span class="p">,</span>
+        <span class="s2">"exported_album"</span><span class="p">,</span>
+        <span class="s2">"metadata_changed"</span><span class="p">,</span>
+        <span class="s2">"missing"</span><span class="p">,</span>
+        <span class="s2">"missing_album"</span><span class="p">,</span>
+        <span class="s2">"new"</span><span class="p">,</span>
+        <span class="s2">"aae_written"</span><span class="p">,</span>
+        <span class="s2">"aae_skipped"</span><span class="p">,</span>
+        <span class="s2">"sidecar_exiftool_skipped"</span><span class="p">,</span>
+        <span class="s2">"sidecar_exiftool_written"</span><span class="p">,</span>
+        <span class="s2">"sidecar_json_skipped"</span><span class="p">,</span>
+        <span class="s2">"sidecar_json_written"</span><span class="p">,</span>
+        <span class="s2">"sidecar_xmp_skipped"</span><span class="p">,</span>
+        <span class="s2">"sidecar_xmp_written"</span><span class="p">,</span>
+        <span class="s2">"sidecar_user_written"</span><span class="p">,</span>
+        <span class="s2">"sidecar_user_skipped"</span><span class="p">,</span>
+        <span class="s2">"sidecar_user_error"</span><span class="p">,</span>
+        <span class="s2">"skipped"</span><span class="p">,</span>
+        <span class="s2">"skipped_album"</span><span class="p">,</span>
+        <span class="s2">"to_touch"</span><span class="p">,</span>
+        <span class="s2">"touched"</span><span class="p">,</span>
+        <span class="s2">"updated"</span><span class="p">,</span>
+        <span class="s2">"xattr_skipped"</span><span class="p">,</span>
+        <span class="s2">"xattr_written"</span><span class="p">,</span>
+        <span class="s2">"user_written"</span><span class="p">,</span>
+        <span class="s2">"user_skipped"</span><span class="p">,</span>
+        <span class="s2">"user_error"</span><span class="p">,</span>
+        <span class="s2">"uuids"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -507,31 +507,31 @@
         <span class="n">user_error</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">uuids</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;ExportResults data class to hold results of export.</span>
+<span class="w">        </span><span class="sd">"""ExportResults data class to hold results of export.</span>
 
 <span class="sd">        See class docstring for details.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">local_vars</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">local_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s2">&quot;uuids&quot;</span> <span class="k">else</span> <span class="p">[])</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">local_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s2">"uuids"</span> <span class="k">else</span> <span class="p">[])</span>
             <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of attributes tracked by ExportResults&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__slots__</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)]</span>
+<span class="w">        </span><span class="sd">"""Return list of attributes tracked by ExportResults"""</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__slots__</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return datetime when ExportResults was created&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return datetime when ExportResults was created"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span>
 
 <div class="viewcode-block" id="ExportResults.all_files">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportResults.all_files">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">all_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return all filenames contained in results&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return all filenames contained in results"""</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exported</span>
             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">new</span>
@@ -563,11 +563,11 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">files</span><span class="p">))</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExportResults&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ExportResults"</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ExportResults</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Can only add ExportResults to ExportResults&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"Can only add ExportResults to ExportResults"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">attribute</span> <span class="o">==</span> <span class="s2">&quot;uuids&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attribute</span> <span class="o">==</span> <span class="s2">"uuids"</span><span class="p">:</span>
                 <span class="c1"># union of dicts</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">uuids</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">uuids</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -580,10 +580,10 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="s2">&quot;ExportResults(&quot;</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;datetime=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span><span class="si">}</span><span class="s2">, &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">attr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">])</span>
-            <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+            <span class="s2">"ExportResults("</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">"datetime=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">attr</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">])</span>
+            <span class="o">+</span> <span class="s2">")"</span>
         <span class="p">)</span></div>
 
 </pre></div>
@@ -618,9 +618,9 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7049291"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.searchinfo - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>osxphotos.searchinfo - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,26 +231,26 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.searchinfo</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; class for PhotoInfo exposing SearchInfo data such as labels </span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">""" class for PhotoInfo exposing SearchInfo data such as labels </span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">,</span> <span class="n">search_category_factory</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SearchInfo&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"SearchInfo"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="SearchInfo">
 <a class="viewcode-back" href="../../reference.html#osxphotos.SearchInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SearchInfo</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Info about search terms such as machine learning labels that Photos knows about a photo&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Info about search terms such as machine learning labels that Photos knows about a photo"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;photo: PhotoInfo object</span>
-<span class="sd">        normalized: if True, all properties return normalized (lower case) results&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""photo: PhotoInfo object</span>
+<span class="sd">        normalized: if True, all properties return normalized (lower case) results"""</span>
 
         <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s2">&quot;search info not implemented for this database version&quot;</span>
+                <span class="s2">"search info not implemented for this database version"</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="n">search_category_factory</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span><span class="p">)</span>
@@ -266,27 +266,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of labels associated with Photo&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return list of labels associated with Photo"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">LABEL</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">place_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of place names&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of place names"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">PLACE_NAME</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">streets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of street names&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of street names"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">STREET</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">neighborhoods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of neighborhoods&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of neighborhoods"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">NEIGHBORHOOD</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">locality_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of other locality names&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of other locality names"""</span>
         <span class="n">locality</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">ALL_LOCALITY</span><span class="p">:</span>
             <span class="n">locality</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
@@ -294,74 +294,74 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">city</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns city/town&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns city/town"""</span>
         <span class="n">city</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">CITY</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">city</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">city</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">city</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">city</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns state name&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns state name"""</span>
         <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">STATE</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">state</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">state</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">state_abbreviation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns state abbreviation&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns state abbreviation"""</span>
         <span class="n">abbrev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">STATE_ABBREVIATION</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">abbrev</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">abbrev</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">abbrev</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">abbrev</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">country</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns country name&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns country name"""</span>
         <span class="n">country</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">COUNTRY</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">country</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">country</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">country</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">country</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">month</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns month name&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns month name"""</span>
         <span class="n">month</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">MONTH</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">month</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">month</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">month</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">month</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">year</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns year&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns year"""</span>
         <span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">YEAR</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">year</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">year</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bodies_of_water</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of body of water names&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of body of water names"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">BODY_OF_WATER</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">holidays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of holiday names&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of holiday names"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">HOLIDAY</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">activities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of activity names&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of activity names"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">ACTIVITY</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">season</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns season name&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns season name"""</span>
         <span class="n">season</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">SEASON</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">season</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">season</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">season</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">season</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">venues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of venue names&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of venue names"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">VENUE</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">venue_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of venue types&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of venue types"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">VENUE_TYPE</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">media_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns list of media types (photo, video, panorama, etc)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns list of media types (photo, video, panorama, etc)"""</span>
         <span class="n">types</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">MEDIA_TYPES</span><span class="p">:</span>
             <span class="n">types</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
@@ -369,37 +369,37 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">detected_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns text detected in the photo (macOS 13+ / Photos 8+ only)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns text detected in the photo (macOS 13+ / Photos 8+ only)"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">DETECTED_TEXT</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">text_found</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if photos has detected text (macOS 13+ / Photos 8+ only)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns True if photos has detected text (macOS 13+ / Photos 8+ only)"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">TEXT_FOUND</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">camera</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns camera name (macOS 13+ / Photos 8+ only)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns camera name (macOS 13+ / Photos 8+ only)"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">""</span>
         <span class="n">camera</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">CAMERA</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">camera</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">camera</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">camera</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">camera</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns source of the photo (e.g. &quot;Messages&quot;, &quot;Safar&quot;, etc) (macOS 13+ / Photos 8+ only)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns source of the photo (e.g. "Messages", "Safar", etc) (macOS 13+ / Photos 8+ only)"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photo</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">""</span>
         <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">source</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">source</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return all search info properties in a single list&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return all search info properties in a single list"""</span>
         <span class="n">all_</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">labels</span>
             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">place_names</span>
@@ -436,41 +436,41 @@
 <div class="viewcode-block" id="SearchInfo.asdict">
 <a class="viewcode-back" href="../../reference.html#osxphotos.SearchInfo.asdict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return dict of search info&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return dict of search info"""</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
-            <span class="s2">&quot;place_names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">place_names</span><span class="p">,</span>
-            <span class="s2">&quot;streets&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">streets</span><span class="p">,</span>
-            <span class="s2">&quot;neighborhoods&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighborhoods</span><span class="p">,</span>
-            <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">,</span>
-            <span class="s2">&quot;locality_names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">locality_names</span><span class="p">,</span>
-            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-            <span class="s2">&quot;state_abbreviation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_abbreviation</span><span class="p">,</span>
-            <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">country</span><span class="p">,</span>
-            <span class="s2">&quot;bodies_of_water&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bodies_of_water</span><span class="p">,</span>
-            <span class="s2">&quot;month&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
-            <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
-            <span class="s2">&quot;holidays&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">holidays</span><span class="p">,</span>
-            <span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">activities</span><span class="p">,</span>
-            <span class="s2">&quot;season&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">season</span><span class="p">,</span>
-            <span class="s2">&quot;venues&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">venues</span><span class="p">,</span>
-            <span class="s2">&quot;venue_types&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">venue_types</span><span class="p">,</span>
-            <span class="s2">&quot;media_types&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_types</span><span class="p">,</span>
-            <span class="s2">&quot;detected_text&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">detected_text</span><span class="p">,</span>
-            <span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="p">,</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+            <span class="s2">"labels"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+            <span class="s2">"place_names"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">place_names</span><span class="p">,</span>
+            <span class="s2">"streets"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">streets</span><span class="p">,</span>
+            <span class="s2">"neighborhoods"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighborhoods</span><span class="p">,</span>
+            <span class="s2">"city"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">,</span>
+            <span class="s2">"locality_names"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">locality_names</span><span class="p">,</span>
+            <span class="s2">"state"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+            <span class="s2">"state_abbreviation"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_abbreviation</span><span class="p">,</span>
+            <span class="s2">"country"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">country</span><span class="p">,</span>
+            <span class="s2">"bodies_of_water"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bodies_of_water</span><span class="p">,</span>
+            <span class="s2">"month"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+            <span class="s2">"year"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+            <span class="s2">"holidays"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">holidays</span><span class="p">,</span>
+            <span class="s2">"activities"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">activities</span><span class="p">,</span>
+            <span class="s2">"season"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">season</span><span class="p">,</span>
+            <span class="s2">"venues"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">venues</span><span class="p">,</span>
+            <span class="s2">"venue_types"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">venue_types</span><span class="p">,</span>
+            <span class="s2">"media_types"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_types</span><span class="p">,</span>
+            <span class="s2">"detected_text"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">detected_text</span><span class="p">,</span>
+            <span class="s2">"camera"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="p">,</span>
+            <span class="s2">"source"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of text for a specified category ID&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return list of text for a specified category ID"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_searchinfo</span><span class="p">:</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;normalized_string&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalized</span> <span class="k">else</span> <span class="s2">&quot;content_string&quot;</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="s2">"normalized_string"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalized</span> <span class="k">else</span> <span class="s2">"content_string"</span>
             <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="n">rec</span><span class="p">[</span><span class="n">content</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_searchinfo</span>
-                    <span class="k">if</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">category</span>
+                    <span class="k">if</span> <span class="n">rec</span><span class="p">[</span><span class="s2">"category"</span><span class="p">]</span> <span class="o">==</span> <span class="n">category</span>
                 <span class="p">]</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -508,9 +508,9 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7049291"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Python API" href="API_README.html"><link rel="prev" title="OSXPhotos Template System" href="template_help.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Python Package Overview - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>OSXPhotos Python Package Overview - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -241,7 +241,7 @@
 <h1>OSXPhotos Python Package Overview<a class="headerlink" href="#osxphotos-python-package-overview" title="Link to this heading">¶</a></h1>
 <section id="example-uses-of-the-osxphotos-python-package">
 <h2>Example uses of the OSXPhotos python package<a class="headerlink" href="#example-uses-of-the-osxphotos-python-package" title="Link to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot; Simple usage of the package &quot;&quot;&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">""" Simple usage of the package """</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
@@ -255,11 +255,11 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">albums_as_dict</span><span class="p">)</span>
 
     <span class="c1"># find all photos with Keyword = Foo and containing John Smith</span>
-    <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Foo&quot;</span><span class="p">],</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;John Smith&quot;</span><span class="p">])</span>
+    <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"Foo"</span><span class="p">],</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"John Smith"</span><span class="p">])</span>
 
     <span class="c1"># find all photos that include Alice Smith but do not contain the keyword Bar</span>
-    <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Alice Smith&quot;</span><span class="p">])</span>
-                <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Bar&quot;</span><span class="p">])</span> <span class="p">]</span>
+    <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Alice Smith"</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"Bar"</span><span class="p">])</span> <span class="p">]</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
             <span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
@@ -274,17 +274,17 @@
             <span class="n">p</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
         <span class="p">)</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Export all photos to specified directory using album names as folders</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Export all photos to specified directory using album names as folders</span>
 <span class="sd">If file has been edited, also export the edited version,</span>
 <span class="sd">otherwise, export the original version</span>
 <span class="sd">This will result in duplicate photos if photo is in more than album</span>
 
 <span class="sd">This is not a complete export utility but is meant to show how to use the OSXPhotos API</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -296,15 +296,15 @@
 
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;export_path&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">"export_path"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--default-album&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Default folder for photos with no album. Defaults to &#39;unfiled&#39;&quot;</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;unfiled&quot;</span><span class="p">,</span>
+    <span class="s2">"--default-album"</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Default folder for photos with no album. Defaults to 'unfiled'"</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">"unfiled"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--library-path&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to Photos library, default to last used library&quot;</span><span class="p">,</span>
+    <span class="s2">"--library-path"</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Path to Photos library, default to last used library"</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="n">default_album</span><span class="p">,</span> <span class="n">library_path</span><span class="p">):</span>
@@ -323,17 +323,17 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">albums</span><span class="p">:</span>
             <span class="n">albums</span> <span class="o">=</span> <span class="p">[</span><span class="n">default_album</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">albums</span><span class="p">:</span>
-            <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> in album </span><span class="si">{</span><span class="n">album</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> in album </span><span class="si">{</span><span class="n">album</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="c1"># make sure no invalid characters in destination path (could be in album name)</span>
-            <span class="n">album_name</span> <span class="o">=</span> <span class="n">sanitize_filepath</span><span class="p">(</span><span class="n">album</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+            <span class="n">album_name</span> <span class="o">=</span> <span class="n">sanitize_filepath</span><span class="p">(</span><span class="n">album</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
 
             <span class="c1"># create destination folder, if necessary, based on album name</span>
             <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="n">album_name</span><span class="p">)</span>
 
             <span class="c1"># verify path is a valid path</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_filepath</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">):</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid filepath </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_filepath</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">):</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid filepath </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="c1"># create destination dir if needed</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">):</span>
@@ -345,10 +345,10 @@
                 <span class="n">dest_dir</span><span class="p">,</span> <span class="n">use_photos_export</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">ismissing</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">path</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">exported</span><span class="p">:</span>
-                <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Exported </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Error exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">, no files exported&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Error exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">, no files exported"</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">:</span>
                 <span class="c1"># export edited version</span>
@@ -359,15 +359,15 @@
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">exported</span><span class="p">:</span>
                     <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Exported edited version of </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Exported edited version of </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Error exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">, no files exported&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Error exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">, no files exported"</span>
                     <span class="p">)</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">export</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -408,16 +408,16 @@ The following classes have been imported from osxphotos:
 - AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportOptions, ExportResults, PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo
 
 The following variables are defined:
-- photosdb: PhotosDB() instance for &#39;/Users/user/Pictures/Photos Library.photoslibrary&#39;
+- photosdb: PhotosDB() instance for '/Users/user/Pictures/Photos Library.photoslibrary'
 - photos: list of PhotoInfo objects for all photos filtered with any query options passed on command line (len=31581)
 - all_photos: list of PhotoInfo objects for all photos in photosdb, including those in the trash (len=31581)
 - selected: list of PhotoInfo objects for any photos selected in Photos (len=0)
 
 The following functions may be helpful:
-- get_photo(uuid): return a PhotoInfo object for photo with uuid; e.g. get_photo(&#39;B13F4485-94E0-41CD-AF71-913095D62E31&#39;)
+- get_photo(uuid): return a PhotoInfo object for photo with uuid; e.g. get_photo('B13F4485-94E0-41CD-AF71-913095D62E31')
 - get_selected(); return list of PhotoInfo objects for photos selected in Photos
 - show(photo): open a photo object in the default viewer; e.g. show(selected[0])
-- show(path): open a file at path in the default viewer; e.g. show(&#39;/path/to/photo.jpg&#39;)
+- show(path): open a file at path in the default viewer; e.g. show('/path/to/photo.jpg')
 - spotlight(photo): open a photo and spotlight it in Photos
 - inspect(object): print information about an object; e.g. inspect(PhotoInfo)
 - explore(object): interactively explore an object with objexplore; e.g. explore(PhotoInfo)
@@ -509,9 +509,9 @@ as well as <code class="docutils literal notranslate"><span class="pre">{functio
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=b7049291"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>

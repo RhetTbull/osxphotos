@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.exifinfo - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>osxphotos.exifinfo - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,7 +231,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.exifinfo</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; ExifInfo class to expose EXIF info from the library &quot;&quot;&quot;</span>
+<span></span><span class="sd">""" ExifInfo class to expose EXIF info from the library """</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -241,14 +241,14 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.photos_datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">photos_datetime</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ExifInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;exifinfo_factory&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ExifInfo"</span><span class="p">,</span> <span class="s2">"exifinfo_factory"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ExifInfo">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExifInfo">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExifInfo</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Original EXIF info associated with a photo from the Photos library&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Original EXIF info associated with a photo from the Photos library"""</span>
 
     <span class="n">flash_fired</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">iso</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -276,37 +276,37 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">exifinfo_factory</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExifInfo</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an ExifInfo object from a dictionary of EXIF data&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create an ExifInfo object from a dictionary of EXIF data"""</span>
     <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ExifInfo</span><span class="p">()</span>
 
     <span class="n">exif_info</span> <span class="o">=</span> <span class="n">ExifInfo</span><span class="p">(</span>
-        <span class="n">iso</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZISO&quot;</span><span class="p">],</span>
-        <span class="n">flash_fired</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZFLASHFIRED&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">metering_mode</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZMETERINGMODE&quot;</span><span class="p">],</span>
-        <span class="n">sample_rate</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZSAMPLERATE&quot;</span><span class="p">],</span>
-        <span class="n">track_format</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZTRACKFORMAT&quot;</span><span class="p">],</span>
-        <span class="n">white_balance</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZWHITEBALANCE&quot;</span><span class="p">],</span>
-        <span class="n">aperture</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZAPERTURE&quot;</span><span class="p">],</span>
-        <span class="n">bit_rate</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZBITRATE&quot;</span><span class="p">],</span>
-        <span class="n">duration</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZDURATION&quot;</span><span class="p">],</span>
-        <span class="n">exposure_bias</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZEXPOSUREBIAS&quot;</span><span class="p">],</span>
-        <span class="n">focal_length</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZFOCALLENGTH&quot;</span><span class="p">],</span>
-        <span class="n">fps</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZFPS&quot;</span><span class="p">],</span>
-        <span class="n">latitude</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZLATITUDE&quot;</span><span class="p">],</span>
-        <span class="n">longitude</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZLONGITUDE&quot;</span><span class="p">],</span>
-        <span class="n">shutter_speed</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZSHUTTERSPEED&quot;</span><span class="p">],</span>
-        <span class="n">camera_make</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZCAMERAMAKE&quot;</span><span class="p">],</span>
-        <span class="n">camera_model</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZCAMERAMODEL&quot;</span><span class="p">],</span>
-        <span class="n">codec</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZCODEC&quot;</span><span class="p">],</span>
-        <span class="n">lens_model</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ZLENSMODEL&quot;</span><span class="p">],</span>
+        <span class="n">iso</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZISO"</span><span class="p">],</span>
+        <span class="n">flash_fired</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">"ZFLASHFIRED"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">metering_mode</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZMETERINGMODE"</span><span class="p">],</span>
+        <span class="n">sample_rate</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZSAMPLERATE"</span><span class="p">],</span>
+        <span class="n">track_format</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZTRACKFORMAT"</span><span class="p">],</span>
+        <span class="n">white_balance</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZWHITEBALANCE"</span><span class="p">],</span>
+        <span class="n">aperture</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZAPERTURE"</span><span class="p">],</span>
+        <span class="n">bit_rate</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZBITRATE"</span><span class="p">],</span>
+        <span class="n">duration</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZDURATION"</span><span class="p">],</span>
+        <span class="n">exposure_bias</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZEXPOSUREBIAS"</span><span class="p">],</span>
+        <span class="n">focal_length</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZFOCALLENGTH"</span><span class="p">],</span>
+        <span class="n">fps</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZFPS"</span><span class="p">],</span>
+        <span class="n">latitude</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZLATITUDE"</span><span class="p">],</span>
+        <span class="n">longitude</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZLONGITUDE"</span><span class="p">],</span>
+        <span class="n">shutter_speed</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZSHUTTERSPEED"</span><span class="p">],</span>
+        <span class="n">camera_make</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZCAMERAMAKE"</span><span class="p">],</span>
+        <span class="n">camera_model</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZCAMERAMODEL"</span><span class="p">],</span>
+        <span class="n">codec</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZCODEC"</span><span class="p">],</span>
+        <span class="n">lens_model</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">"ZLENSMODEL"</span><span class="p">],</span>
         <span class="c1"># ZDATECREATED, ZTIMEZONEOFFSET, ZTIMEZONENAME added in Ventura / Photos 8 so may not be present</span>
-        <span class="n">tzoffset</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ZTIMEZONEOFFSET&quot;</span><span class="p">),</span>
-        <span class="n">tzname</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ZTIMEZONENAME&quot;</span><span class="p">),</span>
+        <span class="n">tzoffset</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ZTIMEZONEOFFSET"</span><span class="p">),</span>
+        <span class="n">tzname</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ZTIMEZONENAME"</span><span class="p">),</span>
         <span class="n">date</span><span class="o">=</span><span class="n">photos_datetime</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ZDATECREATED&quot;</span><span class="p">),</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ZTIMEZONEOFFSET&quot;</span><span class="p">),</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ZTIMEZONENAME&quot;</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ZDATECREATED"</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ZTIMEZONEOFFSET"</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ZTIMEZONENAME"</span><span class="p">),</span>
             <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span>
@@ -343,9 +343,9 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7049291"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Python Reference" href="reference.html"><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Python API - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>OSXPhotos Python API - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -286,11 +286,11 @@
 <h2><span class="raw-html-m2r"><a name="example-uses-of-the-python-package">Example uses of the Python package</a></span><a class="headerlink" href="#a-name-example-uses-of-the-python-package-example-uses-of-the-python-package-a" title="Link to this heading">¶</a></h2>
 <section id="print-filename-date-created-title-and-keywords-for-all-photos-in-a-library">
 <h3>Print filename, date created, title, and keywords for all photos in a library<a class="headerlink" href="#print-filename-date-created-title-and-keywords-for-all-photos-in-a-library" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;print filename, date created, title, and keywords for all photos in Photos library&quot;&quot;&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""print filename, date created, title, and keywords for all photos in Photos library"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">,</span> <span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">photo</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">photo</span><span class="o">.</span><span class="n">keywords</span><span class="p">)</span>
@@ -307,7 +307,7 @@ cog.out("\n```python\n")
 with open("examples/cli_example_1.py", "r") as f:
     cog.out(f.read())
 cog.out("```\n")
-]]]--><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Sample query command for osxphotos</span>
+]]]--><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Sample query command for osxphotos</span>
 
 <span class="sd">This shows how simple it is to create a command line tool using osxphotos to process your photos.</span>
 
@@ -324,7 +324,7 @@ cog.out("```\n")
 <span class="sd">--timestamp</span>
 <span class="sd">--theme</span>
 <span class="sd">--db</span>
-<span class="sd">--debug (hidden, won&#39;t show in help)</span>
+<span class="sd">--debug (hidden, won't show in help)</span>
 
 <span class="sd">The decorated function will perform the query and pass the list of filtered PhotoInfo objects</span>
 <span class="sd">to your function.  You can then do whatever you want with the photos.</span>
@@ -333,12 +333,12 @@ cog.out("```\n")
 
 <span class="sd">    osxphotos run cli_example_1.py --selected</span>
 
-<span class="sd">To run the command on all photos with the keyword &quot;foo&quot;:</span>
+<span class="sd">To run the command on all photos with the keyword "foo":</span>
 
 <span class="sd">    osxphotos run cli_example_1.py --keyword foo</span>
 
 <span class="sd">For more advanced example, see `cli_example_2.py`</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -348,28 +348,28 @@ cog.out("```\n")
 
 <span class="nd">@query_command</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">example</span><span class="p">(</span><span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample query command for osxphotos. Prints out the filename and date of each photo.</span>
+<span class="w">    </span><span class="sd">"""Sample query command for osxphotos. Prints out the filename and date of each photo.</span>
 
-<span class="sd">    Whatever text you put in the function&#39;s docstring here, will be used as the command&#39;s</span>
+<span class="sd">    Whatever text you put in the function's docstring here, will be used as the command's</span>
 <span class="sd">    help text when run via `osxphotos run cli_example_1.py --help` or `python cli_example_1.py --help`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># verbose() will print to stdout if --verbose option is set</span>
     <span class="c1"># you can optionally provide a level (default is 1) to print only if --verbose is set to that level</span>
     <span class="c1"># for example: -VV or --verbose --verbose == level 2</span>
-    <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photo(s)&quot;</span><span class="p">)</span>
-    <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;This message will only be printed if verbose level 2 is set&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photo(s)"</span><span class="p">)</span>
+    <span class="n">verbose</span><span class="p">(</span><span class="s2">"This message will only be printed if verbose level 2 is set"</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># do something with photos here</span>
     <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
         <span class="c1"># photos is a list of PhotoInfo objects</span>
         <span class="c1"># see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo</span>
-        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="o">...</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="c1"># call your function here</span>
     <span class="c1"># you do not need to pass any arguments to the function</span>
     <span class="c1"># as the decorator will handle parsing the command line arguments</span>
@@ -382,7 +382,7 @@ cog.out("\n```python\n")
 with open("examples/cli_example_2.py", "r") as f:
     cog.out(f.read())
 cog.out("```\n")
-]]]--><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Sample query command for osxphotos</span>
+]]]--><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Sample query command for osxphotos</span>
 
 <span class="sd">This shows how simple it is to create a command line tool using osxphotos to process your photos.</span>
 
@@ -399,7 +399,7 @@ cog.out("```\n")
 <span class="sd">--timestamp</span>
 <span class="sd">--theme</span>
 <span class="sd">--db</span>
-<span class="sd">--debug (hidden, won&#39;t show in help)</span>
+<span class="sd">--debug (hidden, won't show in help)</span>
 
 <span class="sd">The decorated function will perform the query and pass the list of filtered PhotoInfo objects</span>
 <span class="sd">to your function.  You can then do whatever you want with the photos.</span>
@@ -408,7 +408,7 @@ cog.out("```\n")
 
 <span class="sd">    osxphotos run cli_example_2.py --selected</span>
 
-<span class="sd">To run the command on all photos with the keyword &quot;foo&quot;:</span>
+<span class="sd">To run the command on all photos with the keyword "foo":</span>
 
 <span class="sd">    osxphotos run cli_example_2.py --keyword foo</span>
 
@@ -421,7 +421,7 @@ cog.out("```\n")
 <span class="sd">    echo_error(message: str)</span>
 <span class="sd">        Print message to stderr using rich formatting</span>
 <span class="sd">    logger: logging.Logger</span>
-<span class="sd">        Python logger for osxphotos; for example, logger.debug(&quot;debug message&quot;)</span>
+<span class="sd">        Python logger for osxphotos; for example, logger.debug("debug message")</span>
 <span class="sd">    verbose(*args, level: int = 1)</span>
 <span class="sd">        Print args to stdout if --verbose option is set</span>
 <span class="sd">    query_command: decorator to create an osxphotos query command</span>
@@ -447,10 +447,10 @@ cog.out("```\n")
 
 <span class="sd">The tags should be closed with [/] to end the style.  For example:</span>
 
-<span class="sd">    echo(&quot;[filename]foo[/] [time]bar[/]&quot;)</span>
+<span class="sd">    echo("[filename]foo[/] [time]bar[/]")</span>
 
 <span class="sd">For simpler examples, see `cli_example_1.py`</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -472,43 +472,43 @@ cog.out("```\n")
 
 <span class="nd">@query_command</span><span class="p">()</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--resume&quot;</span><span class="p">,</span>
+    <span class="s2">"--resume"</span><span class="p">,</span>
     <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Resume processing from last run, do not reprocess photos&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Resume processing from last run, do not reprocess photos"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--dry-run&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do a dry run, don&#39;t actually do anything&quot;</span>
+    <span class="s2">"--dry-run"</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Do a dry run, don't actually do anything"</span>
 <span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">example</span><span class="p">(</span><span class="n">resume</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample query command for osxphotos. Prints out the filename and date of each photo.</span>
+<span class="w">    </span><span class="sd">"""Sample query command for osxphotos. Prints out the filename and date of each photo.</span>
 
-<span class="sd">    Whatever text you put in the function&#39;s docstring here, will be used as the command&#39;s</span>
+<span class="sd">    Whatever text you put in the function's docstring here, will be used as the command's</span>
 <span class="sd">    help text when run via `osxphotos run cli_example_2.py --help` or `python cli_example_2.py --help`</span>
 
 <span class="sd">    The @query_command decorator returns a click.command so you can add additional options</span>
 <span class="sd">    using standard click decorators.  For example, the --resume and --dry-run options.</span>
 <span class="sd">    For more information on click, see https://palletsprojects.com/p/click/.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># abort will print the message to stderr and exit with the given exit code</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">photos</span><span class="p">:</span>
-        <span class="n">abort</span><span class="p">(</span><span class="s2">&quot;Nothing to do!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">abort</span><span class="p">(</span><span class="s2">"Nothing to do!"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># verbose() will print to stdout if --verbose option is set</span>
     <span class="c1"># you can optionally provide a level (default is 1) to print only if --verbose is set to that level</span>
     <span class="c1"># for example: -VV or --verbose --verbose == level 2</span>
-    <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found [count]</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2">[/] photos&quot;</span><span class="p">)</span>
-    <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;This message will only be printed if verbose level 2 is set&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found [count]</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2">[/] photos"</span><span class="p">)</span>
+    <span class="n">verbose</span><span class="p">(</span><span class="s2">"This message will only be printed if verbose level 2 is set"</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># the logger is a python logging.Logger object</span>
     <span class="c1"># debug messages will only be printed if --debug option is set</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># kvstore() returns a SQLiteKVStore object for storing state between runs</span>
     <span class="c1"># this is basically a persistent dictionary that can be used to store state</span>
     <span class="c1"># see https://github.com/RhetTbull/sqlitekvstore for more information</span>
-    <span class="n">kv</span> <span class="o">=</span> <span class="n">kvstore</span><span class="p">(</span><span class="s2">&quot;cli_example_2&quot;</span><span class="p">)</span>
-    <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using key-value cache: </span><span class="si">{</span><span class="n">kv</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">kv</span> <span class="o">=</span> <span class="n">kvstore</span><span class="p">(</span><span class="s2">"cli_example_2"</span><span class="p">)</span>
+    <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using key-value cache: </span><span class="si">{</span><span class="n">kv</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># do something with photos here</span>
     <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
@@ -516,7 +516,7 @@ cog.out("```\n")
         <span class="c1"># see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo</span>
         <span class="k">if</span> <span class="n">resume</span> <span class="ow">and</span> <span class="n">photo</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">in</span> <span class="n">kv</span><span class="p">:</span>
             <span class="n">echo</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Skipping processed photo [filename]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">[/] ([uuid]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">[/])&quot;</span>
+                <span class="sa">f</span><span class="s2">"Skipping processed photo [filename]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">[/] ([uuid]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">[/])"</span>
             <span class="p">)</span>
             <span class="k">continue</span>
 
@@ -525,19 +525,19 @@ cog.out("```\n")
         <span class="c1"># if you need to store other values, you should serialize them to a string or bytes first</span>
         <span class="c1"># for example, using json.dumps() or pickle.dumps()</span>
         <span class="n">kv</span><span class="p">[</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
-        <span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing [filename]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">[/] [time]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">[/]&quot;</span><span class="p">)</span>
+        <span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing [filename]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">[/] [time]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">[/]"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
             <span class="c1"># do something with the photo here</span>
-            <span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Doing something with [filename]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">[/]&quot;</span><span class="p">)</span>
+            <span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Doing something with [filename]</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">[/]"</span><span class="p">)</span>
 
     <span class="c1"># echo_error will print to stderr</span>
     <span class="c1"># if you add [warning] or [error], it will be formatted accordingly</span>
     <span class="c1"># and include an emoji to make the message stand out</span>
-    <span class="n">echo_error</span><span class="p">(</span><span class="s2">&quot;[warning]This is a warning message!&quot;</span><span class="p">)</span>
-    <span class="n">echo_error</span><span class="p">(</span><span class="s2">&quot;[error]This is an error message!&quot;</span><span class="p">)</span>
+    <span class="n">echo_error</span><span class="p">(</span><span class="s2">"[warning]This is a warning message!"</span><span class="p">)</span>
+    <span class="n">echo_error</span><span class="p">(</span><span class="s2">"[error]This is an error message!"</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="c1"># call your function here</span>
     <span class="c1"># you do not need to pass any arguments to the function</span>
     <span class="c1"># as the decorator will handle parsing the command line arguments</span>
@@ -550,7 +550,7 @@ cog.out("\n```python\n")
 with open("examples/cli_example_3.py", "r") as f:
     cog.out(f.read())
 cog.out("```\n")
-]]]--><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Sample query command for osxphotos</span>
+]]]--><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Sample query command for osxphotos</span>
 
 <span class="sd">This shows how simple it is to create a command line tool using osxphotos to process your photos.</span>
 
@@ -566,11 +566,11 @@ cog.out("```\n")
 <span class="sd">--timestamp</span>
 <span class="sd">--theme</span>
 <span class="sd">--db</span>
-<span class="sd">--debug (hidden, won&#39;t show in help)</span>
+<span class="sd">--debug (hidden, won't show in help)</span>
 
 <span class="sd">The decorated function will get the selected photos and pass the list of PhotoInfo objects</span>
 <span class="sd">to your function.  You can then do whatever you want with the photos.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -580,29 +580,29 @@ cog.out("```\n")
 
 <span class="nd">@selection_command</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">example</span><span class="p">(</span><span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample command for osxphotos. Prints out the filename and date of each photo</span>
+<span class="w">    </span><span class="sd">"""Sample command for osxphotos. Prints out the filename and date of each photo</span>
 <span class="sd">    currently selected in Photos.app.</span>
 
-<span class="sd">    Whatever text you put in the function&#39;s docstring here, will be used as the command&#39;s</span>
+<span class="sd">    Whatever text you put in the function's docstring here, will be used as the command's</span>
 <span class="sd">    help text when run via `osxphotos run cli_example_1.py --help` or `python cli_example_1.py --help`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># verbose() will print to stdout if --verbose option is set</span>
     <span class="c1"># you can optionally provide a level (default is 1) to print only if --verbose is set to that level</span>
     <span class="c1"># for example: -VV or --verbose --verbose == level 2</span>
-    <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photo(s)&quot;</span><span class="p">)</span>
-    <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;This message will only be printed if verbose level 2 is set&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photo(s)"</span><span class="p">)</span>
+    <span class="n">verbose</span><span class="p">(</span><span class="s2">"This message will only be printed if verbose level 2 is set"</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># do something with photos here</span>
     <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
         <span class="c1"># photos is a list of PhotoInfo objects</span>
         <span class="c1"># see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo</span>
-        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="o">...</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="c1"># call your function here</span>
     <span class="c1"># you do not need to pass any arguments to the function</span>
     <span class="c1"># as the decorator will handle parsing the command line arguments</span>
@@ -622,12 +622,12 @@ in-memory database is created and then discard.) The python implementation of sq
 Python &lt; 3.11.</p>
 <p>For example, the following code will work on Python &gt;= 3.11. This code is available in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory as
 <a class="reference external" href="https://github.com/RhetTbull/osxphotos/blob/main/examples/concurrent_export.py">concurrent_export.py</a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example for concurrent export of photos using osxphotos.PhotoExporter.export()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Example for concurrent export of photos using osxphotos.PhotoExporter.export()</span>
 
 <span class="sd">Note: concurrent export can only be used on Python 3.11 and later due to the way</span>
-<span class="sd">python&#39;s sqlite3 module is implemented. See https://docs.python.org/3/library/sqlite3.html#sqlite3.threadsafety</span>
+<span class="sd">python's sqlite3 module is implemented. See https://docs.python.org/3/library/sqlite3.html#sqlite3.threadsafety</span>
 <span class="sd">for more information.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">concurrent.futures</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -641,24 +641,24 @@ Python &lt; 3.11.</p>
 
 <span class="nd">@query_command</span><span class="p">()</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--workers&quot;</span><span class="p">,</span>
-    <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;WORKERS&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Maximum number of worker threads to use for export. &quot;</span>
-    <span class="s2">&quot;If not specified, it will default to the number of processors on the machine, multiplied by 5.&quot;</span><span class="p">,</span>
+    <span class="s2">"--workers"</span><span class="p">,</span>
+    <span class="n">metavar</span><span class="o">=</span><span class="s2">"WORKERS"</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Maximum number of worker threads to use for export. "</span>
+    <span class="s2">"If not specified, it will default to the number of processors on the machine, multiplied by 5."</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
-    <span class="s2">&quot;export_dir&quot;</span><span class="p">,</span>
+    <span class="s2">"export_dir"</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_okay</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dir_okay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">writable</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 <span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="n">workers</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">photos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export photos&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Export photos"""</span>
     <span class="n">workers</span> <span class="o">=</span> <span class="n">workers</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5</span>
-    <span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to </span><span class="si">{</span><span class="n">export_dir</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">workers</span><span class="si">}</span><span class="s2"> workers&quot;</span><span class="p">)</span>
+    <span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Exporting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to </span><span class="si">{</span><span class="n">export_dir</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">workers</span><span class="si">}</span><span class="s2"> workers"</span><span class="p">)</span>
     <span class="n">start_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
         <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">export</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">export</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span>
         <span class="p">]</span>
         <span class="n">exported</span> <span class="o">=</span> <span class="p">[]</span>
@@ -666,11 +666,11 @@ Python &lt; 3.11.</p>
             <span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
     <span class="n">end_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
     <span class="n">echo</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to </span><span class="si">{</span><span class="n">export_dir</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">end_t</span><span class="o">-</span><span class="n">start_t</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> seconds&quot;</span>
+        <span class="sa">f</span><span class="s2">"Exported </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to </span><span class="si">{</span><span class="n">export_dir</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">end_t</span><span class="o">-</span><span class="n">start_t</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> seconds"</span>
     <span class="p">)</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">export</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -679,7 +679,7 @@ Python &lt; 3.11.</p>
 <h2><span class="raw-html-m2r"><a name="calling-cli-commands-from-python">Calling CLI commands from Python</a></span><a class="headerlink" href="#a-name-calling-cli-commands-from-python-calling-cli-commands-from-python-a" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">osxphotos.cli</span></code> module contains the code for the <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> command line tool. If you want to call the <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span></code> command from within your own code, you can do so by calling <code class="docutils literal notranslate"><span class="pre">export_cli()</span></code>:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.cli.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">export_cli</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">export_cli</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;/private/tmp&quot;</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">export_cli</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">"/private/tmp"</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">export_cli()</span></code> function takes the same arguments as the <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span></code> command. See <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">help</span> <span class="pre">export</span></code> for more information. You can also reference the implementation <a class="reference external" href="https://github.com/RhetTbull/osxphotos/blob/f4574a1158e9fbd29c906196a46d57b5dd3f322b/osxphotos/cli/export.py#L1102C16-L1292">here</a>.</p>
@@ -729,13 +729,13 @@ Python &lt; 3.11.</p>
 <h4>Open a specific Photos library<a class="headerlink" href="#open-a-specific-photos-library" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
-<span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">dbfile</span><span class="o">=</span><span class="s2">&quot;/Users/smith/Pictures/Test.photoslibrary/database/photos.db&quot;</span><span class="p">)</span>
+<span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">dbfile</span><span class="o">=</span><span class="s2">"/Users/smith/Pictures/Test.photoslibrary/database/photos.db"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>or</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
-<span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Test.photoslibrary&quot;</span><span class="p">)</span>
+<span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">"/Users/smith/Pictures/Test.photoslibrary"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Pass the fully qualified path to the Photos library or the actual database file inside the library. The database is called photos.db and resides in the database folder in your Photos library.  If you pass only the path to the library, PhotosDB will add the database path automatically.  The option to pass the actual database path is provided so database files can be queried even if separated from the actual .photoslibrary file.</p>
@@ -745,7 +745,7 @@ Python &lt; 3.11.</p>
 <section id="a-name-photosdbphotos-photos-keywords-none-uuid-none-persons-none-albums-none-images-true-movies-true-from-date-none-to-date-none-intrash-false-a">
 <h4><span class="raw-html-m2r"><a name="photosdbphotos">photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)</a></span><a class="headerlink" href="#a-name-photosdbphotos-photos-keywords-none-uuid-none-persons-none-albums-none-images-true-movies-true-from-date-none-to-date-none-intrash-false-a" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">([</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;keyword&#39;</span><span class="p">,]],</span> <span class="p">[</span><span class="n">uuid</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">,]],</span> <span class="p">[</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;person&#39;</span><span class="p">,]],</span> <span class="p">[</span><span class="n">albums</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;album&#39;</span><span class="p">,]],[</span><span class="n">from_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">],[</span><span class="n">to_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">])</span>
+<span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">([</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s1">'keyword'</span><span class="p">,]],</span> <span class="p">[</span><span class="n">uuid</span><span class="o">=</span><span class="p">[</span><span class="s1">'uuid'</span><span class="p">,]],</span> <span class="p">[</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s1">'person'</span><span class="p">,]],</span> <span class="p">[</span><span class="n">albums</span><span class="o">=</span><span class="p">[</span><span class="s1">'album'</span><span class="p">,]],[</span><span class="n">from_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">],[</span><span class="n">to_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Returns a list of <a class="reference external" href="#photoinfo">PhotoInfo</a> objects.  Each PhotoInfo object represents a photo in the Photos Libary.</p>
@@ -778,33 +778,33 @@ Python &lt; 3.11.</p>
 <p>See also <a class="reference external" href="#getphoto">get_photo()</a> which is much faster for retrieving a single photo and <a class="reference external" href="#photosdbquery">query</a> which provides much more flexibility in querying the database.</p>
 <p>If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as &quot;and&quot; criteria. E.g.</p>
 <p>Finds all photos with (keyword = &quot;wedding&quot; or &quot;birthday&quot;) and (persons = &quot;Juan Rodriguez&quot;)</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;wedding&quot;</span><span class="p">,</span><span class="s2">&quot;birthday&quot;</span><span class="p">],</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Juan Rodriguez&quot;</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"wedding"</span><span class="p">,</span><span class="s2">"birthday"</span><span class="p">],</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Juan Rodriguez"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Find all photos tagged with keyword &quot;wedding&quot;:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;wedding&quot;</span><span class="p">])</span>
+<span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"wedding"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Find all photos of Maria Smith</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Maria Smith&quot;</span><span class="p">])</span>
+<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Maria Smith"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Find all photos in album &quot;Summer Vacation&quot; or album &quot;Ski Trip&quot;</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">albums</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Summer Vacation&quot;</span><span class="p">,</span> <span class="s2">&quot;Ski Trip&quot;</span><span class="p">])</span>
+<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">albums</span><span class="o">=</span><span class="p">[</span><span class="s2">"Summer Vacation"</span><span class="p">,</span> <span class="s2">"Ski Trip"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Find the single photo with uuid = &quot;osMNIO5sQFGZTbj9WrydRB&quot;</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;osMNIO5sQFGZTbj9WrydRB&quot;</span><span class="p">])</span>
+<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="p">[</span><span class="s2">"osMNIO5sQFGZTbj9WrydRB"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>If you need to do more complicated searches, you can do this programmaticaly.  For example, find photos with keyword = &quot;Kids&quot; but not in album &quot;Vacation 2019&quot;</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos1</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">albums</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Vacation 2019&quot;</span><span class="p">])</span>
-<span class="n">photos2</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Kids&quot;</span><span class="p">])</span>
+<span class="n">photos1</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">albums</span><span class="o">=</span><span class="p">[</span><span class="s2">"Vacation 2019"</span><span class="p">])</span>
+<span class="n">photos2</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"Kids"</span><span class="p">])</span>
 <span class="n">photos3</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos2</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photos1</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -815,7 +815,7 @@ Python &lt; 3.11.</p>
 <p><strong>Note</strong> <a class="reference external" href="#photosdbphotos">PhotosDB.photos()</a> may return a different number of photos than Photos.app reports in the GUI. This is because <a class="reference external" href="#photosdbphotos">photos()</a> returns <a class="reference external" href="#hidden">hidden</a> photos, <a class="reference external" href="#shared">shared</a> photos, and for <a class="reference external" href="#burst">burst</a> photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you &quot;finalize&quot; the burst by selecting key photos and deleting the others using the &quot;Make a selection&quot; option.</p>
 <p>For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, <a class="reference external" href="#photosdbphotos">PhotosDB.photos()</a> reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (<em>Note</em> Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Photos Library.photoslibrary&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">"/Users/smith/Pictures/Photos Library.photoslibrary"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span>
 <span class="go">25002</span>
@@ -1021,7 +1021,7 @@ See also <a class="reference external" href="#keywords-as-dict">keywords_as_dict
 <span class="n">conn</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">get_db_connection</span><span class="p">()</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;SELECT ZUUID FROM ZGENERICASSET WHERE ZFAVORITE = 1;&quot;</span>
+        <span class="s2">"SELECT ZUUID FROM ZGENERICASSET WHERE ZFAVORITE = 1;"</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
@@ -1125,10 +1125,10 @@ See also <a class="reference external" href="#keywords-as-dict">keywords_as_dict
 <li><p><code class="docutils literal notranslate"><span class="pre">uuid</span></code>: list of uuids to search for</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">year</span></code>: search for photos taken in a given year</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Find all screenshots taken in 2019&quot;&quot;&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Find all screenshots taken in 2019"""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">QueryOptions</span><span class="p">(</span><span class="n">screenshot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="p">[</span><span class="mi">2019</span><span class="p">]))</span>
     <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
@@ -1460,13 +1460,13 @@ See <a class="reference external" href="#burst-photos">burst_photos</a></p>
 <p>If photo is a burst image (see <a class="reference external" href="#burst">burst</a>), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.</p>
 <p>Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  <a class="reference external" href="#photosdbphotos">PhotosDB.photos()</a> will only return the photos in the burst set that the user <a class="reference external" href="https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac">selected</a> using &quot;Make a Selection...&quot; in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using <code class="docutils literal notranslate"><span class="pre">burst_photos</span></code> you can access the other images in the burst set to export them, etc.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Photos Library.photoslibrary&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">"/Users/smith/Pictures/Photos Library.photoslibrary"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bursts</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">burst</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">burst_photo</span> <span class="o">=</span> <span class="n">bursts</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">burst_photo</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">)</span>
 <span class="go">4</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">burst_photo</span><span class="o">.</span><span class="n">original_filename</span>
-<span class="go">&#39;IMG_9851.JPG&#39;</span>
+<span class="go">'IMG_9851.JPG'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">burst_photo</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span>
 <span class="gp">...</span>
@@ -1537,8 +1537,8 @@ See <a class="reference external" href="#burst-photos">burst_photos</a></p>
 
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">():</span>
-    <span class="k">if</span> <span class="s2">&quot;statue&quot;</span> <span class="ow">in</span> <span class="n">photo</span><span class="o">.</span><span class="n">labels_normalized</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I found a statue! </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"statue"</span> <span class="ow">in</span> <span class="n">photo</span><span class="o">.</span><span class="n">labels_normalized</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"I found a statue! </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Note</strong>: Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as &quot;People&quot;, &quot;Dog&quot;, &quot;Water&quot;, etc.  A photo may have zero or more labels associated with it.  See also <a class="reference external" href="#labels">labels</a>.</p>
@@ -1566,7 +1566,7 @@ See <a class="reference external" href="#burst-photos">burst_photos</a></p>
 <p>exiftool must be installed in the path for this to work.  If exiftool cannot be found in the path, calling <code class="docutils literal notranslate"><span class="pre">exiftool</span></code> will log a warning and return <code class="docutils literal notranslate"><span class="pre">None</span></code>.  You can check the exiftool path using <code class="docutils literal notranslate"><span class="pre">osxphotos.exiftool.get_exiftool_path</span></code> which will raise FileNotFoundError if exiftool cannot be found.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">osxphotos</span><span class="o">.</span><span class="n">exiftool</span><span class="o">.</span><span class="n">get_exiftool_path</span><span class="p">()</span>
-<span class="go">&#39;/usr/local/bin/exiftool&#39;</span>
+<span class="go">'/usr/local/bin/exiftool'</span>
 <span class="gp">&gt;&gt;&gt;</span>
 </pre></div>
 </div>
@@ -1574,14 +1574,14 @@ See <a class="reference external" href="#burst-photos">burst_photos</a></p>
 <ul class="simple">
 <li><p><cite>asdict(tag_groups=True)</cite>: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See <a class="reference external" href="https://exiftool.org/">exiftool</a> documentation to understand which metadata keys are available. If <code class="docutils literal notranslate"><span class="pre">tag_groups</span></code> is True (default) dict keys are in form &quot;GROUP:TAG&quot;, e.g. &quot;IPTC:Keywords&quot;. If <code class="docutils literal notranslate"><span class="pre">tag_groups</span></code> is False, dict keys do not have group names, e.g. &quot;Keywords&quot;.</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;Composite:Aperture&#39;</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
- <span class="s1">&#39;Composite:GPSPosition&#39;</span><span class="p">:</span> <span class="s1">&#39;-34.9188916666667 138.596861111111&#39;</span><span class="p">,</span>
- <span class="s1">&#39;Composite:ImageSize&#39;</span><span class="p">:</span> <span class="s1">&#39;2754 2754&#39;</span><span class="p">,</span>
- <span class="s1">&#39;EXIF:CreateDate&#39;</span><span class="p">:</span> <span class="s1">&#39;2017:06:20 17:18:56&#39;</span><span class="p">,</span>
- <span class="s1">&#39;EXIF:LensMake&#39;</span><span class="p">:</span> <span class="s1">&#39;Apple&#39;</span><span class="p">,</span>
- <span class="s1">&#39;EXIF:LensModel&#39;</span><span class="p">:</span> <span class="s1">&#39;iPhone 6s back camera 4.15mm f/2.2&#39;</span><span class="p">,</span>
- <span class="s1">&#39;EXIF:Make&#39;</span><span class="p">:</span> <span class="s1">&#39;Apple&#39;</span><span class="p">,</span>
- <span class="s1">&#39;XMP:Title&#39;</span><span class="p">:</span> <span class="s1">&#39;Elder Park&#39;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'Composite:Aperture'</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
+ <span class="s1">'Composite:GPSPosition'</span><span class="p">:</span> <span class="s1">'-34.9188916666667 138.596861111111'</span><span class="p">,</span>
+ <span class="s1">'Composite:ImageSize'</span><span class="p">:</span> <span class="s1">'2754 2754'</span><span class="p">,</span>
+ <span class="s1">'EXIF:CreateDate'</span><span class="p">:</span> <span class="s1">'2017:06:20 17:18:56'</span><span class="p">,</span>
+ <span class="s1">'EXIF:LensMake'</span><span class="p">:</span> <span class="s1">'Apple'</span><span class="p">,</span>
+ <span class="s1">'EXIF:LensModel'</span><span class="p">:</span> <span class="s1">'iPhone 6s back camera 4.15mm f/2.2'</span><span class="p">,</span>
+ <span class="s1">'EXIF:Make'</span><span class="p">:</span> <span class="s1">'Apple'</span><span class="p">,</span>
+ <span class="s1">'XMP:Title'</span><span class="p">:</span> <span class="s1">'Elder Park'</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1665,9 +1665,9 @@ is not intended for general use.</p>
 <p>The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
-<span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Photos Library.photoslibrary&quot;</span><span class="p">)</span>
+<span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">"/Users/smith/Pictures/Photos Library.photoslibrary"</span><span class="p">)</span>
 <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
-<span class="n">photos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span><span class="s2">&quot;photo_name.jpg&quot;</span><span class="p">,</span><span class="n">sidecar_json</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">photos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"/tmp"</span><span class="p">,</span><span class="s2">"photo_name.jpg"</span><span class="p">,</span><span class="n">sidecar_json</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Then</p>
@@ -1746,7 +1746,7 @@ is not intended for general use.</p>
 <span class="n">nikon_photos</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">p</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">exif_info</span><span class="o">.</span><span class="n">camera_make</span> <span class="ow">and</span> <span class="s2">&quot;nikon&quot;</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">exif_info</span><span class="o">.</span><span class="n">camera_make</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">exif_info</span><span class="o">.</span><span class="n">camera_make</span> <span class="ow">and</span> <span class="s2">"nikon"</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">exif_info</span><span class="o">.</span><span class="n">camera_make</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 <span class="p">]</span>
 </pre></div>
 </div>
@@ -1973,15 +1973,15 @@ is not intended for general use.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span><span class="o">.</span><span class="n">folder_info</span>
 <span class="go">[&lt;osxphotos.albuminfo.FolderInfo object at 0x10fcc0160&gt;]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span><span class="o">.</span><span class="n">folder_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span>
-<span class="go">&#39;Folder1&#39;</span>
+<span class="go">'Folder1'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span><span class="o">.</span><span class="n">folder_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subfolders</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">title</span>
-<span class="go">&#39;SubFolder2&#39;</span>
+<span class="go">'SubFolder2'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span><span class="o">.</span><span class="n">folder_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subfolders</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">album_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span>
-<span class="go">&#39;AlbumInFolder&#39;</span>
+<span class="go">'AlbumInFolder'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span><span class="o">.</span><span class="n">folder_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subfolders</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">album_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">title</span>
-<span class="go">&#39;SubFolder2&#39;</span>
+<span class="go">'SubFolder2'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photosdb</span><span class="o">.</span><span class="n">folder_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subfolders</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">album_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">album_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span>
-<span class="go">&#39;AlbumInFolder&#39;</span>
+<span class="go">'AlbumInFolder'</span>
 </pre></div>
 </div>
 </section>
@@ -2053,9 +2053,9 @@ is not intended for general use.</p>
 </ul>
 <p>For example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span>
-<span class="go">PostalAddress(street=&#39;3700 Wailea Alanui Dr&#39;, sub_locality=None, city=&#39;Kihei&#39;, sub_administrative_area=&#39;Maui&#39;, state=&#39;HI&#39;, postal_code=&#39;96753&#39;, country=&#39;United States&#39;, iso_country_code=&#39;US&#39;)</span>
+<span class="go">PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', sub_administrative_area='Maui', state='HI', postal_code='96753', country='United States', iso_country_code='US')</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">postal_code</span>
-<span class="go">&#39;96753&#39;</span>
+<span class="go">'96753'</span>
 </pre></div>
 </div>
 </section>
@@ -2095,7 +2095,7 @@ is not intended for general use.</p>
 <p>Example: find your &quot;best&quot; photo of food</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photos</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">best_food_photo</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="s2">&quot;food&quot;</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">labels_normalized</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">overall</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">best_food_photo</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="s2">"food"</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">labels_normalized</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">overall</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>
@@ -2389,16 +2389,16 @@ The following properties are available:</p>
 <p>Each of these properties returns a <code class="docutils literal notranslate"><span class="pre">Table</span></code> object that provides access to the row(s) in the table that correspond to the photo.</p>
 <p>The Table object has dynamically created properties that correspond to the associated column in the table and return a tuple of values for that column.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">photo</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span><span class="o">.</span><span class="n">ZADDITIONALASSETATTRIBUTES</span><span class="o">.</span><span class="n">ZTITLE</span>
-<span class="go">(&quot;St. James&#39;s Park&quot;,)</span>
+<span class="go">("St. James's Park",)</span>
 </pre></div>
 </div>
 <p>The Table object also provides a <code class="docutils literal notranslate"><span class="pre">rows()</span></code> method which returns a list a of tuples for the matching rows in the table
 and a <code class="docutils literal notranslate"><span class="pre">rows_dict()</span></code> method which returns a list of dicts for the matching rows in the table.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">photo</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span><span class="o">.</span><span class="n">ZASSET</span><span class="o">.</span><span class="n">rows</span><span class="p">()</span>
-<span class="go">[(6, 3, 35, 0, 0, 0, 0, 0, 0, None, None, None, None, None, 0, 0, 1, 0, 0, 0, 0, -100, 0, 1, 0, 1356, 0, 0, 0, 0, 0, 0, 0, 1, 6192599813128215, 1, 2814835671629878, 1, 0, 3, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 2047, 7, None, 8, None, None, None, None, None, None, None, None, 3, 6, 6, 6, None, 6, 4, None, None, 8, 4, None, 2, None, 3, None, 3, None, None, 585926209.859624, 596906868.198932, 689981763.374756, None, None, None, 0.5, 561129492.501, 0.0, 596906868.198932, None, 0.03816793893129771, None, 51.50357167, -0.1318055, 689982854.802854, 0.6494140625, 0.0, 561129492.501, None, None, None, None, None, None, None, &#39;D&#39;, &#39;DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg&#39;, None, &#39;sRGB IEC61966-2.1&#39;, &#39;public.jpeg&#39;, &#39;DC99FBDD-7A52-4100-A5BB-344131646C30&#39;, b&#39;Ki\t@\x01\x00\x00\x00\td\tH\x01\x00\x00\x00\x93\\\tL\x01\x00\x00\x00\x1aK\x0c\x03\x0c\xa8q\x92\x00\x12C\x0c\x03\x0c&quot;\r\x90\x00\x00&lt;\x0c\x03\x08&quot;\x19\x80\x00&#39;, b&#39;\xca\xebV\tu\xc0I@/j\xf7\xab\x00\xdf\xc0\xbf\xcd\xcc\xcc\xcc\xcc\xcc\x04@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00&#39;)]</span>
+<span class="go">[(6, 3, 35, 0, 0, 0, 0, 0, 0, None, None, None, None, None, 0, 0, 1, 0, 0, 0, 0, -100, 0, 1, 0, 1356, 0, 0, 0, 0, 0, 0, 0, 1, 6192599813128215, 1, 2814835671629878, 1, 0, 3, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 2047, 7, None, 8, None, None, None, None, None, None, None, None, 3, 6, 6, 6, None, 6, 4, None, None, 8, 4, None, 2, None, 3, None, 3, None, None, 585926209.859624, 596906868.198932, 689981763.374756, None, None, None, 0.5, 561129492.501, 0.0, 596906868.198932, None, 0.03816793893129771, None, 51.50357167, -0.1318055, 689982854.802854, 0.6494140625, 0.0, 561129492.501, None, None, None, None, None, None, None, 'D', 'DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg', None, 'sRGB IEC61966-2.1', 'public.jpeg', 'DC99FBDD-7A52-4100-A5BB-344131646C30', b'Ki\t@\x01\x00\x00\x00\td\tH\x01\x00\x00\x00\x93\\\tL\x01\x00\x00\x00\x1aK\x0c\x03\x0c\xa8q\x92\x00\x12C\x0c\x03\x0c"\r\x90\x00\x00&lt;\x0c\x03\x08"\x19\x80\x00', b'\xca\xebV\tu\xc0I@/j\xf7\xab\x00\xdf\xc0\xbf\xcd\xcc\xcc\xcc\xcc\xcc\x04@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')]</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">photo</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span><span class="o">.</span><span class="n">ZASSET</span><span class="o">.</span><span class="n">rows_dict</span><span class="p">()</span>
-<span class="go">[{&#39;Z_PK&#39;: 6, &#39;Z_ENT&#39;: 3, &#39;Z_OPT&#39;: 35, &#39;ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE&#39;: 0, &#39;ZAVALANCHEPICKTYPE&#39;: 0, &#39;ZBUNDLESCOPE&#39;: 0, &#39;ZCAMERAPROCESSINGADJUSTMENTSTATE&#39;: 0, &#39;ZCLOUDDELETESTATE&#39;: 0, &#39;ZCLOUDDOWNLOADREQUESTS&#39;: 0, &#39;ZCLOUDHASCOMMENTSBYME&#39;: None, &#39;ZCLOUDHASCOMMENTSCONVERSATION&#39;: None, &#39;ZCLOUDHASUNSEENCOMMENTS&#39;: None, &#39;ZCLOUDISDELETABLE&#39;: None, &#39;ZCLOUDISMYASSET&#39;: None, &#39;ZCLOUDLOCALSTATE&#39;: 0, &#39;ZCLOUDPLACEHOLDERKIND&#39;: 0, &#39;ZCOMPLETE&#39;: 1, &#39;ZDEFERREDPROCESSINGNEEDED&#39;: 0, &#39;ZDEPTHTYPE&#39;: 0, &#39;ZDERIVEDCAMERACAPTUREDEVICE&#39;: 0, &#39;ZDUPLICATEASSETVISIBILITYSTATE&#39;: 0, &#39;ZFACEAREAPOINTS&#39;: -100, &#39;ZFAVORITE&#39;: 0, &#39;ZHASADJUSTMENTS&#39;: 1, &#39;ZHDRTYPE&#39;: 0, &#39;ZHEIGHT&#39;: 1356, &#39;ZHIDDEN&#39;: 0, &#39;ZHIGHFRAMERATESTATE&#39;: 0, &#39;ZISMAGICCARPET&#39;: 0, &#39;ZKIND&#39;: 0, &#39;ZKINDSUBTYPE&#39;: 0, &#39;ZLIBRARYSCOPESHARESTATE&#39;: 0, &#39;ZMONOSKITYPE&#39;: 0, &#39;ZORIENTATION&#39;: 1, &#39;ZPACKEDACCEPTABLECROPRECT&#39;: 6192599813128215, &#39;ZPACKEDBADGEATTRIBUTES&#39;: 1, &#39;ZPACKEDPREFERREDCROPRECT&#39;: 2814835671629878, &#39;ZPLAYBACKSTYLE&#39;: 1, &#39;ZPLAYBACKVARIATION&#39;: 0, &#39;ZSAVEDASSETTYPE&#39;: 3, &#39;ZSEARCHINDEXREBUILDSTATE&#39;: 0, &#39;ZSYNDICATIONSTATE&#39;: 0, &#39;ZTHUMBNAILINDEX&#39;: 5, &#39;ZTRASHEDSTATE&#39;: 0, &#39;ZVIDEOCPDURATIONVALUE&#39;: 0, &#39;ZVIDEOCPVISIBILITYSTATE&#39;: 0, &#39;ZVIDEODEFERREDPROCESSINGNEEDED&#39;: 0, &#39;ZVIDEOKEYFRAMETIMESCALE&#39;: 0, &#39;ZVIDEOKEYFRAMEVALUE&#39;: 0, &#39;ZVISIBILITYSTATE&#39;: 0, &#39;ZWIDTH&#39;: 2047, &#39;ZADDITIONALATTRIBUTES&#39;: 7, &#39;ZCLOUDFEEDASSETSENTRY&#39;: None, &#39;ZCOMPUTEDATTRIBUTES&#39;: 8, &#39;ZCONVERSATION&#39;: None, &#39;ZDAYGROUPHIGHLIGHTBEINGASSETS&#39;: None, &#39;ZDAYGROUPHIGHLIGHTBEINGEXTENDEDASSETS&#39;: None, &#39;ZDAYGROUPHIGHLIGHTBEINGKEYASSETPRIVATE&#39;: None, &#39;ZDAYGROUPHIGHLIGHTBEINGKEYASSETSHARED&#39;: None, &#39;ZDAYGROUPHIGHLIGHTBEINGSUMMARYASSETS&#39;: None, &#39;ZDUPLICATEMETADATAMATCHINGALBUM&#39;: None, &#39;ZDUPLICATEPERCEPTUALMATCHINGALBUM&#39;: None, &#39;ZEXTENDEDATTRIBUTES&#39;: 3, &#39;ZHIGHLIGHTBEINGASSETS&#39;: 6, &#39;ZHIGHLIGHTBEINGEXTENDEDASSETS&#39;: 6, &#39;ZHIGHLIGHTBEINGKEYASSETPRIVATE&#39;: 6, &#39;ZHIGHLIGHTBEINGKEYASSETSHARED&#39;: None, &#39;ZHIGHLIGHTBEINGSUMMARYASSETS&#39;: 6, &#39;ZIMPORTSESSION&#39;: 4, &#39;ZLIBRARYSCOPE&#39;: None, &#39;ZMASTER&#39;: None, &#39;ZMEDIAANALYSISATTRIBUTES&#39;: 8, &#39;ZMOMENT&#39;: 4, &#39;ZMOMENTSHARE&#39;: None, &#39;ZMONTHHIGHLIGHTBEINGKEYASSETPRIVATE&#39;: 2, &#39;ZMONTHHIGHLIGHTBEINGKEYASSETSHARED&#39;: None, &#39;ZPHOTOANALYSISATTRIBUTES&#39;: 3, &#39;ZTRASHEDBYPARTICIPANT&#39;: None, &#39;ZYEARHIGHLIGHTBEINGKEYASSETPRIVATE&#39;: 3, &#39;ZYEARHIGHLIGHTBEINGKEYASSETSHARED&#39;: None, &#39;Z_FOK_CLOUDFEEDASSETSENTRY&#39;: None, &#39;ZADDEDDATE&#39;: 585926209.859624, &#39;ZADJUSTMENTTIMESTAMP&#39;: 596906868.198932, &#39;ZANALYSISSTATEMODIFICATIONDATE&#39;: 689981763.374756, &#39;ZCLOUDBATCHPUBLISHDATE&#39;: None, &#39;ZCLOUDLASTVIEWEDCOMMENTDATE&#39;: None, &#39;ZCLOUDSERVERPUBLISHDATE&#39;: None, &#39;ZCURATIONSCORE&#39;: 0.5, &#39;ZDATECREATED&#39;: 561129492.501, &#39;ZDURATION&#39;: 0.0, &#39;ZFACEADJUSTMENTVERSION&#39;: 596906868.198932, &#39;ZHDRGAIN&#39;: None, &#39;ZHIGHLIGHTVISIBILITYSCORE&#39;: 0.03816793893129771, &#39;ZLASTSHAREDDATE&#39;: None, &#39;ZLATITUDE&#39;: 51.50357167, &#39;ZLONGITUDE&#39;: -0.1318055, &#39;ZMODIFICATIONDATE&#39;: 689982854.802854, &#39;ZOVERALLAESTHETICSCORE&#39;: 0.6494140625, &#39;ZPROMOTIONSCORE&#39;: 0.0, &#39;ZSORTTOKEN&#39;: 561129492.501, &#39;ZTRASHEDDATE&#39;: None, &#39;ZAVALANCHEUUID&#39;: None, &#39;ZCLOUDASSETGUID&#39;: None, &#39;ZCLOUDBATCHID&#39;: None, &#39;ZCLOUDCOLLECTIONGUID&#39;: None, &#39;ZCLOUDOWNERHASHEDPERSONID&#39;: None, &#39;ZDELETEREASON&#39;: None, &#39;ZDIRECTORY&#39;: &#39;D&#39;, &#39;ZFILENAME&#39;: &#39;DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg&#39;, &#39;ZMEDIAGROUPUUID&#39;: None, &#39;ZORIGINALCOLORSPACE&#39;: &#39;sRGB IEC61966-2.1&#39;, &#39;ZUNIFORMTYPEIDENTIFIER&#39;: &#39;public.jpeg&#39;, &#39;ZUUID&#39;: &#39;DC99FBDD-7A52-4100-A5BB-344131646C30&#39;, &#39;ZIMAGEREQUESTHINTS&#39;: b&#39;Ki\t@\x01\x00\x00\x00\td\tH\x01\x00\x00\x00\x93\\\tL\x01\x00\x00\x00\x1aK\x0c\x03\x0c\xa8q\x92\x00\x12C\x0c\x03\x0c&quot;\r\x90\x00\x00&lt;\x0c\x03\x08&quot;\x19\x80\x00&#39;, &#39;ZLOCATIONDATA&#39;: b&#39;\xca\xebV\tu\xc0I@/j\xf7\xab\x00\xdf\xc0\xbf\xcd\xcc\xcc\xcc\xcc\xcc\x04@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00&#39;}]</span>
+<span class="go">[{'Z_PK': 6, 'Z_ENT': 3, 'Z_OPT': 35, 'ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE': 0, 'ZAVALANCHEPICKTYPE': 0, 'ZBUNDLESCOPE': 0, 'ZCAMERAPROCESSINGADJUSTMENTSTATE': 0, 'ZCLOUDDELETESTATE': 0, 'ZCLOUDDOWNLOADREQUESTS': 0, 'ZCLOUDHASCOMMENTSBYME': None, 'ZCLOUDHASCOMMENTSCONVERSATION': None, 'ZCLOUDHASUNSEENCOMMENTS': None, 'ZCLOUDISDELETABLE': None, 'ZCLOUDISMYASSET': None, 'ZCLOUDLOCALSTATE': 0, 'ZCLOUDPLACEHOLDERKIND': 0, 'ZCOMPLETE': 1, 'ZDEFERREDPROCESSINGNEEDED': 0, 'ZDEPTHTYPE': 0, 'ZDERIVEDCAMERACAPTUREDEVICE': 0, 'ZDUPLICATEASSETVISIBILITYSTATE': 0, 'ZFACEAREAPOINTS': -100, 'ZFAVORITE': 0, 'ZHASADJUSTMENTS': 1, 'ZHDRTYPE': 0, 'ZHEIGHT': 1356, 'ZHIDDEN': 0, 'ZHIGHFRAMERATESTATE': 0, 'ZISMAGICCARPET': 0, 'ZKIND': 0, 'ZKINDSUBTYPE': 0, 'ZLIBRARYSCOPESHARESTATE': 0, 'ZMONOSKITYPE': 0, 'ZORIENTATION': 1, 'ZPACKEDACCEPTABLECROPRECT': 6192599813128215, 'ZPACKEDBADGEATTRIBUTES': 1, 'ZPACKEDPREFERREDCROPRECT': 2814835671629878, 'ZPLAYBACKSTYLE': 1, 'ZPLAYBACKVARIATION': 0, 'ZSAVEDASSETTYPE': 3, 'ZSEARCHINDEXREBUILDSTATE': 0, 'ZSYNDICATIONSTATE': 0, 'ZTHUMBNAILINDEX': 5, 'ZTRASHEDSTATE': 0, 'ZVIDEOCPDURATIONVALUE': 0, 'ZVIDEOCPVISIBILITYSTATE': 0, 'ZVIDEODEFERREDPROCESSINGNEEDED': 0, 'ZVIDEOKEYFRAMETIMESCALE': 0, 'ZVIDEOKEYFRAMEVALUE': 0, 'ZVISIBILITYSTATE': 0, 'ZWIDTH': 2047, 'ZADDITIONALATTRIBUTES': 7, 'ZCLOUDFEEDASSETSENTRY': None, 'ZCOMPUTEDATTRIBUTES': 8, 'ZCONVERSATION': None, 'ZDAYGROUPHIGHLIGHTBEINGASSETS': None, 'ZDAYGROUPHIGHLIGHTBEINGEXTENDEDASSETS': None, 'ZDAYGROUPHIGHLIGHTBEINGKEYASSETPRIVATE': None, 'ZDAYGROUPHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZDAYGROUPHIGHLIGHTBEINGSUMMARYASSETS': None, 'ZDUPLICATEMETADATAMATCHINGALBUM': None, 'ZDUPLICATEPERCEPTUALMATCHINGALBUM': None, 'ZEXTENDEDATTRIBUTES': 3, 'ZHIGHLIGHTBEINGASSETS': 6, 'ZHIGHLIGHTBEINGEXTENDEDASSETS': 6, 'ZHIGHLIGHTBEINGKEYASSETPRIVATE': 6, 'ZHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZHIGHLIGHTBEINGSUMMARYASSETS': 6, 'ZIMPORTSESSION': 4, 'ZLIBRARYSCOPE': None, 'ZMASTER': None, 'ZMEDIAANALYSISATTRIBUTES': 8, 'ZMOMENT': 4, 'ZMOMENTSHARE': None, 'ZMONTHHIGHLIGHTBEINGKEYASSETPRIVATE': 2, 'ZMONTHHIGHLIGHTBEINGKEYASSETSHARED': None, 'ZPHOTOANALYSISATTRIBUTES': 3, 'ZTRASHEDBYPARTICIPANT': None, 'ZYEARHIGHLIGHTBEINGKEYASSETPRIVATE': 3, 'ZYEARHIGHLIGHTBEINGKEYASSETSHARED': None, 'Z_FOK_CLOUDFEEDASSETSENTRY': None, 'ZADDEDDATE': 585926209.859624, 'ZADJUSTMENTTIMESTAMP': 596906868.198932, 'ZANALYSISSTATEMODIFICATIONDATE': 689981763.374756, 'ZCLOUDBATCHPUBLISHDATE': None, 'ZCLOUDLASTVIEWEDCOMMENTDATE': None, 'ZCLOUDSERVERPUBLISHDATE': None, 'ZCURATIONSCORE': 0.5, 'ZDATECREATED': 561129492.501, 'ZDURATION': 0.0, 'ZFACEADJUSTMENTVERSION': 596906868.198932, 'ZHDRGAIN': None, 'ZHIGHLIGHTVISIBILITYSCORE': 0.03816793893129771, 'ZLASTSHAREDDATE': None, 'ZLATITUDE': 51.50357167, 'ZLONGITUDE': -0.1318055, 'ZMODIFICATIONDATE': 689982854.802854, 'ZOVERALLAESTHETICSCORE': 0.6494140625, 'ZPROMOTIONSCORE': 0.0, 'ZSORTTOKEN': 561129492.501, 'ZTRASHEDDATE': None, 'ZAVALANCHEUUID': None, 'ZCLOUDASSETGUID': None, 'ZCLOUDBATCHID': None, 'ZCLOUDCOLLECTIONGUID': None, 'ZCLOUDOWNERHASHEDPERSONID': None, 'ZDELETEREASON': None, 'ZDIRECTORY': 'D', 'ZFILENAME': 'DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg', 'ZMEDIAGROUPUUID': None, 'ZORIGINALCOLORSPACE': 'sRGB IEC61966-2.1', 'ZUNIFORMTYPEIDENTIFIER': 'public.jpeg', 'ZUUID': 'DC99FBDD-7A52-4100-A5BB-344131646C30', 'ZIMAGEREQUESTHINTS': b'Ki\t@\x01\x00\x00\x00\td\tH\x01\x00\x00\x00\x93\\\tL\x01\x00\x00\x00\x1aK\x0c\x03\x0c\xa8q\x92\x00\x12C\x0c\x03\x0c"\r\x90\x00\x00&lt;\x0c\x03\x08"\x19\x80\x00', 'ZLOCATIONDATA': b'\xca\xebV\tu\xc0I@/j\xf7\xab\x00\xdf\xc0\xbf\xcd\xcc\xcc\xcc\xcc\xcc\x04@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'}]</span>
 </pre></div>
 </div>
 </section>
@@ -2916,7 +2916,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. '0.76.1'</p></td>
+<td><p>The osxphotos version, e.g. '0.77.0'</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -2992,18 +2992,18 @@ cog.out("\n"+get_template_field_table()+"\n")
 <h3><span class="raw-html-m2r"><a name="exiftool">ExifTool</a></span><a class="headerlink" href="#a-name-exiftool-exiftool-a" title="Link to this heading">¶</a></h3>
 <p>osxphotos includes its own <code class="docutils literal notranslate"><span class="pre">exiftool</span></code> library that can be accessed via <code class="docutils literal notranslate"><span class="pre">osxphotos.exiftool</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.exiftool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExifTool</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span> <span class="o">=</span> <span class="n">ExifTool</span><span class="p">(</span><span class="s2">&quot;/Users/rhet/Downloads/test.jpeg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span> <span class="o">=</span> <span class="n">ExifTool</span><span class="p">(</span><span class="s2">"/Users/rhet/Downloads/test.jpeg"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">exifdict</span> <span class="o">=</span> <span class="n">exiftool</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exifdict</span><span class="p">[</span><span class="s2">&quot;EXIF:Make&quot;</span><span class="p">]</span>
-<span class="go">&#39;Canon&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span><span class="o">.</span><span class="n">setvalue</span><span class="p">(</span><span class="s2">&quot;IPTC:Keywords&quot;</span><span class="p">,</span><span class="s2">&quot;Keyword1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exifdict</span><span class="p">[</span><span class="s2">"EXIF:Make"</span><span class="p">]</span>
+<span class="go">'Canon'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span><span class="o">.</span><span class="n">setvalue</span><span class="p">(</span><span class="s2">"IPTC:Keywords"</span><span class="p">,</span><span class="s2">"Keyword1"</span><span class="p">)</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span><span class="o">.</span><span class="n">asdict</span><span class="p">()[</span><span class="s2">&quot;IPTC:Keywords&quot;</span><span class="p">]</span>
-<span class="go">&#39;Keyword1&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span><span class="o">.</span><span class="n">addvalues</span><span class="p">(</span><span class="s2">&quot;IPTC:Keywords&quot;</span><span class="p">,</span><span class="s2">&quot;Keyword2&quot;</span><span class="p">,</span><span class="s2">&quot;Keyword3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span><span class="o">.</span><span class="n">asdict</span><span class="p">()[</span><span class="s2">"IPTC:Keywords"</span><span class="p">]</span>
+<span class="go">'Keyword1'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span><span class="o">.</span><span class="n">addvalues</span><span class="p">(</span><span class="s2">"IPTC:Keywords"</span><span class="p">,</span><span class="s2">"Keyword2"</span><span class="p">,</span><span class="s2">"Keyword3"</span><span class="p">)</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span><span class="o">.</span><span class="n">asdict</span><span class="p">()[</span><span class="s2">&quot;IPTC:Keywords&quot;</span><span class="p">]</span>
-<span class="go">[&#39;Keyword1&#39;, &#39;Keyword2&#39;, &#39;Keyword3&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exiftool</span><span class="o">.</span><span class="n">asdict</span><span class="p">()[</span><span class="s2">"IPTC:Keywords"</span><span class="p">]</span>
+<span class="go">['Keyword1', 'Keyword2', 'Keyword3']</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">ExifTool(filepath,</span> <span class="pre">exiftool=None,</span> <span class="pre">large_file_support=True)</span></code></p>
@@ -3017,14 +3017,14 @@ cog.out("\n"+get_template_field_table()+"\n")
 <ul class="simple">
 <li><p><cite>asdict(tag_groups=True)</cite>: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See <a class="reference external" href="https://exiftool.org/">exiftool</a> documentation to understand which metadata keys are available. If <code class="docutils literal notranslate"><span class="pre">tag_groups</span></code> is True (default) dict keys are in form &quot;GROUP:TAG&quot;, e.g. &quot;IPTC:Keywords&quot;. If <code class="docutils literal notranslate"><span class="pre">tag_groups</span></code> is False, dict keys do not have group names, e.g. &quot;Keywords&quot;.</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;Composite:Aperture&#39;</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
- <span class="s1">&#39;Composite:GPSPosition&#39;</span><span class="p">:</span> <span class="s1">&#39;-34.9188916666667 138.596861111111&#39;</span><span class="p">,</span>
- <span class="s1">&#39;Composite:ImageSize&#39;</span><span class="p">:</span> <span class="s1">&#39;2754 2754&#39;</span><span class="p">,</span>
- <span class="s1">&#39;EXIF:CreateDate&#39;</span><span class="p">:</span> <span class="s1">&#39;2017:06:20 17:18:56&#39;</span><span class="p">,</span>
- <span class="s1">&#39;EXIF:LensMake&#39;</span><span class="p">:</span> <span class="s1">&#39;Apple&#39;</span><span class="p">,</span>
- <span class="s1">&#39;EXIF:LensModel&#39;</span><span class="p">:</span> <span class="s1">&#39;iPhone 6s back camera 4.15mm f/2.2&#39;</span><span class="p">,</span>
- <span class="s1">&#39;EXIF:Make&#39;</span><span class="p">:</span> <span class="s1">&#39;Apple&#39;</span><span class="p">,</span>
- <span class="s1">&#39;XMP:Title&#39;</span><span class="p">:</span> <span class="s1">&#39;Elder Park&#39;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'Composite:Aperture'</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
+ <span class="s1">'Composite:GPSPosition'</span><span class="p">:</span> <span class="s1">'-34.9188916666667 138.596861111111'</span><span class="p">,</span>
+ <span class="s1">'Composite:ImageSize'</span><span class="p">:</span> <span class="s1">'2754 2754'</span><span class="p">,</span>
+ <span class="s1">'EXIF:CreateDate'</span><span class="p">:</span> <span class="s1">'2017:06:20 17:18:56'</span><span class="p">,</span>
+ <span class="s1">'EXIF:LensMake'</span><span class="p">:</span> <span class="s1">'Apple'</span><span class="p">,</span>
+ <span class="s1">'EXIF:LensModel'</span><span class="p">:</span> <span class="s1">'iPhone 6s back camera 4.15mm f/2.2'</span><span class="p">,</span>
+ <span class="s1">'EXIF:Make'</span><span class="p">:</span> <span class="s1">'Apple'</span><span class="p">,</span>
+ <span class="s1">'XMP:Title'</span><span class="p">:</span> <span class="s1">'Elder Park'</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -3032,13 +3032,13 @@ cog.out("\n"+get_template_field_table()+"\n")
 <li><p><code class="docutils literal notranslate"><span class="pre">json()</span></code>: returns same information as <code class="docutils literal notranslate"><span class="pre">asdict()</span></code> but as a serialized JSON string.</p></li>
 <li><p><cite>setvalue(tag, value)</cite>: write to the EXIF data in the photo file. To delete a tag, use setvalue with value = <cite>None</cite>. For example:</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photo</span><span class="o">.</span><span class="n">exiftool</span><span class="o">.</span><span class="n">setvalue</span><span class="p">(</span><span class="s2">&quot;XMP:Title&quot;</span><span class="p">,</span> <span class="s2">&quot;Title of photo&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photo</span><span class="o">.</span><span class="n">exiftool</span><span class="o">.</span><span class="n">setvalue</span><span class="p">(</span><span class="s2">"XMP:Title"</span><span class="p">,</span> <span class="s2">"Title of photo"</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p><cite>addvalues(tag, *values)</cite>: Add one or more value(s) to tag.  For a tag that accepts multiple values, like &quot;IPTC:Keywords&quot;, this will add the values as additional list values.  However, for tags which are not usually lists, such as &quot;EXIF:ISO&quot; this will literally add the new value to the old value which is probably not the desired effect.  Be sure you understand the behavior of the individual tag before using this. For example:</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photo</span><span class="o">.</span><span class="n">exiftool</span><span class="o">.</span><span class="n">addvalues</span><span class="p">(</span><span class="s2">&quot;IPTC:Keywords&quot;</span><span class="p">,</span> <span class="s2">&quot;vacation&quot;</span><span class="p">,</span> <span class="s2">&quot;beach&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photo</span><span class="o">.</span><span class="n">exiftool</span><span class="o">.</span><span class="n">addvalues</span><span class="p">(</span><span class="s2">"IPTC:Keywords"</span><span class="p">,</span> <span class="s2">"vacation"</span><span class="p">,</span> <span class="s2">"beach"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>osxphotos.exiftool also provides an <code class="docutils literal notranslate"><span class="pre">ExifToolCaching</span></code> class which caches all metadata after the first call to <code class="docutils literal notranslate"><span class="pre">exiftool</span></code>. This can significantly speed up repeated access to the metadata but should only be used if you do not intend to modify the file's metadata.</p>
@@ -3203,7 +3203,7 @@ cog.out("\n"+get_template_field_table()+"\n")
     <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns string for XMP sidecar</span>
+<span class="w">    </span><span class="sd">"""Returns string for XMP sidecar</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        photo (PhotoInfo): photo to generate sidecars</span>
@@ -3212,7 +3212,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: string containing XMP sidecar</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.sidecars</span><span class="w"> </span><span class="kn">import</span> <span class="n">xmp_sidecar</span>
@@ -3240,20 +3240,20 @@ cog.out("\n"+get_template_field_table()+"\n")
 <section id="a-name-photosalbum-photosalbum-a">
 <h3><span class="raw-html-m2r"><a name="photosalbum">PhotosAlbum</a></span><a class="headerlink" href="#a-name-photosalbum-photosalbum-a" title="Link to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos.photosalbum.PhotosAlbum</span></code> is a class that represents a Photos album. It is useful for creating albums and adding <code class="docutils literal notranslate"><span class="pre">PhotoInfo</span></code> assets to albums in Photos. It uses <a class="reference external" href="https://github.com/RhetTbull/PhotoScript">PhotoScript</a>, a Python wrapper around AppleScript, to interact with Photos. An album is created or retrieved using <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>: <code class="docutils literal notranslate"><span class="pre">album</span> <span class="pre">=</span> <span class="pre">PhotosAlbum(name)</span></code> will create the album if it doesn't exist or retrieve it if it does. You can add photos to the album using <code class="docutils literal notranslate"><span class="pre">append()</span></code> and <code class="docutils literal notranslate"><span class="pre">extend()</span></code> as in Python lists or <code class="docutils literal notranslate"><span class="pre">add()</span></code> and <code class="docutils literal notranslate"><span class="pre">update()</span></code> as in Python sets (<code class="docutils literal notranslate"><span class="pre">append()</span></code> and <code class="docutils literal notranslate"><span class="pre">add()</span></code> call the same function as do <code class="docutils literal notranslate"><span class="pre">extend()</span></code> and <code class="docutils literal notranslate"><span class="pre">update()</span></code>). Albums behave as sets as adding a asset that is already in the album has no effect. Assets cannot be removed from an album using this class due to limitations in the Photos AppleScript interface.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example that shows how to add PhotoInfo objects to an album in Photos&quot;&quot;&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Example that shows how to add PhotoInfo objects to an album in Photos"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotosDB</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.photosalbum</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotosAlbum</span>
 
 <span class="c1"># If album exists it will be used, otherwise it will be created</span>
-<span class="n">album</span> <span class="o">=</span> <span class="n">PhotosAlbum</span><span class="p">(</span><span class="s2">&quot;Best Photos&quot;</span><span class="p">)</span>
+<span class="n">album</span> <span class="o">=</span> <span class="n">PhotosAlbum</span><span class="p">(</span><span class="s2">"Best Photos"</span><span class="p">)</span>
 <span class="n">best_photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">PhotosDB</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="nb">print</span><span class="p">)</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">overall</span> <span class="o">&gt;</span> <span class="mf">0.9</span><span class="p">]</span>
 
 <span class="c1"># use album.add() or album.append() to add a single photo</span>
 <span class="c1"># use album.update() or album.extend() to add an iterable of photos</span>
 <span class="n">album</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">best_photos</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">best_photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to album </span><span class="si">{</span><span class="n">album</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Album contains </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">album</span><span class="o">.</span><span class="n">photos</span><span class="p">())</span><span class="si">}</span><span class="s2"> photos&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Added </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">best_photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to album </span><span class="si">{</span><span class="n">album</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Album contains </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">album</span><span class="o">.</span><span class="n">photos</span><span class="p">())</span><span class="si">}</span><span class="s2"> photos"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -3276,7 +3276,7 @@ cog.out("\n"+get_template_field_table()+"\n")
     <span class="n">signature_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PhotoInfo</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diff_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PhotoInfo</span><span class="p">,</span> <span class="n">PhotoInfo</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhotosDBDiff</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare two Photos libraries and return a PhotosDBDiff object</span>
+<span class="w">    </span><span class="sd">"""Compare two Photos libraries and return a PhotosDBDiff object</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        library_a: PhotosDB object for first library</span>
@@ -3289,12 +3289,12 @@ cog.out("\n"+get_template_field_table()+"\n")
 
 <span class="sd">    Note: signature_function should take a PhotoInfo object as input and return a unique</span>
 <span class="sd">        signature for the photo; if signature_function is None, the default signature</span>
-<span class="sd">        function will be used which computes a signature based on the photo&#39;s fingerprint</span>
+<span class="sd">        function will be used which computes a signature based on the photo's fingerprint</span>
 <span class="sd">        diff_function should take two PhotoInfo objects as input and return a truthy value</span>
 <span class="sd">        if the objects are different or a falsy value if they are the same; if diff_function</span>
 <span class="sd">        is None, the default diff function will be used which compares the dictionary</span>
 <span class="sd">        representation of the PhotoInfo objects.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 </pre></div>
 </div>
 </section>
@@ -3302,7 +3302,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <h4><span class="raw-html-m2r"><a name="PhotosDBDiff">PhotosDBDiff</a></span><a class="headerlink" href="#a-name-photosdbdiff-photosdbdiff-a" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">PhotosDBDiff</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to hold differences between two PhotosDB objects&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Class to hold differences between two PhotosDB objects"""</span>
 
     <span class="n">library_a</span><span class="p">:</span> <span class="n">PhotosDB</span>
     <span class="n">library_b</span><span class="p">:</span> <span class="n">PhotosDB</span>
@@ -3345,9 +3345,9 @@ cog.out("\n"+get_template_field_table()+"\n")
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 
-    <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">&quot;/Users/smith/Pictures/Photos Library.photoslibrary&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;db file = </span><span class="si">{</span><span class="n">photosdb</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;db version = </span><span class="si">{</span><span class="n">photosdb</span><span class="o">.</span><span class="n">db_version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">"/Users/smith/Pictures/Photos Library.photoslibrary"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"db file = </span><span class="si">{</span><span class="n">photosdb</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"db version = </span><span class="si">{</span><span class="n">photosdb</span><span class="o">.</span><span class="n">db_version</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">keywords</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">persons</span><span class="p">)</span>
@@ -3358,14 +3358,14 @@ cog.out("\n"+get_template_field_table()+"\n")
     <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">albums_as_dict</span><span class="p">)</span>
 
     <span class="c1"># find all photos with Keyword = Kids and containing person Katie</span>
-    <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Kids&quot;</span><span class="p">],</span> <span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Katie&quot;</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos&quot;</span><span class="p">)</span>
+    <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"Kids"</span><span class="p">],</span> <span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Katie"</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">photos</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos"</span><span class="p">)</span>
 
     <span class="c1"># find all photos that include Katie but do not contain the keyword wedding</span>
     <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">p</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Katie&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;wedding&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Katie"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"wedding"</span><span class="p">])</span>
     <span class="p">]</span>
 
     <span class="c1"># get all photos in the database</span>
@@ -3386,7 +3386,7 @@ cog.out("\n"+get_template_field_table()+"\n")
         <span class="p">)</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -3781,9 +3781,9 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=b7049291"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>

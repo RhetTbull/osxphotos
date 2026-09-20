@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Command Line Interface (CLI)" href="cli.html"><link rel="prev" title="OSXPhotos" href="overview.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>OSXPhotos Tutorial - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>OSXPhotos Tutorial - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -286,10 +286,10 @@
 <p>By default, osxphotos will use the original filename of the photo when exporting.  That is, the filename the photo had when it was taken or imported into Photos.  This is often something like <code class="docutils literal notranslate"><span class="pre">IMG_1234.JPG</span></code> or <code class="docutils literal notranslate"><span class="pre">DSC05678.dng</span></code>.  osxphotos allows you to specify a custom filename template using the <code class="docutils literal notranslate"><span class="pre">--filename</span></code> option in the same way as <code class="docutils literal notranslate"><span class="pre">--directory</span></code> allows you to specify a custom directory name.  For example, Photos allows you specify a title or caption for a photo and you can use this in place of the original filename:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--filename</span> <span class="pre">&quot;{title}&quot;</span></code></p>
 <p>The above command will export photos using the title.  Note that you don't need to specify the extension as part of the <code class="docutils literal notranslate"><span class="pre">--filename</span></code> template as osxphotos will automatically add the correct file extension.  Some photos might not have a title so in this case, you could use the default value feature to specify a different name for these photos.  For example, to use the title as the filename, but if no title is specified, use the original filename instead:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>osxphotos export /path/to/export --filename &quot;{title,{original_name}}&quot;
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>osxphotos export /path/to/export --filename "{title,{original_name}}"
                                               │    ││  │
                                               │    ││  │
-     Use photo&#39;s title as the filename &lt;──────┘    ││  │
+     Use photo's title as the filename &lt;──────┘    ││  │
                                                    ││  │
             Value after comma will be used &lt;───────┘│  │
             if title is blank                       │  │
@@ -297,26 +297,26 @@
                       The default value can be &lt;────┘  │
                       another template field           │
                                                        │
-          Use photo&#39;s original name if no title &lt;──────┘
+          Use photo's original name if no title &lt;──────┘
 </pre></div>
 </div>
 <p>The osxphotos template system also allows for limited conditional logic of the type &quot;If a condition is true then do one thing, otherwise, do a different thing&quot;. For example, you can use the <code class="docutils literal notranslate"><span class="pre">--filename</span></code> option to name files that are marked as &quot;Favorites&quot; in Photos differently than other files. For example, to add a &quot;#&quot; to the name of every photo that's a favorite:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>osxphotos export /path/to/export --filename &quot;{original_name}{favorite?#,}&quot;
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>osxphotos export /path/to/export --filename "{original_name}{favorite?#,}"
                                               │              │       │││
                                               │              │       │││
-     Use photo&#39;s original name as filename &lt;──┘              │       │││
+     Use photo's original name as filename &lt;──┘              │       │││
                                                              │       │││
-          &#39;favorite&#39; is True if photo is a Favorite, &lt;───────┘       │││
+          'favorite' is True if photo is a Favorite, &lt;───────┘       │││
           otherwise, False                                           │││
                                                                      │││
-                           &#39;?&#39; specifies a conditional &lt;─────────────┘││
+                           '?' specifies a conditional &lt;─────────────┘││
                                                                       ││
                  Value immediately following ? will be used if &lt;──────┘│
                  preceding template field is True or non-blank         │
                                                                        │
               Value immediately following comma will be used if &lt;──────┘
               template field is False or blank (null); in this case
-              no value is specified so a blank string &quot;&quot; will be used
+              no value is specified so a blank string "" will be used
 </pre></div>
 </div>
 <p>Like with <code class="docutils literal notranslate"><span class="pre">--directory</span></code>, using a multi-valued template field such as <code class="docutils literal notranslate"><span class="pre">{keyword}</span></code> may result in more than one copy of a photo being exported.  For example, if <code class="docutils literal notranslate"><span class="pre">IMG_1234.JPG</span></code> has keywords <code class="docutils literal notranslate"><span class="pre">Travel</span></code>, and <code class="docutils literal notranslate"><span class="pre">Vacation</span></code> and you run the following command:</p>
@@ -367,7 +367,7 @@
 <p>Photos tracks a tremendous amount of metadata associated with photos in the library such as keywords, faces and persons, reverse geolocation data, and image classification labels.  Photos' native export capability does not preserve most of this metadata.  osxphotos can, however, access and preserve almost all the metadata associated with photos.  Using the free <cite>``exiftool`</cite> &lt;<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>&gt;`_ app, osxphotos can write metadata to exported photos.  Follow the instructions on the exiftool website to install exiftool then you can use the <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code> option to write metadata to exported photos:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--exiftool</span></code></p>
 <p>This will write basic metadata such as keywords, persons, and GPS location to the exported files.  osxphotos includes several additional options that can be used in conjunction with <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code> to modify the metadata that is written by <code class="docutils literal notranslate"><span class="pre">exiftool</span></code>. For example, you can use the <code class="docutils literal notranslate"><span class="pre">--keyword-template</span></code> option to specify custom keywords (again, via the osxphotos template system).  For example, to use the folder and album a photo is in to create hierarchical keywords in the format used by Lightroom Classic:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>osxphotos export /path/to/export --exiftool --keyword-template &quot;{folder_album(&gt;)}&quot;
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>osxphotos export /path/to/export --exiftool --keyword-template "{folder_album(&gt;)}"
                                                                  │            │
                                                                  │            │
                        folder_album results in the folder(s)  &lt;──┘            │
@@ -376,7 +376,7 @@
                        The value in () is used as the path separator  &lt;───────┘
                        for joining the folders and albums.  For example,
                        if photo is in Folder1/Folder2/Album, (&gt;) produces
-                       &quot;Folder1&gt;Folder2&gt;Album&quot; which some programs, such as
+                       "Folder1&gt;Folder2&gt;Album" which some programs, such as
                        Lightroom Classic, treat as hierarchical keywords
 </pre></div>
 </div>
@@ -509,9 +509,9 @@
                        │       │        │
                        └───&gt; insert a comma
                                │        │
-                               └───&gt; join the list of keywords together with a &quot;,&quot;
+                               └───&gt; join the list of keywords together with a ","
                                         │
-                                        └───&gt; if no keywords, insert nothing (empty string: &quot;&quot;)
+                                        └───&gt; if no keywords, insert nothing (empty string: "")
 </pre></div>
 </div>
 <p>Another example: if you had <code class="docutils literal notranslate"><span class="pre">exiftool</span></code> installed and wanted to wipe all metadata from all exported files, you could use the following:</p>
@@ -527,12 +527,12 @@ very quickly. Nevertheless, I will tag and geolocate everything as Photos has a
 quite good keyword management system.
 
 After a while, I want to take most of the videos out of the library and move them
-to a separate &quot;videos&quot; folder on a different folder / volume. As I might want to
+to a separate "videos" folder on a different folder / volume. As I might want to
 use them in Final Cut Pro, and since Final Cut is able to import Finder tags into
 its internal library tagging system, I will use osxphotos to do just this.
 
 Picking the videos can be left to Photos, using a smart folder for instance. Then
-just add a keyword to all videos to be processed. Here I chose &quot;Quik&quot; as I wanted
+just add a keyword to all videos to be processed. Here I chose "Quik" as I wanted
 to spot all videos created on my iPhone using the Quik application (now part of
 GoPro).
 
@@ -652,9 +652,9 @@ template fields.
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=b7049291"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
