@@ -116,8 +116,7 @@ def get_config_dir() -> pathlib.Path:
     """Get the directory where config files are stored; create it if necessary."""
     # use xdg_base_dirs.xdg_config_home instead of importing xdg_config_home directly to make it easier to mock in tests
     config_dir = xdg_base_dirs.xdg_config_home() / APP_NAME
-    if not config_dir.is_dir():
-        config_dir.mkdir(parents=True)
+    config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir
 
 
@@ -125,8 +124,7 @@ def get_data_dir() -> pathlib.Path:
     """Get the director where local user data files are stored; create it if necessary"""
     # use xdg_base_dirs.xdg_data_home instead of importing xdg_data_home directly to make it easier to mock in tests
     data_dir = xdg_base_dirs.xdg_data_home() / APP_NAME
-    if not data_dir.is_dir():
-        data_dir.mkdir(parents=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
     return data_dir
 
 
