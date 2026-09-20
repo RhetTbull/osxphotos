@@ -17,7 +17,7 @@
 # First time setup: ./run_linux_tests.sh --python 3.13 --build
 # If you need to rebuild the image, use the --build flag
 # Once built, you can run tests with ./run_linux_tests.sh
-# You should only need to rebuild the image if you change the Dockerfile or the dependencies in requirements.txt
+# You should only need to rebuild the image if you change the Dockerfile or the dependencies in pyproject.toml
 #
 
 # Default arguments

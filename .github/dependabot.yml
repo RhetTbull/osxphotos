@@ -1,0 +1,52 @@
+version: 2
+
+updates:
+  # Keep GitHub Actions up to date
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Keep Python dependencies up to date (reads pyproject.toml)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "python"
+    # Group all non-breaking updates so the PR noise is manageable
+    groups:
+      pyobjc:
+        patterns:
+          - "pyobjc*"
+      sphinx:
+        patterns:
+          - "Sphinx"
+          - "sphinx*"
+          - "sphinxcontrib*"
+          - "furo"
+    # Ignore major-version bumps on packages with tight upper bounds;
+    # those are intentional constraints that should be updated manually.
+    ignore:
+      - dependency-name: "bitmath"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "bpylist2"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Mako"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "rich"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "tenacity"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "textx"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "wrapt"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "wurlitzer"
+        update-types: ["version-update:semver-major"]

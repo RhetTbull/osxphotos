@@ -8,8 +8,7 @@ To set up a dev environment to work on osxphotos code or run tests follow these 
 - `cd osxphotos`
 - `python3 -m venv venv`
 - `source venv/bin/activate`
-- `python3 -m pip install -r dev_requirements.txt`
-- `python3 -m pip install -e .`
+- `python3 -m pip install -e ".[dev]"`
 
 To run the tests, do the following from the main source folder:
 `python3 -m pytest tests/`

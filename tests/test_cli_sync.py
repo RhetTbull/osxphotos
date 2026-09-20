@@ -1,6 +1,7 @@
 """Test osxphotos sync command"""
 
 import csv
+import importlib
 import json
 import os
 import sqlite3
@@ -16,6 +17,8 @@ if is_macos:
     import photoscript
 
     from osxphotos.cli.sync import sync
+    from osxphotos.cli.sync_results import SyncResults
+    from osxphotos.sqlitekvstore import SQLiteKVStore
 else:
     pytest.skip(allow_module_level=True)
 
@@ -390,3 +393,233 @@ def test_sync_export_import_location_in_folder():
             assert report_data[uuid]["albums"]["updated"]
             assert report_data[uuid]["location"]["updated"]
             assert not report_data[uuid]["error"]
+
+
+###############################################################################
+# Tests for import_metadata() signature matching
+#
+# These don't require a Photos library so they run without --test-sync
+###############################################################################
+
+
+def _sync_module():
+    """Return the osxphotos.cli.sync module.
+
+    Note: importlib is needed because osxphotos.cli.sync resolves to the sync
+    click command, not the module.
+    """
+    return importlib.import_module("osxphotos.cli.sync")
+
+
+class SyncTestPhoto:
+    """Minimal stand-in for PhotoInfo for testing import_metadata() matching"""
+
+    def __init__(
+        self,
+        uuid: str,
+        original_filename: str,
+        fingerprint: str,
+        shared: bool = False,
+    ):
+        self.uuid = uuid
+        self.original_filename = original_filename
+        self.fingerprint = fingerprint
+        self.shared = shared
+
+
+def _test_photo_signature(photo: SyncTestPhoto) -> str:
+    """Stand-in for photo_signature() that mirrors the real signature format"""
+    if photo.shared:
+        # shared photo signatures contain no filename
+        return f"OWNER:100:200:True:False:{photo.uuid}"
+    return f"{photo.original_filename.lower()}:{photo.fingerprint}"
+
+
+def _make_import_db(tmp_path, entries: dict[str, dict]) -> str:
+    """Create a sync metadata export database containing entries; return its path"""
+    db_path = str(tmp_path / "metadata.db")
+    db = SQLiteKVStore(db_path, wal=False)
+    db.about = "osxphotos metadata sync database (test)"
+    for key, metadata in entries.items():
+        db[key] = json.dumps(metadata)
+    db.close()
+    return db_path
+
+
+@pytest.fixture
+def sync_test_env(monkeypatch):
+    """Patch the sync module so import_metadata() can run without a Photos library.
+
+    Returns (sync module, list of (photo, metadata) passed to
+    import_metadata_for_photo, list of messages passed to echo).
+    """
+    sync_module = _sync_module()
+    imported = []
+    messages = []
+
+    def fake_import_metadata_for_photo(photo, metadata, set_, merge, dry_run, verbose):
+        imported.append((photo, json.loads(metadata)))
+        return SyncResults()
+
+    monkeypatch.setattr(sync_module, "photo_signature", _test_photo_signature)
+    monkeypatch.setattr(
+        sync_module, "import_metadata_for_photo", fake_import_metadata_for_photo
+    )
+    monkeypatch.setattr(sync_module, "echo", lambda msg, **kwargs: messages.append(msg))
+    return sync_module, imported, messages
+
+
+def _import_metadata(sync_module, photos, import_path, unmatched=False):
+    """Call import_metadata() with the options used by these tests"""
+    return sync_module.import_metadata(
+        photos=photos,
+        import_path=import_path,
+        set_=("keywords",),
+        merge=(),
+        dry_run=True,
+        unmatched=unmatched,
+        verbose=lambda *args, **kwargs: None,
+    )
+
+
+def test_import_metadata_matches_exact_signature(sync_test_env, tmp_path):
+    """Photo whose signature is in the import database is matched"""
+    sync_module, imported, _ = sync_test_env
+    import_path = _make_import_db(
+        tmp_path, {"img_1234.heic:FINGERPRINT1": {"keywords": ["Travel"]}}
+    )
+    photo = SyncTestPhoto("UUID1", "IMG_1234.HEIC", "FINGERPRINT1")
+
+    _import_metadata(sync_module, [photo], import_path)
+
+    assert len(imported) == 1
+    assert imported[0][0] is photo
+    assert imported[0][1] == {"keywords": ["Travel"]}
+
+
+def test_import_metadata_matches_filename_with_collision_counter(
+    sync_test_env, tmp_path
+):
+    """Photo renamed by Photos with a collision counter falls back to the base filename"""
+    sync_module, imported, _ = sync_test_env
+    import_path = _make_import_db(
+        tmp_path, {"img_1234.heic:FINGERPRINT1": {"keywords": ["Travel"]}}
+    )
+    # same photo, imported into a library where the filename collided
+    photo = SyncTestPhoto("UUID1", "IMG_1234 2.HEIC", "FINGERPRINT1")
+
+    _import_metadata(sync_module, [photo], import_path)
+
+    assert len(imported) == 1
+    assert imported[0][0] is photo
+    assert imported[0][1] == {"keywords": ["Travel"]}
+
+
+def test_import_metadata_unmatched_photo_is_skipped(sync_test_env, tmp_path):
+    """Photo with no match in the import database is skipped, not an error"""
+    sync_module, imported, _ = sync_test_env
+    import_path = _make_import_db(
+        tmp_path, {"img_1234.heic:FINGERPRINT1": {"keywords": ["Travel"]}}
+    )
+    photo = SyncTestPhoto("UUID2", "IMG_9999.JPG", "FINGERPRINT2")
+
+    _import_metadata(sync_module, [photo], import_path)
+
+    assert not imported
+
+
+def test_import_metadata_unmatched_photo_with_different_fingerprint_is_skipped(
+    sync_test_env, tmp_path
+):
+    """Photo whose filename matches after normalization but fingerprint doesn't is skipped"""
+    sync_module, imported, _ = sync_test_env
+    import_path = _make_import_db(
+        tmp_path, {"img_1234.heic:FINGERPRINT1": {"keywords": ["Travel"]}}
+    )
+    photo = SyncTestPhoto("UUID2", "IMG_1234 2.HEIC", "DIFFERENT_FINGERPRINT")
+
+    _import_metadata(sync_module, [photo], import_path)
+
+    assert not imported
+
+
+def test_import_metadata_unmatched_photo_reported_with_unmatched(
+    sync_test_env, tmp_path
+):
+    """--unmatched reports photos with no metadata in the import database"""
+    sync_module, imported, messages = sync_test_env
+    import_path = _make_import_db(
+        tmp_path, {"img_1234.heic:FINGERPRINT1": {"keywords": ["Travel"]}}
+    )
+    photo = SyncTestPhoto("UUID2", "IMG_9999.JPG", "FINGERPRINT2")
+
+    _import_metadata(sync_module, [photo], import_path, unmatched=True)
+
+    assert not imported
+    assert any("IMG_9999.JPG" in msg and "UUID2" in msg for msg in messages)
+    assert any("img_1234.heic:FINGERPRINT1" in msg for msg in messages)
+
+
+def test_import_metadata_shared_photo_signature_not_normalized(sync_test_env, tmp_path):
+    """Shared photo signatures contain no filename so must not be normalized"""
+    sync_module, imported, _ = sync_test_env
+    shared_signature = "OWNER:100:200:True:False:UUID3"
+    import_path = _make_import_db(
+        tmp_path, {shared_signature: {"keywords": ["Shared"]}}
+    )
+    photo = SyncTestPhoto("UUID3", "IMG_1234 2.HEIC", "FINGERPRINT3", shared=True)
+
+    _import_metadata(sync_module, [photo], import_path)
+
+    assert len(imported) == 1
+    assert imported[0][1] == {"keywords": ["Shared"]}
+
+
+def test_import_metadata_multiple_photos_share_normalized_key(sync_test_env, tmp_path):
+    """More than one photo may match the same import key"""
+    sync_module, imported, _ = sync_test_env
+    import_path = _make_import_db(
+        tmp_path, {"img_1234.heic:FINGERPRINT1": {"keywords": ["Travel"]}}
+    )
+    photos = [
+        SyncTestPhoto("UUID1", "IMG_1234.HEIC", "FINGERPRINT1"),
+        SyncTestPhoto("UUID2", "IMG_1234 2.HEIC", "FINGERPRINT1"),
+    ]
+
+    _import_metadata(sync_module, photos, import_path)
+
+    assert sorted(photo.uuid for photo, _ in imported) == ["UUID1", "UUID2"]
+
+
+def test_import_metadata_library_import_updates_selected_photos(
+    sync_test_env, monkeypatch, tmp_path
+):
+    """--import <library> must update the selected photos, not the import library's photos"""
+    sync_module, imported, _ = sync_test_env
+    import_photo = SyncTestPhoto("IMPORT-UUID", "IMG_1234.HEIC", "FINGERPRINT1")
+    selected_photo = SyncTestPhoto("SELECTED-UUID", "IMG_1234.HEIC", "FINGERPRINT1")
+
+    class FakePhotosDB:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def query(self, options):
+            return [import_photo]
+
+    def fake_export_metadata_to_db(photos, metadata_db, progress=True):
+        for photo in photos:
+            metadata_db[_test_photo_signature(photo)] = json.dumps(
+                {"uuid": photo.uuid, "keywords": ["Travel"]}
+            )
+
+    monkeypatch.setattr(sync_module, "get_import_type", lambda path: "library")
+    monkeypatch.setattr(sync_module, "PhotosDB", FakePhotosDB)
+    monkeypatch.setattr(
+        sync_module, "export_metadata_to_db", fake_export_metadata_to_db
+    )
+
+    _import_metadata(sync_module, [selected_photo], str(tmp_path))
+
+    assert len(imported) == 1
+    assert imported[0][0] is selected_photo
+    assert imported[0][1]["uuid"] == "IMPORT-UUID"

@@ -1,13 +1,15 @@
 # TOML file for generating the applecrate package with applecrate
-# The version in this file will be updated by bump2version
+# The version in this file will be updated by bump-my-version
+# NOTE: the version appears twice below (`version` and the `build/` install
+# path); both are updated. See [tool.bumpversion] in pyproject.toml.
 
 app = "osxphotos"
-version = "0.76.1"
+version = "0.77.0"
 identifier = "org.rhettbull.osxphotos"
 license = "LICENSE"
 install = [
     [
-        "build/osxphotos-0.76.1-{{ machine }}",
+        "build/osxphotos-0.77.0-{{ machine }}",
         "/usr/local/bin/osxphotos",
     ],
 ]

@@ -24,6 +24,7 @@ from osxphotos.photosalbum import PhotosAlbum, PhotosAlbumPhotoScriptByPath
 from osxphotos.photosdb.photosdb_utils import get_db_version
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.platform import assert_macos
+from osxphotos.signature_utils import normalize_photo_signature_filename
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
@@ -280,15 +281,6 @@ def import_metadata(
         f"Importing metadata for [num]{len(photos)}[/] {photo_word} from [filepath]{import_path}[/]"
     )
 
-    # build mapping of key to photo
-    key_to_photo = {}
-    for photo in photos:
-        key = photo_signature(photo)
-        if key in key_to_photo:
-            key_to_photo[key].append(photo)
-        else:
-            key_to_photo[key] = [photo]
-
     # find keys in import_path that match keys in photos
     if import_type == "library":
         # create an in memory database of the import library
@@ -296,10 +288,10 @@ def import_metadata(
         photosdb = PhotosDB(import_path, verbose=verbose)
         # filter out shared photos which don't have a fingerprint and
         # whose metadata can't be set
-        photos = photosdb.query(QueryOptions(not_shared=True))
+        import_photos = photosdb.query(QueryOptions(not_shared=True))
         import_db = SQLiteKVStore(":memory:")
         verbose(f"Loading metadata from import library: [filepath]{import_path}[/]")
-        export_metadata_to_db(photos, import_db, progress=False)
+        export_metadata_to_db(import_photos, import_db, progress=False)
     elif import_type == "export":
         import_db = open_metadata_db(import_path)
     else:
@@ -308,26 +300,44 @@ def import_metadata(
         )
         raise click.Abort()
 
+    # build mapping of import key to photos
+    # if a photo's signature isn't in the import database, retry with any
+    # collision counter Photos appended to the filename removed,
+    # e.g. "IMG_1234 2.HEIC" -> "IMG_1234.HEIC"
+    key_to_photo = {}
+    unmatched_photos = []
+    for photo in photos:
+        key = photo_signature(photo)
+        if key not in import_db and not photo.shared:
+            # shared photo signatures don't contain a filename so only
+            # non-shared photos can use the filename fallback
+            key = normalize_photo_signature_filename(key, photo.original_filename)
+        if key not in import_db:
+            unmatched_photos.append(photo)
+            continue
+        if key in key_to_photo:
+            key_to_photo[key].append(photo)
+        else:
+            key_to_photo[key] = [photo]
+
     results = SyncResults()
     for key, key_photos in key_to_photo.items():
-        if key in import_db:
-            # import metadata from import_db
-            for photo in key_photos:
-                verbose(
-                    f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
-                )
-                metadata = import_db[key]
-                results += import_metadata_for_photo(
-                    photo, metadata, set_, merge, dry_run, verbose
-                )
-        elif unmatched:
-            # unable to find metadata for photo in import_db
-            for photo in key_photos:
-                echo(
-                    f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
-                )
+        # import metadata from import_db
+        metadata = import_db[key]
+        for photo in key_photos:
+            verbose(
+                f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
+            )
+            results += import_metadata_for_photo(
+                photo, metadata, set_, merge, dry_run, verbose
+            )
 
     if unmatched:
+        # report any photos for which no metadata was found in import_db
+        for photo in unmatched_photos:
+            echo(
+                f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
+            )
         # find any keys in import_db that don't match keys in photos
         for key in import_db.keys():
             if key not in key_to_photo:

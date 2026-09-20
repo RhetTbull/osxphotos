@@ -1,4 +1,4 @@
-""" Test ExportDB """
+"""Test ExportDB"""
 
 import os
 import pathlib
@@ -494,3 +494,46 @@ def test_export_db_no_version(tmp_path):
     assert export_db.version == OSXPHOTOS_EXPORTDB_VERSION
     table_query = "SELECT * FROM sqlite_master WHERE type='table' AND name='history'"
     assert export_db.connection.execute(table_query).fetchall()
+
+
+INDEX_QUERY = (
+    "SELECT * FROM sqlite_master WHERE type='index' AND name='idx_export_data_uuid'"
+)
+
+
+def test_export_db_export_data_uuid_index(tmp_path):
+    """Test that index on export_data.uuid is created, #2197"""
+    test_db = tmp_path / "osxphotos_export.db"
+    export_db = ExportDB(test_db, tmp_path)
+    assert export_db.connection.execute(INDEX_QUERY).fetchall()
+
+
+def test_export_db_export_data_uuid_index_migration(tmp_path):
+    """Test that index on export_data.uuid is added on upgrade, #2197"""
+    test_db = tmp_path / "osxphotos_export.db"
+    export_db = ExportDB(test_db, tmp_path, version="11.0")
+    assert not export_db.connection.execute(INDEX_QUERY).fetchall()
+    export_db.close()
+
+    export_db = ExportDB(test_db, tmp_path)
+    assert export_db.was_upgraded
+    assert export_db.version == OSXPHOTOS_EXPORTDB_VERSION
+    assert export_db.connection.execute(INDEX_QUERY).fetchall()
+
+
+def test_export_db_old_version_no_export_data_table(tmp_path):
+    """Test that a db created with a version predating export_data can be created and upgraded, #2197"""
+    test_db = tmp_path / "osxphotos_export.db"
+    export_db = ExportDB(test_db, tmp_path, version="5.0")
+    assert export_db.version == "5.0"
+    table_query = (
+        "SELECT * FROM sqlite_master WHERE type='table' AND name='export_data'"
+    )
+    assert not export_db.connection.execute(table_query).fetchall()
+    export_db.close()
+
+    export_db = ExportDB(test_db, tmp_path)
+    assert export_db.was_upgraded
+    assert export_db.version == OSXPHOTOS_EXPORTDB_VERSION
+    assert export_db.connection.execute(table_query).fetchall()
+    assert export_db.connection.execute(INDEX_QUERY).fetchall()

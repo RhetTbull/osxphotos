@@ -11,14 +11,31 @@ from osxphotos.platform import is_macos
 
 
 def is_photos_running():
-    """Check if Photos.app is currently running"""
+    """Check if Photos.app is running for the current user.
+
+    Matches only the main Photos executable owned by the current user. A plain
+    `pgrep -f Photos.app` is too broad in two ways that make these tests fail on
+    a machine where the current user is not the only one using Photos:
+
+    - it matches every user's processes, so another logged-in user running
+      Photos looks like "Photos is still running" even though
+      `_kill_photos_process` quit the current user's copy (pkill cannot signal
+      another user's processes without root);
+    - it matches any path containing "Photos.app", including helper processes
+      such as Contents/PlugIns/PhotosReliveWidget.appex.
+
+    `pgrep -u <uid> -x Photos` matches the process name exactly and only for
+    this user, so helpers and other users' processes are ignored.
+    """
     try:
-        # Use pgrep -f to match the same pattern as pkill -f in _kill_photos_process
         result = subprocess.run(
-            ["pgrep", "-f", "Photos.app"], capture_output=True, check=False
+            ["pgrep", "-u", str(os.getuid()), "-x", "Photos"],
+            capture_output=True,
+            check=False,
         )
         return result.returncode == 0
-    except Exception:
+    except OSError:
+        # pgrep missing or not executable; treat as "not running"
         return False
 
 
@@ -32,7 +49,8 @@ def start_photos():
             if is_photos_running():
                 return True
         return False
-    except Exception:
+    except (OSError, subprocess.CalledProcessError):
+        # `open` missing, or it failed to launch Photos
         return False
 
 

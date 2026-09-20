@@ -163,6 +163,9 @@ def batch_edit(
     or 'osxphotos docs' for more information on the osxphotos template system.
 
     It is recommended you test your edits on a small set of photos before applying them to many photos.
+
+    Note: --library specifies which library photos are queried from but edits are always applied to the
+    library currently open in Photos. If you use --library, ensure the same library is open in Photos.
     """
 
     try:
@@ -483,7 +486,9 @@ def render_album_template(
     return template_values
 
 
-def get_photos_for_processing(db: str | None = None, **kwargs) -> list[osxphotos.PhotoInfo]:
+def get_photos_for_processing(
+    db: str | None = None, **kwargs
+) -> list[osxphotos.PhotoInfo]:
     """Get photos for processing from query options or selection.
 
     Args:

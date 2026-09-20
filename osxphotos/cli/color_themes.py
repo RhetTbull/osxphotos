@@ -1,7 +1,11 @@
 """Support for colorized output for osxphotos cli using rich"""
 
+from __future__ import annotations
+
+import os
 import pathlib
-from typing import List, Optional
+import tempfile
+from typing import Optional
 
 import click
 from rich.style import Style
@@ -170,15 +174,55 @@ COLOR_THEMES = {
 def get_theme_dir() -> pathlib.Path:
     """Return the theme config dir, creating it if necessary"""
     theme_dir = get_config_dir() / "themes"
-    if not theme_dir.exists():
-        theme_dir.mkdir()
+    theme_dir.mkdir(parents=True, exist_ok=True)
     return theme_dir
+
+
+def _write_theme_file(theme: Theme, path: pathlib.Path):
+    """Write theme to path atomically so readers never see a partial file"""
+    fd, tmp = tempfile.mkstemp(
+        dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp"
+    )
+    try:
+        with os.fdopen(fd, "w") as fh:
+            fh.write(theme.config)
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _sync_theme_files(theme_dir: pathlib.Path):
+    """Ensure the built-in theme files exist on disk and define every built-in style.
+
+    Files are only written when missing, unreadable, or out of date; this keeps
+    concurrent osxphotos processes from rewriting the theme files out from under
+    each other on every invocation (#2201).
+    """
+    for theme in COLOR_THEMES.values():
+        path = theme_dir / f"{theme.name}.theme"
+        try:
+            on_disk = Theme.read(str(path))
+        except Exception:
+            # missing, empty, or corrupt (e.g. left behind by an interrupted write)
+            _write_theme_file(theme, path)
+            continue
+        if all(style in on_disk.style_names for style in theme.style_names):
+            continue
+        # preserve the user's customizations, add the styles they're missing
+        on_disk.update(theme, overwrite_existing_styles=False)
+        _write_theme_file(on_disk, path)
 
 
 def get_theme_manager() -> ThemeManager:
     """Return theme manager instance"""
+    theme_dir = get_theme_dir()
+    _sync_theme_files(theme_dir)
     return ThemeManager(
-        theme_dir=str(get_theme_dir()), themes=COLOR_THEMES.values(), update=True
+        theme_dir=str(theme_dir), themes=COLOR_THEMES.values(), update=False
     )
 
 

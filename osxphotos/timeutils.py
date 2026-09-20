@@ -67,7 +67,7 @@ def update_datetime(
     else:
         dt_with_tz = dt
 
-    zoned_dt = ZonedDateTime.from_py_datetime(dt_with_tz)
+    zoned_dt = ZonedDateTime(dt_with_tz)
 
     if date is not None:
         whenever_date = Date(year=date.year, month=date.month, day=date.day)
@@ -91,7 +91,7 @@ def update_datetime(
     if time is not None and local_time_delta is not None:
         zoned_dt = zoned_dt.add(seconds=local_time_delta.total_seconds())
 
-    result_dt = zoned_dt.py_datetime()
+    result_dt = zoned_dt.to_stdlib()
 
     if dt.tzinfo is None:
         local_tz = get_local_tz(dt)

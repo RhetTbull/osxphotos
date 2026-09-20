@@ -2,7 +2,7 @@
 
 I'm still trying to learn sphinx and come up with a workflow for building docs.  Right now it's pretty kludgy.
 
-- `python3 -m pip -r dev_requirements.txt`
+- `python3 -m pip install -e ".[dev]"`
 - Download and install [MacTeX](https://tug.org/mactex/)
 - Add `/Library/TeX/texbin` to your `$PATH`
 - `cd docsrc`

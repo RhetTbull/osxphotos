@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.scoreinfo - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>osxphotos.scoreinfo - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,20 +231,20 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.scoreinfo</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; ScoreInfo class to expose computed score info from the library &quot;&quot;&quot;</span>
+<span></span><span class="sd">""" ScoreInfo class to expose computed score info from the library """</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">_PHOTOS_4_VERSION</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ScoreInfo&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ScoreInfo"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ScoreInfo">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ScoreInfo">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScoreInfo</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computed photo score info associated with a photo from the Photos library&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Computed photo score info associated with a photo from the Photos library"""</span>
 
     <span class="n">overall</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">curation</span><span class="p">:</span> <span class="nb">float</span>
@@ -277,7 +277,7 @@
 <div class="viewcode-block" id="ScoreInfo.asdict">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ScoreInfo.asdict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ScoreInfo as a dict&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return ScoreInfo as a dict"""</span>
         <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 </div>
 
@@ -313,9 +313,9 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7049291"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>

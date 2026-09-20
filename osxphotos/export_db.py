@@ -41,7 +41,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "11.0"
+OSXPHOTOS_EXPORTDB_VERSION = "11.1"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -983,6 +983,10 @@ class ExportDB:
         if current_version < float("11.0") and version >= float("11.0"):
             self._migrate_10_1_to_11_0(conn)
 
+        if current_version < float("11.1") and version >= float("11.1"):
+            # add index on export_data.uuid
+            self._migrate_11_0_to_11_1(conn)
+
         with self.lock:
             conn.execute("VACUUM;")
             conn.commit()
@@ -1373,6 +1377,23 @@ class ExportDB:
                 c.execute(
                     """ALTER TABLE export_data ADD COLUMN date_modified DATETIME;"""
                 )
+            conn.commit()
+
+    def _migrate_11_0_to_11_1(self, conn: sqlite3.Connection):
+        """Add index on export_data.uuid
+
+        export_data was indexed only on filepath_normalized but
+        get_target_for_file(), which resolves filename collisions (e.g. the
+        "(1)", "(2)" suffixes), queries by uuid; without this index every call
+        forces a full table scan of export_data (#2197).
+        """
+        with self.lock:
+            c = conn.cursor()
+            c.execute(
+                """ CREATE INDEX IF NOT EXISTS idx_export_data_uuid
+                    ON export_data (uuid);
+                    """
+            )
             conn.commit()
 
     def _perform_db_maintenance(self, conn: sqlite3.Connection):

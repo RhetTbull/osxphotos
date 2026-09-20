@@ -57,7 +57,7 @@ zip -r osxphotos/docs/docs.zip docs/* -x "docs/screencast/*"
 
 # build the package
 echo "Building package"
-python3 -m build
+uv build
 
 # build CLI executable
 echo "Building CLI executable"

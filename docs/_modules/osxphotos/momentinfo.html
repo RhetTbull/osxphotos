@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.momentinfo - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>osxphotos.momentinfo - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,74 +231,74 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.momentinfo</h1><div class="highlight"><pre>
-<span></span><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MomentInfo&quot;</span><span class="p">]</span>
-<span class="sd">&quot;&quot;&quot;MomentInfo class with details about photo moments.&quot;&quot;&quot;</span>
+<span></span><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"MomentInfo"</span><span class="p">]</span>
+<span class="sd">"""MomentInfo class with details about photo moments."""</span>
 
 
 <div class="viewcode-block" id="MomentInfo">
 <a class="viewcode-back" href="../../reference.html#osxphotos.MomentInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MomentInfo</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Info about a photo moment&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Info about a photo moment"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">moment_pk</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize with a moment PK; returns None if PK not found.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize with a moment PK; returns None if PK not found."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">db</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span> <span class="o">=</span> <span class="n">moment_pk</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_moment_pk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">moment_pk</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No moment with PK </span><span class="si">{</span><span class="n">moment_pk</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No moment with PK </span><span class="si">{</span><span class="n">moment_pk</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Primary key of the moment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Primary key of the moment."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Location of the moment.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">))</span>
+<span class="w">        </span><span class="sd">"""Location of the moment."""</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"latitude"</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"longitude"</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Title of the moment.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Title of the moment."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">subtitle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Subtitle of the moment.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subtitle&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Subtitle of the moment."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"subtitle"</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">start_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start date of the moment.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;startDate&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Start date of the moment."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startDate"</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">end_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stop date of the moment.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;endDate&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Stop date of the moment."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"endDate"</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Date of the moment.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;representativeDate&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Date of the moment."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"representativeDate"</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">modification_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Modification date of the moment.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;modificationDate&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Modification date of the moment."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"modificationDate"</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">photos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;All photos in this moment&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""All photos in this moment"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="n">photo_uuids</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">uuid</span>
                 <span class="k">for</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">photo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">photo</span><span class="p">[</span><span class="s2">&quot;momentID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span>
+                <span class="k">if</span> <span class="n">photo</span><span class="p">[</span><span class="s2">"momentID"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span>
             <span class="p">]</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_by_uuid</span><span class="p">(</span><span class="n">photo_uuids</span><span class="p">)</span>
@@ -307,19 +307,19 @@
 <div class="viewcode-block" id="MomentInfo.asdict">
 <a class="viewcode-back" href="../../reference.html#osxphotos.MomentInfo.asdict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns all moment info as dictionary&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns all moment info as dictionary"""</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;pk&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
-            <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
-            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-            <span class="s2">&quot;subtitle&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span><span class="p">,</span>
-            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;modification_date&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"pk"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+            <span class="s2">"location"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+            <span class="s2">"title"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s2">"subtitle"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span><span class="p">,</span>
+            <span class="s2">"start_date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"end_date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"modification_date"</span><span class="p">:</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">modification_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modification_date</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="p">),</span>
-            <span class="s2">&quot;photos&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">photos</span><span class="p">,</span>
+            <span class="s2">"photos"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">photos</span><span class="p">,</span>
         <span class="p">}</span></div>
 </div>
 
@@ -355,9 +355,9 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7049291"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
