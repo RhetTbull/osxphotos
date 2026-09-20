@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>osxphotos.albuminfo - osxphotos 0.76.1 documentation</title>
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>osxphotos.albuminfo - osxphotos 0.77.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.76.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.76.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,17 +231,17 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.albuminfo</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">AlbumInfo and FolderInfo classes for dealing with albums and folders</span>
 
 <span class="sd">AlbumInfo class</span>
-<span class="sd">Represents a single Album in the Photos library and provides access to the album&#39;s attributes</span>
+<span class="sd">Represents a single Album in the Photos library and provides access to the album's attributes</span>
 <span class="sd">PhotosDB.albums() returns a list of AlbumInfo objects</span>
 
 <span class="sd">FolderInfo class</span>
 <span class="sd">Represents a single Folder in the Photos library and provides access to the folders attributes</span>
 <span class="sd">PhotosDB.folders() returns a list of FolderInfo objects</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
@@ -258,18 +258,18 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.photos_datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">photos_datetime_local</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;sort_list_by_keys&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;AlbumInfoBaseClass&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;AlbumInfo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ImportInfo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ProjectInfo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;FolderInfo&quot;</span><span class="p">,</span>
+    <span class="s2">"sort_list_by_keys"</span><span class="p">,</span>
+    <span class="s2">"AlbumInfoBaseClass"</span><span class="p">,</span>
+    <span class="s2">"AlbumInfo"</span><span class="p">,</span>
+    <span class="s2">"ImportInfo"</span><span class="p">,</span>
+    <span class="s2">"ProjectInfo"</span><span class="p">,</span>
+    <span class="s2">"FolderInfo"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">sort_list_by_keys</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">sort_keys</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sorts list values by a second list sort_keys</span>
-<span class="sd">        e.g. given [&quot;a&quot;,&quot;c&quot;,&quot;b&quot;], [1, 3, 2], returns [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</span>
+<span class="w">    </span><span class="sd">"""Sorts list values by a second list sort_keys</span>
+<span class="sd">        e.g. given ["a","c","b"], [1, 3, 2], returns ["a", "b", "c"]</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        values: a list of values to be sorted</span>
@@ -280,35 +280,35 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: raised if len(values) != len(sort_keys)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sort_keys</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;values and sort_keys must be same length&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"values and sort_keys must be same length"</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">sort_keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))]</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">AlbumInfoBaseClass</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base class for AlbumInfo, ImportInfo</span>
 <span class="sd">    Info about a specific Album, contains all the details about the album</span>
 <span class="sd">    including folders, photos, etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="o">=</span> <span class="n">uuid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">db</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_creation_date_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;creation_date&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_start_date_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;start_date&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_end_date_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;end_date&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"title"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_creation_date_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"creation_date"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_date_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"start_date"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_date_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"end_date"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return uuid of album&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return uuid of album"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">creation_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return creation date of album&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return creation date of album"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_creation_date</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -319,8 +319,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">start_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;For Albums, return start date (earliest image) of album or None for albums with no images</span>
-<span class="sd">        For Import Sessions, return start date of import session (when import began)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""For Albums, return start date (earliest image) of album or None for albums with no images</span>
+<span class="sd">        For Import Sessions, return start date of import session (when import began)"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -329,9 +329,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">end_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;For Albums, return end date (most recent image) of album or None for albums with no images</span>
+<span class="w">        </span><span class="sd">"""For Albums, return end date (most recent image) of album or None for albums with no images</span>
 <span class="sd">        For Import Sessions, return end date of import sessions (when import was completed)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -344,7 +344,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">owner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return name of photo owner for shared album (Photos 5+ only), or None if not shared&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return name of photo owner for shared album (Photos 5+ only), or None if not shared"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -353,10 +353,10 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">personid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">][</span>
-                    <span class="s2">&quot;cloudownerhashedpersonid&quot;</span>
+                    <span class="s2">"cloudownerhashedpersonid"</span>
                 <span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_hashed_person_id</span><span class="p">[</span><span class="n">personid</span><span class="p">][</span><span class="s2">&quot;full_name&quot;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_hashed_person_id</span><span class="p">[</span><span class="n">personid</span><span class="p">][</span><span class="s2">"full_name"</span><span class="p">]</span>
                     <span class="k">if</span> <span class="n">personid</span>
                     <span class="k">else</span> <span class="kc">None</span>
                 <span class="p">)</span>
@@ -365,40 +365,40 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return album info as a dict; does not include photos&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return album info as a dict; does not include photos"""</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-            <span class="s2">&quot;creation_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">creation_date</span><span class="p">,</span>
-            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
-            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">,</span>
-            <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
+            <span class="s2">"uuid"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s2">"creation_date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">creation_date</span><span class="p">,</span>
+            <span class="s2">"start_date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
+            <span class="s2">"end_date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">,</span>
+            <span class="s2">"owner"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">,</span>
         <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return number of photos contained in album&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return number of photos contained in album"""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photos</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="AlbumInfo">
 <a class="viewcode-back" href="../../reference.html#osxphotos.AlbumInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AlbumInfo</span><span class="p">(</span><span class="n">AlbumInfoBaseClass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Info about a specific Album, contains all the details about the album</span>
 <span class="sd">    including folders, photos, etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"title"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return title / name of album&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return title / name of album"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">photos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of photos contained in album sorted in same sort order as Photos&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return list of photos contained in album sorted in same sort order as Photos"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -412,7 +412,7 @@
                 <span class="k">elif</span> <span class="n">sort_order</span> <span class="o">==</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">OLDEST_FIRST</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">photos</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">date</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">sort_order</span> <span class="o">==</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">TITLE</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">photos</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">photos</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">title</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># assume AlbumSortOrder.MANUAL</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span> <span class="o">=</span> <span class="n">photos</span>
@@ -422,11 +422,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">folder_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of folders the album is contained in</span>
+<span class="w">        </span><span class="sd">"""Return hierarchical list of folders the album is contained in</span>
 <span class="sd">        the folder list is in form:</span>
-<span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;, ...]</span>
+<span class="sd">        ["Top level folder", "sub folder 1", "sub folder 2", ...]</span>
 <span class="sd">        or empty list if album is not in any folders</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folder_names</span>
@@ -436,9 +436,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">folder_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of FolderInfo objects for each folder the album is contained in</span>
+<span class="w">        </span><span class="sd">"""Returns list of FolderInfo objects for each folder the album is contained in</span>
 <span class="sd">        or empty list if album is not in any folders</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folders</span>
@@ -448,19 +448,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns FolderInfo object for parent folder or None if no parent (e.g. top-level album)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns FolderInfo object for parent folder or None if no parent (e.g. top-level album)"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
-                <span class="n">parent_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">][</span><span class="s2">&quot;folderUuid&quot;</span><span class="p">]</span>
+                <span class="n">parent_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">][</span><span class="s2">"folderUuid"</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">FolderInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">parent_uuid</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">parent_uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_PHOTOS_4_TOP_LEVEL_ALBUMS</span>
                     <span class="k">else</span> <span class="kc">None</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">parent_pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">][</span><span class="s2">&quot;parentfolder&quot;</span><span class="p">]</span>
+                <span class="n">parent_pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">][</span><span class="s2">"parentfolder"</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">FolderInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbums_pk</span><span class="p">[</span><span class="n">parent_pk</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">parent_pk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parent_pk</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_folder_root_pk</span>
@@ -470,40 +470,40 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sort_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return sort order of album&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return sort order of album"""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">MANUAL</span>
 
         <span class="n">details</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s2">&quot;customsortkey&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s2">&quot;customsortascending&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s2">"customsortkey"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">details</span><span class="p">[</span><span class="s2">"customsortascending"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">NEWEST_FIRST</span>
-            <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s2">&quot;customsortascending&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s2">"customsortascending"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">OLDEST_FIRST</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">UNKNOWN</span>
-        <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s2">&quot;customsortkey&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s2">"customsortkey"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">TITLE</span>
-        <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s2">&quot;customsortkey&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">details</span><span class="p">[</span><span class="s2">"customsortkey"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">MANUAL</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">AlbumSortOrder</span><span class="o">.</span><span class="n">UNKNOWN</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">library_list_order</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a tuple of ints indicating relative order that album or folder appears in the Photos sidebar.</span>
+<span class="w">        </span><span class="sd">"""Returns a tuple of ints indicating relative order that album or folder appears in the Photos sidebar.</span>
 
 <span class="sd">        Note: This can be used to sort the albums in the same order as they appear in Photos.</span>
 <span class="sd">            The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.</span>
 <span class="sd">            This can be used directly as the `sorted` key to sort albums.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?&quot;</span><span class="p">,</span>
+                <span class="s2">"SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?"</span><span class="p">,</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,),</span>
             <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
-            <span class="c1"># If album is in folders, use the last folder&#39;s full path tuple</span>
+            <span class="c1"># If album is in folders, use the last folder's full path tuple</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_list</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">folder_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">library_list_order</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -514,25 +514,25 @@
 <div class="viewcode-block" id="AlbumInfo.photo_index">
 <a class="viewcode-back" href="../../reference.html#osxphotos.AlbumInfo.photo_index">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">photo_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photo</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return index of photo in album (based on album sort order)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return index of photo in album (based on album sort order)"""</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photos</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">uuid</span> <span class="o">==</span> <span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">index</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Photo with uuid </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> does not appear to be in this album&quot;</span>
+            <span class="sa">f</span><span class="s2">"Photo with uuid </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> does not appear to be in this album"</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AlbumInfo.asdict">
 <a class="viewcode-back" href="../../reference.html#osxphotos.AlbumInfo.asdict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return album info as a dict; does not include photos&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return album info as a dict; does not include photos"""</span>
         <span class="n">dict_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
-        <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span>
-        <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;folder_names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_names</span>
-        <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;folder_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_list</span><span class="p">]</span>
-        <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;sort_order&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_order</span>
-        <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">dict_data</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span>
+        <span class="n">dict_data</span><span class="p">[</span><span class="s2">"folder_names"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_names</span>
+        <span class="n">dict_data</span><span class="p">[</span><span class="s2">"folder_list"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_list</span><span class="p">]</span>
+        <span class="n">dict_data</span><span class="p">[</span><span class="s2">"sort_order"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_order</span>
+        <span class="n">dict_data</span><span class="p">[</span><span class="s2">"parent"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">dict_data</span></div>
 </div>
 
@@ -541,7 +541,7 @@
 <div class="viewcode-block" id="ImportInfo">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ImportInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ImportInfo</span><span class="p">(</span><span class="n">AlbumInfoBaseClass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Information about import sessions&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Information about import sessions"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="o">=</span> <span class="n">uuid</span>
@@ -561,21 +561,21 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return title / name of import session&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return title / name of import session"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">photos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of photos contained in import session&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return list of photos contained in import session"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&gt;=</span> <span class="n">_PHOTOS_5_VERSION</span><span class="p">:</span>
                 <span class="n">uuid_list</span><span class="p">,</span> <span class="n">sort_order</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span>
                     <span class="o">*</span><span class="p">[</span>
-                        <span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;fok_import_session&quot;</span><span class="p">])</span>
+                        <span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"fok_import_session"</span><span class="p">])</span>
                         <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span>
-                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"import_uuid"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span>
                     <span class="p">]</span>
                 <span class="p">)</span>
                 <span class="n">sorted_uuid</span> <span class="o">=</span> <span class="n">sort_list_by_keys</span><span class="p">(</span><span class="n">uuid_list</span><span class="p">,</span> <span class="n">sort_order</span><span class="p">)</span>
@@ -584,7 +584,7 @@
                 <span class="n">import_photo_uuids</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">u</span>
                     <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s2">"import_uuid"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span>
                 <span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_by_uuid</span><span class="p">(</span><span class="n">import_photo_uuids</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos</span>
@@ -592,21 +592,21 @@
 <div class="viewcode-block" id="ImportInfo.asdict">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ImportInfo.asdict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return import info as a dict; does not include photos&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return import info as a dict; does not include photos"""</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-            <span class="s2">&quot;creation_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">creation_date</span><span class="p">,</span>
-            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
-            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">,</span>
-            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s2">"uuid"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s2">"creation_date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">creation_date</span><span class="p">,</span>
+            <span class="s2">"start_date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
+            <span class="s2">"end_date"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">,</span>
+            <span class="s2">"title"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Always returns True</span>
+<span class="w">        </span><span class="sd">"""Always returns True</span>
 <span class="sd">        A photo without an import session will return None for import_info,</span>
 <span class="sd">        thus if import_info is not None, it must be a valid import_info object (#820)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
@@ -614,27 +614,27 @@
 <div class="viewcode-block" id="ProjectInfo">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ProjectInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProjectInfo</span><span class="p">(</span><span class="n">AlbumInfo</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    ProjectInfo with info about projects</span>
 <span class="sd">    Projects are cards, calendars, slideshows, etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">folder_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return hierarchical list of folders the album is contained in</span>
+<span class="w">        </span><span class="sd">"""Return hierarchical list of folders the album is contained in</span>
 <span class="sd">        the folder list is in form:</span>
-<span class="sd">        [&quot;Top level folder&quot;, &quot;sub folder 1&quot;, &quot;sub folder 2&quot;, ...]</span>
+<span class="sd">        ["Top level folder", "sub folder 1", "sub folder 2", ...]</span>
 <span class="sd">        or empty list if album is not in any folders</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># projects are not in folders</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">folder_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of FolderInfo objects for each folder the album is contained in</span>
+<span class="w">        </span><span class="sd">"""Returns list of FolderInfo objects for each folder the album is contained in</span>
 <span class="sd">        or empty list if album is not in any folders</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># projects are not in folders</span>
         <span class="k">return</span> <span class="p">[]</span></div>
@@ -644,34 +644,34 @@
 <div class="viewcode-block" id="FolderInfo">
 <a class="viewcode-back" href="../../reference.html#osxphotos.FolderInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FolderInfo</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Info about a specific folder, contains all the details about the folder</span>
 <span class="sd">    including folders, albums, etc</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="o">=</span> <span class="n">uuid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">db</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbfolder_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbfolder_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"name"</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;pk&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"pk"</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"title"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return title / name of folder&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return title / name of folder"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return uuid of folder&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return uuid of folder"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of albums (as AlbumInfo objects) contained in the folder&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return list of albums (as AlbumInfo objects) contained in the folder"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_albums</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -679,36 +679,36 @@
                 <span class="n">albums</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">AlbumInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">album</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">album</span><span class="p">,</span> <span class="n">detail</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;intrash&quot;</span><span class="p">]</span>
-                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;albumSubclass&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">_PHOTOS_4_ALBUM_KIND</span>
-                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;folderUuid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"intrash"</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"albumSubclass"</span><span class="p">]</span> <span class="o">==</span> <span class="n">_PHOTOS_4_ALBUM_KIND</span>
+                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"folderUuid"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span>
                 <span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">albums</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">AlbumInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">album</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">album</span><span class="p">,</span> <span class="n">detail</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;intrash&quot;</span><span class="p">]</span>
-                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">_PHOTOS_5_ALBUM_KIND</span>
-                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;parentfolder&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"intrash"</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="n">_PHOTOS_5_ALBUM_KIND</span>
+                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"parentfolder"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span>
                 <span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_albums</span> <span class="o">=</span> <span class="n">albums</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_albums</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns FolderInfo object for parent or None if no parent (e.g. top-level folder)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns FolderInfo object for parent or None if no parent (e.g. top-level folder)"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
-                <span class="n">parent_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbfolder_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">][</span><span class="s2">&quot;parentFolderUuid&quot;</span><span class="p">]</span>
+                <span class="n">parent_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbfolder_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">][</span><span class="s2">"parentFolderUuid"</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">FolderInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">parent_uuid</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">parent_uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_PHOTOS_4_TOP_LEVEL_ALBUMS</span>
                     <span class="k">else</span> <span class="kc">None</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">parent_pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">][</span><span class="s2">&quot;parentfolder&quot;</span><span class="p">]</span>
+                <span class="n">parent_pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">][</span><span class="s2">"parentfolder"</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">FolderInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbums_pk</span><span class="p">[</span><span class="n">parent_pk</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">parent_pk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parent_pk</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_folder_root_pk</span>
@@ -718,7 +718,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">subfolders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;return list of folders (as FolderInfo objects) contained in the folder&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""return list of folders (as FolderInfo objects) contained in the folder"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folders</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -726,32 +726,32 @@
                 <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">FolderInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">folder</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">folder</span><span class="p">,</span> <span class="n">detail</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbfolder_details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;intrash&quot;</span><span class="p">]</span>
-                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;isMagic&quot;</span><span class="p">]</span>
-                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;parentFolderUuid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"intrash"</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"isMagic"</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"parentFolderUuid"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span>
                 <span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">FolderInfo</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="n">album</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">album</span><span class="p">,</span> <span class="n">detail</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;intrash&quot;</span><span class="p">]</span>
-                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">_PHOTOS_5_FOLDER_KIND</span>
-                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">&quot;parentfolder&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"intrash"</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"kind"</span><span class="p">]</span> <span class="o">==</span> <span class="n">_PHOTOS_5_FOLDER_KIND</span>
+                    <span class="ow">and</span> <span class="n">detail</span><span class="p">[</span><span class="s2">"parentfolder"</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span>
                 <span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_folders</span> <span class="o">=</span> <span class="n">folders</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folders</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">library_list_order</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a tuple of ints indicating relative order that folder appears in the Photos sidebar.</span>
+<span class="w">        </span><span class="sd">"""Returns a tuple of ints indicating relative order that folder appears in the Photos sidebar.</span>
 
 <span class="sd">        Note: This can be used to sort the albums in the same order as they appear in Photos.</span>
 <span class="sd">            The tuple for albums in nested folders include the relative order for each parent folder, starting with the top-most folder.</span>
 <span class="sd">            This can be used directly as the `sorted` key to sort albums.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?&quot;</span><span class="p">,</span>
+                <span class="s2">"SELECT Z_FOK_PARENTFOLDER FROM ZGENERICALBUM WHERE ZUUID = ?"</span><span class="p">,</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,),</span>
             <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
@@ -766,18 +766,18 @@
 <div class="viewcode-block" id="FolderInfo.asdict">
 <a class="viewcode-back" href="../../reference.html#osxphotos.FolderInfo.asdict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return folder info as a dict&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return folder info as a dict"""</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-            <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;subfolders&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfolders</span><span class="p">],</span>
-            <span class="s2">&quot;albums&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">],</span>
+            <span class="s2">"title"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s2">"uuid"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s2">"parent"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"subfolders"</span><span class="p">:</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfolders</span><span class="p">],</span>
+            <span class="s2">"albums"</span><span class="p">:</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">uuid</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">],</span>
         <span class="p">}</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;returns count of folders + albums contained in the folder&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""returns count of folders + albums contained in the folder"""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subfolders</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span></div>
 
 </pre></div>
@@ -812,9 +812,9 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=b7049291"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
