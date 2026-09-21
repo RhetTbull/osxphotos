@@ -10,6 +10,27 @@ logger = logging.getLogger("osxphotos")
 
 is_macos = sys.platform == "darwin"
 
+if is_macos:
+    # Load the Photos framework (PhotoKit) here, before any other osxphotos
+    # module imports photoscript; see #2212.
+    #
+    # /System/Applications/Photos.app and /System/Library/Frameworks/Photos.framework
+    # both declare the bundle identifier "com.apple.Photos". photoscript compiles a
+    # `tell application "Photos"` AppleScript at import time, which registers the
+    # Photos.app bundle under that identifier in this process. pyobjc >= 10 looks the
+    # framework up by identifier before falling back to its path, so it finds the app
+    # bundle, tries to dynamically load an app executable, and macOS logs
+    # "Attempt to load executable of a type that cannot be dynamically loaded for
+    # CFBundle ... </System/Applications/Photos.app>" to stderr. The fallback then
+    # succeeds, so the warning is harmless but confusing. Loading the framework first
+    # claims the identifier and avoids it entirely.
+    try:
+        import Photos
+    except ImportError:
+        # pyobjc-framework-Photos is missing; anything that needs PhotoKit will
+        # raise a more useful error when it is actually used
+        logger.debug("Could not import Photos framework")
+
 
 def assert_macos():
     assert is_macos, "This feature only runs on macOS"
