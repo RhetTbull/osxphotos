@@ -217,7 +217,7 @@ osxphotos = [
 # Usage: bump-my-version bump [major|minor|patch]
 # ---------------------------------------------------------------------------
 [tool.bumpversion]
-current_version = "0.77.0"
+current_version = "0.77.1"
 parse  = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 # Match the previous .bumpversion.cfg behavior: bump the files only and leave

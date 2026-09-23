@@ -2350,10 +2350,145 @@ Returns list of venue types associated with the photoo.
 
 Returns list of media types associated with the photo.
 
+:raw-html-m2r:`<a name="searchinfo-detected-text">detected_text</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of text detected in the photo. (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-text-found">text_found</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list containing "Text Found" if Photos detected text in the photo. (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-camera">camera</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str of camera name associated with the photo. (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-source">source</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str of app or source the photo came from, e.g. "Messages". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-times-of-day">times_of_day</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of times of day associated with the photo, e.g. "Morning", "Afternoon". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-week-part">week_part</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str of part of the week, "Weekday" or "Weekend". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-day-of-week">day_of_week</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str of day of the week, e.g. "Monday". (\ **macOS 27+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-home">home</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns "Home" if the photo was taken at the user's home, otherwise "".
+
+:raw-html-m2r:`<a name="searchinfo-areas-of-interest">areas_of_interest</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of areas of interest associated with the photo, e.g. parks, airports, universities. (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-country-code">country_code</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str of country code associated with the photo, e.g. "US". (\ **Photos 8+ / macOS 13+ only**\ ; populated on macOS 27+, and possibly on some earlier versions)
+
+:raw-html-m2r:`<a name="searchinfo-region">region</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str of geographic region associated with the photo, e.g. "Northern America". (\ **Photos 8+ / macOS 13+ only**\ ; populated on macOS 27+, and possibly on some earlier versions)
+
+:raw-html-m2r:`<a name="searchinfo-continent">continent</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str of continent associated with the photo, e.g. "Americas". (\ **Photos 8+ / macOS 13+ only**\ ; populated on macOS 27+, and possibly on some earlier versions)
+
+:raw-html-m2r:`<a name="searchinfo-events">events</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of event names associated with the photo, e.g. a sporting event or concert. (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-event-performers">event_performers</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of performers or teams for events associated with the photo. (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-event-types">event_types</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of event types associated with the photo, e.g. "Music", "American Football". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-pets">pets</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of names of pets in the photo. (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-age-groups">age_groups</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of age groups of people in the photo, e.g. "Adult", "Child". (\ **macOS 27+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-landmarks">landmarks</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of landmarks in the photo, e.g. "Space Needle". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-sounds">sounds</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of sounds detected in a video or Live Photo, e.g. "Laughter", "Applause". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-human-actions">human_actions</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of human actions detected in the photo, e.g. "Dancing", "Swimming". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-document-types">document_types</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of document types associated with the photo, e.g. "Receipts", "Handwriting". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-trip">trip</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns "Trips" if Photos considers the photo part of a trip, otherwise "". (\ **Photos 8+ / macOS 13+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-photographic-style">photographic_style</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str of photographic style of the photo, e.g. "Standard Style". (\ **macOS 27+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-file-type">file_type</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns str describing the file type, e.g. "HEIF Image". (\ **macOS 27+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-captured-by-me">captured_by_me</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns "Captured by Me" if the photo was captured by the user, otherwise "". (\ **macOS 27+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-id-document-types">id_document_types</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of identity document types detected in the photo, e.g. "Passport", "Driver’s License". Not included in ``all``. (\ **macOS 27+ only**\ )
+
+:raw-html-m2r:`<a name="searchinfo-id-document-names">id_document_names</a>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Returns list of names read from identity documents in the photo. Not included in ``all``. (\ **macOS 27+ only**\ )
+
 :raw-html-m2r:`<a name="all">all</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns all search_info properties as a single list of strings.
+Returns all search_info properties as a single list of strings. Does not include ``source``\ , ``text_found``\ , ``id_document_types``\ , or ``id_document_names``.
 
 :raw-html-m2r:`<a name="asdict">asdict()</a>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3090,7 +3225,7 @@ The following template field substitutions are availabe for use the templating s
    * - {tab}
      - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.77.0'
+     - The osxphotos version, e.g. '0.77.1'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
