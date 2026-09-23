@@ -79,65 +79,82 @@ class ShareInfo:
         return dataclasses.asdict(self)
 
 
-def get_moment_share_info(db: PhotosDB, uuid: str | None) -> ShareInfo:
-    """Get info about a moment share"""
+# ZSHARE columns in the order of ShareInfo fields
+_SHARE_INFO_COLUMNS = [
+    "Z_PK",
+    "ZCLOUDDELETESTATE",
+    "ZLOCALPUBLISHSTATE",
+    "ZPUBLICPERMISSION",
+    "ZSCOPETYPE",
+    "ZSTATUS",
+    "ZTRASHEDSTATE",
+    "ZAUTOSHAREPOLICY",
+    "ZCLOUDITEMCOUNT",
+    "ZCLOUDLOCALSTATE",
+    "ZCLOUDPHOTOCOUNT",
+    "ZCLOUDVIDEOCOUNT",
+    "ZEXITSTATE",
+    "ZPARTICIPANTCLOUDUPDATESTATE",
+    "ZPREVIEWSTATE",
+    "ZSCOPESYNCINGSTATE",
+    "ZASSETCOUNT",
+    "ZFORCESYNCATTEMPTED",
+    "ZPHOTOSCOUNT",
+    "ZSHOULDIGNOREBUDGETS",
+    "ZSHOULDNOTIFYONUPLOADCOMPLETION",
+    "ZUPLOADEDPHOTOSCOUNT",
+    "ZUPLOADEDVIDEOSCOUNT",
+    "ZVIDEOSCOUNT",
+    "ZCREATIONDATE",
+    "ZEXPIRYDATE",
+    "ZTRASHEDDATE",
+    "ZLASTPARTICIPANTASSETTRASHNOTIFICATIONDATE",
+    "ZLASTPARTICIPANTASSETTRASHNOTIFICATIONVIEWEDDATE",
+    "ZENDDATE",
+    "ZSTARTDATE",
+    "ZSCOPEIDENTIFIER",
+    "ZTITLE",
+    "ZUUID",
+    "ZORIGINATINGSCOPEIDENTIFIER",
+    "ZSHAREURL",
+    "ZRULESDATA",
+    "ZPREVIEWDATA",
+    "ZTHUMBNAILIMAGEDATA",
+    "ZEXITSOURCE",
+    "ZCOUNTOFASSETSADDEDBYCAMERASMARTSHARING",
+    "ZEXITTYPE",
+]
 
-    sql = """   SELECT
-                ZSHARE.Z_PK,
-                ZSHARE.ZCLOUDDELETESTATE,
-                ZSHARE.ZLOCALPUBLISHSTATE,
-                ZSHARE.ZPUBLICPERMISSION,
-                ZSHARE.ZSCOPETYPE,
-                ZSHARE.ZSTATUS,
-                ZSHARE.ZTRASHEDSTATE,
-                ZSHARE.ZAUTOSHAREPOLICY,
-                ZSHARE.ZCLOUDITEMCOUNT,
-                ZSHARE.ZCLOUDLOCALSTATE,
-                ZSHARE.ZCLOUDPHOTOCOUNT,
-                ZSHARE.ZCLOUDVIDEOCOUNT,
-                ZSHARE.ZEXITSTATE,
-                ZSHARE.ZPARTICIPANTCLOUDUPDATESTATE,
-                ZSHARE.ZPREVIEWSTATE,
-                ZSHARE.ZSCOPESYNCINGSTATE,
-                ZSHARE.ZASSETCOUNT,
-                ZSHARE.ZFORCESYNCATTEMPTED,
-                ZSHARE.ZPHOTOSCOUNT,
-                ZSHARE.ZSHOULDIGNOREBUDGETS,
-                ZSHARE.ZSHOULDNOTIFYONUPLOADCOMPLETION,
-                ZSHARE.ZUPLOADEDPHOTOSCOUNT,
-                ZSHARE.ZUPLOADEDVIDEOSCOUNT,
-                ZSHARE.ZVIDEOSCOUNT,
-                ZSHARE.ZCREATIONDATE,
-                ZSHARE.ZEXPIRYDATE,
-                ZSHARE.ZTRASHEDDATE,
-                ZSHARE.ZLASTPARTICIPANTASSETTRASHNOTIFICATIONDATE,
-                ZSHARE.ZLASTPARTICIPANTASSETTRASHNOTIFICATIONVIEWEDDATE,
-                ZSHARE.ZENDDATE,
-                ZSHARE.ZSTARTDATE,
-                ZSHARE.ZSCOPEIDENTIFIER,
-                ZSHARE.ZTITLE,
-                ZSHARE.ZUUID,
-                ZSHARE.ZORIGINATINGSCOPEIDENTIFIER,
-                ZSHARE.ZSHAREURL,
-                ZSHARE.ZRULESDATA,
-                ZSHARE.ZPREVIEWDATA,
-                ZSHARE.ZTHUMBNAILIMAGEDATA,
-                ZSHARE.ZEXITSOURCE,
-                ZSHARE.ZCOUNTOFASSETSADDEDBYCAMERASMARTSHARING,
-                ZSHARE.ZEXITTYPE
+
+def _get_share_info(db: PhotosDB, uuid: str | None, asset_fk: str) -> ShareInfo:
+    """Get info about the share joined to the asset with uuid via ZASSET.{asset_fk}
+
+    Columns not present in this version of the database are returned as None
+    (e.g. ZUPLOADEDPHOTOSCOUNT, ZUPLOADEDVIDEOSCOUNT were removed in macOS 26.1)
+    """
+    share_columns = {row[1] for row in db.execute("PRAGMA table_info(ZSHARE)")}
+    columns = ", ".join(
+        f"ZSHARE.{column}" if column in share_columns else "NULL"
+        for column in _SHARE_INFO_COLUMNS
+    )
+    sql = f"""  SELECT {columns}
                 FROM ZSHARE
-                JOIN ZASSET ON ZASSET.ZMOMENTSHARE = ZSHARE.Z_PK
-                WHERE ZASSET.ZUUID = '{}'
+                JOIN ZASSET ON ZASSET.{asset_fk} = ZSHARE.Z_PK
+                WHERE ZASSET.ZUUID = ?
                 ;"""
-    sql = sql.format(uuid)
 
-    if row := db.execute(sql).fetchone():
+    if row := db.execute(sql, (uuid,)).fetchone():
         return ShareInfo(*row)
     raise ValueError(f"Could not find share for uuid {uuid}")
 
 
-def get_share_info(db: PhotosDB, uuid: str | None) -> ShareInfo:
+def get_moment_share_info(db: PhotosDB, uuid: str | None) -> ShareInfo:
     """Get info about a moment share"""
+    return _get_share_info(db, uuid, "ZMOMENTSHARE")
+
+
+def get_share_info(db: PhotosDB, uuid: str | None) -> ShareInfo:
+    """Get info about a shared iCloud library share"""
 
     # TODO: this is a total guess right now. I think that ZSHARE holds information
     # about both shared moments and shared iCloud Library
@@ -145,56 +162,4 @@ def get_share_info(db: PhotosDB, uuid: str | None) -> ShareInfo:
     # but I don't know the key for shared iCloud Libraries
     # I'm guessing it's ZASSET.ZSHARESCOPE but I don't know for sure and will need
     # to test on a library that has shared iCloud Library and shared moments
-
-    sql = """   SELECT
-                ZSHARE.Z_PK,
-                ZSHARE.ZCLOUDDELETESTATE,
-                ZSHARE.ZLOCALPUBLISHSTATE,
-                ZSHARE.ZPUBLICPERMISSION,
-                ZSHARE.ZSCOPETYPE,
-                ZSHARE.ZSTATUS,
-                ZSHARE.ZTRASHEDSTATE,
-                ZSHARE.ZAUTOSHAREPOLICY,
-                ZSHARE.ZCLOUDITEMCOUNT,
-                ZSHARE.ZCLOUDLOCALSTATE,
-                ZSHARE.ZCLOUDPHOTOCOUNT,
-                ZSHARE.ZCLOUDVIDEOCOUNT,
-                ZSHARE.ZEXITSTATE,
-                ZSHARE.ZPARTICIPANTCLOUDUPDATESTATE,
-                ZSHARE.ZPREVIEWSTATE,
-                ZSHARE.ZSCOPESYNCINGSTATE,
-                ZSHARE.ZASSETCOUNT,
-                ZSHARE.ZFORCESYNCATTEMPTED,
-                ZSHARE.ZPHOTOSCOUNT,
-                ZSHARE.ZSHOULDIGNOREBUDGETS,
-                ZSHARE.ZSHOULDNOTIFYONUPLOADCOMPLETION,
-                ZSHARE.ZUPLOADEDPHOTOSCOUNT,
-                ZSHARE.ZUPLOADEDVIDEOSCOUNT,
-                ZSHARE.ZVIDEOSCOUNT,
-                ZSHARE.ZCREATIONDATE,
-                ZSHARE.ZEXPIRYDATE,
-                ZSHARE.ZTRASHEDDATE,
-                ZSHARE.ZLASTPARTICIPANTASSETTRASHNOTIFICATIONDATE,
-                ZSHARE.ZLASTPARTICIPANTASSETTRASHNOTIFICATIONVIEWEDDATE,
-                ZSHARE.ZENDDATE,
-                ZSHARE.ZSTARTDATE,
-                ZSHARE.ZSCOPEIDENTIFIER,
-                ZSHARE.ZTITLE,
-                ZSHARE.ZUUID,
-                ZSHARE.ZORIGINATINGSCOPEIDENTIFIER,
-                ZSHARE.ZSHAREURL,
-                ZSHARE.ZRULESDATA,
-                ZSHARE.ZPREVIEWDATA,
-                ZSHARE.ZTHUMBNAILIMAGEDATA,
-                ZSHARE.ZEXITSOURCE,
-                ZSHARE.ZCOUNTOFASSETSADDEDBYCAMERASMARTSHARING,
-                ZSHARE.ZEXITTYPE
-                FROM ZSHARE
-                JOIN ZASSET ON ZASSET.ZLIBRARYSCOPE = ZSHARE.Z_PK
-                WHERE ZASSET.ZUUID = '{}'
-                ;"""
-    sql = sql.format(uuid)
-
-    if row := db.execute(sql).fetchone():
-        return ShareInfo(*row)
-    raise ValueError(f"Could not find share for uuid {uuid}")
+    return _get_share_info(db, uuid, "ZLIBRARYSCOPE")
