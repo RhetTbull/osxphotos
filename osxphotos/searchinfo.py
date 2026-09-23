@@ -1,5 +1,4 @@
-""" class for PhotoInfo exposing SearchInfo data such as labels 
-"""
+"""class for PhotoInfo exposing SearchInfo data such as labels"""
 
 from ._constants import _PHOTOS_4_VERSION, search_category_factory
 
@@ -163,6 +162,128 @@ class SearchInfo:
         return source[0] if source else ""
 
     @property
+    def times_of_day(self):
+        """returns list of times of day, e.g. "Morning" (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.TIME_OF_DAY)
+
+    @property
+    def week_part(self):
+        """returns part of week, "Weekday" or "Weekend" (Photos 8+ only)"""
+        return self._get_first_text_for_category(self._categories.WEEKPART)
+
+    @property
+    def day_of_week(self):
+        """returns day of week, e.g. "Monday" (macOS 27+ only)"""
+        return self._get_first_text_for_category(self._categories.DAY_OF_WEEK)
+
+    @property
+    def home(self):
+        """returns "Home" if photo was taken at the user's home location"""
+        return self._get_first_text_for_category(self._categories.HOME)
+
+    @property
+    def areas_of_interest(self):
+        """returns list of areas of interest, e.g. parks, airports, universities (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.AREA_OF_INTEREST)
+
+    @property
+    def country_code(self):
+        """returns country code, e.g. "US" (Photos 8+ only)"""
+        return self._get_first_text_for_category(self._categories.COUNTRY_CODE)
+
+    @property
+    def region(self):
+        """returns geographic region, e.g. "Northern America" (Photos 8+ only)"""
+        return self._get_first_text_for_category(self._categories.REGION)
+
+    @property
+    def continent(self):
+        """returns continent, e.g. "Americas" (Photos 8+ only)"""
+        return self._get_first_text_for_category(self._categories.CONTINENT)
+
+    @property
+    def events(self):
+        """returns list of event names, e.g. sporting events or concerts (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.EVENT)
+
+    @property
+    def event_performers(self):
+        """returns list of event performers or teams (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.EVENT_PERFORMER)
+
+    @property
+    def event_types(self):
+        """returns list of event types, e.g. "Football", "Music" (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.EVENT_TYPE)
+
+    @property
+    def pets(self):
+        """returns list of pet names (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.PET)
+
+    @property
+    def age_groups(self):
+        """returns list of age groups of people in the photo, e.g. "Adult", "Child" (macOS 27+ only)"""
+        return self._get_text_for_category(self._categories.AGE_GROUP)
+
+    @property
+    def landmarks(self):
+        """returns list of landmarks (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.LANDMARK)
+
+    @property
+    def sounds(self):
+        """returns list of sounds detected in video or Live Photo, e.g. "Laughter" (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.SOUND)
+
+    @property
+    def human_actions(self):
+        """returns list of human actions, e.g. "Dancing" (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.HUMAN_ACTION)
+
+    @property
+    def document_types(self):
+        """returns list of document types, e.g. "Receipts", "Handwriting" (Photos 8+ only)"""
+        return self._get_text_for_category(self._categories.DOCUMENT_TYPE)
+
+    @property
+    def trip(self):
+        """returns "Trips" if photo is part of a trip (Photos 8+ only)"""
+        return self._get_first_text_for_category(self._categories.TRIP)
+
+    @property
+    def photographic_style(self):
+        """returns photographic style, e.g. "Standard Style" (macOS 27+ only)"""
+        return self._get_first_text_for_category(self._categories.PHOTOGRAPHIC_STYLE)
+
+    @property
+    def file_type(self):
+        """returns file type description, e.g. "HEIF Image" (macOS 27+ only)"""
+        return self._get_first_text_for_category(self._categories.FILE_TYPE)
+
+    @property
+    def captured_by_me(self):
+        """returns "Captured by Me" if photo was captured by the user (macOS 27+ only)"""
+        return self._get_first_text_for_category(self._categories.CAPTURED_BY_ME)
+
+    @property
+    def id_document_types(self):
+        """returns list of identity document types detected in the photo, e.g. "Passport" (macOS 27+ only)
+        Not included in all()"""
+        return sorted(
+            set(
+                self._get_text_for_category(self._categories.ID_DOCUMENT_TYPE)
+                + self._get_text_for_category(self._categories.ID_DOCUMENT_CARD_TYPE)
+            )
+        )
+
+    @property
+    def id_document_names(self):
+        """returns list of names read from identity documents in the photo (macOS 27+ only)
+        Not included in all()"""
+        return self._get_text_for_category(self._categories.ID_DOCUMENT_NAME)
+
+    @property
     def all(self):
         """return all search info properties in a single list"""
         all_ = (
@@ -178,6 +299,17 @@ class SearchInfo:
             + self.venue_types
             + self.media_types
             + self.detected_text
+            + self.times_of_day
+            + self.areas_of_interest
+            + self.events
+            + self.event_performers
+            + self.event_types
+            + self.pets
+            + self.age_groups
+            + self.landmarks
+            + self.sounds
+            + self.human_actions
+            + self.document_types
         )
         if self.city:
             all_ += [self.city]
@@ -195,6 +327,20 @@ class SearchInfo:
             all_ += [self.season]
         if self.camera:
             all_ += [self.camera]
+        for value in (
+            self.week_part,
+            self.day_of_week,
+            self.home,
+            self.country_code,
+            self.region,
+            self.continent,
+            self.trip,
+            self.photographic_style,
+            self.file_type,
+            self.captured_by_me,
+        ):
+            if value:
+                all_.append(value)
 
         return all_
 
@@ -222,7 +368,35 @@ class SearchInfo:
             "detected_text": self.detected_text,
             "camera": self.camera,
             "source": self.source,
+            "times_of_day": self.times_of_day,
+            "week_part": self.week_part,
+            "day_of_week": self.day_of_week,
+            "home": self.home,
+            "areas_of_interest": self.areas_of_interest,
+            "country_code": self.country_code,
+            "region": self.region,
+            "continent": self.continent,
+            "events": self.events,
+            "event_performers": self.event_performers,
+            "event_types": self.event_types,
+            "pets": self.pets,
+            "age_groups": self.age_groups,
+            "landmarks": self.landmarks,
+            "sounds": self.sounds,
+            "human_actions": self.human_actions,
+            "document_types": self.document_types,
+            "trip": self.trip,
+            "photographic_style": self.photographic_style,
+            "file_type": self.file_type,
+            "captured_by_me": self.captured_by_me,
+            "id_document_types": self.id_document_types,
+            "id_document_names": self.id_document_names,
         }
+
+    def _get_first_text_for_category(self, category):
+        """return first text value for a specified category ID or "" if none"""
+        text = self._get_text_for_category(category)
+        return text[0] if text else ""
 
     def _get_text_for_category(self, category):
         """return list of text for a specified category ID"""
