@@ -6,11 +6,14 @@ import sqlite3
 import struct
 from types import SimpleNamespace
 
+import pytest
+
 from osxphotos.media_analysis import get_caption, get_media_analysis_results
 from osxphotos.photos_datetime import photos_datetime_local
 from osxphotos.photosdb._photosdb_process_searchinfo import (
     _process_leo_searchinfo,
     decode_leo_lexeme_ids,
+    is_search_placeholder,
 )
 
 
@@ -25,8 +28,7 @@ def test_process_leo_searchinfo(tmp_path):
     """Test processing macOS 27 leo.sqlite search info."""
     search_db_path = tmp_path / "leo.sqlite"
     conn = sqlite3.connect(search_db_path)
-    conn.executescript(
-        """
+    conn.executescript("""
         CREATE TABLE lexicon (
             lexeme_id INTEGER,
             type INTEGER,
@@ -40,8 +42,7 @@ def test_process_leo_searchinfo(tmp_path):
             type INTEGER,
             lexeme_ids BLOB
         );
-        """
-    )
+        """)
     conn.executemany(
         "INSERT INTO lexicon VALUES (?, ?, ?, ?, ?, ?)",
         [
@@ -50,13 +51,18 @@ def test_process_leo_searchinfo(tmp_path):
             (2, 1, 4120, "OPEN", "ocr/open", 1.0),
             (3, 1, 6000, "Nikon Z 8", "camera/nikon", 1.0),
             (4, 1, 9999, "Internal", "internal/1", 1.0),
+            (5, 1, 4090, "Sporting Event", "meaning/14", 1.0),
+            (6, 1, 4090, "PGMeaningSportEventSearchableText", "meaning/14", 1.0),
+            (7, 1, 2030, "PGPlaceParkSearchableText", "", 1.0),
+            (8, 1, 2230, "Stadium", "", 1.0),
+            (9, 1, 5010, "Videos", "", 1.0),
         ],
     )
     uuid = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
     conn.executemany(
         "INSERT INTO items VALUES (?, ?, ?)",
         [
-            (uuid, 1, struct.pack("<IIII", 1, 2, 3, 4)),
+            (uuid, 1, struct.pack("<9I", 1, 2, 3, 4, 5, 6, 7, 8, 9)),
             ("ffffffff-bbbb-cccc-dddd-eeeeeeeeeeee", 2, struct.pack("<I", 1)),
         ],
     )
@@ -78,11 +84,38 @@ def test_process_leo_searchinfo(tmp_path):
         "Bridge",
         "OPEN",
         "Nikon Z 8",
+        "Sporting Event",
+        "Stadium",
+        "Videos",
     ]
-    assert [rec["category"] for rec in by_uuid[uuid]] == [1500, 1203, 2300]
+    assert [rec["category"] for rec in by_uuid[uuid]] == [
+        1500,
+        1203,
+        2300,
+        1600,
+        1701,
+        1901,
+    ]
     assert labels == {"Bridge": [uuid]}
     assert labels_normalized == {"bridge": [uuid]}
     assert by_category[1500] == ["bridge"]
+
+
+@pytest.mark.parametrize(
+    "content,expected",
+    [
+        ("PGPlaceParkSearchableText", True),
+        ("PGMeaningDinnerSearchableText", True),
+        ("PGHighlightTripSearchableText", True),
+        ("Dinner", False),
+        ("Sporting Event", False),
+        ("PG", False),
+        ("My PGPlaceParkSearchableText", False),
+    ],
+)
+def test_is_search_placeholder(content, expected):
+    """Test detection of internal Photos search placeholder keys"""
+    assert is_search_placeholder(content) is expected
 
 
 def test_typed_media_analysis_caption(tmp_path):
@@ -97,8 +130,7 @@ def test_typed_media_analysis_caption(tmp_path):
     media_analysis_dir.mkdir(parents=True)
     media_analysis_path = media_analysis_dir / "MediaAnalysis.sqlite"
     conn = sqlite3.connect(media_analysis_path)
-    conn.executescript(
-        """
+    conn.executescript("""
         CREATE TABLE ZASSET (
             Z_PK INTEGER PRIMARY KEY,
             ZLOCALIDENTIFIER TEXT,
@@ -127,8 +159,7 @@ def test_typed_media_analysis_caption(tmp_path):
             ZCONFIDENCE FLOAT,
             ZCAPTION TEXT
         );
-        """
-    )
+        """)
     uuid = "11111111-2222-3333-4444-555555555555"
     local_identifier = f"{uuid}/L0/001"
     date_seconds = 42.0
