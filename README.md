@@ -41,11 +41,12 @@ On Linux, macOS-specific features of the CLI will not be available (these will n
 
 Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.i7.2). Tested on both x86 and Apple silicon (M1).
 
-**Most features work on macOS 26.1 but OSXPhotos does yet fully support 26.x. Notably OSXPhotos cannot read shared albums on macOS 26.x.**
+**Notably OSXPhotos cannot read shared albums on macOS 26.x.**
 
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
-| 26.0              | Tahoe      | 11.0 (limited testing) ✅|
+| 27.0              | Golden Gate| 12.0 ✅             |
+| 26.0              | Tahoe      | 11.0 ✅             |
 | 15.0 - 15.6       | Sequoia    | 10.0 ✅             |
 | 14.0 - 14.6       | Sonoma     | 9.0 ✅              |
 | 13.0 - 13.6       | Ventura    | 8.0 ✅              |
