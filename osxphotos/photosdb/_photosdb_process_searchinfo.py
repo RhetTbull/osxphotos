@@ -38,7 +38,8 @@ from ..unicode import normalize_unicode
 logger = logging.getLogger("osxphotos")
 
 # Maps leo.sqlite lexicon.category (macOS 27+) to the equivalent psi.sqlite
-# groups.category used by Photos 8+ (see SearchCategory_Photos8)
+# groups.category used by Photos 8+ (see SearchCategory_Photos8); categories that
+# only exist in leo.sqlite map to their own leo category ID
 # Note: leo category 2030 contains only internal PG*SearchableText tokens (see
 # PHOTOS_PLACEHOLDER_PATTERN) and is intentionally not mapped; venue types are in 2230
 LEO_CATEGORY_TO_PHOTOS8 = {
@@ -48,6 +49,8 @@ LEO_CATEGORY_TO_PHOTOS8 = {
     1040: 1104,  # SEASON
     1050: 1106,  # TIME_OF_DAY
     1060: 1107,  # WEEKPART
+    1070: 1070,  # DAY_OF_WEEK (leo only)
+    2010: 1000,  # HOME
     2050: 2,  # STREET
     2060: 1,  # PLACE_NAME
     2070: 3,  # NEIGHBORHOOD
@@ -56,39 +59,63 @@ LEO_CATEGORY_TO_PHOTOS8 = {
     2100: 6,  # SUB_LOCALITY_6
     2110: 7,  # NAMED_AREA
     2120: 8,  # LOCALITY_8
+    2130: 9,  # AREA_OF_INTEREST
     2140: 10,  # STATE
     2150: 11,  # STATE_ABBREVIATION
     2160: 12,  # COUNTRY
+    2170: 13,  # COUNTRY_CODE
+    2180: 1008,  # REGION
+    2190: 1007,  # CONTINENT
     2210: 14,  # BODY_OF_WATER
     2220: 1700,  # VENUE
     2230: 1701,  # VENUE_TYPE
+    2240: 1800,  # EVENT
+    2250: 1801,  # EVENT_PERFORMER
+    2260: 1802,  # EVENT_TYPE
     3001: 1300,  # PERSON
+    3010: 1330,  # PET
+    3030: 3030,  # AGE_GROUP (leo only)
     4000: 1500,  # LABEL
     4010: 1510,  # RICH_LABEL
+    4020: 1520,  # LANDMARK
+    4050: 2500,  # SOUND
+    4060: 2600,  # HUMAN_ACTION
+    4080: 2800,  # DOCUMENT_TYPE
     4090: 1600,  # ACTIVITY
+    4100: 1610,  # TRIP
     4110: 1205,  # TEXT_FOUND
     4120: 1203,  # DETECTED_TEXT
+    4130: 4130,  # ID_DOCUMENT_TYPE (leo only)
     5000: 1900,  # PHOTO_TYPE_PHOTO
     5010: 1901,  # PHOTO_TYPE_VIDEO
     5020: 1902,  # PHOTO_TYPE_RAW
+    5030: 1903,  # PHOTO_TYPE_CINEMATIC
     5050: 1905,  # PHOTO_TYPE_SLOMO
     5060: 1906,  # PHOTO_TYPE_LIVE
     5070: 1907,  # PHOTO_TYPE_SCREENSHOT
     5080: 1908,  # PHOTO_TYPE_PANORAMA
     5090: 1909,  # PHOTO_TYPE_TIMELAPSE
     5100: 1916,  # PHOTO_TYPE_SCREENRECORDINGS
+    5110: 1911,  # PHOTO_TYPE_LONG_EXPOSURE
     5120: 1912,  # PHOTO_TYPE_ANIMATED
     5130: 1913,  # PHOTO_TYPE_BURSTS
     5140: 1914,  # PHOTO_TYPE_PORTRAIT
     5150: 1915,  # PHOTO_TYPE_SELFIES
+    5180: 1918,  # PHOTO_TYPE_LIVE_DEPTH
+    5190: 1919,  # PHOTO_TYPE_SPATIAL
+    5200: 5200,  # PHOTOGRAPHIC_STYLE (leo only)
     6000: 2300,  # CAMERA
     7000: 1201,  # TITLE
     7010: 1400,  # ALBUM
     8000: 2000,  # PHOTO_TYPE_FAVORITES
     8050: 2100,  # PHOTO_NAME
+    8051: 8051,  # FILE_TYPE (leo only)
     8060: 2200,  # SOURCE
     8070: 1200,  # KEYWORDS
     8080: 1202,  # DESCRIPTION / caption
+    8170: 8170,  # CAPTURED_BY_ME (leo only)
+    11000: 11000,  # ID_DOCUMENT_CARD_TYPE (leo only)
+    11010: 11010,  # ID_DOCUMENT_NAME (leo only)
 }
 
 # Photos (macOS 27+) stores some unlocalized internal keys as search terms,

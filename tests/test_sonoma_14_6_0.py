@@ -269,6 +269,29 @@ UUID_SEARCH_INFO = {
         "detected_text": [],
         "camera": "Apple iPhone 6s",
         "source": "",
+        "times_of_day": [],
+        "week_part": "",
+        "day_of_week": "",
+        "home": "",
+        "areas_of_interest": [],
+        "country_code": "",
+        "region": "",
+        "continent": "",
+        "events": [],
+        "event_performers": [],
+        "event_types": [],
+        "pets": [],
+        "age_groups": [],
+        "landmarks": [],
+        "sounds": [],
+        "human_actions": [],
+        "document_types": [],
+        "trip": "",
+        "photographic_style": "",
+        "file_type": "",
+        "captured_by_me": "",
+        "id_document_types": [],
+        "id_document_names": [],
     }
 }
 
@@ -312,7 +335,7 @@ def test_init3():
 def test_init4():
     # test invalid db
 
-    (bad_db, bad_db_name) = tempfile.mkstemp(suffix=".db", prefix="osxphotos-")
+    bad_db, bad_db_name = tempfile.mkstemp(suffix=".db", prefix="osxphotos-")
     os.close(bad_db)
 
     with pytest.raises(Exception):
