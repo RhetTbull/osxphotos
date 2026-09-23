@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="OSXPhotos Python API" href="API_README.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>OSXPhotos Python Reference - osxphotos 0.77.0 documentation</title>
+        <title>OSXPhotos Python Reference - osxphotos 0.77.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.77.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -4504,9 +4504,21 @@ or empty list if album is not in any folders</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.age_groups">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">age_groups</span></span><a class="headerlink" href="#osxphotos.SearchInfo.age_groups" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of age groups of people in the photo, e.g. &quot;Adult&quot;, &quot;Child&quot; (macOS 27+ only)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.all">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">all</span></span><a class="headerlink" href="#osxphotos.SearchInfo.all" title="Link to this definition">¶</a></dt>
 <dd><p>return all search info properties in a single list</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.areas_of_interest">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">areas_of_interest</span></span><a class="headerlink" href="#osxphotos.SearchInfo.areas_of_interest" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of areas of interest, e.g. parks, airports, universities (Photos 8+ only)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -4528,9 +4540,21 @@ or empty list if album is not in any folders</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.captured_by_me">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">captured_by_me</span></span><a class="headerlink" href="#osxphotos.SearchInfo.captured_by_me" title="Link to this definition">¶</a></dt>
+<dd><p>returns &quot;Captured by Me&quot; if photo was captured by the user (macOS 27+ only)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.city">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">city</span></span><a class="headerlink" href="#osxphotos.SearchInfo.city" title="Link to this definition">¶</a></dt>
 <dd><p>returns city/town</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.continent">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">continent</span></span><a class="headerlink" href="#osxphotos.SearchInfo.continent" title="Link to this definition">¶</a></dt>
+<dd><p>returns continent, e.g. &quot;Americas&quot; (Photos 8+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -4540,9 +4564,51 @@ or empty list if album is not in any folders</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.country_code">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">country_code</span></span><a class="headerlink" href="#osxphotos.SearchInfo.country_code" title="Link to this definition">¶</a></dt>
+<dd><p>returns country code, e.g. &quot;US&quot; (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.day_of_week">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">day_of_week</span></span><a class="headerlink" href="#osxphotos.SearchInfo.day_of_week" title="Link to this definition">¶</a></dt>
+<dd><p>returns day of week, e.g. &quot;Monday&quot; (macOS 27+ only)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.detected_text">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">detected_text</span></span><a class="headerlink" href="#osxphotos.SearchInfo.detected_text" title="Link to this definition">¶</a></dt>
 <dd><p>Returns text detected in the photo (macOS 13+ / Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.document_types">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">document_types</span></span><a class="headerlink" href="#osxphotos.SearchInfo.document_types" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of document types, e.g. &quot;Receipts&quot;, &quot;Handwriting&quot; (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.event_performers">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">event_performers</span></span><a class="headerlink" href="#osxphotos.SearchInfo.event_performers" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of event performers or teams (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.event_types">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">event_types</span></span><a class="headerlink" href="#osxphotos.SearchInfo.event_types" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of event types, e.g. &quot;Football&quot;, &quot;Music&quot; (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.events">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">events</span></span><a class="headerlink" href="#osxphotos.SearchInfo.events" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of event names, e.g. sporting events or concerts (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.file_type">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">file_type</span></span><a class="headerlink" href="#osxphotos.SearchInfo.file_type" title="Link to this definition">¶</a></dt>
+<dd><p>returns file type description, e.g. &quot;HEIF Image&quot; (macOS 27+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -4552,9 +4618,41 @@ or empty list if album is not in any folders</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.home">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">home</span></span><a class="headerlink" href="#osxphotos.SearchInfo.home" title="Link to this definition">¶</a></dt>
+<dd><p>returns &quot;Home&quot; if photo was taken at the user's home location</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.human_actions">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">human_actions</span></span><a class="headerlink" href="#osxphotos.SearchInfo.human_actions" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of human actions, e.g. &quot;Dancing&quot; (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.id_document_names">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">id_document_names</span></span><a class="headerlink" href="#osxphotos.SearchInfo.id_document_names" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of names read from identity documents in the photo (macOS 27+ only)
+Not included in all()</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.id_document_types">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">id_document_types</span></span><a class="headerlink" href="#osxphotos.SearchInfo.id_document_types" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of identity document types detected in the photo, e.g. &quot;Passport&quot; (macOS 27+ only)
+Not included in all()</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.labels">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">labels</span></span><a class="headerlink" href="#osxphotos.SearchInfo.labels" title="Link to this definition">¶</a></dt>
 <dd><p>return list of labels associated with Photo</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.landmarks">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">landmarks</span></span><a class="headerlink" href="#osxphotos.SearchInfo.landmarks" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of landmarks (Photos 8+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -4582,15 +4680,39 @@ or empty list if album is not in any folders</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.pets">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pets</span></span><a class="headerlink" href="#osxphotos.SearchInfo.pets" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of pet names (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.photographic_style">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">photographic_style</span></span><a class="headerlink" href="#osxphotos.SearchInfo.photographic_style" title="Link to this definition">¶</a></dt>
+<dd><p>returns photographic style, e.g. &quot;Standard Style&quot; (macOS 27+ only)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.place_names">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">place_names</span></span><a class="headerlink" href="#osxphotos.SearchInfo.place_names" title="Link to this definition">¶</a></dt>
 <dd><p>returns list of place names</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.region">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">region</span></span><a class="headerlink" href="#osxphotos.SearchInfo.region" title="Link to this definition">¶</a></dt>
+<dd><p>returns geographic region, e.g. &quot;Northern America&quot; (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.season">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">season</span></span><a class="headerlink" href="#osxphotos.SearchInfo.season" title="Link to this definition">¶</a></dt>
 <dd><p>returns season name</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.sounds">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">sounds</span></span><a class="headerlink" href="#osxphotos.SearchInfo.sounds" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of sounds detected in video or Live Photo, e.g. &quot;Laughter&quot; (Photos 8+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -4624,6 +4746,18 @@ or empty list if album is not in any folders</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.times_of_day">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">times_of_day</span></span><a class="headerlink" href="#osxphotos.SearchInfo.times_of_day" title="Link to this definition">¶</a></dt>
+<dd><p>returns list of times of day, e.g. &quot;Morning&quot; (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.trip">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">trip</span></span><a class="headerlink" href="#osxphotos.SearchInfo.trip" title="Link to this definition">¶</a></dt>
+<dd><p>returns &quot;Trips&quot; if photo is part of a trip (Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.venue_types">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">venue_types</span></span><a class="headerlink" href="#osxphotos.SearchInfo.venue_types" title="Link to this definition">¶</a></dt>
 <dd><p>returns list of venue types</p>
@@ -4633,6 +4767,12 @@ or empty list if album is not in any folders</p>
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.venues">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">venues</span></span><a class="headerlink" href="#osxphotos.SearchInfo.venues" title="Link to this definition">¶</a></dt>
 <dd><p>returns list of venue names</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.week_part">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">week_part</span></span><a class="headerlink" href="#osxphotos.SearchInfo.week_part" title="Link to this definition">¶</a></dt>
+<dd><p>returns part of week, &quot;Weekday&quot; or &quot;Weekend&quot; (Photos 8+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -6194,28 +6334,51 @@ useful for detecting changes in any property/metadata of the photo</p>
 </li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo"><code class="docutils literal notranslate"><span class="pre">SearchInfo</span></code></a><ul>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.activities"><code class="docutils literal notranslate"><span class="pre">SearchInfo.activities</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.age_groups"><code class="docutils literal notranslate"><span class="pre">SearchInfo.age_groups</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.all"><code class="docutils literal notranslate"><span class="pre">SearchInfo.all</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.areas_of_interest"><code class="docutils literal notranslate"><span class="pre">SearchInfo.areas_of_interest</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.asdict"><code class="docutils literal notranslate"><span class="pre">SearchInfo.asdict()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.bodies_of_water"><code class="docutils literal notranslate"><span class="pre">SearchInfo.bodies_of_water</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.camera"><code class="docutils literal notranslate"><span class="pre">SearchInfo.camera</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.captured_by_me"><code class="docutils literal notranslate"><span class="pre">SearchInfo.captured_by_me</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.city"><code class="docutils literal notranslate"><span class="pre">SearchInfo.city</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.continent"><code class="docutils literal notranslate"><span class="pre">SearchInfo.continent</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.country"><code class="docutils literal notranslate"><span class="pre">SearchInfo.country</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.country_code"><code class="docutils literal notranslate"><span class="pre">SearchInfo.country_code</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.day_of_week"><code class="docutils literal notranslate"><span class="pre">SearchInfo.day_of_week</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.detected_text"><code class="docutils literal notranslate"><span class="pre">SearchInfo.detected_text</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.document_types"><code class="docutils literal notranslate"><span class="pre">SearchInfo.document_types</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.event_performers"><code class="docutils literal notranslate"><span class="pre">SearchInfo.event_performers</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.event_types"><code class="docutils literal notranslate"><span class="pre">SearchInfo.event_types</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.events"><code class="docutils literal notranslate"><span class="pre">SearchInfo.events</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.file_type"><code class="docutils literal notranslate"><span class="pre">SearchInfo.file_type</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.holidays"><code class="docutils literal notranslate"><span class="pre">SearchInfo.holidays</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.home"><code class="docutils literal notranslate"><span class="pre">SearchInfo.home</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.human_actions"><code class="docutils literal notranslate"><span class="pre">SearchInfo.human_actions</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.id_document_names"><code class="docutils literal notranslate"><span class="pre">SearchInfo.id_document_names</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.id_document_types"><code class="docutils literal notranslate"><span class="pre">SearchInfo.id_document_types</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.labels"><code class="docutils literal notranslate"><span class="pre">SearchInfo.labels</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.landmarks"><code class="docutils literal notranslate"><span class="pre">SearchInfo.landmarks</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.locality_names"><code class="docutils literal notranslate"><span class="pre">SearchInfo.locality_names</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.media_types"><code class="docutils literal notranslate"><span class="pre">SearchInfo.media_types</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.month"><code class="docutils literal notranslate"><span class="pre">SearchInfo.month</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.neighborhoods"><code class="docutils literal notranslate"><span class="pre">SearchInfo.neighborhoods</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.pets"><code class="docutils literal notranslate"><span class="pre">SearchInfo.pets</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.photographic_style"><code class="docutils literal notranslate"><span class="pre">SearchInfo.photographic_style</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.place_names"><code class="docutils literal notranslate"><span class="pre">SearchInfo.place_names</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.region"><code class="docutils literal notranslate"><span class="pre">SearchInfo.region</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.season"><code class="docutils literal notranslate"><span class="pre">SearchInfo.season</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.sounds"><code class="docutils literal notranslate"><span class="pre">SearchInfo.sounds</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.source"><code class="docutils literal notranslate"><span class="pre">SearchInfo.source</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.state"><code class="docutils literal notranslate"><span class="pre">SearchInfo.state</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.state_abbreviation"><code class="docutils literal notranslate"><span class="pre">SearchInfo.state_abbreviation</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.streets"><code class="docutils literal notranslate"><span class="pre">SearchInfo.streets</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.text_found"><code class="docutils literal notranslate"><span class="pre">SearchInfo.text_found</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.times_of_day"><code class="docutils literal notranslate"><span class="pre">SearchInfo.times_of_day</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.trip"><code class="docutils literal notranslate"><span class="pre">SearchInfo.trip</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.venue_types"><code class="docutils literal notranslate"><span class="pre">SearchInfo.venue_types</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.venues"><code class="docutils literal notranslate"><span class="pre">SearchInfo.venues</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.week_part"><code class="docutils literal notranslate"><span class="pre">SearchInfo.week_part</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.year"><code class="docutils literal notranslate"><span class="pre">SearchInfo.year</span></code></a></li>
 </ul>
 </li>
@@ -6374,7 +6537,7 @@ useful for detecting changes in any property/metadata of the photo</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=62a95cd1"></script>
+</div><script src="_static/documentation_options.js?v=c6d1d8c8"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

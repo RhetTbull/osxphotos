@@ -4,12 +4,12 @@
 # path); both are updated. See [tool.bumpversion] in pyproject.toml.
 
 app = "osxphotos"
-version = "0.77.0"
+version = "0.77.1"
 identifier = "org.rhettbull.osxphotos"
 license = "LICENSE"
 install = [
     [
-        "build/osxphotos-0.77.0-{{ machine }}",
+        "build/osxphotos-0.77.1-{{ machine }}",
         "/usr/local/bin/osxphotos",
     ],
 ]

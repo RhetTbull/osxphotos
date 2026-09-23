@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.searchinfo - osxphotos 0.77.0 documentation</title>
+        <title>osxphotos.searchinfo - osxphotos 0.77.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,8 +231,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for osxphotos.searchinfo</h1><div class="highlight"><pre>
-<span></span><span class="sd">""" class for PhotoInfo exposing SearchInfo data such as labels </span>
-<span class="sd">"""</span>
+<span></span><span class="sd">"""class for PhotoInfo exposing SearchInfo data such as labels"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">,</span> <span class="n">search_category_factory</span>
 
@@ -398,6 +397,128 @@
         <span class="k">return</span> <span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">source</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">times_of_day</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of times of day, e.g. "Morning" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">TIME_OF_DAY</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">week_part</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns part of week, "Weekday" or "Weekend" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">WEEKPART</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">day_of_week</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns day of week, e.g. "Monday" (macOS 27+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">DAY_OF_WEEK</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns "Home" if photo was taken at the user's home location"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">HOME</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">areas_of_interest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of areas of interest, e.g. parks, airports, universities (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">AREA_OF_INTEREST</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">country_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns country code, e.g. "US" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">COUNTRY_CODE</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">region</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns geographic region, e.g. "Northern America" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">REGION</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">continent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns continent, e.g. "Americas" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">CONTINENT</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of event names, e.g. sporting events or concerts (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">EVENT</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">event_performers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of event performers or teams (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">EVENT_PERFORMER</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">event_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of event types, e.g. "Football", "Music" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">EVENT_TYPE</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of pet names (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">PET</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">age_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of age groups of people in the photo, e.g. "Adult", "Child" (macOS 27+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">AGE_GROUP</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">landmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of landmarks (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">LANDMARK</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sounds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of sounds detected in video or Live Photo, e.g. "Laughter" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">SOUND</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">human_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of human actions, e.g. "Dancing" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">HUMAN_ACTION</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">document_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of document types, e.g. "Receipts", "Handwriting" (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">DOCUMENT_TYPE</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns "Trips" if photo is part of a trip (Photos 8+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">TRIP</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">photographic_style</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns photographic style, e.g. "Standard Style" (macOS 27+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">PHOTOGRAPHIC_STYLE</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">file_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns file type description, e.g. "HEIF Image" (macOS 27+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">FILE_TYPE</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">captured_by_me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns "Captured by Me" if photo was captured by the user (macOS 27+ only)"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">CAPTURED_BY_ME</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">id_document_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of identity document types detected in the photo, e.g. "Passport" (macOS 27+ only)</span>
+<span class="sd">        Not included in all()"""</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">ID_DOCUMENT_TYPE</span><span class="p">)</span>
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">ID_DOCUMENT_CARD_TYPE</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">id_document_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""returns list of names read from identity documents in the photo (macOS 27+ only)</span>
+<span class="sd">        Not included in all()"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="o">.</span><span class="n">ID_DOCUMENT_NAME</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""return all search info properties in a single list"""</span>
         <span class="n">all_</span> <span class="o">=</span> <span class="p">(</span>
@@ -413,6 +534,17 @@
             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">venue_types</span>
             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_types</span>
             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">detected_text</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">times_of_day</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_of_interest</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_performers</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_types</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pets</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">age_groups</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sounds</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">human_actions</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">document_types</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">:</span>
             <span class="n">all_</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">]</span>
@@ -430,6 +562,20 @@
             <span class="n">all_</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">season</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="p">:</span>
             <span class="n">all_</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">week_part</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">day_of_week</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">continent</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trip</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">photographic_style</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file_type</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">captured_by_me</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">all_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">all_</span>
 
@@ -459,8 +605,36 @@
             <span class="s2">"detected_text"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">detected_text</span><span class="p">,</span>
             <span class="s2">"camera"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="p">,</span>
             <span class="s2">"source"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+            <span class="s2">"times_of_day"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">times_of_day</span><span class="p">,</span>
+            <span class="s2">"week_part"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">week_part</span><span class="p">,</span>
+            <span class="s2">"day_of_week"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">day_of_week</span><span class="p">,</span>
+            <span class="s2">"home"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="p">,</span>
+            <span class="s2">"areas_of_interest"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_of_interest</span><span class="p">,</span>
+            <span class="s2">"country_code"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span>
+            <span class="s2">"region"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+            <span class="s2">"continent"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">continent</span><span class="p">,</span>
+            <span class="s2">"events"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">,</span>
+            <span class="s2">"event_performers"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_performers</span><span class="p">,</span>
+            <span class="s2">"event_types"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_types</span><span class="p">,</span>
+            <span class="s2">"pets"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pets</span><span class="p">,</span>
+            <span class="s2">"age_groups"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">age_groups</span><span class="p">,</span>
+            <span class="s2">"landmarks"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span><span class="p">,</span>
+            <span class="s2">"sounds"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sounds</span><span class="p">,</span>
+            <span class="s2">"human_actions"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">human_actions</span><span class="p">,</span>
+            <span class="s2">"document_types"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">document_types</span><span class="p">,</span>
+            <span class="s2">"trip"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trip</span><span class="p">,</span>
+            <span class="s2">"photographic_style"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">photographic_style</span><span class="p">,</span>
+            <span class="s2">"file_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_type</span><span class="p">,</span>
+            <span class="s2">"captured_by_me"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">captured_by_me</span><span class="p">,</span>
+            <span class="s2">"id_document_types"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_document_types</span><span class="p">,</span>
+            <span class="s2">"id_document_names"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_document_names</span><span class="p">,</span>
         <span class="p">}</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_first_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""return first text value for a specified category ID or "" if none"""</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_text_for_category</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">text</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_text_for_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""return list of text for a specified category ID"""</span>
@@ -508,7 +682,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=62a95cd1"></script>
+</div><script src="../../_static/documentation_options.js?v=c6d1d8c8"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

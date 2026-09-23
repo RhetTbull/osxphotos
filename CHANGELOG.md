@@ -2,22 +2,104 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased](https://github.com/RhetTbull/osxphotos/compare/v0.76.1...HEAD)
+## [Unreleased](https://github.com/RhetTbull/osxphotos/compare/v0.77.1...HEAD)
 
 #### Added
 
 #### Changed
 
-- Updated `whenever` dependency to `>=0.10.0,<0.11.0`. The previous `<0.9.0` pin dated from #1937 (whenever 0.9.0 removed `SystemDateTime`); the code was migrated off `SystemDateTime` in #1939, so the pin was no longer needed.
-- Migrated off `whenever`'s deprecated `from_py_datetime()` and `py_datetime()` in favor of the datetime constructor and `to_stdlib()`.
+#### Removed
+
+#### Fixed
+
+#### Contributors
+
+## [v0.77.1](https://github.com/RhetTbull/osxphotos/compare/v0.77.0...v0.77.1)
+
+Fix missing search info (activities and more) on macOS 27 and a spurious Photos.app warning on startup.
+
+### 2026-09-23
+
+#### Added
+
+- Added new `SearchInfo` properties exposing additional search categories from Photos: `times_of_day`, `week_part`, `home`, `areas_of_interest`, `country_code`, `region`, `continent`, `events`, `event_performers`, `event_types`, `pets`, `landmarks`, `sounds`, `human_actions`, `document_types`, and `trip` (Photos 8+), plus `day_of_week`, `age_groups`, `photographic_style`, `file_type`, `captured_by_me`, `id_document_types`, and `id_document_names` (macOS 27+ only). These are included in `SearchInfo.asdict()` and, except for the identity document fields, in `SearchInfo.all` (#2221).
+- Added search media types for cinematic, long exposure, live depth, and spatial photos (#2221).
+
+#### Changed
+
+- `SearchInfo.all` and `SearchInfo.asdict()` (and therefore the `search_info` section of `PhotoInfo.json()`) now include the new search categories listed above.
 
 #### Removed
 
 #### Fixed
 
+- Fixed `SearchInfo.activities` (and `{searchinfo.activity}`) always being empty on macOS 27. The `leo.sqlite` search database uses different category IDs than `psi.sqlite`, and the activity category (along with many others: venue types, venues, events, pets, landmarks, most media types, etc.) was not mapped. All known `leo.sqlite` categories are now mapped to their Photos 8+ equivalents (#2221, thanks @itsluisf for the detailed report and research).
+- Fixed venue types on macOS 27 being populated with internal Photos placeholder tokens (e.g. `PGPlaceParkSearchableText`); these internal keys are now filtered out of search info (#2221).
+- Fixed spurious `Attempt to load executable of a type that cannot be dynamically loaded for CFBundle ... </System/Applications/Photos.app>` warning printed on startup with pyobjc >= 10. Photos.app and Photos.framework share the bundle identifier `com.apple.Photos`; `photoscript` compiles a `tell application "Photos"` AppleScript on import, which registers Photos.app under that identifier, so pyobjc then tried to dynamically load the app before falling back to the framework. osxphotos now loads Photos.framework first (#2212, thanks @oPromessa for reporting).
+
+#### Contributors
+
+* @itsluisf [@itsluisf](https://github.com/itsluisf) for bug report and research
+* @oPromessa [@oPromessa](https://github.com/oPromessa) for bug report
+* @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code
+
+## [v0.77.0](https://github.com/RhetTbull/osxphotos/compare/v0.76.1...v0.77.0)
+
+Spatial media support, initial macOS 27 search & media info support, export performance fix, and bug fixes.
+
+### 2026-09-20
+
+#### Added
+
+- Added support for Apple spatial media. `PhotoInfo.spatial` returns the spatial media type of a photo (0 = not spatial, 1 = native spatial capture, 2 = 2D photo converted to spatial via visionOS) and new `--spatial` / `--not-spatial` query options allow filtering for spatial media in `query`, `export`, and other commands (#2171, thanks @Bill-Costa for the idea).
+- Added initial search and media info support for macOS 27 (Tahoe/dev beta): search info is now read from the new `leo.sqlite` search database and media analysis captions are read from the new typed caption tables (`ZIMAGECAPTIONRESULT` and related).
+- All CLI commands are now wrapped in the crash reporter, so an unexpected error produces a crash log with instructions for filing a bug report instead of a bare traceback (#2172).
+
+#### Changed
+
+- Migrated packaging to a `uv`-compatible `pyproject.toml`. `setup.py`, `requirements.txt`, `dev_requirements.txt`, `pytest.ini`, `.isort.cfg`, `.bumpversion.cfg`, and `MANIFEST.in` have been removed and their configuration consolidated into `pyproject.toml`; builds and CI now use `uv` (#2149, thanks @oPromessa).
+- Relaxed dependency pins: `wrapt` now allows 2.x (#2176, thanks @oPromessa), `tenacity` allows 9.x, `rich` allows 14.x, and `bitmath` allows 2.x.
+- Updated `whenever` dependency to `>=0.10.0,<0.11.0`. The previous `<0.9.0` pin dated from #1937 (whenever 0.9.0 removed `SystemDateTime`); the code was migrated off `SystemDateTime` in #1939, so the pin was no longer needed.
+- Migrated off `whenever`'s deprecated `from_py_datetime()` and `py_datetime()` in favor of the datetime constructor and `to_stdlib()`.
+- `batch-edit --library` help now notes that `--library` selects which library photos are queried from, but edits are always applied to the library currently open in Photos.
+
+#### Removed
+
+- Removed `setup.py`, `requirements.txt`, `dev_requirements.txt`, `pytest.ini`, `.isort.cfg`, `.bumpversion.cfg`, and `MANIFEST.in` in favor of `pyproject.toml` (see Changed, above).
+
+#### Fixed
+
+- Fixed very slow `export --update` on large libraries. `get_target_for_file()` queries `export_data` by `uuid`, but the table had no index on `uuid`, so every call fell back to a full table scan; on a database with ~150k rows this took upwards of 0.6s per call and could turn an update run into hours. An index on `export_data.uuid` is now created via a database migration (#2197, thanks @b-spine).
+- Fixed two photo matching bugs in `sync --import`: photos with no match in the import database were added to the match mapping anyway, raising an uncaught `KeyError` and suppressing the `--unmatched` report; and with `--import <library>`, metadata was applied to the source library's photos rather than the selected ones. Also tightened the collision-counter fallback so filenames that legitimately end in a number ("Scan 001.jpg", "Vacation 2024.jpg") are left alone (#2183, #2186, thanks @kurt-wink).
+- Fixed unhandled `PermissionError` when discovering the Photos library; `osxphotos` now fails gracefully and falls back to `~/Pictures` when it cannot read the Photos preference plists (#2170, thanks @prashanthgangu).
 - Fixed `timewarp --time` silently doing nothing when the requested time falls in a daylight saving time gap (e.g. setting a photo to 02:30 on a US spring-forward date). The time is now shifted forward past the gap, as expected.
-- Fixed spurious `Attempt to load executable of a type that cannot be dynamically loaded for CFBundle ... </System/Applications/Photos.app>` warning printed on startup with pyobjc >= 10. Photos.app and Photos.framework share the bundle identifier `com.apple.Photos`; `photoscript` compiles a `tell application "Photos"` AppleScript on import, which registers Photos.app under that identifier, so pyobjc then tried to dynamically load the app before falling back to the framework. osxphotos now loads Photos.framework first (#2212).
 - Fixed crash (`configparser.NoSectionError: No section: 'styles'`) when running multiple osxphotos commands in parallel. Every invocation rewrote the color theme files in place, so one process could read a theme file another process had just truncated. Theme files are now written atomically and only when missing, corrupt, or out of date; a theme file left truncated by a previous run is repaired automatically (#2201).
+- Fixed the export database crash callback leaking into the global crash callback registry and not being written to disk when running with `--ramdb` and the export bypassed the crash reporter.
+
+#### Contributors
+
+* @oPromessa [@oPromessa](https://github.com/oPromessa) for code
+* @b-spine [@b-spine](https://github.com/b-spine) for code
+* @kurt-wink [@kurt-wink](https://github.com/kurt-wink) for code
+* @prashanthgangu [@prashanthgangu](https://github.com/prashanthgangu) for code
+* @Bill-Costa [@Bill-Costa](https://github.com/Bill-Costa) for ideas
+* @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code
+
+## [v0.76.1](https://github.com/RhetTbull/osxphotos/compare/v0.76.0...v0.76.1)
+
+Fix 27.0 beta support
+
+### 2026-06-14
+
+#### Added
+
+#### Changed
+
+- Rebuilt the bundled documentation (`osxphotos docs` and the HTML docs) so they reflect the macOS 27 dev beta support added in v0.76.0 (#2166). No library code changes.
+
+#### Removed
+
+#### Fixed
 
 #### Contributors
 
