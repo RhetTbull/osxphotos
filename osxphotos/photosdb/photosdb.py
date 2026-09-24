@@ -39,6 +39,8 @@ from .._constants import (
     _PHOTOS_5_PROJECT_ALBUM_KIND,
     _PHOTOS_5_ROOT_FOLDER_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
+    _PHOTOS_11_SHARE_PARTICIPANT_ROLE_OWNER,
+    _PHOTOS_11_SHARED_VIDEO_DATASTORE_SUBTYPE,
     _UNKNOWN_PERSON,
     BURST_KEY,
     BURST_PICK_TYPE_NONE,
@@ -1953,11 +1955,13 @@ class PhotosDB:
             # in Photos >= 5, folders are special albums
             self._dbalbums_pk[album[8]] = album[0]
 
-        if self.photos_version > 11:
+        # Photos 11+ (macOS 26+) stores shared albums as CollectionShare records in ZSHARE
+        self._collection_share_ent = self._get_collection_share_entity()
+        if self._collection_share_ent is not None:
             try:
                 self._process_shared_albums()
             except Exception as e:
-                logging.debug(f"Error processing shared albums: {e}")
+                logger.warning(f"Error processing shared albums: {e}")
 
         # get pk of root folder
         root_uuid = [
@@ -2519,6 +2523,9 @@ class PhotosDB:
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
 
+        if self._collection_share_ent is not None:
+            self._process_shared_album_missing_videos()
+
         # get information about cloud sync state
         c.execute(
             f""" SELECT
@@ -2785,32 +2792,53 @@ class PhotosDB:
 
             self._db_moment_pk[moment_info["pk"]] = moment_info
 
+    def _get_collection_share_entity(self) -> int | None:
+        """Return the Core Data entity number for CollectionShare records in ZSHARE
+        or None if the database does not have CollectionShare (Photos < 11, macOS < 26)
+        """
+        _, c = self.get_db_connection()
+        try:
+            row = c.execute(
+                "SELECT Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME = 'CollectionShare'"
+            ).fetchone()
+        except sqlite3.Error as e:
+            logger.debug(f"Error reading CollectionShare entity: {e}")
+            return None
+        return row[0] if row else None
+
     def _process_shared_albums(self):
-        """Process shared album info on macOS Tahoe and later"""
-        # get details about albums
+        """Process shared album info on macOS 26 (Tahoe) and later
+
+        Starting with Photos 11 (macOS 26), shared albums are no longer stored in
+        ZGENERICALBUM (ZKIND=1505) but as CollectionShare records in ZSHARE;
+        ZSHARE also holds other share types (LibraryScope, MomentShare) so records
+        are filtered by the CollectionShare entity. Assets reference their shared
+        album via ZASSET.ZCOLLECTIONSHARE.
+        """
         _, c = self.get_db_connection()
 
         asset_table = _DB_TABLE_NAMES[self.photos_version]["ASSET"]
-        album_share_table = "ZSHARE"
+        share_ent = self._collection_share_ent
+
+        # assets in each shared album; Photos doesn't store a sort order for shared albums
+        # so sort by the date the asset was published to the shared album
         c.execute(
-            f""" SELECT
-                {album_share_table}.ZUUID,
+            f"""SELECT
+                ZSHARE.ZUUID,
                 {asset_table}.ZUUID
                 FROM {asset_table}
-                JOIN {album_share_table} ON {album_share_table}.Z_PK = {asset_table}.ZCOLLECTIONSHARE
-            """
+                JOIN ZSHARE ON ZSHARE.Z_PK = {asset_table}.ZCOLLECTIONSHARE
+                WHERE ZSHARE.Z_ENT = ?
+                ORDER BY {asset_table}.ZCLOUDBATCHPUBLISHDATE, {asset_table}.Z_PK
+            """,
+            (share_ent,),
         )
 
-        # 0     ZGENERICALBUM.ZUUID,
-        # 1     ZGENERICASSET.ZUUID,
-        # 2     Z_26ASSETS.Z_FOK_34ASSETS
+        # 0     ZSHARE.ZUUID
+        # 1     ZASSET.ZUUID
 
-        for album in c:
+        for sort_order, (album_uuid, photo_uuid) in enumerate(c):
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
-            album_uuid = album[0]
-            photo_uuid = album[1]
-            # sort_order = album[2] # TODO: figure out album sort order
-            sort_order = 0
             try:
                 self._dbalbums_uuid[photo_uuid].append(album_uuid)
             except KeyError:
@@ -2821,21 +2849,55 @@ class PhotosDB:
             except KeyError:
                 self._dbalbums_album[album_uuid] = [(photo_uuid, sort_order)]
 
+        # get the owner of each shared album
+        # role column is ZROLE on macOS 26, renamed ZCPLROLE on macOS 27
+        participant_columns = sqlite_columns(c.connection, "ZSHAREPARTICIPANT")
+        role_column = "ZCPLROLE" if "ZCPLROLE" in participant_columns else "ZROLE"
+        owners = {}
+        if role_column in participant_columns:
+            c.execute(
+                f"""SELECT
+                    ZSHARE.ZUUID,
+                    ZSHAREPARTICIPANT.ZHASHEDPERSONID
+                    FROM ZSHAREPARTICIPANT
+                    JOIN ZSHARE ON ZSHARE.Z_PK = ZSHAREPARTICIPANT.ZSHARE
+                    WHERE ZSHARE.Z_ENT = ?
+                    AND ZSHAREPARTICIPANT.{role_column} = ?
+                """,
+                (share_ent, _PHOTOS_11_SHARE_PARTICIPANT_ROLE_OWNER),
+            )
+            owners = {row[0]: row[1] for row in c}
+
         # now get additional details about albums
         c.execute(
-            "SELECT "
-            "ZUUID, "  # 0
-            "ZTITLE, "  # 1
-            "ZCLOUDLOCALSTATE, "  # 2
-            "Z_PK, "  # 3
-            "ZTRASHEDSTATE, "  # 4
-            "ZCREATIONDATE, "  # 5
-            "ZSTARTDATE, "  # 6
-            "ZENDDATE, "  # 7
-            "ZCUSTOMSORTASCENDING, "  # 8
-            "ZCUSTOMSORTKEY "  # 9
-            "FROM ZSHARE "
+            """SELECT
+                ZUUID,
+                ZTITLE,
+                ZCLOUDLOCALSTATE,
+                Z_PK,
+                ZTRASHEDSTATE,
+                ZCREATIONDATE,
+                ZSTARTDATE,
+                ZENDDATE,
+                ZCUSTOMSORTASCENDING,
+                ZCUSTOMSORTKEY
+                FROM ZSHARE
+                WHERE Z_ENT = ?
+            """,
+            (share_ent,),
         )
+
+        # 0     ZUUID
+        # 1     ZTITLE
+        # 2     ZCLOUDLOCALSTATE
+        # 3     Z_PK
+        # 4     ZTRASHEDSTATE
+        # 5     ZCREATIONDATE
+        # 6     ZSTARTDATE
+        # 7     ZENDDATE
+        # 8     ZCUSTOMSORTASCENDING
+        # 9     ZCUSTOMSORTKEY
+
         for album in c:
             self._dbalbum_details[album[0]] = {
                 "_uuid": album[0],
@@ -2846,22 +2908,46 @@ class PhotosDB:
                 "cloudownerfirstname": None,
                 "cloudownderlastname": None,
                 "parentfolder": None,
-                "cloudownerhashedpersonid": "XXXUNKNOWNXXX",
+                "cloudownerhashedpersonid": owners.get(album[0]),
                 "kind": _PHOTOS_5_SHARED_ALBUM_KIND,
                 "pk": album[3],
-                "intrash": False if album[4] == 0 else True,
-                "creation_date": album[5]
-                or 0,  # iPhone Photos.sqlite can have null value
+                "intrash": bool(album[4]),
+                "creation_date": album[5] or 0,
                 "start_date": album[6] or 0,
                 "end_date": album[7] or 0,
                 "customsortascending": album[8],
                 "customsortkey": album[9],
             }
 
-            # add cross-reference by pk to uuid
-            # needed to extract folder hierarchy
-            # in Photos >= 5, folders are special albums
-            self._dbalbums_pk[album[8]] = album[0]
+            # Note: ZSHARE.Z_PK is not added to _dbalbums_pk as ZSHARE and ZGENERICALBUM
+            # primary keys are from different tables and may collide;
+            # shared albums cannot be in folders so the cross-reference is not needed
+
+    def _process_shared_album_missing_videos(self):
+        """Set isMissing for videos in shared albums on Photos 11+ (macOS 26+)
+
+        Shared videos are stored as UUID.medium.MP4 which is a separate resource
+        (ZDATASTORESUBTYPE = 8) from the poster frame; the video may not be
+        downloaded even if the poster frame is.
+        """
+        _, c = self.get_db_connection()
+        asset_table = _DB_TABLE_NAMES[self.photos_version]["ASSET"]
+        c.execute(
+            f"""SELECT
+                {asset_table}.ZUUID,
+                ZINTERNALRESOURCE.ZLOCALAVAILABILITY
+                FROM {asset_table}
+                JOIN ZSHARE ON ZSHARE.Z_PK = {asset_table}.ZCOLLECTIONSHARE
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = {asset_table}.Z_PK
+                WHERE ZSHARE.Z_ENT = ?
+                AND {asset_table}.ZKIND = 1
+                AND ZINTERNALRESOURCE.ZDATASTORESUBTYPE = ?
+            """,
+            (self._collection_share_ent, _PHOTOS_11_SHARED_VIDEO_DATASTORE_SUBTYPE),
+        )
+        for uuid, local_availability in c:
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["isMissing"] = 0 if local_availability == 1 else 1
 
     def _build_album_folder_hierarchy_5(self, uuid, folders=None):
         """Recursively build folder/album hierarchy
@@ -3115,7 +3201,8 @@ class PhotosDB:
                 detail["kind"] == album_kind
                 and not detail["intrash"]
                 and (
-                    (shared and detail["cloudownerhashedpersonid"] is not None)
+                    # shared albums from ZSHARE (Photos 11+) may not have an owner
+                    (shared and album_kind == _PHOTOS_5_SHARED_ALBUM_KIND)
                     or (not shared and detail["cloudownerhashedpersonid"] is None)
                 )
             ):

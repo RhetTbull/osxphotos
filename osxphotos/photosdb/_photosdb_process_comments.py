@@ -3,13 +3,17 @@ Do not import this module directly"""
 
 import dataclasses
 import datetime
+import logging
 from dataclasses import dataclass
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..commentinfo import CommentInfo, LikeInfo
 from ..photos_datetime import photos_datetime_local
-from ..sqlite_utils import sqlite_open_ro
+from ..shareparticipant import PersonNameComponents
+from ..sqlite_utils import sqlite_columns, sqlite_open_ro
 from ..unicode import normalize_unicode
+
+logger = logging.getLogger(__name__)
 
 
 def _process_comments(self):
@@ -84,6 +88,10 @@ def _process_comments_5(photosdb):
             "full_name": normalize_unicode(row[3]),
         }
 
+    # Photos 11+ (macOS 26+) no longer stores owner names in ZGENERICALBUM
+    # or ZCLOUDSHAREDALBUMINVITATIONRECORD for shared albums; get them from ZSHAREPARTICIPANT
+    _process_share_participant_names(photosdb, conn)
+
     results = conn.execute(
         f"""
         SELECT
@@ -142,3 +150,38 @@ def _process_comments_5(photosdb):
             value["comments"].sort(key=lambda x: x.datetime)
 
     conn.close()
+
+
+def _process_share_participant_names(photosdb, conn):
+    """Add names of share participants to photosdb._db_hashed_person_id
+    for any hashed person id not already found"""
+    if not {"ZHASHEDPERSONID", "ZNAMECOMPONENTS"}.issubset(
+        sqlite_columns(conn, "ZSHAREPARTICIPANT")
+    ):
+        return
+
+    results = conn.execute(
+        """
+        SELECT DISTINCT ZHASHEDPERSONID, ZNAMECOMPONENTS
+        FROM ZSHAREPARTICIPANT
+        WHERE ZHASHEDPERSONID IS NOT NULL
+        AND ZHASHEDPERSONID != ''
+        AND ZNAMECOMPONENTS IS NOT NULL
+        """
+    )
+    for person_id, name_data in results:
+        if person_id in photosdb._db_hashed_person_id:
+            continue
+        try:
+            name = PersonNameComponents.init_from_bplist(name_data)
+        except Exception as e:
+            logger.debug(f"Error decoding name for share participant {person_id}: {e}")
+            continue
+        full_name = " ".join(n for n in (name.given_name, name.family_name) if n)
+        if not full_name:
+            continue
+        photosdb._db_hashed_person_id[person_id] = {
+            "first_name": name.given_name,
+            "last_name": name.family_name,
+            "full_name": full_name,
+        }
