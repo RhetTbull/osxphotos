@@ -131,6 +131,20 @@ def test_metadata_from_sidecar_persons():
     assert sorted(metadata.persons) == ["Katie", "Suzy"]
 
 
+@pytest.mark.usefixtures("set_tz_pacific")
+def test_metadata_from_sidecar_google_supplemental():
+    """Test metadata_from_sidecar with older Takeout sidecar missing geoDataExif (#2228)"""
+    metadata = metadata_from_sidecar(TEST_SIDECAR_GOOGLE_SUPPLEMENTAL, None)
+    assert metadata.title == "IMG_4547.jpg"
+    assert metadata.description == "⁨Elder Park⁩, ⁨Adelaide⁩, ⁨Australia⁩"
+    assert metadata.location == (
+        pytest.approx(-34.9188917),
+        pytest.approx(138.5968611),
+    )
+    # photoTakenTime 1497944936 is 2017-06-20 07:48:56 UTC, converted to local time
+    assert metadata.date == datetime.datetime(2017, 6, 20, 0, 48, 56)
+
+
 @pytest.mark.parametrize("filename,sidecar,extra_files", SIDECARS)
 def test_get_sidecar_for_file(tmp_path, filename, sidecar, extra_files):
     """Test get_sidecar_for_file"""
