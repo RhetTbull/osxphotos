@@ -106,19 +106,12 @@ def get_sidecar_filetype(filepath: str | pathlib.Path) -> SidecarFileType:
                 # 'title', 'description', 'imageViews', 'creationTime',
                 # 'photoTakenTime', 'geoData', 'geoDataExif', 'url'
                 # Google Takeout is the only format to sometimes set 'googlePhotosOrigin'
-                if ("googlePhotosOrigin" in metadata) or all(
-                    k in metadata
-                    for k in (
-                        "title",
-                        "description",
-                        "imageViews",
-                        "creationTime",
-                        "photoTakenTime",
-                        "geoData",
-                        "geoDataExif",
-                        "url",
-                    )
-                ):
+                # Older '*.supplemental-metadata.json' files may omit some of these
+                # keys (e.g. 'geoDataExif', 'googlePhotosOrigin'), so treat the
+                # presence of 'photoTakenTime' as sufficient to identify Takeout JSON.
+                # (exiftool/osxphotos JSON sidecars are lists, not dicts, so a dict
+                # containing 'photoTakenTime' is unambiguously Google Takeout.)
+                if "googlePhotosOrigin" in metadata or "photoTakenTime" in metadata:
                     return SidecarFileType.GoogleTakeout
     return SidecarFileType.Unknown
 
