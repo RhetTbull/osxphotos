@@ -95,6 +95,11 @@ def get_sidecar_filetype(filepath: str | pathlib.Path) -> SidecarFileType:
                 return SidecarFileType.Unknown
             if isinstance(metadata, list):
                 # could be exiftool or osxphotos
+                if not metadata:
+                    # an empty list is not a recognized sidecar; treat as
+                    # Unknown rather than raising IndexError on metadata[0]
+                    # (see issue #2228)
+                    return SidecarFileType.Unknown
                 metadata = metadata[0]
                 if metadata.get("ExifToolVersion"):
                     return SidecarFileType.exiftool
