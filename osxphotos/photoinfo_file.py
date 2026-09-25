@@ -54,7 +54,7 @@ class PhotoInfoFromFile:
         if sidecar:
             try:
                 self._metadata |= metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
-            except ValueError as e:
+            except (IndexError, ValueError) as e:
                 # An unrecognized or unreadable sidecar should not abort the
                 # caller (e.g. an entire import batch); warn and continue with
                 # whatever metadata has been gathered so far. See issue #2228.
