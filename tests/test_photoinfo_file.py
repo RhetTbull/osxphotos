@@ -22,7 +22,9 @@ def _no_exiftool(monkeypatch):
     monkeypatch.setattr(photoinfo_file, "EXIFTOOL_PATH", None)
 
 
-def test_photoinfofromfile_unknown_sidecar_does_not_raise(tmp_path, monkeypatch):
+def test_photoinfofromfile_unknown_sidecar_does_not_raise(
+    tmp_path, monkeypatch, caplog
+):
     """An unrecognized sidecar should warn and continue, not raise (issue #2228)."""
     _no_exiftool(monkeypatch)
     # a JSON dict that is not a recognized sidecar type (no photoTakenTime,
@@ -34,9 +36,12 @@ def test_photoinfofromfile_unknown_sidecar_does_not_raise(tmp_path, monkeypatch)
     photoinfo = PhotoInfoFromFile(TEST_IMAGE, exiftool=None, sidecar=str(bad_sidecar))
     # metadata from the unknown sidecar is simply not applied
     assert photoinfo.title in (None, "")
+    assert "Error reading sidecar" in caplog.text
 
 
-def test_photoinfofromfile_malformed_sidecar_does_not_raise(tmp_path, monkeypatch):
+def test_photoinfofromfile_malformed_sidecar_does_not_raise(
+    tmp_path, monkeypatch, caplog
+):
     """A malformed JSON sidecar should warn and continue, not raise."""
     _no_exiftool(monkeypatch)
     bad_sidecar = tmp_path / "malformed.json"
@@ -44,9 +49,12 @@ def test_photoinfofromfile_malformed_sidecar_does_not_raise(tmp_path, monkeypatc
 
     photoinfo = PhotoInfoFromFile(TEST_IMAGE, exiftool=None, sidecar=str(bad_sidecar))
     assert photoinfo.title in (None, "")
+    assert "Error reading sidecar" in caplog.text
 
 
-def test_photoinfofromfile_empty_list_sidecar_does_not_raise(tmp_path, monkeypatch):
+def test_photoinfofromfile_empty_list_sidecar_does_not_raise(
+    tmp_path, monkeypatch, caplog
+):
     """An empty-list JSON sidecar should warn and continue, not raise IndexError.
 
     An empty list previously reached ``metadata[0]`` in the classifier and
@@ -59,3 +67,4 @@ def test_photoinfofromfile_empty_list_sidecar_does_not_raise(tmp_path, monkeypat
 
     photoinfo = PhotoInfoFromFile(TEST_IMAGE, exiftool=None, sidecar=str(bad_sidecar))
     assert photoinfo.title in (None, "")
+    assert "Error reading sidecar" in caplog.text
