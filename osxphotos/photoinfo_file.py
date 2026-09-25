@@ -52,12 +52,7 @@ class PhotoInfoFromFile:
                 pathlib.Path(filepath), self._exiftool_path
             )
         if sidecar:
-            # an unreadable or unrecognized sidecar should not abort the caller
-            # (e.g. import rendering an album template); fall back to file metadata
-            try:
-                self._metadata |= metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
-            except ValueError as e:
-                logger.warning(f"Error reading sidecar {sidecar}: {e}")
+            self._metadata |= metadata_from_sidecar(pathlib.Path(sidecar), exiftool)
 
     @property
     def uuid(self):
