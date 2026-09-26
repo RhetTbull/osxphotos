@@ -11,7 +11,7 @@ import sys
 from collections.abc import Iterable
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any
 
 from textx import TextXSyntaxError, metamodel_from_file
 
@@ -976,7 +976,7 @@ class PhotoTemplate:
             value = uuid_to_shortuuid(self.photo.uuid) if self.photo.uuid else None
         elif field == "id":
             value = format_str_value(self.photo._info["pk"], subfield)
-        elif field.startswith("album_seq") or field.startswith("folder_album_seq"):
+        elif field.startswith(("album_seq", "folder_album_seq")):
             if dest_path := self.dest_path:
                 if field.startswith("album_seq"):
                     album = pathlib.Path(dest_path).name

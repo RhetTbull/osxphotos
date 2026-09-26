@@ -18,7 +18,7 @@ import re
 from datetime import timedelta, timezone
 from functools import cached_property
 from types import SimpleNamespace
-from typing import Any, Dict, Optional
+from typing import Any
 
 import yaml
 
@@ -638,9 +638,7 @@ class PhotoInfo:
         except AttributeError:
             album_uuids = self._get_album_uuids()
             self._albums = sorted(
-                list(
-                    {self._db._dbalbum_details[album]["title"] for album in album_uuids}
-                ),
+                {self._db._dbalbum_details[album]["title"] for album in album_uuids},
                 key=lambda x: x or "",
             )
             return self._albums
@@ -652,7 +650,7 @@ class PhotoInfo:
         for photo in self.burst_photos:
             if photo.burst_key:
                 burst_albums.extend(photo.albums)
-        return sorted(list(set(burst_albums)), key=lambda x: x or "")
+        return sorted(set(burst_albums), key=lambda x: x or "")
 
     @property
     def album_info(self) -> list[AlbumInfo]:
@@ -670,7 +668,7 @@ class PhotoInfo:
         for photo in self.burst_photos:
             if photo.burst_key:
                 burst_album_info.extend(photo.album_info)
-        return sorted(list(set(burst_album_info)), key=lambda x: x.title or "")
+        return sorted(set(burst_album_info), key=lambda x: x.title or "")
 
     @property
     def import_info(self) -> ImportInfo | None:
@@ -971,14 +969,12 @@ class PhotoInfo:
         otherwise False
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            return (
-                True
-                if self._info["cloudLibraryState"] is not None
+            return bool(
+                self._info["cloudLibraryState"] is not None
                 and self._info["cloudLibraryState"] != 0
-                else False
             )
         else:
-            return True if self._info["cloudAssetGUID"] is not None else False
+            return self._info["cloudAssetGUID"] is not None
 
     @property
     def isreference(self) -> bool:

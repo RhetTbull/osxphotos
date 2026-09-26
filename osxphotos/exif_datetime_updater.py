@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import datetime
 from collections.abc import Callable
-from typing import Optional, Tuple
 
 from photoscript import Photo
 

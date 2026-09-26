@@ -13,8 +13,7 @@ def kill_photos():
         # Run 'killall Photos' and capture output
         result = subprocess.run(
             ["killall", "Photos"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
             check=False,
         )

@@ -6,7 +6,6 @@ Call this as: `osxphotos timewarp --function timewarp_function_creation_date.py:
 import datetime
 import os
 from collections.abc import Callable
-from typing import Optional, Tuple
 
 from photoscript import Photo
 

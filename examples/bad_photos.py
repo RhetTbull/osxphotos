@@ -8,8 +8,6 @@ will add all photos with low quality scores to the album 'Bad Photos'
 osxphotos query --query-function bad_photos.py::bad_photos --add-to-album "Bad Photos"
 """
 
-from typing import List
-
 from osxphotos import PhotoInfo
 
 

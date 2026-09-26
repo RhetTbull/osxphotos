@@ -8,7 +8,6 @@ import datetime
 import pathlib
 import sqlite3
 from collections.abc import Callable
-from typing import Optional, Tuple
 
 from photoscript import Photo
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -192,4 +191,4 @@ class PhotoTimeZoneUpdater:
                 f"to [tz]{self.tz_name}[/tz], offset=[tz]{photo_tz_offset}[/tz]"
             )
         except Exception as e:
-            raise e
+            raise

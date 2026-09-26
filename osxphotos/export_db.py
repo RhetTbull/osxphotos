@@ -1571,7 +1571,7 @@ class ExportDBInMemory(ExportDB):
 
         dbdump = StringIO()
         for line in conn.iterdump():
-            dbdump.write("%s\n" % line)
+            dbdump.write(f"{line}\n")
         dbdump.seek(0)
         return dbdump
 
@@ -2128,7 +2128,7 @@ class ExportRecord:
             if isinstance(obj, (datetime.datetime, datetime.date, datetime.time)):
                 return obj.isoformat()
             raise TypeError(
-                "Object of type %s is not JSON serializable" % type(obj).__name__
+                f"Object of type {type(obj).__name__} is not JSON serializable"
             )
 
         return json.dumps(self.asdict(), indent=indent, default=datetime_handler)

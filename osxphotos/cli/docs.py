@@ -4,7 +4,6 @@ import pathlib
 import shutil
 import zipfile
 from contextlib import suppress
-from typing import Optional
 
 import click
 

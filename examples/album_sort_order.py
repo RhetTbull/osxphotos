@@ -2,7 +2,6 @@
 
 import os
 import pathlib
-from typing import Optional
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.albuminfo import AlbumInfo

@@ -3,7 +3,6 @@
 import re
 import sqlite3
 from collections.abc import Generator
-from typing import List
 
 __all__ = ["sqlgrep"]
 

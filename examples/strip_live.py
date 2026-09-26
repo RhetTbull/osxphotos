@@ -4,7 +4,6 @@ import pathlib
 import sys
 import time
 from tempfile import TemporaryDirectory
-from typing import List
 
 import click
 from photoscript import Album, Photo, PhotosLibrary

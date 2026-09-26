@@ -36,7 +36,7 @@ def generate_sidecars(dbname, uuid_dict):
     """generate XMP and JSON sidecars for testing"""
     photosdb = osxphotos.PhotosDB(dbname)
 
-    for _, uuid in uuid_dict.items():
+    for uuid in uuid_dict.values():
         photo = photosdb.get_photo(uuid)
 
         # plain xmp

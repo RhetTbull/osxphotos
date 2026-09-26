@@ -805,7 +805,7 @@ def get_photos_for_processing(**kwargs) -> list[Photo]:
         RuntimeError if error getting selection.
     """
     # if any of the query options are specified, then operate over query results
-    if any([kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES]):
+    if any(kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES):
         photosdb = PhotosDB(dbfile=kwargs.get("library"))
         query_options = query_options_from_kwargs(**kwargs)
         results = photo_query(photosdb, query_options)

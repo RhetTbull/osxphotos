@@ -2,7 +2,6 @@
 
 from collections import namedtuple
 from collections.abc import Callable
-from typing import List, Optional, Tuple
 
 from osxphotos import PhotosDB
 from osxphotos.exiftool import ExifTool

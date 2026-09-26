@@ -9,7 +9,6 @@ import sys
 from os.path import join as joinpath
 from os.path import splitext
 from pathlib import Path
-from typing import Dict
 
 import click
 

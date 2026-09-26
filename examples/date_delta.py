@@ -4,7 +4,6 @@ Example use:  osxphotos query --quiet --print "{function:date_delta.py::months_s
 
 import datetime
 import pathlib
-from typing import List, Optional, Union
 
 from osxphotos import PhotoInfo
 from osxphotos.datetime_utils import datetime_naive_to_local

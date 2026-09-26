@@ -5,7 +5,6 @@ You may place more than one template function in a single file as each is called
 """
 
 import pathlib
-from typing import List, Optional, Union
 
 from osxphotos import PhotoInfo
 from osxphotos.phototemplate import RenderOptions

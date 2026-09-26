@@ -143,7 +143,7 @@ class Cache:
                 plain_paths.append(parent)
 
         else:
-            parent = _Path(tuple())  # Null path.
+            parent = _Path(())  # Null path.
             self.__gitignores[parent.parts] = []
 
         for plain_path in plain_paths:

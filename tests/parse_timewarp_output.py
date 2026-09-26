@@ -5,7 +5,6 @@ from __future__ import annotations
 import datetime
 import logging
 from collections import namedtuple
-from typing import List
 
 logger = logging.getLogger("osxphotos")
 

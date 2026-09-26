@@ -35,7 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import sys
 from collections.abc import Callable
-from typing import List, Optional
 
 from ptpython.repl import (
     ContextManager,

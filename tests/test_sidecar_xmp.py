@@ -37,7 +37,7 @@ def photosdb():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_sidecar_xmp(photosdb):
-    for test_case, uuid in XMP_TEST_CASES.items():
+    for uuid in XMP_TEST_CASES.values():
         tempdir = tempfile.TemporaryDirectory(prefix="osxphotos")
         dest = tempdir.name
         photo = photosdb.get_photo(uuid)

@@ -179,10 +179,9 @@ def is_fileutil_error(exception) -> bool:
     if isinstance(exception, PermissionError) or "Permission denied" in str(exception):
         return True
 
-    if isinstance(exception, OSError) and exception.errno in RECOVERABLE_ERRNOS:
-        return True
-
-    return False
+    return bool(
+        isinstance(exception, OSError) and exception.errno in RECOVERABLE_ERRNOS
+    )
 
 
 def retry_all_methods():

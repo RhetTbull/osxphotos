@@ -6,7 +6,6 @@ Call this as: `osxphotos timewarp --function timewarp_increment_seconds.py::incr
 import re
 from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Optional, Tuple
 
 from photoscript import Photo
 

@@ -11,7 +11,6 @@ import subprocess
 import sys
 import time
 from functools import partial
-from typing import List
 
 import click
 from rich import pretty, print

@@ -89,11 +89,10 @@ def is_possible_live_pair(
     filepath1: str | os.PathLike, filepath2: str | os.PathLike
 ) -> bool:
     """Return True if photos could be a live photo pair (even if files lack the Content ID metadata"""
-    if (is_image_file(filepath1) and is_video_file(filepath2)) or (
-        is_video_file(filepath1) and is_image_file(filepath2)
-    ):
-        return True
-    return False
+    return bool(
+        (is_image_file(filepath1) and is_video_file(filepath2))
+        or (is_video_file(filepath1) and is_image_file(filepath2))
+    )
 
 
 def burst_uuid_from_path(path: pathlib.Path) -> str | None:

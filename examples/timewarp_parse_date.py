@@ -6,7 +6,6 @@ Or: `osxphotos timewarp --function https://raw.githubusercontent.com/RhetTbull/o
 
 from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Optional, Tuple
 
 from photoscript import Photo
 from strpdatetime import strpdatetime

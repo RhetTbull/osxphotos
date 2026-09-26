@@ -1,7 +1,5 @@
 """example function for osxphotos --query-function"""
 
-from typing import List
-
 from osxphotos import PhotoInfo
 
 

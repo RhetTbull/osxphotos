@@ -14,7 +14,7 @@ import sqlite3
 import sys
 import tempfile
 from datetime import datetime, timedelta, timezone
-from typing import Any, List, Optional
+from typing import Any
 from unicodedata import normalize
 
 from rich import print
@@ -918,7 +918,7 @@ class PhotosDB:
                 "title": normalize_unicode(album[1]),
                 "cloudlibrarystate": album[2],
                 "cloudidentifier": album[3],
-                "intrash": False if album[4] == 0 else True,
+                "intrash": album[4] != 0,
                 "cloudlocalstate": None,  # Photos 5+
                 "cloudownerfirstname": None,  # Photos 5+
                 "cloudownderlastname": None,  # Photos 5+
@@ -1234,26 +1234,22 @@ class PhotosDB:
             self._dbphotos[uuid]["pk"] = row[
                 26
             ]  # same as masterModelID, to match Photos 5
-            self._dbphotos[uuid]["panorama"] = True if row[25] == 1 else False
-            self._dbphotos[uuid]["slow_mo"] = True if row[25] == 2 else False
-            self._dbphotos[uuid]["time_lapse"] = True if row[25] == 3 else False
-            self._dbphotos[uuid]["hdr"] = (
-                True if (row[25] == 4 or row[25] == 8) else False
-            )
-            self._dbphotos[uuid]["live_photo"] = (
-                True if (row[25] == 5 or row[25] == 8) else False
-            )
-            self._dbphotos[uuid]["screenshot"] = True if row[25] == 6 else False
+            self._dbphotos[uuid]["panorama"] = row[25] == 1
+            self._dbphotos[uuid]["slow_mo"] = row[25] == 2
+            self._dbphotos[uuid]["time_lapse"] = row[25] == 3
+            self._dbphotos[uuid]["hdr"] = bool(row[25] == 4 or row[25] == 8)
+            self._dbphotos[uuid]["live_photo"] = bool(row[25] == 5 or row[25] == 8)
+            self._dbphotos[uuid]["screenshot"] = row[25] == 6
             # screen-recording (not available <= _PHOTOS_4_VERSION)
             self._dbphotos[uuid]["screen_recording"] = None
-            self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
+            self._dbphotos[uuid]["portrait"] = row[25] == 9
 
             # spatial (Apple Vision Pro) photos not available <= _PHOTOS_4_VERSION
             self._dbphotos[uuid]["spatial"] = 0
 
             # selfies (front facing camera, RKVersion.selfPortrait == 1)
             if row[27] is not None:
-                self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False
+                self._dbphotos[uuid]["selfie"] = row[27] == 1
             else:
                 self._dbphotos[uuid]["selfie"] = None
 
@@ -1269,7 +1265,7 @@ class PhotosDB:
             self._dbphotos[uuid]["cloudMasterGUID"] = None  # Photos 5+
 
             # associated RAW image info
-            self._dbphotos[uuid]["has_raw"] = True if row[25] == 7 else False
+            self._dbphotos[uuid]["has_raw"] = row[25] == 7
             self._dbphotos[uuid]["UTI_raw"] = None
             self._dbphotos[uuid]["raw_data_length"] = None
             self._dbphotos[uuid]["raw_info"] = None
@@ -1487,9 +1483,7 @@ class PhotosDB:
             uuid = row[0]
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["live_model_id"] = row[1]
-                self._dbphotos[uuid]["modeResourceIsOnDisk"] = (
-                    True if row[6] == 1 else False
-                )
+                self._dbphotos[uuid]["modeResourceIsOnDisk"] = row[6] == 1
 
         # init any uuids that had no edits or live photos
         # also initialized UTI_edited and edit_resource_id
@@ -1541,7 +1535,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["cloudLibraryState"] = row[1]
                 self._dbphotos[uuid]["cloudAvailable"] = row[2]
                 self._dbphotos[uuid]["cloudStatus"] = row[3]
-                self._dbphotos[uuid]["incloud"] = True if row[2] == 1 else False
+                self._dbphotos[uuid]["incloud"] = row[2] == 1
 
         # get location data
         verbose("Processing location data.")
@@ -1939,7 +1933,7 @@ class PhotosDB:
                 "kind": album[6],
                 "parentfolder": album[7],
                 "pk": album[8],
-                "intrash": False if album[9] == 0 else True,
+                "intrash": album[9] != 0,
                 "creation_date": album[10]
                 or 0,  # iPhone Photos.sqlite can have null value
                 "start_date": album[11] or 0,
@@ -2189,7 +2183,7 @@ class PhotosDB:
             info["hasAdjustments"] = row[15]
 
             info["cloudbatchpublishdate"] = row[16]
-            info["shared"] = True if row[16] is not None else False
+            info["shared"] = row[16] is not None
 
             # these will get filled in later
             # init to avoid key errors
@@ -2238,12 +2232,12 @@ class PhotosDB:
             # 102 = Time lapse video
             # 103 = Screen Recordings
             info["subtype"] = row[21]
-            info["live_photo"] = True if row[21] == 2 else False
-            info["screenshot"] = True if row[21] == 10 else False
-            info["screen_recording"] = True if row[21] == 103 else False
+            info["live_photo"] = row[21] == 2
+            info["screenshot"] = row[21] == 10
+            info["screen_recording"] = row[21] == 103
 
-            info["slow_mo"] = True if row[21] == 101 else False
-            info["time_lapse"] = True if row[21] == 102 else False
+            info["slow_mo"] = row[21] == 101
+            info["time_lapse"] = row[21] == 102
 
             # Handle HDR photos and portraits
             # ZGENERICASSET.ZCUSTOMRENDEREDVALUE
@@ -2252,19 +2246,19 @@ class PhotosDB:
             # 6 = panorama
             # > 6 = portrait (sometimes, see ZDEPTHSTATE/ZDEPTHTYPE)
             info["customRenderedValue"] = row[22]
-            info["hdr"] = True if row[22] == 3 else False
+            info["hdr"] = row[22] == 3
             info["depth_state"] = row[36]
-            info["portrait"] = True if row[36] != 0 else False
+            info["portrait"] = row[36] != 0
 
             # spatial media type (Apple Vision Pro); 0 if not spatial or column not present
             # 1 == native spatial capture, 2 == 2D photo converted to spatial
             info["spatial"] = row[47] or 0
 
             # Set panorama from either KindSubType or RenderedValue
-            info["panorama"] = True if row[21] == 1 or row[22] == 6 else False
+            info["panorama"] = bool(row[21] == 1 or row[22] == 6)
 
             # Handle selfies (front facing camera, ZCAMERACAPTUREDEVICE=1)
-            info["selfie"] = True if row[23] == 1 else False
+            info["selfie"] = row[23] == 1
 
             # Determine if photo is part of cloud library (ZGENERICASSET.ZCLOUDASSETGUID not NULL)
             # Initialize cloud fields that will filled in later
@@ -2291,10 +2285,10 @@ class PhotosDB:
             # = 0 if jpeg is selected as "original" in Photos (the default)
             # = 1 if RAW is selected as "original" in Photos
             info["original_resource_choice"] = row[27]
-            info["raw_is_original"] = True if row[27] == 1 else False
+            info["raw_is_original"] = row[27] == 1
 
             # recently deleted items
-            info["intrash"] = True if row[28] == 1 else False
+            info["intrash"] = row[28] == 1
             info["trasheddate_timestamp"] = row[39]
             info["trasheddate"] = photos_datetime_local(row[39])
 
@@ -2537,7 +2531,7 @@ class PhotosDB:
             uuid = row[0]
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["cloudLocalState"] = row[1]
-                self._dbphotos[uuid]["incloud"] = True if row[1] == 3 else False
+                self._dbphotos[uuid]["incloud"] = row[1] == 3
                 self._dbphotos[uuid]["cloudMasterGUID"] = row[2]
 
         # get information about associted RAW images

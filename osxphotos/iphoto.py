@@ -1460,7 +1460,7 @@ class iPhotoPhotoInfo:
     @property
     def media_analysis(self) -> dict[str, Any]:
         """Returns media analysis results as a dictionary (Photos 5+)"""
-        return dict()
+        return {}
 
     @property
     def ai_caption(self) -> str:
@@ -2560,15 +2560,15 @@ def default_return_value(name: str) -> Any:
         return 0
     elif return_type == str(float):
         return 0.0
-    elif return_type.startswith("list[") or return_type.startswith("List["):
+    elif return_type.startswith(("list[", "List[")):
         return []
     elif "tuple[None, None]" in return_type:
         return (None, None)
-    elif return_type.startswith("tuple[") or return_type.startswith("Tuple["):
+    elif return_type.startswith(("tuple[", "Tuple[")):
         return ()
-    elif return_type.startswith("dict[") or return_type.startswith("Dict["):
-        return dict()
-    elif return_type.startswith("set[") or return_type.startswith("Set["):
+    elif return_type.startswith(("dict[", "Dict[")):
+        return {}
+    elif return_type.startswith(("set[", "Set[")):
         return set()
     else:
         logger.warning(f"Unknown return type: {return_type}")

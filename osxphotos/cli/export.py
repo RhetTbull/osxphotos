@@ -14,14 +14,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Callable, Iterable
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any, Literal
 
 import click
 
@@ -3028,7 +3021,7 @@ def export_photo_to_directory(
         except Exception as e:
             if is_debug() or isinstance(e, UserSidecarError):
                 # if debug mode or user didn't specify catch_errors, don't swallow the exceptions
-                raise e
+                raise
             rich_echo(
                 f"[error]Error exporting photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename]) as [filepath]{filename}[/filepath]: {e}",
                 err=True,
@@ -3511,7 +3504,7 @@ def write_extended_attributes(
         for attr, value in attributes.items():
             attr_type = get_metadata_attribute_type(attr) or "str"
             if value:
-                value = sorted(list(value)) if attr_type == "list" else ", ".join(value)
+                value = sorted(value) if attr_type == "list" else ", ".join(value)
             file_value = md.get(attr)
 
             if file_value and attr_type == "lists":
@@ -3563,7 +3556,7 @@ def run_post_function(
                 rich_echo_error(
                     f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
                 )
-                raise e
+                raise
     return returned_results
 
 

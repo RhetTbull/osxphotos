@@ -7,7 +7,6 @@ or for edited photos:  osxphotos query --missing --field edited_path "{function:
 from __future__ import annotations
 
 import os
-from typing import List, Optional, Union
 
 from osxphotos import PhotoInfo
 from osxphotos._constants import _MOVIE_TYPE, _PHOTO_TYPE, _PHOTOS_5_SHARED_PHOTO_PATH

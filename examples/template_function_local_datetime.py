@@ -2,8 +2,6 @@
 Use:  osxphotos export /path/to/export --filename "{function:/path/to/template_function_local_datetime.py::example}"
 """
 
-from typing import List, Optional, Union
-
 from osxphotos import PhotoInfo
 from osxphotos.datetime_utils import datetime_remove_tz, get_local_tz
 from osxphotos.phototemplate import RenderOptions

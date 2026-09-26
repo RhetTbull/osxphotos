@@ -9,7 +9,7 @@ import os
 import pathlib
 import sqlite3
 from collections.abc import Callable
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 
 import tenacity
 import toml

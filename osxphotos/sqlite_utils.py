@@ -10,7 +10,6 @@ import shutil
 import sqlite3
 import subprocess
 import tempfile
-from typing import List, Tuple
 
 from ._constants import SQLITE_CHECK_SAME_THREAD
 from .fileutil import FileUtil, FileUtilMacOS

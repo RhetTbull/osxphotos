@@ -55,4 +55,4 @@ def grep(ctx, cli_obj, db, ignore_case, print_filename, pattern):
     for table, column, row_id, value in sqlgrep(
         db_file, pattern, ignore_case, print_filename, rich_markup=True
     ):
-        print(", ".join([table, column, row_id, value]))
+        print(f"{table}, {column}, {row_id}, {value}")

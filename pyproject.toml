@@ -286,6 +286,7 @@ lint.ignore = [
     "RUF015", # next(iter(x)) vs list(x)[0]: the fix changes IndexError to StopIteration
     "RUF059", # unused unpacked variable: same as F841
     "SIM102", # collapsible-if: nested ifs are often clearer
+    "PYI034", # return typing.Self from __iadd__ etc.: Self requires Python 3.11+
 ]
 
 exclude = [

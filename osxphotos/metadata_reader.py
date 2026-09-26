@@ -9,7 +9,6 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from enum import Enum
-from typing import Optional, Tuple
 
 from osxphotos.photoinfo_protocol import PhotoInfoProtocol
 
@@ -158,7 +157,7 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
 
     stem = filepath.stem
     # strip off -edited suffix (Google Takeout) or _edited (OSXPhotos edited images with default suffix)
-    if stem.endswith("-edited") or stem.endswith("_edited"):
+    if stem.endswith(("-edited", "_edited")):
         # strip off -edited/_edited suffix
         stem = stem[:-7]
         new_filepath = filepath.with_stem(stem)

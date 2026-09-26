@@ -466,7 +466,7 @@ class ExifTool:
         """
         json_str, _, _ = self.run_commands("-json")
         if not json_str:
-            return dict()
+            return {}
         json_str = unescape_str(json_str.decode("utf-8"))
 
         try:
@@ -475,7 +475,7 @@ class ExifTool:
             # will fail with some commands, e.g --ext AVI which produces
             # 'No file with specified extension' instead of json
             logger.warning(f"error loading json returned by exiftool: {e} {json_str}")
-            return dict()
+            return {}
         exifdict = exifdict[0]
         if not tag_groups:
             # strip tag groups

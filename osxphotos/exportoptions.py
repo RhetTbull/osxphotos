@@ -5,7 +5,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Callable
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from ._constants import DEFAULT_PREVIEW_SUFFIX
 from .export_db import ExportDB
@@ -277,9 +277,7 @@ class ExportResults:
         local_vars = locals()
         self._datetime = datetime.now().isoformat()
         for attr in self.attributes:
-            setattr(
-                self, attr, local_vars.get(attr) or (dict() if attr == "uuids" else [])
-            )
+            setattr(self, attr, local_vars.get(attr) or ({} if attr == "uuids" else []))
 
     @property
     def attributes(self) -> list[str]:

@@ -23,7 +23,6 @@ You may pass optional arguments to adjust the formatting in format:
 
 import pathlib
 from functools import cache
-from typing import List, Optional, Union
 
 from osxphotos import AlbumInfo, FolderInfo, PhotoInfo, PhotosDB
 from osxphotos.phototemplate import RenderOptions

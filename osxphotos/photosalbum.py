@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unicodedata
 from collections.abc import Callable, Iterable
-from typing import Any, Optional
+from typing import Any
 
 from more_itertools import chunked
 

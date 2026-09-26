@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from collections.abc import Callable
 from datetime import datetime
-from typing import IO, Any, Optional
+from typing import IO, Any
 
 import click
 from rich.console import Console

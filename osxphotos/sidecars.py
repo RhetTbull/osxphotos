@@ -695,9 +695,9 @@ class SidecarWriter(_ExifMixin):
         # remove duplicates
         # sorted mainly to make testing the XMP file easier
         if keyword_list:
-            keyword_list = sorted(list(set(keyword_list)))
+            keyword_list = sorted(set(keyword_list))
         if options.persons and person_list:
-            person_list = sorted(list(set(person_list)))
+            person_list = sorted(set(person_list))
 
         subject_list = keyword_list
 

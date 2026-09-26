@@ -10,7 +10,6 @@ from fractions import Fraction
 from multiprocessing import Process, Queue
 from queue import Empty
 from time import gmtime, sleep, strftime
-from typing import List, Optional, Tuple
 
 import bitmath
 import click
@@ -74,7 +73,7 @@ def trim(text: str, pad: str = "") -> str:
 
 def format_search_info(photo: PhotoInfo) -> str:
     """Format search info for photo"""
-    categories = sorted(list(photo._db._db_searchinfo_categories.keys()))
+    categories = sorted(photo._db._db_searchinfo_categories.keys())
     search_info = photo.search_info
     if not search_info:
         return ""
@@ -450,7 +449,7 @@ def get_uuid_for_photos_selection() -> list[str]:
         if uuid := extract_uuid(str(e)):
             return uuid, 1
         else:
-            raise e
+            raise
     return None, 0
 
 

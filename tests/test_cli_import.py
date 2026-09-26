@@ -16,7 +16,6 @@ import sqlite3
 import sys
 import unicodedata
 from tempfile import TemporaryDirectory
-from typing import Dict
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -808,7 +807,7 @@ def test_import_keyword_merge():
 
     assert photo_1.filename == file_1
     assert sorted(photo_1.keywords) == sorted(
-        list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"]))
+        set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"])
     )
 
 
@@ -848,7 +847,7 @@ def test_import_keyword_merge_unicode():
 
     assert photo_1.filename == file_1
     assert sorted(photo_1.keywords) == sorted(
-        list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"]))
+        set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"])
     )
 
 

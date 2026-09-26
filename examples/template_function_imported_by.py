@@ -2,8 +2,6 @@
 Use:  osxphotos export /path/to/export --filename "{function:/path/to/template_function_imported_by.py::name}"
 """
 
-from typing import List, Optional, Union
-
 from osxphotos import PhotoInfo
 from osxphotos.phototemplate import RenderOptions
 

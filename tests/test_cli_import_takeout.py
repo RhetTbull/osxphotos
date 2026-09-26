@@ -9,7 +9,6 @@ import sqlite3
 import sys
 import time
 from tempfile import TemporaryDirectory
-from typing import Dict
 
 import pytest
 from click.testing import CliRunner

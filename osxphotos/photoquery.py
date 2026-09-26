@@ -11,7 +11,7 @@ import sys
 from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 import bitmath
 
@@ -894,7 +894,7 @@ def sort_photos(photos: list[PhotoInfo], options: QueryOptions) -> list[PhotoInf
             x.date_added or DEFAULT_DATE,
             x.uuid or "",
         ),
-        reverse=True if options.newest_first else False,
+        reverse=bool(options.newest_first),
     )
 
 

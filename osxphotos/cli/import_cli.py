@@ -21,7 +21,7 @@ from contextlib import suppress
 from functools import cached_property
 from os import PathLike
 from textwrap import dedent
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 import click
 from rich.console import Console
@@ -3035,7 +3035,7 @@ def strip_non_apple_aae_file(
     Returns: tuple of file paths with any non-Apple AAE files stripped from the tuple
     """
     if non_apple_aae_file := has_non_apple_aae(file_tuple):
-        file_tuple = tuple(f for f in file_tuple if not f.suffix.lower() == ".aae")
+        file_tuple = tuple(f for f in file_tuple if f.suffix.lower() != ".aae")
         verbose(
             f"Skipping import of non-Apple AAE file from external edit: {non_apple_aae_file}"
         )
@@ -3513,16 +3513,16 @@ def has_original_and_edited_suffix(
 ) -> bool:
     """Return True if any files in list appear to be an original and an edited version using _edited suffix"""
 
-    if edited := edited_suffix_files(
-        filepaths,
-        edited_suffix,
-        relative_filepath,
-        exiftool_path,
-        sidecar,
-        sidecar_filename_template,
-    ):
-        return True
-    return False
+    return bool(
+        edited_suffix_files(
+            filepaths,
+            edited_suffix,
+            relative_filepath,
+            exiftool_path,
+            sidecar,
+            sidecar_filename_template,
+        )
+    )
 
 
 def has_original_and_edited(
@@ -3559,12 +3559,12 @@ def non_edited_files(
 ) -> list[os.PathLike]:
     """Return only the non-edited files from a file group"""
 
-    edited_files = set(
+    edited_files = {
         edited_filename_from_template(
             pathlib.Path(fp), relative_filepath, edited_suffix, exiftool_path, sidecar
         )
         for fp in filepaths
-    )
+    }
     non_edited = [fp for fp in filepaths if pathlib.Path(fp) not in edited_files]
 
     # Also exclude any files that match EDITED_RE if a file in the filepaths matches ORIGINAL_RE

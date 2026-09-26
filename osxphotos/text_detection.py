@@ -2,7 +2,6 @@
 
 import logging
 import sys
-from typing import List, Optional
 
 from .platform import assert_macos, get_macos_version
 

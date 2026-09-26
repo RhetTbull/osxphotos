@@ -5,7 +5,6 @@ Call this as: `osxphotos timewarp --function timewarp_function_example.py::get_d
 
 from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Optional, Tuple
 
 from photoscript import Photo
 

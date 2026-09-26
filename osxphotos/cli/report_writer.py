@@ -12,7 +12,7 @@ import sqlite3
 import sys
 from abc import ABC, abstractmethod
 from contextlib import suppress
-from typing import Any, Dict, Union
+from typing import Any
 
 from osxphotos._constants import SQLITE_CHECK_SAME_THREAD
 from osxphotos.export_db import OSXPHOTOS_ABOUT_STRING

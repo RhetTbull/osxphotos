@@ -367,7 +367,7 @@ def _rank_preferred(zones: list[str]) -> list[str]:
 
     def score(z: str) -> tuple[int, int, str]:
         is_pref = 0 if z in PREFERRED else 1
-        is_bad = 1 if z.startswith("Etc/") or z.startswith("posix/") else 0
+        is_bad = 1 if z.startswith(("Etc/", "posix/")) else 0
         return (is_pref, is_bad, z)
 
     return sorted(zones, key=score)

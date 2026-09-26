@@ -369,16 +369,14 @@ class ExifWriter(_ExifMixin):
 
             if keyword_list:
                 # remove duplicates
-                keyword_list = sorted(
-                    list(set(str(keyword) for keyword in keyword_list))
-                )
+                keyword_list = sorted({str(keyword) for keyword in keyword_list})
                 keyword_list = keyword_list.copy()
                 exif["IPTC:Keywords"] = keyword_list
                 exif["XMP:Subject"] = keyword_list
                 exif["XMP:TagsList"] = keyword_list
 
         if options.persons and person_list:
-            person_list = sorted(list(set(person_list)))
+            person_list = sorted(set(person_list))
             exif["XMP:PersonInImage"] = person_list.copy()
 
         if options.face_regions and self.photo.face_info:

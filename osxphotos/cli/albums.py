@@ -56,7 +56,7 @@ def albums(ctx, cli_obj, db, json_, sort_size):
 
 def album_dict(photosdb: osxphotos.PhotosDB, sort_size: bool) -> dict[str, int]:
     """Return albums with folder hierarchy and count of items"""
-    album_dict = dict()
+    album_dict = {}
     for album in photosdb.album_info:
         album_path = "/".join(album.folder_names)
         if album_path:

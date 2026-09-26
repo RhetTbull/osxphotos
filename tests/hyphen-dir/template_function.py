@@ -1,7 +1,6 @@
 """Example showing how to use a custom function for osxphotos {function} template"""
 
 import pathlib
-from typing import List, Union
 
 import osxphotos
 

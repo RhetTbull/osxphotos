@@ -14,7 +14,6 @@ You may place more than one template function in a single file as each is called
 from __future__ import annotations
 
 import pathlib
-from typing import List, Optional, Union
 
 from osxphotos import PhotoInfo
 from osxphotos.phototemplate import RenderOptions

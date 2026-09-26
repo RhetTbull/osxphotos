@@ -377,7 +377,7 @@ def test_sync_export_import_location_in_folder():
             assert photo.favorite == metadata_before[uuid]["favorites"]
             assert photo.location == metadata_before[uuid]["location"]
             assert TEST_ALBUM_NAME_LOCATION in [album.title for album in photo.albums]
-            assert "/".join([TEST_FOLDER_NAME_LOCATION, TEST_ALBUM_NAME_LOCATION]) in [
+            assert f"{TEST_FOLDER_NAME_LOCATION}/{TEST_ALBUM_NAME_LOCATION}" in [
                 album.path_str() for album in photo.albums
             ]
             assert metadata_before[uuid]["albums"] == sorted(

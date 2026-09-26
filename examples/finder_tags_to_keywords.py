@@ -41,11 +41,9 @@ def main():
                     photo.keywords
                 ):
                     progress.print(
-                        f"Adding keywords to {photo.original_filename} ({photo.uuid}): {list(t.name for t in md.tags)}"
+                        f"Adding keywords to {photo.original_filename} ({photo.uuid}): {[t.name for t in md.tags]}"
                     )
-                    new_keywords = list(
-                        set(photo.keywords + list(t.name for t in md.tags))
-                    )
+                    new_keywords = list(set(photo.keywords + [t.name for t in md.tags]))
                     photoscript.Photo(photo.uuid).keywords = new_keywords
                     updated += 1
             progress.advance(task)

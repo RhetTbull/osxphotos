@@ -5,7 +5,6 @@ import re
 import zoneinfo
 from functools import cache
 from math import floor
-from typing import Union
 
 from .platform import is_macos
 from .timeutils import timezone_for_offset
@@ -257,7 +256,7 @@ else:
     @cache
     def known_timezone_names() -> list[str]:
         """Get list of valid timezones"""
-        return sorted(list(zoneinfo.available_timezones()))
+        return sorted(zoneinfo.available_timezones())
 
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""

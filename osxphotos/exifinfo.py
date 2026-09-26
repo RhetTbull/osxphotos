@@ -46,7 +46,7 @@ def exifinfo_factory(data: dict[str, Any] | None) -> ExifInfo:
 
     exif_info = ExifInfo(
         iso=data["ZISO"],
-        flash_fired=True if data["ZFLASHFIRED"] == 1 else False,
+        flash_fired=data["ZFLASHFIRED"] == 1,
         metering_mode=data["ZMETERINGMODE"],
         sample_rate=data["ZSAMPLERATE"],
         track_format=data["ZTRACKFORMAT"],

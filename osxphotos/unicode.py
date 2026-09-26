@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pathlib
 import unicodedata
-from typing import Literal, TypeVar, Union
+from typing import Literal, TypeVar
 
 from osxphotos.platform import is_macos
 

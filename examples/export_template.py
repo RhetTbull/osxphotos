@@ -41,8 +41,6 @@ Shared Albums
 -- Shared Album 2
 """
 
-from typing import List, Union
-
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.datetime_formatter import DateTimeFormatter

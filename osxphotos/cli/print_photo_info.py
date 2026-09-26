@@ -4,7 +4,6 @@ import csv
 import json
 import sys
 from collections.abc import Callable
-from typing import List, Tuple
 
 from osxphotos.cli.template_utils import suggest_template_fields
 from osxphotos.photoinfo import PhotoInfo

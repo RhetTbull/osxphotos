@@ -39,7 +39,7 @@ def match_photos(
     results = [
         pair[:2] for pair in pairs.values() if len(pair) > 1
     ]  # ignore single photos and only keep first two photos in the pair
-    return list([tuple(pair) for pair in results])
+    return [tuple(pair) for pair in results]
 
 
 def copy_metadata(

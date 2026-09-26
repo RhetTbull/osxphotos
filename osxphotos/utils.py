@@ -20,7 +20,7 @@ import uuid
 from collections.abc import Callable, Iterable
 from functools import cache
 from plistlib import load as plistload
-from typing import TYPE_CHECKING, List, Optional, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
 if TYPE_CHECKING:

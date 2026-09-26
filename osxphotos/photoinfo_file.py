@@ -7,7 +7,6 @@ import logging
 import os
 import pathlib
 import uuid
-from typing import Optional, Union
 
 from ._constants import _OSXPHOTOS_NONE_SENTINEL
 from .datetime_utils import datetime_naive_to_local

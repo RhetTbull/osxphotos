@@ -8,8 +8,6 @@ You should expect a list and return a list and be able to handle multi-value tem
 as well as single-value templates like {original_name}
 """
 
-from typing import List
-
 
 def myfilter(values: list[str]) -> list[str]:
     """Custom filter to append "foo-" to template value"""

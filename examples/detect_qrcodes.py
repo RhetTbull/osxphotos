@@ -11,7 +11,6 @@ import datetime
 import json
 import os
 import os.path
-from typing import List
 
 import click
 import objc

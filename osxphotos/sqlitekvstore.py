@@ -4,7 +4,7 @@ import contextlib
 import os.path
 import sqlite3
 from collections.abc import Callable, Generator, Iterable
-from typing import Dict, Optional, Tuple, TypeVar, Union
+from typing import TypeVar
 
 # keep mypy happy, keys/values can be any type supported by SQLite
 T = TypeVar("T")

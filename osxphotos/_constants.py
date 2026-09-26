@@ -736,5 +736,5 @@ UUID_PATTERN = (
 # earlier versions of python.org python 3.x default to 1 which means threads may not share
 # sqlite3 connections and thus PhotoInfo.export() cannot be used in a multithreaded environment
 # pass SQLITE_CHECK_SAME_THREAD to sqlite3.connect() to enable multithreaded access on systems that support it
-SQLITE_CHECK_SAME_THREAD = not sqlite3.threadsafety == 3
+SQLITE_CHECK_SAME_THREAD = sqlite3.threadsafety != 3
 logger.debug(f"{SQLITE_CHECK_SAME_THREAD=}, {sqlite3.threadsafety=}")

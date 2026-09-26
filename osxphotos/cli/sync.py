@@ -169,7 +169,7 @@ def get_photo_metadata(photos: list[PhotoInfo]) -> str:
                 # merge data if it's a merge field
                 if k in merge_fields and v:
                     if isinstance(v, (list, tuple)):
-                        photos_dict[k] = sorted(list(set(photos_dict[k]) | set(v)))
+                        photos_dict[k] = sorted(set(photos_dict[k]) | set(v))
                     else:
                         if v:
                             if not photos_dict[k]:

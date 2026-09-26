@@ -6,7 +6,6 @@ import logging
 import sys
 import time
 from datetime import datetime
-from typing import Dict, List
 
 import wrapt
 from rich import print

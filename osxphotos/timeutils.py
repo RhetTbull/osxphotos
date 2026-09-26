@@ -4,7 +4,6 @@ import datetime
 import re
 import zoneinfo
 from functools import cache
-from typing import Optional
 from zoneinfo import ZoneInfo
 
 from whenever import Date, Time, ZonedDateTime

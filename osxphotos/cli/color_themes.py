@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 import pathlib
 import tempfile
-from typing import Optional
 
 import click
 from rich.style import Style
