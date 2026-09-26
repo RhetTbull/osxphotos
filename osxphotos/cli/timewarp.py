@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import datetime
 import sys
+from collections.abc import Callable
 from functools import partial
 from textwrap import dedent
-from typing import Callable, cast
+from typing import cast
 
 import click
 from rich.console import Console
@@ -183,7 +184,7 @@ format with the following additions:
 For more information on strptime format codes, see:
 https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
 
-"""  # noqa: E501
+"""
                 ),
                 width=formatter.width,
                 markdown=True,
@@ -804,7 +805,7 @@ def get_photos_for_processing(**kwargs) -> list[Photo]:
         RuntimeError if error getting selection.
     """
     # if any of the query options are specified, then operate over query results
-    if any([kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES]):
+    if any(kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES):
         photosdb = PhotosDB(dbfile=kwargs.get("library"))
         query_options = query_options_from_kwargs(**kwargs)
         results = photo_query(photosdb, query_options)

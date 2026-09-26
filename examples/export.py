@@ -1,6 +1,6 @@
-""" Export all photos to ~/Desktop/export
-    If file has been edited, export the edited version, 
-    otherwise, export the original version """
+"""Export all photos to ~/Desktop/export
+If file has been edited, export the edited version,
+otherwise, export the original version"""
 
 import os.path
 

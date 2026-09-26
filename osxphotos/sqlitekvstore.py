@@ -3,7 +3,8 @@
 import contextlib
 import os.path
 import sqlite3
-from typing import Callable, Dict, Generator, Iterable, Optional, Tuple, TypeVar, Union
+from collections.abc import Callable, Generator, Iterable
+from typing import TypeVar
 
 # keep mypy happy, keys/values can be any type supported by SQLite
 T = TypeVar("T")
@@ -19,8 +20,8 @@ class SQLiteKVStore:
     def __init__(
         self,
         dbpath: str,
-        serialize: Optional[Callable[[T], T]] = None,
-        deserialize: Optional[Callable[[T], T]] = None,
+        serialize: Callable[[T], T] | None = None,
+        deserialize: Callable[[T], T] | None = None,
         wal: bool = False,
     ):
         """Opens the database if it exists, otherwise creates it
@@ -84,7 +85,7 @@ class SQLiteKVStore:
         )
         conn.commit()
 
-    def set_many(self, items: Union[Iterable[Tuple[T, T]], Dict[T, T]]):
+    def set_many(self, items: Iterable[tuple[T, T]] | dict[T, T]):
         """Set multiple key:value pairs
 
         Args:
@@ -99,7 +100,7 @@ class SQLiteKVStore:
         )
         conn.commit()
 
-    def get(self, key: T, default: Optional[T] = None) -> Optional[T]:
+    def get(self, key: T, default: T | None = None) -> T | None:
         """Get value for key
 
         Args:
@@ -122,7 +123,7 @@ class SQLiteKVStore:
         cursor.execute("DELETE FROM data WHERE key = ?;", (key,))
         conn.commit()
 
-    def pop(self, key) -> Optional[T]:
+    def pop(self, key) -> T | None:
         """Delete key and return value"""
         value = self[key]
         del self[key]
@@ -140,7 +141,7 @@ class SQLiteKVStore:
         for value in cursor:
             yield self._deserialize(value[0])
 
-    def items(self) -> Generator[Tuple[T, T], None, None]:
+    def items(self) -> Generator[tuple[T, T], None, None]:
         """Return items (key, value) as generator"""
         conn = self.connection()
         cursor = conn.cursor()

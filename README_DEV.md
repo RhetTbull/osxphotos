@@ -12,7 +12,7 @@ These are notes for developers working on osxphotos. They're mostly to help me r
 uv pip install -e ".[dev]"
 ```
 
-The `[dev]` extra installs everything that was previously in `dev_requirements.txt` (pytest, ruff, black, sphinx, bump-my-version, etc.) as well as the package itself in editable mode. There is no longer a separate `requirements.txt` or `dev_requirements.txt` — `pyproject.toml` is the single source of truth.
+The `[dev]` extra installs everything that was previously in `dev_requirements.txt` (pytest, ruff, sphinx, bump-my-version, etc.) as well as the package itself in editable mode. There is no longer a separate `requirements.txt` or `dev_requirements.txt` — `pyproject.toml` is the single source of truth.
 
 ## Running tests
 
@@ -31,7 +31,7 @@ If you want to contribute to osxphotos, please open a pull request. Here's how t
 - Make your changes
 - Add tests for your changes
 - Run the tests: `pytest`
-- Format the code: `isort .` then `black .`
+- Lint and format the code: `ruff check --fix` then `ruff format` (ruff also sorts imports; `ruff check` must pass cleanly)
 - Update the README.md and other files as needed
 - Add your changes using `git add`
 - Commit your changes: `git commit -m "My changes description"`

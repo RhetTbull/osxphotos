@@ -7,7 +7,7 @@
 import datetime
 import pathlib
 import sqlite3
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
 
 from photoscript import Photo
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -38,7 +38,7 @@ class PhotoTimeZone:
 
     def __init__(
         self,
-        library_path: Optional[str] = None,
+        library_path: str | None = None,
     ):
         # get_last_library_path() returns the path to the last Photos library
         # opened but sometimes (rarely) fails on some systems
@@ -60,7 +60,7 @@ class PhotoTimeZone:
         wait=wait_exponential(multiplier=1, min=0.100, max=5),
         stop=stop_after_attempt(10),
     )
-    def get_timezone(self, photo: Photo) -> Tuple[int, str, str]:
+    def get_timezone(self, photo: Photo) -> tuple[int, str, str]:
         """Return (timezone_seconds, timezone_str, timezone_name) of photo"""
         # Use retry decorator to retry if database is locked
         uuid = photo.uuid
@@ -90,8 +90,8 @@ class PhotoTimeZoneUpdater:
     def __init__(
         self,
         timezone: Timezone,
-        verbose: Optional[Callable] = None,
-        library_path: Optional[str] = None,
+        verbose: Callable | None = None,
+        library_path: str | None = None,
     ):
         self.timezone = timezone
         self.tz_offset = timezone.offset
@@ -133,62 +133,59 @@ class PhotoTimeZoneUpdater:
     )
     def _update_photo(self, photo: Photo, offset_only: bool = False):
         # Use retry decorator to retry if database is locked
-        try:
-            uuid = photo.uuid
-            sql = f"""  SELECT
-                        ZADDITIONALASSETATTRIBUTES.Z_PK,
-                        ZADDITIONALASSETATTRIBUTES.Z_OPT,
-                        ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
-                        ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME
-                        FROM ZADDITIONALASSETATTRIBUTES
-                        JOIN {self.ASSET_TABLE}
-                        ON ZADDITIONALASSETATTRIBUTES.ZASSET = {self.ASSET_TABLE}.Z_PK
-                        WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}'
-                """
-            with sqlite3.connect(
-                self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
-            ) as conn:
-                c = conn.cursor()
-                c.execute(sql)
-                results = c.fetchone()
+        uuid = photo.uuid
+        sql = f"""  SELECT
+                    ZADDITIONALASSETATTRIBUTES.Z_PK,
+                    ZADDITIONALASSETATTRIBUTES.Z_OPT,
+                    ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
+                    ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME
+                    FROM ZADDITIONALASSETATTRIBUTES
+                    JOIN {self.ASSET_TABLE}
+                    ON ZADDITIONALASSETATTRIBUTES.ZASSET = {self.ASSET_TABLE}.Z_PK
+                    WHERE {self.ASSET_TABLE}.ZUUID = '{uuid}'
+            """
+        with sqlite3.connect(
+            self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
+        ) as conn:
+            c = conn.cursor()
+            c.execute(sql)
+            results = c.fetchone()
 
-            photo_tz_offset = self.timezone.offset_for_date(photo.date)
-            if results[2] == photo_tz_offset and (
-                offset_only or results[3] == self.tz_name
-            ):
-                self.verbose(
-                    f"Skipping timezone update for photo [filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]): nothing to do"
-                )
-                return
-
-            z_opt = results[1] + 1
-            z_pk = results[0]
-            tz_offset = results[2]
-            tz_name = results[3]
-            sql_update = f"""   UPDATE ZADDITIONALASSETATTRIBUTES
-                                SET Z_OPT={z_opt},
-                                ZINFERREDTIMEZONEOFFSET={photo_tz_offset},
-                                ZTIMEZONEOFFSET={photo_tz_offset},
-                                ZTIMEZONENAME='{self.tz_name}'
-                                WHERE Z_PK={z_pk};
-                        """
-            with sqlite3.connect(
-                self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
-            ) as conn:
-                c = conn.cursor()
-                c.execute(sql_update)
-                conn.commit()
-
-            # now need to update some other property in the photo via Photos API or
-            # changes won't be synced to the cloud (#946)
-            photo.date = photo.date + datetime.timedelta(seconds=1)
-            photo.date = photo.date - datetime.timedelta(seconds=1)
-
+        photo_tz_offset = self.timezone.offset_for_date(photo.date)
+        if results[2] == photo_tz_offset and (
+            offset_only or results[3] == self.tz_name
+        ):
             self.verbose(
-                "Updated timezone for photo "
-                f"[filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]) "
-                f"from [tz]{tz_name}[/tz], offset=[tz]{tz_offset}[/tz] "
-                f"to [tz]{self.tz_name}[/tz], offset=[tz]{photo_tz_offset}[/tz]"
+                f"Skipping timezone update for photo [filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]): nothing to do"
             )
-        except Exception as e:
-            raise e
+            return
+
+        z_opt = results[1] + 1
+        z_pk = results[0]
+        tz_offset = results[2]
+        tz_name = results[3]
+        sql_update = f"""   UPDATE ZADDITIONALASSETATTRIBUTES
+                            SET Z_OPT={z_opt},
+                            ZINFERREDTIMEZONEOFFSET={photo_tz_offset},
+                            ZTIMEZONEOFFSET={photo_tz_offset},
+                            ZTIMEZONENAME='{self.tz_name}'
+                            WHERE Z_PK={z_pk};
+                    """
+        with sqlite3.connect(
+            self.db_path, check_same_thread=SQLITE_CHECK_SAME_THREAD
+        ) as conn:
+            c = conn.cursor()
+            c.execute(sql_update)
+            conn.commit()
+
+        # now need to update some other property in the photo via Photos API or
+        # changes won't be synced to the cloud (#946)
+        photo.date = photo.date + datetime.timedelta(seconds=1)
+        photo.date = photo.date - datetime.timedelta(seconds=1)
+
+        self.verbose(
+            "Updated timezone for photo "
+            f"[filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]) "
+            f"from [tz]{tz_name}[/tz], offset=[tz]{tz_offset}[/tz] "
+            f"to [tz]{self.tz_name}[/tz], offset=[tz]{photo_tz_offset}[/tz]"
+        )

@@ -1,6 +1,6 @@
-""" use osxphotos to force the download of photos from iCloud
-    downloads images to a temporary directory then deletes them
-    resulting in the photo being downloaded to Photos library
+"""use osxphotos to force the download of photos from iCloud
+downloads images to a temporary directory then deletes them
+resulting in the photo being downloaded to Photos library
 """
 
 import os

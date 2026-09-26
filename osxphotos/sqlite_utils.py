@@ -10,7 +10,6 @@ import shutil
 import sqlite3
 import subprocess
 import tempfile
-from typing import List, Tuple
 
 from ._constants import SQLITE_CHECK_SAME_THREAD
 from .fileutil import FileUtil, FileUtilMacOS
@@ -22,6 +21,7 @@ __all__ = [
     "sqlite_backup_dbfiles",
     "sqlite_columns",
     "sqlite_db_is_locked",
+    "sqlite_db_is_ok",
     "sqlite_delete_backup_files",
     "sqlite_delete_dbfiles",
     "sqlite_open_ro",
@@ -29,7 +29,6 @@ __all__ = [
     "sqlite_recover_db",
     "sqlite_repair_db",
     "sqlite_tables",
-    "sqlite_db_is_ok",
 ]
 
 
@@ -56,7 +55,7 @@ class _SQLiteTempCopyConnection(sqlite3.Connection):
 def _sqlite_open_ro(
     dbname: str | pathlib.Path,
     factory: type[sqlite3.Connection] = sqlite3.Connection,
-) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
+) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     """opens sqlite file dbname in read-only mode
     returns tuple of (connection, cursor)"""
     try:
@@ -78,7 +77,7 @@ def _sqlite_open_ro(
 
 def sqlite_open_ro(
     dbname: str | pathlib.Path,
-) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
+) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     """opens sqlite file dbname in read-only mode
     returns tuple of (connection, cursor)"""
     return _sqlite_open_ro(dbname)
@@ -102,7 +101,7 @@ def _sqlite_temp_copy_dbfiles(
 
 def sqlite_open_ro_with_temp_copy(
     dbname: str | pathlib.Path,
-) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
+) -> tuple[sqlite3.Connection, sqlite3.Cursor]:
     """Open sqlite file dbname in read-only mode, copying to temp if locked.
 
     If dbname is locked, copies dbname and any associated -wal/-shm files to a
@@ -138,7 +137,7 @@ def sqlite_db_is_locked(dbname: str | pathlib.Path) -> bool:
         return True
 
 
-def sqlite_tables(conn: sqlite3.Connection) -> List[str]:
+def sqlite_tables(conn: sqlite3.Connection) -> list[str]:
     """Returns list of tables found in sqlite db"""
     results = conn.execute(
         "SELECT name FROM sqlite_master WHERE type='table';"
@@ -146,7 +145,7 @@ def sqlite_tables(conn: sqlite3.Connection) -> List[str]:
     return [row[0] for row in results]
 
 
-def sqlite_columns(conn: sqlite3.Connection, table: str) -> List[str]:
+def sqlite_columns(conn: sqlite3.Connection, table: str) -> list[str]:
     """Returns list of column names found in table in sqlite database"""
     results = conn.execute(f"PRAGMA table_info({table});")
     return [row[1] for row in results]

@@ -1,17 +1,16 @@
 """Detect QR Codes in photos in Apple Photos and add qrcode tag/keyword to photos contain a QR Code
 
-    Run with `osxphotos run detect_qrcodes.py`
+Run with `osxphotos run detect_qrcodes.py`
 
-    Run with `osxphotos run detect_qrcodes.py --help` for help
+Run with `osxphotos run detect_qrcodes.py --help` for help
 
-    All dependencies are already installed as part of a standard osxphotos install.
+All dependencies are already installed as part of a standard osxphotos install.
 """
 
 import datetime
 import json
 import os
 import os.path
-from typing import List
 
 import click
 import objc
@@ -29,7 +28,7 @@ from osxphotos.sqlitekvstore import SQLiteKVStore
 QRCODE_KEYWORD = "qrcode"
 
 
-def detect_qrcodes_in_image(filepath: str) -> List[str]:
+def detect_qrcodes_in_image(filepath: str) -> list[str]:
     """Detect QR Codes in images using CIDetector and return text of the found QR Codes"""
     with objc.autorelease_pool():
         context = Quartz.CIContext.contextWithOptions_(None)

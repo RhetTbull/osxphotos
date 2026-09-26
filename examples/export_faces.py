@@ -1,11 +1,11 @@
-""" Export all photos that contain a detected face and draw rectangles around each face
-    photos with no persons/detected faces will not be export 
+"""Export all photos that contain a detected face and draw rectangles around each face
+photos with no persons/detected faces will not be export
 
-    This shows how to use the FaceInfo class and is useful for validating that FaceInfo is
-    correctly handling faces.
+This shows how to use the FaceInfo class and is useful for validating that FaceInfo is
+correctly handling faces.
 
-    To use this, you'll need to install Pillow:
-    python3 -m pip install Pillow
+To use this, you'll need to install Pillow:
+python3 -m pip install Pillow
 """
 
 import os

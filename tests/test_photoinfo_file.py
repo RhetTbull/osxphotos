@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-import osxphotos.photoinfo_file as photoinfo_file
+from osxphotos import photoinfo_file
 from osxphotos.photoinfo_file import PhotoInfoFromFile
 
 TEST_IMAGE = "tests/test-images/IMG_4179.jpeg"

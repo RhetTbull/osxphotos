@@ -1,4 +1,4 @@
-""" Common utilities for PhotoInfo variations """
+"""Common utilities for PhotoInfo variations"""
 
 from typing import Any
 

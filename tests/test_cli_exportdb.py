@@ -7,7 +7,6 @@ import pathlib
 from click.testing import CliRunner
 
 from osxphotos._constants import OSXPHOTOS_EXPORT_DB
-from osxphotos.cli import export, exportdb
 from osxphotos.cli.export import export
 from osxphotos.cli.exportdb import exportdb
 from osxphotos.export_db import OSXPHOTOS_EXPORTDB_VERSION

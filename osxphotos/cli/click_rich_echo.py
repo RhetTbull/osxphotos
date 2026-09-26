@@ -33,7 +33,7 @@ class _Console:
     """Store console object for rich output"""
 
     def __init__(self):
-        self._console: t.Optional[Console] = None
+        self._console: Console | None = None
 
     @property
     def console(self):
@@ -51,12 +51,11 @@ _theme = None
 _timestamp = False
 
 # set to 1 if running tests
-OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING", default=False))
+OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING"))
 
 
 def set_rich_console(console: Console) -> None:
     """Set the console object to use for rich_echo and rich_echo_via_pager"""
-    global _console
     _console.console = console
 
 
@@ -66,7 +65,6 @@ def get_rich_console() -> Console:
     Returns:
         Console object
     """
-    global _console
     return _console.console
 
 
@@ -76,9 +74,8 @@ def set_rich_theme(theme: Theme) -> None:
     _theme = theme
 
 
-def get_rich_theme() -> t.Optional[Theme]:
+def get_rich_theme() -> Theme | None:
     """Get the theme to use for rich_click_echo"""
-    global _theme
     return _theme
 
 
@@ -89,7 +86,7 @@ def set_rich_timestamp(timestamp: bool) -> None:
 
 
 def rich_echo(
-    message: t.Optional[t.Any] = None,
+    message: t.Any | None = None,
     theme=None,
     markdown=False,
     highlight=False,
@@ -125,14 +122,13 @@ def rich_echo(
     if markdown:
         message = Markdown(message)
         # Markdown always adds a new line so disable unless explicitly specified
-    global _timestamp
     if _timestamp:
         message = time_stamp() + message
     console.print(message, highlight=highlight, **kwargs)
 
 
 def rich_echo_error(
-    message: t.Optional[t.Any] = None,
+    message: t.Any | None = None,
     theme=None,
     markdown=False,
     highlight=False,
@@ -150,7 +146,6 @@ def rich_echo_error(
             all other values passed to rich.console.Console.print()
     """
 
-    global ERROR_EMOJI
     if ERROR_EMOJI:
         if "[error]" in message:
             message = f":cross_mark-emoji:  {message}"
@@ -168,7 +163,7 @@ def rich_echo_error(
 
 
 def rich_click_echo(
-    message: t.Optional[t.Any] = None,
+    message: t.Any | None = None,
     theme=None,
     markdown=False,
     highlight=False,
@@ -212,7 +207,6 @@ def rich_click_echo(
         message = Markdown(message)
         # Markdown always adds a new line so disable unless explicitly specified
         echo_args["nl"] = echo_args.get("nl") is True
-    global _timestamp
     if _timestamp:
         message = time_stamp() + message
     with console.capture() as capture:
@@ -221,8 +215,8 @@ def rich_click_echo(
 
 
 def rich_echo_via_pager(
-    text_or_generator: t.Union[t.Iterable[str], t.Callable[[], t.Iterable[str]], str],
-    theme: t.Optional[Theme] = None,
+    text_or_generator: t.Iterable[str] | t.Callable[[], t.Iterable[str]] | str,
+    theme: Theme | None = None,
     highlight=False,
     markdown: bool = False,
     **kwargs,

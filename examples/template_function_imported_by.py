@@ -2,15 +2,13 @@
 Use:  osxphotos export /path/to/export --filename "{function:/path/to/template_function_imported_by.py::name}"
 """
 
-from typing import List, Optional, Union
-
 from osxphotos import PhotoInfo
 from osxphotos.phototemplate import RenderOptions
 
 
 def name(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """Get imported by name
 
     Args:
@@ -30,8 +28,8 @@ def name(
 
 
 def bundle_id(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """Get imported by bundle ID
 
     Args:

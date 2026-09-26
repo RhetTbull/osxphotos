@@ -156,7 +156,7 @@ def get_persons_count(photosdb: osxphotos.PhotosDB) -> int:
     if isinstance(photosdb, iPhotoDB):
         return len(photosdb.persons_as_dict)
 
-    return len(list(p for p in photosdb.person_info if p.name != _UNKNOWN_PERSON))
+    return len([p for p in photosdb.person_info if p.name != _UNKNOWN_PERSON])
 
 
 def get_non_selected_bursts(photosdb: osxphotos.PhotosDB) -> list[osxphotos.PhotoInfo]:
@@ -419,7 +419,7 @@ def get_photosdb_counts(photosdb: osxphotos.PhotosDB) -> dict[str, Any]:
     counts["albums"] = photosdb.albums_as_dict
     counts["persons"] = photosdb.persons_as_dict
     counts["labels"] = (
-        photosdb.labels_as_dict if not isinstance(photosdb, iPhotoDB) else dict()
+        photosdb.labels_as_dict if not isinstance(photosdb, iPhotoDB) else {}
     )
 
     # moment_info is not implemented for PhotosDB (#1496)

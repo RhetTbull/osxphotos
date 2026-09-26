@@ -64,7 +64,7 @@ class CLI_Obj:
         self.group = group
 
 
-CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
+CTX_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
 @click.group(context_settings=CTX_SETTINGS)

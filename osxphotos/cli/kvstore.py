@@ -19,7 +19,6 @@ __kvstores = []
 @atexit.register
 def close_kvstore():
     """Close any open SQLiteKVStore databases"""
-    global __kvstores
     for kv in __kvstores:
         with contextlib.suppress(Exception):
             kv.close()
@@ -38,7 +37,6 @@ def kvstore(name: str) -> SQLiteKVStore:
     Returns:
         SQLiteKVStore object
     """
-    global __kvstores
     data_dir = get_data_dir()
     if not name.endswith(".db"):
         name += ".db"

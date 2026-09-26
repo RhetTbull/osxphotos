@@ -47,7 +47,6 @@ def example(photos: list[osxphotos.PhotoInfo], **kwargs):
         # see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo
         verbose(f"Processing {photo.original_filename}")
         print(f"{photo.original_filename} {photo.date}")
-        ...
 
 
 if __name__ == "__main__":

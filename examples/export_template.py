@@ -1,4 +1,4 @@
-""" Example showing how to use a custom function for osxphotos {function} template 
+"""Example showing how to use a custom function for osxphotos {function} template
     to export photos in a folder structure similar to Photos' own structure
 
     Use:  osxphotos export /path/to/export --directory "{function:/path/to/export_template.py::photos_folders}"
@@ -41,8 +41,6 @@ Shared Albums
 -- Shared Album 2
 """
 
-from typing import List, Union
-
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.datetime_formatter import DateTimeFormatter
@@ -79,7 +77,7 @@ def place_folder(photo: osxphotos.PhotoInfo) -> str:
 
 def photos_folders(
     photo: osxphotos.PhotoInfo, options: osxphotos.phototemplate.RenderOptions, **kwargs
-) -> Union[List, str]:
+) -> list | str:
     """template function for use with --directory to export photos in a folder structure similar to Photos
 
     Args:

@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from datetime import datetime
-from typing import IO, Any, Callable, Optional
+from typing import IO, Any
 
 import click
 from rich.console import Console
@@ -20,7 +21,7 @@ from .color_themes import get_theme
 from .common import CLI_COLOR_ERROR, CLI_COLOR_WARNING, time_stamp
 
 # set to 1 if running tests
-OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING", default=False))
+OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING"))
 
 # include error/warning emoji's in verbose output
 ERROR_EMOJI = True
@@ -56,7 +57,6 @@ def _reset_verbose_globals():
 
 def noop(*args, **kwargs):
     """no-op function"""
-    pass
 
 
 def verbose(*args, level: int = 1):
@@ -71,7 +71,6 @@ def verbose(*args, level: int = 1):
     #     Normally you should use verbose_print() to get the verbose function instead of calling this directly
     #     This is here so that verbose can be directly imported and used in other modules without calling verbose_print()
     #     Use of verbose_print() will set the verbose function so that calling verbose() will work as expected
-    global __verbose_function
     if __verbose_function is None:
         return
     __verbose_function(*args, level=level)
@@ -93,7 +92,6 @@ def set_verbose_level(level: int):
 
 def get_verbose_level() -> int:
     """Get verbose level"""
-    global __verbose_level
     return __verbose_level
 
 
@@ -101,7 +99,7 @@ class _Console:
     """Store console object for verbose output"""
 
     def __init__(self):
-        self._console: Optional[Console] = None
+        self._console: Console | None = None
 
     @property
     def console(self):
@@ -115,7 +113,7 @@ class _Console:
 _console = _Console()
 
 
-def get_verbose_console(theme: Optional[Theme] = None) -> Console:
+def get_verbose_console(theme: Theme | None = None) -> Console:
     """Get console object or create one if not already created
 
     Args:
@@ -124,7 +122,6 @@ def get_verbose_console(theme: Optional[Theme] = None) -> Console:
     Returns:
         Console object
     """
-    global _console
     if _console.console is None:
         _console.console = Console(force_terminal=True, theme=theme)
     return _console.console
@@ -136,7 +133,7 @@ def verbose_print(
     rich: bool = True,
     theme: str | None = None,
     highlight: bool = False,
-    file: Optional[IO] = None,
+    file: IO | None = None,
     **kwargs: Any,
 ) -> Callable[..., None]:
     """Configure verbose printing and create verbose function to print output
@@ -185,8 +182,8 @@ def _verbose_print_function(
     timestamp: bool = False,
     rich: bool = False,
     highlight: bool = False,
-    theme: Optional[Theme] = None,
-    file: Optional[IO] = None,
+    theme: Theme | None = None,
+    file: IO | None = None,
     **kwargs: Any,
 ) -> Callable[..., None]:
     """Create verbose function to print output
@@ -205,7 +202,6 @@ def _verbose_print_function(
     """
 
     # configure console even if verbose is False so that rich_echo will work correctly
-    global _console
     if file:
         _console.console = Console(theme=theme, file=file)
     else:
@@ -220,7 +216,7 @@ def _verbose_print_function(
         if get_verbose_level() < level:
             return
         styled_args = []
-        timestamp_str = f"{str(datetime.now())} -- " if timestamp else ""
+        timestamp_str = f"{datetime.now()!s} -- " if timestamp else ""
         for arg in args:
             if isinstance(arg, str):
                 arg = timestamp_str + arg
@@ -235,7 +231,6 @@ def _verbose_print_function(
         """rich.print output if verbose flag set"""
         if get_verbose_level() < level:
             return
-        global ERROR_EMOJI
         timestamp_str = time_stamp() if timestamp else ""
         new_args = []
         for arg in args:
@@ -256,7 +251,6 @@ def _verbose_print_function(
         """print output if verbose flag set using rich.print"""
         if get_verbose_level() < level:
             return
-        global ERROR_EMOJI
         timestamp_str = time_stamp() if timestamp else ""
         new_args = []
         for arg in args:
@@ -281,7 +275,7 @@ def _verbose_print_function(
         return verbose_
 
 
-def config_verbose_callback(ctx: click.Context, param: click.Parameter, value: t.Any):
+def config_verbose_callback(ctx: click.Context, param: click.Parameter, value: Any):
     """Callback for --verbose option"""
     # calling verbose_print() will set the verbose level for the verbose() function
     theme = ctx.params.get("theme")
@@ -290,7 +284,7 @@ def config_verbose_callback(ctx: click.Context, param: click.Parameter, value: t
     return value
 
 
-def config_theme_callback(ctx: click.Context, param: click.Parameter, value: t.Any):
+def config_theme_callback(ctx: click.Context, param: click.Parameter, value: Any):
     """Callback for --theme option"""
     # calling verbose_print() will set the verbose level for the verbose() function
     # if --verbose is passed after --theme, this callback won't have access it to
@@ -303,7 +297,7 @@ def config_theme_callback(ctx: click.Context, param: click.Parameter, value: t.A
     return value
 
 
-def config_timestamp_callback(ctx: click.Context, param: click.Parameter, value: t.Any):
+def config_timestamp_callback(ctx: click.Context, param: click.Parameter, value: Any):
     """Callback for --timestamp option"""
     # calling verbose_print() will set the verbose level for the verbose() function
     # if --verbose is passed after --timestamp, this callback won't have access it to

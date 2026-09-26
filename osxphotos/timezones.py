@@ -5,7 +5,6 @@ import re
 import zoneinfo
 from functools import cache
 from math import floor
-from typing import Union
 
 from .platform import is_macos
 from .timeutils import timezone_for_offset
@@ -153,7 +152,7 @@ class Timezone:
     """Create Timezone object from either name (str) or offset from GMT (int)"""
 
     # this is a dummy class to allow use of Timezone in param_types.py
-    def __init__(self, tz: Union[str, int]):
+    def __init__(self, tz: str | int):
         pass
 
 
@@ -177,7 +176,7 @@ if is_macos:
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
 
-        def __init__(self, tz: Union[str, int, float]):
+        def __init__(self, tz: str | float):
             with objc.autorelease_pool():
                 self._from_offset = False
                 if isinstance(tz, str):
@@ -257,12 +256,12 @@ else:
     @cache
     def known_timezone_names() -> list[str]:
         """Get list of valid timezones"""
-        return sorted(list(zoneinfo.available_timezones()))
+        return sorted(zoneinfo.available_timezones())
 
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
 
-        def __init__(self, tz: Union[str, int, float]):
+        def __init__(self, tz: str | float):
             if isinstance(tz, str):
                 try:
                     self.timezone = zoneinfo.ZoneInfo(tz)

@@ -135,7 +135,6 @@ __all__ = [
     "kvstore",
     "labels",
     "list_libraries",
-    "list_libraries",
     "logger",
     "orphans",
     "persons",

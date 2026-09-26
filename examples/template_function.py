@@ -1,19 +1,18 @@
-""" Example showing how to use a custom function for osxphotos {function} template 
-    Use:  osxphotos export /path/to/export --filename "{function:/path/to/template_function.py::example}"
+"""Example showing how to use a custom function for osxphotos {function} template
+Use:  osxphotos export /path/to/export --filename "{function:/path/to/template_function.py::example}"
 
-    You may place more than one template function in a single file as each is called by name using the {function:file.py::function_name} format
+You may place more than one template function in a single file as each is called by name using the {function:file.py::function_name} format
 """
 
 import pathlib
-from typing import List, Optional, Union
 
 from osxphotos import PhotoInfo
 from osxphotos.phototemplate import RenderOptions
 
 
 def example(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """example function for {function} template; adds suffix of # if photo has adjustments and ! if photo is a favorite
 
     Args:

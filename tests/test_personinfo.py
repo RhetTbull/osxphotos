@@ -1,4 +1,4 @@
-""" Test PersonInfo class """
+"""Test PersonInfo class"""
 
 import pytest
 

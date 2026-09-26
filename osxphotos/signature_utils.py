@@ -47,4 +47,6 @@ def normalize_photo_signature_filename(
         # signature isn't of the form "filename:fingerprint" (e.g. a shared
         # photo signature) so there's no filename to normalize
         return signature
-    return f"{normalize_collision_filename(filename).lower()}:{signature[len(prefix):]}"
+    return (
+        f"{normalize_collision_filename(filename).lower()}:{signature[len(prefix) :]}"
+    )

@@ -1,4 +1,4 @@
-""" test PhotoInfo.search_info """
+"""test PhotoInfo.search_info"""
 
 # On 10.14.6, SearchInfo is not valid and returns None
 
@@ -92,5 +92,5 @@ def test_photosdb_labels(photosdb):
 
 
 def test_photosdb_labels_as_dict(photosdb):
-    assert photosdb.labels_as_dict == dict()
-    assert photosdb.labels_normalized_as_dict == dict()
+    assert photosdb.labels_as_dict == {}
+    assert photosdb.labels_normalized_as_dict == {}

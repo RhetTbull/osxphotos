@@ -3,15 +3,15 @@
 Call this as: `osxphotos timewarp --function timewarp_function_example.py::get_date_time_timezone`
 """
 
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Callable, Optional, Tuple
 
 from photoscript import Photo
 
 
 def get_date_time_timezone(
-    photo: Photo, path: Optional[str], tz_sec: int, tz_name: str, verbose: Callable
-) -> Tuple[datetime, int]:
+    photo: Photo, path: str | None, tz_sec: int, tz_name: str, verbose: Callable
+) -> tuple[datetime, int]:
     """Example function for use with `osxphotos timewarp --function`
 
     Args:

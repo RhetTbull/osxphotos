@@ -548,19 +548,19 @@ def test_exiftool_terminate():
     # Use pgrep to find actual exiftool processes (more reliable than ps)
     try:
         ps = subprocess.run(
-            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True
+            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True, check=False
         )
         exiftool_processes_before = (
             ps.stdout.decode("utf-8").strip().split("\n") if ps.stdout.strip() else []
         )
         # Filter out empty strings
         exiftool_processes_before = [p for p in exiftool_processes_before if p]
-        assert (
-            len(exiftool_processes_before) > 0
-        ), "No exiftool processes found before termination"
+        assert len(exiftool_processes_before) > 0, (
+            "No exiftool processes found before termination"
+        )
     except FileNotFoundError:
         # Fallback to ps if pgrep is not available
-        ps = subprocess.run(["ps", "ax"], capture_output=True)
+        ps = subprocess.run(["ps", "ax"], capture_output=True, check=False)
         stdout = ps.stdout.decode("utf-8")
         # Look for actual exiftool binary processes, not just command lines containing "exiftool"
         exiftool_lines = [
@@ -575,19 +575,19 @@ def test_exiftool_terminate():
     # Check that exiftool processes are terminated
     try:
         ps = subprocess.run(
-            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True
+            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True, check=False
         )
         exiftool_processes_after = (
             ps.stdout.decode("utf-8").strip().split("\n") if ps.stdout.strip() else []
         )
         # Filter out empty strings
         exiftool_processes_after = [p for p in exiftool_processes_after if p]
-        assert (
-            len(exiftool_processes_after) == 0
-        ), f"Found {len(exiftool_processes_after)} exiftool processes still running after termination"
+        assert len(exiftool_processes_after) == 0, (
+            f"Found {len(exiftool_processes_after)} exiftool processes still running after termination"
+        )
     except FileNotFoundError:
         # Fallback to ps if pgrep is not available
-        ps = subprocess.run(["ps", "ax"], capture_output=True)
+        ps = subprocess.run(["ps", "ax"], capture_output=True, check=False)
         stdout = ps.stdout.decode("utf-8")
         # Look for actual exiftool binary processes, not just command lines containing "exiftool"
         exiftool_lines = [
@@ -595,9 +595,9 @@ def test_exiftool_terminate():
             for line in stdout.split("\n")
             if "exiftool" in line and "-stay_open" in line
         ]
-        assert (
-            len(exiftool_lines) == 0
-        ), f"Found {len(exiftool_lines)} exiftool processes still running after termination"
+        assert len(exiftool_lines) == 0, (
+            f"Found {len(exiftool_lines)} exiftool processes still running after termination"
+        )
 
     # verify we can create a new instance after termination
     exif2 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
@@ -676,10 +676,12 @@ def test_start_process_with_timeout():
         time.sleep(1)  # Simulate hanging process creation
         return subprocess.Popen(*args, **kwargs)
 
-    with unittest.mock.patch(
-        "osxphotos.exiftool.subprocess.Popen", side_effect=hanging_popen
+    with (
+        unittest.mock.patch(
+            "osxphotos.exiftool.subprocess.Popen", side_effect=hanging_popen
+        ),
+        pytest.raises(TimeoutError),
     ):
-        with pytest.raises(TimeoutError):
-            _start_process_with_timeout(
-                ["echo", "test"], timeout=0.1, stdout=subprocess.PIPE
-            )
+        _start_process_with_timeout(
+            ["echo", "test"], timeout=0.1, stdout=subprocess.PIPE
+        )

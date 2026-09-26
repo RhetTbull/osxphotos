@@ -35,9 +35,7 @@ class DirectoryStatCache:
         ttl_seconds: Time-to-live for cached entries in seconds.
     """
 
-    def __init__(
-        self, ttl_seconds: float = 300.0, case_sensitive: bool | None = None
-    ):
+    def __init__(self, ttl_seconds: float = 300.0, case_sensitive: bool | None = None):
         """Initialize the directory stat cache.
 
         Args:
@@ -71,9 +69,7 @@ class DirectoryStatCache:
         """
         return normalize_fs_path(filename)
 
-    def _lookup_entry(
-        self, dir_path: str, filename: str
-    ) -> os.stat_result | None:
+    def _lookup_entry(self, dir_path: str, filename: str) -> os.stat_result | None:
         """Look up a cached file entry, with optional case-insensitive fallback."""
         entries = self._cache.get(dir_path, {})
         if filename in entries:

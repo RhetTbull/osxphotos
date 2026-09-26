@@ -267,7 +267,7 @@ def get_photo(
     return photo
 
 
-def set_editor_mode(mode: Literal["emacs", "vi", None]):
+def set_editor_mode(mode: Literal["emacs", "vi"] | None):
     """Config editor mode and tab completion for readline"""
 
     if "libedit" in readline.__doc__:

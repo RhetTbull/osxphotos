@@ -1,0 +1,24 @@
+name: Lint
+
+on: [push, pull_request]
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+
+      # Keep the ruff version in sync with the pin in the dev extra in pyproject.toml
+      - name: Lint with ruff
+        run: uvx ruff@0.16.8 check --output-format=github
+
+      - name: Check formatting with ruff
+        run: uvx ruff@0.16.8 format --check --diff

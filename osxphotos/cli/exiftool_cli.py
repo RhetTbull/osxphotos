@@ -3,7 +3,7 @@
 import os
 import pathlib
 import sys
-from typing import Callable
+from collections.abc import Callable
 
 import click
 

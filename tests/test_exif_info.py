@@ -1,4 +1,4 @@
-""" Test ExifInfo """
+"""Test ExifInfo"""
 
 import datetime
 

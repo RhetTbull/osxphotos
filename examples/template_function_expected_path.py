@@ -1,13 +1,12 @@
-""" Example showing how to use a custom function for osxphotos {function} template
-    Returns expected path for a missing photos
-    Use:  osxphotos query --missing --field original_path "{function:photopath.py::original}"
-    or for edited photos:  osxphotos query --missing --field edited_path "{function:photopath.py::edited}"
+"""Example showing how to use a custom function for osxphotos {function} template
+Returns expected path for a missing photos
+Use:  osxphotos query --missing --field original_path "{function:photopath.py::original}"
+or for edited photos:  osxphotos query --missing --field edited_path "{function:photopath.py::edited}"
 """
 
 from __future__ import annotations
 
 import os
-from typing import List, Optional, Union
 
 from osxphotos import PhotoInfo
 from osxphotos._constants import _MOVIE_TYPE, _PHOTO_TYPE, _PHOTOS_5_SHARED_PHOTO_PATH
@@ -15,8 +14,8 @@ from osxphotos.phototemplate import RenderOptions
 
 
 def original(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[list[str], str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list[str] | str:
     """returns expected path for original photo or None if path cannot be determined
 
     Args:
@@ -50,8 +49,8 @@ def original(
 
 
 def edited(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[list[str], str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list[str] | str:
     """returns expected path for edited photo or None if path cannot be determined
 
     Args:

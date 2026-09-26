@@ -7,7 +7,8 @@ import json
 import os
 import pathlib
 import time
-from typing import Any, Callable, Literal
+from collections.abc import Callable
+from typing import Any, Literal
 
 import click
 from photoscript import Photo
@@ -62,7 +63,7 @@ SYNC_IMPORT_TYPES = [
 ]
 SYNC_IMPORT_TYPES_ALL = ["all"] + SYNC_IMPORT_TYPES
 
-OSXPHOTOS_SYNC_RETRY_ATTEMPTS = os.getenv("OSXPHOTOS_SYNC_RETRY_ATTEMPTS", 10)
+OSXPHOTOS_SYNC_RETRY_ATTEMPTS = int(os.getenv("OSXPHOTOS_SYNC_RETRY_ATTEMPTS", "10"))
 
 
 class SyncImportPath(click.ParamType):
@@ -168,7 +169,7 @@ def get_photo_metadata(photos: list[PhotoInfo]) -> str:
                 # merge data if it's a merge field
                 if k in merge_fields and v:
                     if isinstance(v, (list, tuple)):
-                        photos_dict[k] = sorted(list(set(photos_dict[k]) | set(v)))
+                        photos_dict[k] = sorted(set(photos_dict[k]) | set(v))
                     else:
                         if v:
                             if not photos_dict[k]:
@@ -228,11 +229,13 @@ def export_metadata_to_db(
         else:
             key_to_photos[key] = [photo]
 
-    with rich_progress(console=get_verbose_console(), mock=not progress) as progress:
-        task = progress.add_task("Exporting metadata", total=len(key_to_photos))
+    with rich_progress(
+        console=get_verbose_console(), mock=not progress
+    ) as progress_bar:
+        task = progress_bar.add_task("Exporting metadata", total=len(key_to_photos))
         for key, key_photos in key_to_photos.items():
             metadata_db[key] = get_photo_metadata(key_photos)
-            progress.advance(task)
+            progress_bar.advance(task)
 
 
 def get_import_type(import_path: str) -> Literal["library", "export"]:
@@ -339,7 +342,7 @@ def import_metadata(
                 f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
             )
         # find any keys in import_db that don't match keys in photos
-        for key in import_db.keys():
+        for key in import_db:
             if key not in key_to_photo:
                 echo(f"Unable to find [uuid]{key}[/] in selected photos.")
 

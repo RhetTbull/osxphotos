@@ -13,16 +13,8 @@ import signal
 import subprocess
 import sys
 import time
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-)
+from collections.abc import Callable, Iterable
+from typing import TYPE_CHECKING, Any, Literal
 
 import click
 
@@ -148,8 +140,8 @@ if TYPE_CHECKING:
     from .cli import CLI_Obj
 
 # TTL for for DirectoryStatCache
-STAT_CACHE_TTL_SECONDS = os.environ.get(
-    "OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 * 60 * 10
+STAT_CACHE_TTL_SECONDS = int(
+    os.environ.get("OSXPHOTOS_STAT_CACHE_TTL_SECONDS", str(60 * 60 * 10))
 )
 
 
@@ -1609,9 +1601,7 @@ def export_cli(
         uti = cfg.uti
         uuid = cfg.uuid
         uuid_from_file = cfg.uuid_from_file
-        verbose_flag = (
-            cfg.verbose
-        )  # this is named differently in the config file than the variable passed by --verbose (verbose_flag)
+        verbose_flag = cfg.verbose  # this is named differently in the config file than the variable passed by --verbose (verbose_flag)
         xattr_template = cfg.xattr_template
         year = cfg.year
 
@@ -3031,7 +3021,7 @@ def export_photo_to_directory(
         except Exception as e:
             if is_debug() or isinstance(e, UserSidecarError):
                 # if debug mode or user didn't specify catch_errors, don't swallow the exceptions
-                raise e
+                raise
             rich_echo(
                 f"[error]Error exporting photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename]) as [filepath]{filename}[/filepath]: {e}",
                 err=True,
@@ -3236,7 +3226,7 @@ def find_first_file_in_branch(pathname, filename):
 
 def collect_files_to_keep(
     keep: Iterable[str], export_dir: str
-) -> Tuple[List[str], List[str]]:
+) -> tuple[list[str], list[str]]:
     """Collect all files to keep for --keep/--cleanup.
 
     Args:
@@ -3514,7 +3504,7 @@ def write_extended_attributes(
         for attr, value in attributes.items():
             attr_type = get_metadata_attribute_type(attr) or "str"
             if value:
-                value = sorted(list(value)) if attr_type == "list" else ", ".join(value)
+                value = sorted(value) if attr_type == "list" else ", ".join(value)
             file_value = md.get(attr)
 
             if file_value and attr_type == "lists":
@@ -3566,7 +3556,7 @@ def run_post_function(
                 rich_echo_error(
                     f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
                 )
-                raise e
+                raise
     return returned_results
 
 
@@ -3605,7 +3595,9 @@ def run_post_command(
                     run_error = None
                     run_results = None
                     try:
-                        run_results = subprocess.run(command, shell=True, cwd=cwd)
+                        run_results = subprocess.run(
+                            command, shell=True, cwd=cwd, check=False
+                        )
                     except Exception as e:
                         run_error = e
 
@@ -3687,7 +3679,9 @@ def run_cleanup_command(
                     run_error = None
                     run_results = None
                     try:
-                        run_results = subprocess.run(command, shell=True, cwd=cwd)
+                        run_results = subprocess.run(
+                            command, shell=True, cwd=cwd, check=False
+                        )
                     except Exception as e:
                         run_error = e
 
@@ -3734,7 +3728,7 @@ def render_and_validate_report(report: str, exiftool_path: str, export_dir: str)
     return report
 
 
-def get_metadata_attribute_type(attr: str) -> Optional[str]:
+def get_metadata_attribute_type(attr: str) -> str | None:
     """Get the type of a metadata attribute
 
     Args:

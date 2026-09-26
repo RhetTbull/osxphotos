@@ -22,7 +22,7 @@ from .text_detection import detect_text
 logger = logging.getLogger("osxphotos")
 
 
-def frozen_photoinfo_factory(photo: "osxphotos.photoinfo.PhotoInfo") -> SimpleNamespace:
+def frozen_photoinfo_factory(photo: osxphotos.photoinfo.PhotoInfo) -> SimpleNamespace:
     """Return a frozen SimpleNamespace object for a PhotoInfo object"""
     photo_json = photo.json()
 
@@ -143,7 +143,7 @@ def _add_detected_text(frozen: SimpleNamespace) -> SimpleNamespace:
 
 
 def _add_exiftool(
-    frozen: SimpleNamespace, photo: "osxphotos.photoinfo.PhotoInfo"
+    frozen: SimpleNamespace, photo: osxphotos.photoinfo.PhotoInfo
 ) -> SimpleNamespace:
     """Add exiftool property to frozen PhotoInfo object"""
     frozen._exiftool_path = photo._db._exiftool_path or None

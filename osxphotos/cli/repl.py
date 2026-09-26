@@ -11,7 +11,6 @@ import subprocess
 import sys
 import time
 from functools import partial
-from typing import List
 
 import click
 from rich import pretty, print
@@ -33,6 +32,7 @@ from osxphotos.pyrepl import embed_repl
 if is_macos:
     import photoscript
     from applescript import ScriptError
+
     from osxphotos.photos_selection import PhotosSelection
 
 from .cli_params import DB_ARGUMENT, DB_OPTION, DELETED_OPTIONS, QUERY_OPTIONS
@@ -218,7 +218,7 @@ def _spotlight_photo(photo: PhotoInfo):
     photo_.spotlight()
 
 
-def _query_photos(photosdb: PhotosDB, query_options: QueryOptions) -> List:
+def _query_photos(photosdb: PhotosDB, query_options: QueryOptions) -> list:
     """Query photos given a QueryOptions instance"""
     try:
         photos = photosdb.query(query_options)

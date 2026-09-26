@@ -121,7 +121,7 @@ def test_compare_photos_libraries_bool(diff_a_b):
     assert bool(diff_a_b)
 
 
-def test_compare_photos_libraries_bool(diff_a_a):
+def test_compare_photos_libraries_bool_same(diff_a_a):
     """Test comparison len()"""
     assert not bool(diff_a_a)
 

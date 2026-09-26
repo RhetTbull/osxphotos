@@ -5,6 +5,7 @@ import os.path
 import sqlite3
 from datetime import datetime
 from enum import Enum
+from typing import ClassVar
 
 logger: logging.Logger = logging.getLogger("osxphotos")
 
@@ -405,7 +406,7 @@ class SearchCategory:
     CITY = 7
     LOCALITY_8 = 8
     NAMED_AREA = 9
-    ALL_LOCALITY = [
+    ALL_LOCALITY: ClassVar[list[int]] = [
         LOCALITY_4,
         SUB_LOCALITY_5,
         SUB_LOCALITY_6,
@@ -440,7 +441,7 @@ class SearchCategory:
     PHOTO_TYPE_SELFIES = 2054
     PHOTO_TYPE_FAVORITES = 2055
     PHOTO_TYPE_ANIMATED = None  # Photos 8+ only
-    MEDIA_TYPES = [
+    MEDIA_TYPES: ClassVar[list[int]] = [
         PHOTO_TYPE_VIDEO,
         PHOTO_TYPE_SLOMO,
         PHOTO_TYPE_LIVE,
@@ -507,7 +508,7 @@ class SearchCategory_Photos8(SearchCategory):
     SUB_LOCALITY_6 = 6
     LOCALITY_8 = 8
     NAMED_AREA = 7
-    ALL_LOCALITY = [
+    ALL_LOCALITY: ClassVar[list[int]] = [
         LOCALITY_4,
         SUB_LOCALITY_6,
         LOCALITY_8,
@@ -561,7 +562,7 @@ class SearchCategory_Photos8(SearchCategory):
     PHOTO_TYPE_LONG_EXPOSURE = 1911
     PHOTO_TYPE_LIVE_DEPTH = 1918
     PHOTO_TYPE_SPATIAL = 1919
-    MEDIA_TYPES = [
+    MEDIA_TYPES: ClassVar[list[int]] = [
         PHOTO_TYPE_VIDEO,
         PHOTO_TYPE_SLOMO,
         PHOTO_TYPE_LIVE,
@@ -736,5 +737,5 @@ UUID_PATTERN = (
 # earlier versions of python.org python 3.x default to 1 which means threads may not share
 # sqlite3 connections and thus PhotoInfo.export() cannot be used in a multithreaded environment
 # pass SQLITE_CHECK_SAME_THREAD to sqlite3.connect() to enable multithreaded access on systems that support it
-SQLITE_CHECK_SAME_THREAD = not sqlite3.threadsafety == 3
+SQLITE_CHECK_SAME_THREAD = sqlite3.threadsafety != 3
 logger.debug(f"{SQLITE_CHECK_SAME_THREAD=}, {sqlite3.threadsafety=}")

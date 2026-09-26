@@ -55,8 +55,7 @@ def main(walk: bool, dry_run: bool, paths: tuple[str]):
                 echo(f"Setting caption to [filepath]{md.findercomment}[/]")
                 if not dry_run:
                     set_caption(uuid, md.findercomment)
-            else:
-                echo(f"No match found for file [filename]{file}[/] in Photos")
+            echo(f"No match found for file [filename]{file}[/] in Photos")
 
 
 def set_caption(uuid: str, caption: str) -> None:

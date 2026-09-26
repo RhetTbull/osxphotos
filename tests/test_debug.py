@@ -53,9 +53,9 @@ def test_import_does_not_affect_root_logger():
 
     # Check root logger wasn't modified
     assert root_logger.level == initial_level, "Root logger level should not change"
-    assert (
-        len(root_logger.handlers) == initial_handlers_count
-    ), "Root logger handlers should not change"
+    assert len(root_logger.handlers) == initial_handlers_count, (
+        "Root logger handlers should not change"
+    )
 
 
 def test_import_does_not_call_basicConfig():
@@ -89,9 +89,9 @@ def test_osxphotos_logger_is_not_root():
     root_logger = logging.getLogger()
     osxphotos_logger = logging.getLogger("osxphotos")
 
-    assert (
-        osxphotos_logger is not root_logger
-    ), "osxphotos logger should not be root logger"
+    assert osxphotos_logger is not root_logger, (
+        "osxphotos logger should not be root logger"
+    )
     assert osxphotos_logger.name != "", "osxphotos logger should have a name"
 
 
@@ -102,15 +102,15 @@ def test_set_debug_does_not_affect_root_logger():
 
     # Enable debug
     set_debug(True)
-    assert (
-        root_logger.level == initial_root_level
-    ), "Root logger level unchanged after set_debug(True)"
+    assert root_logger.level == initial_root_level, (
+        "Root logger level unchanged after set_debug(True)"
+    )
 
     # Disable debug
     set_debug(False)
-    assert (
-        root_logger.level == initial_root_level
-    ), "Root logger level unchanged after set_debug(False)"
+    assert root_logger.level == initial_root_level, (
+        "Root logger level unchanged after set_debug(False)"
+    )
 
 
 def test_set_debug_true_enables_debug_level():
@@ -128,9 +128,9 @@ def test_set_debug_false_sets_warning_level():
     logger = logging.getLogger("osxphotos")
 
     assert logger.level == logging.WARNING, "Logger level should be WARNING"
-    assert not logger.isEnabledFor(
-        logging.DEBUG
-    ), "Logger should not be enabled for DEBUG"
+    assert not logger.isEnabledFor(logging.DEBUG), (
+        "Logger should not be enabled for DEBUG"
+    )
     assert logger.isEnabledFor(logging.WARNING), "Logger should be enabled for WARNING"
 
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 import pathlib
 import tempfile
-from typing import Optional
 
 import click
 from rich.style import Style
@@ -17,11 +16,11 @@ from .darkmode import is_dark_mode
 DEFAULT_THEME_NAME = "default"
 
 __all__ = [
+    "DEFAULT_THEME_NAME",
     "get_default_theme",
     "get_theme",
     "get_theme_dir",
     "get_theme_manager",
-    DEFAULT_THEME_NAME,
 ]
 
 
@@ -227,7 +226,7 @@ def get_theme_manager() -> ThemeManager:
 
 
 def get_theme(
-    theme_name: Optional[str] = None,
+    theme_name: str | None = None,
 ):
     """Get theme by name, or default theme if no name is provided"""
 

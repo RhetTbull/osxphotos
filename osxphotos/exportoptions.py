@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Callable
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any
 
 from ._constants import DEFAULT_PREVIEW_SUFFIX
 from .export_db import ExportDB
@@ -82,24 +83,24 @@ class ExportOptions:
     """
 
     convert_to_jpeg: bool = False
-    description_template: Optional[str] = None
+    description_template: str | None = None
     download_missing: bool = False
     dry_run: bool = False
     edited: bool = False
-    exiftool_flags: Optional[list[str]] = None
-    exiftool_path: Optional[str] = None
+    exiftool_flags: list[str] | None = None
+    exiftool_path: str | None = None
     exiftool: bool = False
     export_as_hardlink: bool = False
-    export_db: Optional[ExportDB] = None
+    export_db: ExportDB | None = None
     face_regions: bool = True
-    fileutil: Optional[FileUtil] = None
+    fileutil: FileUtil | None = None
     force_update: bool = False
     ignore_date_modified: bool = False
     ignore_signature: bool = False
     increment: bool = True
-    jpeg_ext: Optional[str] = None
+    jpeg_ext: str | None = None
     jpeg_quality: float = 1.0
-    keyword_template: Optional[list[str]] = None
+    keyword_template: list[str] | None = None
     live_photo: bool = False
     location: bool = True
     merge_exif_keywords: bool = False
@@ -110,7 +111,7 @@ class ExportOptions:
     preview: bool = False
     raw_photo: bool = False
     skip_raw_jpeg: bool = False
-    render_options: Optional[RenderOptions] = None
+    render_options: RenderOptions | None = None
     replace_keywords: bool = False
     rich: bool = False
     export_aae: bool = False
@@ -125,13 +126,13 @@ class ExportOptions:
     use_persons_as_keywords: bool = False
     use_photokit: bool = False
     use_photos_export: bool = False
-    verbose: Optional[Callable[[Any], Any]] = None
-    tmpdir: Optional[str] = None
+    verbose: Callable[[Any], Any] | None = None
+    tmpdir: str | None = None
     favorite_rating: bool = False
     fix_orientation: bool = False
-    sidecar_template: Optional[tuple[tuple[str, str, tuple[str, ...]], ...]] = None
-    stat_cache: Optional["DirectoryStatCache"] = None
-    same_filesystem: Optional[bool] = None
+    sidecar_template: tuple[tuple[str, str, tuple[str, ...]], ...] | None = None
+    stat_cache: DirectoryStatCache | None = None
+    same_filesystem: bool | None = None
     claim_only: bool = False
 
     def asdict(self):
@@ -194,6 +195,8 @@ class ExportResults:
 
     __slots__ = [
         "_datetime",
+        "aae_skipped",
+        "aae_written",
         "converted_to_jpeg",
         "deleted_directories",
         "deleted_files",
@@ -207,28 +210,26 @@ class ExportResults:
         "missing",
         "missing_album",
         "new",
-        "aae_written",
-        "aae_skipped",
         "sidecar_exiftool_skipped",
         "sidecar_exiftool_written",
         "sidecar_json_skipped",
         "sidecar_json_written",
+        "sidecar_user_error",
+        "sidecar_user_skipped",
+        "sidecar_user_written",
         "sidecar_xmp_skipped",
         "sidecar_xmp_written",
-        "sidecar_user_written",
-        "sidecar_user_skipped",
-        "sidecar_user_error",
         "skipped",
         "skipped_album",
         "to_touch",
         "touched",
         "updated",
+        "user_error",
+        "user_skipped",
+        "user_written",
+        "uuids",
         "xattr_skipped",
         "xattr_written",
-        "user_written",
-        "user_skipped",
-        "user_error",
-        "uuids",
     ]
 
     def __init__(
@@ -276,9 +277,7 @@ class ExportResults:
         local_vars = locals()
         self._datetime = datetime.now().isoformat()
         for attr in self.attributes:
-            setattr(
-                self, attr, local_vars.get(attr) or (dict() if attr == "uuids" else [])
-            )
+            setattr(self, attr, local_vars.get(attr) or ({} if attr == "uuids" else []))
 
     @property
     def attributes(self) -> list[str]:
@@ -322,7 +321,7 @@ class ExportResults:
 
         return list(set(files))
 
-    def __iadd__(self, other) -> "ExportResults":
+    def __iadd__(self, other) -> ExportResults:
         if type(other) != ExportResults:
             raise TypeError("Can only add ExportResults to ExportResults")
         for attribute in self.attributes:

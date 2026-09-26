@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import contextlib
 import functools
+from collections.abc import Callable
 from textwrap import dedent
-from typing import Any, Callable
+from typing import Any
 
 import click
 

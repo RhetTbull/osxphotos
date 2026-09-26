@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import datetime
 import pathlib
-from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from .adjustmentsinfo import AdjustmentsInfo
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from .scoreinfo import ScoreInfo
     from .searchinfo import SearchInfo
 
-__all__ = ["PhotoInfoProtocol", "PhotoInfoMixin"]
+__all__ = ["PhotoInfoMixin", "PhotoInfoProtocol"]
 
 
 @runtime_checkable
@@ -57,13 +57,13 @@ class PhotoInfoProtocol(Protocol):
     def persons(self) -> list[str]: ...
 
     @property
-    def person_info(self) -> list["PersonInfo"]: ...
+    def person_info(self) -> list[PersonInfo]: ...
 
     @property
-    def face_info(self) -> list["FaceInfo"]: ...
+    def face_info(self) -> list[FaceInfo]: ...
 
     @property
-    def moment_info(self) -> "MomentInfo" | None: ...
+    def moment_info(self) -> MomentInfo | None: ...
 
     @property
     def albums(self) -> list[str]: ...
@@ -72,16 +72,16 @@ class PhotoInfoProtocol(Protocol):
     def burst_albums(self) -> list[str]: ...
 
     @property
-    def album_info(self) -> list["AlbumInfo"]: ...
+    def album_info(self) -> list[AlbumInfo]: ...
 
     @property
-    def burst_album_info(self) -> list["AlbumInfo"]: ...
+    def burst_album_info(self) -> list[AlbumInfo]: ...
 
     @property
-    def import_info(self) -> "ImportInfo" | None: ...
+    def import_info(self) -> ImportInfo | None: ...
 
     @property
-    def project_info(self) -> list["ProjectInfo"]: ...
+    def project_info(self) -> list[ProjectInfo]: ...
 
     @property
     def keywords(self) -> list[str]: ...
@@ -99,10 +99,10 @@ class PhotoInfoProtocol(Protocol):
     def hasadjustments(self) -> bool: ...
 
     @property
-    def adjustments_path(self) -> "pathlib.Path" | None: ...
+    def adjustments_path(self) -> pathlib.Path | None: ...
 
     @property
-    def adjustments(self) -> "AdjustmentsInfo" | None: ...
+    def adjustments(self) -> AdjustmentsInfo | None: ...
 
     @property
     def external_edit(self) -> bool: ...
@@ -219,7 +219,7 @@ class PhotoInfoProtocol(Protocol):
     def path_derivatives(self) -> list[str]: ...
 
     @property
-    def place(self) -> Union["PlaceInfo4", "PlaceInfo5"] | None: ...
+    def place(self) -> PlaceInfo4 | PlaceInfo5 | None: ...
 
     @property
     def has_raw(self) -> bool: ...
@@ -255,7 +255,7 @@ class PhotoInfoProtocol(Protocol):
     def owner(self) -> str | None: ...
 
     @property
-    def score(self) -> "ScoreInfo" | None: ...
+    def score(self) -> ScoreInfo | None: ...
 
     @property
     def labels(self) -> list[str]: ...
@@ -264,22 +264,22 @@ class PhotoInfoProtocol(Protocol):
     def labels_normalized(self) -> list[str]: ...
 
     @property
-    def comments(self) -> list["CommentInfo"]: ...
+    def comments(self) -> list[CommentInfo]: ...
 
     @property
-    def likes(self) -> list["LikeInfo"]: ...
+    def likes(self) -> list[LikeInfo]: ...
 
     @property
-    def exif_info(self) -> "ExifInfo" | None: ...
+    def exif_info(self) -> ExifInfo | None: ...
 
     @property
-    def exiftool(self) -> "ExifToolCaching" | None: ...
+    def exiftool(self) -> ExifToolCaching | None: ...
 
     @property
-    def search_info(self) -> "SearchInfo" | None: ...
+    def search_info(self) -> SearchInfo | None: ...
 
     @property
-    def search_info_normalized(self) -> "SearchInfo" | None: ...
+    def search_info_normalized(self) -> SearchInfo | None: ...
 
     @property
     def cloud_guid(self) -> str: ...
@@ -291,7 +291,7 @@ class PhotoInfoProtocol(Protocol):
     def fingerprint(self) -> str | None: ...
 
     def render_template(
-        self, template_str: str, options: "RenderOptions" | None = None
+        self, template_str: str, options: RenderOptions | None = None
     ) -> tuple[list[str], list[str]]: ...
 
     def export(self, dest: str, **kwargs) -> list[str]: ...
@@ -304,13 +304,10 @@ class PhotoInfoProtocol(Protocol):
         self, confidence_threshold: float = 0.5
     ) -> list[tuple[str, float]]: ...
 
-    def tables(self) -> "PhotoTables" | None: ...
+    def tables(self) -> PhotoTables | None: ...
 
     @property
     def syndicated(self) -> bool: ...
-
-
-import datetime
 
 
 class PhotoInfoMixin:
@@ -400,61 +397,44 @@ class PhotoInfoMixin:
             return False
         elif name == "tzoffset":
             return 0
-        elif name == "persons":
+        elif (
+            name == "persons"
+            or name == "person_info"
+            or name == "face_info"
+            or name == "albums"
+            or name == "burst_albums"
+            or name == "album_info"
+            or name == "burst_album_info"
+            or name == "project_info"
+            or name == "keywords"
+        ):
             return []
-        elif name == "person_info":
-            return []
-        elif name == "face_info":
-            return []
-        elif name == "albums":
-            return []
-        elif name == "burst_albums":
-            return []
-        elif name == "album_info":
-            return []
-        elif name == "burst_album_info":
-            return []
-        elif name == "project_info":
-            return []
-        elif name == "keywords":
-            return []
-        elif name == "rating":
-            return 0
-        elif name == "spatial":
+        elif name == "rating" or name == "spatial":
             return 0
         elif name == "visible":
             return True
         elif name == "location":
             return (None, None)
-        elif name == "burst_photos":
+        elif name == "burst_photos" or name == "path_derivatives":
             return []
-        elif name == "path_derivatives":
-            return []
-        elif name == "height":
+        elif (
+            name == "height"
+            or name == "width"
+            or name == "orientation"
+            or name == "original_height"
+            or name == "original_width"
+            or name == "original_orientation"
+            or name == "original_filesize"
+        ):
             return 0
-        elif name == "width":
-            return 0
-        elif name == "orientation":
-            return 0
-        elif name == "original_height":
-            return 0
-        elif name == "original_width":
-            return 0
-        elif name == "original_orientation":
-            return 0
-        elif name == "original_filesize":
-            return 0
-        elif name == "labels":
-            return []
-        elif name == "labels_normalized":
-            return []
-        elif name == "comments":
-            return []
-        elif name == "likes":
-            return []
-        elif name == "share_participant_info":
-            return []
-        elif name == "share_participants":
+        elif (
+            name == "labels"
+            or name == "labels_normalized"
+            or name == "comments"
+            or name == "likes"
+            or name == "share_participant_info"
+            or name == "share_participants"
+        ):
             return []
         else:
             raise AttributeError(

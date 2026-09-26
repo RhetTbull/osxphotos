@@ -25,12 +25,12 @@ from ._constants import (
 from .photos_datetime import photos_datetime_local
 
 __all__ = [
-    "sort_list_by_keys",
-    "AlbumInfoBaseClass",
     "AlbumInfo",
+    "AlbumInfoBaseClass",
+    "FolderInfo",
     "ImportInfo",
     "ProjectInfo",
-    "FolderInfo",
+    "sort_list_by_keys",
 ]
 
 
@@ -304,7 +304,8 @@ class ImportInfo(AlbumInfoBaseClass):
         self._db = db
 
         if self._db._db_version >= _PHOTOS_5_VERSION:
-            return super().__init__(db=db, uuid=uuid)
+            super().__init__(db=db, uuid=uuid)
+            return
 
         import_session = self._db._db_import_group[self._uuid]
         try:

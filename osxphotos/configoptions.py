@@ -6,10 +6,10 @@ import bitmath
 import toml
 
 __all__ = [
+    "ConfigOptions",
     "ConfigOptionsException",
     "ConfigOptionsInvalidError",
     "ConfigOptionsLoadError",
-    "ConfigOptions",
 ]
 
 

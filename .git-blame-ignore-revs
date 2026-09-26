@@ -1,0 +1,5 @@
+# Commits listed here are ignored by git blame (GitHub applies this automatically).
+# Locally: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Reformat code with ruff format
+f5846e2ea910b8333eff26a31a734ebb0219001b

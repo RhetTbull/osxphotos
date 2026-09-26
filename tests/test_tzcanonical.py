@@ -460,9 +460,9 @@ def test_zero_offset_variations():
             0,
             token,
         )
-        assert (
-            result == expected_result
-        ), f"Expected {expected_result} for {token}, got {result}"
+        assert result == expected_result, (
+            f"Expected {expected_result} for {token}, got {result}"
+        )
 
 
 def test_malformed_offset_string():

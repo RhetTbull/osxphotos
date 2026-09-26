@@ -1,14 +1,15 @@
-"""Write metadata from Photos to photo and video files that have been exported from Photos. 
+"""Write metadata from Photos to photo and video files that have been exported from Photos.
 
- Run with osxphotos using `osxphotos run sync_photos_exif_to_files.py METADATA [OPTIONS] PATH_OR_FILENAMES`
+Run with osxphotos using `osxphotos run sync_photos_exif_to_files.py METADATA [OPTIONS] PATH_OR_FILENAMES`
 
- For help, run `osxphotos run sync_photos_exif_to_files.py --help`
- """
+For help, run `osxphotos run sync_photos_exif_to_files.py --help`
+"""
 
 from __future__ import annotations
 
 import pathlib
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import click
 import objc
@@ -246,15 +247,15 @@ def sync_metadata(
 
     with Progress(console=get_verbose_console()) as progress:
         task = progress.add_task("Matching metadata", total=len(files))
-        for file_key, files in file_keys.items():
+        for file_key, key_files in file_keys.items():
             if file_key in photo_keys:
                 if len(photo_keys[file_key]) > 1:
                     progress.print(
-                        f"Found [num]{len(files)}[/] matching photos for file key [uuid]{file_key}[/]; using first one found"
+                        f"Found [num]{len(key_files)}[/] matching photos for file key [uuid]{file_key}[/]; using first one found"
                     )
                 photo = photo_keys[file_key][0]
                 # write the metadata
-                for file_ in files:
+                for file_ in key_files:
                     sync_metadata_for_file(
                         photo=photo,
                         filepath=file_,
@@ -265,12 +266,12 @@ def sync_metadata(
                     )
                     matched.setdefault(file_.parent, {})[file_.name] = photo
             else:
-                for file_ in files:
+                for file_ in key_files:
                     progress.print(
-                        f":warning-emoji: [warning]No photo found matching file(s) [filepath]{files[0]}[/] in Photos library"
+                        f":warning-emoji: [warning]No photo found matching file(s) [filepath]{key_files[0]}[/] in Photos library"
                     )
                     unmatched.setdefault(file_.parent, []).append(file_)
-            for _ in range(len(files)):
+            for _ in range(len(key_files)):
                 progress.advance(task)
 
     # sync metadata for unmatched files
@@ -283,9 +284,9 @@ def sync_metadata(
                     "Looking for files with same basename as matched files",
                     total=len(unmatched),
                 )
-                for parent, files in unmatched.items():
+                for parent, parent_files in unmatched.items():
                     if parent in matched:
-                        for f in files:
+                        for f in parent_files:
                             f = pathlib.Path(f)
                             basename = f.stem
                             for matched_file in matched[parent]:

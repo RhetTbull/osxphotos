@@ -13,7 +13,8 @@ It performs three tasks:
 from __future__ import annotations
 
 import pathlib
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.exiftool import ExifTool, exiftool_can_write

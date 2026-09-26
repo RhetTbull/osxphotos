@@ -44,7 +44,7 @@ def export(workers, export_dir, photos: list[osxphotos.PhotoInfo], **kwargs):
             exported.extend(future.result())
     end_t = time.perf_counter()
     echo(
-        f"Exported {len(exported)} photos to {export_dir} in {end_t-start_t:.4f} seconds"
+        f"Exported {len(exported)} photos to {export_dir} in {end_t - start_t:.4f} seconds"
     )
 
 

@@ -1,5 +1,5 @@
-""" Use with output file created by dump_photo_info.scpt to check ouput
-    of osxphotos vs what Photos reports """
+"""Use with output file created by dump_photo_info.scpt to check ouput
+of osxphotos vs what Photos reports"""
 
 import csv
 

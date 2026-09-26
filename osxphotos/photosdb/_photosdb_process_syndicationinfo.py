@@ -1,4 +1,4 @@
-""" Methods for PhotosDB to process Syndication info (#1054) """
+"""Methods for PhotosDB to process Syndication info (#1054)"""
 
 from __future__ import annotations
 

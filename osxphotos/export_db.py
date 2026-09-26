@@ -45,15 +45,15 @@ OSXPHOTOS_EXPORTDB_VERSION = "11.1"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
-MAX_RETRY_ATTEMPTS = os.environ.get("OSXPHOTOS_MAX_RETRY_ATTEMPTS", 3)
+MAX_RETRY_ATTEMPTS = int(os.environ.get("OSXPHOTOS_MAX_RETRY_ATTEMPTS", "3"))
 
 # maximum number of export results rows to save
-MAX_EXPORT_RESULTS_DATA_ROWS = os.environ.get(
-    "OSXPHOTOS_MAX_EXPORT_RESULTS_DATA_ROWS", 10
+MAX_EXPORT_RESULTS_DATA_ROWS = int(
+    os.environ.get("OSXPHOTOS_MAX_EXPORT_RESULTS_DATA_ROWS", "10")
 )
 
 # batch size for history writes to reduce commit overhead
-HISTORY_BATCH_SIZE = os.environ.get("OSXPHOTOS_HISTORY_BATCH_SIZE", 100)
+HISTORY_BATCH_SIZE = int(os.environ.get("OSXPHOTOS_HISTORY_BATCH_SIZE", "100"))
 
 
 logger = logging.getLogger("osxphotos")
@@ -100,7 +100,7 @@ class BatchContext:
     Supports nesting - only the outermost batch commits.
     """
 
-    def __init__(self, export_db: "ExportDB"):
+    def __init__(self, export_db: ExportDB):
         self._export_db = export_db
 
     def __enter__(self):
@@ -195,7 +195,7 @@ class ExportDB:
         return self._conn or self._get_db_connection(self._dbfile)
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
-    def get_file_record(self, filename: str | os.PathLike) -> "ExportRecord" | None:
+    def get_file_record(self, filename: str | os.PathLike) -> ExportRecord | None:
         """get info for filename
 
         Returns: an ExportRecord object or None if filename not found
@@ -328,7 +328,7 @@ class ExportDB:
     )
     def create_file_record(
         self, filename: str | os.PathLike, uuid: str
-    ) -> "ExportRecord":
+    ) -> ExportRecord:
         """create a new record for filename and uuid
 
         Returns: an ExportRecord object
@@ -353,7 +353,7 @@ class ExportDB:
     )
     def create_or_get_file_record(
         self, filename: str | os.PathLike, uuid: str
-    ) -> "ExportRecord":
+    ) -> ExportRecord:
         """create a new record for filename and uuid or return existing record
 
         Returns: an ExportRecord object
@@ -513,7 +513,7 @@ class ExportDB:
         stop=stop_after_attempt(MAX_RETRY_ATTEMPTS),
         retry=retry_if_not_exception_type(sqlite3.IntegrityError),
     )
-    def set_export_results(self, results: "osxphotos.photoexporter.ExportResults"):
+    def set_export_results(self, results: osxphotos.photoexporter.ExportResults):
         """Store export results in database; data is pickled and gzipped for storage"""
 
         results_data = pickle_and_zip(results)
@@ -536,7 +536,7 @@ class ExportDB:
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def get_export_results(
         self, run: int = 0
-    ) -> "osxphotos.photoexporter.ExportResults" | None:
+    ) -> osxphotos.photoexporter.ExportResults | None:
         """Retrieve export results from database
 
         Args:
@@ -748,7 +748,7 @@ class ExportDB:
         """Return True if database is in batch mode (commits are deferred)"""
         return self._batch_mode > 0
 
-    def batch_operations(self) -> "BatchContext":
+    def batch_operations(self) -> BatchContext:
         """Context manager for batching database operations.
 
         When in batch mode, commits are deferred until the batch completes.
@@ -1571,7 +1571,7 @@ class ExportDBInMemory(ExportDB):
 
         dbdump = StringIO()
         for line in conn.iterdump():
-            dbdump.write("%s\n" % line)
+            dbdump.write(f"{line}\n")
         dbdump.seek(0)
         return dbdump
 
@@ -1627,11 +1627,11 @@ class ExportRecord:
     # context manager, the lock is acquired by the getter/setter.
 
     __slots__ = [
+        "_cached_data",
         "_conn",
         "_context_manager",
-        "_filepath_normalized",
-        "_cached_data",
         "_export_db",
+        "_filepath_normalized",
         "lock",
     ]
 
@@ -1641,7 +1641,7 @@ class ExportRecord:
         lock: threading.Lock,
         filepath_normalized: str,
         cached_data: dict[str, Any] | None = None,
-        export_db: "ExportDB | None" = None,
+        export_db: ExportDB | None = None,
     ):
         self._conn = conn
         self.lock = lock
@@ -2128,7 +2128,7 @@ class ExportRecord:
             if isinstance(obj, (datetime.datetime, datetime.date, datetime.time)):
                 return obj.isoformat()
             raise TypeError(
-                "Object of type %s is not JSON serializable" % type(obj).__name__
+                f"Object of type {type(obj).__name__} is not JSON serializable"
             )
 
         return json.dumps(self.asdict(), indent=indent, default=datetime_handler)

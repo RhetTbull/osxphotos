@@ -58,11 +58,11 @@ class TestCache(unittest.TestCase):
                         "/home/vladimir/project/directory/subdirectory/subdirectory/file3.txt",
                         "/home/vladimir/project/directory/subdirectory/file.txt",
                         "/home/vladimir/project/directory/subdirectory/file2.txt",
-                        "/home/vladimir/project/directory/%s" % ignore_file_name,
+                        f"/home/vladimir/project/directory/{ignore_file_name}",
                         "/home/vladimir/project/directory/file.txt",
                         "/home/vladimir/project/directory/file2.txt",
                         "/home/vladimir/project/file.txt",
-                        "/home/vladimir/project/%s" % ignore_file_name,
+                        f"/home/vladimir/project/{ignore_file_name}",
                         "/home/vladimir/file.txt",
                     ],
                 )
@@ -70,11 +70,11 @@ class TestCache(unittest.TestCase):
                 def mock_open(path):
                     data = {
                         normalize_path(
-                            "/home/vladimir/project/directory/%s" % ignore_file_name
+                            f"/home/vladimir/project/directory/{ignore_file_name}"
                         ): ["file.txt"],
-                        normalize_path(
-                            "/home/vladimir/project/%s" % ignore_file_name
-                        ): ["file2.txt"],
+                        normalize_path(f"/home/vladimir/project/{ignore_file_name}"): [
+                            "file2.txt"
+                        ],
                     }
 
                     statistics["open"] += 1

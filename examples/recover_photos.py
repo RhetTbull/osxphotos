@@ -105,7 +105,7 @@ def main(library_path: str, verbose: bool, destination: str, dry_run: bool):
         f"recover_photos_{datetime.datetime.now().strftime('%Y%m%d')}.log"
     )
     global _global_log_file
-    _global_log_file = open(log_file, "w")
+    _global_log_file = open(log_file, "w")  # noqa: SIM115 closed at exit
     echo(f"Writing log to [filepath]{log_file}[/]")
 
     library_path = pathlib.Path(library_path)
@@ -359,15 +359,15 @@ def export_file(
     else:
         aae_output_path = None
 
-    for path in exported_files:
+    for exported_path in exported_files:
         verbose(
-            f"Setting file modification and access time to [time]{date_time}[/] for [filepath]{path}[/]"
+            f"Setting file modification and access time to [time]{date_time}[/] for [filepath]{exported_path}[/]"
         )
         if not dry_run:
             try:
-                touch_file(path, date_time)
+                touch_file(exported_path, date_time)
             except Exception as e:
-                error(f"Error touching date/time on {path}: {e}")
+                error(f"Error touching date/time on {exported_path}: {e}")
                 error_count += 1
 
     if edited_output_path or aae_output_path:
@@ -388,7 +388,7 @@ def export_file(
                     None,
                 )
                 verbose(
-                    f"Renamed files: {', '.join('[filename]'+f.name+'[/]' for f in renamed_files)}"
+                    f"Renamed files: {', '.join('[filename]' + f.name + '[/]' for f in renamed_files)}"
                 )
             except Exception as e:
                 error(f"Error renaming edited group: {e}")

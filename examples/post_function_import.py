@@ -1,4 +1,4 @@
-""" Example function for use with osxphotos import --post-function option """
+"""Example function for use with osxphotos import --post-function option"""
 
 import pathlib
 import typing as t

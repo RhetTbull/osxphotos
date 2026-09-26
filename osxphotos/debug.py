@@ -6,7 +6,6 @@ import logging
 import sys
 import time
 from datetime import datetime
-from typing import Dict, List
 
 import wrapt
 from rich import print
@@ -41,7 +40,6 @@ def set_debug(debug: bool):
 
 def is_debug():
     """return debug flag"""
-    global __osxphotos_debug
     return __osxphotos_debug
 
 
@@ -62,7 +60,7 @@ def debug_watch(wrapped, instance, args, kwargs):
 
 def debug_breakpoint(wrapped, instance, args, kwargs):
     """For use with wrapt.wrap_function_wrapper to set breakpoint on a function"""
-    breakpoint()
+    breakpoint()  # noqa: T100 intentional: implements --breakpoint
     return wrapped(*args, **kwargs)
 
 
@@ -75,7 +73,7 @@ def wrap_function(function_path, wrapper):
         raise AttributeError(f"{module}.{name} does not exist") from e
 
 
-def get_debug_options(arg_names: List, argv: List) -> Dict:
+def get_debug_options(arg_names: list, argv: list) -> dict:
     """Get the options for the debug options;
     Some of the debug options like --watch and --breakpoint need to be processed before any other packages are loaded
     so they can't be handled in the normal click argument processing, thus this function is called
@@ -108,7 +106,7 @@ def get_debug_options(arg_names: List, argv: List) -> Dict:
     return args
 
 
-def get_debug_flags(arg_names: List, argv: List) -> Dict:
+def get_debug_flags(arg_names: list, argv: list) -> dict:
     """Get the flags for the debug options;
     Processes flags like --debug that resolve to True or False
     """
@@ -123,10 +121,10 @@ def get_debug_flags(arg_names: List, argv: List) -> Dict:
 
 
 def relocate_debug_options(
-    argv: List,
-    flags: List[str] | None = None,
-    options: List[str] | None = None,
-) -> List:
+    argv: list,
+    flags: list[str] | None = None,
+    options: list[str] | None = None,
+) -> list:
     """Relocate debug options from anywhere in argv to after the program name.
 
     This allows debug options to be specified anywhere in the command line

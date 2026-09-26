@@ -504,7 +504,7 @@ def get_photos_for_processing(
     query_options = query_options_from_kwargs(**kwargs)
 
     # if any of the query options are specified, then operate over query results
-    if any([kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES]):
+    if any(kwargs.get(option) for option in LIMITED_QUERY_OPTION_NAMES):
         return photo_query(photosdb, query_options)
 
     # If no query options are specified, then operate over selected photos

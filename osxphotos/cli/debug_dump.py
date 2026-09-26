@@ -60,7 +60,7 @@ def debug_dump(ctx, cli_obj, db, dump, verbose_flag, timestamp, **kwargs):
     print(f"Opening database: {db}")
     photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose)
     stop_t = time.perf_counter()
-    print(f"Done; took {(stop_t-start_t):.2f} seconds")
+    print(f"Done; took {(stop_t - start_t):.2f} seconds")
 
     for attr in dump:
         if attr == "albums":

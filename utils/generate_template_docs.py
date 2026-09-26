@@ -1,5 +1,4 @@
-""" Automatically generate template system docs
-"""
+"""Automatically generate template system docs"""
 
 from click.testing import CliRunner
 

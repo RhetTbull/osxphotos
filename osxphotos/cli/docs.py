@@ -1,10 +1,9 @@
-"""docs command for osxphotos CLI """
+"""docs command for osxphotos CLI"""
 
 import pathlib
 import shutil
 import zipfile
 from contextlib import suppress
-from typing import Optional
 
 import click
 
@@ -38,7 +37,7 @@ def docs_command(ctx, cli_obj):
     click.launch(str(cli_docs))
 
 
-def get_docs_version(docs_dir: pathlib.Path) -> Optional[str]:
+def get_docs_version(docs_dir: pathlib.Path) -> str | None:
     """Get the version of the docs directory"""
 
     if not docs_dir.exists():

@@ -7,7 +7,8 @@ import logging
 import os
 import pathlib
 import sqlite3
-from typing import Callable, cast
+from collections.abc import Callable
+from typing import cast
 from zoneinfo import ZoneInfo
 
 import photoscript
@@ -652,7 +653,7 @@ def _get_photo_date_original(
         if "ZEXTENDEDATTRIBUTES.ZDATECREATED" in str(e):
             row = None
         else:
-            raise e
+            raise
     conn.close()
     if row and row[0] is not None:
         return photos_datetime(timestamp=row[0], tzoffset=row[1], tzname=row[2])

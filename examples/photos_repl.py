@@ -44,7 +44,7 @@ def main():
         tic = time.perf_counter()
         photosdb = osxphotos.PhotosDB(dbfile=db, verbose=print)
         toc = time.perf_counter()
-        print(f"done: took {toc-tic} seconds")
+        print(f"done: took {toc - tic} seconds")
         return photosdb
     else:
         _list_libraries()
@@ -60,4 +60,4 @@ if __name__ == "__main__":
     photos = photosdb.photos(images=True, movies=True)
     photos.extend(photosdb.photos(images=True, movies=True, intrash=True))
     toc = time.perf_counter()
-    print(f"found {len(photos)} photos in {toc-tic} seconds")
+    print(f"found {len(photos)} photos in {toc - tic} seconds")

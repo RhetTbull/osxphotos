@@ -1,4 +1,4 @@
-""" Generate XMP sidecar files for selected photos.
+"""Generate XMP sidecar files for selected photos.
 
 Run with `osxphotos run sidecars.py` or `osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/refs/heads/main/examples/sidecars.py` to run without saving to your computer.
 """

@@ -1,11 +1,10 @@
-""" Parse --inspect and --compare-exif output for testing"""
+"""Parse --inspect and --compare-exif output for testing"""
 
 from __future__ import annotations
 
 import datetime
 import logging
 from collections import namedtuple
-from typing import List
 
 logger = logging.getLogger("osxphotos")
 
@@ -50,7 +49,7 @@ CompareValues = namedtuple(
 
 def parse_inspect_output(
     output: str, date_added: bool = False
-) -> List[InspectValues] | List[InspectValuesDateAdded]:
+) -> list[InspectValues] | list[InspectValuesDateAdded]:
     """Parse output of --inspect and return list of InspectValues named tuple"""
 
     lines = [line for line in output.split("\n") if line.strip()]
@@ -69,7 +68,7 @@ def parse_inspect_output(
     return values
 
 
-def parse_compare_exif(output: str) -> List[CompareValues]:
+def parse_compare_exif(output: str) -> list[CompareValues]:
     """Parse output of --compare-exif and return list of CompareValues named tuple"""
     lines = [line for line in output.split("\n") if line.strip()]
     # remove header

@@ -10,7 +10,7 @@ import pytest
 from osxphotos.platform import is_macos
 
 if is_macos:
-    import osxphotos.cli.import_cli as import_cli
+    from osxphotos.cli import import_cli
     from osxphotos.cli.import_cli import (
         group_files_to_import,
         rename_edited_group,
@@ -313,8 +313,8 @@ def stage_photo_files(tmp_path: pathlib.Path) -> list[pathlib.Path]:
 
     # burst images
     for i, img in enumerate(BURST_IMAGES):
-        copy_file(img, f"IMG_820{i+4}.JPG")
-        staged.append(tmp_path / f"IMG_820{i+4}.JPG")
+        copy_file(img, f"IMG_820{i + 4}.JPG")
+        staged.append(tmp_path / f"IMG_820{i + 4}.JPG")
 
     return staged
 

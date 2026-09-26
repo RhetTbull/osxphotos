@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 import sys
-from typing import Callable, List, Optional
+from collections.abc import Callable
 
 from ptpython.repl import (
     ContextManager,
@@ -48,7 +48,7 @@ from ptpython.repl import (
 class PyReplQuitter(PythonRepl):
     """Custom pypython repl that allows quitting REPL with custom commands"""
 
-    def __init__(self, *args, quit_words: Optional[List[str]] = None, **kwargs):
+    def __init__(self, *args, quit_words: list[str] | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.quit_words = quit_words or ["quit", "q"]
 
@@ -61,14 +61,14 @@ class PyReplQuitter(PythonRepl):
 def embed_repl(
     globals=None,
     locals=None,
-    configure: Optional[Callable[[PythonRepl], None]] = None,
+    configure: Callable[[PythonRepl], None] | None = None,
     vi_mode: bool = False,
-    history_filename: Optional[str] = None,
-    title: Optional[str] = None,
+    history_filename: str | None = None,
+    title: str | None = None,
     startup_paths=None,
     patch_stdout: bool = False,
     return_asyncio_coroutine: bool = False,
-    quit_words: Optional[List[str]] = None,
+    quit_words: list[str] | None = None,
 ) -> None:
     """
     Call this to embed  Python shell at the current point in your program.

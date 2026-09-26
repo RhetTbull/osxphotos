@@ -34,8 +34,8 @@ logger = logging.getLogger("osxphotos")
 __all__ = [
     "get_db_version",
     "get_model_version",
-    "get_photos_version_from_model",
     "get_photos_library_version",
+    "get_photos_version_from_model",
 ]
 
 LATEST_PHOTOS_VERSION = max(_DB_TABLE_NAMES.keys())

@@ -30,9 +30,7 @@ def suggest_template_fields(unmatched: list[str]) -> list[str]:
     for un in unmatched:
         un = un.lower()
         for field, description in TEMPLATE_LOOKUP.items():
-            if field.startswith(un):
-                suggestions.append(field)
-            elif un in field or un in description:
+            if field.startswith(un) or un in field or un in description:
                 suggestions.append(field)
             elif field.startswith(un[0]):
                 # if first letter matches, suggest

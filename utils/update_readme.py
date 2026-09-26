@@ -1,5 +1,5 @@
-""" Automatically update certain sections of README.md for osxphotos
-    Also updates osxphotos/phototemplate.md
+"""Automatically update certain sections of README.md for osxphotos
+Also updates osxphotos/phototemplate.md
 """
 
 # This is a pretty "dumb" script that searches the README.md for

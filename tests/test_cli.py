@@ -81,7 +81,7 @@ UUID_DOWNLOAD_MISSING = "38E8347F-0D43-411E-B797-004C9DCBDA4E"  # IMG_8844.JPG
 UUID_FILE = "tests/uuid_from_file.txt"
 SKIP_UUID_FILE = "tests/skip_uuid_from_file.txt"
 
-CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album", "Multi Keyword"], "persons": ["Katie"], "path": "/tests/Test-10.15.7.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": 41.256566, "longitude": -95.940257, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'  # noqa: E501
+CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album", "Multi Keyword"], "persons": ["Katie"], "path": "/tests/Test-10.15.7.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": 41.256566, "longitude": -95.940257, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'
 
 CLI_EXPORT_FILENAMES = _normalize_fs_paths(
     [
@@ -594,10 +594,12 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_KEYWORD_PATHSEP = _normalize_fs_paths(
 )
 
 CLI_EXPORTED_FILENAME_TEMPLATE_LONG_DESCRIPTION = [
-    "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo"
-    " ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis "
-    "dis parturient montes, nascetu. Donec quam felis, ultricies nec, "
-    "pellentesque eu, pretium q.tif"
+    (
+        "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo"
+        " ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis "
+        "dis parturient montes, nascetu. Donec quam felis, ultricies nec, "
+        "pellentesque eu, pretium q.tif"
+    )
 ]
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg
@@ -1369,7 +1371,7 @@ def test_query_uuid_from_file_stdin():
 
     runner = CliRunner()
     cwd = os.getcwd()
-    input_text = open(UUID_FILE, "r").read()
+    input_text = pathlib.Path(UUID_FILE).read_text()
     result = runner.invoke(
         query,
         [
@@ -4253,13 +4255,17 @@ def test_export_sidecar_favorite_rating():
             assert json_sidecar[0]["XMP:Rating"] == 0
 
         results = subprocess.run(
-            ["grep", "xmp:Rating", f"{FILE_FAVORITE}.xmp"], capture_output=True
+            ["grep", "xmp:Rating", f"{FILE_FAVORITE}.xmp"],
+            capture_output=True,
+            check=False,
         )
         results_stdout = results.stdout.decode("utf-8")
         assert "<xmp:Rating>5</xmp:Rating>" in results_stdout
 
         results = subprocess.run(
-            ["grep", "xmp:Rating", f"{FILE_NOT_FAVORITE}.xmp"], capture_output=True
+            ["grep", "xmp:Rating", f"{FILE_NOT_FAVORITE}.xmp"],
+            capture_output=True,
+            check=False,
         )
         results_stdout = results.stdout.decode("utf-8")
         assert "<xmp:Rating>0</xmp:Rating>" in results_stdout
@@ -5660,7 +5666,7 @@ def test_export_update_basic():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -5691,7 +5697,7 @@ def test_export_force_update():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -5724,7 +5730,7 @@ def test_export_force_update():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-1}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7 - 1}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -5734,7 +5740,7 @@ def test_export_force_update():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -5745,7 +5751,7 @@ def test_export_force_update():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -5802,7 +5808,7 @@ def test_export_update_complex():
         )
         assert result.exit_code == 0
         assert (
-            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}, updated: 0, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}"
+            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 - 1}, updated: 0, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7 - 1}"
             in result.output
         )
 
@@ -5834,7 +5840,7 @@ def test_export_update_complex():
         )
         assert result.exit_code == 0
         assert (
-            f"exported: 0, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7-2}, updated EXIF data: 1"
+            f"exported: 0, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 - 2}, updated EXIF data: 1"
             in result.output
         )
 
@@ -5845,7 +5851,7 @@ def test_export_update_complex():
         )
         assert result.exit_code == 0
         assert (
-            f"exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}, updated EXIF data: 0"
+            f"exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 - 1}, updated EXIF data: 0"
             in result.output
         )
 
@@ -5859,7 +5865,7 @@ def test_export_update_complex():
         )
         assert result.exit_code == 0
         assert (
-            f"exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}"
+            f"exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7 - 1}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7 - 1}"
             in result.output
         )
 
@@ -5971,7 +5977,7 @@ def test_export_update_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 1"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, missing: 3, error: 1"
             in result.output
         )
 
@@ -5988,7 +5994,7 @@ def test_export_update_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -6025,7 +6031,7 @@ def test_export_update_hardlink():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -6071,7 +6077,7 @@ def test_export_update_hardlink_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 1"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, missing: 3, error: 1"
             in result.output
         )
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -6115,7 +6121,7 @@ def test_export_update_edits():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-2}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7 - 2}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -6289,7 +6295,7 @@ def test_export_update_no_db():
         assert result.exit_code == 0
 
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, updated: 0"
             in result.output
         )
         assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
@@ -6327,7 +6333,7 @@ def test_export_then_hardlink():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, missing: 3, error: 0"
             in result.output
         )
         assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -6346,7 +6352,7 @@ def test_export_dry_run():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, missing: 3, error: 0"
             in result.output
         )
         for filepath in CLI_EXPORT_FILENAMES_DRY_RUN:
@@ -6374,7 +6380,7 @@ def test_export_dry_run_alt_copy():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}, missing: 3, error: 0"
             in result.output
         )
         for filepath in CLI_EXPORT_FILENAMES_DRY_RUN:
@@ -6421,7 +6427,7 @@ def test_export_update_edits_dry_run():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-2}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7 - 2}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -6452,7 +6458,7 @@ def test_export_directory_template_1_dry_run():
         )
         assert result.exit_code == 0
         assert (
-            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}"
+            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}"
             in result.output
         )
         workdir = os.getcwd()
@@ -6485,7 +6491,7 @@ def test_export_touch_files():
         assert result.exit_code == 0
 
         assert (
-            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}"
+            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}"
             in result.output
         )
 
@@ -6528,7 +6534,7 @@ def test_export_touch_files_update():
         assert result.exit_code == 0
 
         assert (
-            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}"
+            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}"
             in result.output
         )
 
@@ -6542,7 +6548,7 @@ def test_export_touch_files_update():
         assert result.exit_code == 0
 
         assert (
-            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}"
+            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}"
             in result.output
         )
 
@@ -6562,7 +6568,7 @@ def test_export_touch_files_update():
         assert result.exit_code == 0
 
         assert (
-            f"skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}"
+            f"skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}"
             in result.output
         )
 
@@ -6581,7 +6587,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            f"skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}"
+            f"skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}"
             in result.output
         )
 
@@ -6615,7 +6621,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            f"skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}"
+            f"skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}"
             in result.output
         )
         assert f"touched date: {touched_files}" in result.output
@@ -6643,7 +6649,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            f"updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-1}"
+            f"updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7 - 1}"
             in result.output
         )
         assert "touched date: 1" in result.output
@@ -6666,7 +6672,7 @@ def test_export_touch_files_update():
         assert result.exit_code == 0
 
         assert (
-            f"skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}"
+            f"skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_EDITED_15_7}"
             in result.output
         )
 
@@ -8259,7 +8265,9 @@ def test_export_cleanup_command():
             ],
         )
         assert result.exit_code == 0
-        assert f"Removing: {os.path.join(os.getcwd(),'delete_me.txt')}" in result.stdout
+        assert (
+            f"Removing: {os.path.join(os.getcwd(), 'delete_me.txt')}" in result.stdout
+        )
         assert pathlib.Path("./delete_me.txt").is_file()
         assert pathlib.Path("./foo/delete_me_too.txt").is_file()
 
@@ -8277,7 +8285,9 @@ def test_export_cleanup_command():
                 "rm {filepath|shell_quote}",
             ],
         )
-        assert f"Removing: {os.path.join(os.getcwd(),'delete_me.txt')}" in result.stdout
+        assert (
+            f"Removing: {os.path.join(os.getcwd(), 'delete_me.txt')}" in result.stdout
+        )
         assert not pathlib.Path("./delete_me.txt").is_file()
         assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
 
@@ -8318,7 +8328,9 @@ def test_export_cleanup_command_cleanup():
             ],
         )
         assert result.exit_code == 0
-        assert f"Removing: {os.path.join(os.getcwd(),'delete_me.txt')}" in result.stdout
+        assert (
+            f"Removing: {os.path.join(os.getcwd(), 'delete_me.txt')}" in result.stdout
+        )
         assert pathlib.Path("./delete_me.txt").is_file()
         assert pathlib.Path("./foo/delete_me_too.txt").is_file()
 
@@ -8335,7 +8347,9 @@ def test_export_cleanup_command_cleanup():
                 "--cleanup",
             ],
         )
-        assert f"Removing: {os.path.join(os.getcwd(),'delete_me.txt')}" in result.stdout
+        assert (
+            f"Removing: {os.path.join(os.getcwd(), 'delete_me.txt')}" in result.stdout
+        )
         assert not pathlib.Path("./delete_me.txt").is_file()
         assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
 
@@ -10860,7 +10874,6 @@ def test_theme_list():
     """Test theme --list command"""
 
     runner = CliRunner()
-    temp_file = tempfile.TemporaryFile()
     with runner.isolated_filesystem():
         result = runner.invoke(cli_main, ["theme", "--list"])
         assert result.exit_code == 0

@@ -1,17 +1,18 @@
 """rich Progress bar factory that can return a rich Progress bar or a mock Progress bar"""
 
 import os
-from typing import Any, Optional, Union
+from typing import Any
 
 from rich.console import Console
 from rich.progress import GetTimeCallable, Progress, ProgressColumn, TaskID
 
 # set to 1 if running tests
-OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING", default=False))
+OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING"))
 
 
 class MockTask:
     """A mock task object similar to rich.progress.Task."""
+
     def __init__(self, task_id, description="", total=100):
         self.id = task_id
         self.description = description
@@ -22,6 +23,7 @@ class MockTask:
 
 class MockProgress:
     """A mock version of rich.Progress for testing purposes."""
+
     def __init__(self, *args, **kwargs):
         self.tasks = []
         self.live = False
@@ -103,15 +105,15 @@ class MockProgress:
 
 
 def rich_progress(
-    *columns: Union[str, ProgressColumn],
-    console: Optional[Console] = None,
+    *columns: str | ProgressColumn,
+    console: Console | None = None,
     auto_refresh: bool = True,
     refresh_per_second: float = 10,
     speed_estimate_period: float = 30.0,
     transient: bool = False,
     redirect_stdout: bool = True,
     redirect_stderr: bool = True,
-    get_time: Optional[GetTimeCallable] = None,
+    get_time: GetTimeCallable | None = None,
     disable: bool = False,
     expand: bool = False,
     mock: bool = False,

@@ -5,11 +5,11 @@ from __future__ import annotations
 import functools
 import pathlib
 import re
+from collections.abc import Generator
 from fractions import Fraction
 from multiprocessing import Process, Queue
 from queue import Empty
 from time import gmtime, sleep, strftime
-from typing import Generator, List, Optional, Tuple
 
 import bitmath
 import click
@@ -73,7 +73,7 @@ def trim(text: str, pad: str = "") -> str:
 
 def format_search_info(photo: PhotoInfo) -> str:
     """Format search info for photo"""
-    categories = sorted(list(photo._db._db_searchinfo_categories.keys()))
+    categories = sorted(photo._db._db_searchinfo_categories.keys())
     search_info = photo.search_info
     if not search_info:
         return ""
@@ -89,8 +89,8 @@ def format_search_info(photo: PhotoInfo) -> str:
 
 def inspect_photo(
     photo: PhotoInfo,
-    detected_text: Optional[str] = None,
-    templates: Optional[List[str]] = None,
+    detected_text: str | None = None,
+    templates: list[str] | None = None,
     beta: bool = False,
 ) -> str:
     """Get info about an osxphotos PhotoInfo object formatted for printing
@@ -234,7 +234,7 @@ def inspect_photo(
     return "\n".join(properties)
 
 
-def format_templates(photo: PhotoInfo, templates: List[str]) -> str:
+def format_templates(photo: PhotoInfo, templates: list[str]) -> str:
     """Format templates for a photo"""
     formatted_templates = []
     for template in templates:
@@ -413,7 +413,7 @@ def get_photo_type(photo: PhotoInfo) -> str:
     return photo_type
 
 
-def start_text_detection(photo: PhotoInfo) -> Tuple[Process, Queue]:
+def start_text_detection(photo: PhotoInfo) -> tuple[Process, Queue]:
     """Start text detection process for a photo"""
     path_preview = photo.path_derivatives[0] if photo.path_derivatives else None
     path = photo.path_edited or photo.path or path_preview
@@ -437,7 +437,7 @@ def _get_detected_text(uuid: str, path: str, orientation: int, queue: Queue) -> 
         queue.put([None, str(e)])
 
 
-def get_uuid_for_photos_selection() -> List[str]:
+def get_uuid_for_photos_selection() -> list[str]:
     """Get the uuid for the first photo selected in Photos
 
     Returns: tuple of (uuid, total_selected_photos)"""
@@ -449,7 +449,7 @@ def get_uuid_for_photos_selection() -> List[str]:
         if uuid := extract_uuid(str(e)):
             return uuid, 1
         else:
-            raise e
+            raise
     return None, 0
 
 
@@ -507,7 +507,6 @@ def photo_inspect(db, theme, detect_text, template, beta):
         layout["status"].update(status)
 
     def update_detected_text(photo: PhotoInfo, uuid: str, text: str):
-        global CURRENT_UUID
         if uuid == CURRENT_UUID:
             layout["main"].update(
                 Panel(

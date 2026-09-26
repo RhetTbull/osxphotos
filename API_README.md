@@ -52,7 +52,6 @@ if __name__ == "__main__":
     photosdb = osxphotos.PhotosDB()
     for photo in photosdb.photos():
         print(photo.original_filename, photo.date, photo.title, photo.keywords)
-
 ```
 
 The primary interface to the Photos library is the [PhotosDB](#photosdb) object.  The [PhotosDB](#photosdb) object provides access to the photos in the library via the [photos](#photosdbphotos) method and the [query](#photosdbquery).  These methods returns a list of [PhotoInfo](#photoinfo) objects, one for each photo in the library.  The [PhotoInfo](#photoinfo) object provides access to the metadata for each photo.
@@ -442,7 +441,7 @@ def export(workers, export_dir, photos: list[osxphotos.PhotoInfo], **kwargs):
             exported.extend(future.result())
     end_t = time.perf_counter()
     echo(
-        f"Exported {len(exported)} photos to {export_dir} in {end_t-start_t:.4f} seconds"
+        f"Exported {len(exported)} photos to {export_dir} in {end_t - start_t:.4f} seconds"
     )
 
 
@@ -487,6 +486,7 @@ The default library is the library that would open if the user opened Photos.app
 
 ```python
 import osxphotos
+
 photosdb = osxphotos.PhotosDB(osxphotos.utils.get_last_library_path())
 ```
 
@@ -515,7 +515,9 @@ photosdb = osxphotos.PhotosDB(dbfile=path)
 ```python
 import osxphotos
 
-photosdb = osxphotos.PhotosDB(dbfile="/Users/smith/Pictures/Test.photoslibrary/database/photos.db")
+photosdb = osxphotos.PhotosDB(
+    dbfile="/Users/smith/Pictures/Test.photoslibrary/database/photos.db"
+)
 ```
 
 or
@@ -547,15 +549,15 @@ May be called with one or more of the following parameters to filter the list of
 
 ```python
 photos = photosdb.photos(
-    keywords = [],
-    uuid = [],
-    persons = [],
-    albums = [],
-    images = bool,
-    movies = bool,
-    from_date = datetime.datetime,
-    to_date = datetime.datetime,
-    intrash = bool,
+    keywords=[],
+    uuid=[],
+    persons=[],
+    albums=[],
+    images=bool,
+    movies=bool,
+    from_date=datetime.datetime,
+    to_date=datetime.datetime,
+    intrash=bool,
 )
 ```
 
@@ -576,7 +578,7 @@ If more than one of (keywords, uuid, persons, albums,from_date, to_date) is prov
 Finds all photos with (keyword = "wedding" or "birthday") and (persons = "Juan Rodriguez")
 
 ```python
-photos=photosdb.photos(keywords=["wedding","birthday"],persons=["Juan Rodriguez"])
+photos = photosdb.photos(keywords=["wedding", "birthday"], persons=["Juan Rodriguez"])
 ```
 
 Find all photos tagged with keyword "wedding":
@@ -590,21 +592,21 @@ Find all photos of Maria Smith
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-photos=photosdb.photos(persons=["Maria Smith"])
+photos = photosdb.photos(persons=["Maria Smith"])
 ```
 
 Find all photos in album "Summer Vacation" or album "Ski Trip"
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-photos=photosdb.photos(albums=["Summer Vacation", "Ski Trip"])
+photos = photosdb.photos(albums=["Summer Vacation", "Ski Trip"])
 ```
 
 Find the single photo with uuid = "osMNIO5sQFGZTbj9WrydRB"
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-photos=photosdb.photos(uuid=["osMNIO5sQFGZTbj9WrydRB"])
+photos = photosdb.photos(uuid=["osMNIO5sQFGZTbj9WrydRB"])
 ```
 
 If you need to do more complicated searches, you can do this programmaticaly.  For example, find photos with keyword = "Kids" but not in album "Vacation 2019"
@@ -861,7 +863,7 @@ photosdb = osxphotos.PhotosDB()
 conn, cursor = photosdb.get_db_connection()
 
 results = conn.execute(
-        "SELECT ZUUID FROM ZGENERICASSET WHERE ZFAVORITE = 1;"
+    "SELECT ZUUID FROM ZGENERICASSET WHERE ZFAVORITE = 1;"
 ).fetchall()
 
 for row in results:
@@ -966,6 +968,7 @@ See [queryoptions.py](https://github.com/RhetTbull/osxphotos/blob/master/osxphot
 
 ```python
 """Find all screenshots taken in 2019"""
+
 import osxphotos
 
 if __name__ == "__main__":
@@ -1319,7 +1322,6 @@ Example below gets list of all photos that are bursts, selects one of of them an
 'IMG_9851.JPG'
 >>> for photo in burst_photo.burst_photos:
 ...     print(photo.original_filename)
-...
 IMG_9853.JPG
 IMG_9852.JPG
 IMG_9854.JPG
@@ -1439,14 +1441,15 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 * `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available. If `tag_groups` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If `tag_groups` is False, dict keys do not have group names, e.g. "Keywords".
 
 ```python
-{'Composite:Aperture': 2.2,
- 'Composite:GPSPosition': '-34.9188916666667 138.596861111111',
- 'Composite:ImageSize': '2754 2754',
- 'EXIF:CreateDate': '2017:06:20 17:18:56',
- 'EXIF:LensMake': 'Apple',
- 'EXIF:LensModel': 'iPhone 6s back camera 4.15mm f/2.2',
- 'EXIF:Make': 'Apple',
- 'XMP:Title': 'Elder Park',
+{
+    "Composite:Aperture": 2.2,
+    "Composite:GPSPosition": "-34.9188916666667 138.596861111111",
+    "Composite:ImageSize": "2754 2754",
+    "EXIF:CreateDate": "2017:06:20 17:18:56",
+    "EXIF:LensMake": "Apple",
+    "EXIF:LensModel": "iPhone 6s back camera 4.15mm f/2.2",
+    "EXIF:Make": "Apple",
+    "XMP:Title": "Elder Park",
 }
 ```
 
@@ -1537,7 +1540,7 @@ import osxphotos
 
 photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
 photos = photosdb.photos()
-photos[0].export("/tmp","photo_name.jpg",sidecar_json=True)
+photos[0].export("/tmp", "photo_name.jpg", sidecar_json=True)
 ```
 
 Then
@@ -2775,14 +2778,15 @@ True
 * `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available. If `tag_groups` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If `tag_groups` is False, dict keys do not have group names, e.g. "Keywords".
 
 ```python
-{'Composite:Aperture': 2.2,
- 'Composite:GPSPosition': '-34.9188916666667 138.596861111111',
- 'Composite:ImageSize': '2754 2754',
- 'EXIF:CreateDate': '2017:06:20 17:18:56',
- 'EXIF:LensMake': 'Apple',
- 'EXIF:LensModel': 'iPhone 6s back camera 4.15mm f/2.2',
- 'EXIF:Make': 'Apple',
- 'XMP:Title': 'Elder Park',
+{
+    "Composite:Aperture": 2.2,
+    "Composite:GPSPosition": "-34.9188916666667 138.596861111111",
+    "Composite:ImageSize": "2754 2754",
+    "EXIF:CreateDate": "2017:06:20 17:18:56",
+    "EXIF:LensMake": "Apple",
+    "EXIF:LensModel": "iPhone 6s back camera 4.15mm f/2.2",
+    "EXIF:Make": "Apple",
+    "XMP:Title": "Elder Park",
 }
 ```
 
@@ -2917,6 +2921,7 @@ Attributes:
 
 ```python
 from osxphotos.exifwriter import ExifOptions, ExifWriter
+
 # photo is a PhotoInfo object
 writer = ExifWriter(photo)
 options = ExifOptions(merge_exif_keywords=True)
@@ -3115,6 +3120,7 @@ Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15,
 
 ```python
 import osxphotos
+
 
 def main():
 

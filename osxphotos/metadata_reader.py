@@ -6,9 +6,9 @@ import datetime
 import json
 import pathlib
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from enum import Enum
-from typing import Callable, Optional, Tuple
 
 from osxphotos.photoinfo_protocol import PhotoInfoProtocol
 
@@ -49,7 +49,7 @@ class MetaData:
     title: str = ""
     description: str = ""
     keywords: list[str] = field(default_factory=list)
-    location: tuple[Optional[float], Optional[float]] = (None, None)
+    location: tuple[float | None, float | None] = (None, None)
     favorite: bool = False
     rating: int = 0
     persons: list[str] = field(default_factory=list)
@@ -157,7 +157,7 @@ def get_sidecar_for_file(filepath: str | pathlib.Path) -> pathlib.Path | None:
 
     stem = filepath.stem
     # strip off -edited suffix (Google Takeout) or _edited (OSXPhotos edited images with default suffix)
-    if stem.endswith("-edited") or stem.endswith("_edited"):
+    if stem.endswith(("-edited", "_edited")):
         # strip off -edited/_edited suffix
         stem = stem[:-7]
         new_filepath = filepath.with_stem(stem)
@@ -417,7 +417,7 @@ def metadata_from_metadata_dict(metadata: dict) -> MetaData:
 
 def location_from_metadata_dict(
     metadata: dict,
-) -> Tuple[Optional[float], Optional[float]]:
+) -> tuple[float | None, float | None]:
     """Get location from metadata dict as loaded from ExifTool or sidecar
 
     Returns:

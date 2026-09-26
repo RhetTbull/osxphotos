@@ -1,4 +1,4 @@
-""" Test --add-exported-to-album """
+"""Test --add-exported-to-album"""
 
 import os
 
@@ -58,7 +58,7 @@ def test_export_add_to_album(addalbum_library):
 
         assert len(album) == len(UUID_EXPORT)
         got_uuids = [p.uuid for p in album.photos()]
-        assert sorted(got_uuids) == sorted(list(UUID_EXPORT.keys()))
+        assert sorted(got_uuids) == sorted(UUID_EXPORT.keys())
 
         skip_album = photoslib.album(SKIP_ALBUM)
         assert skip_album is not None
@@ -93,13 +93,13 @@ def test_export_add_to_album(addalbum_library):
         assert skip_album is not None
         assert len(skip_album) == len(UUID_EXPORT)
         got_uuids = [p.uuid for p in skip_album.photos()]
-        assert sorted(got_uuids) == sorted(list(UUID_EXPORT.keys()))
+        assert sorted(got_uuids) == sorted(UUID_EXPORT.keys())
 
         missing_album = photoslib.album(MISSING_ALBUM)
         assert missing_album is not None
         assert len(missing_album) == len(UUID_MISSING)
         got_uuids = [p.uuid for p in missing_album.photos()]
-        assert sorted(got_uuids) == sorted(list(UUID_MISSING.keys()))
+        assert sorted(got_uuids) == sorted(UUID_MISSING.keys())
 
 
 @pytest.mark.addalbum
@@ -122,7 +122,7 @@ def test_query_add_to_album(addalbum_library):
 
         assert len(album) == len(UUID_EXPORT)
         got_uuids = [p.uuid for p in album.photos()]
-        assert sorted(got_uuids) == sorted(list(UUID_EXPORT.keys()))
+        assert sorted(got_uuids) == sorted(UUID_EXPORT.keys())
 
 
 @pytest.mark.addalbum

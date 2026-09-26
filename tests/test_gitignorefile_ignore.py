@@ -59,7 +59,7 @@ class TestIgnore(unittest.TestCase):
                     result.append(os.path.join(root, name))
 
             result = sorted(
-                (os.path.relpath(x, f"{d}/target").replace(os.sep, "/") for x in result)
+                os.path.relpath(x, f"{d}/target").replace(os.sep, "/") for x in result
             )
 
             self.assertEqual(

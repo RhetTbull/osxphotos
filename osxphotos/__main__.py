@@ -1,4 +1,4 @@
-"""Command line interface for osxphotos """
+"""Command line interface for osxphotos"""
 
 from .cli.cli import cli_main
 

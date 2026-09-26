@@ -20,9 +20,9 @@ from zoneinfo import ZoneInfo, available_timezones
 _AVAILABLE_TIMEZONES: set[str] | None = None
 
 __all__ = [
-    "canonical_timezone",
-    "candidates_by_abbrev_and_offset",
     "abbrev_to_canonical_timezone",
+    "candidates_by_abbrev_and_offset",
+    "canonical_timezone",
 ]
 
 
@@ -121,9 +121,8 @@ ABBREV_TO_CANONICAL: dict[str, str] = {
     "NST": "America/St_Johns",  # Newfoundland Standard Time
     "NDT": "America/St_Johns",  # Newfoundland Daylight Time
     # Europe - UK/Ireland
-    "BST": "Europe/London",  # British Summer Time
+    "BST": "Europe/London",  # British Summer Time; also Bangladesh Standard Time - UK more common
     "IST": "Asia/Kolkata",  # Note: Ambiguous - India (most populous), also Israel/Ireland
-    "GMT": "Etc/GMT",
     # Europe - Central
     "CET": "Europe/Paris",
     "CEST": "Europe/Paris",
@@ -137,15 +136,12 @@ ABBREV_TO_CANONICAL: dict[str, str] = {
     "MSD": "Europe/Moscow",
     # Middle East
     "IDT": "Asia/Jerusalem",  # Israel Daylight Time
-    "IST": "Asia/Kolkata",  # India Standard Time (most populous)
     "PKT": "Asia/Karachi",  # Pakistan Time
     "AFT": "Asia/Kabul",  # Afghanistan Time
     "IRST": "Asia/Tehran",  # Iran Standard Time
     "IRDT": "Asia/Tehran",  # Iran Daylight Time
     "GST": "Asia/Dubai",  # Gulf Standard Time
-    "AST": "America/Halifax",  # Note: Also Arabia Standard Time - choosing Atlantic
     # Asia - East
-    "CST": "America/Chicago",  # Note: Also China Standard Time - US more common for photos
     "JST": "Asia/Tokyo",
     "KST": "Asia/Seoul",
     "HKT": "Asia/Hong_Kong",
@@ -155,9 +151,7 @@ ABBREV_TO_CANONICAL: dict[str, str] = {
     "WITA": "Asia/Makassar",  # Central Indonesia Time
     "WIT": "Asia/Jayapura",  # Eastern Indonesia Time
     # Asia - South
-    "IST": "Asia/Kolkata",  # India Standard Time
     "NPT": "Asia/Kathmandu",  # Nepal Time
-    "BST": "Europe/London",  # Note: Also Bangladesh Standard Time - UK more common
     "BTT": "Asia/Thimphu",  # Bhutan Time
     "MVT": "Indian/Maldives",  # Maldives Time
     # Asia - Southeast
@@ -207,8 +201,6 @@ ABBREV_TO_CANONICAL: dict[str, str] = {
     "AZOT": "Atlantic/Azores",  # Azores Time
     "CVT": "Atlantic/Cape_Verde",  # Cape Verde Time
     # Other common abbreviations
-    "CAT": "Africa/Maputo",  # Central Africa Time
-    "SAST": "Africa/Johannesburg",  # South Africa Standard Time
 }
 
 
@@ -367,7 +359,7 @@ def _rank_preferred(zones: list[str]) -> list[str]:
 
     def score(z: str) -> tuple[int, int, str]:
         is_pref = 0 if z in PREFERRED else 1
-        is_bad = 1 if z.startswith("Etc/") or z.startswith("posix/") else 0
+        is_bad = 1 if z.startswith(("Etc/", "posix/")) else 0
         return (is_pref, is_bad, z)
 
     return sorted(zones, key=score)
@@ -423,7 +415,7 @@ def _canonical_timezone_cached(
         return etc
 
     key = token.upper()
-    if key in TZ_OVERRIDES and TZ_OVERRIDES[key]:
+    if TZ_OVERRIDES.get(key):
         cand = TZ_OVERRIDES[key]
         matched = (
             _filter_by_offset(naive_dt, offset_seconds_from_gmt, [cand]) if cand else []

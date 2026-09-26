@@ -10,13 +10,13 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Callable
+from collections.abc import Callable
 
 DEFAULT_IGNORE_NAMES = [".gitignore", ".git/info/exclude"]
 
 
 def parse_pattern_list(
-    patterns: list[str], base_path: str = None
+    patterns: list[str], base_path: str | None = None
 ) -> Callable[[str], bool]:
     """Parse a list of patterns and return a callable to match against a path.
 
@@ -143,7 +143,7 @@ class Cache:
                 plain_paths.append(parent)
 
         else:
-            parent = _Path(tuple())  # Null path.
+            parent = _Path(())  # Null path.
             self.__gitignores[parent.parts] = []
 
         for plain_path in plain_paths:
@@ -169,7 +169,7 @@ class Cache:
                 self.__gitignores[plain_path.parts] = self.__gitignores[parent.parts]
 
         # This parent comes either from first or second loop.
-        return any((m(path, is_dir=is_dir) for m in self.__gitignores[parent.parts]))
+        return any(m(path, is_dir=is_dir) for m in self.__gitignores[parent.parts])
 
 
 class _Path:
@@ -263,15 +263,12 @@ def _rule_from_pattern(pattern):
     # set.
     anchored = "/" in pattern[:-1]
 
-    if pattern.startswith("/"):
-        pattern = pattern[1:]
+    pattern = pattern.removeprefix("/")
     if pattern.startswith("**"):
         pattern = pattern[2:]
         anchored = False
-    if pattern.startswith("/"):
-        pattern = pattern[1:]
-    if pattern.endswith("/"):
-        pattern = pattern[:-1]
+    pattern = pattern.removeprefix("/")
+    pattern = pattern.removesuffix("/")
 
     # patterns with leading hashes are escaped with a backslash in front, unescape it
     if pattern.startswith("\\#"):
@@ -297,7 +294,7 @@ def _rule_from_pattern(pattern):
 class _IgnoreRules:
     def __init__(self, rules, base_path):
         self.__rules = rules
-        self.__can_return_immediately = not any((r.negation for r in rules))
+        self.__can_return_immediately = not any(r.negation for r in rules)
         self.__base_path = (
             _Path(base_path) if not isinstance(base_path, _Path) else base_path
         )
@@ -313,7 +310,7 @@ class _IgnoreRules:
                 is_dir = path.isdir()  # TODO Pass callable here.
 
             if self.__can_return_immediately:
-                return any((r.match(rel_path, is_dir) for r in self.__rules))
+                return any(r.match(rel_path, is_dir) for r in self.__rules)
 
             else:
                 matched = False
@@ -321,8 +318,7 @@ class _IgnoreRules:
                     if rule.match(rel_path, is_dir):
                         matched = not rule.negation
 
-                else:
-                    return matched
+                return matched
 
         else:
             return False
@@ -355,10 +351,10 @@ class _IgnoreRule:
 
 if os.altsep is not None:
     _all_seps_expr = f"[{re.escape(os.sep)}{re.escape(os.altsep)}]"
-    _path_split = lambda path: re.split(_all_seps_expr, path)  # noqa: E731
+    _path_split = lambda path: re.split(_all_seps_expr, path)
 
 else:
-    _path_split = lambda path: path.split(os.sep)  # noqa: E731
+    _path_split = lambda path: path.split(os.sep)
 
 
 def _fnmatch_pathname_to_regexp(pattern, anchored, directory_only):

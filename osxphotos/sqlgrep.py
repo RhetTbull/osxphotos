@@ -2,7 +2,7 @@
 
 import re
 import sqlite3
-from typing import Generator, List
+from collections.abc import Generator
 
 __all__ = ["sqlgrep"]
 
@@ -13,7 +13,7 @@ def sqlgrep(
     ignore_case: bool = False,
     print_filename: bool = True,
     rich_markup: bool = False,
-) -> Generator[List[str], None, None]:
+) -> Generator[list[str], None, None]:
     """grep through a sqlite database file for a given string
 
     Args:
@@ -36,13 +36,13 @@ def sqlgrep(
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             for tablerow in cursor.fetchall():
                 table = tablerow[0]
-                cursor.execute("SELECT * FROM {t}".format(t=table))
+                cursor.execute(f"SELECT * FROM {table}")
                 for row_num, row in enumerate(cursor):
-                    for field in row.keys():
+                    for field in row.keys():  # noqa: SIM118 iterating sqlite3.Row yields values
                         field_value = row[field]
-                        if not field_value or isinstance(field_value, bytes):
-                            # don't search binary blobs
-                            next
+                        if field_value is None or isinstance(field_value, bytes):
+                            # don't search NULL values or binary blobs
+                            continue
                         field_value = str(field_value)
                         if re.search(pattern, field_value, flags=flags):
                             if rich_markup:

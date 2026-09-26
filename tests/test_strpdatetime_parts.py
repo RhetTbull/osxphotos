@@ -1,4 +1,4 @@
-"""Test strpdatetime_parts """
+"""Test strpdatetime_parts"""
 
 import pytest
 

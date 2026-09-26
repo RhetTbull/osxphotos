@@ -1,4 +1,4 @@
-""" Simple formatting of datetime.datetime objects """
+"""Simple formatting of datetime.datetime objects"""
 
 import datetime
 

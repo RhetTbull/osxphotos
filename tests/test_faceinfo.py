@@ -1,4 +1,4 @@
-""" Test FaceInfo class """
+"""Test FaceInfo class"""
 
 import pytest
 

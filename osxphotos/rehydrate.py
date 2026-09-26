@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Type
+from typing import Any
 
 
-def rehydrate_class(data: dict[Any, Any], cls: Type) -> object:
+def rehydrate_class(data: dict[Any, Any], cls: type) -> object:
     """Rehydrate a class that's been deserialized from JSON created from asdict()
 
     Args:

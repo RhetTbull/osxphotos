@@ -8,7 +8,8 @@ import platform
 import sys
 import time
 import traceback
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import click
 from rich import print
@@ -103,7 +104,7 @@ def crash_reporter(
                         print(msg)
                     try:
                         callback_func()
-                    except Exception as callback_error:  # noqa: BLE001
+                    except Exception as callback_error:
                         print(
                             f"[red]Error running crash callback: {callback_error}[/red]",
                             file=sys.stderr,
@@ -117,10 +118,8 @@ def crash_reporter(
                     f.write(f"Python version: {sys.version}\n")
                     f.write(f"sys.argv: {sys.argv}\n")
                     f.write("CRASH_DATA:\n")
-                    for k, v in _global_crash_data.items():
-                        f.write(f"{k}: {v}\n")
-                    for arg in extra_args:
-                        f.write(f"{arg}\n")
+                    f.writelines(f"{k}: {v}\n" for k, v in _global_crash_data.items())
+                    f.writelines(f"{arg}\n" for arg in extra_args)
                     f.write(f"Error: {e}\n")
                     traceback.print_exc(file=f)
                 print(f"Crash log written to '{filename}'", file=sys.stderr)

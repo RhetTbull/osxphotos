@@ -16,12 +16,12 @@ import re
 import sqlite3
 import sys
 import tempfile
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from contextlib import suppress
 from functools import cached_property
 from os import PathLike
 from textwrap import dedent
-from typing import TYPE_CHECKING, Callable, Tuple
+from typing import TYPE_CHECKING
 
 import click
 from rich.console import Console
@@ -55,7 +55,7 @@ except ImportError:
 
 from photoscript import Photo, PhotosLibrary
 
-import osxphotos.sqlite3_datetime as sqlite3_datetime
+from osxphotos import sqlite3_datetime
 from osxphotos._constants import (
     DEFAULT_EDITED_SUFFIX,
     OSXPHOTOS_EXPORT_DB,
@@ -1909,7 +1909,7 @@ def set_photo_keywords(
 def set_photo_location(
     photo: Photo | None,
     filepath: pathlib.Path,
-    location: Tuple[float, float],
+    location: tuple[float, float],
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> tuple[float, float]:
@@ -2277,7 +2277,8 @@ class ReportRecord:
     error: bool = False
     filename: str = ""
     filepath: pathlib.Path = dataclasses.field(default_factory=pathlib.Path)
-    import_datetime: datetime.datetime = datetime.datetime.now()
+    # evaluated once when the module loads, so every record shares the import start time
+    import_datetime: datetime.datetime = datetime.datetime.now()  # noqa: RUF009
     imported: bool = False
     burst: bool = False
     burst_images: int = 0
@@ -2296,12 +2297,12 @@ class ReportRecord:
     duplicate_of: str = ""  # UUID of duplicate photo in library when skipped
 
     @classmethod
-    def serialize(cls, record: "ReportRecord") -> str:
+    def serialize(cls, record: ReportRecord) -> str:
         """Serialize class instance to JSON"""
         return json.dumps(record.asjsondict())
 
     @classmethod
-    def deserialize(cls, json_string: str) -> "ReportRecord":
+    def deserialize(cls, json_string: str) -> ReportRecord:
         """Deserialize class from JSON"""
         dict_data = json.loads(json_string)
         dict_data["filepath"] = pathlib.Path(dict_data["filepath"])
@@ -2757,9 +2758,9 @@ def group_files_to_import(
         def advance_progress(advance: float):
             progress.advance(task, advance=advance)
 
-        for parent, files in files_by_parent.items():
+        for parent, parent_files in files_by_parent.items():
             grouped = group_files_by_stem(
-                files,
+                parent_files,
                 edited_suffix,
                 relative_filepath,
                 exiftool_path,
@@ -3035,7 +3036,7 @@ def strip_non_apple_aae_file(
     Returns: tuple of file paths with any non-Apple AAE files stripped from the tuple
     """
     if non_apple_aae_file := has_non_apple_aae(file_tuple):
-        file_tuple = tuple(f for f in file_tuple if not f.suffix.lower() == ".aae")
+        file_tuple = tuple(f for f in file_tuple if f.suffix.lower() != ".aae")
         verbose(
             f"Skipping import of non-Apple AAE file from external edit: {non_apple_aae_file}"
         )
@@ -3138,7 +3139,7 @@ def import_files(
                                 f"Skipping [filepath]{filepath}[/], already imported on "
                                 f"[time]{record.import_datetime.isoformat()}[/] with "
                                 f"UUID [uuid]{record.uuid}[/]"
-                                f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
+                                f" ({progress.tasks[task].completed + 1 + error_count}/{progress.tasks[task].total})"
                             )
                             skipped_count += 1
                             progress.advance(task)
@@ -3147,7 +3148,7 @@ def import_files(
                 verbose(
                     "Importing "
                     + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
-                    + f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
+                    + f" ({progress.tasks[task].completed + 1 + error_count}/{progress.tasks[task].total})"
                 )
 
                 report_data[filepath] = ReportRecord(
@@ -3513,16 +3514,16 @@ def has_original_and_edited_suffix(
 ) -> bool:
     """Return True if any files in list appear to be an original and an edited version using _edited suffix"""
 
-    if edited := edited_suffix_files(
-        filepaths,
-        edited_suffix,
-        relative_filepath,
-        exiftool_path,
-        sidecar,
-        sidecar_filename_template,
-    ):
-        return True
-    return False
+    return bool(
+        edited_suffix_files(
+            filepaths,
+            edited_suffix,
+            relative_filepath,
+            exiftool_path,
+            sidecar,
+            sidecar_filename_template,
+        )
+    )
 
 
 def has_original_and_edited(
@@ -3559,12 +3560,12 @@ def non_edited_files(
 ) -> list[os.PathLike]:
     """Return only the non-edited files from a file group"""
 
-    edited_files = set(
+    edited_files = {
         edited_filename_from_template(
             pathlib.Path(fp), relative_filepath, edited_suffix, exiftool_path, sidecar
         )
         for fp in filepaths
-    )
+    }
     non_edited = [fp for fp in filepaths if pathlib.Path(fp) not in edited_files]
 
     # Also exclude any files that match EDITED_RE if a file in the filepaths matches ORIGINAL_RE

@@ -1,18 +1,19 @@
-""" Kill all instances of the Photos app and detect whether the kill succeeded. """
+"""Kill all instances of the Photos app and detect whether the kill succeeded."""
+
 import subprocess
+
 from .cli_commands import echo_error
 
 
 def kill_photos():
-    """ Run 'killall Photos' when Photos generates too many errors in response
-    to operations like Import. 
+    """Run 'killall Photos' when Photos generates too many errors in response
+    to operations like Import.
     """
     try:
         # Run 'killall Photos' and capture output
         result = subprocess.run(
             ["killall", "Photos"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
             check=False,
         )

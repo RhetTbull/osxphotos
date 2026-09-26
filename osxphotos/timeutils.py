@@ -4,7 +4,6 @@ import datetime
 import re
 import zoneinfo
 from functools import cache
-from typing import Optional
 from zoneinfo import ZoneInfo
 
 from whenever import Date, Time, ZonedDateTime
@@ -36,12 +35,12 @@ def utc_offset_string_to_seconds(utc_offset: str) -> int:
 
 def update_datetime(
     dt: datetime.datetime,
-    tzinfo: Optional[ZoneInfo] = None,
-    date: Optional[datetime.date] = None,
-    time: Optional[datetime.time] = None,
-    date_delta: Optional[datetime.timedelta] = None,
-    time_delta: Optional[datetime.timedelta] = None,
-    local_time_delta: Optional[datetime.timedelta] = None,
+    tzinfo: ZoneInfo | None = None,
+    date: datetime.date | None = None,
+    time: datetime.time | None = None,
+    date_delta: datetime.timedelta | None = None,
+    time_delta: datetime.timedelta | None = None,
+    local_time_delta: datetime.timedelta | None = None,
 ) -> datetime.datetime:
     """
     Update the date and time of a datetime object using DST-aware operations.
@@ -130,7 +129,10 @@ def time_string_to_datetime(time: str) -> datetime.time:
 
 
 def get_local_utc_offset_str(dt: datetime.datetime | str) -> str:
-    """Get the local timezone offset from UTC as a string in the format ±HHMM, for example +0500 or -0700.""" ""
+    (
+        """Get the local timezone offset from UTC as a string in the format ±HHMM, for example +0500 or -0700."""
+        ""
+    )
     if isinstance(dt, str):
         dt = datetime.datetime.fromisoformat(dt)
     local_tz = get_local_tz(dt)

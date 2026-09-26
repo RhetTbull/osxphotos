@@ -9,13 +9,8 @@ import sys
 from datetime import datetime
 
 import click
+import xdg_base_dirs
 from packaging import version
-
-if sys.version_info[0:2] <= (3, 9):
-    # xdg was deprecated and renamed xdg_base_dirs but only for python >= 3.10
-    import xdg as xdg_base_dirs
-else:
-    import xdg_base_dirs
 
 import osxphotos
 from osxphotos._constants import APP_NAME
@@ -25,7 +20,7 @@ from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.utils import get_latest_version
 
 # used to show/hide hidden commands
-OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
+OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN"))
 
 # used by snap and diff commands
 OSXPHOTOS_SNAPSHOT_DIR = "/private/tmp/osxphotos_snapshots"
@@ -48,12 +43,11 @@ __all__ = [
 
 def noop(*args, **kwargs):
     """no-op function"""
-    pass
 
 
 def time_stamp() -> str:
     """return timestamp"""
-    return f"[time]{str(datetime.now())}[/time] -- "
+    return f"[time]{datetime.now()!s}[/time] -- "
 
 
 def osxphotos_crash_reporter():

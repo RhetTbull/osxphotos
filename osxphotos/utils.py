@@ -17,10 +17,10 @@ import subprocess
 import sys
 import urllib.parse
 import uuid
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from functools import cache
 from plistlib import load as plistload
-from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -29,14 +29,14 @@ if TYPE_CHECKING:
 import requests
 import shortuuid
 
-import osxphotos.tempdir as tempdir
+from osxphotos import tempdir
 from osxphotos.platform import get_macos_version, is_macos
 from osxphotos.unicode import normalize_fs_path
 
 if TYPE_CHECKING:
     from osxphotos.photoinfo import PhotoInfo
 
-T = TypeVar("T", bound=Union[str, pathlib.Path])
+T = TypeVar("T", bound=str | pathlib.Path)
 
 logger = logging.getLogger("osxphotos")
 
@@ -71,7 +71,6 @@ if is_macos:
 
 def noop(*args, **kwargs):
     """do nothing (no operation)"""
-    pass
 
 
 def lineno(filename):
@@ -183,10 +182,10 @@ def get_system_library_path() -> str | None:
             with open(plist_file, "rb") as fp:
                 pl = plistload(fp)
         except PermissionError as e:
-            logger.debug(f"could not read plist file: {str(plist_file)}: {e}")
+            logger.debug(f"could not read plist file: {plist_file!s}: {e}")
             return None
     else:
-        logger.debug(f"could not find plist file: {str(plist_file)}")
+        logger.debug(f"could not find plist file: {plist_file!s}")
         return None
 
     return pl.get("SystemLibraryPath")
@@ -204,10 +203,10 @@ def get_last_library_path() -> str | None:
             with open(plist_file, "rb") as fp:
                 pl = plistload(fp)
         except PermissionError as e:
-            logger.debug(f"could not read plist file: {str(plist_file)}: {e}")
+            logger.debug(f"could not read plist file: {plist_file!s}: {e}")
             return None
     else:
-        logger.debug(f"could not find plist file: {str(plist_file)}")
+        logger.debug(f"could not find plist file: {plist_file!s}")
         return None
 
     # get the IPXDefaultLibraryURLBookmark from com.apple.Photos.plist
@@ -289,14 +288,14 @@ def list_photo_libraries():
 
 
 def list_directory(
-    directory: Union[str, pathlib.Path],
-    startswith: Optional[str] = None,
-    endswith: Optional[str] = None,
-    contains: Optional[str] = None,
-    glob: Optional[str] = None,
+    directory: str | pathlib.Path,
+    startswith: str | None = None,
+    endswith: str | None = None,
+    contains: str | None = None,
+    glob: str | None = None,
     include_path: bool = False,
     case_sensitive: bool = False,
-) -> List[Union[str, pathlib.Path]]:
+) -> list[str | pathlib.Path]:
     """List directory contents and return list of files or directories matching search criteria.
     Accounts for case-insensitive filesystems, unicode filenames. directory can be a str or a pathlib.Path object.
 
@@ -361,10 +360,10 @@ def list_directory(
 
 
 def increment_filename_with_count(
-    filepath: Union[str, pathlib.Path],
+    filepath: str | pathlib.Path,
     count: int = 0,
-    stat_cache: Optional["DirectoryStatCache"] = None,
-) -> Tuple[str, int]:
+    stat_cache: DirectoryStatCache | None = None,
+) -> tuple[str, int]:
     """Return filename (1).ext, etc if filename.ext exists
 
         If file exists in filename's parent folder with same stem as filename,
@@ -402,8 +401,8 @@ def increment_filename_with_count(
 
 
 def increment_filename(
-    filepath: Union[str, pathlib.Path],
-    stat_cache: Optional["DirectoryStatCache"] = None,
+    filepath: str | pathlib.Path,
+    stat_cache: DirectoryStatCache | None = None,
 ) -> str:
     """Return filename (1).ext, etc if filename.ext exists
 
@@ -420,13 +419,11 @@ def increment_filename(
 
     Note: This obviously is subject to race condition so using with caution.
     """
-    new_filepath, _ = increment_filename_with_count(
-        filepath, stat_cache=stat_cache
-    )
+    new_filepath, _ = increment_filename_with_count(filepath, stat_cache=stat_cache)
     return new_filepath
 
 
-def extract_increment_count_from_filename(filepath: Union[str, pathlib.Path]) -> int:
+def extract_increment_count_from_filename(filepath: str | pathlib.Path) -> int:
     """Extract a count from end of file name if it exists or 0 if not; count takes forms file (1).ext, file (2).ext, etc."""
     filepath = str(filepath)
     match = re.search(r"(?s:.*)\((\d+)\)", filepath)
@@ -481,7 +478,7 @@ def format_sec_to_hhmmss(sec: float) -> str:
     return str(delta).split(".")[0]
 
 
-def get_latest_version() -> Tuple[Optional[str], str]:
+def get_latest_version() -> tuple[str | None, str]:
     """Get latest version of osxphotos or None if version can't be retrieved"""
     try:
         url = VERSION_INFO_URL
@@ -492,7 +489,7 @@ def get_latest_version() -> Tuple[Optional[str], str]:
         return None, e
 
 
-def pluralize(count: Optional[int] | Iterable, singular: str, plural: str) -> str:
+def pluralize(count: int | None | Iterable, singular: str, plural: str) -> str:
     """Return singular or plural based on count"""
     if isinstance(count, Iterable):
         return singular if len(count) == 1 else plural

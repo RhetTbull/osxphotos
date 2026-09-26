@@ -1,4 +1,4 @@
-""" test uti.py """
+"""test uti.py"""
 
 import logging
 

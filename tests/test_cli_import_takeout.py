@@ -9,7 +9,6 @@ import sqlite3
 import sys
 import time
 from tempfile import TemporaryDirectory
-from typing import Dict
 
 import pytest
 from click.testing import CliRunner
@@ -50,12 +49,7 @@ def set_timezone():
 def xdg_patch(monkeypatch):
     """Patch XDG_CONFIG_HOME to point to temporary directory"""
     with TemporaryDirectory() as tmpdir:
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: pathlib.Path(tmpdir))
-        else:
-            monkeypatch.setattr(
-                "xdg_base_dirs.xdg_data_home", lambda: pathlib.Path(tmpdir)
-            )
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: pathlib.Path(tmpdir))
         yield
 
 
@@ -78,7 +72,7 @@ def say(msg: str) -> None:
     os.system(f"say {msg}")
 
 
-def parse_import_output(output: str) -> Dict[str, str]:
+def parse_import_output(output: str) -> dict[str, str]:
     """Parse output of osxphotos import command and return dict of {image name: uuid} for imported photos"""
     # look for lines that look like this:
     # Imported IMG_4179.jpeg with UUID A62792F0-4524-4529-9931-56E52C95E873

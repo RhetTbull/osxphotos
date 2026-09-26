@@ -1,8 +1,7 @@
-""" Example function for use with osxphotos export --post-function option showing how to record album sort order """
+"""Example function for use with osxphotos export --post-function option showing how to record album sort order"""
 
 import os
 import pathlib
-from typing import Optional
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.albuminfo import AlbumInfo
@@ -34,7 +33,7 @@ def album_sequence(photo: PhotoInfo, options: RenderOptions, **kwargs) -> str:
     else:
         # didn't find the album, so skip this file
         return ""
-    start_index = int(os.getenv("OSXPHOTOS_ALBUM_SEQUENCE_START", 0))
+    start_index = int(os.getenv("OSXPHOTOS_ALBUM_SEQUENCE_START", "0"))
     return str(album_info.photo_index(photo) + start_index)
 
 

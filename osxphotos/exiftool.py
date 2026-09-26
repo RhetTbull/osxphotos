@@ -21,15 +21,15 @@ import subprocess
 import threading
 import time
 from functools import lru_cache  # pylint: disable=syntax-error
-from typing import Any
+from typing import Any, ClassVar
 
 logger = logging.getLogger("osxphotos")
 
 __all__ = [
-    "escape_str",
-    "exiftool_can_write",
     "ExifTool",
     "ExifToolCaching",
+    "escape_str",
+    "exiftool_can_write",
     "get_exiftool_path",
     "terminate_exiftool",
     "unescape_str",
@@ -171,8 +171,7 @@ class _ExifToolProc:
             # already running
             if exiftool is not None and exiftool != self._exiftool:
                 logger.warning(
-                    f"exiftool subprocess already running, "
-                    f"ignoring exiftool={exiftool}"
+                    f"exiftool subprocess already running, ignoring exiftool={exiftool}"
                 )
             return
         self._process_running = False
@@ -207,7 +206,7 @@ class _ExifToolProc:
         # open exiftool procGess
         # make sure /usr/bin at start of path so exiftool can find xattr (see #636)
         env = os.environ.copy()
-        env["PATH"] = f'/usr/bin/:{env["PATH"]}'
+        env["PATH"] = f"/usr/bin/:{env['PATH']}"
         large_file_args = ["-api", "largefilesupport=1"] if large_file_support else []
 
         try:
@@ -467,7 +466,7 @@ class ExifTool:
         """
         json_str, _, _ = self.run_commands("-json")
         if not json_str:
-            return dict()
+            return {}
         json_str = unescape_str(json_str.decode("utf-8"))
 
         try:
@@ -476,7 +475,7 @@ class ExifTool:
             # will fail with some commands, e.g --ext AVI which produces
             # 'No file with specified extension' instead of json
             logger.warning(f"error loading json returned by exiftool: {e} {json_str}")
-            return dict()
+            return {}
         exifdict = exifdict[0]
         if not tag_groups:
             # strip tag groups
@@ -524,7 +523,7 @@ class ExifToolCaching(ExifTool):
 
     Creates a singleton cached ExifTool instance"""
 
-    _singletons = {}
+    _singletons: ClassVar[dict[str, ExifToolCaching]] = {}
 
     def __new__(cls, filepath, exiftool=None):
         """create new object or return instance of already created singleton"""

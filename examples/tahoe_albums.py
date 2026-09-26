@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Callable
+from collections.abc import Callable
 
 import click
 import yaml
@@ -88,7 +88,7 @@ def process_shared_albums(photosdb: osxphotos.PhotosDB, verbose: Callable[[str],
             "cloudownerhashedpersonid": "foobar",
             "kind": _PHOTOS_5_SHARED_ALBUM_KIND,
             "pk": album[3],
-            "intrash": False if album[4] == 0 else True,
+            "intrash": album[4] != 0,
             "creation_date": album[5] or 0,  # iPhone Photos.sqlite can have null value
             "start_date": album[6] or 0,
             "end_date": album[7] or 0,

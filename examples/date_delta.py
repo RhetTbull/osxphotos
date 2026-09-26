@@ -1,10 +1,9 @@
-""" Example showing how to use a custom template function for osxphotos {function} template
-    Example use:  osxphotos query --quiet --print "{function:date_delta.py::months_since(2021-01-01)}"
+"""Example showing how to use a custom template function for osxphotos {function} template
+Example use:  osxphotos query --quiet --print "{function:date_delta.py::months_since(2021-01-01)}"
 """
 
 import datetime
 import pathlib
-from typing import List, Optional, Union
 
 from osxphotos import PhotoInfo
 from osxphotos.datetime_utils import datetime_naive_to_local
@@ -12,8 +11,8 @@ from osxphotos.phototemplate import RenderOptions
 
 
 def years_since(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """Return the number of years between the photo date and the date passed as an argument in format YYYY-MM-DD"""
 
     if not args:
@@ -32,8 +31,8 @@ def years_since(
 
 
 def months_since(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """Return the number of months between the photo date and the date passed as an argument in format YYYY-MM-DD"""
 
     if not args:
@@ -52,8 +51,8 @@ def months_since(
 
 
 def days_since(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """Return the number of days between the photo date and the date passed as an argument in format YYYY-MM-DD"""
 
     if not args:

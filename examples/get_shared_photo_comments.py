@@ -1,4 +1,4 @@
-""" get shared comments associated with a photo """
+"""get shared comments associated with a photo"""
 
 import datetime
 import sys

@@ -5,14 +5,14 @@ Call this as: `osxphotos timewarp --function timewarp_function_creation_date.py:
 
 import datetime
 import os
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
 
 from photoscript import Photo
 
 
 def creation_date(
-    photo: Photo, path: Optional[str], tz_sec: int, tz_name: str, verbose: Callable
-) -> Tuple[datetime.datetime, int]:
+    photo: Photo, path: str | None, tz_sec: int, tz_name: str, verbose: Callable
+) -> tuple[datetime.datetime, int]:
     """Example function for use with `osxphotos timewarp --function`
 
     Args:

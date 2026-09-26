@@ -1,4 +1,4 @@
-""" utility functions for validating/sanitizing path components
+"""utility functions for validating/sanitizing path components
 
 This module also performs Unicode normalization. For a quick summary, there are
 multiple ways to write more complex characters in Unicode. This causes problems
@@ -18,10 +18,10 @@ from osxphotos.unicode import normalize_unicode
 from ._constants import MAX_DIRNAME_LEN, MAX_FILENAME_LEN
 
 __all__ = [
-    "sanitize_filepath",
     "is_valid_filepath",
-    "sanitize_filename",
     "sanitize_dirname",
+    "sanitize_filename",
+    "sanitize_filepath",
     "sanitize_pathpart",
 ]
 

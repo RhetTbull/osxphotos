@@ -41,8 +41,9 @@ import logging
 import os
 import pathlib
 import sqlite3
+from collections.abc import Callable
 from functools import cached_property
-from typing import Any, Callable, get_type_hints
+from typing import Any, get_type_hints
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -62,7 +63,11 @@ from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
-from .photos_datetime import photos_datetime, photos_datetime_local
+from .photos_datetime import (
+    iphoto_date_to_datetime,
+    photos_datetime,
+    photos_datetime_local,
+)
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 from .scoreinfo import ScoreInfo
@@ -83,7 +88,7 @@ class iPhotoDB:
     def __init__(
         self,
         dbfile: str,
-        verbose: Callable[..., None] = None,
+        verbose: Callable[..., None] | None = None,
         exiftool: str | None = None,
         rich: bool = False,
         _skip_searchinfo: bool = True,
@@ -1459,7 +1464,7 @@ class iPhotoPhotoInfo:
     @property
     def media_analysis(self) -> dict[str, Any]:
         """Returns media analysis results as a dictionary (Photos 5+)"""
-        return dict()
+        return {}
 
     @property
     def ai_caption(self) -> str:
@@ -2499,8 +2504,6 @@ class iPhotoEventInfo:
 class iPhotoMomentInfo(iPhotoEventInfo):
     """Info about a photo moment; iPhoto doesn't have moments but Events are close"""
 
-    ...
-
 
 @dataclasses.dataclass(frozen=True)
 class iPhotoExifInfo:
@@ -2561,15 +2564,15 @@ def default_return_value(name: str) -> Any:
         return 0
     elif return_type == str(float):
         return 0.0
-    elif return_type.startswith("list[") or return_type.startswith("List["):
+    elif return_type.startswith(("list[", "List[")):
         return []
     elif "tuple[None, None]" in return_type:
         return (None, None)
-    elif return_type.startswith("tuple[") or return_type.startswith("Tuple["):
+    elif return_type.startswith(("tuple[", "Tuple[")):
         return ()
-    elif return_type.startswith("dict[") or return_type.startswith("Dict["):
-        return dict()
-    elif return_type.startswith("set[") or return_type.startswith("Set["):
+    elif return_type.startswith(("dict[", "Dict[")):
+        return {}
+    elif return_type.startswith(("set[", "Set[")):
         return set()
     else:
         logger.warning(f"Unknown return type: {return_type}")

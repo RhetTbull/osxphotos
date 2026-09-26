@@ -16,7 +16,6 @@ import sqlite3
 import sys
 import unicodedata
 from tempfile import TemporaryDirectory
-from typing import Dict
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -32,7 +31,7 @@ from osxphotos.platform import is_macos
 if is_macos:
     from photoscript import Photo
 
-    import osxphotos.cli.import_cli as import_cli
+    from osxphotos.cli import import_cli
     from osxphotos.cli.export import export
     from osxphotos.cli.import_cli import import_main
 else:
@@ -203,12 +202,7 @@ LIVE_PHOTO_ORIGINAL_AAE_FILENAMES = [
 def xdg_patch(monkeypatch):
     """Patch XDG_CONFIG_HOME to point to temporary directory"""
     with TemporaryDirectory() as tmpdir:
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: pathlib.Path(tmpdir))
-        else:
-            monkeypatch.setattr(
-                "xdg_base_dirs.xdg_data_home", lambda: pathlib.Path(tmpdir)
-            )
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: pathlib.Path(tmpdir))
         yield
 
 
@@ -231,7 +225,7 @@ def say(msg: str) -> None:
     os.system(f"say {msg}")
 
 
-def parse_import_output(output: str) -> Dict[str, str]:
+def parse_import_output(output: str) -> dict[str, str]:
     """Parse output of osxphotos import command and return dict of {image name: uuid} for imported photos"""
     # look for lines that look like this:
     # Imported IMG_4179.jpeg with UUID A62792F0-4524-4529-9931-56E52C95E873
@@ -808,7 +802,7 @@ def test_import_keyword_merge():
 
     assert photo_1.filename == file_1
     assert sorted(photo_1.keywords) == sorted(
-        list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"]))
+        set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"])
     )
 
 
@@ -848,7 +842,7 @@ def test_import_keyword_merge_unicode():
 
     assert photo_1.filename == file_1
     assert sorted(photo_1.keywords) == sorted(
-        list(set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"]))
+        set(["Bar", "Foo"] + TEST_DATA[TEST_IMAGE_1]["keywords"])
     )
 
 

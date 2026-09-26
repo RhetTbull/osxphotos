@@ -103,12 +103,12 @@ def test_exifwriter_single(photosdb: PhotosDB, tmp_path: pathlib.Path, field: st
         assert got == expected
 
     # sourcery skip: no-loop-in-tests
-    for exif_field in METADATA_FIELDS.keys():
+    for exif_field in METADATA_FIELDS:
         # sourcery skip: no-conditionals-in-tests
         if exif_field == field:
             continue
-        for exif_field in METADATA_FIELDS[exif_field]["fields"]:
-            assert exif_field not in exif_data
+        for tag in METADATA_FIELDS[exif_field]["fields"]:
+            assert tag not in exif_data
 
 
 def test_exifwriter_favorite(photosdb: PhotosDB, tmp_path: pathlib.Path):
@@ -174,7 +174,7 @@ def test_exifwriter_all(photosdb: PhotosDB, tmp_path: pathlib.Path):
 
     exif_data = ExifTool(exported).asdict()
     # sourcery skip: no-loop-in-tests
-    for field in METADATA_FIELDS.keys():
+    for field in METADATA_FIELDS:
         for exif_field in METADATA_FIELDS[field]["fields"]:
             assert exif_field in exif_data
             got = exif_data[exif_field]

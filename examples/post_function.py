@@ -1,9 +1,10 @@
-""" Example function for use with osxphotos export --post-function option """
+"""Example function for use with osxphotos export --post-function option"""
 
 from __future__ import annotations
 
 import pathlib
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.cli import echo_error

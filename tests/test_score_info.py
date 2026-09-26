@@ -1,4 +1,4 @@
-""" Test ScoreInfo """
+"""Test ScoreInfo"""
 
 from math import isclose
 
