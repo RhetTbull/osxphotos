@@ -585,6 +585,40 @@ def is_http_url(url: str) -> bool:
     return False
 
 
+def github_url_to_raw_url(url: str) -> str:
+    """Convert a GitHub web page URL for a file to the URL of the raw file.
+
+    Handles file URLs of the form https://github.com/{owner}/{repo}/blob/{ref}/{path}
+    (or .../raw/{ref}/{path}) and gist URLs of the form https://gist.github.com/{user}/{id}.
+    Any other URL, including one that already points to the raw file, is returned unchanged.
+
+    Args:
+        url: URL to convert
+
+    Returns: URL of the raw file if url is a GitHub file or gist page, otherwise url unchanged
+    """
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except ValueError:
+        return url
+    if parsed.scheme not in ("http", "https"):
+        return url
+
+    host = parsed.netloc.lower()
+    parts = [part for part in parsed.path.split("/") if part]
+    if host in ("github.com", "www.github.com"):
+        # /{owner}/{repo}/blob/{ref}/{path...}; ref may itself contain "/"
+        # which raw.githubusercontent.com resolves the same way github.com does
+        if len(parts) >= 5 and parts[2] in ("blob", "raw"):
+            owner, repo, _, *ref_and_path = parts
+            return f"https://raw.githubusercontent.com/{owner}/{repo}/{'/'.join(ref_and_path)}"
+    elif host == "gist.github.com" and len(parts) == 2:
+        # /{user}/{gist_id}; the raw URL returns the gist's first file
+        user, gist_id = parts
+        return f"https://gist.githubusercontent.com/{user}/{gist_id}/raw"
+    return url
+
+
 def get_filename_from_url(url: str) -> str:
     """Return filename from url"""
     return os.path.basename(urllib.parse.urlparse(url).path)
