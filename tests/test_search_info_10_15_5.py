@@ -1,4 +1,4 @@
-""" test PhotoInfo.search_info """
+"""test PhotoInfo.search_info"""
 
 import pytest
 

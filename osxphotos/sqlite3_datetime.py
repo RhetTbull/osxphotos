@@ -1,5 +1,5 @@
 """Sqlite3 datetime adapters; import this module to register adapters for datetime objects;
-these were built in before Python 3.12 but are deprecated in 3.12 """
+these were built in before Python 3.12 but are deprecated in 3.12"""
 
 import datetime
 import sqlite3

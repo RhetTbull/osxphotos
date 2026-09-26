@@ -1,4 +1,4 @@
-""" example function for osxphotos --query-function """
+"""example function for osxphotos --query-function"""
 
 from typing import List
 

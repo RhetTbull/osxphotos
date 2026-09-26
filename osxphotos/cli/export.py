@@ -1609,9 +1609,7 @@ def export_cli(
         uti = cfg.uti
         uuid = cfg.uuid
         uuid_from_file = cfg.uuid_from_file
-        verbose_flag = (
-            cfg.verbose
-        )  # this is named differently in the config file than the variable passed by --verbose (verbose_flag)
+        verbose_flag = cfg.verbose  # this is named differently in the config file than the variable passed by --verbose (verbose_flag)
         xattr_template = cfg.xattr_template
         year = cfg.year
 

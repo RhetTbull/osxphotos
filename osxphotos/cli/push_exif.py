@@ -704,7 +704,7 @@ def compare_datetime(photo: PhotoInfo, file_data: dict[str, Any]) -> str:
     """Compare datetime between Photos and original file for a single photo"""
     photo_datetime = photo.date.strftime("%Y:%m:%d %H:%M:%S")
     photo_offset = photo.date.tzinfo.utcoffset(photo.date).total_seconds() / 3600
-    photo_offset = f"{photo_offset//1:+03.0f}{photo_offset%1*60:02.0f}"
+    photo_offset = f"{photo_offset // 1:+03.0f}{photo_offset % 1 * 60:02.0f}"
 
     exif_dt_offset = get_exif_date_time_offset(file_data)
     exif_datetime = (

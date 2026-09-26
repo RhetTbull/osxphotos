@@ -1,4 +1,4 @@
-"""Test {seq} template """
+"""Test {seq} template"""
 
 import pytest
 

@@ -3138,7 +3138,7 @@ def import_files(
                                 f"Skipping [filepath]{filepath}[/], already imported on "
                                 f"[time]{record.import_datetime.isoformat()}[/] with "
                                 f"UUID [uuid]{record.uuid}[/]"
-                                f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
+                                f" ({progress.tasks[task].completed + 1 + error_count}/{progress.tasks[task].total})"
                             )
                             skipped_count += 1
                             progress.advance(task)
@@ -3147,7 +3147,7 @@ def import_files(
                 verbose(
                     "Importing "
                     + ", ".join(f"[filepath]{f}[/]" for f in file_tuple)
-                    + f" ({progress.tasks[task].completed+1+error_count}/{progress.tasks[task].total})"
+                    + f" ({progress.tasks[task].completed + 1 + error_count}/{progress.tasks[task].total})"
                 )
 
                 report_data[filepath] = ReportRecord(

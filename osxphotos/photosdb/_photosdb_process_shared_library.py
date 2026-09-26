@@ -1,4 +1,4 @@
-""" Methods for PhotosDB to process shared iCloud library data (#860)"""
+"""Methods for PhotosDB to process shared iCloud library data (#860)"""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-""" datetime.datetime helper functions for converting to/from UTC and other datetime manipulations"""
+"""datetime.datetime helper functions for converting to/from UTC and other datetime manipulations"""
 
 # source: https://github.com/RhetTbull/datetime-utils
 

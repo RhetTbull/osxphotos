@@ -1,8 +1,8 @@
-""" Find 'bad photos' and add them to an album
+"""Find 'bad photos' and add them to an album
 
 This is inspired by this blog post: https://www.muchen.ca/blog/2022/cleanup-photos/
 
-This is an osxphotos query function, that when run as follows, 
+This is an osxphotos query function, that when run as follows,
 will add all photos with low quality scores to the album 'Bad Photos'
 
 osxphotos query --query-function bad_photos.py::bad_photos --add-to-album "Bad Photos"

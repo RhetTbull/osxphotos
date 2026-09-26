@@ -1,4 +1,4 @@
-""" Test XMP sidecar """
+"""Test XMP sidecar"""
 
 import pathlib
 import tempfile

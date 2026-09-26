@@ -3,7 +3,6 @@
 # Note: This must be tested with pytest --photodates as it requires a specific
 # library be active in the Photos library (uses AppleScript)
 
-
 import datetime
 import zoneinfo
 

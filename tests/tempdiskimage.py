@@ -1,4 +1,4 @@
-""" Create a temporary disk image on MacOS """
+"""Create a temporary disk image on MacOS"""
 
 import pathlib
 import platform
@@ -32,7 +32,7 @@ class TempDiskImage:
         self._tempdir = tempfile.TemporaryDirectory()
         # hacky mktemp: this could create a race condition but unlikely given it's created in a TemporaryDirectory
         prefix = "TemporaryDiskImage" if prefix is None else prefix
-        volume_name = f"{prefix}_{str(time.time()).replace('.','_')}_{str(time.perf_counter()).replace('.','_')}"
+        volume_name = f"{prefix}_{str(time.time()).replace('.', '_')}_{str(time.perf_counter()).replace('.', '_')}"
         image_name = f"{volume_name}.dmg"
         image_path = pathlib.Path(self._tempdir.name) / image_name
         hdiutil = subprocess.run(

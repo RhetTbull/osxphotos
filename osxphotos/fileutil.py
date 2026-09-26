@@ -190,7 +190,6 @@ def retry_all_methods():
 
     def decorator(cls):
         for name, value in cls.__dict__.items():
-
             # Skip dunder methods (e.g. __init__, __str__, etc.)
             if name.startswith("__"):
                 continue

@@ -1,4 +1,4 @@
-""" test PhotoInfo.search_info """
+"""test PhotoInfo.search_info"""
 
 # On 10.14.6, SearchInfo is not valid and returns None
 

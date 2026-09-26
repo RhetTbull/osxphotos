@@ -1,4 +1,4 @@
-""" Test data for timewarp command on Catalina/Photos 5 """
+"""Test data for timewarp command on Catalina/Photos 5"""
 
 import datetime
 import pathlib

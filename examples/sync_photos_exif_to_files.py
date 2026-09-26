@@ -1,9 +1,9 @@
-"""Write metadata from Photos to photo and video files that have been exported from Photos. 
+"""Write metadata from Photos to photo and video files that have been exported from Photos.
 
- Run with osxphotos using `osxphotos run sync_photos_exif_to_files.py METADATA [OPTIONS] PATH_OR_FILENAMES`
+Run with osxphotos using `osxphotos run sync_photos_exif_to_files.py METADATA [OPTIONS] PATH_OR_FILENAMES`
 
- For help, run `osxphotos run sync_photos_exif_to_files.py --help`
- """
+For help, run `osxphotos run sync_photos_exif_to_files.py --help`
+"""
 
 from __future__ import annotations
 

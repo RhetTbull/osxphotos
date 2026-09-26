@@ -1,4 +1,4 @@
-""" Parse --inspect and --compare-exif output for testing"""
+"""Parse --inspect and --compare-exif output for testing"""
 
 from __future__ import annotations
 

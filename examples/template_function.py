@@ -1,7 +1,7 @@
-""" Example showing how to use a custom function for osxphotos {function} template 
-    Use:  osxphotos export /path/to/export --filename "{function:/path/to/template_function.py::example}"
+"""Example showing how to use a custom function for osxphotos {function} template
+Use:  osxphotos export /path/to/export --filename "{function:/path/to/template_function.py::example}"
 
-    You may place more than one template function in a single file as each is called by name using the {function:file.py::function_name} format
+You may place more than one template function in a single file as each is called by name using the {function:file.py::function_name} format
 """
 
 import pathlib

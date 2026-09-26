@@ -1249,7 +1249,9 @@ class PhotoExporter:
                     results_attr = (
                         "edited_live"
                         if live_photo and options.edited
-                        else "original_live" if live_photo else None
+                        else "original_live"
+                        if live_photo
+                        else None
                     )
                 elif self.photo.has_raw and pathlib.Path(
                     exported_file.lower()

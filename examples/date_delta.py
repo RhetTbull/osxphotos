@@ -1,5 +1,5 @@
-""" Example showing how to use a custom template function for osxphotos {function} template
-    Example use:  osxphotos query --quiet --print "{function:date_delta.py::months_since(2021-01-01)}"
+"""Example showing how to use a custom template function for osxphotos {function} template
+Example use:  osxphotos query --quiet --print "{function:date_delta.py::months_since(2021-01-01)}"
 """
 
 import datetime

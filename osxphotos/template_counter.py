@@ -1,4 +1,4 @@
-""" {counter} template for Metadata Template Language """
+"""{counter} template for Metadata Template Language"""
 
 from __future__ import annotations
 

@@ -1,10 +1,10 @@
 """Detect QR Codes in photos in Apple Photos and add qrcode tag/keyword to photos contain a QR Code
 
-    Run with `osxphotos run detect_qrcodes.py`
+Run with `osxphotos run detect_qrcodes.py`
 
-    Run with `osxphotos run detect_qrcodes.py --help` for help
+Run with `osxphotos run detect_qrcodes.py --help` for help
 
-    All dependencies are already installed as part of a standard osxphotos install.
+All dependencies are already installed as part of a standard osxphotos install.
 """
 
 import datetime

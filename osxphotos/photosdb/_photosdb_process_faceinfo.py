@@ -1,5 +1,4 @@
-""" Methods for PhotosDB to add Photos face info 
-"""
+"""Methods for PhotosDB to add Photos face info"""
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..sqlite_utils import sqlite_open_ro

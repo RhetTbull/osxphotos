@@ -1,4 +1,4 @@
-""" ExifInfo class to expose EXIF info from the library """
+"""ExifInfo class to expose EXIF info from the library"""
 
 from __future__ import annotations
 

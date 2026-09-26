@@ -1,4 +1,4 @@
-""" ScoreInfo class to expose computed score info from the library """
+"""ScoreInfo class to expose computed score info from the library"""
 
 from dataclasses import asdict, dataclass
 

@@ -171,8 +171,7 @@ class _ExifToolProc:
             # already running
             if exiftool is not None and exiftool != self._exiftool:
                 logger.warning(
-                    f"exiftool subprocess already running, "
-                    f"ignoring exiftool={exiftool}"
+                    f"exiftool subprocess already running, ignoring exiftool={exiftool}"
                 )
             return
         self._process_running = False
@@ -207,7 +206,7 @@ class _ExifToolProc:
         # open exiftool procGess
         # make sure /usr/bin at start of path so exiftool can find xattr (see #636)
         env = os.environ.copy()
-        env["PATH"] = f'/usr/bin/:{env["PATH"]}'
+        env["PATH"] = f"/usr/bin/:{env['PATH']}"
         large_file_args = ["-api", "largefilesupport=1"] if large_file_support else []
 
         try:

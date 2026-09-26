@@ -1,7 +1,7 @@
-""" Interface to Apple's PhotoKit framework for direct access to photos stored
-    in the user's Photos library.  This is not by any means a complete implementation
-    but does provide basic functionality for access metada about media assets and
-    exporting assets from the library.
+"""Interface to Apple's PhotoKit framework for direct access to photos stored
+in the user's Photos library.  This is not by any means a complete implementation
+but does provide basic functionality for access metada about media assets and
+exporting assets from the library.
 
 """
 

@@ -313,8 +313,8 @@ def stage_photo_files(tmp_path: pathlib.Path) -> list[pathlib.Path]:
 
     # burst images
     for i, img in enumerate(BURST_IMAGES):
-        copy_file(img, f"IMG_820{i+4}.JPG")
-        staged.append(tmp_path / f"IMG_820{i+4}.JPG")
+        copy_file(img, f"IMG_820{i + 4}.JPG")
+        staged.append(tmp_path / f"IMG_820{i + 4}.JPG")
 
     return staged
 

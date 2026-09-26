@@ -1,4 +1,4 @@
-""" Test comments and likes """
+"""Test comments and likes"""
 
 import datetime
 from zoneinfo import ZoneInfo

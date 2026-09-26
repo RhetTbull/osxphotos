@@ -130,7 +130,10 @@ def time_string_to_datetime(time: str) -> datetime.time:
 
 
 def get_local_utc_offset_str(dt: datetime.datetime | str) -> str:
-    """Get the local timezone offset from UTC as a string in the format ±HHMM, for example +0500 or -0700.""" ""
+    (
+        """Get the local timezone offset from UTC as a string in the format ±HHMM, for example +0500 or -0700."""
+        ""
+    )
     if isinstance(dt, str):
         dt = datetime.datetime.fromisoformat(dt)
     local_tz = get_local_tz(dt)

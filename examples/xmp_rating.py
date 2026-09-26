@@ -1,4 +1,4 @@
-""" Example function for use with osxphotos export --post-function option to set custom XMP:Rating value"""
+"""Example function for use with osxphotos export --post-function option to set custom XMP:Rating value"""
 
 # See this Reddit post for context: https://www.reddit.com/r/osxphotos/comments/wo4xra/can_i_set_xmprating_based_on_keywords/
 

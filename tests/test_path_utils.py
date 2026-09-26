@@ -1,4 +1,4 @@
-""" Test path_utils.py """
+"""Test path_utils.py"""
 
 from osxphotos._constants import _OSXPHOTOS_LOCK_EXTENSION, MAX_FILENAME_LEN
 from osxphotos.path_utils import sanitize_filename

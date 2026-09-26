@@ -388,7 +388,7 @@ def export_file(
                     None,
                 )
                 verbose(
-                    f"Renamed files: {', '.join('[filename]'+f.name+'[/]' for f in renamed_files)}"
+                    f"Renamed files: {', '.join('[filename]' + f.name + '[/]' for f in renamed_files)}"
                 )
             except Exception as e:
                 error(f"Error renaming edited group: {e}")

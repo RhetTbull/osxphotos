@@ -1,4 +1,4 @@
-""" query function to be used with osxphotos query --query-function to find photos with identified face circles that are unnamed.
+"""query function to be used with osxphotos query --query-function to find photos with identified face circles that are unnamed.
 
 See: https://www.reddit.com/r/osxphotos/comments/16o3wbs/finding_unnamed_faces_more_than_apple_photos_shows/
 

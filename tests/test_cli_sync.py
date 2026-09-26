@@ -201,7 +201,7 @@ def test_sync_export_import_csv():
                 if row["uuid"] == UUID_TEST_PHOTO_1:
                     assert (
                         row["keywords_after"]
-                        == f'{sorted(["NewKeyword", *metadata_before[UUID_TEST_PHOTO_1]["keywords"]])}'
+                        == f"{sorted(['NewKeyword', *metadata_before[UUID_TEST_PHOTO_1]['keywords']])}"
                     )
 
 

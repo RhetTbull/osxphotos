@@ -30,7 +30,9 @@ def increment_seconds(
     if match:
         seconds = int(match.group())
         date = photo.date + timedelta(seconds=seconds)
-        verbose(f"Incrementing seconds for [filename]{photo.filename}[/] by [num]{seconds}[/] seconds")
+        verbose(
+            f"Incrementing seconds for [filename]{photo.filename}[/] by [num]{seconds}[/] seconds"
+        )
         return date, tz_sec
     else:
         verbose(f"Could not find seconds in filename for [filename]{photo.filename}[/]")

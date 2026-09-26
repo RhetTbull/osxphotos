@@ -555,9 +555,9 @@ def test_exiftool_terminate():
         )
         # Filter out empty strings
         exiftool_processes_before = [p for p in exiftool_processes_before if p]
-        assert (
-            len(exiftool_processes_before) > 0
-        ), "No exiftool processes found before termination"
+        assert len(exiftool_processes_before) > 0, (
+            "No exiftool processes found before termination"
+        )
     except FileNotFoundError:
         # Fallback to ps if pgrep is not available
         ps = subprocess.run(["ps", "ax"], capture_output=True)
@@ -582,9 +582,9 @@ def test_exiftool_terminate():
         )
         # Filter out empty strings
         exiftool_processes_after = [p for p in exiftool_processes_after if p]
-        assert (
-            len(exiftool_processes_after) == 0
-        ), f"Found {len(exiftool_processes_after)} exiftool processes still running after termination"
+        assert len(exiftool_processes_after) == 0, (
+            f"Found {len(exiftool_processes_after)} exiftool processes still running after termination"
+        )
     except FileNotFoundError:
         # Fallback to ps if pgrep is not available
         ps = subprocess.run(["ps", "ax"], capture_output=True)
@@ -595,9 +595,9 @@ def test_exiftool_terminate():
             for line in stdout.split("\n")
             if "exiftool" in line and "-stay_open" in line
         ]
-        assert (
-            len(exiftool_lines) == 0
-        ), f"Found {len(exiftool_lines)} exiftool processes still running after termination"
+        assert len(exiftool_lines) == 0, (
+            f"Found {len(exiftool_lines)} exiftool processes still running after termination"
+        )
 
     # verify we can create a new instance after termination
     exif2 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)

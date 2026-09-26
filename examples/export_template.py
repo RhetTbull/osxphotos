@@ -1,4 +1,4 @@
-""" Example showing how to use a custom function for osxphotos {function} template 
+"""Example showing how to use a custom function for osxphotos {function} template
     to export photos in a folder structure similar to Photos' own structure
 
     Use:  osxphotos export /path/to/export --directory "{function:/path/to/export_template.py::photos_folders}"

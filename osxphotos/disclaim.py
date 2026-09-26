@@ -1,4 +1,4 @@
-""" Disclaim the application when running on macOS so that permission requests come from the application itself
+"""Disclaim the application when running on macOS so that permission requests come from the application itself
 instead of the terminal.
 
 To use this, the libdisclaim.dylib library must be built and placed in the same directory as this file

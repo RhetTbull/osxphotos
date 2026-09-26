@@ -1,4 +1,4 @@
-""" Generate sidecars used for tests """
+"""Generate sidecars used for tests"""
 
 # Generates sidecars used for test cases
 # tests generate sidecars and compare to the ones generated here to assert nothing changed

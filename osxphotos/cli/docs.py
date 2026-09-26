@@ -1,4 +1,4 @@
-"""docs command for osxphotos CLI """
+"""docs command for osxphotos CLI"""
 
 import pathlib
 import shutil

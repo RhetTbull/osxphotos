@@ -1,4 +1,4 @@
-""" Test --add-exported-to-album """
+"""Test --add-exported-to-album"""
 
 import os
 

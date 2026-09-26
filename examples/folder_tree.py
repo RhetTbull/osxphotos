@@ -56,7 +56,11 @@ def export_folder_hierarchy():
                             "obj": album,
                             "type": "album",
                             "title": album.title,
-                            "folder_path": (" / ".join(album.folder_names) if album.folder_names else ""),
+                            "folder_path": (
+                                " / ".join(album.folder_names)
+                                if album.folder_names
+                                else ""
+                            ),
                         }
                     )
 

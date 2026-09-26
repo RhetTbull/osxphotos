@@ -1,4 +1,4 @@
-""" PhotoCompare class to compare date/time/timezone in Photos to the exif data """
+"""PhotoCompare class to compare date/time/timezone in Photos to the exif data"""
 
 from collections import namedtuple
 from typing import Callable, List, Optional, Tuple

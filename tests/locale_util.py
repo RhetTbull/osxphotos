@@ -1,4 +1,4 @@
-""" Helpers for running locale-dependent tests """
+"""Helpers for running locale-dependent tests"""
 
 import contextlib
 import locale

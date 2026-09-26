@@ -1,4 +1,4 @@
-"""Test photosdb_utils """
+"""Test photosdb_utils"""
 
 import pathlib
 

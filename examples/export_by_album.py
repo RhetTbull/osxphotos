@@ -1,7 +1,7 @@
-""" Export all photos to specified directory using album names as folders
-    If file has been edited, also export the edited version, 
-    otherwise, export the original version 
-    This will result in duplicate photos if photo is in more than album """
+"""Export all photos to specified directory using album names as folders
+If file has been edited, also export the edited version,
+otherwise, export the original version
+This will result in duplicate photos if photo is in more than album"""
 
 import os.path
 import pathlib

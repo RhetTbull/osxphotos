@@ -1,7 +1,7 @@
-""" Example showing how to use a custom function for osxphotos {function} template
-    Returns expected path for a missing photos
-    Use:  osxphotos query --missing --field original_path "{function:photopath.py::original}"
-    or for edited photos:  osxphotos query --missing --field edited_path "{function:photopath.py::edited}"
+"""Example showing how to use a custom function for osxphotos {function} template
+Returns expected path for a missing photos
+Use:  osxphotos query --missing --field original_path "{function:photopath.py::original}"
+or for edited photos:  osxphotos query --missing --field edited_path "{function:photopath.py::edited}"
 """
 
 from __future__ import annotations

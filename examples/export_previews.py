@@ -1,4 +1,4 @@
-""" Export previews for photos in the Photos library
+"""Export previews for photos in the Photos library
 
 To run this with osxphotos on currently selected photos:
 

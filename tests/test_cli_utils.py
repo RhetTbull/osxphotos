@@ -1,4 +1,4 @@
-""" Test utility functions in cli.py """
+"""Test utility functions in cli.py"""
 
 import pytest
 

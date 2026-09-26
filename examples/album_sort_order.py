@@ -1,4 +1,4 @@
-""" Example function for use with osxphotos export --post-function option showing how to record album sort order """
+"""Example function for use with osxphotos export --post-function option showing how to record album sort order"""
 
 import os
 import pathlib

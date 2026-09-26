@@ -1,4 +1,4 @@
-""" Test match with non-string arguments. """
+"""Test match with non-string arguments."""
 
 import io
 import pathlib

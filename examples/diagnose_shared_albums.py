@@ -390,12 +390,12 @@ def diagnose_shared_albums(db_path: Path) -> None:
 
     print(
         f"""
-  Albums with ZKIND=1505: {summary_data['zkind_1505']}
-  Albums with Z_ENT=34: {summary_data['z_ent_34']}
-  Albums with cloud owner: {summary_data['with_owner']}
-  ZSHARE records: {summary_data['shares']}
-  Invitation records: {summary_data['invitations']}
-  Share participants: {summary_data['participants']}
+  Albums with ZKIND=1505: {summary_data["zkind_1505"]}
+  Albums with Z_ENT=34: {summary_data["z_ent_34"]}
+  Albums with cloud owner: {summary_data["with_owner"]}
+  ZSHARE records: {summary_data["shares"]}
+  Invitation records: {summary_data["invitations"]}
+  Share participants: {summary_data["participants"]}
 """
     )
 

@@ -1,4 +1,4 @@
-""" test datetime_formatter.DateTimeFormatter """
+"""test datetime_formatter.DateTimeFormatter"""
 
 import pytest
 

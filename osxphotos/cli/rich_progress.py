@@ -12,6 +12,7 @@ OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING", default=False))
 
 class MockTask:
     """A mock task object similar to rich.progress.Task."""
+
     def __init__(self, task_id, description="", total=100):
         self.id = task_id
         self.description = description
@@ -22,6 +23,7 @@ class MockTask:
 
 class MockProgress:
     """A mock version of rich.Progress for testing purposes."""
+
     def __init__(self, *args, **kwargs):
         self.tasks = []
         self.live = False

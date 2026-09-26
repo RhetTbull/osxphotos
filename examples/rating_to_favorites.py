@@ -1,10 +1,10 @@
-""" Find photos that had an EXIF or XMP rating of 5 and mark them as favorites in Photos
+"""Find photos that had an EXIF or XMP rating of 5 and mark them as favorites in Photos
 
-    To use this script, save it to a file, e.g. `rating_to_favorites.py` then
-    run it with osxphotos (https://github.com/RhetTbull/osxphotos) via
-    `osxphotos run rating_to_favorites.py`
+To use this script, save it to a file, e.g. `rating_to_favorites.py` then
+run it with osxphotos (https://github.com/RhetTbull/osxphotos) via
+`osxphotos run rating_to_favorites.py`
 
-    You'll also need exiftool (https://exiftool.org/)
+You'll also need exiftool (https://exiftool.org/)
 """
 
 import photoscript

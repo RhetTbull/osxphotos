@@ -1,4 +1,4 @@
-""" Utilities for working with the Photokit framework on macOS """
+"""Utilities for working with the Photokit framework on macOS"""
 
 import time
 

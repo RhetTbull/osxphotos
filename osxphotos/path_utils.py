@@ -1,4 +1,4 @@
-""" utility functions for validating/sanitizing path components
+"""utility functions for validating/sanitizing path components
 
 This module also performs Unicode normalization. For a quick summary, there are
 multiple ways to write more complex characters in Unicode. This causes problems

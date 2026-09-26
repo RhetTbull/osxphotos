@@ -116,7 +116,7 @@ def main(ascend: bool, album_path: str):
     try:
         sorted = sort_album_by_size(album_path, ascend)
         echo(
-            f"Sorted {sorted} item{'s' if sorted !=1 else ''} in '{album_path}' successfully "
+            f"Sorted {sorted} item{'s' if sorted != 1 else ''} in '{album_path}' successfully "
             + f"({'ascending' if ascend else 'descending'})."
         )
     except Exception as e:

@@ -1,4 +1,4 @@
-""" Simple usage of the package """
+"""Simple usage of the package"""
 
 import os.path
 

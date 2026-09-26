@@ -420,9 +420,7 @@ def increment_filename(
 
     Note: This obviously is subject to race condition so using with caution.
     """
-    new_filepath, _ = increment_filename_with_count(
-        filepath, stat_cache=stat_cache
-    )
+    new_filepath, _ = increment_filename_with_count(filepath, stat_cache=stat_cache)
     return new_filepath
 
 

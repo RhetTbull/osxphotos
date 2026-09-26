@@ -1,23 +1,23 @@
-""" Example showing how to use a custom function for osxphotos {function} template
-    to allow use of the `{album_seq}` template in the `--filename` option.
+"""Example showing how to use a custom function for osxphotos {function} template
+to allow use of the `{album_seq}` template in the `--filename` option.
 
-    Use:  osxphotos export /path/to/export --filename "{function:/path/to/album_sequence.py::album_seq}"
-    
-    To specify a default album name if photo is not in any album, use the following:
-    Use:  osxphotos export /path/to/export --filename "{function:/path/to/album_sequence.py::album_seq(Default)}"
+Use:  osxphotos export /path/to/export --filename "{function:/path/to/album_sequence.py::album_seq}"
 
-    otherwise, the default album name will be "None"
+To specify a default album name if photo is not in any album, use the following:
+Use:  osxphotos export /path/to/export --filename "{function:/path/to/album_sequence.py::album_seq(Default)}"
 
-    To use a different starting sequence number, use the following:
-    Use:  osxphotos export /path/to/export --filename "{function:/path/to/album_sequence.py::album_seq(Default,1)}"
-    where 1 is the starting sequence number
+otherwise, the default album name will be "None"
 
-    If providing the starting sequence number, you must also provide the default album name, even if it is "None"
+To use a different starting sequence number, use the following:
+Use:  osxphotos export /path/to/export --filename "{function:/path/to/album_sequence.py::album_seq(Default,1)}"
+where 1 is the starting sequence number
 
-    In osxphotos you can use the `{album_seq}` template to get the order of a photo in an album
-    but this only works if you also use `{album}` or `{folder_album}` as the `--directory` template.
+If providing the starting sequence number, you must also provide the default album name, even if it is "None"
 
-    This custom template creates a filename that includes both the album name and the sequence number.
+In osxphotos you can use the `{album_seq}` template to get the order of a photo in an album
+but this only works if you also use `{album}` or `{folder_album}` as the `--directory` template.
+
+This custom template creates a filename that includes both the album name and the sequence number.
 """
 
 from __future__ import annotations

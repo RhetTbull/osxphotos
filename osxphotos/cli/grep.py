@@ -1,4 +1,4 @@
-"""grep command for osxphotos CLI """
+"""grep command for osxphotos CLI"""
 
 import pathlib
 

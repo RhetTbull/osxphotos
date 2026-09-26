@@ -1,4 +1,4 @@
-""" Example function for use with osxphotos export --post-function option """
+"""Example function for use with osxphotos export --post-function option"""
 
 from __future__ import annotations
 
