@@ -1,6 +1,7 @@
 # pyproject.toml for osxphotos
 # Replaces: setup.py, requirements.txt, dev_requirements.txt,
 #           pytest.ini, .isort.cfg, .bumpversion.cfg, MANIFEST.in
+#           (black and isort are replaced by ruff format and ruff's isort rules)
 #
 # After committing this file you can delete:
 #   setup.py, requirements.txt, dev_requirements.txt,
@@ -124,12 +125,10 @@ dependencies = [
 # ---------------------------------------------------------------------------
 [project.optional-dependencies]
 dev = [
-    "black",
     "build",
     "bump-my-version",          # successor to bump2version; reads [tool.bumpversion]
     "cogapp>=3.3.0,<4.0.0",
     "furo",
-    "isort",
     "m2r2==0.3.4",
     "pdbpp",
     "pyinstaller>=6.11.1",
@@ -250,20 +249,19 @@ addopts = "-p tests.plugins.env_vars"
 pythonpath = ["."]
 
 # ---------------------------------------------------------------------------
-# isort  (replaces .isort.cfg)
-# ---------------------------------------------------------------------------
-[tool.isort]
-profile          = "black"
-multi_line_output = 3
-
-# ---------------------------------------------------------------------------
-# ruff  (was already in pyproject.toml — kept and cleaned up)
+# ruff  (linter, formatter, and import sorter; replaces black and isort)
+#   Lint:            ruff check
+#   Format:          ruff format
+#   Fix + format:    ruff check --fix && ruff format
 # ---------------------------------------------------------------------------
 [tool.ruff]
 # Docs: https://docs.astral.sh/ruff/
 # Rules: https://docs.astral.sh/ruff/rules/
 target-version = "py310"
-line-length    = 320
+# 88 is the width the codebase was formatted to with black. The formatter
+# never wraps comments, docstrings, or strings, and line length is not linted
+# (E501 is not selected), so long help strings and comments are left as-is.
+line-length    = 88
 
 # TODO: Most of these ignores can be removed after code cleanup.
 # Added to make ruff pass with code in its current state.
@@ -292,11 +290,3 @@ exclude = [
     "__pycache__",
 ]
 
-# ---------------------------------------------------------------------------
-# black
-# ---------------------------------------------------------------------------
-[tool.black]
-# 88 is black's default and the width the codebase is already formatted to.
-# Do not raise this without reformatting the tree in a separate commit.
-line-length    = 88
-target-version = ["py310", "py311", "py312", "py313"]
