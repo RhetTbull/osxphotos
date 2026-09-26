@@ -22,7 +22,9 @@ from osxphotos.sqlite_utils import sqlite_columns
 from .push_results import PushResults
 from .sync_results import SyncResults
 
-EXPORT_REPORT_BATCH_SIZE = os.environ.get("OSXPHOTOS_EXPORT_REPORT_BATCH_SIZE", 100)
+EXPORT_REPORT_BATCH_SIZE = int(
+    os.environ.get("OSXPHOTOS_EXPORT_REPORT_BATCH_SIZE", "100")
+)
 
 __all__ = [
     "ExportReportWriterCSV",
@@ -233,11 +235,6 @@ class ExportReportWriterSQLite(ReportWriterABC):
         """Flush any remaining buffered writes and close the database connection"""
         self._flush()
         self._conn.close()
-
-    def __del__(self):
-        with suppress(Exception):
-            self._flush()
-            self._conn.close()
 
     def _create_tables(self):
         c = self._conn.cursor()

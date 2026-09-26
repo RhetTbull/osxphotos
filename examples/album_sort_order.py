@@ -33,7 +33,7 @@ def album_sequence(photo: PhotoInfo, options: RenderOptions, **kwargs) -> str:
     else:
         # didn't find the album, so skip this file
         return ""
-    start_index = int(os.getenv("OSXPHOTOS_ALBUM_SEQUENCE_START", 0))
+    start_index = int(os.getenv("OSXPHOTOS_ALBUM_SEQUENCE_START", "0"))
     return str(album_info.photo_index(photo) + start_index)
 
 

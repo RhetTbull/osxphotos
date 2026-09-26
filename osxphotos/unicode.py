@@ -36,7 +36,6 @@ __all__ = [
 
 def get_unicode_form() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     """Return the global unicode format"""
-    global _GLOBAL_UNICODE_FORM
     return _GLOBAL_UNICODE_FORM
 
 
@@ -52,7 +51,6 @@ def set_unicode_form(fmt: Literal["NFC", "NFKC", "NFD", "NFKD"]) -> None:
 
 def get_unicode_fs_form() -> Literal["NFC", "NFKC", "NFD", "NFKD"]:
     """Return the global unicode filesystem format"""
-    global _GLOBAL_UNICODE_FS_FORM
     return _GLOBAL_UNICODE_FS_FORM
 
 

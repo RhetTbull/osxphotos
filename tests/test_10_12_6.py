@@ -151,8 +151,8 @@ def test_path_derivatives(photosdb):
         "/resources/proxies/derivatives/00/00/9/UNADJUSTEDRAW_thumb_9.jpg",
         "/resources/proxies/derivatives/00/00/9/UNADJUSTEDRAW_mini_9.jpg",
     ]
-    for i, p in enumerate(p.path_derivatives):
-        assert p.endswith(derivs[i])
+    for i, path in enumerate(p.path_derivatives):
+        assert path.endswith(derivs[i])
 
 
 def test_duplicates_1(photosdb):

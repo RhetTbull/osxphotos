@@ -33,9 +33,9 @@ def match_photos(
             pairs[photo.original_filename] = [photo]
         else:
             pairs[photo.original_filename].append(photo)
-    for filename, photos in pairs.items():
-        if len(photos) > 1:
-            pairs[filename] = sorted(photos, key=lambda p: p.original_filesize)
+    for filename, dup_photos in pairs.items():
+        if len(dup_photos) > 1:
+            pairs[filename] = sorted(dup_photos, key=lambda p: p.original_filesize)
     results = [
         pair[:2] for pair in pairs.values() if len(pair) > 1
     ]  # ignore single photos and only keep first two photos in the pair

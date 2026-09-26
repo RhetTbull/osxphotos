@@ -2277,7 +2277,8 @@ class ReportRecord:
     error: bool = False
     filename: str = ""
     filepath: pathlib.Path = dataclasses.field(default_factory=pathlib.Path)
-    import_datetime: datetime.datetime = datetime.datetime.now()
+    # evaluated once when the module loads, so every record shares the import start time
+    import_datetime: datetime.datetime = datetime.datetime.now()  # noqa: RUF009
     imported: bool = False
     burst: bool = False
     burst_images: int = 0
@@ -2757,9 +2758,9 @@ def group_files_to_import(
         def advance_progress(advance: float):
             progress.advance(task, advance=advance)
 
-        for parent, files in files_by_parent.items():
+        for parent, parent_files in files_by_parent.items():
             grouped = group_files_by_stem(
-                files,
+                parent_files,
                 edited_suffix,
                 relative_filepath,
                 exiftool_path,

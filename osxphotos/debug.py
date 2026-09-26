@@ -40,7 +40,6 @@ def set_debug(debug: bool):
 
 def is_debug():
     """return debug flag"""
-    global __osxphotos_debug
     return __osxphotos_debug
 
 
@@ -61,7 +60,7 @@ def debug_watch(wrapped, instance, args, kwargs):
 
 def debug_breakpoint(wrapped, instance, args, kwargs):
     """For use with wrapt.wrap_function_wrapper to set breakpoint on a function"""
-    breakpoint()
+    breakpoint()  # noqa: T100 intentional: implements --breakpoint
     return wrapped(*args, **kwargs)
 
 

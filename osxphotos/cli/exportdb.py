@@ -589,9 +589,9 @@ def exportdb(
     if delete_uuid:
         # delete a uuid from the export database
         exportdb = ExportDB(export_db, export_dir)
-        for uuid in delete_uuid:
-            rich_echo(f"Deleting uuid [uuid]{uuid}[/] from database.")
-            count = exportdb.delete_data_for_uuid(uuid)
+        for uuid_to_delete in delete_uuid:
+            rich_echo(f"Deleting uuid [uuid]{uuid_to_delete}[/] from database.")
+            count = exportdb.delete_data_for_uuid(uuid_to_delete)
             rich_echo(
                 f"Deleted [num]{count}[/] {pluralize(count, 'record', 'records')}."
             )

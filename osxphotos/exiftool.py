@@ -21,7 +21,7 @@ import subprocess
 import threading
 import time
 from functools import lru_cache  # pylint: disable=syntax-error
-from typing import Any
+from typing import Any, ClassVar
 
 logger = logging.getLogger("osxphotos")
 
@@ -523,7 +523,7 @@ class ExifToolCaching(ExifTool):
 
     Creates a singleton cached ExifTool instance"""
 
-    _singletons = {}
+    _singletons: ClassVar[dict[str, ExifToolCaching]] = {}
 
     def __new__(cls, filepath, exiftool=None):
         """create new object or return instance of already created singleton"""

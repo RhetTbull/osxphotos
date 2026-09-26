@@ -63,7 +63,11 @@ from .personinfo import MPRI_Reg_Rect, MWG_RS_Area
 from .photoexporter import PhotoExporter
 from .photoinfo import PhotoInfo
 from .photoquery import QueryOptions, photo_query
-from .photos_datetime import photos_datetime, photos_datetime_local
+from .photos_datetime import (
+    iphoto_date_to_datetime,
+    photos_datetime,
+    photos_datetime_local,
+)
 from .phototemplate import PhotoTemplate, RenderOptions
 from .platform import is_macos
 from .scoreinfo import ScoreInfo
@@ -84,7 +88,7 @@ class iPhotoDB:
     def __init__(
         self,
         dbfile: str,
-        verbose: Callable[..., None] = None,
+        verbose: Callable[..., None] | None = None,
         exiftool: str | None = None,
         rich: bool = False,
         _skip_searchinfo: bool = True,

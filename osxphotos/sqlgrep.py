@@ -38,11 +38,11 @@ def sqlgrep(
                 table = tablerow[0]
                 cursor.execute(f"SELECT * FROM {table}")
                 for row_num, row in enumerate(cursor):
-                    for field in row.keys():
+                    for field in row.keys():  # noqa: SIM118 iterating sqlite3.Row yields values
                         field_value = row[field]
-                        if not field_value or isinstance(field_value, bytes):
-                            # don't search binary blobs
-                            next
+                        if field_value is None or isinstance(field_value, bytes):
+                            # don't search NULL values or binary blobs
+                            continue
                         field_value = str(field_value)
                         if re.search(pattern, field_value, flags=flags):
                             if rich_markup:

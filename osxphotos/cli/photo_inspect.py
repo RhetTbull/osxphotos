@@ -507,7 +507,6 @@ def photo_inspect(db, theme, detect_text, template, beta):
         layout["status"].update(status)
 
     def update_detected_text(photo: PhotoInfo, uuid: str, text: str):
-        global CURRENT_UUID
         if uuid == CURRENT_UUID:
             layout["main"].update(
                 Panel(

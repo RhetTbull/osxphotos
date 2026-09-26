@@ -298,8 +298,8 @@ class GroupingRoot:
 
 def group_files_for_import(
     files: list[pathlib.Path],
-    edited_stem_func: Callable[[pathlib.Path], str] = None,
-    burst_uuid_func: Callable[[pathlib.Path], str | None] = None,
+    edited_stem_func: Callable[[pathlib.Path], str] | None = None,
+    burst_uuid_func: Callable[[pathlib.Path], str | None] | None = None,
     advance_progress=None,
 ) -> list[tuple[pathlib.Path, ...]]:
     """Group related files for import.

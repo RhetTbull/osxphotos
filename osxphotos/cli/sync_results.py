@@ -130,11 +130,11 @@ class SyncResults:
 
     def results_summary(self):
         """Get summary of results"""
-        updated = sum(bool(self._any_updated(uuid)) for uuid in self._results.keys())
+        updated = sum(bool(self._any_updated(uuid)) for uuid in self._results)
         property_updated = {}
         for property in SYNC_PROPERTIES:
             property_updated[property] = 0
-            for uuid in self._results.keys():
+            for uuid in self._results:
                 if self._results[uuid]["properties"].get(property, {"updated": False})[
                     "updated"
                 ]:
@@ -155,7 +155,7 @@ class SyncResults:
 
     def __add__(self, other):
         """Add results from another SyncResults"""
-        for uuid in other._results.keys():
+        for uuid in other._results:
             for property, values in other._results[uuid]["properties"].items():
                 self.add_result(
                     uuid,
@@ -171,7 +171,7 @@ class SyncResults:
 
     def __iadd__(self, other):
         """Add results from another SyncResults"""
-        for uuid in other._results.keys():
+        for uuid in other._results:
             for property, values in other._results[uuid]["properties"].items():
                 self.add_result(
                     uuid,

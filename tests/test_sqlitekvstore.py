@@ -261,6 +261,6 @@ def test_wipe(tmpdir):
     assert len(kvstore) == 4
     kvstore.wipe()
     assert len(kvstore) == 0
-    assert "foo"
+    assert "foo" not in kvstore
     kvstore.set("foo", "bar")
     assert kvstore.get("foo") == "bar"

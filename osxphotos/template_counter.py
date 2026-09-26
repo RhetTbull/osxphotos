@@ -110,6 +110,5 @@ def reset_all_counters():
 
 def reset_counter(field: str):
     """Reset counter to 0"""
-    global _counter_state
     if field in _counter_state:
         _counter_state[field].count = _counter_state[field].settings.start

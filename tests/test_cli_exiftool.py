@@ -117,7 +117,8 @@ def test_export_exiftool_album_keyword():
             ],
         )
         assert result.exit_code == 0
-        report = json.load(open("exiftool.json", "r"))
+        with open("exiftool.json") as fp:
+            report = json.load(fp)
         assert len(report) == 3
 
         # verify exiftool metadata was updated
@@ -185,7 +186,8 @@ def test_export_exiftool_keyword_template():
         )
         assert result.exit_code == 0
 
-        report = json.load(open("exiftool.json", "r"))
+        with open("exiftool.json") as fp:
+            report = json.load(fp)
         for file in report:
             exif = ExifTool(file["filename"]).asdict()
             assert "FOO" in exif["IPTC:Keywords"]

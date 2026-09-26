@@ -812,8 +812,8 @@ class PhotoTemplate:
         # allow %% to escape %, match variables in form %var
         variable_match = re.compile(r"(?:%%)*(%[\w]+)?")
         while True:
-            for value in values:
-                match = variable_match.search(value)
+            for current_value in values:
+                match = variable_match.search(current_value)
                 if not match or not match[1]:
                     break
                 var = match[1]

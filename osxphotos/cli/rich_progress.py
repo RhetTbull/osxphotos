@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.progress import GetTimeCallable, Progress, ProgressColumn, TaskID
 
 # set to 1 if running tests
-OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING", default=False))
+OSXPHOTOS_IS_TESTING = bool(os.getenv("OSXPHOTOS_IS_TESTING"))
 
 
 class MockTask:

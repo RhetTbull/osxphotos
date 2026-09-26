@@ -17,7 +17,7 @@ def test_tempdir():
     assert not tmp.exists()
 
 
-def test_tempdir():
+def test_tempdir_subdir():
     """Test tempdir() and cleanup() with subdir"""
     tmp = tempdir("foo")
     assert tmp.exists()

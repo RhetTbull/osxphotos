@@ -266,7 +266,7 @@ def test_sort_paths():
 
 
 def execute_grouping_test(
-    expected: tuple[tuple[str, ...], ...], input: tuple[str, ...] = None
+    expected: tuple[tuple[str, ...], ...], input: tuple[str, ...] | None = None
 ):
     expected_paths = [tuple(create_path_list(g)) for g in expected]
     if input:

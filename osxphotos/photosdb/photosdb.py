@@ -474,7 +474,7 @@ class PhotosDB:
     def keywords_as_dict(self):
         """Return keywords as dict of keyword: count in reverse sorted order (descending)"""
         keywords = {
-            k: len(self._dbkeywords_keyword[k]) for k in self._dbkeywords_keyword.keys()
+            k: len(self._dbkeywords_keyword[k]) for k in self._dbkeywords_keyword
         }
         keywords |= {k: 0 for k in self.keywords_without_photo}
         keywords = dict(sorted(keywords.items(), key=lambda kv: kv[1], reverse=True))
@@ -2982,8 +2982,10 @@ class PhotosDB:
             logger.debug(f"Caught _dbalbum_folders KeyError for album: {album_uuid}")
             return []
 
-        def _recurse_folder_hierarchy(folders, hierarchy=[]):
+        def _recurse_folder_hierarchy(folders, hierarchy=None):
             """Recursively walk the folders dict to build list of folder hierarchy"""
+            if hierarchy is None:
+                hierarchy = []
             if not folders:
                 # empty folder dict (album has no folder hierarchy)
                 return []
@@ -3019,8 +3021,10 @@ class PhotosDB:
             logger.debug(f"Caught _dbalbum_folders KeyError for album: {album_uuid}")
             return []
 
-        def _recurse_folder_hierarchy(folders, hierarchy=[]):
+        def _recurse_folder_hierarchy(folders, hierarchy=None):
             """Recursively walk the folders dict to build list of folder hierarchy"""
+            if hierarchy is None:
+                hierarchy = []
 
             if not folders:
                 # empty folder dict (album has no folder hierarchy)
@@ -3058,8 +3062,10 @@ class PhotosDB:
         # title = photosdb._dbalbum_details[album_uuid]["title"]
         folders = self._dbalbum_folders[album_uuid]
 
-        def _recurse_folder_hierarchy(folders, hierarchy=[]):
+        def _recurse_folder_hierarchy(folders, hierarchy=None):
             """Recursively walk the folders dict to build list of folder hierarchy"""
+            if hierarchy is None:
+                hierarchy = []
             if not folders:
                 # empty folder dict (album has no folder hierarchy)
                 return []
@@ -3089,8 +3095,10 @@ class PhotosDB:
         # title = photosdb._dbalbum_details[album_uuid]["title"]
         folders = self._dbalbum_folders[album_uuid]
 
-        def _recurse_folder_hierarchy(folders, hierarchy=[]):
+        def _recurse_folder_hierarchy(folders, hierarchy=None):
             """Recursively walk the folders dict to build list of folder hierarchy"""
+            if hierarchy is None:
+                hierarchy = []
 
             if not folders:
                 # empty folder dict (album has no folder hierarchy)

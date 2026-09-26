@@ -135,10 +135,7 @@ def test_cli_push_exif_basic(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -163,10 +160,7 @@ def test_cli_push_exif_dry_run(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -193,10 +187,7 @@ def test_cli_push_exif_exiftool_option(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -224,10 +215,7 @@ def test_cli_push_exif_exiftool_merge_keywords(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
 
@@ -265,10 +253,7 @@ def test_cli_push_exif_exiftool_merge_persons(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
 
@@ -306,10 +291,7 @@ def test_cli_push_exif_report_csv(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -325,7 +307,8 @@ def test_cli_push_exif_report_csv(monkeypatch):
             ],
         )
         assert result.exit_code == 0
-        report_data = list(csv.DictReader(open("report.csv")))
+        with open("report.csv", newline="") as fp:
+            report_data = list(csv.DictReader(fp))
         assert len(report_data) == 17
         missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
         assert missing["missing"] == "original"
@@ -337,10 +320,7 @@ def test_cli_push_exif_report_csv_append(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -357,7 +337,8 @@ def test_cli_push_exif_report_csv_append(monkeypatch):
             ],
         )
         assert result.exit_code == 0
-        report_data = list(csv.DictReader(open("report.csv")))
+        with open("report.csv", newline="") as fp:
+            report_data = list(csv.DictReader(fp))
         assert len(report_data) == 17
         missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
         assert missing["missing"] == "original"
@@ -369,10 +350,7 @@ def test_cli_push_exif_report_json(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -401,10 +379,7 @@ def test_cli_push_exif_report_sqlite(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -434,10 +409,7 @@ def test_cli_push_exif_favorite_rating(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -472,10 +444,7 @@ def test_cli_push_exif_ignore_date_modified(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -504,10 +473,7 @@ def test_cli_push_exif_person_keyword_album_keyword(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -537,10 +503,7 @@ def test_cli_push_exif_keyword_description_template(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -575,10 +538,7 @@ def test_cli_push_exif_replace_keywords(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
         result = runner.invoke(
@@ -616,10 +576,7 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
 
@@ -1026,10 +983,7 @@ def test_cli_push_exif_live_photo(monkeypatch):
     with runner.isolated_filesystem():
         cwd = pathlib.Path(os.getcwd())
 
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: cwd)
-        else:
-            monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
         test_library = copy_photos_library_live_photo(
             os.path.join(cwd, "Test.photoslibrary")

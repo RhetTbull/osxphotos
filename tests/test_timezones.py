@@ -109,7 +109,7 @@ def test_convert_offset_timezone_to_etc_valid_etc_matches(input_str, expected):
         "GMT+5",  # not HHMM
         "GMT++0800",  # invalid format
         "GMT-9999",  # invalid offset
-        "GMT+0530"  # partial hour not handled
+        "GMT+0530",  # partial hour not handled
         "GMT-0530",  # partial hour not handled
     ],
 )

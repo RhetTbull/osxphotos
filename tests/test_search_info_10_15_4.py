@@ -19,7 +19,7 @@ LABELS_DICT = {
     "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068": [],
     # A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C Pumpkins4.jpg Pumpkin heads None [] True
     "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C": [],
-    # 3DD2C897-F19E-4CA6-8C22-B027D5A71907 IMG_4547.jpg Elder Park ⁨Elder Park⁩, ⁨Adelaide⁩, ⁨Australia⁩ ['Statue', 'Art'] False
+    # 3DD2C897-F19E-4CA6-8C22-B027D5A71907 IMG_4547.jpg Elder Park \u2068Elder Park\u2069, \u2068Adelaide\u2069, \u2068Australia\u2069 ['Statue', 'Art'] False
     "3DD2C897-F19E-4CA6-8C22-B027D5A71907": ["Statue", "Art"],
     # 8E1D7BC9-9321-44F9-8CFB-4083F6B9232A IMG_2000.JPG None RAW + JPEG, Not copied to library [] False
     "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A": [],
@@ -78,7 +78,7 @@ LABELS_NORMALIZED_DICT = {
     "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068": [],
     # 8E1D7BC9-9321-44F9-8CFB-4083F6B9232A IMG_2000.JPG None RAW + JPEG, Not copied to library [] False
     "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A": [],
-    # 3DD2C897-F19E-4CA6-8C22-B027D5A71907 IMG_4547.jpg Elder Park ⁨Elder Park⁩, ⁨Adelaide⁩, ⁨Australia⁩ ['statue', 'art'] False
+    # 3DD2C897-F19E-4CA6-8C22-B027D5A71907 IMG_4547.jpg Elder Park \u2068Elder Park\u2069, \u2068Adelaide\u2069, \u2068Australia\u2069 ['statue', 'art'] False
     "3DD2C897-F19E-4CA6-8C22-B027D5A71907": ["statue", "art"],
     # 6191423D-8DB8-4D4C-92BE-9BBBA308AAC4 Tulips.jpg Tulips tied together at a flower shop Wedding tulips ['flower', 'vase', 'bouquet', 'container', 'art', 'flower arrangement', 'plant'] False
     "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4": [

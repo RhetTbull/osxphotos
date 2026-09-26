@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 import pytest
 from click.testing import CliRunner
 
@@ -29,7 +31,7 @@ def test_batch_edit_accepts_library_option_and_passes_it_to_processing(
         uuid = "FAKE-UUID"
         date = None
         original_filename = "fake.jpg"
-        keywords = []
+        keywords: ClassVar[list[str]] = []
 
         def json(self):
             return "{}"

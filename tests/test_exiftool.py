@@ -548,7 +548,7 @@ def test_exiftool_terminate():
     # Use pgrep to find actual exiftool processes (more reliable than ps)
     try:
         ps = subprocess.run(
-            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True
+            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True, check=False
         )
         exiftool_processes_before = (
             ps.stdout.decode("utf-8").strip().split("\n") if ps.stdout.strip() else []
@@ -560,7 +560,7 @@ def test_exiftool_terminate():
         )
     except FileNotFoundError:
         # Fallback to ps if pgrep is not available
-        ps = subprocess.run(["ps", "ax"], capture_output=True)
+        ps = subprocess.run(["ps", "ax"], capture_output=True, check=False)
         stdout = ps.stdout.decode("utf-8")
         # Look for actual exiftool binary processes, not just command lines containing "exiftool"
         exiftool_lines = [
@@ -575,7 +575,7 @@ def test_exiftool_terminate():
     # Check that exiftool processes are terminated
     try:
         ps = subprocess.run(
-            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True
+            ["pgrep", "-f", "exiftool.*-stay_open"], capture_output=True, check=False
         )
         exiftool_processes_after = (
             ps.stdout.decode("utf-8").strip().split("\n") if ps.stdout.strip() else []
@@ -587,7 +587,7 @@ def test_exiftool_terminate():
         )
     except FileNotFoundError:
         # Fallback to ps if pgrep is not available
-        ps = subprocess.run(["ps", "ax"], capture_output=True)
+        ps = subprocess.run(["ps", "ax"], capture_output=True, check=False)
         stdout = ps.stdout.decode("utf-8")
         # Look for actual exiftool binary processes, not just command lines containing "exiftool"
         exiftool_lines = [

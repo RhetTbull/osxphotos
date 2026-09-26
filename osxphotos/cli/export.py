@@ -140,8 +140,8 @@ if TYPE_CHECKING:
     from .cli import CLI_Obj
 
 # TTL for for DirectoryStatCache
-STAT_CACHE_TTL_SECONDS = os.environ.get(
-    "OSXPHOTOS_STAT_CACHE_TTL_SECONDS", 60 * 60 * 10
+STAT_CACHE_TTL_SECONDS = int(
+    os.environ.get("OSXPHOTOS_STAT_CACHE_TTL_SECONDS", str(60 * 60 * 10))
 )
 
 
@@ -3595,7 +3595,9 @@ def run_post_command(
                     run_error = None
                     run_results = None
                     try:
-                        run_results = subprocess.run(command, shell=True, cwd=cwd)
+                        run_results = subprocess.run(
+                            command, shell=True, cwd=cwd, check=False
+                        )
                     except Exception as e:
                         run_error = e
 
@@ -3677,7 +3679,9 @@ def run_cleanup_command(
                     run_error = None
                     run_results = None
                     try:
-                        run_results = subprocess.run(command, shell=True, cwd=cwd)
+                        run_results = subprocess.run(
+                            command, shell=True, cwd=cwd, check=False
+                        )
                     except Exception as e:
                         run_error = e
 

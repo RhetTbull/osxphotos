@@ -107,8 +107,8 @@ def test_exifwriter_single(photosdb: PhotosDB, tmp_path: pathlib.Path, field: st
         # sourcery skip: no-conditionals-in-tests
         if exif_field == field:
             continue
-        for exif_field in METADATA_FIELDS[exif_field]["fields"]:
-            assert exif_field not in exif_data
+        for tag in METADATA_FIELDS[exif_field]["fields"]:
+            assert tag not in exif_data
 
 
 def test_exifwriter_favorite(photosdb: PhotosDB, tmp_path: pathlib.Path):

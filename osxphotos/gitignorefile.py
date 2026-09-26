@@ -16,7 +16,7 @@ DEFAULT_IGNORE_NAMES = [".gitignore", ".git/info/exclude"]
 
 
 def parse_pattern_list(
-    patterns: list[str], base_path: str = None
+    patterns: list[str], base_path: str | None = None
 ) -> Callable[[str], bool]:
     """Parse a list of patterns and return a callable to match against a path.
 

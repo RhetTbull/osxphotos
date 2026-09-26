@@ -16,11 +16,11 @@ from .darkmode import is_dark_mode
 DEFAULT_THEME_NAME = "default"
 
 __all__ = [
+    "DEFAULT_THEME_NAME",
     "get_default_theme",
     "get_theme",
     "get_theme_dir",
     "get_theme_manager",
-    DEFAULT_THEME_NAME,
 ]
 
 

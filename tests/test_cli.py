@@ -594,10 +594,12 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_KEYWORD_PATHSEP = _normalize_fs_paths(
 )
 
 CLI_EXPORTED_FILENAME_TEMPLATE_LONG_DESCRIPTION = [
-    "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo"
-    " ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis "
-    "dis parturient montes, nascetu. Donec quam felis, ultricies nec, "
-    "pellentesque eu, pretium q.tif"
+    (
+        "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo"
+        " ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis "
+        "dis parturient montes, nascetu. Donec quam felis, ultricies nec, "
+        "pellentesque eu, pretium q.tif"
+    )
 ]
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg
@@ -1369,7 +1371,7 @@ def test_query_uuid_from_file_stdin():
 
     runner = CliRunner()
     cwd = os.getcwd()
-    input_text = open(UUID_FILE, "r").read()
+    input_text = pathlib.Path(UUID_FILE).read_text()
     result = runner.invoke(
         query,
         [
@@ -4253,13 +4255,17 @@ def test_export_sidecar_favorite_rating():
             assert json_sidecar[0]["XMP:Rating"] == 0
 
         results = subprocess.run(
-            ["grep", "xmp:Rating", f"{FILE_FAVORITE}.xmp"], capture_output=True
+            ["grep", "xmp:Rating", f"{FILE_FAVORITE}.xmp"],
+            capture_output=True,
+            check=False,
         )
         results_stdout = results.stdout.decode("utf-8")
         assert "<xmp:Rating>5</xmp:Rating>" in results_stdout
 
         results = subprocess.run(
-            ["grep", "xmp:Rating", f"{FILE_NOT_FAVORITE}.xmp"], capture_output=True
+            ["grep", "xmp:Rating", f"{FILE_NOT_FAVORITE}.xmp"],
+            capture_output=True,
+            check=False,
         )
         results_stdout = results.stdout.decode("utf-8")
         assert "<xmp:Rating>0</xmp:Rating>" in results_stdout
@@ -10868,7 +10874,6 @@ def test_theme_list():
     """Test theme --list command"""
 
     runner = CliRunner()
-    temp_file = tempfile.TemporaryFile()
     with runner.isolated_filesystem():
         result = runner.invoke(cli_main, ["theme", "--list"])
         assert result.exit_code == 0

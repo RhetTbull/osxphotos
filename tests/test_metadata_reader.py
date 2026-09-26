@@ -136,7 +136,10 @@ def test_metadata_from_sidecar_google_supplemental():
     """Test metadata_from_sidecar with older Takeout sidecar missing geoDataExif (#2228)"""
     metadata = metadata_from_sidecar(TEST_SIDECAR_GOOGLE_SUPPLEMENTAL, None)
     assert metadata.title == "IMG_4547.jpg"
-    assert metadata.description == "⁨Elder Park⁩, ⁨Adelaide⁩, ⁨Australia⁩"
+    assert (
+        metadata.description
+        == "\u2068Elder Park\u2069, \u2068Adelaide\u2069, \u2068Australia\u2069"
+    )
     assert metadata.location == (
         pytest.approx(-34.9188917),
         pytest.approx(138.5968611),

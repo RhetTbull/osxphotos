@@ -286,7 +286,10 @@ lint.ignore = [
     "RUF015", # next(iter(x)) vs list(x)[0]: the fix changes IndexError to StopIteration
     "RUF059", # unused unpacked variable: same as F841
     "SIM102", # collapsible-if: nested ifs are often clearer
+    "SIM117", # combine nested with statements: nested is often clearer (e.g. pytest.raises)
     "PYI034", # return typing.Self from __iadd__ etc.: Self requires Python 3.11+
+    "TRY002", # raise vanilla Exception: changing the type could break callers' except clauses
+    "TRY004", # TypeError for type checks: changing ValueError would break callers' except clauses
 ]
 
 exclude = [
@@ -305,3 +308,8 @@ exclude = [
 "tests/**" = [
     "B017",   # pytest.raises(Exception) is used deliberately in tests
 ]
+# report writers keep their output file open for the writer's lifetime
+"osxphotos/cli/report_writer.py" = ["SIM115"]
+# closures defined in a loop are only called within that loop iteration
+"tests/test_fileutil.py" = ["B023"]
+"tests/test_gitignorefile_cache.py" = ["B023"]

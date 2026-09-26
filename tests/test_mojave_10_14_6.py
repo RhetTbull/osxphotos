@@ -447,8 +447,8 @@ def test_path_derivatives(photosdb):
         "/resources/proxies/derivatives/00/00/1/Y6OofYkbR96spbS6XgwOQw_thumb_1.jpg",
         "/resources/proxies/derivatives/00/00/1/Y6OofYkbR96spbS6XgwOQw_mini_1.jpg",
     ]
-    for i, p in enumerate(p.path_derivatives):
-        assert p.endswith(derivs[i])
+    for i, path in enumerate(p.path_derivatives):
+        assert path.endswith(derivs[i])
 
 
 def test_path_edited2(photosdb):

@@ -202,12 +202,7 @@ LIVE_PHOTO_ORIGINAL_AAE_FILENAMES = [
 def xdg_patch(monkeypatch):
     """Patch XDG_CONFIG_HOME to point to temporary directory"""
     with TemporaryDirectory() as tmpdir:
-        if sys.version_info[0:2] <= (3, 9):
-            monkeypatch.setattr("xdg.xdg_data_home", lambda: pathlib.Path(tmpdir))
-        else:
-            monkeypatch.setattr(
-                "xdg_base_dirs.xdg_data_home", lambda: pathlib.Path(tmpdir)
-            )
+        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: pathlib.Path(tmpdir))
         yield
 
 

@@ -521,13 +521,9 @@ class PhotoAsset:
         return imagedata.orientation
 
     @property
-    def degraded(self, version=PHOTOS_VERSION_CURRENT):
-        """Return True if asset is degraded version
-
-        Args:
-            version: which version of image (PHOTOS_VERSION_ORIGINAL or PHOTOS_VERSION_CURRENT)
-        """
-        imagedata = self._request_image_data(version=version)
+    def degraded(self):
+        """Return True if asset is degraded version (current version of image)"""
+        imagedata = self._request_image_data(version=PHOTOS_VERSION_CURRENT)
         return imagedata.info["PHImageResultIsDegradedKey"]
 
     def export(
@@ -784,7 +780,7 @@ class SlowMoVideoExporter(NSObject):
             avasset: AVAsset
             path: python str; path to export to
         """
-        self = objc.super(SlowMoVideoExporter, self).init()
+        self = objc.super(SlowMoVideoExporter, self).init()  # noqa: PLW0642 PyObjC init idiom
         if self is None:
             return None
         self.avasset = avasset
@@ -1025,7 +1021,7 @@ class LivePhotoRequest(NSObject):
     """
 
     def initWithManager_Asset_(self, manager, asset):
-        self = objc.super(LivePhotoRequest, self).init()
+        self = objc.super(LivePhotoRequest, self).init()  # noqa: PLW0642 PyObjC init idiom
         if self is None:
             return None
         self.manager = manager
