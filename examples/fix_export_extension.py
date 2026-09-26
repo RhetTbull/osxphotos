@@ -1,7 +1,7 @@
 """Example function for use with osxphotos export --post-function option"""
 
 import pathlib
-from typing import Callable
+from collections.abc import Callable
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.exiftool import ExifTool

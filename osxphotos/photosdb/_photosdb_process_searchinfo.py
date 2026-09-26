@@ -164,7 +164,7 @@ def _process_searchinfo(self):
             _db_searchinfo_labels,
             _db_searchinfo_labels_normalized,
         )
-        return None
+        return
 
     if leo_db_path.exists() and leo_db_path.stat().st_size:
         _process_leo_searchinfo(
@@ -175,10 +175,10 @@ def _process_searchinfo(self):
             _db_searchinfo_labels,
             _db_searchinfo_labels_normalized,
         )
-        return None
+        return
 
     logger.warning(f"could not find search db: {psi_db_path} or {leo_db_path}")
-    return None
+    return
 
 
 def _process_psi_searchinfo(

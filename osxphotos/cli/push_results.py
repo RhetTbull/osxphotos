@@ -24,12 +24,12 @@ class PushResults:
 
     __slots__ = [
         "_datetime",
-        "written",
-        "updated",
-        "skipped",
-        "missing",
         "error",
+        "missing",
+        "skipped",
+        "updated",
         "warning",
+        "written",
     ]
 
     def __init__(

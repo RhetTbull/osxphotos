@@ -227,7 +227,7 @@ def get_theme_manager() -> ThemeManager:
 
 
 def get_theme(
-    theme_name: Optional[str] = None,
+    theme_name: str | None = None,
 ):
     """Get theme by name, or default theme if no name is provided"""
 

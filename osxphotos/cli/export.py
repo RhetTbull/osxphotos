@@ -13,11 +13,10 @@ import signal
 import subprocess
 import sys
 import time
+from collections.abc import Callable, Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Iterable,
     List,
     Literal,
     Optional,
@@ -3234,7 +3233,7 @@ def find_first_file_in_branch(pathname, filename):
 
 def collect_files_to_keep(
     keep: Iterable[str], export_dir: str
-) -> Tuple[List[str], List[str]]:
+) -> tuple[list[str], list[str]]:
     """Collect all files to keep for --keep/--cleanup.
 
     Args:
@@ -3732,7 +3731,7 @@ def render_and_validate_report(report: str, exiftool_path: str, export_dir: str)
     return report
 
 
-def get_metadata_attribute_type(attr: str) -> Optional[str]:
+def get_metadata_attribute_type(attr: str) -> str | None:
     """Get the type of a metadata attribute
 
     Args:

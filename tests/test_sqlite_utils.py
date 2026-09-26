@@ -7,7 +7,7 @@ import tempfile
 
 import pytest
 
-import osxphotos.sqlite_utils as sqlite_utils
+from osxphotos import sqlite_utils
 from osxphotos.sqlite_utils import (
     sqlite_db_is_locked,
     sqlite_open_ro,

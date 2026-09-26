@@ -3,7 +3,7 @@
 import pytest
 
 import osxphotos.phototemplate
-import osxphotos.template_counter as template_counter
+from osxphotos import template_counter
 
 PHOTOSDB = "tests/Test-13.0.0.photoslibrary"
 

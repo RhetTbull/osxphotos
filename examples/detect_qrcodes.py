@@ -29,7 +29,7 @@ from osxphotos.sqlitekvstore import SQLiteKVStore
 QRCODE_KEYWORD = "qrcode"
 
 
-def detect_qrcodes_in_image(filepath: str) -> List[str]:
+def detect_qrcodes_in_image(filepath: str) -> list[str]:
     """Detect QR Codes in images using CIDetector and return text of the found QR Codes"""
     with objc.autorelease_pool():
         context = Quartz.CIContext.contextWithOptions_(None)

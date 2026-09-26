@@ -7,7 +7,8 @@
 import datetime
 import pathlib
 import sqlite3
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional, Tuple
 
 from photoscript import Photo
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -38,7 +39,7 @@ class PhotoTimeZone:
 
     def __init__(
         self,
-        library_path: Optional[str] = None,
+        library_path: str | None = None,
     ):
         # get_last_library_path() returns the path to the last Photos library
         # opened but sometimes (rarely) fails on some systems
@@ -60,7 +61,7 @@ class PhotoTimeZone:
         wait=wait_exponential(multiplier=1, min=0.100, max=5),
         stop=stop_after_attempt(10),
     )
-    def get_timezone(self, photo: Photo) -> Tuple[int, str, str]:
+    def get_timezone(self, photo: Photo) -> tuple[int, str, str]:
         """Return (timezone_seconds, timezone_str, timezone_name) of photo"""
         # Use retry decorator to retry if database is locked
         uuid = photo.uuid
@@ -90,8 +91,8 @@ class PhotoTimeZoneUpdater:
     def __init__(
         self,
         timezone: Timezone,
-        verbose: Optional[Callable] = None,
-        library_path: Optional[str] = None,
+        verbose: Callable | None = None,
+        library_path: str | None = None,
     ):
         self.timezone = timezone
         self.tz_offset = timezone.offset

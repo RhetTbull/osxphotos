@@ -16,12 +16,12 @@ import re
 import sqlite3
 import sys
 import tempfile
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from contextlib import suppress
 from functools import cached_property
 from os import PathLike
 from textwrap import dedent
-from typing import TYPE_CHECKING, Callable, Tuple
+from typing import TYPE_CHECKING, Tuple
 
 import click
 from rich.console import Console
@@ -55,7 +55,7 @@ except ImportError:
 
 from photoscript import Photo, PhotosLibrary
 
-import osxphotos.sqlite3_datetime as sqlite3_datetime
+from osxphotos import sqlite3_datetime
 from osxphotos._constants import (
     DEFAULT_EDITED_SUFFIX,
     OSXPHOTOS_EXPORT_DB,
@@ -1909,7 +1909,7 @@ def set_photo_keywords(
 def set_photo_location(
     photo: Photo | None,
     filepath: pathlib.Path,
-    location: Tuple[float, float],
+    location: tuple[float, float],
     verbose: Callable[..., None],
     dry_run: bool,
 ) -> tuple[float, float]:
@@ -2296,12 +2296,12 @@ class ReportRecord:
     duplicate_of: str = ""  # UUID of duplicate photo in library when skipped
 
     @classmethod
-    def serialize(cls, record: "ReportRecord") -> str:
+    def serialize(cls, record: ReportRecord) -> str:
         """Serialize class instance to JSON"""
         return json.dumps(record.asjsondict())
 
     @classmethod
-    def deserialize(cls, json_string: str) -> "ReportRecord":
+    def deserialize(cls, json_string: str) -> ReportRecord:
         """Deserialize class from JSON"""
         dict_data = json.loads(json_string)
         dict_data["filepath"] = pathlib.Path(dict_data["filepath"])

@@ -29,7 +29,7 @@ else:
     vision = True
 
 
-def detect_text(img_path: str, orientation: Optional[int] = None) -> List:
+def detect_text(img_path: str, orientation: int | None = None) -> list:
     """process image at img_path with VNRecognizeTextRequest and return list of results
 
     Args:

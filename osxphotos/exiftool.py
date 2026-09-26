@@ -26,10 +26,10 @@ from typing import Any
 logger = logging.getLogger("osxphotos")
 
 __all__ = [
-    "escape_str",
-    "exiftool_can_write",
     "ExifTool",
     "ExifToolCaching",
+    "escape_str",
+    "exiftool_can_write",
     "get_exiftool_path",
     "terminate_exiftool",
     "unescape_str",

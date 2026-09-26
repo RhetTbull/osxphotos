@@ -21,8 +21,8 @@ from osxphotos.phototemplate import RenderOptions
 
 
 def size_tag(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """Example showing how to use a custom function for osxphotos {function} template
 
         This function returns a size tag based on the size of the photo

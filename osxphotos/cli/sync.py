@@ -7,7 +7,8 @@ import json
 import os
 import pathlib
 import time
-from typing import Any, Callable, Literal
+from collections.abc import Callable
+from typing import Any, Literal
 
 import click
 from photoscript import Photo

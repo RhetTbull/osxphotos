@@ -15,8 +15,8 @@ from osxphotos.phototemplate import RenderOptions
 
 
 def original(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[list[str], str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list[str] | str:
     """returns expected path for original photo or None if path cannot be determined
 
     Args:
@@ -50,8 +50,8 @@ def original(
 
 
 def edited(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[list[str], str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list[str] | str:
     """returns expected path for edited photo or None if path cannot be determined
 
     Args:

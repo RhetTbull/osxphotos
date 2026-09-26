@@ -8,9 +8,10 @@ import pathlib
 import re
 import shlex
 import sys
+from collections.abc import Iterable
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 from textx import TextXSyntaxError, metamodel_from_file
 
@@ -35,12 +36,12 @@ if TYPE_CHECKING:
 logger = logging.getLogger("osxphotos")
 
 __all__ = [
-    "RenderOptions",
-    "PhotoTemplateParser",
     "PhotoTemplate",
-    "parse_default_kv",
-    "get_template_help",
+    "PhotoTemplateParser",
+    "RenderOptions",
     "format_str_value",
+    "get_template_help",
+    "parse_default_kv",
 ]
 
 # TODO: a lot of values are passed from function to function like path_sep--make these all class properties
@@ -385,16 +386,16 @@ class RenderOptions:
     """
 
     none_str: str = "_"
-    path_sep: Optional[str] = PATH_SEP_DEFAULT
+    path_sep: str | None = PATH_SEP_DEFAULT
     expand_inplace: bool = False
-    inplace_sep: Optional[str] = INPLACE_DEFAULT
+    inplace_sep: str | None = INPLACE_DEFAULT
     filename: bool = False
     dirname: bool = False
     strip: bool = False
     edited_version: bool = False
-    export_dir: Optional[str] = None
-    dest_path: Optional[str] = None
-    filepath: Optional[str] = None
+    export_dir: str | None = None
+    dest_path: str | None = None
+    filepath: str | None = None
     quote: bool = False
     caller: str = "export"
 
@@ -803,7 +804,7 @@ class PhotoTemplate:
             raise SyntaxError(f"{name} must have a single value, not {expanded}")
         return expanded[0]
 
-    def expand_variables(self, value: str) -> List[str]:
+    def expand_variables(self, value: str) -> list[str]:
         """Expand variables in value"""
         # replace any variables with their values
         values = [value]
@@ -838,10 +839,10 @@ class PhotoTemplate:
     def get_field_values(
         self,
         field: str,
-        subfield: Optional[str],
-        field_arg: Optional[str],
-        default: List[str],
-    ) -> Tuple[List[str], List[str]]:
+        subfield: str | None,
+        field_arg: str | None,
+        default: list[str],
+    ) -> tuple[list[str], list[str]]:
         """Get the values for a field"""
         vals = []
         unmatched = []
@@ -885,9 +886,9 @@ class PhotoTemplate:
     def get_template_value(
         self,
         field: str,
-        default: List[str],
-        subfield: Optional[str],
-        field_arg: Optional[str],
+        default: list[str],
+        subfield: str | None,
+        field_arg: str | None,
     ):
         """lookup value for template field (single-value template substitutions)
 
@@ -1042,7 +1043,7 @@ class PhotoTemplate:
 
         return [value]
 
-    def get_filter_values(self, filter_: str, values: List[str]) -> List[str]:
+    def get_filter_values(self, filter_: str, values: list[str]) -> list[str]:
         """Return filtered values"""
 
         # extract args, if any
@@ -1394,8 +1395,8 @@ class PhotoTemplate:
         return values or []
 
     def get_format_values(
-        self, field: str, subfield: str, default: List[str]
-    ) -> Optional[List[Optional[str]]]:
+        self, field: str, subfield: str, default: list[str]
+    ) -> list[str | None] | None:
         """Return values for {format} templates"""
 
         if field != "format":
@@ -1451,7 +1452,7 @@ class PhotoTemplate:
     def get_template_value_function(
         self,
         subfield: str,
-        field_arg: Optional[str],
+        field_arg: str | None,
         caller: str,
     ):
         """Get template value from external function
@@ -1721,7 +1722,7 @@ def create_slice(args):
     return slice(start, end, step)
 
 
-def values_to_int(values: List[str]) -> List[str]:
+def values_to_int(values: list[str]) -> list[str]:
     """Convert a list of strings to str representation of ints, if possible, otherwise strip values from list"""
     int_values = []
     for v in values:
@@ -1730,7 +1731,7 @@ def values_to_int(values: List[str]) -> List[str]:
     return int_values
 
 
-def values_to_float(values: List[str]) -> List[str]:
+def values_to_float(values: list[str]) -> list[str]:
     """Convert a list of strings to str representation of float, if possible, otherwise strip values from list"""
     float_values = []
     for v in values:
@@ -1739,7 +1740,7 @@ def values_to_float(values: List[str]) -> List[str]:
     return float_values
 
 
-def format_date_field(dt: datetime.datetime, field: str, args: List[str]) -> str:
+def format_date_field(dt: datetime.datetime, field: str, args: list[str]) -> str:
     """Format a date template field in format 'created', 'create.year' etc.
 
     Args:
@@ -1768,7 +1769,7 @@ def format_date_field(dt: datetime.datetime, field: str, args: List[str]) -> str
             raise ValueError(f"Unhandled template value: {field}") from e
 
 
-def get_place_value(photo: "PhotoInfo", field: str):  # noqa: F821
+def get_place_value(photo: "PhotoInfo", field: str):
     """Get the value of a 'place' field by attribute
 
     Args:

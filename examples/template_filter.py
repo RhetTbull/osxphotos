@@ -11,7 +11,7 @@ as well as single-value templates like {original_name}
 from typing import List
 
 
-def myfilter(values: List[str]) -> List[str]:
+def myfilter(values: list[str]) -> list[str]:
     """Custom filter to append "foo-" to template value"""
     values = ["foo-" + val for val in values]
     return values

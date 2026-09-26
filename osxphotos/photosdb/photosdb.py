@@ -81,8 +81,6 @@ __all__ = ["PhotosDB", "PhotosDBReadError"]
 class PhotosDBReadError(Exception):
     """Generic error when reading the Photos database"""
 
-    pass
-
 
 class PhotosDB:
     """Processes a Photos.app library database to extract information about photos"""
@@ -737,7 +735,7 @@ class PhotosDB:
             if os.path.exists(f"{fname}-shm"):
                 FileUtil.copy(f"{fname}-shm", f"{dest_path}-shm")
         except Exception as e:
-            raise IOError(f"Error copying{fname} to {dest_path}") from e
+            raise OSError(f"Error copying{fname} to {dest_path}") from e
 
         logger.debug(dest_path)
 
@@ -3226,16 +3224,16 @@ class PhotosDB:
 
     def photos(
         self,
-        keywords: Optional[List[str]] = None,
-        uuid: Optional[List[str]] = None,
-        persons: Optional[List[str]] = None,
-        albums: Optional[List[str]] = None,
+        keywords: list[str] | None = None,
+        uuid: list[str] | None = None,
+        persons: list[str] | None = None,
+        albums: list[str] | None = None,
         images: bool = True,
         movies: bool = True,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None,
         intrash: bool = False,
-    ) -> List[PhotoInfo]:
+    ) -> list[PhotoInfo]:
         """Return a list of PhotoInfo objects
         If called with no args, returns the entire database of photos
         If called with args, returns photos matching the args (e.g. keywords, persons, etc.)

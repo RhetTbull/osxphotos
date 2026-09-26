@@ -18,10 +18,10 @@ from osxphotos.unicode import normalize_unicode
 from ._constants import MAX_DIRNAME_LEN, MAX_FILENAME_LEN
 
 __all__ = [
-    "sanitize_filepath",
     "is_valid_filepath",
-    "sanitize_filename",
     "sanitize_dirname",
+    "sanitize_filename",
+    "sanitize_filepath",
     "sanitize_pathpart",
 ]
 

@@ -142,7 +142,7 @@ def orphans(ctx, cli_obj, export, db, verbose_flag, timestamp, theme):
         )
 
 
-def scan_for_files(directory: str, uuid_dict: Dict):
+def scan_for_files(directory: str, uuid_dict: dict):
     """Walk a directory path finding any files named with UUID in the filename and add to uuid_dict
 
     Note: modifies uuid_dict

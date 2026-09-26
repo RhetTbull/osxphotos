@@ -8,7 +8,8 @@ import json
 import os
 import pathlib
 import sqlite3
-from typing import Any, Callable, Optional, Tuple, Union
+from collections.abc import Callable
+from typing import Any, Optional, Tuple, Union
 
 import tenacity
 import toml
@@ -55,7 +56,7 @@ def isotime_from_ts(ts: int) -> str:
 
 def export_db_get_version(
     dbfile: str | os.PathLike,
-) -> Tuple[Optional[int], Optional[int]]:
+) -> tuple[int | None, int | None]:
     """returns version from export database as tuple of (osxphotos version, export_db version)"""
     conn = sqlite3.connect(str(dbfile), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
@@ -89,7 +90,7 @@ def export_db_update_signatures(
     export_dir: str | os.PathLike,
     verbose_: Callable = noop,
     dry_run: bool = False,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """Update signatures for all files found in the export database to match what's on disk
 
     Returns: tuple of (updated, skipped)
@@ -129,7 +130,7 @@ def export_db_update_signatures(
 
 def export_db_get_runs(
     export_db: str | os.PathLike,
-) -> list[Tuple[str, str, str]]:
+) -> list[tuple[str, str, str]]:
     """Get last run from export database"""
     conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
@@ -142,7 +143,7 @@ def export_db_get_runs(
 
 def export_db_get_last_run(
     export_db: str | os.PathLike,
-) -> Tuple[Optional[str], Optional[str]]:
+) -> tuple[str | None, str | None]:
     """Get last run from export database"""
     conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
@@ -155,7 +156,7 @@ def export_db_get_last_run(
 
 def export_db_get_errors(
     export_db: str | os.PathLike,
-) -> Tuple[Optional[str], Optional[str]]:
+) -> tuple[str | None, str | None]:
     """Get errors from export database"""
     conn = sqlite3.connect(str(export_db), check_same_thread=SQLITE_CHECK_SAME_THREAD)
     c = conn.cursor()
@@ -207,7 +208,7 @@ def export_db_check_signatures(
     dbfile: str | os.PathLike,
     export_dir: str | os.PathLike,
     verbose_: Callable = noop,
-) -> Tuple[int, int, int]:
+) -> tuple[int, int, int]:
     """Check signatures for all files found in the export database to verify what matches the on disk files
 
     Returns: tuple of (updated, skipped)
@@ -251,7 +252,7 @@ def export_db_touch_files(
     export_dir: str | os.PathLike,
     verbose_: Callable = noop,
     dry_run: bool = False,
-) -> Tuple[int, int, int]:
+) -> tuple[int, int, int]:
     """Touch files on disk to match the Photos library created date
 
     Returns: tuple of (touched, not_touched, skipped)
@@ -450,7 +451,7 @@ def _export_db_update_uuid_info(
 
 def export_db_update_uuid(
     conn: sqlite3.Connection, uuid: str, new_uuid: str
-) -> Tuple[bool, str]:
+) -> tuple[bool, str]:
     """Update the UUID in the export database
 
     Args:

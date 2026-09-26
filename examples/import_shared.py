@@ -11,7 +11,7 @@ run `osxphotos run import_shared.py`
 from __future__ import annotations
 
 import tempfile
-from typing import Callable
+from collections.abc import Callable
 
 import click
 import photoscript

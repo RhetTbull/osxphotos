@@ -33,7 +33,7 @@ class _Console:
     """Store console object for rich output"""
 
     def __init__(self):
-        self._console: t.Optional[Console] = None
+        self._console: Console | None = None
 
     @property
     def console(self):
@@ -76,7 +76,7 @@ def set_rich_theme(theme: Theme) -> None:
     _theme = theme
 
 
-def get_rich_theme() -> t.Optional[Theme]:
+def get_rich_theme() -> Theme | None:
     """Get the theme to use for rich_click_echo"""
     global _theme
     return _theme
@@ -89,7 +89,7 @@ def set_rich_timestamp(timestamp: bool) -> None:
 
 
 def rich_echo(
-    message: t.Optional[t.Any] = None,
+    message: t.Any | None = None,
     theme=None,
     markdown=False,
     highlight=False,
@@ -132,7 +132,7 @@ def rich_echo(
 
 
 def rich_echo_error(
-    message: t.Optional[t.Any] = None,
+    message: t.Any | None = None,
     theme=None,
     markdown=False,
     highlight=False,
@@ -168,7 +168,7 @@ def rich_echo_error(
 
 
 def rich_click_echo(
-    message: t.Optional[t.Any] = None,
+    message: t.Any | None = None,
     theme=None,
     markdown=False,
     highlight=False,
@@ -221,8 +221,8 @@ def rich_click_echo(
 
 
 def rich_echo_via_pager(
-    text_or_generator: t.Union[t.Iterable[str], t.Callable[[], t.Iterable[str]], str],
-    theme: t.Optional[Theme] = None,
+    text_or_generator: t.Iterable[str] | t.Callable[[], t.Iterable[str]] | str,
+    theme: Theme | None = None,
     highlight=False,
     markdown: bool = False,
     **kwargs,

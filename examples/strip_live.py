@@ -16,7 +16,7 @@ DEFAULT_DELETE_ALBUM = "Live Photos to Delete"
 DEFAULT_NEW_ALBUM = "Imported Live Photos"
 
 
-def rename_photos(photo_paths: List[str]) -> List[str]:
+def rename_photos(photo_paths: list[str]) -> list[str]:
     """Given a list of photo paths, rename the photos so names don't clash as duplicated on re-import"""
     # use perf_counter_ns as a simple unique ID to ensure each photo has a different name
     new_paths = []
@@ -28,7 +28,7 @@ def rename_photos(photo_paths: List[str]) -> List[str]:
     return new_paths
 
 
-def set_metadata_from_photo(source_photo: PhotoInfo, dest_photos: List[Photo]):
+def set_metadata_from_photo(source_photo: PhotoInfo, dest_photos: list[Photo]):
     """Set metadata (keywords, albums, title, description, favorite) for dest_photos from source_photo"""
     title = source_photo.title
     description = source_photo.description

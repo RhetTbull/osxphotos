@@ -41,8 +41,9 @@ import logging
 import os
 import pathlib
 import sqlite3
+from collections.abc import Callable
 from functools import cached_property
-from typing import Any, Callable, get_type_hints
+from typing import Any, get_type_hints
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -2498,8 +2499,6 @@ class iPhotoEventInfo:
 
 class iPhotoMomentInfo(iPhotoEventInfo):
     """Info about a photo moment; iPhoto doesn't have moments but Events are close"""
-
-    ...
 
 
 @dataclasses.dataclass(frozen=True)

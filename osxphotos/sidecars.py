@@ -7,8 +7,9 @@ import json
 import logging
 import os
 import pathlib
+from collections.abc import Callable
 from functools import cache
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from mako.template import Template
 
@@ -47,15 +48,13 @@ logger = logging.getLogger("osxphotos")
 __all__ = [
     "SidecarWriter",
     "exiftool_json_sidecar",
-    "xmp_sidecar",
     "get_sidecar_file_with_template",
+    "xmp_sidecar",
 ]
 
 
 class UserSidecarError(Exception):
     """Generated if there's an error in user sidecar template so it can be handled by export CLI"""
-
-    pass
 
 
 @dataclasses.dataclass

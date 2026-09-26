@@ -276,6 +276,16 @@ lint.ignore = [
     "F541",   # f-string without placeholders
     "F822",   # undefined name in __all__
     "F841",   # local variable assigned but never used
+    # The rules below are in ruff's default rule set but conflict with patterns
+    # used intentionally in osxphotos.
+    "BLE001", # blind except: CLI and export code catch broad exceptions to report and continue
+    "S110",   # try-except-pass: best-effort operations, same rationale as BLE001
+    "S112",   # try-except-continue: best-effort operations, same rationale as BLE001
+    "DTZ",    # naive datetimes: Photos stores naive local times and osxphotos works with them by design
+    "PLC0206",# dict-index-missing-items: style only
+    "RUF015", # next(iter(x)) vs list(x)[0]: the fix changes IndexError to StopIteration
+    "RUF059", # unused unpacked variable: same as F841
+    "SIM102", # collapsible-if: nested ifs are often clearer
 ]
 
 exclude = [
@@ -290,3 +300,7 @@ exclude = [
     "__pycache__",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "B017",   # pytest.raises(Exception) is used deliberately in tests
+]

@@ -102,14 +102,14 @@ class QueryCommand(click.Command):
 
     def __init__(
         self,
-        name: t.Optional[str],
-        context_settings: t.Optional[t.Dict[str, t.Any]] = None,
-        callback: t.Optional[t.Callable[..., t.Any]] = None,
-        params: t.Optional[t.List[click.Parameter]] = None,
-        help: t.Optional[str] = None,
-        epilog: t.Optional[str] = None,
-        short_help: t.Optional[str] = None,
-        options_metavar: t.Optional[str] = "[OPTIONS]",
+        name: str | None,
+        context_settings: dict[str, t.Any] | None = None,
+        callback: t.Callable[..., t.Any] | None = None,
+        params: list[click.Parameter] | None = None,
+        help: str | None = None,
+        epilog: str | None = None,
+        short_help: str | None = None,
+        options_metavar: str | None = "[OPTIONS]",
         add_help_option: bool = True,
         no_args_is_help: bool = False,
         hidden: bool = False,
@@ -164,9 +164,9 @@ class QueryCommand(click.Command):
 
     def make_context(
         self,
-        info_name: t.Optional[str],
-        args: t.List[str],
-        parent: t.Optional[click.Context] = None,
+        info_name: str | None,
+        args: list[str],
+        parent: click.Context | None = None,
         **extra: t.Any,
     ) -> click.Context:
         ctx = super().make_context(info_name, args, parent, **extra)
@@ -195,14 +195,14 @@ class SelectionCommand(click.Command):
 
     def __init__(
         self,
-        name: t.Optional[str],
-        context_settings: t.Optional[t.Dict[str, t.Any]] = None,
-        callback: t.Optional[t.Callable[..., t.Any]] = None,
-        params: t.Optional[t.List[click.Parameter]] = None,
-        help: t.Optional[str] = None,
-        epilog: t.Optional[str] = None,
-        short_help: t.Optional[str] = None,
-        options_metavar: t.Optional[str] = "[OPTIONS]",
+        name: str | None,
+        context_settings: dict[str, t.Any] | None = None,
+        callback: t.Callable[..., t.Any] | None = None,
+        params: list[click.Parameter] | None = None,
+        help: str | None = None,
+        epilog: str | None = None,
+        short_help: str | None = None,
+        options_metavar: str | None = "[OPTIONS]",
         add_help_option: bool = True,
         no_args_is_help: bool = False,
         hidden: bool = False,
@@ -268,9 +268,9 @@ class SelectionCommand(click.Command):
 
     def make_context(
         self,
-        info_name: t.Optional[str],
-        args: t.List[str],
-        parent: t.Optional[click.Context] = None,
+        info_name: str | None,
+        args: list[str],
+        parent: click.Context | None = None,
         **extra: t.Any,
     ) -> click.Context:
         ctx = super().make_context(info_name, args, parent, **extra)

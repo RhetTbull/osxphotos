@@ -8,9 +8,7 @@ import pathlib
 from typing import List, Optional, Union
 
 
-def example(
-    filepath: pathlib.Path, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+def example(filepath: pathlib.Path, args: str | None = None, **kwargs) -> list | str:
     """example function for {function} template for use with `osxphotos import`
 
     This example parses filenames in format album_img_123.jpg and returns the album name

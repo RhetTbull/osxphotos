@@ -6,7 +6,7 @@ from typing import List, Union
 import osxphotos
 
 
-def foo(photo: osxphotos.PhotoInfo, **kwargs) -> Union[List, str]:
+def foo(photo: osxphotos.PhotoInfo, **kwargs) -> list | str:
     """example function for {function} template
 
     Args:

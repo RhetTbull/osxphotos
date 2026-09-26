@@ -65,8 +65,8 @@ def get_top_level_items(photosdb: PhotosDB) -> tuple[list[FolderInfo], list[Albu
 
 
 def album(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """Template function that returns the album name with a sequence ID
         (based on where the album is shown in the Photos library sidebar)
 
@@ -103,8 +103,8 @@ def album(
 
 
 def folder_album(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """Template function that returns the folder/album name with a sequence ID
         (based on where the album is shown in the Photos library sidebar)
 

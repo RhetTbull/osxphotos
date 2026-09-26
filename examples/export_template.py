@@ -79,7 +79,7 @@ def place_folder(photo: osxphotos.PhotoInfo) -> str:
 
 def photos_folders(
     photo: osxphotos.PhotoInfo, options: osxphotos.phototemplate.RenderOptions, **kwargs
-) -> Union[List, str]:
+) -> list | str:
     """template function for use with --directory to export photos in a folder structure similar to Photos
 
     Args:

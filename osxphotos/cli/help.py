@@ -35,15 +35,15 @@ HIGHLIGHT_COLOR = "yellow"
 
 __all__ = [
     "ExportCommand",
-    "template_help",
+    "filter_help_text_for_sphinx",
+    "get_help_msg",
+    "help",
+    "is_sphinx_running",
     "rich_text",
+    "strip_html_comments",
     "strip_md_header_and_links",
     "strip_md_links",
-    "strip_html_comments",
-    "help",
-    "get_help_msg",
-    "is_sphinx_running",
-    "filter_help_text_for_sphinx",
+    "template_help",
 ]
 
 
@@ -141,7 +141,7 @@ def get_subtopic_help(cmd: click.Command, ctx: click.Context, subtopic: str):
 
 def get_matching_options(
     command: click.Command, ctx: click.Context, topic: str
-) -> t.List:
+) -> list:
     """Get matching options for a command that contain a topic
 
     Args:
@@ -163,7 +163,7 @@ def get_matching_options(
 
 
 def format_options_help(
-    options: t.List[click.Option], ctx: click.Context, highlight: t.Optional[str] = None
+    options: list[click.Option], ctx: click.Context, highlight: str | None = None
 ) -> str:
     """Format options help for display
 

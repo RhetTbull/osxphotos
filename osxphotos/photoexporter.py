@@ -87,23 +87,21 @@ class ShouldUpdate(Enum):
 class ExportError(Exception):
     """error during export"""
 
-    pass
-
 
 class StagedFiles:
     """Represents files staged for export"""
 
     def __init__(
         self,
-        original: t.Optional[str] = None,
-        original_live: t.Optional[str] = None,
-        edited: t.Optional[str] = None,
-        edited_live: t.Optional[str] = None,
-        preview: t.Optional[str] = None,
-        raw: t.Optional[str] = None,
-        aae: t.Optional[str] = None,
-        original_aae: t.Optional[str] = None,
-        error: t.Optional[t.List[str]] = None,
+        original: str | None = None,
+        original_live: str | None = None,
+        edited: str | None = None,
+        edited_live: str | None = None,
+        preview: str | None = None,
+        raw: str | None = None,
+        aae: str | None = None,
+        original_aae: str | None = None,
+        error: list[str] | None = None,
         update_skipped: bool = False,
     ):
         self.original = original
@@ -175,7 +173,7 @@ class PhotoExporter:
         except Exception as e:
             logger.warning(f"Failed to kill Photos process: {e}")
 
-    def __init__(self, photo: "PhotoInfo", tmpdir: t.Optional[str] = None):
+    def __init__(self, photo: PhotoInfo, tmpdir: str | None = None):
         self.photo = photo
         self._render_options = RenderOptions()
         self._verbose = photo._verbose
@@ -211,7 +209,7 @@ class PhotoExporter:
         self,
         dest,
         filename=None,
-        options: t.Optional[ExportOptions] = None,
+        options: ExportOptions | None = None,
     ) -> ExportResults:
         """Export photo
 
@@ -834,7 +832,7 @@ class PhotoExporter:
         return False
 
     def _needs_download_for_update(
-        self, staged: "StagedFiles", dest: pathlib.Path, options: ExportOptions
+        self, staged: StagedFiles, dest: pathlib.Path, options: ExportOptions
     ) -> bool:
         """Check if any missing files need to be downloaded for update.
 
@@ -1274,7 +1272,7 @@ class PhotoExporter:
 
     def _should_convert_to_jpeg(
         self, dest: pathlib.Path, options: ExportOptions
-    ) -> t.Tuple[pathlib.Path, ExportOptions]:
+    ) -> tuple[pathlib.Path, ExportOptions]:
         """Determine if a file really should be converted to jpeg or not
         and return the new destination and ExportOptions instance with the convert_to_jpeg flag set appropriately
         """

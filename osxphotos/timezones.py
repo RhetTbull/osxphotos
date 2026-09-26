@@ -153,7 +153,7 @@ class Timezone:
     """Create Timezone object from either name (str) or offset from GMT (int)"""
 
     # this is a dummy class to allow use of Timezone in param_types.py
-    def __init__(self, tz: Union[str, int]):
+    def __init__(self, tz: str | int):
         pass
 
 
@@ -177,7 +177,7 @@ if is_macos:
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
 
-        def __init__(self, tz: Union[str, int, float]):
+        def __init__(self, tz: str | float):
             with objc.autorelease_pool():
                 self._from_offset = False
                 if isinstance(tz, str):
@@ -262,7 +262,7 @@ else:
     class Timezone:
         """Create Timezone object from either name (str) or offset from GMT (int)"""
 
-        def __init__(self, tz: Union[str, int, float]):
+        def __init__(self, tz: str | float):
             if isinstance(tz, str):
                 try:
                     self.timezone = zoneinfo.ZoneInfo(tz)

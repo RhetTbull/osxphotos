@@ -66,7 +66,7 @@ def _dictdiff(
             new_value: new value of the key
     """
     diffs = []
-    for k in d1.keys():
+    for k in d1:
         new_path = f"{path}[{k}]" if path else k
         if k not in d2:
             diffs.append([new_path, "removed", (d1[k],)])

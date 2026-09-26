@@ -17,20 +17,20 @@ _GLOBAL_UNICODE_FORM = DEFAULT_UNICODE_FORM
 # global unicode format to use for filesystem paths
 _GLOBAL_UNICODE_FS_FORM = "NFD" if is_macos else "NFC"
 
-PathType = TypeVar("PathType", bound=Union[str, pathlib.Path])
+PathType = TypeVar("PathType", bound=str | pathlib.Path)
 
 UnicodeDataType = TypeVar(
-    "UnicodeDataType", bound=Union[str, list[str], tuple[str, ...], None]
+    "UnicodeDataType", bound=str | list[str] | tuple[str, ...] | None
 )
 
 __all__ = [
+    "DEFAULT_UNICODE_FORM",
     "get_unicode_form",
-    "set_unicode_form",
     "get_unicode_fs_form",
-    "set_unicode_fs_form",
     "normalize_fs_path",
     "normalize_unicode",
-    "DEFAULT_UNICODE_FORM",
+    "set_unicode_form",
+    "set_unicode_fs_form",
 ]
 
 

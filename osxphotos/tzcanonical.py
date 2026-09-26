@@ -20,9 +20,9 @@ from zoneinfo import ZoneInfo, available_timezones
 _AVAILABLE_TIMEZONES: set[str] | None = None
 
 __all__ = [
-    "canonical_timezone",
-    "candidates_by_abbrev_and_offset",
     "abbrev_to_canonical_timezone",
+    "candidates_by_abbrev_and_offset",
+    "canonical_timezone",
 ]
 
 
@@ -423,7 +423,7 @@ def _canonical_timezone_cached(
         return etc
 
     key = token.upper()
-    if key in TZ_OVERRIDES and TZ_OVERRIDES[key]:
+    if TZ_OVERRIDES.get(key):
         cand = TZ_OVERRIDES[key]
         matched = (
             _filter_by_offset(naive_dt, offset_seconds_from_gmt, [cand]) if cand else []

@@ -1,6 +1,6 @@
 """utilities for working with rich markup"""
 
-from typing import Callable
+from collections.abc import Callable
 
 
 def add_rich_markup_tag(tag: str, rich=True) -> Callable:

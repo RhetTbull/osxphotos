@@ -9,7 +9,7 @@ import ssl
 import subprocess
 import sys
 import urllib.request
-from typing import Iterable
+from collections.abc import Iterable
 
 from packaging.version import parse as version_parse
 

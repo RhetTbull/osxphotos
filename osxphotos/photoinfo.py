@@ -98,10 +98,10 @@ class PhotoInfo:
     including keywords, persons, albums, uuid, path, etc.
     """
 
-    def __init__(self, db: "osxphotos.PhotosDB", uuid: str, info: dict[str, Any]):
+    def __init__(self, db: osxphotos.PhotosDB, uuid: str, info: dict[str, Any]):
         self._uuid: str = uuid
         self._info: dict[str, Any] = info
-        self._db: "osxphotos.PhotosDB" = db
+        self._db: osxphotos.PhotosDB = db
         self._verbose = self._db._verbose
         self._asdict_cache: dict[bool, dict[str, Any]] = {}
         self._json_cache: dict[tuple[int | None, bool], str] = {}
@@ -1357,7 +1357,7 @@ class PhotoInfo:
                         # sometimes the reverse geolocation data is corrupted
                         # and this can cause a UnsupportedArchiver error
                         logger.warning(
-                            f"Error creating PlaceInfo5 for {self.uuid}: {str(e)}"
+                            f"Error creating PlaceInfo5 for {self.uuid}: {e!s}"
                         )
                         self._place = None
                 else:
@@ -1868,7 +1868,7 @@ class PhotoInfo:
         return self._info["latitude"]
 
     def render_template(
-        self, template_str: str, options: Optional[RenderOptions] = None
+        self, template_str: str, options: RenderOptions | None = None
     ) -> tuple[list[str], list[str]]:
         """Renders a template string for PhotoInfo instance using PhotoTemplate
 
@@ -1903,7 +1903,7 @@ class PhotoInfo:
         use_persons_as_keywords=False,
         keyword_template=None,
         description_template=None,
-        render_options: Optional[RenderOptions] = None,
+        render_options: RenderOptions | None = None,
     ) -> list[str]:
         """Export a photo
 

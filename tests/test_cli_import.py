@@ -32,7 +32,7 @@ from osxphotos.platform import is_macos
 if is_macos:
     from photoscript import Photo
 
-    import osxphotos.cli.import_cli as import_cli
+    from osxphotos.cli import import_cli
     from osxphotos.cli.export import export
     from osxphotos.cli.import_cli import import_main
 else:
@@ -231,7 +231,7 @@ def say(msg: str) -> None:
     os.system(f"say {msg}")
 
 
-def parse_import_output(output: str) -> Dict[str, str]:
+def parse_import_output(output: str) -> dict[str, str]:
     """Parse output of osxphotos import command and return dict of {image name: uuid} for imported photos"""
     # look for lines that look like this:
     # Imported IMG_4179.jpeg with UUID A62792F0-4524-4529-9931-56E52C95E873

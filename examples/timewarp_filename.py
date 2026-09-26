@@ -5,8 +5,8 @@ Call this as: `osxphotos timewarp --function timewarp_filename.py::parse_date_ti
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Callable
 
 from photoscript import Photo
 from strpdatetime import strpdatetime

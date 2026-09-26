@@ -3,11 +3,12 @@
 import pathlib
 import re
 from collections import defaultdict
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from functools import cached_property
 from itertools import chain
 from re import match
-from typing import Callable, Iterable, TypeVar
+from typing import TypeVar
 
 from osxphotos.platform import is_macos
 
@@ -181,15 +182,7 @@ class GroupingNode:
         elif self.files:
             # We have already found files with the current stem, so it is possible that this is actually
             # an edited file with a configurable suffix.
-            if self.files[0].edited_stem == item.stem:
-                self.files.append(item)
-                return None
-            # Also check if stems match when normalized for increment suffix position.
-            # This handles the case where edited files have the increment suffix in a different position,
-            # e.g., "IMG_0102 (1).HEIC" has edited stem "img_0102 (1)_edited" but the actual
-            # edited file might be named "IMG_0102_edited (1).heic" with stem "img_0102_edited (1)".
-            # Both normalize to "img_0102_edited" which matches.
-            elif normalize_edited_stem(
+            if self.files[0].edited_stem == item.stem or normalize_edited_stem(
                 self.files[0].edited_stem
             ) == normalize_edited_stem(item.stem):
                 self.files.append(item)

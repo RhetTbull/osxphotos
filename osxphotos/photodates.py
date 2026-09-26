@@ -7,7 +7,8 @@ import logging
 import os
 import pathlib
 import sqlite3
-from typing import Callable, cast
+from collections.abc import Callable
+from typing import cast
 from zoneinfo import ZoneInfo
 
 import photoscript

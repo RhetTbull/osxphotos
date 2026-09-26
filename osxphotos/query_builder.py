@@ -2,7 +2,7 @@
 
 import os.path
 import pathlib
-from functools import lru_cache
+from functools import cache, lru_cache
 
 from mako.template import Template
 
@@ -24,7 +24,7 @@ def get_query(query_name, photos_ver, **kwargs):
     return query_template.render(asset_table=asset_table, **kwargs)
 
 
-@lru_cache(maxsize=None)
+@cache
 def _get_query_string(query_name, photos_ver):
     """Return sqlite query string for an attribute and a given database version"""
     query_file = pathlib.Path(QUERY_DIR) / f"{query_name}.sql.mako"

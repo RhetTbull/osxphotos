@@ -6,8 +6,9 @@ import csv
 import dataclasses
 import datetime
 import json
+from collections.abc import Callable
 from io import StringIO
-from typing import Any, Callable
+from typing import Any
 
 from .dictdiff import dictdiff
 from .photo_signature import photo_signature

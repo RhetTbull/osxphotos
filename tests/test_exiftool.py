@@ -676,10 +676,12 @@ def test_start_process_with_timeout():
         time.sleep(1)  # Simulate hanging process creation
         return subprocess.Popen(*args, **kwargs)
 
-    with unittest.mock.patch(
-        "osxphotos.exiftool.subprocess.Popen", side_effect=hanging_popen
+    with (
+        unittest.mock.patch(
+            "osxphotos.exiftool.subprocess.Popen", side_effect=hanging_popen
+        ),
+        pytest.raises(TimeoutError),
     ):
-        with pytest.raises(TimeoutError):
-            _start_process_with_timeout(
-                ["echo", "test"], timeout=0.1, stdout=subprocess.PIPE
-            )
+        _start_process_with_timeout(
+            ["echo", "test"], timeout=0.1, stdout=subprocess.PIPE
+        )

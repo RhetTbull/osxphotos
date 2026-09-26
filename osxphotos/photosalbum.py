@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import unicodedata
-from collections.abc import Iterable
-from typing import Any, Callable, Optional
+from collections.abc import Callable, Iterable
+from typing import Any, Optional
 
 from more_itertools import chunked
 
@@ -30,7 +30,7 @@ def get_unicode_variants(s: str) -> list[str]:
 
 
 def folder_by_path(
-    folders: list[str], verbose: Optional[Callable[..., Any]] = None
+    folders: list[str], verbose: Callable[..., Any] | None = None
 ) -> Folder:
     """Get (and create if necessary) a Photos Folder by path (passed as list of folder names)"""
     library = PhotosLibrary()
@@ -59,7 +59,7 @@ def folder_by_path(
 
 
 def album_by_path(
-    folders_album: list[str], verbose: Optional[Callable[..., Any]] = None
+    folders_album: list[str], verbose: Callable[..., Any] | None = None
 ) -> Album:
     """Get (and create if necessary) a Photos Album by path (pass as list of folders, album name)"""
     library = PhotosLibrary()
@@ -99,8 +99,8 @@ class PhotosAlbum:
     def __init__(
         self,
         name: str,
-        verbose: Optional[Callable[..., Any]] = None,
-        split_folder: Optional[str] = None,
+        verbose: Callable[..., Any] | None = None,
+        split_folder: str | None = None,
         rich: bool = False,
     ):
         """Return a PhotosAlbum object, creating the album if necessary
@@ -213,7 +213,7 @@ class PhotosAlbumPhotoScriptByPath(PhotosAlbumPhotoScript):
     def __init__(
         self,
         album_path: list[str],
-        verbose: Optional[callable] = None,
+        verbose: callable | None = None,
         rich: bool = False,
     ):
         """Return a PhotosAlbum object, creating the album if necessary

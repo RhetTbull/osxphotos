@@ -54,7 +54,7 @@ def add_finder_tags(
     library: str,
     files_or_dirs: list[str],
 ):
-    """Add Finder tags to matching photos in Photos library as keywords.
+    r"""Add Finder tags to matching photos in Photos library as keywords.
 
     This command will scan FILES_OR_DIRS for image and video files and will attempt to
     find the matching assets in the Photos library. If a matching asset is found, the Finder tags

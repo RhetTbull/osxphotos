@@ -17,10 +17,10 @@ from bpylist2 import archiver
 from .unicode import normalize_unicode
 
 __all__ = [
+    "CNPostalAddress",
     "PLRevGeoLocationInfo",
     "PLRevGeoMapItem",
     "PLRevGeoMapItemAdditionalPlaceInfo",
-    "CNPostalAddress",
     "PlaceInfo",
     "PlaceInfo4",
     "PlaceInfo5",
@@ -348,19 +348,16 @@ class PlaceInfo:
     @property
     def address_str(self) -> str | None:
         """Returns the full postal address as a string if defined, otherwise 'None'."""
-        pass
 
     @property
     def country_code(self) -> str | None:
         """Returns the country_code of place, for example "GB".
         Returns 'None' if PhotoInfo contains no country code.
         """
-        pass
 
     @property
     def ishome(self) -> bool:
         """Returns 'True' if photo place is user's home address, otherwise 'False'."""
-        pass
 
     @property
     def name(self) -> str | None:
@@ -370,7 +367,6 @@ class PlaceInfo:
         'PhotoInfo.name' will return the name Photos would have shown depending on the version of the library being processed.
         Returns 'None' if photo does not contain a name.
         """
-        pass
 
     @property
     def names(self) -> PlaceNames | None:
@@ -409,7 +405,6 @@ class PlaceInfo:
             The 'PlaceNames' namedtuple contains reserved fields not listed below (see implementation for details),
             thus it should be referenced only by name (e.g. 'names.city') and not by index.
         """
-        pass
 
     @property
     def address(self):
@@ -424,11 +419,9 @@ class PlaceInfo:
         * 'sub_locality'
         * 'iso_country_code'
         """
-        pass
 
     def asdict():
         """Returns a dictionary representation of the PlaceInfo object."""
-        pass
 
 
 class PlaceInfo4(PlaceInfo):

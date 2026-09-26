@@ -1,7 +1,8 @@
 """PhotoCompare class to compare date/time/timezone in Photos to the exif data"""
 
 from collections import namedtuple
-from typing import Callable, List, Optional, Tuple
+from collections.abc import Callable
+from typing import List, Optional, Tuple
 
 from osxphotos import PhotosDB
 from osxphotos.exiftool import ExifTool
@@ -46,9 +47,9 @@ class PhotoCompare:
 
     def __init__(
         self,
-        library_path: Optional[str] = None,
-        verbose: Optional[Callable] = None,
-        exiftool_path: Optional[str] = None,
+        library_path: str | None = None,
+        verbose: Callable | None = None,
+        exiftool_path: str | None = None,
     ):
         self.library_path = library_path
         self.db = PhotosDB(self.library_path)
@@ -56,7 +57,7 @@ class PhotoCompare:
         self.exiftool_path = exiftool_path
         self.phototz = PhotoTimeZone(self.library_path)
 
-    def compare_exif(self, photo: Photo) -> List[str]:
+    def compare_exif(self, photo: Photo) -> list[str]:
         """Compare date/time/timezone in Photos to the exif data
 
         Args:

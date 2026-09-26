@@ -56,10 +56,10 @@ class PhotoInfoFromDict(PhotoInfoMixin):
     @property
     def album_info(self) -> AlbumInfoFromDict:
         """Return AlbumInfo objects for photo"""
-        if getattr(self, "_album_info"):
+        if self._album_info:
             return self._album_info
         # this is a little hacky but it works for 'osxphotos import' use case
-        if not getattr(self, "folders"):
+        if not self.folders:
             self._album_info = []
         else:
             # self.folders is a rehydrated object so need access it's __dict__ to get the actual data

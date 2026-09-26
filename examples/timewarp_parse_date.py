@@ -4,16 +4,17 @@ Call this as: `osxphotos timewarp --function timewarp_parse_date.py::parse_date`
 Or: `osxphotos timewarp --function https://raw.githubusercontent.com/RhetTbull/osxphotos/refs/heads/main/examples/timewarp_parse_date.py::parse_date`
 """
 
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Callable, Optional, Tuple
+from typing import Optional, Tuple
 
 from photoscript import Photo
 from strpdatetime import strpdatetime
 
 
 def parse_date(
-    photo: Photo, path: Optional[str], tz_sec: int, tz_name: str, verbose: Callable
-) -> Tuple[datetime, int]:
+    photo: Photo, path: str | None, tz_sec: int, tz_name: str, verbose: Callable
+) -> tuple[datetime, int]:
     """Custom function for use with `osxphotos timewarp --function`
 
     Args:

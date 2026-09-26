@@ -49,12 +49,10 @@ class ReportWriterABC(ABC):
     @abstractmethod
     def write(self, *args, **kwargs):
         """Write results to the output file"""
-        pass
 
     @abstractmethod
     def close(self):
         """Close the output file"""
-        pass
 
 
 # Report writer that does nothing, used for --dry-run or when --report not specified
@@ -68,20 +66,16 @@ class ReportWriterNoOp(ABC):
 
     def write(self, *args, **kwargs):
         """Write results to the output file"""
-        pass
 
     def close(self):
         """Close the output file"""
-        pass
 
 
 # Classes for writing ExportResults to report file
 class ExportReportWriterCSV(ReportWriterABC):
     """Write CSV report file for export results"""
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         self.output_file = pathlib.Path(output_file)
         self.append = append
 
@@ -145,9 +139,7 @@ class ExportReportWriterCSV(ReportWriterABC):
 class ExportReportWriterJSON(ReportWriterABC):
     """Write JSON report file for export results"""
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         self.output_file = output_file
         self.append = append
         self.indent = 4
@@ -197,14 +189,12 @@ class ExportReportWriterSQLite(ReportWriterABC):
     # SQL for batch inserts
     _INSERT_SQL = (
         "INSERT INTO report "
-        "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user, sidecar_user_error, user_written, user_skipped, user_error, aae_written, aae_skipped) "  # noqa
+        "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id, sidecar_user, sidecar_user_error, user_written, user_skipped, user_error, aae_written, aae_skipped) "
         "VALUES "
-        "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user, :sidecar_user_error, :user_written, :user_skipped, :user_error, :aae_written, :aae_skipped);"  # noqa
+        "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id, :sidecar_user, :sidecar_user_error, :user_written, :user_skipped, :user_error, :aae_written, :aae_skipped);"
     )
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         self.output_file = output_file
         self.append = append
 
@@ -548,7 +538,7 @@ def prepare_export_results_for_writing(
 
 
 def export_report_writer_factory(
-    output_file: Union[str, bytes, os.PathLike], append: bool = False
+    output_file: str | bytes | os.PathLike, append: bool = False
 ) -> ReportWriterABC:
     """Return a ReportWriter instance appropriate for the output file type"""
     output_type = os.path.splitext(output_file)[1]
@@ -569,9 +559,7 @@ def export_report_writer_factory(
 class SyncReportWriterCSV(ReportWriterABC):
     """Write CSV report file"""
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         self.output_file = output_file
         self.append = append
         self.write_header = (
@@ -603,9 +591,7 @@ class SyncReportWriterCSV(ReportWriterABC):
 class SyncReportWriterJSON(ReportWriterABC):
     """Write JSON SyncResults report file"""
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         self.output_file = output_file
         self.append = append
         self.indent = 4
@@ -652,9 +638,7 @@ class SyncReportWriterJSON(ReportWriterABC):
 class SyncReportWriterSQLite(ReportWriterABC):
     """Write sqlite SyncResults report file"""
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         self.output_file = output_file
         self.append = append
 
@@ -792,7 +776,7 @@ class SyncReportWriterSQLite(ReportWriterABC):
 
 
 def sync_report_writer_factory(
-    output_file: Union[str, bytes, os.PathLike], append: bool = False
+    output_file: str | bytes | os.PathLike, append: bool = False
 ) -> ReportWriterABC:
     """Return a ReportWriter instance appropriate for the output file type"""
     output_type = os.path.splitext(output_file)[1]
@@ -810,9 +794,7 @@ def sync_report_writer_factory(
 class PushExifReportWriterCSV(ReportWriterABC):
     """Write CSV report file"""
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         report_columns = [
             "uuid",
             "original_filename",
@@ -912,9 +894,7 @@ class PushExifReportWriterCSV(ReportWriterABC):
 class PushExifReportWriterJSON(ReportWriterABC):
     """Write JSON report file for push-exif results"""
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         self.output_file = output_file
         self.append = append
         self.indent = 4
@@ -965,9 +945,7 @@ class PushExifReportWriterJSON(ReportWriterABC):
 class PushExifReportWriterSQLite(ReportWriterABC):
     """Write SQLite PushResults report file"""
 
-    def __init__(
-        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
-    ):
+    def __init__(self, output_file: str | bytes | os.PathLike, append: bool = False):
         self.output_file = output_file
         self.append = append
 
@@ -1120,7 +1098,7 @@ class PushExifReportWriterSQLite(ReportWriterABC):
 
 
 def push_exif_report_writer_factory(
-    output_file: Union[str, bytes, os.PathLike], append: bool = False
+    output_file: str | bytes | os.PathLike, append: bool = False
 ) -> ReportWriterABC:
     """Return a ReportWriter instance appropriate for the output file type"""
     output_type = os.path.splitext(output_file)[1]

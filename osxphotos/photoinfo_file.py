@@ -38,7 +38,7 @@ class PhotoInfoFromFile:
 
     def __init__(
         self,
-        filepath: Union[str, pathlib.Path],
+        filepath: str | pathlib.Path,
         exiftool: str | None = None,
         sidecar: str | None = None,
     ):
@@ -175,9 +175,7 @@ class PhotoInfoFromFile:
             self._exiftool = exiftool
             return self._exiftool
 
-    def render_template(
-        self, template_str: str, options: Optional[RenderOptions] = None
-    ):
+    def render_template(self, template_str: str, options: RenderOptions | None = None):
         """Renders a template string for PhotoInfo instance using PhotoTemplate
 
         Args:
@@ -194,7 +192,7 @@ class PhotoInfoFromFile:
     def __getattr__(self, name):
         """Return None for any other non-private attribute"""
         if not name.startswith("_"):
-            return None
+            return
         raise AttributeError()
 
 

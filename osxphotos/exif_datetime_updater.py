@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import datetime
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional, Tuple
 
 from photoscript import Photo
 
@@ -35,9 +36,9 @@ class ExifDateTimeUpdater:
 
     def __init__(
         self,
-        library_path: Optional[str] = None,
-        verbose: Optional[Callable] = None,
-        exiftool_path: Optional[str] = None,
+        library_path: str | None = None,
+        verbose: Callable | None = None,
+        exiftool_path: str | None = None,
         plain=False,
     ):
         self.library_path = library_path
@@ -55,7 +56,7 @@ class ExifDateTimeUpdater:
         """Colorize uuid for display in verbose output"""
         return uuid if self.plain else f"[uuid]{uuid}[/uuid]"
 
-    def update_exif_from_photos(self, photo: Photo) -> Tuple[str, str]:
+    def update_exif_from_photos(self, photo: Photo) -> tuple[str, str]:
         """Update EXIF data in photo to match the date/time/timezone in Photos library
 
         Args:
@@ -161,7 +162,7 @@ class ExifDateTimeUpdater:
                 "Skipping EXIF update for missing photo "
                 f"[filename]{_photo.original_filename}[/filename] ([uuid]{_photo.uuid}[/uuid])"
             )
-            return None
+            return
 
         self.verbose(
             "Updating Photos from EXIF data for "
@@ -181,7 +182,7 @@ class ExifDateTimeUpdater:
                 "Skipping update for missing EXIF data in photo "
                 f"[filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid])"
             )
-            return None
+            return
 
         if dtinfo.offset_seconds is not None:
             # update timezone then update date/time
@@ -214,7 +215,7 @@ class ExifDateTimeUpdater:
                 self.verbose,
             )
 
-        return None
+        return
 
     def get_date_time_offset_from_exif(
         self, photo_path: str, use_file_modify_date: bool = False
@@ -235,7 +236,7 @@ class ExifDateTimeUpdater:
             exif, use_file_modify_date=use_file_modify_date
         )
 
-    def get_photo_path(self, photo: Photo) -> Optional[str]:
+    def get_photo_path(self, photo: Photo) -> str | None:
         """Get the path to a photo
 
         Args:

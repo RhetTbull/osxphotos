@@ -1,6 +1,7 @@
 """Kill all instances of the Photos app and detect whether the kill succeeded."""
 
 import subprocess
+
 from .cli_commands import echo_error
 
 

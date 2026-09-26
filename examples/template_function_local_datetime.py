@@ -10,8 +10,8 @@ from osxphotos.phototemplate import RenderOptions
 
 
 def local_datetime(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """example function for {function} template; returns a string formatted using the local datetime in format YYYY-MM-DD_HH-MM-SS
     Args:
         photo: osxphotos.PhotoInfo object

@@ -13,7 +13,7 @@ import click
 import pytimeparse2
 from strpdatetime import strpdatetime
 
-import osxphotos.tempdir as tempdir
+from osxphotos import tempdir
 from osxphotos.cli.template_utils import suggest_template_fields
 from osxphotos.export_db_utils import export_db_get_version
 from osxphotos.photoinfo import PhotoInfoNone
@@ -31,8 +31,8 @@ from osxphotos.utils import (
 __all__ = [
     "BitMathSize",
     "BooleanString",
-    "CatchSmartQuotesPath",
     "CSVOptions",
+    "CatchSmartQuotesPath",
     "DateOffset",
     "DateTimeISO8601",
     "DeprecatedPath",

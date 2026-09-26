@@ -10,7 +10,7 @@ import osxphotos
 
 logger = logging.getLogger("osxphotos")
 
-__all__ = ["PersonInfo", "FaceInfo", "rotate_image_point"]
+__all__ = ["FaceInfo", "PersonInfo", "rotate_image_point"]
 
 MWG_RS_Area = namedtuple("MWG_RS_Area", ["x", "y", "h", "w"])
 MPRI_Reg_Rect = namedtuple("MPRI_Reg_Rect", ["x", "y", "h", "w"])
@@ -29,7 +29,7 @@ class PersonInfo:
         Returns:
             PersonInfo instance
         """
-        self._db: "osxphotos.PhotosDB" = db
+        self._db: osxphotos.PhotosDB = db
         self._pk: int = pk
 
         person = self._db._dbpersons_pk[pk]
@@ -202,7 +202,7 @@ class FaceInfo:
             size, in int pixels, of a circle drawn around the center of the face
         """
         photo = self.photo
-        size_reference = photo.width if photo.width > photo.height else photo.height
+        size_reference = max(photo.height, photo.width)
         return self.size * size_reference
 
     @property
@@ -300,7 +300,7 @@ class FaceInfo:
             list [(x0, x1), (y0, y1)] of coordinates in reference frame used by PIL
         """
         photo = self.photo
-        size_reference = photo.width if photo.width > photo.height else photo.height
+        size_reference = max(photo.height, photo.width)
         radius = (self.size / 2) * size_reference
         x, y = self._make_point((self.center_x, self.center_y))
         x0, y0 = x - radius, y - radius

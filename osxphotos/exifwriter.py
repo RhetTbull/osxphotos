@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger("osxphotos")
 
 __all__ = [
-    "ExifWriter",
     "ExifOptions",
+    "ExifWriter",
     "exif_options_from_locals",
     "exif_options_from_options",
 ]

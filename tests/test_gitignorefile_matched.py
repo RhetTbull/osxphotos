@@ -542,7 +542,6 @@ class TestMatch(unittest.TestCase):
         but will not match a regular file or a symbolic link foo
         (this is consistent with the way how pathspec works in general in Git)
         """
-        pass
 
     def test_robert_handle_base_directories_with_a_symlink_in_their_components(self):
         """
@@ -1230,7 +1229,6 @@ class TestMatchList(unittest.TestCase):
         but will not match a regular file or a symbolic link foo
         (this is consistent with the way how pathspec works in general in Git)
         """
-        pass
 
     def test_robert_handle_base_directories_with_a_symlink_in_their_components(self):
         """

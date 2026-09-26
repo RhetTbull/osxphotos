@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from datetime import datetime
-from typing import IO, Any, Callable, Optional
+from typing import IO, Any, Optional
 
 import click
 from rich.console import Console
@@ -56,7 +57,6 @@ def _reset_verbose_globals():
 
 def noop(*args, **kwargs):
     """no-op function"""
-    pass
 
 
 def verbose(*args, level: int = 1):
@@ -101,7 +101,7 @@ class _Console:
     """Store console object for verbose output"""
 
     def __init__(self):
-        self._console: Optional[Console] = None
+        self._console: Console | None = None
 
     @property
     def console(self):
@@ -115,7 +115,7 @@ class _Console:
 _console = _Console()
 
 
-def get_verbose_console(theme: Optional[Theme] = None) -> Console:
+def get_verbose_console(theme: Theme | None = None) -> Console:
     """Get console object or create one if not already created
 
     Args:
@@ -136,7 +136,7 @@ def verbose_print(
     rich: bool = True,
     theme: str | None = None,
     highlight: bool = False,
-    file: Optional[IO] = None,
+    file: IO | None = None,
     **kwargs: Any,
 ) -> Callable[..., None]:
     """Configure verbose printing and create verbose function to print output
@@ -185,8 +185,8 @@ def _verbose_print_function(
     timestamp: bool = False,
     rich: bool = False,
     highlight: bool = False,
-    theme: Optional[Theme] = None,
-    file: Optional[IO] = None,
+    theme: Theme | None = None,
+    file: IO | None = None,
     **kwargs: Any,
 ) -> Callable[..., None]:
     """Create verbose function to print output
@@ -220,7 +220,7 @@ def _verbose_print_function(
         if get_verbose_level() < level:
             return
         styled_args = []
-        timestamp_str = f"{str(datetime.now())} -- " if timestamp else ""
+        timestamp_str = f"{datetime.now()!s} -- " if timestamp else ""
         for arg in args:
             if isinstance(arg, str):
                 arg = timestamp_str + arg

@@ -10,7 +10,7 @@ import pytest
 from osxphotos.platform import is_macos
 
 if is_macos:
-    import osxphotos.cli.import_cli as import_cli
+    from osxphotos.cli import import_cli
     from osxphotos.cli.import_cli import (
         group_files_to_import,
         rename_edited_group,

@@ -8,7 +8,8 @@ For help, run `osxphotos run sync_photos_exif_to_files.py --help`
 from __future__ import annotations
 
 import pathlib
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import click
 import objc

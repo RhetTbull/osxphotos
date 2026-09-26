@@ -105,15 +105,15 @@ class MockProgress:
 
 
 def rich_progress(
-    *columns: Union[str, ProgressColumn],
-    console: Optional[Console] = None,
+    *columns: str | ProgressColumn,
+    console: Console | None = None,
     auto_refresh: bool = True,
     refresh_per_second: float = 10,
     speed_estimate_period: float = 30.0,
     transient: bool = False,
     redirect_stdout: bool = True,
     redirect_stderr: bool = True,
-    get_time: Optional[GetTimeCallable] = None,
+    get_time: GetTimeCallable | None = None,
     disable: bool = False,
     expand: bool = False,
     mock: bool = False,

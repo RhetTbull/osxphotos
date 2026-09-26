@@ -36,12 +36,12 @@ def utc_offset_string_to_seconds(utc_offset: str) -> int:
 
 def update_datetime(
     dt: datetime.datetime,
-    tzinfo: Optional[ZoneInfo] = None,
-    date: Optional[datetime.date] = None,
-    time: Optional[datetime.time] = None,
-    date_delta: Optional[datetime.timedelta] = None,
-    time_delta: Optional[datetime.timedelta] = None,
-    local_time_delta: Optional[datetime.timedelta] = None,
+    tzinfo: ZoneInfo | None = None,
+    date: datetime.date | None = None,
+    time: datetime.time | None = None,
+    date_delta: datetime.timedelta | None = None,
+    time_delta: datetime.timedelta | None = None,
+    local_time_delta: datetime.timedelta | None = None,
 ) -> datetime.datetime:
     """
     Update the date and time of a datetime object using DST-aware operations.

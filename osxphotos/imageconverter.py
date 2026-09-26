@@ -25,8 +25,6 @@ __all__ = ["ImageConversionError", "ImageConverter"]
 class ImageConversionError(Exception):
     """Base class for exceptions in this module."""
 
-    pass
-
 
 class ImageConverter:
     """Convert images to jpeg.  This class is a singleton

@@ -12,8 +12,8 @@ from osxphotos.phototemplate import RenderOptions
 
 
 def example(
-    photo: PhotoInfo, options: RenderOptions, args: Optional[str] = None, **kwargs
-) -> Union[List, str]:
+    photo: PhotoInfo, options: RenderOptions, args: str | None = None, **kwargs
+) -> list | str:
     """example function for {function} template; adds suffix of # if photo has adjustments and ! if photo is a favorite
 
     Args:

@@ -25,12 +25,12 @@ from ._constants import (
 from .photos_datetime import photos_datetime_local
 
 __all__ = [
-    "sort_list_by_keys",
-    "AlbumInfoBaseClass",
     "AlbumInfo",
+    "AlbumInfoBaseClass",
+    "FolderInfo",
     "ImportInfo",
     "ProjectInfo",
-    "FolderInfo",
+    "sort_list_by_keys",
 ]
 
 

@@ -6,7 +6,7 @@ import datetime
 from typing import Any, Type
 
 
-def rehydrate_class(data: dict[Any, Any], cls: Type) -> object:
+def rehydrate_class(data: dict[Any, Any], cls: type) -> object:
     """Rehydrate a class that's been deserialized from JSON created from asdict()
 
     Args:

@@ -48,12 +48,11 @@ __all__ = [
 
 def noop(*args, **kwargs):
     """no-op function"""
-    pass
 
 
 def time_stamp() -> str:
     """return timestamp"""
-    return f"[time]{str(datetime.now())}[/time] -- "
+    return f"[time]{datetime.now()!s}[/time] -- "
 
 
 def osxphotos_crash_reporter():

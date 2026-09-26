@@ -591,8 +591,7 @@ def compare_photo(photo: PhotoInfo, options: ExifOptions):
             f"Metadata differs for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
         )
         echo(f"Path: [filepath]{photo.path}[/]")
-        if cmp_str.endswith("\n"):
-            cmp_str = cmp_str[:-1]
+        cmp_str = cmp_str.removesuffix("\n")
         echo(cmp_str)
 
 

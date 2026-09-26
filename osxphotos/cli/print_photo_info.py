@@ -3,14 +3,15 @@
 import csv
 import json
 import sys
-from typing import Callable, List, Tuple
+from collections.abc import Callable
+from typing import List, Tuple
 
 from osxphotos.cli.template_utils import suggest_template_fields
 from osxphotos.photoinfo import PhotoInfo
 
 
 def print_photo_info(
-    photos: List[PhotoInfo], json: bool = False, print_func: Callable = print
+    photos: list[PhotoInfo], json: bool = False, print_func: Callable = print
 ):
     dump = []
     if json:
@@ -117,7 +118,7 @@ def print_photo_info(
 
 
 def print_photo_fields(
-    photos: List[PhotoInfo], fields: Tuple[Tuple[str]], json_format: bool
+    photos: list[PhotoInfo], fields: tuple[tuple[str]], json_format: bool
 ):
     """Output custom field templates from PhotoInfo objects
 

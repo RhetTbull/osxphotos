@@ -303,12 +303,12 @@ class FileDateType(enum.IntFlag):
 
 
 __all__ = [
+    "FileDateType",
+    "FileUtil",
     "FileUtilABC",
     "FileUtilMacOS",
-    "FileUtilShUtil",
-    "FileUtil",
     "FileUtilNoOp",
-    "FileDateType",
+    "FileUtilShUtil",
     "set_file_dates",
 ]
 
@@ -502,7 +502,7 @@ class FileUtilABC(ABC):
     @classmethod
     @abstractmethod
     def tmpdir(
-        cls, prefix: t.Optional[str] = None, dirpath: t.Optional[str] = None
+        cls, prefix: str | None = None, dirpath: str | None = None
     ) -> tempfile.TemporaryDirectory:
         pass
 
@@ -721,7 +721,7 @@ class FileUtilMacOS(FileUtilABC):
 
     @classmethod
     def tmpdir(
-        cls, prefix: t.Optional[str] = None, dirpath: t.Optional[str] = None
+        cls, prefix: str | None = None, dirpath: str | None = None
     ) -> tempfile.TemporaryDirectory:
         """Securely creates a temporary directory using the same rules as mkdtemp().
         The resulting object can be used as a context manager.
@@ -813,7 +813,7 @@ class FileUtilNoOp(FileUtil):
                 cls.verbose = verbose
             else:
                 raise ValueError(f"verbose {verbose} not callable")
-        return super(FileUtilNoOp, cls).__new__(cls)
+        return super().__new__(cls)
 
     @classmethod
     def hardlink(cls, src, dest):
@@ -857,7 +857,7 @@ class FileUtilNoOp(FileUtil):
 
     @classmethod
     def tmpdir(
-        cls, prefix: t.Optional[str] = None, dirpath: t.Optional[str] = None
+        cls, prefix: str | None = None, dirpath: str | None = None
     ) -> tempfile.TemporaryDirectory:
         """Securely creates a temporary directory using the same rules as mkdtemp().
         The resulting object can be used as a context manager.
