@@ -23,6 +23,7 @@ from osxphotos.timezones import Timezone
 from osxphotos.utils import (
     download_url_to_temp_dir,
     expand_and_validate_filepath,
+    github_url_to_raw_url,
     is_http_url,
     load_function,
 )
@@ -111,6 +112,15 @@ class PathOrURL(click.Path):
 
     def convert(self, value, param, ctx):
         if is_http_url(value):
+            # users often pass the URL of the GitHub page showing a file
+            # instead of the raw file; download the raw file they intended
+            raw_url = github_url_to_raw_url(value)
+            if raw_url != value:
+                click.echo(
+                    f"Converted GitHub URL {value} to raw file URL {raw_url}",
+                    err=True,
+                )
+                value = raw_url
             # need to retrieve file from URL and save it in a temp directory
             # can't use TemporaryDirectory because it deletes the directory when it goes out of scope
             # so use the system temp directory instead

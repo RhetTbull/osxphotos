@@ -1,12 +1,57 @@
 """install/uninstall/run commands for osxphotos CLI"""
 
+from __future__ import annotations
+
 import contextlib
+import importlib.util
+import os
 import sys
+import zipfile
 from runpy import run_module, run_path
 
 import click
 
 from .param_types import PathOrURL
+
+__all__ = ["install", "run", "uninstall", "validate_python_file"]
+
+
+def validate_python_file(python_file: str) -> str | None:
+    """Check that python_file contains Python source code that compiles without error.
+
+    Directories, zip files, and compiled .pyc files, which runpy.run_path can also run,
+    are not checked.
+
+    Args:
+        python_file: path to the file to check
+
+    Returns: None if python_file is valid, otherwise a message describing the problem
+    """
+    if os.path.isdir(python_file) or zipfile.is_zipfile(python_file):
+        return None
+
+    try:
+        with open(python_file, "rb") as fd:
+            source = fd.read()
+    except OSError as e:
+        return f"Could not read {python_file}: {e}"
+
+    if source.startswith(importlib.util.MAGIC_NUMBER):
+        return None
+
+    try:
+        compile(source, python_file, "exec")
+    except (SyntaxError, ValueError) as e:
+        message = f"{python_file} does not appear to be a valid Python file: {e}"
+        head = source.lstrip()[:512].lower()
+        if head.startswith((b"<!doctype html", b"<html")):
+            message += (
+                "\nThe file appears to be an HTML web page, not a Python script. "
+                "If you passed a URL, make sure it points to the raw file "
+                "(for example, the 'Raw' button on GitHub)."
+            )
+        return message
+    return None
 
 
 class RunCommand(click.Command):
@@ -77,7 +122,15 @@ def run(python_file, help, args):
     or a URL to a python file, for example,
 
     'osxphotos run https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/count_photos.py'
+
+    If the URL is for a GitHub page showing the file (e.g.
+    https://github.com/RhetTbull/osxphotos/blob/main/examples/count_photos.py)
+    or a GitHub gist, the raw file will be downloaded instead.
+    The file is checked to ensure it is valid Python before it is run.
     """
+
+    if error := validate_python_file(python_file):
+        raise click.BadParameter(error, param_hint="PYTHON_FILE")
 
     # Need to drop all the args from sys.argv up to and including the run command
     # For example, command could be one of the following:
