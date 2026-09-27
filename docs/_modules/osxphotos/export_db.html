@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.export_db - osxphotos 0.77.1 documentation</title>
+        <title>osxphotos.export_db - osxphotos 0.77.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -278,15 +278,15 @@
 <span class="n">OSXPHOTOS_ABOUT_STRING</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Created by osxphotos version </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2"> (https://github.com/RhetTbull/osxphotos) on </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="c1"># max retry attempts for methods which use tenacity.retry</span>
-<span class="n">MAX_RETRY_ATTEMPTS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OSXPHOTOS_MAX_RETRY_ATTEMPTS"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">MAX_RETRY_ATTEMPTS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OSXPHOTOS_MAX_RETRY_ATTEMPTS"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">))</span>
 
 <span class="c1"># maximum number of export results rows to save</span>
-<span class="n">MAX_EXPORT_RESULTS_DATA_ROWS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-    <span class="s2">"OSXPHOTOS_MAX_EXPORT_RESULTS_DATA_ROWS"</span><span class="p">,</span> <span class="mi">10</span>
+<span class="n">MAX_EXPORT_RESULTS_DATA_ROWS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OSXPHOTOS_MAX_EXPORT_RESULTS_DATA_ROWS"</span><span class="p">,</span> <span class="s2">"10"</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># batch size for history writes to reduce commit overhead</span>
-<span class="n">HISTORY_BATCH_SIZE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OSXPHOTOS_HISTORY_BATCH_SIZE"</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">HISTORY_BATCH_SIZE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OSXPHOTOS_HISTORY_BATCH_SIZE"</span><span class="p">,</span> <span class="s2">"100"</span><span class="p">))</span>
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"osxphotos"</span><span class="p">)</span>
@@ -333,7 +333,7 @@
 <span class="sd">    Supports nesting - only the outermost batch commits.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_db</span><span class="p">:</span> <span class="s2">"ExportDB"</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_db</span><span class="p">:</span> <span class="n">ExportDB</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_export_db</span> <span class="o">=</span> <span class="n">export_db</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -432,7 +432,7 @@
 <div class="viewcode-block" id="ExportDB.get_file_record">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_file_record">[docs]</a>
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_file_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ExportRecord"</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_file_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExportRecord</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""get info for filename</span>
 
 <span class="sd">        Returns: an ExportRecord object or None if filename not found</span>
@@ -574,7 +574,7 @@
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_file_record</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ExportRecord"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExportRecord</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""create a new record for filename and uuid</span>
 
 <span class="sd">        Returns: an ExportRecord object</span>
@@ -602,7 +602,7 @@
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_or_get_file_record</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ExportRecord"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExportRecord</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""create a new record for filename and uuid or return existing record</span>
 
 <span class="sd">        Returns: an ExportRecord object</span>
@@ -786,7 +786,7 @@
         <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">),</span>
         <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_not_exception_type</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_export_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="s2">"osxphotos.photoexporter.ExportResults"</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_export_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">photoexporter</span><span class="o">.</span><span class="n">ExportResults</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Store export results in database; data is pickled and gzipped for storage"""</span>
 
         <span class="n">results_data</span> <span class="o">=</span> <span class="n">pickle_and_zip</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
@@ -812,7 +812,7 @@
     <span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="n">MAX_RETRY_ATTEMPTS</span><span class="p">))</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_export_results</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"osxphotos.photoexporter.ExportResults"</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">photoexporter</span><span class="o">.</span><span class="n">ExportResults</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Retrieve export results from database</span>
 
 <span class="sd">        Args:</span>
@@ -1051,7 +1051,7 @@
 
 <div class="viewcode-block" id="ExportDB.batch_operations">
 <a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.batch_operations">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">batch_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"BatchContext"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">batch_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BatchContext</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Context manager for batching database operations.</span>
 
 <span class="sd">        When in batch mode, commits are deferred until the batch completes.</span>
@@ -1876,7 +1876,7 @@
 
         <span class="n">dbdump</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">iterdump</span><span class="p">():</span>
-            <span class="n">dbdump</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="se">\n</span><span class="s2">"</span> <span class="o">%</span> <span class="n">line</span><span class="p">)</span>
+            <span class="n">dbdump</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">dbdump</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dbdump</span>
 
@@ -1935,11 +1935,11 @@
     <span class="c1"># context manager, the lock is acquired by the getter/setter.</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">"_cached_data"</span><span class="p">,</span>
         <span class="s2">"_conn"</span><span class="p">,</span>
         <span class="s2">"_context_manager"</span><span class="p">,</span>
-        <span class="s2">"_filepath_normalized"</span><span class="p">,</span>
-        <span class="s2">"_cached_data"</span><span class="p">,</span>
         <span class="s2">"_export_db"</span><span class="p">,</span>
+        <span class="s2">"_filepath_normalized"</span><span class="p">,</span>
         <span class="s2">"lock"</span><span class="p">,</span>
     <span class="p">]</span>
 
@@ -1949,7 +1949,7 @@
         <span class="n">lock</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">,</span>
         <span class="n">filepath_normalized</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cached_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">export_db</span><span class="p">:</span> <span class="s2">"ExportDB | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">export_db</span><span class="p">:</span> <span class="n">ExportDB</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span> <span class="o">=</span> <span class="n">conn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">lock</span>
@@ -2436,7 +2436,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">)):</span>
                 <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">"Object of type </span><span class="si">%s</span><span class="s2"> is not JSON serializable"</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="sa">f</span><span class="s2">"Object of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not JSON serializable"</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">datetime_handler</span><span class="p">)</span>
@@ -2487,7 +2487,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=c6d1d8c8"></script>
+</div><script src="../../_static/documentation_options.js?v=f12952a2"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

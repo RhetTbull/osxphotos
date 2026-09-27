@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.phototemplate - osxphotos 0.77.1 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.77.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -241,9 +241,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shlex</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">suppress</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">textx</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextXSyntaxError</span><span class="p">,</span> <span class="n">metamodel_from_file</span>
 
@@ -268,12 +269,12 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"osxphotos"</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"RenderOptions"</span><span class="p">,</span>
-    <span class="s2">"PhotoTemplateParser"</span><span class="p">,</span>
     <span class="s2">"PhotoTemplate"</span><span class="p">,</span>
-    <span class="s2">"parse_default_kv"</span><span class="p">,</span>
-    <span class="s2">"get_template_help"</span><span class="p">,</span>
+    <span class="s2">"PhotoTemplateParser"</span><span class="p">,</span>
+    <span class="s2">"RenderOptions"</span><span class="p">,</span>
     <span class="s2">"format_str_value"</span><span class="p">,</span>
+    <span class="s2">"get_template_help"</span><span class="p">,</span>
+    <span class="s2">"parse_default_kv"</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="c1"># TODO: a lot of values are passed from function to function like path_sep--make these all class properties</span>
@@ -618,16 +619,16 @@
 <span class="sd">    """</span>
 
     <span class="n">none_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"_"</span>
-    <span class="n">path_sep</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">PATH_SEP_DEFAULT</span>
+    <span class="n">path_sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">PATH_SEP_DEFAULT</span>
     <span class="n">expand_inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">inplace_sep</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">INPLACE_DEFAULT</span>
+    <span class="n">inplace_sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">INPLACE_DEFAULT</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">dirname</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">strip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">edited_version</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">export_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">dest_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">filepath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">export_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dest_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">quote</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">caller</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"export"</span>
 
@@ -1046,7 +1047,7 @@
 
 <div class="viewcode-block" id="PhotoTemplate.expand_variables">
 <a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.expand_variables">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">expand_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">expand_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Expand variables in value"""</span>
         <span class="c1"># replace any variables with their values</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
@@ -1054,8 +1055,8 @@
         <span class="c1"># allow %% to escape %, match variables in form %var</span>
         <span class="n">variable_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"(?:</span><span class="si">%%</span><span class="s2">)*(%[\w]+)?"</span><span class="p">)</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
-                <span class="n">match</span> <span class="o">=</span> <span class="n">variable_match</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">current_value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">variable_match</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">current_value</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                     <span class="k">break</span>
                 <span class="n">var</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -1084,10 +1085,10 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_field_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">subfield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">field_arg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Get the values for a field"""</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">unmatched</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1134,9 +1135,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_template_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">subfield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">default</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">field_arg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""lookup value for template field (single-value template substitutions)</span>
 
@@ -1224,7 +1225,7 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">uuid_to_shortuuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"id"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">format_str_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">"pk"</span><span class="p">],</span> <span class="n">subfield</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"album_seq"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"folder_album_seq"</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"album_seq"</span><span class="p">,</span> <span class="s2">"folder_album_seq"</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">dest_path</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest_path</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"album_seq"</span><span class="p">):</span>
                     <span class="n">album</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
@@ -1297,7 +1298,7 @@
 
 <div class="viewcode-block" id="PhotoTemplate.get_filter_values">
 <a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_filter_values">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_filter_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_filter_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return filtered values"""</span>
 
         <span class="c1"># extract args, if any</span>
@@ -1658,8 +1659,8 @@
 <div class="viewcode-block" id="PhotoTemplate.get_format_values">
 <a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_format_values">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_format_values</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return values for {format} templates"""</span>
 
         <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="s2">"format"</span><span class="p">:</span>
@@ -1721,7 +1722,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_template_value_function</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">field_arg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">caller</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Get template value from external function</span>
@@ -2005,7 +2006,7 @@
     <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">values_to_int</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">values_to_int</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Convert a list of strings to str representation of ints, if possible, otherwise strip values from list"""</span>
     <span class="n">int_values</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
@@ -2014,7 +2015,7 @@
     <span class="k">return</span> <span class="n">int_values</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">values_to_float</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">values_to_float</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Convert a list of strings to str representation of float, if possible, otherwise strip values from list"""</span>
     <span class="n">float_values</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
@@ -2023,7 +2024,7 @@
     <span class="k">return</span> <span class="n">float_values</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">format_date_field</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_date_field</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Format a date template field in format 'created', 'create.year' etc.</span>
 
 <span class="sd">    Args:</span>
@@ -2052,7 +2053,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unhandled template value: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">get_place_value</span><span class="p">(</span><span class="n">photo</span><span class="p">:</span> <span class="s2">"PhotoInfo"</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># noqa: F821</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_place_value</span><span class="p">(</span><span class="n">photo</span><span class="p">:</span> <span class="s2">"PhotoInfo"</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Get the value of a 'place' field by attribute</span>
 
 <span class="sd">    Args:</span>
@@ -2193,7 +2194,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=c6d1d8c8"></script>
+</div><script src="../../_static/documentation_options.js?v=f12952a2"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
