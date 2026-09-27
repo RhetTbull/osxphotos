@@ -46,8 +46,8 @@ Tested on macOS Sierra (10.12.6) through macOS Sequoia (15.i7.2). Tested on both
 | macOS Version     | macOS name | Photos.app version  |
 | ----------------- |------------|:--------------------|
 | 27.0              | Golden Gate| 12.0 ✅             |
-| 26.0              | Tahoe      | 11.0 ✅             |
-| 15.0 - 15.6       | Sequoia    | 10.0 ✅             |
+| 26.0 - 26.7       | Tahoe      | 11.0 ✅             |
+| 15.0 - 15.8       | Sequoia    | 10.0 ✅             |
 | 14.0 - 14.6       | Sonoma     | 9.0 ✅              |
 | 13.0 - 13.6       | Ventura    | 8.0 ✅              |
 | 12.0 - 12.7       | Monterey   | 7.0 ✅              |
