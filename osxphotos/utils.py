@@ -173,22 +173,59 @@ def get_system_library_path() -> str | None:
         )
         return None
 
-    plist_file = pathlib.Path(
-        str(pathlib.Path.home())
-        + "/Library/Containers/com.apple.photolibraryd/Data/Library/Preferences/com.apple.photolibraryd.plist"
-    )
-    if plist_file.is_file():
+    # macOS 27+ stores SystemLibraryPath in the photolibraryd group container;
+    # macOS 10.15 through 26 store it in the photolibraryd container.
+    # On macOS 27 the older plist still exists but no longer has the key,
+    # so check each plist in order and use the first one that has it.
+    home = pathlib.Path.home()
+    plist_files = [
+        home
+        / "Library/Group Containers/group.com.apple.photolibraryd.private/Library/Preferences/group.com.apple.photolibraryd.private.plist",
+        home
+        / "Library/Containers/com.apple.photolibraryd/Data/Library/Preferences/com.apple.photolibraryd.plist",
+    ]
+    for plist_file in plist_files:
+        if not plist_file.is_file():
+            logger.debug(f"could not find plist file: {plist_file!s}")
+            continue
         try:
             with open(plist_file, "rb") as fp:
                 pl = plistload(fp)
-        except PermissionError as e:
+        except (OSError, ValueError) as e:
+            # PermissionError (e.g. TCC) is an OSError; malformed plist raises
+            # plistlib.InvalidFileException, a ValueError
             logger.debug(f"could not read plist file: {plist_file!s}: {e}")
-            return None
-    else:
-        logger.debug(f"could not find plist file: {plist_file!s}")
-        return None
+            continue
+        if not isinstance(pl, dict) or not (
+            library_path := pl.get("SystemLibraryPath")
+        ):
+            logger.debug(f"SystemLibraryPath not found in plist file: {plist_file!s}")
+            continue
+        return library_path
 
-    return pl.get("SystemLibraryPath")
+    return _get_system_library_path_from_photokit()
+
+
+def _get_system_library_path_from_photokit() -> str | None:
+    """return the path to the system Photos library from PhotoKit or None
+
+    Uses PHPhotoLibrary.systemPhotoLibraryURL, which is not public API, so this is
+    only a fallback for when the photolibraryd plists do not yield the path.
+    """
+    try:
+        import Photos
+
+        if not Photos.PHPhotoLibrary.respondsToSelector_(b"systemPhotoLibraryURL"):
+            logger.debug("PHPhotoLibrary does not respond to systemPhotoLibraryURL")
+            return None
+        url = Photos.PHPhotoLibrary.systemPhotoLibraryURL()
+    except Exception as e:
+        logger.debug(f"could not get system library path from PhotoKit: {e}")
+        return None
+    if url is None:
+        logger.debug("PhotoKit did not return a system library URL")
+        return None
+    return str(url.path()) or None
 
 
 def get_last_library_path() -> str | None:
