@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.exiftool - osxphotos 0.77.1 documentation</title>
+        <title>osxphotos.exiftool - osxphotos 0.77.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -254,15 +254,15 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>  <span class="c1"># pylint: disable=syntax-error</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"osxphotos"</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"escape_str"</span><span class="p">,</span>
-    <span class="s2">"exiftool_can_write"</span><span class="p">,</span>
     <span class="s2">"ExifTool"</span><span class="p">,</span>
     <span class="s2">"ExifToolCaching"</span><span class="p">,</span>
+    <span class="s2">"escape_str"</span><span class="p">,</span>
+    <span class="s2">"exiftool_can_write"</span><span class="p">,</span>
     <span class="s2">"get_exiftool_path"</span><span class="p">,</span>
     <span class="s2">"terminate_exiftool"</span><span class="p">,</span>
     <span class="s2">"unescape_str"</span><span class="p">,</span>
@@ -404,8 +404,7 @@
             <span class="c1"># already running</span>
             <span class="k">if</span> <span class="n">exiftool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">exiftool</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"exiftool subprocess already running, "</span>
-                    <span class="sa">f</span><span class="s2">"ignoring exiftool=</span><span class="si">{</span><span class="n">exiftool</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"exiftool subprocess already running, ignoring exiftool=</span><span class="si">{</span><span class="n">exiftool</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_running</span> <span class="o">=</span> <span class="kc">False</span>
@@ -440,7 +439,7 @@
         <span class="c1"># open exiftool procGess</span>
         <span class="c1"># make sure /usr/bin at start of path so exiftool can find xattr (see #636)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">"PATH"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'/usr/bin/:</span><span class="si">{</span><span class="n">env</span><span class="p">[</span><span class="s2">"PATH"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"PATH"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"/usr/bin/:</span><span class="si">{</span><span class="n">env</span><span class="p">[</span><span class="s1">'PATH'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">large_file_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"-api"</span><span class="p">,</span> <span class="s2">"largefilesupport=1"</span><span class="p">]</span> <span class="k">if</span> <span class="n">large_file_support</span> <span class="k">else</span> <span class="p">[]</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -713,7 +712,7 @@
 <span class="sd">        """</span>
         <span class="n">json_str</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_commands</span><span class="p">(</span><span class="s2">"-json"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">json_str</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">return</span> <span class="p">{}</span>
         <span class="n">json_str</span> <span class="o">=</span> <span class="n">unescape_str</span><span class="p">(</span><span class="n">json_str</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -722,7 +721,7 @@
             <span class="c1"># will fail with some commands, e.g --ext AVI which produces</span>
             <span class="c1"># 'No file with specified extension' instead of json</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"error loading json returned by exiftool: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">json_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-            <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">return</span> <span class="p">{}</span>
         <span class="n">exifdict</span> <span class="o">=</span> <span class="n">exifdict</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tag_groups</span><span class="p">:</span>
             <span class="c1"># strip tag groups</span>
@@ -775,7 +774,7 @@
 
 <span class="sd">    Creates a singleton cached ExifTool instance"""</span>
 
-    <span class="n">_singletons</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">_singletons</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ExifToolCaching</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""create new object or return instance of already created singleton"""</span>
@@ -893,7 +892,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=c6d1d8c8"></script>
+</div><script src="../../_static/documentation_options.js?v=f12952a2"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

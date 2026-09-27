@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Template System" href="template_help.html"><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.77.1 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.77.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.77.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -3035,7 +3035,7 @@ name in the same folder; see also '{album_seq}'.</p>
 <p>{cr}                            A carriage return: 'r'</p>
 <p>{crlf}                          A carriage return + line feed: 'rn'</p>
 <p>{tab}                           :A tab: 't'</p>
-<p>{osxphotos_version}             The osxphotos version, e.g. '0.77.1'</p>
+<p>{osxphotos_version}             The osxphotos version, e.g. '0.77.2'</p>
 <p>{osxphotos_cmd_line}            The full command line used to run osxphotos</p>
 <p>The following substitutions may result in multiple values. Thus if specified for --directory these could
 result in multiple copies of a photo being being exported, one to each directory.  For example: --directory
@@ -6167,6 +6167,10 @@ Any args are made available to the python file.</p>
 <p>The python file may be a path on disk, 'osxphotos run /path/to/file.py'
 or a URL to a python file, for example,</p>
 <p>'osxphotos run <a class="reference external" href="https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/count_photos.py">https://raw.githubusercontent.com/RhetTbull/osxphotos/main/examples/count_photos.py</a>'</p>
+<p>If the URL is for a GitHub page showing the file (e.g.</p>
+<p><a class="reference external" href="https://github.com/RhetTbull/osxphotos/blob/main/examples/count_photos.py">https://github.com/RhetTbull/osxphotos/blob/main/examples/count_photos.py</a>)</p>
+<p>or a GitHub gist, the raw file will be downloaded instead.
+The file is checked to ensure it is valid Python before it is run.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos<span class="w"> </span>run<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>PYTHON_FILE<span class="w"> </span>ARGS
 </pre></div>
 </div>
@@ -7486,7 +7490,7 @@ pattern string is a superset of the python 'strftime/strptime' format with the f
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=c6d1d8c8"></script>
+</div><script src="_static/documentation_options.js?v=f12952a2"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

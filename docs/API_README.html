@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="OSXPhotos Python Reference" href="reference.html"><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>OSXPhotos Python API - osxphotos 0.77.1 documentation</title>
+        <title>OSXPhotos Python API - osxphotos 0.77.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -162,7 +162,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.77.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -183,7 +183,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -366,7 +366,6 @@ cog.out("```\n")
         <span class="c1"># see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo</span>
         <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="o">...</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
@@ -599,7 +598,6 @@ cog.out("```\n")
         <span class="c1"># see: https://rhettbull.github.io/osxphotos/reference.html#osxphotos.PhotoInfo</span>
         <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="o">...</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
@@ -666,7 +664,7 @@ Python &lt; 3.11.</p>
             <span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
     <span class="n">end_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
     <span class="n">echo</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"Exported </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to </span><span class="si">{</span><span class="n">export_dir</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">end_t</span><span class="o">-</span><span class="n">start_t</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> seconds"</span>
+        <span class="sa">f</span><span class="s2">"Exported </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span><span class="si">}</span><span class="s2"> photos to </span><span class="si">{</span><span class="n">export_dir</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">end_t</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_t</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> seconds"</span>
     <span class="p">)</span>
 
 
@@ -704,6 +702,7 @@ Python &lt; 3.11.</p>
 <h4>Open the default (last opened) Photos library<a class="headerlink" href="#open-the-default-last-opened-photos-library" title="Link to this heading">¶</a></h4>
 <p>The default library is the library that would open if the user opened Photos.app.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
+
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_last_library_path</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -729,7 +728,9 @@ Python &lt; 3.11.</p>
 <h4>Open a specific Photos library<a class="headerlink" href="#open-a-specific-photos-library" title="Link to this heading">¶</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
-<span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">dbfile</span><span class="o">=</span><span class="s2">"/Users/smith/Pictures/Test.photoslibrary/database/photos.db"</span><span class="p">)</span>
+<span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span>
+    <span class="n">dbfile</span><span class="o">=</span><span class="s2">"/Users/smith/Pictures/Test.photoslibrary/database/photos.db"</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>or</p>
@@ -752,15 +753,15 @@ Python &lt; 3.11.</p>
 <p>If called with no parameters, returns a list of every photo in the Photos library.</p>
 <p>May be called with one or more of the following parameters to filter the list of photos returned:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span>
-    <span class="n">keywords</span> <span class="o">=</span> <span class="p">[],</span>
-    <span class="n">uuid</span> <span class="o">=</span> <span class="p">[],</span>
-    <span class="n">persons</span> <span class="o">=</span> <span class="p">[],</span>
-    <span class="n">albums</span> <span class="o">=</span> <span class="p">[],</span>
-    <span class="n">images</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">movies</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">from_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
-    <span class="n">to_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
-    <span class="n">intrash</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">keywords</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">uuid</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">persons</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">albums</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">images</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span>
+    <span class="n">movies</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span>
+    <span class="n">from_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+    <span class="n">to_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+    <span class="n">intrash</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -778,7 +779,7 @@ Python &lt; 3.11.</p>
 <p>See also <a class="reference external" href="#getphoto">get_photo()</a> which is much faster for retrieving a single photo and <a class="reference external" href="#photosdbquery">query</a> which provides much more flexibility in querying the database.</p>
 <p>If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as &quot;and&quot; criteria. E.g.</p>
 <p>Finds all photos with (keyword = &quot;wedding&quot; or &quot;birthday&quot;) and (persons = &quot;Juan Rodriguez&quot;)</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"wedding"</span><span class="p">,</span><span class="s2">"birthday"</span><span class="p">],</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Juan Rodriguez"</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">"wedding"</span><span class="p">,</span> <span class="s2">"birthday"</span><span class="p">],</span> <span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Juan Rodriguez"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Find all photos tagged with keyword &quot;wedding&quot;:</p>
@@ -788,17 +789,17 @@ Python &lt; 3.11.</p>
 </div>
 <p>Find all photos of Maria Smith</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Maria Smith"</span><span class="p">])</span>
+<span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">"Maria Smith"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Find all photos in album &quot;Summer Vacation&quot; or album &quot;Ski Trip&quot;</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">albums</span><span class="o">=</span><span class="p">[</span><span class="s2">"Summer Vacation"</span><span class="p">,</span> <span class="s2">"Ski Trip"</span><span class="p">])</span>
+<span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">albums</span><span class="o">=</span><span class="p">[</span><span class="s2">"Summer Vacation"</span><span class="p">,</span> <span class="s2">"Ski Trip"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Find the single photo with uuid = &quot;osMNIO5sQFGZTbj9WrydRB&quot;</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># assumes photosdb is a PhotosDB object (see above)</span>
-<span class="n">photos</span><span class="o">=</span><span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="p">[</span><span class="s2">"osMNIO5sQFGZTbj9WrydRB"</span><span class="p">])</span>
+<span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="p">[</span><span class="s2">"osMNIO5sQFGZTbj9WrydRB"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>If you need to do more complicated searches, you can do this programmaticaly.  For example, find photos with keyword = &quot;Kids&quot; but not in album &quot;Vacation 2019&quot;</p>
@@ -1021,7 +1022,7 @@ See also <a class="reference external" href="#keywords-as-dict">keywords_as_dict
 <span class="n">conn</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">get_db_connection</span><span class="p">()</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">"SELECT ZUUID FROM ZGENERICASSET WHERE ZFAVORITE = 1;"</span>
+    <span class="s2">"SELECT ZUUID FROM ZGENERICASSET WHERE ZFAVORITE = 1;"</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
@@ -1126,6 +1127,7 @@ See also <a class="reference external" href="#keywords-as-dict">keywords_as_dict
 <li><p><code class="docutils literal notranslate"><span class="pre">year</span></code>: search for photos taken in a given year</p></li>
 </ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Find all screenshots taken in 2019"""</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
@@ -1469,7 +1471,6 @@ See <a class="reference external" href="#burst-photos">burst_photos</a></p>
 <span class="go">'IMG_9851.JPG'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">burst_photo</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span>
-<span class="gp">...</span>
 <span class="go">IMG_9853.JPG</span>
 <span class="go">IMG_9852.JPG</span>
 <span class="go">IMG_9854.JPG</span>
@@ -1574,14 +1575,15 @@ See <a class="reference external" href="#burst-photos">burst_photos</a></p>
 <ul class="simple">
 <li><p><cite>asdict(tag_groups=True)</cite>: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See <a class="reference external" href="https://exiftool.org/">exiftool</a> documentation to understand which metadata keys are available. If <code class="docutils literal notranslate"><span class="pre">tag_groups</span></code> is True (default) dict keys are in form &quot;GROUP:TAG&quot;, e.g. &quot;IPTC:Keywords&quot;. If <code class="docutils literal notranslate"><span class="pre">tag_groups</span></code> is False, dict keys do not have group names, e.g. &quot;Keywords&quot;.</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'Composite:Aperture'</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
- <span class="s1">'Composite:GPSPosition'</span><span class="p">:</span> <span class="s1">'-34.9188916666667 138.596861111111'</span><span class="p">,</span>
- <span class="s1">'Composite:ImageSize'</span><span class="p">:</span> <span class="s1">'2754 2754'</span><span class="p">,</span>
- <span class="s1">'EXIF:CreateDate'</span><span class="p">:</span> <span class="s1">'2017:06:20 17:18:56'</span><span class="p">,</span>
- <span class="s1">'EXIF:LensMake'</span><span class="p">:</span> <span class="s1">'Apple'</span><span class="p">,</span>
- <span class="s1">'EXIF:LensModel'</span><span class="p">:</span> <span class="s1">'iPhone 6s back camera 4.15mm f/2.2'</span><span class="p">,</span>
- <span class="s1">'EXIF:Make'</span><span class="p">:</span> <span class="s1">'Apple'</span><span class="p">,</span>
- <span class="s1">'XMP:Title'</span><span class="p">:</span> <span class="s1">'Elder Park'</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">"Composite:Aperture"</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
+    <span class="s2">"Composite:GPSPosition"</span><span class="p">:</span> <span class="s2">"-34.9188916666667 138.596861111111"</span><span class="p">,</span>
+    <span class="s2">"Composite:ImageSize"</span><span class="p">:</span> <span class="s2">"2754 2754"</span><span class="p">,</span>
+    <span class="s2">"EXIF:CreateDate"</span><span class="p">:</span> <span class="s2">"2017:06:20 17:18:56"</span><span class="p">,</span>
+    <span class="s2">"EXIF:LensMake"</span><span class="p">:</span> <span class="s2">"Apple"</span><span class="p">,</span>
+    <span class="s2">"EXIF:LensModel"</span><span class="p">:</span> <span class="s2">"iPhone 6s back camera 4.15mm f/2.2"</span><span class="p">,</span>
+    <span class="s2">"EXIF:Make"</span><span class="p">:</span> <span class="s2">"Apple"</span><span class="p">,</span>
+    <span class="s2">"XMP:Title"</span><span class="p">:</span> <span class="s2">"Elder Park"</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1667,7 +1669,7 @@ is not intended for general use.</p>
 
 <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="s2">"/Users/smith/Pictures/Photos Library.photoslibrary"</span><span class="p">)</span>
 <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
-<span class="n">photos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"/tmp"</span><span class="p">,</span><span class="s2">"photo_name.jpg"</span><span class="p">,</span><span class="n">sidecar_json</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">photos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"/tmp"</span><span class="p">,</span> <span class="s2">"photo_name.jpg"</span><span class="p">,</span> <span class="n">sidecar_json</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Then</p>
@@ -3024,7 +3026,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 </td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. '0.77.1'</p></td>
+<td><p>The osxphotos version, e.g. '0.77.2'</p></td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -3125,14 +3127,15 @@ cog.out("\n"+get_template_field_table()+"\n")
 <ul class="simple">
 <li><p><cite>asdict(tag_groups=True)</cite>: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See <a class="reference external" href="https://exiftool.org/">exiftool</a> documentation to understand which metadata keys are available. If <code class="docutils literal notranslate"><span class="pre">tag_groups</span></code> is True (default) dict keys are in form &quot;GROUP:TAG&quot;, e.g. &quot;IPTC:Keywords&quot;. If <code class="docutils literal notranslate"><span class="pre">tag_groups</span></code> is False, dict keys do not have group names, e.g. &quot;Keywords&quot;.</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'Composite:Aperture'</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
- <span class="s1">'Composite:GPSPosition'</span><span class="p">:</span> <span class="s1">'-34.9188916666667 138.596861111111'</span><span class="p">,</span>
- <span class="s1">'Composite:ImageSize'</span><span class="p">:</span> <span class="s1">'2754 2754'</span><span class="p">,</span>
- <span class="s1">'EXIF:CreateDate'</span><span class="p">:</span> <span class="s1">'2017:06:20 17:18:56'</span><span class="p">,</span>
- <span class="s1">'EXIF:LensMake'</span><span class="p">:</span> <span class="s1">'Apple'</span><span class="p">,</span>
- <span class="s1">'EXIF:LensModel'</span><span class="p">:</span> <span class="s1">'iPhone 6s back camera 4.15mm f/2.2'</span><span class="p">,</span>
- <span class="s1">'EXIF:Make'</span><span class="p">:</span> <span class="s1">'Apple'</span><span class="p">,</span>
- <span class="s1">'XMP:Title'</span><span class="p">:</span> <span class="s1">'Elder Park'</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">"Composite:Aperture"</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
+    <span class="s2">"Composite:GPSPosition"</span><span class="p">:</span> <span class="s2">"-34.9188916666667 138.596861111111"</span><span class="p">,</span>
+    <span class="s2">"Composite:ImageSize"</span><span class="p">:</span> <span class="s2">"2754 2754"</span><span class="p">,</span>
+    <span class="s2">"EXIF:CreateDate"</span><span class="p">:</span> <span class="s2">"2017:06:20 17:18:56"</span><span class="p">,</span>
+    <span class="s2">"EXIF:LensMake"</span><span class="p">:</span> <span class="s2">"Apple"</span><span class="p">,</span>
+    <span class="s2">"EXIF:LensModel"</span><span class="p">:</span> <span class="s2">"iPhone 6s back camera 4.15mm f/2.2"</span><span class="p">,</span>
+    <span class="s2">"EXIF:Make"</span><span class="p">:</span> <span class="s2">"Apple"</span><span class="p">,</span>
+    <span class="s2">"XMP:Title"</span><span class="p">:</span> <span class="s2">"Elder Park"</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -3264,6 +3267,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos.exifwriter.ExifWriter</span></code> provides a way to write EXIF metadata (using <a class="reference external" href="https://exiftool.org/">exiftool</a>) to files. It is used by <code class="docutils literal notranslate"><span class="pre">PhotoExporter</span></code> to write metadata to exported files.  It can also be used independently of <code class="docutils literal notranslate"><span class="pre">PhotoExporter</span></code> to write metadata to files.  <code class="docutils literal notranslate"><span class="pre">ExifWriter</span></code> uses an <code class="docutils literal notranslate"><span class="pre">ExifOptions</span></code> options class to configure the output metadata. For example, <code class="docutils literal notranslate"><span class="pre">ExifOptions.description_template</span></code> allows you to specify a template to use for writing the <code class="docutils literal notranslate"><span class="pre">XMP:Description</span></code> field.</p>
 <p><code class="docutils literal notranslate"><span class="pre">ExifWriter</span></code> usage:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osxphotos.exifwriter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExifOptions</span><span class="p">,</span> <span class="n">ExifWriter</span>
+
 <span class="c1"># photo is a PhotoInfo object</span>
 <span class="n">writer</span> <span class="o">=</span> <span class="n">ExifWriter</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
 <span class="n">options</span> <span class="o">=</span> <span class="n">ExifOptions</span><span class="p">(</span><span class="n">merge_exif_keywords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -3450,6 +3454,7 @@ cog.out("\n"+get_template_field_table()+"\n")
 <section id="a-name-additional-examples-additional-examples-a">
 <h2><span class="raw-html-m2r"><a name="additional-examples">Additional Examples</a></span><a class="headerlink" href="#a-name-additional-examples-additional-examples-a" title="Link to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osxphotos</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 
@@ -3916,7 +3921,7 @@ cog.out("\n"+get_template_field_table()+"\n")
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=c6d1d8c8"></script>
+</div><script src="_static/documentation_options.js?v=f12952a2"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

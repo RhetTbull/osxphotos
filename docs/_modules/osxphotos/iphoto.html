@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
-        <title>osxphotos.iphoto - osxphotos 0.77.1 documentation</title>
+        <title>osxphotos.iphoto - osxphotos 0.77.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.77.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.77.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">osxphotos 0.77.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.77.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -274,8 +274,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">get_type_hints</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">get_type_hints</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">zoneinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZoneInfo</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
@@ -295,7 +296,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.photoexporter</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotoExporter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.photoinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotoInfo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.photoquery</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryOptions</span><span class="p">,</span> <span class="n">photo_query</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.photos_datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">photos_datetime</span><span class="p">,</span> <span class="n">photos_datetime_local</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.photos_datetime</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">iphoto_date_to_datetime</span><span class="p">,</span>
+    <span class="n">photos_datetime</span><span class="p">,</span>
+    <span class="n">photos_datetime_local</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.phototemplate</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhotoTemplate</span><span class="p">,</span> <span class="n">RenderOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_macos</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.scoreinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreInfo</span>
@@ -318,7 +323,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dbfile</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">exiftool</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">rich</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">_skip_searchinfo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1724,7 +1729,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">media_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Returns media analysis results as a dictionary (Photos 5+)"""</span>
-        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ai_caption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2825,8 +2830,6 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">iPhotoMomentInfo</span><span class="p">(</span><span class="n">iPhotoEventInfo</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Info about a photo moment; iPhoto doesn't have moments but Events are close"""</span>
 
-    <span class="o">...</span>
-
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">iPhotoExifInfo</span><span class="p">:</span>
@@ -2887,15 +2890,15 @@
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">elif</span> <span class="n">return_type</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">):</span>
         <span class="k">return</span> <span class="mf">0.0</span>
-    <span class="k">elif</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"list["</span><span class="p">)</span> <span class="ow">or</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"List["</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"list["</span><span class="p">,</span> <span class="s2">"List["</span><span class="p">)):</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">elif</span> <span class="s2">"tuple[None, None]"</span> <span class="ow">in</span> <span class="n">return_type</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"tuple["</span><span class="p">)</span> <span class="ow">or</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"Tuple["</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"tuple["</span><span class="p">,</span> <span class="s2">"Tuple["</span><span class="p">)):</span>
         <span class="k">return</span> <span class="p">()</span>
-    <span class="k">elif</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"dict["</span><span class="p">)</span> <span class="ow">or</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"Dict["</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"set["</span><span class="p">)</span> <span class="ow">or</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"Set["</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"dict["</span><span class="p">,</span> <span class="s2">"Dict["</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">elif</span> <span class="n">return_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"set["</span><span class="p">,</span> <span class="s2">"Set["</span><span class="p">)):</span>
         <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown return type: </span><span class="si">{</span><span class="n">return_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -2964,7 +2967,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=c6d1d8c8"></script>
+</div><script src="../../_static/documentation_options.js?v=f12952a2"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
