@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased](https://github.com/RhetTbull/osxphotos/compare/v0.77.1...HEAD)
+## [Unreleased](https://github.com/RhetTbull/osxphotos/compare/v0.77.2...HEAD)
 
 #### Added
 
@@ -13,6 +13,45 @@ All notable changes to this project will be documented in this file.
 #### Fixed
 
 #### Contributors
+
+## [v0.77.2](https://github.com/RhetTbull/osxphotos/compare/v0.77.1...v0.77.2)
+
+Fix shared albums on macOS 26+, system library detection on macOS 27, Google Takeout sidecar import, and other bug fixes.
+
+### 2026-09-27
+
+#### Added
+
+- `osxphotos run` now accepts GitHub file page URLs (`github.com/.../blob/...`) and gist URLs and converts them to the raw file URL before downloading. The script is also checked to make sure it compiles as Python before it is run; if the file is an HTML page, a hint to use the raw URL is shown (#2230, thanks @ctan13 for reporting in #2225).
+
+#### Changed
+
+- Updated `photoscript` dependency to `>=0.6.0`, which fixes a timeout (`-128` error) when waiting for Photos to launch with an empty library.
+- Relaxed `rich` dependency to allow 15.x (`>=13.5.2,<16.0.0`) (#2215).
+- Switched linting and formatting from black/isort to `ruff` (#2235).
+
+#### Removed
+
+#### Fixed
+
+- Fixed shared albums not being read on macOS 26+. Photos 11+ stores shared albums as `CollectionShare` records in `ZSHARE` and owner names in `ZSHAREPARTICIPANT`; osxphotos now reads shared albums, their assets, and owner names from these tables (#2003, thanks @mybizgeek for reporting).
+- Fixed `get_system_library_path()` always returning `None` on macOS 27. macOS 27 moved `SystemLibraryPath` to the photolibraryd group container plist; osxphotos now checks both the new and old locations and falls back to PhotoKit if neither has it (#2237).
+- Fixed `AlbumInfo.start_date` and `AlbumInfo.end_date` returning the Photos reference date (2001-01-01) instead of `None` for albums with no photos (#2238).
+- Fixed `import --sidecar` aborting on older Google Takeout `*.supplemental-metadata.json` sidecars that lack `geoDataExif` and `googlePhotosOrigin`; these are now recognized as Google Takeout sidecars (#2228, #2231, thanks @gerbz for reporting and @mishra-prince for the fix).
+- Fixed `import` aborting the whole batch on an unrecognized or malformed sidecar when rendering templates, reading `--favorite-rating`, or stripping edited suffixes; osxphotos now logs a warning and continues (#2228, #2232, thanks @mishra-prince).
+- Fixed several bugs found by `ruff` (#2235):
+  - iPhoto event `start_date`/`end_date` raised `NameError`.
+  - Setting an environment variable override (e.g. `OSXPHOTOS_MAX_RETRY_ATTEMPTS`, `OSXPHOTOS_SYNC_RETRY_ATTEMPTS`, `OSXPHOTOS_STAT_CACHE_TTL_SECONDS`, or a `*_BATCH_SIZE` variable) raised `TypeError` because the value was not converted to `int`.
+  - `sqlgrep` did not skip NULL values and binary blobs as intended.
+  - Several tests never ran or always passed.
+
+#### Contributors
+
+* @ctan13 [@ctan13](https://github.com/ctan13) for bug report
+* @gerbz [@gerbz](https://github.com/gerbz) for bug report
+* @mishra-prince [@mishra-prince](https://github.com/mishra-prince) for code
+* @mybizgeek [@mybizgeek](https://github.com/mybizgeek) for bug report
+* @RhetTbull [@RhetTbull](https://github.com/RhetTbull) for code
 
 ## [v0.77.1](https://github.com/RhetTbull/osxphotos/compare/v0.77.0...v0.77.1)
 
