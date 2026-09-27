@@ -1386,7 +1386,7 @@ requires-dist = [
     { name = "packaging", specifier = ">=21.3" },
     { name = "pathvalidate", specifier = ">=2.4.1,<4.0.0" },
     { name = "pdbpp", marker = "extra == 'dev'" },
-    { name = "photoscript", marker = "sys_platform == 'darwin'", specifier = ">=0.5.3" },
+    { name = "photoscript", marker = "sys_platform == 'darwin'", specifier = ">=0.6.0" },
     { name = "pip" },
     { name = "psutil" },
     { name = "ptpython", specifier = ">=3.0.20,<4.0.0" },
@@ -1495,7 +1495,7 @@ wheels = [
 
 [[package]]
 name = "photoscript"
-version = "0.5.3"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "py-applescript", marker = "sys_platform == 'darwin'" },
@@ -1509,9 +1509,9 @@ dependencies = [
     { name = "pyobjc-framework-cocoa", version = "12.2.2", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and sys_platform == 'darwin') or (platform_release >= '22.0' and sys_platform == 'darwin')" },
     { name = "tenacity", marker = "sys_platform == 'darwin'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b9/b8/55ef5e2285c8effe52d48ca053672b4a25bdc5c96e4666d187fa7deb95d3/photoscript-0.5.3.tar.gz", hash = "sha256:4d54bb99866f2450903be9f4996f311097d816e26dfae55c541f2ef58fc745dd", size = 29580, upload-time = "2025-12-22T12:52:39.951Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5d/6d/66f0eb039123b7eb58338946eaf053c2f46e308ec1dd4b28cf63012ff576/photoscript-0.6.0.tar.gz", hash = "sha256:0d1bee0106c0252ae77d5d0a458e39155d6d46b8f225c4cffb6be329cc8b39d0", size = 29944, upload-time = "2026-09-27T14:31:05.753Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/22/a7/a0559b8b1ec72bddba078b96b37f2ca71c61d1845d53babd1f58c09deb51/photoscript-0.5.3-py3-none-any.whl", hash = "sha256:4e4dba3ece23e0fba4ea6aa30c29526f3e9097182006a38011c61c44afefc4bf", size = 27750, upload-time = "2025-12-22T12:52:39.002Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/92/e155a91dfe1b167aff7ad6a8e272956be0f97950eb4b9df29a3082516550/photoscript-0.6.0-py3-none-any.whl", hash = "sha256:c3afc92e8eac61994d4bc92ed282d19f1eced967882d88738dffe69bbed67b62", size = 27945, upload-time = "2026-09-27T14:31:04.557Z" },
 ]
 
 [[package]]
