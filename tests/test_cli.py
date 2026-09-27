@@ -1799,12 +1799,11 @@ def test_export_tmpdir():
     runner = CliRunner()
     cwd = os.getcwd()
     tmpdir = TemporaryDirectory()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
+    with TemporaryDirectory() as export_dir:
         result = runner.invoke(
             export,
             [
-                ".",
+                export_dir,
                 "--library",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 "-V",
@@ -1813,7 +1812,8 @@ def test_export_tmpdir():
             ],
         )
         assert result.exit_code == 0
-        files = glob.glob("*")
+        files = glob.glob(os.path.join(export_dir, "*"))
+        files = [os.path.basename(path) for path in files]
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
