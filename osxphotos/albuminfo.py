@@ -87,7 +87,8 @@ class AlbumInfoBaseClass:
     @property
     def start_date(self):
         """For Albums, return start date (earliest image) of album or None for albums with no images
-        For Import Sessions, return start date of import session (when import began)"""
+        For Import Sessions, return start date of import session (when import began) or None if not set
+        """
         try:
             return self._start_date
         except AttributeError:
@@ -97,7 +98,7 @@ class AlbumInfoBaseClass:
     @property
     def end_date(self):
         """For Albums, return end date (most recent image) of album or None for albums with no images
-        For Import Sessions, return end date of import sessions (when import was completed)
+        For Import Sessions, return end date of import sessions (when import was completed) or None if not set
         """
         try:
             return self._end_date

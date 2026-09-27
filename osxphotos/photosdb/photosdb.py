@@ -1936,8 +1936,8 @@ class PhotosDB:
                 "intrash": album[9] != 0,
                 "creation_date": album[10]
                 or 0,  # iPhone Photos.sqlite can have null value
-                "start_date": album[11] or 0,
-                "end_date": album[12] or 0,
+                "start_date": album[11],  # null for albums with no photos
+                "end_date": album[12],
                 "customsortascending": album[13],
                 "customsortkey": album[14],
             }
@@ -2905,8 +2905,8 @@ class PhotosDB:
                 "pk": album[3],
                 "intrash": bool(album[4]),
                 "creation_date": album[5] or 0,
-                "start_date": album[6] or 0,
-                "end_date": album[7] or 0,
+                "start_date": album[6],  # null for albums with no photos
+                "end_date": album[7],
                 "customsortascending": album[8],
                 "customsortkey": album[9],
             }
