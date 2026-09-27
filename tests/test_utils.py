@@ -25,15 +25,6 @@ def test_dd_to_dms():
     assert _dd_to_dms(-0.001) == (0, 0, -3.6)
 
 
-@pytest.mark.skip(reason="Fails on some machines")
-def test_get_system_library_path():
-    _, major, _ = osxphotos.utils._get_os_version()
-    if int(major) < 15:
-        assert osxphotos.utils.get_system_library_path() is None
-    else:
-        assert osxphotos.utils.get_system_library_path() is not None
-
-
 def test_list_directory():
     """test list_directory"""
 
