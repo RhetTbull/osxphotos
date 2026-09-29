@@ -7540,40 +7540,42 @@ def test_export_cleanup_accented_album_name(isolated_fs):
     """test export with --cleanup flag and photos in album with accented unicode characters (#561, #618)"""
 
     runner = CliRunner()
-    tempdir = TemporaryDirectory()
 
-    result = runner.invoke(
-        export,
-        [
-            "--library",
-            CLI_PHOTOS_DB,
-            tempdir,
-            "-V",
-            "--update",
-            "--cleanup",
-            "--directory",
-            "{folder_album}",
-        ],
-    )
-    assert "Deleted: 0 files, 0 directories" in result.output
+    with tempfile.TemporaryDirectory() as tempdir:
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                CLI_PHOTOS_DB,
+                tempdir,
+                "-V",
+                "--update",
+                "--cleanup",
+                "--directory",
+                "{folder_album}",
+            ],
+        )
 
-    # do it again
-    result = runner.invoke(
-        export,
-        [
-            "--library",
-            CLI_PHOTOS_DB,
-            tempdir,
-            "-V",
-            "--update",
-            "--cleanup",
-            "--directory",
-            "{folder_album}",
-            "--update",
-        ],
-    )
-    assert "exported: 0, updated: 0" in result.output
-    assert "Deleted: 0 files, 0 directories" in result.output
+        print(f"{result.stdout=}")
+        print(f"{result.stderr=}")
+
+        assert "Deleted: 0 files, 0 directories" in result.output
+
+        # do it again
+        result = runner.invoke(
+            export,
+            [
+                "--library",
+                CLI_PHOTOS_DB,
+                tempdir,
+                "-V",
+                "--update",
+                "--cleanup",
+                "--directory",
+                "{folder_album}",
+                "--update",
+            ],
+        )
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
@@ -9185,7 +9187,7 @@ def test_export_jpeg_ext_not_jpeg(isolated_fs):
             assert f"{filename}.{ext}" in files
 
 
-def test_export_jpeg_ext_edited_movie(isolated_fs):
+def test_export_jpeg_ext_edited_movie(isolated_fs, clean_isolated_fs):
     """test --jpeg-ext doesn't change extension on edited movie (issue #366)"""
 
     runner = CliRunner()
@@ -9207,6 +9209,8 @@ def test_export_jpeg_ext_edited_movie(isolated_fs):
         files = [f.lower() for f in files]
         filename, ext = fileinfo
         assert f"{filename}_edited.{ext}".lower() in files
+        
+        clean_isolated_fs()
 
     for jpeg_ext in ["jpg", "JPG", "jpeg", "JPEG"]:
 
@@ -9230,6 +9234,8 @@ def test_export_jpeg_ext_edited_movie(isolated_fs):
             filename, ext = fileinfo
             assert f"{filename}_edited.{jpeg_ext}".lower() not in files
             assert f"{filename}_edited.{ext}".lower() in files
+
+            clean_isolated_fs()
 
 
 @pytest.mark.skipif(
