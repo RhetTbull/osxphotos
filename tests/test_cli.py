@@ -59,8 +59,9 @@ def get_exiftool_location(path: str | os.PathLike):
     lat, lon = exif["Composite:GPSLatitude"], exif["Composite:GPSLongitude"]
     return lat, lon
 
-
-CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
+# Fixtures for photos library paths. See isolated_fs fixture
+FIXTURES_PATH = pathlib.Path(__file__).parent.parent
+CLI_PHOTOS_DB = FIXTURES_PATH / "tests/Test-10.15.7.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
 COMMENTS_PHOTOS_DB = "tests/Test-Cloud-10.15.6.photoslibrary"
@@ -1798,7 +1799,11 @@ def test_export_no_exportdb():
 def isolated_fs(monkeypatch, tmp_path):
     """Fixture to create an isolated filesystem for testing. 
     Changes current working directory to a temporary directory. 
-    Replaces deprecated Click.runner.isolated_filesystem"""
+
+    Address Click.runner.isolated_filesystem DeprecationWarning: 'isolated_filesystem'
+    is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' 
+    or pytest's 'tmp_path' fixture with absolute paths instead.
+    """
     monkeypatch.chdir(tmp_path)
     return tmp_path
 
@@ -1807,27 +1812,22 @@ def test_export_tmpdir(isolated_fs):
     runner = CliRunner()
     cwd = os.getcwd()
     tmpdir = TemporaryDirectory()
-    # with runner.isolated_filesystem():
-    library_fixture_file = pathlib.Path(__file__).parent.parent / CLI_PHOTOS_DB
-    print(f"{pathlib.Path(__file__).parent=}")
-    print(f"{library_fixture_file=}")
+    # Replace the current working directory with the temporary directory
+    # Avoids using soon to be deprecated Click.runner.isolated_filesystem 
+    # library_fixture_file = FIXTURES_PATH / CLI_PHOTOS_DB
     result = runner.invoke(
         export,
         [
             ".",
             "--library",
-            os.path.join(cwd, library_fixture_file),
+            CLI_PHOTOS_DB,
             "-V",
             "--tmpdir",
             tmpdir.name,
         ],
     )
-    print(f"{result.stdout=}")
-    print(f"{result.stderr=}")
     assert result.exit_code == 0
     files = glob.glob("*")
-    # files = glob.glob(os.path.join(export_dir, "*"))
-    # files = [os.path.basename(path) for path in files]
     assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 

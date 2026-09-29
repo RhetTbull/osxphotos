@@ -319,7 +319,7 @@ def pytest_configure(config):
         global TEST_ADD_LOCATIONS
         TEST_ADD_LOCATIONS = True
 
-    if config.getoption("--no-cleanup"):s
+    if config.getoption("--no-cleanup"):
         global NO_CLEANUP
         NO_CLEANUP = True
 
