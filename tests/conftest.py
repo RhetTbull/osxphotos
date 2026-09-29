@@ -8,6 +8,7 @@ import re
 import shutil
 import tempfile
 import time
+from collections.abc import Callable
 from contextlib import contextmanager
 
 import pytest
@@ -17,6 +18,7 @@ from osxphotos.datetime_utils import (
     datetime_remove_tz,
     get_local_tz,
 )
+from osxphotos.exiftool import _ExifToolProc
 from osxphotos.platform import is_macos
 
 if is_macos:
@@ -25,10 +27,6 @@ if is_macos:
     from photoscript.utils import ditto
 
     from .test_catalina_10_15_7 import UUID_DICT_LOCAL
-
-from collections.abc import Callable
-
-from osxphotos.exiftool import _ExifToolProc
 
 # run timewarp tests (configured with --timewarp)
 TEST_TIMEWARP = False
