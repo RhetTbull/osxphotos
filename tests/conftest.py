@@ -86,6 +86,7 @@ TEST_LIBRARY_SYNC = None
 TEST_LIBRARY_ADD_LOCATIONS = None
 TEST_LIBRARY_TAKEOUT = None
 TEST_LIBRARY_PHOTODATES = None
+TEST_LIBRARY_IMPORT = None
 
 OS_VER = get_os_version() if is_macos else [None, None]
 if is_macos and (OS_VER[0] == "10" and OS_VER[1] in ("15", "16")):
@@ -154,6 +155,7 @@ def setup_photos_photodates():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import():
+    """Copy the photos library to a temporary location for import tests. """
     if not TEST_IMPORT:
         return
     copy_photos_library(TEST_LIBRARY_IMPORT, delay=LIBRARY_COPY_DELAY)
@@ -386,6 +388,9 @@ def copy_photos_library(photos_library, delay=0, open=True):
     photoslib.quit()
 
     src = pathlib.Path(os.getcwd()) / photos_library
+    if not src.is_dir():
+        pytest.exit(f"Invalid source photos_library: '{src}'")
+
     picture_folder = (
         pathlib.Path(os.environ["PHOTOSCRIPT_PICTURES_FOLDER"])
         if "PHOTOSCRIPT_PICTURES_FOLDER" in os.environ
@@ -450,11 +455,13 @@ def delete_crash_logs():
 
 @pytest.fixture
 def photoslib():
+    """PhotosLibrary fixture for testing """
     return photoscript.PhotosLibrary()
 
 
 @pytest.fixture
 def suspend_capture(pytestconfig):
+    """Suspend global capture for testing """
     class suspend_guard:
         def __init__(self):
             self.capmanager = pytestconfig.pluginmanager.getplugin("capturemanager")
@@ -480,6 +487,8 @@ def output_file():
 
 @contextmanager
 def set_timezone(timezone):
+    """Set the timezone for the duration of the context manager """
+    old_tz = None
     try:
         old_tz = os.environ.get("TZ")
         os.environ["TZ"] = timezone
@@ -495,6 +504,7 @@ def set_timezone(timezone):
 
 @pytest.fixture
 def set_tz_pacific():
+    """Set the timezone to Pacific Time for the duration of the context manager """
     timezone = "America/Los_Angeles"
     with set_timezone(timezone):
         yield
@@ -502,6 +512,7 @@ def set_tz_pacific():
 
 @pytest.fixture
 def set_tz_central():
+    """Set the timezone to Central Time for the duration of the context manager """
     timezone = "America/Chicago"
     with set_timezone(timezone):
         yield
@@ -509,6 +520,7 @@ def set_tz_central():
 
 @pytest.fixture
 def set_tz_cest():
+    """Set the timezone to Central European Summer Time for the duration of the context manager """
     timezone = "CEST"
     with set_timezone(timezone):
         yield
@@ -516,6 +528,7 @@ def set_tz_cest():
 
 @pytest.fixture
 def set_tz_jerusalem():
+    """Set the timezone to Jerusalem for the duration of the context manager """
     timezone = "Asia/Jerusalem"
     with set_timezone(timezone):
         yield

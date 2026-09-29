@@ -1794,27 +1794,41 @@ def test_export_no_exportdb():
         assert "Created export database" not in result.output
 
 
-def test_export_tmpdir():
+@pytest.fixture
+def isolated_fs(monkeypatch, tmp_path):
+    """Fixture to create an isolated filesystem for testing. 
+    Changes current working directory to a temporary directory. 
+    Replaces deprecated Click.runner.isolated_filesystem"""
+    monkeypatch.chdir(tmp_path)
+    return tmp_path
+
+def test_export_tmpdir(isolated_fs):
     """test basic export with --tmpdir"""
     runner = CliRunner()
     cwd = os.getcwd()
     tmpdir = TemporaryDirectory()
-    with TemporaryDirectory() as export_dir:
-        result = runner.invoke(
-            export,
-            [
-                export_dir,
-                "--library",
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                "-V",
-                "--tmpdir",
-                tmpdir.name,
-            ],
-        )
-        assert result.exit_code == 0
-        files = glob.glob(os.path.join(export_dir, "*"))
-        files = [os.path.basename(path) for path in files]
-        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+    # with runner.isolated_filesystem():
+    library_fixture_file = pathlib.Path(__file__).parent.parent / CLI_PHOTOS_DB
+    print(f"{pathlib.Path(__file__).parent=}")
+    print(f"{library_fixture_file=}")
+    result = runner.invoke(
+        export,
+        [
+            ".",
+            "--library",
+            os.path.join(cwd, library_fixture_file),
+            "-V",
+            "--tmpdir",
+            tmpdir.name,
+        ],
+    )
+    print(f"{result.stdout=}")
+    print(f"{result.stderr=}")
+    assert result.exit_code == 0
+    files = glob.glob("*")
+    # files = glob.glob(os.path.join(export_dir, "*"))
+    # files = [os.path.basename(path) for path in files]
+    assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
 def test_export_checkpoint():
