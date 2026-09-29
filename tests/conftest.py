@@ -56,10 +56,11 @@ LIBRARY_COPY_DELAY = 5
 
 
 def get_os_version():
+    """Get OS version as a tuple of strings (e.g. '10.13.6' -> ('10', '13', '6'))"""
     if not is_macos:
         return (None, None, None)
 
-    import platform
+    import platform  # pylint: disable=import-outside-toplevel
 
     # returns tuple containing OS version
     # e.g. 10.13.6 = (10, 13, 6)
@@ -134,6 +135,7 @@ elif not is_macos or int(OS_VER[0]) >= 13:
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_timewarp():
+    """Copy the photos library to a temporary location for timewarp tests. """
     if not TEST_TIMEWARP:
         return
     copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=LIBRARY_COPY_DELAY)
@@ -141,6 +143,7 @@ def setup_photos_timewarp():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_batchedit():
+    """Copy the photos library to a temporary location for batch edit tests. """
     if not TEST_BATCH_EDIT:
         return
     copy_photos_library(TEST_LIBRARY, delay=LIBRARY_COPY_DELAY)
@@ -148,6 +151,7 @@ def setup_photos_batchedit():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_photodates():
+    """Copy the photos library to a temporary location for photodates tests. """
     if not TEST_PHOTODATES:
         return
     copy_photos_library(TEST_LIBRARY_PHOTODATES, delay=LIBRARY_COPY_DELAY)
@@ -163,6 +167,7 @@ def setup_photos_import():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_import_takeout():
+    """Copy the photos library to a temporary location for import takeout tests. """
     if not TEST_IMPORT_TAKEOUT:
         return
     copy_photos_library(TEST_LIBRARY_TAKEOUT, delay=LIBRARY_COPY_DELAY)
@@ -170,6 +175,7 @@ def setup_photos_import_takeout():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_sync():
+    """Copy the photos library to a temporary location for sync tests. """
     if not TEST_SYNC:
         return
     copy_photos_library(TEST_LIBRARY_SYNC, delay=LIBRARY_COPY_DELAY)
@@ -177,6 +183,7 @@ def setup_photos_sync():
 
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_add_locations():
+    """Copy the photos library to a temporary location for add locations tests. """
     if not TEST_ADD_LOCATIONS:
         return
     copy_photos_library(TEST_LIBRARY_ADD_LOCATIONS, delay=LIBRARY_COPY_DELAY)
@@ -189,6 +196,7 @@ def reset_singletons():
 
 
 def pytest_addoption(parser):
+    """Add options to pytest """
     parser.addoption(
         "--addalbum",
         action="store_true",
@@ -238,6 +246,7 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    """Configure pytest """
     if (
         sum(
             bool(x)
@@ -310,7 +319,7 @@ def pytest_configure(config):
         global TEST_ADD_LOCATIONS
         TEST_ADD_LOCATIONS = True
 
-    if config.getoption("--no-cleanup"):
+    if config.getoption("--no-cleanup"):s
         global NO_CLEANUP
         NO_CLEANUP = True
 
@@ -463,6 +472,7 @@ def photoslib():
 def suspend_capture(pytestconfig):
     """Suspend global capture for testing """
     class suspend_guard:
+        """Guard for suspending global capture """
         def __init__(self):
             self.capmanager = pytestconfig.pluginmanager.getplugin("capturemanager")
 
