@@ -9,9 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout main repo
-        uses: actions/checkout@v7
-
       - name: Extract version from tag
         id: get_version
         run: |
@@ -20,21 +17,14 @@ jobs:
           VERSION="${RAW_TAG#v}"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
-      - name: Download release tarball from PyPI
+      - name: Get sdist URL and SHA256 from PyPI
         run: |
-          wget "https://files.pythonhosted.org/packages/source/o/osxphotos/osxphotos-${VERSION}.tar.gz" -O source.tar.gz
-
-      - name: Calculate SHA256
-        id: calculate_sha
-        run: |
-          SHA256=$(shasum -a 256 source.tar.gz | awk '{ print $1 }')
+          curl -fsSL "https://pypi.org/pypi/osxphotos/${VERSION}/json" -o pypi.json
+          URL=$(jq -r '.urls[] | select(.packagetype == "sdist") | .url' pypi.json)
+          SHA256=$(jq -r '.urls[] | select(.packagetype == "sdist") | .digests.sha256' pypi.json)
+          test -n "$URL" && test -n "$SHA256"
+          echo "URL=${URL}" >> $GITHUB_ENV
           echo "SHA256=${SHA256}" >> $GITHUB_ENV
-
-      - name: Update formula file
-        run: |
-          sed -i.bak "s|__VERSION__|${VERSION}|g" Formula/osxphotos.rb
-          sed -i.bak "s|__SHA256__|${SHA256}|g" Formula/osxphotos.rb
-          rm Formula/osxphotos.rb.bak
 
       - name: Checkout Homebrew tap repo
         uses: actions/checkout@v7
@@ -43,9 +33,15 @@ jobs:
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: homebrew-tap
 
-      - name: Copy updated formula to tap
+      # Only bump url and sha256 in the tap's formula; the rest of the formula
+      # (e.g. preserve_rpath) is maintained in the tap and must not be overwritten.
+      - name: Update formula in tap
         run: |
-          cp Formula/osxphotos.rb homebrew-tap/Formula/osxphotos.rb
+          FORMULA=homebrew-tap/Formula/osxphotos.rb
+          sed -i -E "s|^  url \".*\"$|  url \"${URL}\"|" "$FORMULA"
+          sed -i -E "s|^  sha256 \".*\"$|  sha256 \"${SHA256}\"|" "$FORMULA"
+          grep -qF "url \"${URL}\"" "$FORMULA"
+          grep -qF "sha256 \"${SHA256}\"" "$FORMULA"
 
       - name: Commit and push formula update
         run: |

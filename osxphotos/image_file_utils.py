@@ -63,6 +63,21 @@ def is_raw_image(filepath: str | os.PathLike) -> bool:
     return file_conforms_to_uti(filepath, "public.camera-raw-image")
 
 
+@cache
+def is_jpeg_or_heic(filepath: str | os.PathLike) -> bool:
+    """Return True if filepath is a JPEG or HEIC/HEIF image.
+
+    A live photo's still image is always a JPEG or HEIC/HEIF file; these are
+    the only image types that can be paired with a QuickTime video to form a
+    live photo.
+    """
+    return (
+        file_conforms_to_uti(filepath, "public.jpeg")
+        or file_conforms_to_uti(filepath, "public.heic")
+        or file_conforms_to_uti(filepath, "public.heif")
+    )
+
+
 def is_raw_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> bool:
     """Return True if one of the files is a RAW image and the other is a non-RAW image"""
     return (
@@ -78,11 +93,19 @@ def is_live_pair(filepath1: str | os.PathLike, filepath2: str | os.PathLike) -> 
     if not makelive:
         return False
 
-    if not is_image_file(filepath1) or not is_video_file(filepath2):
+    # A live photo pair is a still image (JPEG/HEIC) plus a QuickTime video.
+    # Other image types (e.g. PNG) can't form a live photo, so return False
+    # rather than letting makelive raise (see #2128).
+    if not is_jpeg_or_heic(filepath1) or not is_video_file(filepath2):
         # expects live pairs to be image, video
         return False
 
-    return makelive.is_live_photo_pair(filepath1, filepath2)
+    try:
+        return makelive.is_live_photo_pair(filepath1, filepath2)
+    except ValueError:
+        # makelive raises ValueError if the files aren't a valid live photo
+        # pair; treat that as "not a live pair" rather than crashing.
+        return False
 
 
 def is_possible_live_pair(

@@ -1372,7 +1372,7 @@ requires-dist = [
     { name = "build", marker = "extra == 'dev'" },
     { name = "bump-my-version", marker = "extra == 'dev'" },
     { name = "cgmetadata", marker = "sys_platform == 'darwin'", specifier = ">=0.2.0" },
-    { name = "click", specifier = ">=8.1.3" },
+    { name = "click", specifier = ">=8.1.3,<9.0" },
     { name = "cogapp", marker = "extra == 'dev'", specifier = ">=3.3.0,<4.0.0" },
     { name = "furo", marker = "extra == 'dev'" },
     { name = "m2r2", marker = "extra == 'dev'", specifier = "==0.3.4" },
