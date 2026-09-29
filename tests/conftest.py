@@ -133,6 +133,42 @@ elif not is_macos or int(OS_VER[0]) >= 13:
     TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
 
 
+@pytest.fixture
+def isolated_fs(monkeypatch: pytest.MonkeyPatch, tmp_path: str | pathlib.Path) -> pathlib.Path:
+    """Fixture to create an isolated filesystem for testing. 
+    Changes current working directory to a temporary directory. 
+
+    Args:
+        monkeypatch: pytest monkeypatch fixture
+        tmp_path: pytest tmp_path fixture
+    
+    Returns:
+        path: Path to the temporary directory
+    
+    Remarks:
+        Address Click.runner.isolated_filesystem DeprecationWarning: 'isolated_filesystem'
+        is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' 
+        or pytest's 'tmp_path' fixture with absolute paths instead.
+    """
+    path = pathlib.Path(tmp_path)
+    monkeypatch.chdir(path)
+    return path
+
+
+@pytest.fixture
+def clean_isolated_fs(isolated_fs: pathlib.Path) -> Callable[[], None]:
+    """Clean up the isolated filesystem by removing all files and directories."""
+    def clean() -> None:
+        """Clean up the isolated filesystem by removing all files and directories. """
+        for item in isolated_fs.iterdir():
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+
+    return clean
+
+
 @pytest.fixture(scope="session", autouse=is_macos)
 def setup_photos_timewarp():
     """Copy the photos library to a temporary location for timewarp tests. """
