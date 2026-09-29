@@ -16,6 +16,7 @@ from click.testing import CliRunner
 
 import osxphotos.crash_reporter as crash_reporter_module
 from osxphotos.cli import export
+
 from .conftest import fixture_path
 
 # The test library is a copy of the Photos library from macOS 10.15.7.
