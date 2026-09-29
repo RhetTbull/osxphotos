@@ -1916,9 +1916,6 @@ def test_export_uuid_from_file(isolated_fs):
         ],
     )
 
-    print(f"{result.stdout=}")
-    print(f"{result.stderr=}")
-
     assert result.exit_code == 0
     files = glob.glob("*")
     assert sorted(files) == sorted(CLI_EXPORT_UUID_FROM_FILE_FILENAMES)
@@ -1942,8 +1939,6 @@ def test_export_skip_uuid_from_file(isolated_fs):
             SKIP_UUID_FILE,
         ],
     )
-    print(f"{result.stdout=}")
-    print(f"{result.stderr=}")
 
     assert result.exit_code == 0
     files = glob.glob("*")
@@ -7548,9 +7543,6 @@ def test_export_cleanup_accented_album_name(isolated_fs):
                 "{folder_album}",
             ],
         )
-
-        print(f"{result.stdout=}")
-        print(f"{result.stderr=}")
 
         assert "Deleted: 0 files, 0 directories" in result.output
 
