@@ -1740,6 +1740,43 @@ def values_to_float(values: list[str]) -> list[str]:
     return float_values
 
 
+def _strftime(dt: datetime.datetime, format: str) -> str:
+    """Apply strftime to a datetime, handling the `%s` (epoch seconds) code correctly.
+
+    Python delegates `%s` to the platform C library `strftime`, which computes
+    epoch seconds from the *machine's* local timezone and ignores the tzinfo
+    attached to a timezone-aware datetime. That makes `{created.strftime,%s}`
+    off by the local UTC offset (e.g. one hour during DST). See issue #2157.
+
+    Compute `%s` ourselves from the datetime so the result reflects the
+    datetime's own timezone (or naive local time, matching `datetime.timestamp()`)
+    regardless of the machine's timezone, then hand the remaining codes to the
+    standard strftime.
+    """
+    if "%s" not in format:
+        return dt.strftime(format)
+
+    # Split on %s while respecting escaped %%s (a literal percent then 's').
+    epoch = str(int(dt.timestamp()))
+    result = []
+    i = 0
+    while i < len(format):
+        if format[i] == "%" and i + 1 < len(format):
+            code = format[i + 1]
+            if code == "s":
+                result.append(epoch)
+                i += 2
+                continue
+            # Any other code (including %%): pass the two-char token through
+            # to strftime so its semantics are preserved.
+            result.append(dt.strftime(format[i : i + 2]))
+            i += 2
+            continue
+        result.append(format[i])
+        i += 1
+    return "".join(result)
+
+
 def format_date_field(dt: datetime.datetime, field: str, args: list[str]) -> str:
     """Format a date template field in format 'created', 'create.year' etc.
 
@@ -1759,8 +1796,10 @@ def format_date_field(dt: datetime.datetime, field: str, args: list[str]) -> str
         if not args:
             return None
         try:
-            return dt.strftime(args[0])
-        except:
+            return _strftime(dt, args[0])
+        except ValueError:
+            raise
+        except Exception:
             raise ValueError(f"Invalid strftime template: '{args}'")
     else:
         try:
