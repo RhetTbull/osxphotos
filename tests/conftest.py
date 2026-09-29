@@ -376,6 +376,7 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(config, items):
+    """Modify items based on command line options"""
     if not (config.getoption("--addalbum") and TEST_LIBRARY is not None):
         skip_addalbum = pytest.mark.skip(reason="need --addalbum option to run")
         for item in items:
@@ -488,6 +489,7 @@ def copy_photos_library(photos_library, delay=0, open=True):
 
 @pytest.fixture
 def addalbum_library():
+    """Fixture to copy the addalbum library"""
     copy_photos_library(TEST_LIBRARY, delay=10)
 
 
