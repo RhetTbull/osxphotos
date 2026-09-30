@@ -14,8 +14,6 @@ def test_export_projects(isolated_fs):
     """test basic export with library containing projects"""
     runner = CliRunner()
 
-    result = runner.invoke(
-        export, ["--library", PHOTOS_DB_PROJECTS, ".", "-V"]
-    )
+    result = runner.invoke(export, ["--library", PHOTOS_DB_PROJECTS, ".", "-V"])
     assert result.exit_code == 0
     assert "error: 0" in result.output
