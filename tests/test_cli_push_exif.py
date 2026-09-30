@@ -18,6 +18,8 @@ from osxphotos import PhotoInfo, PhotosDB
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.platform import is_macos
 
+from .conftest import fixture_path
+
 if not is_macos:
     pytest.skip("Skipping macos-only tests", allow_module_level=True)
 
@@ -32,7 +34,7 @@ if exiftool is None:
     pytest.skip("could not find exiftool in path", allow_module_level=True)
 
 
-PHOTOS_DB = "tests/Test-13.0.0.photoslibrary/"
+PHOTOS_DB = fixture_path("tests/Test-13.0.0.photoslibrary")
 CWD = os.getcwd()
 
 UUID_MISSING = "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"  # Pumpkins4.jpg
@@ -42,19 +44,19 @@ UUID_NOT_FAVORITE = UUID_KEYWORDS_PERSONS
 UUID_DATE_MODIFIED = UUID_FAVORITE
 UUID_LOCATION = "3DD2C897-F19E-4CA6-8C22-B027D5A71907"  # IMG_4547.jpg
 
-PHOTOS_DB_LIVE_PHOTO = "tests/Test-Media-Types-15.7.2.photoslibrary/"
+PHOTOS_DB_LIVE_PHOTO = fixture_path("tests/Test-Media-Types-15.7.2.photoslibrary")
 UUID_LIVE_PHOTO = "D562F353-7A22-4367-9A7F-153A4D9F149C"  # IMG_4580.HEIC
 LIVE_PHOTO_LOCATION = (41, -86)  # location modified for the live photo
 
 
 def copy_photos_library(dest):
     """Make a copy of the Photos library for testing"""
-    return shutil.copytree(os.path.join(CWD, PHOTOS_DB), dest)
+    return shutil.copytree(PHOTOS_DB, dest)
 
 
 def copy_photos_library_live_photo(dest):
     """Make a copy of the Photos library for testing"""
-    return shutil.copytree(os.path.join(CWD, PHOTOS_DB_LIVE_PHOTO), dest)
+    return shutil.copytree(PHOTOS_DB_LIVE_PHOTO, dest)
 
 
 def get_exiftool_tag_as_list(photo: PhotoInfo, tag: str) -> list[str]:
@@ -129,443 +131,442 @@ def get_exiftool_location(path: str | os.PathLike):
     return lat, lon
 
 
-def test_cli_push_exif_basic(monkeypatch):
+def test_cli_push_exif_basic(monkeypatch, isolated_fs):
     """Test push-exif command"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif, ["all", "-V", "--force", "--library", test_library]
-        )
-        assert result.exit_code == 0
-        assert (
-            "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
-            in result.output
-        )
+    test_library = copy_photos_library("Test.photoslibrary")
+    result = runner.invoke(
+        push_exif, ["all", "-V", "--force", "--library", str(test_library)]
+    )
+    assert result.exit_code == 0
+    assert (
+        "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
+        in result.output
+    )
 
-        # verify keywords and persons were pushed
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        assert sorted(photo.keywords) == get_exiftool_keywords(photo)
-        assert sorted(photo.persons) == get_exiftool_persons(photo)
+    # verify keywords and persons were pushed
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    assert sorted(photo.keywords) == get_exiftool_keywords(photo)
+    assert sorted(photo.persons) == get_exiftool_persons(photo)
 
 
-def test_cli_push_exif_dry_run(monkeypatch):
+def test_cli_push_exif_dry_run(monkeypatch, isolated_fs):
     """Test push-exif command with --dry-run"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif, ["all", "-V", "--force", "--library", test_library, "--dry-run"]
-        )
-        assert result.exit_code == 0
-        assert (
-            "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
-            in result.output
-        )
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        # verify keywords and persons were not pushed
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        assert sorted(photo.keywords) != get_exiftool_keywords(photo)
-        assert sorted(photo.persons) != get_exiftool_persons(photo)
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif, ["all", "-V", "--force", "--library", test_library, "--dry-run"]
+    )
+    assert result.exit_code == 0
+    assert (
+        "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
+        in result.output
+    )
+
+    # verify keywords and persons were not pushed
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    assert sorted(photo.keywords) != get_exiftool_keywords(photo)
+    assert sorted(photo.persons) != get_exiftool_persons(photo)
 
 
-def test_cli_push_exif_exiftool_option(monkeypatch):
+def test_cli_push_exif_exiftool_option(monkeypatch, isolated_fs):
     """Test push-exif command with --exiftool-option"""
     # NOTE: Currently no photos that generate warnings in exiftool so can't test that
     # the -m option is actually working, just that it's passed to exiftool and doesn't generate error
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--exiftool-option",
-                "-m",
-            ],
-        )
-        assert result.exit_code == 0
-        assert (
-            "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
-            in result.output
-        )
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--exiftool-option",
+            "-m",
+        ],
+    )
+    assert result.exit_code == 0
+    assert (
+        "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
+        in result.output
+    )
 
 
-def test_cli_push_exif_exiftool_merge_keywords(monkeypatch):
+def test_cli_push_exif_exiftool_merge_keywords(monkeypatch, isolated_fs):
     """Test push-exif command with --exiftool-merge-keywords"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
 
-        set_exiftool_keywords(photo, ["Foo", "Bar"])
-        set_exiftool_persons(photo, ["JaneDoe"])
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
 
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--exiftool-merge-keywords",
-            ],
-        )
-        assert result.exit_code == 0
-        assert (
-            "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
-            in result.output
-        )
+    set_exiftool_keywords(photo, ["Foo", "Bar"])
+    set_exiftool_persons(photo, ["JaneDoe"])
 
-        # verify keywords and persons were pushed and merged appropriately
-        assert sorted(photo.keywords + ["Foo", "Bar"]) == get_exiftool_keywords(photo)
-        assert sorted(photo.persons) == get_exiftool_persons(photo)
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--exiftool-merge-keywords",
+        ],
+    )
+    assert result.exit_code == 0
+    assert (
+        "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
+        in result.output
+    )
+
+    # verify keywords and persons were pushed and merged appropriately
+    assert sorted(photo.keywords + ["Foo", "Bar"]) == get_exiftool_keywords(photo)
+    assert sorted(photo.persons) == get_exiftool_persons(photo)
 
 
-def test_cli_push_exif_exiftool_merge_persons(monkeypatch):
+def test_cli_push_exif_exiftool_merge_persons(monkeypatch, isolated_fs):
     """Test push-exif command with --exiftool-merge-persons"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
 
-        set_exiftool_keywords(photo, ["Foo", "Bar"])
-        set_exiftool_persons(photo, ["JaneDoe"])
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
 
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--exiftool-merge-persons",
-            ],
-        )
-        assert result.exit_code == 0
-        assert (
-            "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
-            in result.output
-        )
+    set_exiftool_keywords(photo, ["Foo", "Bar"])
+    set_exiftool_persons(photo, ["JaneDoe"])
 
-        # verify keywords and persons were pushed and merged appropriately
-        assert sorted(photo.keywords) == get_exiftool_keywords(photo)
-        assert sorted(photo.persons + ["JaneDoe"]) == get_exiftool_persons(photo)
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--exiftool-merge-persons",
+        ],
+    )
+    assert result.exit_code == 0
+    assert (
+        "Summary: 14 written, 0 updated, 0 skipped, 3 missing, 0 warning, 0 error"
+        in result.output
+    )
+
+    # verify keywords and persons were pushed and merged appropriately
+    assert sorted(photo.keywords) == get_exiftool_keywords(photo)
+    assert sorted(photo.persons + ["JaneDoe"]) == get_exiftool_persons(photo)
 
 
-def test_cli_push_exif_report_csv(monkeypatch):
+def test_cli_push_exif_report_csv(monkeypatch, isolated_fs):
     """Test push-exif command with --report csv"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--report",
-                "report.csv",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("report.csv", newline="") as fp:
-            report_data = list(csv.DictReader(fp))
-        assert len(report_data) == 17
-        missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
-        assert missing["missing"] == "original"
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--report",
+            "report.csv",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("report.csv", newline="") as fp:
+        report_data = list(csv.DictReader(fp))
+    assert len(report_data) == 17
+    missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
+    assert missing["missing"] == "original"
 
 
-def test_cli_push_exif_report_csv_append(monkeypatch):
+def test_cli_push_exif_report_csv_append(monkeypatch, isolated_fs):
     """Test push-exif command with --report csv --append"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--report",
-                "report.csv",
-                "--append",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("report.csv", newline="") as fp:
-            report_data = list(csv.DictReader(fp))
-        assert len(report_data) == 17
-        missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
-        assert missing["missing"] == "original"
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--report",
+            "report.csv",
+            "--append",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("report.csv", newline="") as fp:
+        report_data = list(csv.DictReader(fp))
+    assert len(report_data) == 17
+    missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
+    assert missing["missing"] == "original"
 
 
-def test_cli_push_exif_report_json(monkeypatch):
+def test_cli_push_exif_report_json(monkeypatch, isolated_fs):
     """Test push-exif command with --report json"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--report",
-                "report.json",
-            ],
-        )
-        assert result.exit_code == 0
-        with open("report.json", "r") as fp:
-            report_data = json.load(fp)
-        assert len(report_data) == 14
-        missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
-        assert missing["missing"] == ["original"]
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--report",
+            "report.json",
+        ],
+    )
+    assert result.exit_code == 0
+    with open("report.json", "r") as fp:
+        report_data = json.load(fp)
+    assert len(report_data) == 14
+    missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
+    assert missing["missing"] == ["original"]
 
 
-def test_cli_push_exif_report_sqlite(monkeypatch):
+def test_cli_push_exif_report_sqlite(monkeypatch, isolated_fs):
     """Test push-exif command with --report sqlite"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--report",
-                "report.db",
-            ],
-        )
-        assert result.exit_code == 0
-        conn = sqlite3.connect("report.db")
-        conn.row_factory = sqlite3.Row
-        report_data = list(conn.execute("SELECT * FROM report").fetchall())
-        assert len(report_data) == 17
-        missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
-        assert missing["missing"] == "original"
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--report",
+            "report.db",
+        ],
+    )
+    assert result.exit_code == 0
+    conn = sqlite3.connect("report.db")
+    conn.row_factory = sqlite3.Row
+    report_data = list(conn.execute("SELECT * FROM report").fetchall())
+    assert len(report_data) == 17
+    missing = [row for row in report_data if row["uuid"] == UUID_MISSING][0]
+    assert missing["missing"] == "original"
 
 
-def test_cli_push_exif_favorite_rating(monkeypatch):
+def test_cli_push_exif_favorite_rating(monkeypatch, isolated_fs):
     """Test push-exif command with --favorite-rating"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_FAVORITE,
-                "--uuid",
-                UUID_NOT_FAVORITE,
-                "--favorite-rating",
-            ],
-        )
-        assert result.exit_code == 0
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        # verify XMP:Rating was set to 5 or 0
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_FAVORITE)
-        assert photo.exiftool.asdict()["XMP:Rating"] == 5
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_FAVORITE,
+            "--uuid",
+            UUID_NOT_FAVORITE,
+            "--favorite-rating",
+        ],
+    )
+    assert result.exit_code == 0
 
-        photo = photosdb.get_photo(UUID_NOT_FAVORITE)
-        assert photo.exiftool.asdict()["XMP:Rating"] == 0
+    # verify XMP:Rating was set to 5 or 0
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_FAVORITE)
+    assert photo.exiftool.asdict()["XMP:Rating"] == 5
+
+    photo = photosdb.get_photo(UUID_NOT_FAVORITE)
+    assert photo.exiftool.asdict()["XMP:Rating"] == 0
 
 
-def test_cli_push_exif_ignore_date_modified(monkeypatch):
+def test_cli_push_exif_ignore_date_modified(monkeypatch, isolated_fs):
     """Test push-exif command with --ignore-date-modified"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_DATE_MODIFIED,
-                "--ignore-date-modified",
-            ],
-        )
-        assert result.exit_code == 0
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        photo = PhotosDB(test_library).get_photo(UUID_DATE_MODIFIED)
-        date_modified = photo.exiftool.asdict()["EXIF:ModifyDate"]
-        assert date_modified == photo.date.strftime("%Y:%m:%d %H:%M:%S")
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_DATE_MODIFIED,
+            "--ignore-date-modified",
+        ],
+    )
+    assert result.exit_code == 0
+
+    photo = PhotosDB(test_library).get_photo(UUID_DATE_MODIFIED)
+    date_modified = photo.exiftool.asdict()["EXIF:ModifyDate"]
+    assert date_modified == photo.date.strftime("%Y:%m:%d %H:%M:%S")
 
 
-def test_cli_push_exif_person_keyword_album_keyword(monkeypatch):
+def test_cli_push_exif_person_keyword_album_keyword(monkeypatch, isolated_fs):
     """Test push-exif command with --person-keyword and --album-keyword"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-                "--person-keyword",
-                "--album-keyword",
-            ],
-        )
-        assert result.exit_code == 0
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
-        keywords = get_exiftool_keywords(photo)
-        assert keywords == sorted(photo.keywords + photo.persons + photo.albums)
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+            "--person-keyword",
+            "--album-keyword",
+        ],
+    )
+    assert result.exit_code == 0
+
+    photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
+    keywords = get_exiftool_keywords(photo)
+    assert keywords == sorted(photo.keywords + photo.persons + photo.albums)
 
 
-def test_cli_push_exif_keyword_description_template(monkeypatch):
+def test_cli_push_exif_keyword_description_template(monkeypatch, isolated_fs):
     """Test push-exif command with --keyword-template and --description-template"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-                "--keyword-template",
-                "{title}",
-                "--keyword-template",
-                "FOO",
-                "--description-template",
-                "{descr} - {title}",
-            ],
-        )
-        assert result.exit_code == 0
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
-        keywords = get_exiftool_keywords(photo)
-        assert keywords == sorted(photo.keywords + [photo.title] + ["FOO"])
-        assert get_exiftool_description(photo) == f"{photo.description} - {photo.title}"
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+            "--keyword-template",
+            "{title}",
+            "--keyword-template",
+            "FOO",
+            "--description-template",
+            "{descr} - {title}",
+        ],
+    )
+    assert result.exit_code == 0
+
+    photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
+    keywords = get_exiftool_keywords(photo)
+    assert keywords == sorted(photo.keywords + [photo.title] + ["FOO"])
+    assert get_exiftool_description(photo) == f"{photo.description} - {photo.title}"
 
 
-def test_cli_push_exif_replace_keywords(monkeypatch):
+def test_cli_push_exif_replace_keywords(monkeypatch, isolated_fs):
     """Test push-exif command with --replace-keywords"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-                "--keyword-template",
-                "{title}",
-                "--keyword-template",
-                "FOO",
-                "--replace-keywords",
-            ],
-        )
-        assert result.exit_code == 0
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
-        keywords = get_exiftool_keywords(photo)
-        assert keywords == sorted([photo.title] + ["FOO"])
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+            "--keyword-template",
+            "{title}",
+            "--keyword-template",
+            "FOO",
+            "--replace-keywords",
+        ],
+    )
+    assert result.exit_code == 0
+
+    photo = PhotosDB(test_library).get_photo(UUID_KEYWORDS_PERSONS)
+    keywords = get_exiftool_keywords(photo)
+    assert keywords == sorted([photo.title] + ["FOO"])
 
 
-def test_cli_push_exif_metadata_arg(monkeypatch):
+def test_cli_push_exif_metadata_arg(monkeypatch, isolated_fs):
     """Test push-exif command with combinations of the METADATA argument"""
 
     # Note: this is a big integration test that tests a lot of combinations of the METADATA argument
@@ -573,442 +574,442 @@ def test_cli_push_exif_metadata_arg(monkeypatch):
     # copying the library for each test
 
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    test_library = copy_photos_library(os.path.join(cwd, "Test.photoslibrary"))
 
-        # first run with all
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_LOCATION,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-            ],
-        )
-        assert result.exit_code == 0
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # verify metadata was pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert sorted(photo.keywords) == get_exiftool_keywords(photo)
-        assert sorted(photo.persons) == get_exiftool_persons(photo)
-        assert photo.title == exif["XMP:Title"]
-        assert photo.description == exif["XMP:Description"]
-        assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:DateTimeOriginal"]
-        assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:CreateDate"]
-        assert sorted(photo.persons) == get_exiftool_tag_as_list(
-            photo, "XMP:PersonInImage"
-        )
-        assert "EXIF:GPSLatitude" not in exif
+    # first run with all
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_LOCATION,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+        ],
+    )
+    assert result.exit_code == 0
 
-        photo = photosdb.get_photo(UUID_LOCATION)
-        exif = ExifTool(photo.path).asdict()
-        assert photo.title == exif["XMP:Title"]
-        assert photo.description == exif["XMP:Description"]
-        assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:DateTimeOriginal"]
-        assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:CreateDate"]
-        assert abs(photo.latitude) == pytest.approx(exif["EXIF:GPSLatitude"])
-        assert abs(photo.longitude) == pytest.approx(exif["EXIF:GPSLongitude"])
-        assert "XMP:RegionName" not in exif
+    # verify metadata was pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert sorted(photo.keywords) == get_exiftool_keywords(photo)
+    assert sorted(photo.persons) == get_exiftool_persons(photo)
+    assert photo.title == exif["XMP:Title"]
+    assert photo.description == exif["XMP:Description"]
+    assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:DateTimeOriginal"]
+    assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:CreateDate"]
+    assert sorted(photo.persons) == get_exiftool_tag_as_list(
+        photo, "XMP:PersonInImage"
+    )
+    assert "EXIF:GPSLatitude" not in exif
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    exif = ExifTool(photo.path).asdict()
+    assert photo.title == exif["XMP:Title"]
+    assert photo.description == exif["XMP:Description"]
+    assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:DateTimeOriginal"]
+    assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:CreateDate"]
+    assert abs(photo.latitude) == pytest.approx(exif["EXIF:GPSLatitude"])
+    assert abs(photo.longitude) == pytest.approx(exif["EXIF:GPSLongitude"])
+    assert "XMP:RegionName" not in exif
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now run just keywords
-        result = runner.invoke(
-            push_exif,
-            [
-                "keywords",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-                "--uuid",
-                UUID_LOCATION,
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify keywords were pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        assert sorted(photo.keywords) == get_exiftool_keywords(photo)
-        exif = ExifTool(photo.path).asdict()
-        assert "XMP:PersonInImage" not in exif
-        assert "XMP:Description" not in exif
-        assert "XMP:Title" not in exif
-        assert "EXIF:DateTimeOriginal" not in exif
-        assert "EXIF:CreateDate" not in exif
-        assert "EXIF:GPSLatitude" not in exif
+    # now run just keywords
+    result = runner.invoke(
+        push_exif,
+        [
+            "keywords",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+            "--uuid",
+            UUID_LOCATION,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    # verify keywords were pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    assert sorted(photo.keywords) == get_exiftool_keywords(photo)
+    exif = ExifTool(photo.path).asdict()
+    assert "XMP:PersonInImage" not in exif
+    assert "XMP:Description" not in exif
+    assert "XMP:Title" not in exif
+    assert "EXIF:DateTimeOriginal" not in exif
+    assert "EXIF:CreateDate" not in exif
+    assert "EXIF:GPSLatitude" not in exif
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now run just location
-        result = runner.invoke(
-            push_exif,
-            [
-                "location",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-                "--uuid",
-                UUID_LOCATION,
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify non-location metadata not pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert "IPTC:Keywords" not in exif
-        assert "XMP:PersonInImage" not in exif
-        assert "XMP:Description" not in exif
-        assert "XMP:Title" not in exif
-        assert "EXIF:DateTimeOriginal" not in exif
-        assert "EXIF:CreateDate" not in exif
-        assert "XMP:RegionName" not in exif
+    # now run just location
+    result = runner.invoke(
+        push_exif,
+        [
+            "location",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+            "--uuid",
+            UUID_LOCATION,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # verify location was pushed
-        photo = photosdb.get_photo(UUID_LOCATION)
-        exif = ExifTool(photo.path).asdict()
-        assert "IPTC:Keywords" not in exif
-        assert "XMP:PersonInImage" not in exif
-        assert "XMP:Description" not in exif
-        assert "XMP:Title" not in exif
-        assert "EXIF:DateTimeOriginal" not in exif
-        assert "EXIF:CreateDate" not in exif
-        assert "XMP:RegionName" not in exif
-        assert abs(photo.latitude) == pytest.approx(exif["EXIF:GPSLatitude"])
+    # verify non-location metadata not pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert "IPTC:Keywords" not in exif
+    assert "XMP:PersonInImage" not in exif
+    assert "XMP:Description" not in exif
+    assert "XMP:Title" not in exif
+    assert "EXIF:DateTimeOriginal" not in exif
+    assert "EXIF:CreateDate" not in exif
+    assert "XMP:RegionName" not in exif
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    # verify location was pushed
+    photo = photosdb.get_photo(UUID_LOCATION)
+    exif = ExifTool(photo.path).asdict()
+    assert "IPTC:Keywords" not in exif
+    assert "XMP:PersonInImage" not in exif
+    assert "XMP:Description" not in exif
+    assert "XMP:Title" not in exif
+    assert "EXIF:DateTimeOriginal" not in exif
+    assert "EXIF:CreateDate" not in exif
+    assert "XMP:RegionName" not in exif
+    assert abs(photo.latitude) == pytest.approx(exif["EXIF:GPSLatitude"])
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now run just faces
-        result = runner.invoke(
-            push_exif,
-            [
-                "faces",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify non-faces metadata not pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert "IPTC:Keywords" not in exif
-        assert "XMP:PersonInImage" not in exif
-        assert "XMP:Description" not in exif
-        assert "XMP:Title" not in exif
-        assert "EXIF:DateTimeOriginal" not in exif
-        assert "EXIF:CreateDate" not in exif
+    # now run just faces
+    result = runner.invoke(
+        push_exif,
+        [
+            "faces",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # verify faces were pushed
-        assert sorted(
-            get_exiftool_tag_as_list(photo, "XMP:RegionsRegionListName")
-        ) == sorted(photo.persons)
+    # verify non-faces metadata not pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert "IPTC:Keywords" not in exif
+    assert "XMP:PersonInImage" not in exif
+    assert "XMP:Description" not in exif
+    assert "XMP:Title" not in exif
+    assert "EXIF:DateTimeOriginal" not in exif
+    assert "EXIF:CreateDate" not in exif
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    # verify faces were pushed
+    assert sorted(
+        get_exiftool_tag_as_list(photo, "XMP:RegionsRegionListName")
+    ) == sorted(photo.persons)
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now run just faces and persons
-        result = runner.invoke(
-            push_exif,
-            [
-                "faces,persons",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify non-location metadata not pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert "IPTC:Keywords" not in exif
-        assert "XMP:Description" not in exif
-        assert "XMP:Title" not in exif
-        assert "EXIF:DateTimeOriginal" not in exif
-        assert "EXIF:CreateDate" not in exif
-        assert get_exiftool_tag_as_list(photo, "XMP:RegionsRegionListName") == sorted(
-            photo.persons
-        )
-        assert get_exiftool_persons(photo) == sorted(photo.persons)
+    # now run just faces and persons
+    result = runner.invoke(
+        push_exif,
+        [
+            "faces,persons",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    # verify non-location metadata not pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert "IPTC:Keywords" not in exif
+    assert "XMP:Description" not in exif
+    assert "XMP:Title" not in exif
+    assert "EXIF:DateTimeOriginal" not in exif
+    assert "EXIF:CreateDate" not in exif
+    assert get_exiftool_tag_as_list(photo, "XMP:RegionsRegionListName") == sorted(
+        photo.persons
+    )
+    assert get_exiftool_persons(photo) == sorted(photo.persons)
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now run just datetime
-        result = runner.invoke(
-            push_exif,
-            [
-                "datetime",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify non-location metadata not pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert "IPTC:Keywords" not in exif
-        assert "XMP:Description" not in exif
-        assert "XMP:Title" not in exif
-        assert "XMP:RegionsRegionListName" not in exif
-        assert "XMP:PersonInImage" not in exif
-        assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:DateTimeOriginal"]
+    # now run just datetime
+    result = runner.invoke(
+        push_exif,
+        [
+            "datetime",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    # verify non-location metadata not pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert "IPTC:Keywords" not in exif
+    assert "XMP:Description" not in exif
+    assert "XMP:Title" not in exif
+    assert "XMP:RegionsRegionListName" not in exif
+    assert "XMP:PersonInImage" not in exif
+    assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:DateTimeOriginal"]
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now run just title
-        result = runner.invoke(
-            push_exif,
-            [
-                "title",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify non-location metadata not pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert "IPTC:Keywords" not in exif
-        assert "XMP:Description" not in exif
-        assert "XMP:RegionsRegionListName" not in exif
-        assert "XMP:PersonInImage" not in exif
-        assert "EXIF:DateTimeOriginal" not in exif
-        assert photo.title == exif["XMP:Title"]
+    # now run just title
+    result = runner.invoke(
+        push_exif,
+        [
+            "title",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    # verify non-location metadata not pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert "IPTC:Keywords" not in exif
+    assert "XMP:Description" not in exif
+    assert "XMP:RegionsRegionListName" not in exif
+    assert "XMP:PersonInImage" not in exif
+    assert "EXIF:DateTimeOriginal" not in exif
+    assert photo.title == exif["XMP:Title"]
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now run just description
-        result = runner.invoke(
-            push_exif,
-            [
-                "description",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify non-location metadata not pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert "IPTC:Keywords" not in exif
-        assert "XMP:RegionsRegionListName" not in exif
-        assert "XMP:PersonInImage" not in exif
-        assert "EXIF:DateTimeOriginal" not in exif
-        assert "XMP:Title" not in exif
-        assert photo.description == exif["XMP:Description"]
+    # now run just description
+    result = runner.invoke(
+        push_exif,
+        [
+            "description",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    # verify non-location metadata not pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert "IPTC:Keywords" not in exif
+    assert "XMP:RegionsRegionListName" not in exif
+    assert "XMP:PersonInImage" not in exif
+    assert "EXIF:DateTimeOriginal" not in exif
+    assert "XMP:Title" not in exif
+    assert photo.description == exif["XMP:Description"]
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now run description and keywords and persons
-        result = runner.invoke(
-            push_exif,
-            [
-                "description,keywords,persons",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify non-location metadata not pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert "XMP:RegionsRegionListName" not in exif
-        assert "EXIF:DateTimeOriginal" not in exif
-        assert "XMP:Title" not in exif
-        assert get_exiftool_keywords(photo) == sorted(photo.keywords)
-        assert photo.description == exif["XMP:Description"]
-        assert get_exiftool_persons(photo) == sorted(photo.persons)
+    # now run description and keywords and persons
+    result = runner.invoke(
+        push_exif,
+        [
+            "description,keywords,persons",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+        ],
+    )
+    assert result.exit_code == 0
 
-        # clear metadata
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        clear_exiftool_metadata(photo)
-        photo = photosdb.get_photo(UUID_LOCATION)
-        clear_exiftool_metadata(photo)
+    # verify non-location metadata not pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert "XMP:RegionsRegionListName" not in exif
+    assert "EXIF:DateTimeOriginal" not in exif
+    assert "XMP:Title" not in exif
+    assert get_exiftool_keywords(photo) == sorted(photo.keywords)
+    assert photo.description == exif["XMP:Description"]
+    assert get_exiftool_persons(photo) == sorted(photo.persons)
 
-        # delete the update_db
-        update_db = cwd / "osxphotos" / "push_exif.db"
-        update_db.unlink()
+    # clear metadata
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    clear_exiftool_metadata(photo)
+    photo = photosdb.get_photo(UUID_LOCATION)
+    clear_exiftool_metadata(photo)
 
-        # now with title and --keyword-template but not keywords
-        result = runner.invoke(
-            push_exif,
-            [
-                "title",
-                "-V",
-                "--force",
-                "--library",
-                test_library,
-                "--uuid",
-                UUID_KEYWORDS_PERSONS,
-                "--keyword-template",
-                "FOO",
-            ],
-        )
-        assert result.exit_code == 0
+    # delete the update_db
+    update_db = cwd / "osxphotos" / "push_exif.db"
+    update_db.unlink()
 
-        # verify non-location metadata not pushed
-        photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
-        exif = ExifTool(photo.path).asdict()
-        assert photo.title == exif["XMP:Title"]
-        assert "IPTC:Keywords" not in exif
+    # now with title and --keyword-template but not keywords
+    result = runner.invoke(
+        push_exif,
+        [
+            "title",
+            "-V",
+            "--force",
+            "--library",
+            test_library,
+            "--uuid",
+            UUID_KEYWORDS_PERSONS,
+            "--keyword-template",
+            "FOO",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # verify non-location metadata not pushed
+    photo = photosdb.get_photo(UUID_KEYWORDS_PERSONS)
+    exif = ExifTool(photo.path).asdict()
+    assert photo.title == exif["XMP:Title"]
+    assert "IPTC:Keywords" not in exif
 
 
-def test_cli_push_exif_live_photo(monkeypatch):
+def test_cli_push_exif_live_photo(monkeypatch, isolated_fs):
     """Test push-exif command with live photo (#2027)"""
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        cwd = pathlib.Path(os.getcwd())
 
-        monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
+    cwd = pathlib.Path(os.getcwd())
 
-        test_library = copy_photos_library_live_photo(
-            os.path.join(cwd, "Test.photoslibrary")
-        )
+    monkeypatch.setattr("xdg_base_dirs.xdg_data_home", lambda: cwd)
 
-        result = runner.invoke(
-            push_exif,
-            [
-                "all",
-                "-V",
-                "--force",
-                "--uuid",
-                UUID_LIVE_PHOTO,
-                "--library",
-                test_library,
-            ],
-        )
-        assert result.exit_code == 0
-        assert (
-            "Summary: 2 written, 0 updated, 0 skipped, 0 missing, 0 warning, 0 error"
-            in result.output
-        )
+    test_library = copy_photos_library_live_photo(
+        os.path.join(cwd, "Test.photoslibrary")
+    )
 
-        # verify location pushed to both live photo assets
-        photosdb = PhotosDB(test_library)
-        photo = photosdb.get_photo(UUID_LIVE_PHOTO)
-        assert photo.location == get_exiftool_location(photo.path)
-        assert photo.location == get_exiftool_location(photo.path_live_photo)
+    result = runner.invoke(
+        push_exif,
+        [
+            "all",
+            "-V",
+            "--force",
+            "--uuid",
+            UUID_LIVE_PHOTO,
+            "--library",
+            test_library,
+        ],
+    )
+    assert result.exit_code == 0
+    assert (
+        "Summary: 2 written, 0 updated, 0 skipped, 0 missing, 0 warning, 0 error"
+        in result.output
+    )
+
+    # verify location pushed to both live photo assets
+    photosdb = PhotosDB(test_library)
+    photo = photosdb.get_photo(UUID_LIVE_PHOTO)
+    assert photo.location == get_exiftool_location(photo.path)
+    assert photo.location == get_exiftool_location(photo.path_live_photo)
