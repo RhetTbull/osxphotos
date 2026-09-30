@@ -1,12 +1,9 @@
 """Tests which require user interaction to run for osxphotos import command; run with pytest --test-import"""
 
 import os
-import os.path
 import pathlib
 import re
-import shutil
 import sqlite3
-import sys
 import time
 from tempfile import TemporaryDirectory
 
@@ -17,6 +14,8 @@ from osxphotos._constants import UUID_PATTERN
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.platform import is_macos
 
+from .conftest import fixture_path
+
 if is_macos:
     from photoscript import Photo
 
@@ -26,8 +25,8 @@ else:
 
 TERMINAL_WIDTH = 250
 
-TEST_IMAGES_DIR = "tests/test-images"
-TAKEOUT_ARCHIVE = "tests/test-images/Takeout/Google Photos"
+TEST_IMAGES_DIR = fixture_path("tests/test-images")
+TAKEOUT_ARCHIVE = fixture_path("tests/test-images/Takeout/Google Photos")
 
 
 # set timezone to avoid issues with comparing dates
@@ -91,65 +90,64 @@ def parse_import_output(output: str) -> dict[str, str]:
 
 
 @pytest.mark.test_import_takeout
-def test_import_google_takeout(tmp_path):
+def test_import_google_takeout(tmp_path, isolated_fs):
     """Test import of a Google Takeout archive"""
-    cwd = os.getcwd()
-    test_takeout = os.path.join(cwd, TAKEOUT_ARCHIVE)
+    test_takeout = TAKEOUT_ARCHIVE
 
     runner = CliRunner(env={"TZ": "US/Pacific"})
-    with runner.isolated_filesystem(tmp_path):
-        result = runner.invoke(
-            import_main,
-            [
-                test_takeout,
-                "--walk",
-                "--album",
-                "{filepath.parent.name}",
-                "--skip-dups",
-                "--dup-albums",
-                "--sidecar",
-                "--keyword",
-                "{person}",
-                "--verbose",
-                "--report",
-                "takeout.db",
-            ],
-            terminal_width=TERMINAL_WIDTH,
-        )
-        assert result.exit_code == 0
 
-        # spot check the report database to make sure it has the expected data
-        conn = sqlite3.connect("takeout.db")
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-        c.execute("SELECT COUNT(*) FROM report")
-        assert c.fetchone()[0] == 31
+    result = runner.invoke(
+        import_main,
+        [
+            test_takeout,
+            "--walk",
+            "--album",
+            "{filepath.parent.name}",
+            "--skip-dups",
+            "--dup-albums",
+            "--sidecar",
+            "--keyword",
+            "{person}",
+            "--verbose",
+            "--report",
+            "takeout.db",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
 
-        # test a photo that was imported
-        row = c.execute(
-            "SELECT * FROM report WHERE filepath LIKE '%Pumpkins3.jpg'"
-        ).fetchall()
-        assert len(row) == 2
-        # check --skip-dups
-        assert sorted([row[0]["imported"], row[1]["imported"]]) == [0, 1]
-        assert sorted([row[0]["albums"], row[1]["albums"]]) == [
-            "Photos from 2018",
-            "Pumpkin Farm",
-        ]
+    # spot check the report database to make sure it has the expected data
+    conn = sqlite3.connect("takeout.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM report")
+    assert c.fetchone()[0] == 31
 
-        row = c.execute(
-            "SELECT * FROM report WHERE filepath LIKE '%wedding.jpg'"
-        ).fetchone()
+    # test a photo that was imported
+    row = c.execute(
+        "SELECT * FROM report WHERE filepath LIKE '%Pumpkins3.jpg'"
+    ).fetchall()
+    assert len(row) == 2
+    # check --skip-dups
+    assert sorted([row[0]["imported"], row[1]["imported"]]) == [0, 1]
+    assert sorted([row[0]["albums"], row[1]["albums"]]) == [
+        "Photos from 2018",
+        "Pumpkin Farm",
+    ]
 
-        assert row["description"] == "Bride Wedding day"
-        assert row["title"] == "wedding.jpg"
-        assert row["albums"] == "Photos from 2019"
-        assert sorted(row["keywords"].split(",")) == ["Maria"]
-        assert row["datetime"] == "2019-04-15T14:40:24"
+    row = c.execute(
+        "SELECT * FROM report WHERE filepath LIKE '%wedding.jpg'"
+    ).fetchone()
 
-        row = c.execute(
-            "SELECT * FROM report WHERE filepath LIKE '%IMG_1760.jpg'"
-        ).fetchone()
-        lat, lon = [float(x) for x in row["location"].split(",")]
-        assert lat == pytest.approx(18.9555889)
-        assert lon == pytest.approx(-72.7274778)
+    assert row["description"] == "Bride Wedding day"
+    assert row["title"] == "wedding.jpg"
+    assert row["albums"] == "Photos from 2019"
+    assert sorted(row["keywords"].split(",")) == ["Maria"]
+    assert row["datetime"] == "2019-04-15T14:40:24"
+
+    row = c.execute(
+        "SELECT * FROM report WHERE filepath LIKE '%IMG_1760.jpg'"
+    ).fetchone()
+    lat, lon = [float(x) for x in row["location"].split(",")]
+    assert lat == pytest.approx(18.9555889)
+    assert lon == pytest.approx(-72.7274778)
