@@ -14,7 +14,6 @@ import sqlite3
 import subprocess
 import tempfile
 import time
-from tempfile import TemporaryDirectory
 
 import pytest
 from bitmath import contextlib
@@ -1443,7 +1442,7 @@ def test_query_has_likes():
     """Test query with --has-likes"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -1466,7 +1465,7 @@ def test_query_no_likes():
     """Test query with --no-likes"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -1492,7 +1491,7 @@ def test_query_is_reference():
     """Test query with --is-reference"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -1515,7 +1514,7 @@ def test_query_edited():
     """Test query with --edited"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", CLI_PHOTOS_DB, "--edited"],
@@ -1532,7 +1531,7 @@ def test_query_not_edited():
     """Test query with --not-edited"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", CLI_PHOTOS_DB, "--not-edited"],
@@ -1549,7 +1548,7 @@ def test_query_in_album():
     """Test query with --in-album"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", PHOTOS_DB_15_7, "--in-album"],
@@ -1566,7 +1565,7 @@ def test_query_not_in_album():
     """Test query with --not-in-album"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -1589,7 +1588,7 @@ def test_query_duplicate():
     """Test query with --duplicate"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", CLI_PHOTOS_DB, "--duplicate"],
@@ -1606,7 +1605,7 @@ def test_query_location():
     """Test query with --location"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", CLI_PHOTOS_DB, "--location"],
@@ -1624,7 +1623,7 @@ def test_query_no_location():
     """Test query with --no-location"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", CLI_PHOTOS_DB, "--no-location"],
@@ -1644,7 +1643,7 @@ def test_query_exif(exiftag, exifvalue, uuid_expected):
     """Test query with --exif"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -1673,7 +1672,7 @@ def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
     """Test query with --exif -i"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -1700,7 +1699,7 @@ def test_query_exif_multiple():
     """Test query with multiple --exif options, #873"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -1726,7 +1725,7 @@ def test_query_exif_multiple():
 def test_export(isolated_fs):
     """test basic export"""
     runner = CliRunner()
-    cwd = os.getcwd()
+
     # pylint: disable=not-context-manager
 
     result = runner.invoke(export, [".", "--library", CLI_PHOTOS_DB, "-V"])
@@ -1738,7 +1737,7 @@ def test_export(isolated_fs):
 def test_export_alt_copy(isolated_fs):
     """test basic export with --alt-copy"""
     runner = CliRunner()
-    cwd = os.getcwd()
+
     # pylint: disable=not-context-manager
 
     result = runner.invoke(
@@ -1753,13 +1752,11 @@ def test_export_alt_copy(isolated_fs):
 def test_export_alt_db(isolated_fs):
     """test export with --alt-db"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     cwd_temp = os.getcwd()
     database_temp = os.path.join(cwd_temp, "database")
     shutil.copytree(
-        os.path.join(cwd, CLI_PHOTOS_DB, "database"),
+        os.path.join(CLI_PHOTOS_DB, "database"),
         database_temp,
     )
     library_root = CLI_PHOTOS_DB
@@ -1776,8 +1773,6 @@ def test_export_alt_db(isolated_fs):
 def test_export_no_exportdb(isolated_fs):
     """test basic export with --no-exportdb"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -1793,8 +1788,8 @@ def test_export_no_exportdb(isolated_fs):
 def test_export_tmpdir(isolated_fs):
     """test basic export with --tmpdir"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    tmpdir = TemporaryDirectory()
+
+    tmpdir = tempfile.TemporaryDirectory()
     # Replace the current working directory with the temporary directory
     # Avoids using soon to be deprecated Click.runner.isolated_filesystem
     # library_fixture_file = FIXTURES_PATH / CLI_PHOTOS_DB
@@ -1817,8 +1812,6 @@ def test_export_tmpdir(isolated_fs):
 def test_export_checkpoint(isolated_fs):
     """test basic export with --checkpoint"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     # check that database is not checkpointed with --dry-run
     result = runner.invoke(
@@ -1863,8 +1856,6 @@ def test_export_checkpoint(isolated_fs):
 def test_export_checkpoint_on_crash(isolated_fs):
     """test export will write the database when using --ramdb and a crash occurs"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -1885,7 +1876,6 @@ def test_export_checkpoint_on_crash(isolated_fs):
 def test_export_into_photos_library(isolated_fs):
     """Test attempt to export into a photos library, #1268"""
     runner = CliRunner()
-    cwd = os.getcwd()
 
     src = CLI_PHOTOS_DB
     dest = os.path.join(os.getcwd(), "export_test.photoslibrary")
@@ -1903,8 +1893,6 @@ def test_export_uuid_from_file(isolated_fs):
     """Test export with --uuid-from-file"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     print(f"{PHOTOS_DB_15_7=}")
     result = runner.invoke(
@@ -1928,8 +1916,6 @@ def test_export_skip_uuid_from_file(isolated_fs):
     """Test export with --skip-uuid-from-file"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -1953,8 +1939,7 @@ def test_export_skip_uuid(isolated_fs):
     """Test export with --skip-uuid"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
     uuid_option = []
     for uuid in CLI_EXPORT_SKIP_UUID:
         uuid_option.append("--skip-uuid")
@@ -1979,8 +1964,6 @@ def test_export_skip_uuid(isolated_fs):
 def test_export_year(isolated_fs):
     """test export with --year"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2003,8 +1986,6 @@ def test_export_preview(isolated_fs):
     """test export with --preview"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2027,8 +2008,6 @@ def test_export_preview_file_exists(isolated_fs):
     """test export with --preview when preview images already exist, issue #516"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2066,8 +2045,6 @@ def test_export_preview_suffix(isolated_fs):
     """test export with --preview and --preview-suffix"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2092,8 +2069,6 @@ def test_export_preview_if_missing(isolated_fs):
     """test export with --preview_if_missing"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     uuid_options = []
     for uuid in UUID_DICT_MISSING:
@@ -2121,8 +2096,6 @@ def test_export_preview_overwrite(isolated_fs):
     """test export with --preview and --overwrite (#526)"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2162,8 +2135,6 @@ def test_export_preview_update(isolated_fs):
     """test export with --preview and --update (#526)"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2237,7 +2208,7 @@ def test_export_as_hardlink_samefile(isolated_fs):
     # src and dest should be same file
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
     photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
 
@@ -2261,7 +2232,7 @@ def test_export_using_hardlinks_incompat_options(isolated_fs):
     # test that error shown if --export-as-hardlink used with --exiftool
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
     photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
 
@@ -2283,8 +2254,6 @@ def test_export_using_hardlinks_incompat_options(isolated_fs):
 
 def test_export_current_name(isolated_fs):
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2303,8 +2272,6 @@ def test_export_current_name(isolated_fs):
 
 def test_export_skip_edited(isolated_fs):
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2317,8 +2284,7 @@ def test_export_skip_edited(isolated_fs):
 
 def test_export_edited(isolated_fs):
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -2334,8 +2300,6 @@ def test_export_edited(isolated_fs):
 
 def test_export_not_edited(isolated_fs):
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2358,8 +2322,6 @@ def test_export_skip_original_if_edited(isolated_fs):
     """test export with --skip-original-if-edited"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2393,9 +2355,8 @@ def test_export_skip_original_if_edited(isolated_fs):
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool(isolated_fs):
+    """test export with --exiftool """
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL:
         result = runner.invoke(
@@ -2427,8 +2388,6 @@ def test_export_exiftool(isolated_fs):
 def test_export_exiftool_live_photo(isolated_fs):
     """Test that location data for Live Photo gets exported correctly (#2027)"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2455,8 +2414,6 @@ def test_export_exiftool_live_photo(isolated_fs):
 def test_export_exiftool_rating_iphoto(isolated_fs):
     """Test that with iPhoto library, XMP:Rating is written to file, #1353"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2479,8 +2436,8 @@ def test_export_exiftool_rating_iphoto(isolated_fs):
 def test_export_exiftool_tmpdir(isolated_fs):
     """test --exiftool with --tmpdir"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    tmpdir = TemporaryDirectory()
+
+    tmpdir = tempfile.TemporaryDirectory()
     # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL:
@@ -2515,8 +2472,6 @@ def test_export_exiftool_template_change(isolated_fs):
     """Test --exiftool when template changes with --update, #630"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL:
         # export with --exiftool
@@ -2596,8 +2551,6 @@ def test_export_exiftool_path(isolated_fs):
     """test --exiftool with --exiftool-path"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL:
         result = runner.invoke(
@@ -2638,8 +2591,6 @@ def test_export_exiftool_path_render_template(isolated_fs):
     osxphotos.exiftool.get_exiftool_path = noop
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL:
         result = runner.invoke(
@@ -2665,9 +2616,8 @@ def test_export_exiftool_path_render_template(isolated_fs):
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_ignore_date_modified(isolated_fs):
+    """test --exiftool with --ignore-date-modified"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL_IGNORE_DATE_MODIFIED:
         result = runner.invoke(
@@ -2702,8 +2652,6 @@ def test_export_exiftool_quicktime(isolated_fs):
     """test --exiftol correctly writes QuickTime tags"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL_QUICKTIME:
         result = runner.invoke(
@@ -2737,8 +2685,6 @@ def test_export_exiftool_duplicate_keywords(isolated_fs):
     """ensure duplicate keywords are removed"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL_DUPLICATE_KEYWORDS:
         result = runner.invoke(
@@ -2764,8 +2710,6 @@ def test_export_exiftool_error(isolated_fs):
     """ " test --exiftool catching error"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL:
         result = runner.invoke(
@@ -2797,8 +2741,6 @@ def test_export_exiftool_option(isolated_fs):
     """test --exiftool-option"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     # first export with --exiftool, one file produces a warning
     result = runner.invoke(
@@ -2832,8 +2774,6 @@ def test_export_exiftool_merge(isolated_fs):
     """test --exiftool-merge-keywords and --exiftool-merge-persons"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL_MERGE:
         result = runner.invoke(
@@ -2868,8 +2808,6 @@ def test_export_exiftool_merge_sidecar(isolated_fs):
     """test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL_MERGE:
         result = runner.invoke(
@@ -2915,8 +2853,6 @@ def test_export_exiftool_merge_sidecar_xmp(isolated_fs):
     """test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar xmp"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL_MERGE:
         result = runner.invoke(
@@ -2946,8 +2882,6 @@ def test_export_exiftool_favorite_rating(isolated_fs):
     """Test --exiftol --favorite-rating"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2974,7 +2908,6 @@ def test_export_exiftool_favorite_rating(isolated_fs):
 def test_export_exiftool_update_errors(isolated_fs):
     """Test export with --update-errors, #872"""
     runner = CliRunner()
-    cwd = os.getcwd()
 
     # first, normal export with --exiftool
     # some of the files will have errors / warnings from exiftool
@@ -3026,8 +2959,6 @@ def test_export_edited_suffix(isolated_fs):
     """test export with --edited-suffix"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3049,8 +2980,6 @@ def test_export_edited_suffix_template(isolated_fs):
     """test export with --edited-suffix template"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3072,8 +3001,6 @@ def test_export_original_suffix(isolated_fs):
     """test export with --original-suffix"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3095,8 +3022,6 @@ def test_export_original_suffix_template(isolated_fs):
     """test export with --original-suffix template"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3122,8 +3047,6 @@ def test_export_convert_to_jpeg(isolated_fs):
     """test --convert-to-jpeg"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3150,8 +3073,6 @@ def test_export_convert_to_jpeg_quality(isolated_fs):
     """test --convert-to-jpeg --jpeg-quality"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3180,8 +3101,6 @@ def test_export_convert_to_jpeg_skip_raw(isolated_fs):
     """test --convert-to-jpeg"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3203,8 +3122,6 @@ def test_export_skip_raw_jpeg(isolated_fs):
     """test --skip-raw-jpeg"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3225,8 +3142,6 @@ def test_export_skip_raw_jpeg_mutually_exclusive_with_skip_raw(isolated_fs):
     """test --skip-raw-jpeg and --skip-raw are mutually exclusive"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -3246,8 +3161,7 @@ def test_export_duplicate(isolated_fs):
     """Test export with --duplicate"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -3269,8 +3183,7 @@ def test_export_duplicate_unicode_filenames(isolated_fs):
     # test issue #515
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
     uuid = []
     for u in UUID_UNICODE_TITLE:
         uuid.append("--uuid")
@@ -3308,7 +3221,6 @@ def test_export_duplicate_unicode_filenames(isolated_fs):
 def test_export_smart_quotes(isolated_fs):
     """test export with smart quotes in destination path, #1408"""
     runner = CliRunner()
-    cwd = os.getcwd()
 
     os.mkdir("exportdir")
     result = runner.invoke(export, ["“exportdir”", "--library", CLI_PHOTOS_DB, "-V"])
@@ -3321,7 +3233,7 @@ def test_query_from_to_date():
     """Test --from-date and --to-date #590"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3344,7 +3256,7 @@ def test_query_from_to_date_alt_location():
     """Test --from-date and --to-date in a different timezone"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3367,7 +3279,7 @@ def test_query_from_to_date_timezone():
     """Test --from-date, --to-date with ISO 8601 timezone"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3390,7 +3302,7 @@ def test_query_from_to_time():
     """Test --from-time, --to-time"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3413,7 +3325,7 @@ def test_query_year_single():
     """Test --year"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3436,7 +3348,7 @@ def test_query_year_mulitple():
     """Test --year with multiple years"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3461,7 +3373,7 @@ def test_query_year_3():
     """Test --year with invalid year"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3483,7 +3395,7 @@ def test_query_keyword_1():
     """Test query --keyword"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3504,7 +3416,7 @@ def test_query_keyword_2():
     """Test query --keyword with lower case keyword"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3525,7 +3437,7 @@ def test_query_keyword_3():
     """Test query --keyword with lower case keyword and --ignore-case"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3547,7 +3459,7 @@ def test_query_keyword_4():
     """Test query with more than one --keyword"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3570,7 +3482,7 @@ def test_query_no_keyword():
     """Test query --no-keyword"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3592,7 +3504,7 @@ def test_query_person_1():
     """Test query --person"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3613,7 +3525,7 @@ def test_query_person_2():
     """Test query --person with lower case person"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3634,7 +3546,7 @@ def test_query_person_3():
     """Test query --person with lower case person and --ignore-case"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3656,7 +3568,7 @@ def test_query_person_4():
     """Test query with multiple --person"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3679,7 +3591,7 @@ def test_query_album_1():
     """Test query --album"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3700,7 +3612,7 @@ def test_query_album_2():
     """Test query --album with lower case album"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3721,7 +3633,7 @@ def test_query_album_3():
     """Test query --album with lower case album and --ignore-case"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3743,7 +3655,7 @@ def test_query_album_multiple():
     """Test query with multipl --album"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3766,7 +3678,7 @@ def test_query_album_path():
     """Test query --album with a full path"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3787,7 +3699,7 @@ def test_query_album_path_ignore_case():
     """Test query --album with a full path and --ignore-case"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3809,7 +3721,7 @@ def test_query_album_path_subfolder_no_match():
     """Test query --album with a full path but case doesn't match"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3830,7 +3742,7 @@ def test_query_album_path_escaped_slash():
     """Test query --album with a slash in album name"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3866,7 +3778,7 @@ def test_query_label_1():
     """Test query --label"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3887,7 +3799,7 @@ def test_query_label_2():
     """Test query --label with lower case label"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3908,7 +3820,7 @@ def test_query_label_3():
     """Test query --label with lower case label and --ignore-case"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3930,7 +3842,7 @@ def test_query_label_4():
     """Test query with more than one --label"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3953,7 +3865,7 @@ def test_query_deleted_deleted_only():
     """Test query with --deleted and --deleted-only"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -3972,7 +3884,7 @@ def test_query_deleted_1():
     """Test query with --deleted"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", PHOTOS_DB_15_7, "--deleted"],
@@ -3986,7 +3898,7 @@ def test_query_deleted_2():
     """Test query with --deleted"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", PHOTOS_DB_15_7, "--deleted"],
@@ -4000,7 +3912,7 @@ def test_query_deleted_3():
     """Test query with --deleted-only"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -4021,7 +3933,7 @@ def test_query_deleted_4():
     """Test query with --deleted-only"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -4042,8 +3954,7 @@ def test_export_aae(isolated_fs):
     """Test export with --export-aae"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -4089,8 +4000,7 @@ def test_export_aae_update(isolated_fs):
     """Test export with --export-aae --update"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -4131,8 +4041,7 @@ def test_export_sidecar(isolated_fs):
     """test --sidecar"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -4161,8 +4070,7 @@ def test_export_sidecar_iphoto(isolated_fs):
     """test --sidecar=xmp with iPhoto library to test XMP:Rating"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -5636,7 +5544,7 @@ def test_export_update_complex(isolated_fs):
     dest = os.path.join(os.getcwd(), "export_complex_update.photoslibrary")
     photos_db_path = copy_photos_library_to_path(src, dest)
 
-    tempdir = TemporaryDirectory()
+    tempdir = tempfile.TemporaryDirectory()
 
     options = [
         "--verbose",
@@ -5968,8 +5876,7 @@ def test_export_update_only_new(isolated_fs):
     """test --update --only-new"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     # basic export
     result = runner.invoke(
@@ -7504,8 +7411,7 @@ def test_export_cleanup_exiftool_accented_album_name_same_filenames():
     """test export with --cleanup flag and photos in album with accented unicode characters (#561, #618)"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
     with tempfile.TemporaryDirectory() as report_dir:
         # keep report file out of of expor dir for --cleanup
         report_file = os.path.join(report_dir, "test.csv")
@@ -7568,8 +7474,7 @@ def test_export_cleanup_keep(isolated_fs):
     """test export with --cleanup --keep options"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     tmpdir = os.getcwd()
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
@@ -7650,8 +7555,7 @@ def test_export_cleanup_keep_leading_slash(isolated_fs):
     """test export with --cleanup --keep options when pattern has leading slash"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     tmpdir = os.getcwd()
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
@@ -7732,8 +7636,7 @@ def test_export_cleanup_keep_relative_path(isolated_fs):
     """test export with --cleanup --keep options with relative paths"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -7822,8 +7725,7 @@ def test_export_cleanup_osxphotos_keep(isolated_fs):
     """test export with --cleanup with a .osxphotos_keep file"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     tmpdir = os.getcwd()
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
@@ -7897,8 +7799,7 @@ def test_export_cleanup_osxphotos_keep_keep(isolated_fs):
     """test export with --cleanup with a .osxphotos_keep file and --keep"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     tmpdir = os.getcwd()
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
@@ -7975,8 +7876,7 @@ def test_export_cleanup_command(isolated_fs):
     """test export with --cleanup-command flag"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -8033,8 +7933,7 @@ def test_export_cleanup_command_cleanup(isolated_fs):
     """test export with --cleanup-command and --cleanup flags"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -8089,8 +7988,7 @@ def test_export_cleanup_command_error(isolated_fs):
     """test export with --cleanup-command with errors"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -8125,8 +8023,7 @@ def test_save_load_config(isolated_fs):
     """test --save-config, --load-config"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     # test save config file
     result = runner.invoke(
@@ -8227,8 +8124,7 @@ def test_export_cleanup_command_error_break(isolated_fs):
     """test export with --cleanup-command with errors and --cleanup-command-error=break"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -8268,8 +8164,7 @@ def test_export_cleanup_command_error_continue(isolated_fs):
     """test export with --cleanup-command with errors and --cleanup-command-error=continue"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -8309,8 +8204,7 @@ def test_load_config_library(isolated_fs):
     """Test --load-config with libary option, #1274"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     with open("test.toml", "w") as fd:
         fd.write("[export]\n")
@@ -8335,8 +8229,7 @@ def test_config_only(isolated_fs):
     """test --save-config, --config-only"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     # test save config file
     result = runner.invoke(
@@ -8366,7 +8259,6 @@ def test_config_command_line_precedence(isolated_fs):
     """Test that command line options take precedence over config file"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
 
     # create a config file
     with open("config.toml", "w") as fd:
@@ -8416,8 +8308,7 @@ def test_export_exportdb(isolated_fs):
     """test --exportdb"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -8483,8 +8374,7 @@ def test_export_exportdb_ramdb(isolated_fs):
     """test --exportdb --ramdb"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -8527,8 +8417,7 @@ def test_export_ramdb(isolated_fs):
     """test --ramdb"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -8570,8 +8459,7 @@ def test_export_finder_tag_keywords_dry_run(isolated_fs):
     """test --finder-tag-keywords with --dry-run, #958"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8596,8 +8484,7 @@ def test_export_finder_tag_keywords(isolated_fs):
     """test --finder-tag-keywords"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8675,8 +8562,7 @@ def test_export_finder_tag_template(isolated_fs):
     """test --finder-tag-template"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8757,8 +8643,7 @@ def test_export_finder_tag_template_multiple(isolated_fs):
     """test --finder-tag-template used more than once"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8793,8 +8678,7 @@ def test_export_finder_tag_template_keywords(isolated_fs):
     """test --finder-tag-template with --finder-tag-keywords"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8828,8 +8712,7 @@ def test_export_finder_tag_template_multi_field(isolated_fs):
     """test --finder-tag-template with multiple fields (issue #422)"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8864,8 +8747,7 @@ def test_export_xattr_template_dry_run(isolated_fs):
     # Reference: https://github.com/RhetTbull/osxmetadata/issues/68
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     test_dir = os.getcwd()
     for uuid in CLI_FINDER_TAGS:
@@ -8902,8 +8784,7 @@ def test_export_xattr_template(isolated_fs):
     # Reference: https://github.com/RhetTbull/osxmetadata/issues/68
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     test_dir = os.getcwd()
     for uuid in CLI_FINDER_TAGS:
@@ -9128,8 +9009,7 @@ def test_export_jpeg_ext_convert_to_jpeg(isolated_fs):
     """test --jpeg-ext with --convert-to-jpeg"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid, filename in UUID_HEIC.items():
         result = runner.invoke(
@@ -9159,8 +9039,7 @@ def test_export_jpeg_ext_convert_to_jpeg_movie(isolated_fs):
     """test --jpeg-ext with --convert-to-jpeg and a movie, shouldn't convert or change extensions, #366"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid, fileinfo in UUID_MOVIES_NOT_JPEGS_DICT.items():
         result = runner.invoke(
@@ -9194,7 +9073,7 @@ def test_export_burst_folder_album(local_photosdb, isolated_fs):
     """test non-selected burst photos are exported with the album their key photo is in, issue #401"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     photos = local_photosdb.query(
         osxphotos.QueryOptions(description=["osxphotos:test_export_burst_folder_album"])
     )
@@ -9232,7 +9111,7 @@ def test_export_burst_uuid(local_photosdb: osxphotos.PhotosDB, isolated_fs):
     """test non-selected burst photos are exported when image is specified by --uuid, #640"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     photos = local_photosdb.query(
         osxphotos.QueryOptions(description=["osxphotos:test_export_burst_uuid"])
     )
@@ -9279,8 +9158,7 @@ def test_export_download_missing_file_exists(isolated_fs):
     """test --download-missing with file exists and --update, issue #456"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -9325,8 +9203,7 @@ def test_export_download_missing_preview(isolated_fs):
     """test --download-missing --preview, #564"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -9356,8 +9233,7 @@ def test_export_download_missing_preview_applescript(isolated_fs):
     """test --download-missing --preview and applescript download, #564"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -9382,7 +9258,7 @@ def test_query_name():
     """test query --name"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9405,7 +9281,7 @@ def test_query_name_unicode():
     """test query --name with a unicode name"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9430,7 +9306,7 @@ def test_query_name_i():
     """test query --name -i"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9454,7 +9330,7 @@ def test_query_name_original_filename():
     """test query --name only searches original filename on Photos 5+"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         ["--json", "--mute", "--db", PHOTOS_DB_15_7, "--name", "AA"],
@@ -9469,7 +9345,7 @@ def test_query_name_original_filename_i():
     """test query --name only searches original filename on Photos 5+ with -i"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9492,8 +9368,7 @@ def test_export_name(isolated_fs):
     """test export --name"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -9515,8 +9390,7 @@ def test_query_eval(isolated_fs):
     """test export --query-eval"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -9538,8 +9412,7 @@ def test_bad_query_eval(isolated_fs):
     """test export --query-eval with bad input"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         export,
@@ -9560,7 +9433,7 @@ def test_query_min_size_1():
     """test query --min-size"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9582,7 +9455,7 @@ def test_query_min_size_2():
     """test query --min-size"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9604,7 +9477,7 @@ def test_query_max_size_1():
     """test query --max-size"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9626,7 +9499,7 @@ def test_query_max_size_2():
     """test query --max-size"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9648,7 +9521,7 @@ def test_query_min_max_size():
     """test query --max-size with --min-size"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9672,7 +9545,7 @@ def test_query_min_size_error():
     """test query --max-size with invalid size"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9691,7 +9564,7 @@ def test_query_regex_1():
     """test query --regex against title"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9714,7 +9587,7 @@ def test_query_regex_2():
     """test query --regex with no match"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9737,7 +9610,7 @@ def test_query_regex_3():
     """test query --regex with --ignore-case"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9761,7 +9634,7 @@ def test_query_regex_4():
     """test query --regex against album"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9784,7 +9657,7 @@ def test_query_regex_multiple():
     """test query multiple --regex values (#525)"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -9810,8 +9683,7 @@ def test_query_function(isolated_fs):
     """test query --query-function"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     with open("query1.py", "w") as f:
         f.writelines(
@@ -9842,8 +9714,7 @@ def test_query_function_url(isolated_fs):
     """test query --query-function from a URL"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         query,
@@ -9866,8 +9737,7 @@ def test_query_added_after():
     """test query --added-after"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
     results = runner.invoke(
         query,
         [
@@ -9888,8 +9758,7 @@ def test_query_added_before():
     """test query --added-before"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
     results = runner.invoke(
         query,
         [
@@ -9913,8 +9782,7 @@ def test_query_added_in_last():
     # freezegun causes osxphotos tests to crash so we just test that the --added-in-last runs without error
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
     results = runner.invoke(
         query,
         [
@@ -9933,8 +9801,7 @@ def test_query_count():
     """Test query --count"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
     results = runner.invoke(
         query,
         [
@@ -9954,8 +9821,7 @@ def test_query_count_0():
     """Test query --count with zero results"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
     results = runner.invoke(
         query,
         [
@@ -9975,8 +9841,7 @@ def test_export_export_dir_template(isolated_fs):
     """Test {export_dir} template"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     isolated_cwd = os.getcwd()
     result = runner.invoke(
@@ -10006,8 +9871,7 @@ def test_export_filepath_template(isolated_fs):
     """Test {filepath} template"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     isolated_cwd = os.getcwd()
     result = runner.invoke(
@@ -10039,8 +9903,7 @@ def test_export_post_command(isolated_fs):
     """Test --post-command"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -10089,8 +9952,7 @@ def test_export_post_command_bad_command(isolated_fs):
     """Test --post-command with bad command"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -10114,8 +9976,7 @@ def test_export_post_command_bad_command_continue(isolated_fs):
     """Test --post-command with bad command with --post-command-error=continue"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -10141,8 +10002,7 @@ def test_export_post_command_bad_command_break(isolated_fs):
     """Test --post-command with bad command with --post-command-error=break"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -10168,8 +10028,7 @@ def test_export_post_command_bad_option_1(isolated_fs):
     """Test --post-command with bad options"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -10194,8 +10053,7 @@ def test_export_post_command_bad_option_2(isolated_fs):
     """Test --post-command with bad options"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -10221,8 +10079,7 @@ def test_export_post_function(isolated_fs):
     """Test --post-function"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     with open("foo1.py", "w") as f:
         f.writelines(
@@ -10253,8 +10110,7 @@ def test_export_post_function_exception(isolated_fs):
     """Test --post-function that generates an exception"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     with open("bar1.py", "w") as f:
         f.writelines(
@@ -10288,8 +10144,7 @@ def test_export_post_function_bad_value(isolated_fs):
     """Test --post-function option validation"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     with open("foo2.py", "w") as f:
         f.writelines(
@@ -10323,7 +10178,7 @@ def test_export_post_function_results(isolated_fs):
     """Test --post-function with returned ExportResults, uses the post_function in examples/post_function.py"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     tempdir = os.getcwd()
     result = runner.invoke(
@@ -10373,8 +10228,7 @@ def test_export_directory_template_function(isolated_fs):
     """Test --directory with template function"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     with open("foo3.py", "w") as f:
         f.writelines(["def foo(photo, **kwargs):\n", "    return 'foo/bar'"])
@@ -10402,8 +10256,7 @@ def test_export_query_function(isolated_fs):
     """Test --query-function"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     with open("query2.py", "w") as f:
         f.writelines(
@@ -10435,8 +10288,7 @@ def test_export_album_seq(isolated_fs):
     """Test {album_seq} template"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     for uuid in UUID_DICT_FOLDER_ALBUM_SEQ:
         result = runner.invoke(
@@ -10471,8 +10323,7 @@ def test_export_description_template(isolated_fs):
     """Test for issue #506"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -10498,8 +10349,7 @@ def test_export_description_template_conditional(isolated_fs):
     """Test for issue #506"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
+
 
     result = runner.invoke(
         cli_main,
@@ -10527,7 +10377,7 @@ def test_export_min_size_1(isolated_fs):
     """test export --min-size"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10541,7 +10391,7 @@ def test_export_validate_template_1(isolated_fs):
     """ "Test CLI validation of template arguments"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10561,7 +10411,7 @@ def test_export_validate_template_2(isolated_fs):
     """ "Test CLI validation of template arguments"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10591,7 +10441,7 @@ def test_export_added_after(isolated_fs):
     """test export --added-after"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10611,7 +10461,7 @@ def test_export_added_before(isolated_fs):
     """test export --added-before"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10634,7 +10484,7 @@ def test_export_added_in_last(isolated_fs):
     # just run export with --added-in-last and verify no errors
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10656,7 +10506,7 @@ def test_export_limit(isolated_fs):
     # Use --added-before so test doesn't break if photos added in the future
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10711,7 +10561,7 @@ def test_export_no_keyword(isolated_fs):
     """test export --no-keyword"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10732,7 +10582,7 @@ def test_export_print(isolated_fs):
     """test export --print"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         export,
@@ -10754,7 +10604,7 @@ def test_query_print_quiet(isolated_fs):
     """test query --print"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         query,
@@ -10777,7 +10627,7 @@ def test_query_field(isolated_fs):
     """test query --field"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         query,
@@ -10803,7 +10653,7 @@ def test_query_field_json(isolated_fs):
     """test query --field --json"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
 
     result = runner.invoke(
         query,
@@ -10832,7 +10682,7 @@ def test_query_screen_recording():
     """Test query with --screen-recording"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
@@ -10855,7 +10705,7 @@ def test_query_not_screen_recording():
     """Test query with --not-screen-recording"""
 
     runner = CliRunner()
-    cwd = os.getcwd()
+
     result = runner.invoke(
         query,
         [
