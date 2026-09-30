@@ -12,115 +12,97 @@ from osxphotos.photosdb import PhotosDB
 
 from .test_cli import CLI_PHOTOS_DB
 
+from .conftest import isolated_fs
 
 @pytest.fixture
 def photos():
     """Return photos from CLI_PHOTOS_DB"""
-    cwd = os.getcwd()
-    db_path = os.path.join(cwd, CLI_PHOTOS_DB)
-    return PhotosDB(db_path).photos(intrash=True)
+    return PhotosDB(CLI_PHOTOS_DB).photos(intrash=True)
 
 
-def test_dump_basic(photos):
+def test_dump_basic(photos, isolated_fs):
     """Test osxphotos dump"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    db_path = os.path.join(cwd, CLI_PHOTOS_DB)
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(dump, ["--db", db_path, "--deleted"])
-        assert result.exit_code == 0
-        assert result.output.startswith("uuid,filename")
-        for photo in photos:
-            assert photo.uuid in result.output
+    result = runner.invoke(dump, ["--db", CLI_PHOTOS_DB, "--deleted"])
+    assert result.exit_code == 0
+    assert result.output.startswith("uuid,filename")
+    for photo in photos:
+        assert photo.uuid in result.output
 
 
-def test_dump_json(photos):
+def test_dump_json(photos, isolated_fs):
     """Test osxphotos dump --json"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    db_path = os.path.join(cwd, CLI_PHOTOS_DB)
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(dump, ["--db", db_path, "--deleted", "--json"])
-        assert result.exit_code == 0
-        json_data = {record["uuid"]: record for record in json.loads(result.output)}
-        for photo in photos:
-            assert photo.uuid in json_data
+
+    result = runner.invoke(dump, ["--db", CLI_PHOTOS_DB, "--deleted", "--json"])
+    assert result.exit_code == 0
+    json_data = {record["uuid"]: record for record in json.loads(result.output)}
+    for photo in photos:
+        assert photo.uuid in json_data
 
 
-def test_dump_print(photos):
+def test_dump_print(photos, isolated_fs):
     """Test osxphotos dump --print"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    db_path = os.path.join(cwd, CLI_PHOTOS_DB)
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            dump,
-            [
-                "--db",
-                db_path,
-                "--deleted",
-                "--print",
-                "{uuid}{tab}{photo.original_filename}",
-            ],
-        )
-        assert result.exit_code == 0
-        for photo in photos:
-            assert f"{photo.uuid}\t{photo.original_filename}" in result.output
+
+    result = runner.invoke(
+        dump,
+        [
+            "--db",
+            CLI_PHOTOS_DB,
+            "--deleted",
+            "--print",
+            "{uuid}{tab}{photo.original_filename}",
+        ],
+    )
+    assert result.exit_code == 0
+    for photo in photos:
+        assert f"{photo.uuid}\t{photo.original_filename}" in result.output
 
 
-def test_dump_field(photos):
+def test_dump_field(photos, isolated_fs):
     """Test osxphotos dump --field"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    db_path = os.path.join(cwd, CLI_PHOTOS_DB)
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            dump,
-            [
-                "--db",
-                db_path,
-                "--deleted",
-                "--field",
-                "uuid",
-                "{uuid}",
-                "--field",
-                "name",
-                "{photo.original_filename}",
-            ],
-        )
-        assert result.exit_code == 0
-        for photo in photos:
-            assert f"{photo.uuid},{photo.original_filename}" in result.output
+
+    result = runner.invoke(
+        dump,
+        [
+            "--db",
+            CLI_PHOTOS_DB,
+            "--deleted",
+            "--field",
+            "uuid",
+            "{uuid}",
+            "--field",
+            "name",
+            "{photo.original_filename}",
+        ],
+    )
+    assert result.exit_code == 0
+    for photo in photos:
+        assert f"{photo.uuid},{photo.original_filename}" in result.output
 
 
-def test_dump_field_json(photos):
+def test_dump_field_json(photos, isolated_fs):
     """Test osxphotos dump --field --jso"""
     runner = CliRunner()
-    cwd = os.getcwd()
-    db_path = os.path.join(cwd, CLI_PHOTOS_DB)
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            dump,
-            [
-                "--db",
-                db_path,
-                "--deleted",
-                "--field",
-                "uuid",
-                "{uuid}",
-                "--field",
-                "name",
-                "{photo.original_filename}",
-                "--json",
-            ],
-        )
-        assert result.exit_code == 0
-        json_data = {record["uuid"]: record for record in json.loads(result.output)}
-        for photo in photos:
-            assert photo.uuid in json_data
-            assert json_data[photo.uuid]["name"] == photo.original_filename
+    result = runner.invoke(
+        dump,
+        [
+            "--db",
+            CLI_PHOTOS_DB,
+            "--deleted",
+            "--field",
+            "uuid",
+            "{uuid}",
+            "--field",
+            "name",
+            "{photo.original_filename}",
+            "--json",
+        ],
+    )
+    assert result.exit_code == 0
+    json_data = {record["uuid"]: record for record in json.loads(result.output)}
+    for photo in photos:
+        assert photo.uuid in json_data
+        assert json_data[photo.uuid]["name"] == photo.original_filename
