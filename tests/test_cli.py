@@ -2285,7 +2285,6 @@ def test_export_skip_edited(isolated_fs):
 def test_export_edited(isolated_fs):
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         ["--library", CLI_PHOTOS_DB, ".", "--edited", "-V"],
@@ -2355,7 +2354,7 @@ def test_export_skip_original_if_edited(isolated_fs):
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool(isolated_fs):
-    """test export with --exiftool """
+    """test export with --exiftool"""
     runner = CliRunner()
 
     for uuid in CLI_EXIFTOOL:
@@ -3162,7 +3161,6 @@ def test_export_duplicate(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -3955,7 +3953,6 @@ def test_export_aae(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         cli_main,
         [
@@ -4001,7 +3998,6 @@ def test_export_aae_update(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         cli_main,
         [
@@ -4042,7 +4038,6 @@ def test_export_sidecar(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         cli_main,
         [
@@ -4070,7 +4065,6 @@ def test_export_sidecar_iphoto(isolated_fs):
     """test --sidecar=xmp with iPhoto library to test XMP:Rating"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         cli_main,
@@ -5877,7 +5871,6 @@ def test_export_update_only_new(isolated_fs):
 
     runner = CliRunner()
 
-
     # basic export
     result = runner.invoke(
         export,
@@ -7475,7 +7468,6 @@ def test_export_cleanup_keep(isolated_fs):
 
     runner = CliRunner()
 
-
     tmpdir = os.getcwd()
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -7556,7 +7548,6 @@ def test_export_cleanup_keep_leading_slash(isolated_fs):
 
     runner = CliRunner()
 
-
     tmpdir = os.getcwd()
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -7636,7 +7627,6 @@ def test_export_cleanup_keep_relative_path(isolated_fs):
     """test export with --cleanup --keep options with relative paths"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -7726,7 +7716,6 @@ def test_export_cleanup_osxphotos_keep(isolated_fs):
 
     runner = CliRunner()
 
-
     tmpdir = os.getcwd()
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -7799,7 +7788,6 @@ def test_export_cleanup_osxphotos_keep_keep(isolated_fs):
     """test export with --cleanup with a .osxphotos_keep file and --keep"""
 
     runner = CliRunner()
-
 
     tmpdir = os.getcwd()
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
@@ -7877,7 +7865,6 @@ def test_export_cleanup_command(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
 
@@ -7934,7 +7921,6 @@ def test_export_cleanup_command_cleanup(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
 
@@ -7989,7 +7975,6 @@ def test_export_cleanup_command_error(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
 
@@ -8023,7 +8008,6 @@ def test_save_load_config(isolated_fs):
     """test --save-config, --load-config"""
 
     runner = CliRunner()
-
 
     # test save config file
     result = runner.invoke(
@@ -8125,7 +8109,6 @@ def test_export_cleanup_command_error_break(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
 
@@ -8164,7 +8147,6 @@ def test_export_cleanup_command_error_continue(isolated_fs):
     """test export with --cleanup-command with errors and --cleanup-command-error=continue"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(export, ["--library", CLI_PHOTOS_DB, ".", "-V"])
     assert result.exit_code == 0
@@ -8205,7 +8187,6 @@ def test_load_config_library(isolated_fs):
 
     runner = CliRunner()
 
-
     with open("test.toml", "w") as fd:
         fd.write("[export]\n")
         fd.write(f'library = "{CLI_PHOTOS_DB}"\n')
@@ -8229,7 +8210,6 @@ def test_config_only(isolated_fs):
     """test --save-config, --config-only"""
 
     runner = CliRunner()
-
 
     # test save config file
     result = runner.invoke(
@@ -8309,7 +8289,6 @@ def test_export_exportdb(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -8375,7 +8354,6 @@ def test_export_exportdb_ramdb(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -8418,7 +8396,6 @@ def test_export_ramdb(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         ["--library", CLI_PHOTOS_DB, ".", "-V", "--ramdb"],
@@ -8460,7 +8437,6 @@ def test_export_finder_tag_keywords_dry_run(isolated_fs):
 
     runner = CliRunner()
 
-
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
             export,
@@ -8484,7 +8460,6 @@ def test_export_finder_tag_keywords(isolated_fs):
     """test --finder-tag-keywords"""
 
     runner = CliRunner()
-
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8562,7 +8537,6 @@ def test_export_finder_tag_template(isolated_fs):
     """test --finder-tag-template"""
 
     runner = CliRunner()
-
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8644,7 +8618,6 @@ def test_export_finder_tag_template_multiple(isolated_fs):
 
     runner = CliRunner()
 
-
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
             export,
@@ -8679,7 +8652,6 @@ def test_export_finder_tag_template_keywords(isolated_fs):
 
     runner = CliRunner()
 
-
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
             export,
@@ -8712,7 +8684,6 @@ def test_export_finder_tag_template_multi_field(isolated_fs):
     """test --finder-tag-template with multiple fields (issue #422)"""
 
     runner = CliRunner()
-
 
     for uuid in CLI_FINDER_TAGS:
         result = runner.invoke(
@@ -8747,7 +8718,6 @@ def test_export_xattr_template_dry_run(isolated_fs):
     # Reference: https://github.com/RhetTbull/osxmetadata/issues/68
 
     runner = CliRunner()
-
 
     test_dir = os.getcwd()
     for uuid in CLI_FINDER_TAGS:
@@ -8784,7 +8754,6 @@ def test_export_xattr_template(isolated_fs):
     # Reference: https://github.com/RhetTbull/osxmetadata/issues/68
 
     runner = CliRunner()
-
 
     test_dir = os.getcwd()
     for uuid in CLI_FINDER_TAGS:
@@ -9010,7 +8979,6 @@ def test_export_jpeg_ext_convert_to_jpeg(isolated_fs):
 
     runner = CliRunner()
 
-
     for uuid, filename in UUID_HEIC.items():
         result = runner.invoke(
             export,
@@ -9039,7 +9007,6 @@ def test_export_jpeg_ext_convert_to_jpeg_movie(isolated_fs):
     """test --jpeg-ext with --convert-to-jpeg and a movie, shouldn't convert or change extensions, #366"""
 
     runner = CliRunner()
-
 
     for uuid, fileinfo in UUID_MOVIES_NOT_JPEGS_DICT.items():
         result = runner.invoke(
@@ -9159,7 +9126,6 @@ def test_export_download_missing_file_exists(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -9204,7 +9170,6 @@ def test_export_download_missing_preview(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -9233,7 +9198,6 @@ def test_export_download_missing_preview_applescript(isolated_fs):
     """test --download-missing --preview and applescript download, #564"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         export,
@@ -9369,7 +9333,6 @@ def test_export_name(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -9391,7 +9354,6 @@ def test_query_eval(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -9412,7 +9374,6 @@ def test_bad_query_eval(isolated_fs):
     """test export --query-eval with bad input"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         export,
@@ -9684,7 +9645,6 @@ def test_query_function(isolated_fs):
 
     runner = CliRunner()
 
-
     with open("query1.py", "w") as f:
         f.writelines(
             [
@@ -9714,7 +9674,6 @@ def test_query_function_url(isolated_fs):
     """test query --query-function from a URL"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         query,
@@ -9842,7 +9801,6 @@ def test_export_export_dir_template(isolated_fs):
 
     runner = CliRunner()
 
-
     isolated_cwd = os.getcwd()
     result = runner.invoke(
         cli_main,
@@ -9871,7 +9829,6 @@ def test_export_filepath_template(isolated_fs):
     """Test {filepath} template"""
 
     runner = CliRunner()
-
 
     isolated_cwd = os.getcwd()
     result = runner.invoke(
@@ -9903,7 +9860,6 @@ def test_export_post_command(isolated_fs):
     """Test --post-command"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         cli_main,
@@ -9953,7 +9909,6 @@ def test_export_post_command_bad_command(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         cli_main,
         [
@@ -9976,7 +9931,6 @@ def test_export_post_command_bad_command_continue(isolated_fs):
     """Test --post-command with bad command with --post-command-error=continue"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         cli_main,
@@ -10003,7 +9957,6 @@ def test_export_post_command_bad_command_break(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         cli_main,
         [
@@ -10029,7 +9982,6 @@ def test_export_post_command_bad_option_1(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         cli_main,
         [
@@ -10053,7 +10005,6 @@ def test_export_post_command_bad_option_2(isolated_fs):
     """Test --post-command with bad options"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         cli_main,
@@ -10079,7 +10030,6 @@ def test_export_post_function(isolated_fs):
     """Test --post-function"""
 
     runner = CliRunner()
-
 
     with open("foo1.py", "w") as f:
         f.writelines(
@@ -10110,7 +10060,6 @@ def test_export_post_function_exception(isolated_fs):
     """Test --post-function that generates an exception"""
 
     runner = CliRunner()
-
 
     with open("bar1.py", "w") as f:
         f.writelines(
@@ -10145,7 +10094,6 @@ def test_export_post_function_bad_value(isolated_fs):
 
     runner = CliRunner()
 
-
     with open("foo2.py", "w") as f:
         f.writelines(
             [
@@ -10178,7 +10126,6 @@ def test_export_post_function_results(isolated_fs):
     """Test --post-function with returned ExportResults, uses the post_function in examples/post_function.py"""
 
     runner = CliRunner()
-
 
     tempdir = os.getcwd()
     result = runner.invoke(
@@ -10229,7 +10176,6 @@ def test_export_directory_template_function(isolated_fs):
 
     runner = CliRunner()
 
-
     with open("foo3.py", "w") as f:
         f.writelines(["def foo(photo, **kwargs):\n", "    return 'foo/bar'"])
 
@@ -10256,7 +10202,6 @@ def test_export_query_function(isolated_fs):
     """Test --query-function"""
 
     runner = CliRunner()
-
 
     with open("query2.py", "w") as f:
         f.writelines(
@@ -10288,7 +10233,6 @@ def test_export_album_seq(isolated_fs):
     """Test {album_seq} template"""
 
     runner = CliRunner()
-
 
     for uuid in UUID_DICT_FOLDER_ALBUM_SEQ:
         result = runner.invoke(
@@ -10324,7 +10268,6 @@ def test_export_description_template(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         cli_main,
         [
@@ -10349,7 +10292,6 @@ def test_export_description_template_conditional(isolated_fs):
     """Test for issue #506"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         cli_main,
@@ -10378,7 +10320,6 @@ def test_export_min_size_1(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [".", "--db", PHOTOS_DB_15_7, "--min-size", "10MB"],
@@ -10391,7 +10332,6 @@ def test_export_validate_template_1(isolated_fs):
     """ "Test CLI validation of template arguments"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         export,
@@ -10411,7 +10351,6 @@ def test_export_validate_template_2(isolated_fs):
     """ "Test CLI validation of template arguments"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         export,
@@ -10442,7 +10381,6 @@ def test_export_added_after(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -10461,7 +10399,6 @@ def test_export_added_before(isolated_fs):
     """test export --added-before"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         export,
@@ -10485,7 +10422,6 @@ def test_export_added_in_last(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -10506,7 +10442,6 @@ def test_export_limit(isolated_fs):
     # Use --added-before so test doesn't break if photos added in the future
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         export,
@@ -10562,7 +10497,6 @@ def test_export_no_keyword(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         export,
         [
@@ -10582,7 +10516,6 @@ def test_export_print(isolated_fs):
     """test export --print"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         export,
@@ -10605,7 +10538,6 @@ def test_query_print_quiet(isolated_fs):
 
     runner = CliRunner()
 
-
     result = runner.invoke(
         query,
         [
@@ -10627,7 +10559,6 @@ def test_query_field(isolated_fs):
     """test query --field"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         query,
@@ -10653,7 +10584,6 @@ def test_query_field_json(isolated_fs):
     """test query --field --json"""
 
     runner = CliRunner()
-
 
     result = runner.invoke(
         query,
