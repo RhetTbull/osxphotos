@@ -614,9 +614,7 @@ def test_cli_push_exif_metadata_arg(monkeypatch, isolated_fs):
     assert photo.description == exif["XMP:Description"]
     assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:DateTimeOriginal"]
     assert photo.date.strftime("%Y:%m:%d %H:%M:%S") == exif["EXIF:CreateDate"]
-    assert sorted(photo.persons) == get_exiftool_tag_as_list(
-        photo, "XMP:PersonInImage"
-    )
+    assert sorted(photo.persons) == get_exiftool_tag_as_list(photo, "XMP:PersonInImage")
     assert "EXIF:GPSLatitude" not in exif
 
     photo = photosdb.get_photo(UUID_LOCATION)
