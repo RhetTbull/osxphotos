@@ -1,8 +1,6 @@
 """Test osxphotos dump command."""
 
 import json
-import os
-import os.path
 
 import pytest
 from click.testing import CliRunner
@@ -11,8 +9,6 @@ from osxphotos.cli import dump
 from osxphotos.photosdb import PhotosDB
 
 from .test_cli import CLI_PHOTOS_DB
-
-from .conftest import isolated_fs
 
 @pytest.fixture
 def photos():
