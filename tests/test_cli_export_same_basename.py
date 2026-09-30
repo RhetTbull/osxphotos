@@ -1,7 +1,6 @@
 """Test export of photos with same basename (see #2045, #2110)"""
 
 import json
-import os
 import pathlib
 from typing import Any
 
