@@ -1726,8 +1726,6 @@ def test_export(isolated_fs):
     """test basic export"""
     runner = CliRunner()
 
-    # pylint: disable=not-context-manager
-
     result = runner.invoke(export, [".", "--library", CLI_PHOTOS_DB, "-V"])
     assert result.exit_code == 0
     files = glob.glob("*")
@@ -1737,8 +1735,6 @@ def test_export(isolated_fs):
 def test_export_alt_copy(isolated_fs):
     """test basic export with --alt-copy"""
     runner = CliRunner()
-
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         export,
@@ -2437,7 +2433,6 @@ def test_export_exiftool_tmpdir(isolated_fs):
     runner = CliRunner()
 
     tmpdir = tempfile.TemporaryDirectory()
-    # pylint: disable=not-context-manager
 
     for uuid in CLI_EXIFTOOL:
         result = runner.invoke(
@@ -4088,7 +4083,6 @@ def test_export_sidecar_edited_file(isolated_fs):
     """test --sidecar with edited photos (#1346)"""
 
     runner = CliRunner()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         cli_main,
@@ -4117,7 +4111,6 @@ def test_export_sidecar_favorite_rating(isolated_fs):
     """test --sidecar --favorite-rating"""
 
     runner = CliRunner()
-    # pylint: disable=not-context-manager
 
     result = runner.invoke(
         cli_main,

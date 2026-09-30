@@ -10,7 +10,6 @@ import time
 import pytest
 from click.testing import CliRunner
 
-import osxphotos
 from osxphotos.platform import is_macos
 
 if is_macos:
@@ -39,22 +38,22 @@ TEST_FOLDER_NAME_LOCATION = "SyncTestFolderLocation"
 
 
 @pytest.mark.test_sync
-def test_sync_export():
+def test_sync_export(isolated_fs):
     """Test --export"""
-    with CliRunner().isolated_filesystem():
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--export",
-                "test.db",
-            ],
-        )
-        assert result.exit_code == 0
-        assert os.path.exists("test.db")
+
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--export",
+            "test.db",
+        ],
+    )
+    assert result.exit_code == 0
+    assert os.path.exists("test.db")
 
 
 @pytest.mark.test_sync
-def test_sync_export_import():
+def test_sync_export_import(isolated_fs):
     """Test --export and --import"""
 
     photoslib = photoscript.PhotosLibrary()
@@ -67,74 +66,74 @@ def test_sync_export_import():
         test_album.add([photo])
 
     # export data
-    with CliRunner().isolated_filesystem():
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--export",
-                "test.db",
-            ],
+
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--export",
+            "test.db",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # preserve metadata for comparison and clear metadata
+    metadata_before = {}
+    for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
+        photo = photoscript.Photo(uuid)
+        metadata_before[uuid] = {
+            "title": photo.title,
+            "description": photo.description,
+            "keywords": photo.keywords,
+            "favorites": photo.favorite,
+        }
+        photo.title = ""
+        photo.description = ""
+        photo.keywords = ["NewKeyword"]
+        photo.favorite = False
+
+    # delete the test album
+    photoslib.delete_album(test_album)
+
+    # import metadata
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--import",
+            "test.db",
+            "--set",
+            "title,description,favorite,albums",
+            "--merge",
+            "keywords",
+            "--report",
+            "test_report.json",
+        ],
+    )
+    assert result.exit_code == 0
+    assert os.path.exists("test_report.json")
+
+    # check metadata
+    for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
+        photo = photoscript.Photo(uuid)
+        assert photo.title == metadata_before[uuid]["title"]
+        assert photo.description == metadata_before[uuid]["description"]
+        assert sorted(photo.keywords) == sorted(
+            ["NewKeyword", *metadata_before[uuid]["keywords"]]
         )
-        assert result.exit_code == 0
+        assert photo.favorite == metadata_before[uuid]["favorites"]
+        assert TEST_ALBUM_NAME in [album.title for album in photo.albums]
 
-        # preserve metadata for comparison and clear metadata
-        metadata_before = {}
-        for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
-            photo = photoscript.Photo(uuid)
-            metadata_before[uuid] = {
-                "title": photo.title,
-                "description": photo.description,
-                "keywords": photo.keywords,
-                "favorites": photo.favorite,
-            }
-            photo.title = ""
-            photo.description = ""
-            photo.keywords = ["NewKeyword"]
-            photo.favorite = False
-
-        # delete the test album
-        photoslib.delete_album(test_album)
-
-        # import metadata
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--import",
-                "test.db",
-                "--set",
-                "title,description,favorite,albums",
-                "--merge",
-                "keywords",
-                "--report",
-                "test_report.json",
-            ],
-        )
-        assert result.exit_code == 0
-        assert os.path.exists("test_report.json")
-
-        # check metadata
-        for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
-            photo = photoscript.Photo(uuid)
-            assert photo.title == metadata_before[uuid]["title"]
-            assert photo.description == metadata_before[uuid]["description"]
-            assert sorted(photo.keywords) == sorted(
-                ["NewKeyword", *metadata_before[uuid]["keywords"]]
-            )
-            assert photo.favorite == metadata_before[uuid]["favorites"]
-            assert TEST_ALBUM_NAME in [album.title for album in photo.albums]
-
-        # check report
-        with open("test_report.json", "r") as f:
-            report = json.load(f)
-        report_data = {record["uuid"]: record for record in report}
-        for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
-            assert report_data[uuid]["updated"]
-            assert report_data[uuid]["albums"]["updated"]
-            assert not report_data[uuid]["error"]
+    # check report
+    with open("test_report.json", "r") as f:
+        report = json.load(f)
+    report_data = {record["uuid"]: record for record in report}
+    for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
+        assert report_data[uuid]["updated"]
+        assert report_data[uuid]["albums"]["updated"]
+        assert not report_data[uuid]["error"]
 
 
 @pytest.mark.test_sync
-def test_sync_export_import_csv():
+def test_sync_export_import_csv(isolated_fs):
     """Test --export and --import with CSV report"""
 
     photoslib = photoscript.PhotosLibrary()
@@ -148,65 +147,65 @@ def test_sync_export_import_csv():
         test_album.add([photo])
 
     # export data
-    with CliRunner().isolated_filesystem():
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--export",
-                "test.db",
-            ],
-        )
-        assert result.exit_code == 0
 
-        # preserve metadata for comparison and clear metadata
-        metadata_before = {}
-        for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
-            photo = photoscript.Photo(uuid)
-            metadata_before[uuid] = {
-                "title": photo.title,
-                "description": photo.description,
-                "keywords": photo.keywords,
-                "favorites": photo.favorite,
-            }
-            photo.title = ""
-            photo.description = ""
-            photo.keywords = ["NewKeyword"]
-            photo.favorite = False
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--export",
+            "test.db",
+        ],
+    )
+    assert result.exit_code == 0
 
-        # delete the test album
-        photoslib.delete_album(test_album)
+    # preserve metadata for comparison and clear metadata
+    metadata_before = {}
+    for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
+        photo = photoscript.Photo(uuid)
+        metadata_before[uuid] = {
+            "title": photo.title,
+            "description": photo.description,
+            "keywords": photo.keywords,
+            "favorites": photo.favorite,
+        }
+        photo.title = ""
+        photo.description = ""
+        photo.keywords = ["NewKeyword"]
+        photo.favorite = False
 
-        # import metadata
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--import",
-                "test.db",
-                "--set",
-                "title,description,favorite,albums",
-                "--merge",
-                "keywords",
-                "--report",
-                "test_report.csv",
-                "--append",
-            ],
-        )
-        assert result.exit_code == 0
-        assert os.path.exists("test_report.csv")
+    # delete the test album
+    photoslib.delete_album(test_album)
 
-        # check report
-        with open("test_report.csv", "r") as f:
-            report_data = csv.DictReader(f)
-            for row in report_data:
-                if row["uuid"] == UUID_TEST_PHOTO_1:
-                    assert (
-                        row["keywords_after"]
-                        == f"{sorted(['NewKeyword', *metadata_before[UUID_TEST_PHOTO_1]['keywords']])}"
-                    )
+    # import metadata
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--import",
+            "test.db",
+            "--set",
+            "title,description,favorite,albums",
+            "--merge",
+            "keywords",
+            "--report",
+            "test_report.csv",
+            "--append",
+        ],
+    )
+    assert result.exit_code == 0
+    assert os.path.exists("test_report.csv")
+
+    # check report
+    with open("test_report.csv", "r") as f:
+        report_data = csv.DictReader(f)
+        for row in report_data:
+            if row["uuid"] == UUID_TEST_PHOTO_1:
+                assert (
+                    row["keywords_after"]
+                    == f"{sorted(['NewKeyword', *metadata_before[UUID_TEST_PHOTO_1]['keywords']])}"
+                )
 
 
 @pytest.mark.test_sync
-def test_sync_export_import_location():
+def test_sync_export_import_location(isolated_fs):
     """Test --export and --import location"""
 
     photoslib = photoscript.PhotosLibrary()
@@ -222,88 +221,88 @@ def test_sync_export_import_location():
         test_album.add([photo])
 
     # export data
-    with CliRunner().isolated_filesystem():
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--export",
-                "test_location.db",
-            ],
+
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--export",
+            "test_location.db",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # verify data written correctly
+    conn = sqlite3.Connection("test_location.db")
+    result = conn.execute(
+        "SELECT value FROM data WHERE key == ?", (TEST_PHOTO_3_SIGNATURE,)
+    ).fetchone()
+    data = json.loads(result[0])
+    assert data["favorite"]
+
+    # preserve metadata for comparison and clear/set metadata
+    metadata_before = {}
+    for uuid in [UUID_TEST_PHOTO_3]:
+        photo = photoscript.Photo(uuid)
+        metadata_before[uuid] = {
+            "title": photo.title,
+            "description": photo.description,
+            "keywords": photo.keywords,
+            "favorites": photo.favorite,
+            "location": photo.location,
+        }
+        photo.title = ""
+        photo.description = ""
+        photo.keywords = ["NewKeyword"]
+        while photo.favorite:
+            photo.favorite = False
+            time.sleep(0.25)
+        photo.location = (24.681666439037876, 32.88630618597232)
+
+    # delete the test album
+    photoslib.delete_album(test_album)
+
+    # import metadata
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--import",
+            "test_location.db",
+            "--set",
+            "title,description,favorite,albums,location",
+            "--merge",
+            "keywords",
+            "--report",
+            "test_report_location.json",
+        ],
+    )
+    assert result.exit_code == 0
+    assert os.path.exists("test_report_location.json")
+
+    # check metadata
+    for uuid in [UUID_TEST_PHOTO_3]:
+        photo = photoscript.Photo(uuid)
+        assert photo.title == metadata_before[uuid]["title"]
+        assert photo.description == metadata_before[uuid]["description"]
+        assert sorted(photo.keywords) == sorted(
+            ["NewKeyword", *metadata_before[uuid]["keywords"]]
         )
-        assert result.exit_code == 0
+        assert photo.favorite == metadata_before[uuid]["favorites"]
+        assert photo.location == metadata_before[uuid]["location"]
+        assert TEST_ALBUM_NAME_LOCATION in [album.title for album in photo.albums]
 
-        # verify data written correctly
-        conn = sqlite3.Connection("test_location.db")
-        result = conn.execute(
-            "SELECT value FROM data WHERE key == ?", (TEST_PHOTO_3_SIGNATURE,)
-        ).fetchone()
-        data = json.loads(result[0])
-        assert data["favorite"]
-
-        # preserve metadata for comparison and clear/set metadata
-        metadata_before = {}
-        for uuid in [UUID_TEST_PHOTO_3]:
-            photo = photoscript.Photo(uuid)
-            metadata_before[uuid] = {
-                "title": photo.title,
-                "description": photo.description,
-                "keywords": photo.keywords,
-                "favorites": photo.favorite,
-                "location": photo.location,
-            }
-            photo.title = ""
-            photo.description = ""
-            photo.keywords = ["NewKeyword"]
-            while photo.favorite:
-                photo.favorite = False
-                time.sleep(0.25)
-            photo.location = (24.681666439037876, 32.88630618597232)
-
-        # delete the test album
-        photoslib.delete_album(test_album)
-
-        # import metadata
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--import",
-                "test_location.db",
-                "--set",
-                "title,description,favorite,albums,location",
-                "--merge",
-                "keywords",
-                "--report",
-                "test_report_location.json",
-            ],
-        )
-        assert result.exit_code == 0
-        assert os.path.exists("test_report_location.json")
-
-        # check metadata
-        for uuid in [UUID_TEST_PHOTO_3]:
-            photo = photoscript.Photo(uuid)
-            assert photo.title == metadata_before[uuid]["title"]
-            assert photo.description == metadata_before[uuid]["description"]
-            assert sorted(photo.keywords) == sorted(
-                ["NewKeyword", *metadata_before[uuid]["keywords"]]
-            )
-            assert photo.favorite == metadata_before[uuid]["favorites"]
-            assert photo.location == metadata_before[uuid]["location"]
-            assert TEST_ALBUM_NAME_LOCATION in [album.title for album in photo.albums]
-
-        # check report
-        with open("test_report_location.json", "r") as f:
-            report = json.load(f)
-        report_data = {record["uuid"]: record for record in report}
-        for uuid in [UUID_TEST_PHOTO_3]:
-            assert report_data[uuid]["updated"]
-            assert report_data[uuid]["albums"]["updated"]
-            assert report_data[uuid]["location"]["updated"]
-            assert not report_data[uuid]["error"]
+    # check report
+    with open("test_report_location.json", "r") as f:
+        report = json.load(f)
+    report_data = {record["uuid"]: record for record in report}
+    for uuid in [UUID_TEST_PHOTO_3]:
+        assert report_data[uuid]["updated"]
+        assert report_data[uuid]["albums"]["updated"]
+        assert report_data[uuid]["location"]["updated"]
+        assert not report_data[uuid]["error"]
 
 
 @pytest.mark.test_sync
-def test_sync_export_import_location_in_folder():
+def test_sync_export_import_location_in_folder(isolated_fs):
     """Test --export and --import location"""
 
     photoslib = photoscript.PhotosLibrary()
@@ -317,82 +316,82 @@ def test_sync_export_import_location_in_folder():
         test_album_folder.add([photo])
 
     # export data
-    with CliRunner().isolated_filesystem():
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--export",
-                "test_location_folder.db",
-            ],
+
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--export",
+            "test_location_folder.db",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # preserve metadata for comparison and clear/set metadata
+    metadata_before = {}
+    for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+        photo = photoscript.Photo(uuid)
+        metadata_before[uuid] = {
+            "title": photo.title,
+            "description": photo.description,
+            "keywords": photo.keywords,
+            "favorites": photo.favorite,
+            "location": photo.location,
+            "albums": sorted(a.path_str() for a in photo.albums),
+        }
+        photo.title = ""
+        photo.description = ""
+        photo.keywords = ["OnFolder_and_Album_Keyword"]
+        photo.favorite = False
+        photo.location = (24.681666439037876, 32.88630618597232)
+
+    # delete the test album and folder
+    photoslib.delete_album(test_album_folder)
+    photoslib.delete_folder(test_folder)
+
+    # import metadata
+    result = CliRunner().invoke(
+        sync,
+        [
+            "--import",
+            "test_location_folder.db",
+            "--set",
+            "title,description,favorite,albums,location",
+            "--merge",
+            "keywords",
+            "--report",
+            "test_report_location_folder.json",
+        ],
+    )
+    assert result.exit_code == 0
+    assert os.path.exists("test_report_location_folder.json")
+
+    # check metadata
+    for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+        photo = photoscript.Photo(uuid)
+        assert photo.title == metadata_before[uuid]["title"]
+        assert photo.description == metadata_before[uuid]["description"]
+        assert sorted(photo.keywords) == sorted(
+            ["OnFolder_and_Album_Keyword", *metadata_before[uuid]["keywords"]]
         )
-        assert result.exit_code == 0
-
-        # preserve metadata for comparison and clear/set metadata
-        metadata_before = {}
-        for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
-            photo = photoscript.Photo(uuid)
-            metadata_before[uuid] = {
-                "title": photo.title,
-                "description": photo.description,
-                "keywords": photo.keywords,
-                "favorites": photo.favorite,
-                "location": photo.location,
-                "albums": sorted(a.path_str() for a in photo.albums),
-            }
-            photo.title = ""
-            photo.description = ""
-            photo.keywords = ["OnFolder_and_Album_Keyword"]
-            photo.favorite = False
-            photo.location = (24.681666439037876, 32.88630618597232)
-
-        # delete the test album and folder
-        photoslib.delete_album(test_album_folder)
-        photoslib.delete_folder(test_folder)
-
-        # import metadata
-        result = CliRunner().invoke(
-            sync,
-            [
-                "--import",
-                "test_location_folder.db",
-                "--set",
-                "title,description,favorite,albums,location",
-                "--merge",
-                "keywords",
-                "--report",
-                "test_report_location_folder.json",
-            ],
+        assert photo.favorite == metadata_before[uuid]["favorites"]
+        assert photo.location == metadata_before[uuid]["location"]
+        assert TEST_ALBUM_NAME_LOCATION in [album.title for album in photo.albums]
+        assert f"{TEST_FOLDER_NAME_LOCATION}/{TEST_ALBUM_NAME_LOCATION}" in [
+            album.path_str() for album in photo.albums
+        ]
+        assert metadata_before[uuid]["albums"] == sorted(
+            a.path_str() for a in photo.albums
         )
-        assert result.exit_code == 0
-        assert os.path.exists("test_report_location_folder.json")
 
-        # check metadata
-        for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
-            photo = photoscript.Photo(uuid)
-            assert photo.title == metadata_before[uuid]["title"]
-            assert photo.description == metadata_before[uuid]["description"]
-            assert sorted(photo.keywords) == sorted(
-                ["OnFolder_and_Album_Keyword", *metadata_before[uuid]["keywords"]]
-            )
-            assert photo.favorite == metadata_before[uuid]["favorites"]
-            assert photo.location == metadata_before[uuid]["location"]
-            assert TEST_ALBUM_NAME_LOCATION in [album.title for album in photo.albums]
-            assert f"{TEST_FOLDER_NAME_LOCATION}/{TEST_ALBUM_NAME_LOCATION}" in [
-                album.path_str() for album in photo.albums
-            ]
-            assert metadata_before[uuid]["albums"] == sorted(
-                a.path_str() for a in photo.albums
-            )
-
-        # check report
-        with open("test_report_location_folder.json", "r") as f:
-            report = json.load(f)
-        report_data = {record["uuid"]: record for record in report}
-        for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
-            assert report_data[uuid]["updated"]
-            assert report_data[uuid]["albums"]["updated"]
-            assert report_data[uuid]["location"]["updated"]
-            assert not report_data[uuid]["error"]
+    # check report
+    with open("test_report_location_folder.json", "r") as f:
+        report = json.load(f)
+    report_data = {record["uuid"]: record for record in report}
+    for uuid in [UUID_TEST_PHOTO_4, UUID_TEST_PHOTO_5]:
+        assert report_data[uuid]["updated"]
+        assert report_data[uuid]["albums"]["updated"]
+        assert report_data[uuid]["location"]["updated"]
+        assert not report_data[uuid]["error"]
 
 
 ###############################################################################
@@ -458,6 +457,7 @@ def sync_test_env(monkeypatch):
     messages = []
 
     def fake_import_metadata_for_photo(photo, metadata, set_, merge, dry_run, verbose):
+        """Fake import_metadata_for_photo() to record calls and return SyncResults"""
         imported.append((photo, json.loads(metadata)))
         return SyncResults()
 
