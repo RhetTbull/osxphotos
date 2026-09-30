@@ -10,6 +10,7 @@ from osxphotos.photosdb import PhotosDB
 
 from .test_cli import CLI_PHOTOS_DB
 
+
 @pytest.fixture
 def photos():
     """Return photos from CLI_PHOTOS_DB"""
