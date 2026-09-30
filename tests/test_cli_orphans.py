@@ -1,7 +1,5 @@
 """Test `osxphotos orphan` CLI"""
 
-import os.path
-
 from click.testing import CliRunner
 
 from osxphotos.cli.orphans import orphans
