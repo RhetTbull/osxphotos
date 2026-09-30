@@ -15,7 +15,5 @@ def test_export(isolated_fs):
     """test basic export"""
     runner = CliRunner()
 
-    result = runner.invoke(
-        export, [".", "--library", TEST_LIBRARY, "-V"]
-    )
+    result = runner.invoke(export, [".", "--library", TEST_LIBRARY, "-V"])
     assert result.exit_code == 0

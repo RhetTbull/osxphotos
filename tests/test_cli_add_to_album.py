@@ -104,7 +104,7 @@ def test_export_add_to_album(addalbum_library, isolated_fs):
 
 @pytest.mark.addalbum
 def test_query_add_to_album(addalbum_library, isolated_fs):
-    """Test osxphotos query --add-to-album with query """
+    """Test osxphotos query --add-to-album with query"""
     from osxphotos.cli import query
 
     runner = CliRunner()
@@ -134,9 +134,7 @@ def test_query_add_to_album_multiple_results(addalbum_library, isolated_fs):
 
     QUERY_ALBUM = "OSXPhotos Query"
 
-    result = runner.invoke(
-        query, ["--add-to-album", QUERY_ALBUM, "--name", QUERY_NAME]
-    )
+    result = runner.invoke(query, ["--add-to-album", QUERY_ALBUM, "--name", QUERY_NAME])
     assert result.exit_code == 0
 
     photoslib = photoscript.PhotosLibrary()
