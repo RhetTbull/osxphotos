@@ -76,6 +76,7 @@ UUID_BURSTS = {
 
 @pytest.fixture(scope="module")
 def photosdb():
+    """PhotosDB fixture for local library. """
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB_LOCAL)
 
 
