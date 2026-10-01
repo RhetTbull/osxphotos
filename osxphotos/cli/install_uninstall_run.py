@@ -57,14 +57,6 @@ def validate_python_file(python_file: str) -> str | None:
 class RunCommand(click.Command):
     """Custom command that ignores unknown options so options can be passed to the run script"""
 
-    def make_parser(self, ctx):
-        """Creates the underlying option parser for this command."""
-        parser = click.OptionParser(ctx)
-        parser.ignore_unknown_options = True
-        for param in self.get_params(ctx):
-            param.add_to_parser(parser, ctx)
-        return parser
-
     def get_usage(self, ctx):
         """Returns the help for this command;
         normally it would just return the usage string
@@ -110,7 +102,11 @@ def uninstall(packages, yes):
     run_module("pip", run_name="__main__")
 
 
-@click.command(name="run", cls=RunCommand)
+@click.command(
+    name="run",
+    cls=RunCommand,
+    context_settings={"ignore_unknown_options": True},
+)
 @click.option("--help", "-h", is_flag=True, help="Show this message and exit.")
 @click.argument("python_file", nargs=1, type=PathOrURL(exists=True))
 @click.argument("args", metavar="ARGS", nargs=-1)

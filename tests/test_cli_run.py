@@ -126,7 +126,7 @@ def test_validate_python_file_invalid(
 
 def test_run_valid_script(valid_script: pathlib.Path, tmp_path: pathlib.Path):
     output = tmp_path / "output.txt"
-    result = run_cli(str(valid_script), str(output))
+    result = run_cli(str(valid_script), str(output), "--script-option")
     assert result.exit_code == 0, result.output
     assert output.read_text() == "ran"
 
