@@ -1298,6 +1298,37 @@ def test_filepath():
         rendered, _ = template.render("{filepath.foo}", options)
 
 
+def test_filepath_none():
+    """Test {filepath} resolves to empty (not a crash) when unknown, see #1541.
+
+    {filepath} is only known post-export; when used in a filename_template the
+    export path isn't known yet so filepath is None. It should resolve to an
+    empty value rather than raising TypeError.
+    """
+    from osxphotos.photoinfo import PhotoInfoNone
+    from osxphotos.phototemplate import PhotoTemplate
+
+    # filepath defaults to None
+    options = RenderOptions()
+    template = PhotoTemplate(PhotoInfoNone())
+
+    rendered, _ = template.render("{filepath}", options)
+    assert rendered == [""]
+
+    rendered, _ = template.render("{filepath.suffix}", options)
+    assert rendered == [""]
+
+    rendered, _ = template.render("{filepath.stem}", options)
+    assert rendered == [""]
+
+    # Realistic usage from the issue: conditional on filepath.suffix in a
+    # filename template must not crash when filepath is unknown.
+    rendered, _ = template.render(
+        "{filepath.suffix contains aae?matched,}{original_name}", options
+    )
+    assert rendered  # renders without raising
+
+
 def test_id(photosdb):
     """Test {id} template"""
     photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
